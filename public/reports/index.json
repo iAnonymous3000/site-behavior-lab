@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-21T14:58:24.941Z",
+  "generatedAt": "2026-06-21T15:17:54.734Z",
   "reports": [
     {
       "id": "20260621-1c47073f0953ab6ed1aa5b93a561ae45",
@@ -41,27 +41,6 @@
         "thirdPartyCookies": 14,
         "fingerprintEvents": 8,
         "shieldsBlockedRequests": 54
-      }
-    },
-    {
-      "id": "20260621-4ffc0f0b3225dddb427697722c546229",
-      "title": "Shields off/on comparison",
-      "domain": "www.nih.gov",
-      "requestedUrl": "https://www.nih.gov/",
-      "scannedAt": "2026-06-21T14:57:50.883Z",
-      "reportType": "comparison",
-      "comparisonType": "shields",
-      "device": "desktop",
-      "gpcEnabled": "comparison",
-      "metrics": {
-        "totalRequests": 9,
-        "thirdPartyRequests": 1,
-        "knownTrackerRequests": 0,
-        "thirdPartyDomains": 1,
-        "cookies": 2,
-        "thirdPartyCookies": 0,
-        "fingerprintEvents": 0,
-        "shieldsBlockedRequests": 2
       }
     },
     {
@@ -254,27 +233,6 @@
       }
     },
     {
-      "id": "20260621-ed0f6da6d3c8f1151adc2c2209f2caef",
-      "title": "Shields off/on comparison",
-      "domain": "www.reddit.com",
-      "requestedUrl": "https://www.reddit.com/",
-      "scannedAt": "2026-06-21T14:56:31.642Z",
-      "reportType": "comparison",
-      "comparisonType": "shields",
-      "device": "desktop",
-      "gpcEnabled": "comparison",
-      "metrics": {
-        "totalRequests": 1,
-        "thirdPartyRequests": 0,
-        "knownTrackerRequests": 0,
-        "thirdPartyDomains": 0,
-        "cookies": 1,
-        "thirdPartyCookies": 0,
-        "fingerprintEvents": 0,
-        "shieldsBlockedRequests": 0
-      }
-    },
-    {
       "id": "20260621-9421b8625d2783d1138bd80d0bed75e4",
       "title": "Shields off/on comparison",
       "domain": "duckduckgo.com",
@@ -398,27 +356,6 @@
         "thirdPartyCookies": 3,
         "fingerprintEvents": 0,
         "shieldsBlockedRequests": 57
-      }
-    },
-    {
-      "id": "20260621-d85df980f2f23a7ffbeabf529deb5adb",
-      "title": "Shields off/on comparison",
-      "domain": "www.macys.com",
-      "requestedUrl": "https://www.macys.com/",
-      "scannedAt": "2026-06-21T14:55:43.707Z",
-      "reportType": "comparison",
-      "comparisonType": "shields",
-      "device": "desktop",
-      "gpcEnabled": "comparison",
-      "metrics": {
-        "totalRequests": 145,
-        "thirdPartyRequests": 141,
-        "knownTrackerRequests": 54,
-        "thirdPartyDomains": 55,
-        "cookies": 32,
-        "thirdPartyCookies": 12,
-        "fingerprintEvents": 0,
-        "shieldsBlockedRequests": 103
       }
     },
     {
@@ -758,27 +695,6 @@
       }
     },
     {
-      "id": "20260621-c80f077835ca260327dedb60531354a5",
-      "title": "Shields off/on comparison",
-      "domain": "www.cnn.com",
-      "requestedUrl": "https://www.cnn.com/",
-      "scannedAt": "2026-06-21T14:50:59.144Z",
-      "reportType": "comparison",
-      "comparisonType": "shields",
-      "device": "desktop",
-      "gpcEnabled": "comparison",
-      "metrics": {
-        "totalRequests": 1,
-        "thirdPartyRequests": 0,
-        "knownTrackerRequests": 0,
-        "thirdPartyDomains": 0,
-        "cookies": 4,
-        "thirdPartyCookies": 0,
-        "fingerprintEvents": 0,
-        "shieldsBlockedRequests": 0
-      }
-    },
-    {
       "id": "20260621-4f38ddfd0c39a8e4f3f53a6166773112",
       "title": "Shields off/on comparison",
       "domain": "www.starfall.com",
@@ -989,27 +905,6 @@
       }
     },
     {
-      "id": "20260621-89e8c72a87dbaa9cbc8e092ea367cf69",
-      "title": "Shields off/on comparison",
-      "domain": "www.okcupid.com",
-      "requestedUrl": "https://www.okcupid.com/",
-      "scannedAt": "2026-06-21T14:49:45.267Z",
-      "reportType": "comparison",
-      "comparisonType": "shields",
-      "device": "desktop",
-      "gpcEnabled": "comparison",
-      "metrics": {
-        "totalRequests": 7,
-        "thirdPartyRequests": 0,
-        "knownTrackerRequests": 0,
-        "thirdPartyDomains": 0,
-        "cookies": 1,
-        "thirdPartyCookies": 0,
-        "fingerprintEvents": 0,
-        "shieldsBlockedRequests": 0
-      }
-    },
-    {
       "id": "20260621-03c9ae7699efbd0e7ec7890ab26208dc",
       "title": "Shields off/on comparison",
       "domain": "hinge.co",
@@ -1049,27 +944,6 @@
         "thirdPartyCookies": 10,
         "fingerprintEvents": 0,
         "shieldsBlockedRequests": 40
-      }
-    },
-    {
-      "id": "20260621-9dbf0f6b3a2f66f114a04e88bd4b7629",
-      "title": "Shields off/on comparison",
-      "domain": "www.match.com",
-      "requestedUrl": "https://www.match.com/",
-      "scannedAt": "2026-06-21T14:49:28.747Z",
-      "reportType": "comparison",
-      "comparisonType": "shields",
-      "device": "desktop",
-      "gpcEnabled": "comparison",
-      "metrics": {
-        "totalRequests": 4,
-        "thirdPartyRequests": 0,
-        "knownTrackerRequests": 0,
-        "thirdPartyDomains": 0,
-        "cookies": 1,
-        "thirdPartyCookies": 0,
-        "fingerprintEvents": 0,
-        "shieldsBlockedRequests": 0
       }
     },
     {
@@ -1178,27 +1052,6 @@
       }
     },
     {
-      "id": "20260621-48c3323ec5211cd358f940f77806aeb4",
-      "title": "Shields off/on comparison",
-      "domain": "www.drugs.com",
-      "requestedUrl": "https://www.drugs.com/",
-      "scannedAt": "2026-06-21T14:48:47.065Z",
-      "reportType": "comparison",
-      "comparisonType": "shields",
-      "device": "desktop",
-      "gpcEnabled": "comparison",
-      "metrics": {
-        "totalRequests": 1,
-        "thirdPartyRequests": 0,
-        "knownTrackerRequests": 0,
-        "thirdPartyDomains": 0,
-        "cookies": 0,
-        "thirdPartyCookies": 0,
-        "fingerprintEvents": 0,
-        "shieldsBlockedRequests": 0
-      }
-    },
-    {
       "id": "20260621-472a8ea91518386ca3dcae760ea60e9a",
       "title": "Shields off/on comparison",
       "domain": "www.walgreens.com",
@@ -1238,27 +1091,6 @@
         "thirdPartyCookies": 7,
         "fingerprintEvents": 14,
         "shieldsBlockedRequests": 41
-      }
-    },
-    {
-      "id": "20260621-2478f7a67a3e032ac7e623c17b6fb315",
-      "title": "Shields off/on comparison",
-      "domain": "www.mayoclinic.org",
-      "requestedUrl": "https://www.mayoclinic.org/",
-      "scannedAt": "2026-06-21T14:48:08.354Z",
-      "reportType": "comparison",
-      "comparisonType": "shields",
-      "device": "desktop",
-      "gpcEnabled": "comparison",
-      "metrics": {
-        "totalRequests": 5,
-        "thirdPartyRequests": 0,
-        "knownTrackerRequests": 0,
-        "thirdPartyDomains": 0,
-        "cookies": 2,
-        "thirdPartyCookies": 0,
-        "fingerprintEvents": 0,
-        "shieldsBlockedRequests": 0
       }
     },
     {
@@ -1385,27 +1217,6 @@
         "thirdPartyCookies": 4,
         "fingerprintEvents": 36,
         "shieldsBlockedRequests": 52
-      }
-    },
-    {
-      "id": "20260621-49f38b966d6ab8e1d26ba3c4518cb52e",
-      "title": "Shields off/on comparison",
-      "domain": "www.coinbase.com",
-      "requestedUrl": "https://www.coinbase.com/",
-      "scannedAt": "2026-06-21T14:46:59.001Z",
-      "reportType": "comparison",
-      "comparisonType": "shields",
-      "device": "desktop",
-      "gpcEnabled": "comparison",
-      "metrics": {
-        "totalRequests": 11,
-        "thirdPartyRequests": 7,
-        "knownTrackerRequests": 0,
-        "thirdPartyDomains": 1,
-        "cookies": 1,
-        "thirdPartyCookies": 0,
-        "fingerprintEvents": 22,
-        "shieldsBlockedRequests": 0
       }
     },
     {
