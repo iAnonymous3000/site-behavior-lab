@@ -1,12 +1,20 @@
 import { adblockEngineStatus, type AdblockEngineStatus } from "./adblock-engine";
 import { scanAccessTokenConfigured } from "./access-control";
 import { reportStoreStatus } from "./report-store";
+import type { ReportStoreKind } from "./report-store-backend";
 import { producerCapability } from "./report-producers";
 import { asScanRuntimeHealth, type ScanRuntimeCapabilities } from "./scan-runtime-health";
 
 const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
 
-type PublicReportStoreStatus = Omit<ReturnType<typeof reportStoreStatus>, "path">;
+// Backend-agnostic public projection: never exposes a filesystem path or an R2
+// bucket/endpoint to /api/health, only the backend kind and shared policy.
+type PublicReportStoreStatus = {
+  kind: ReportStoreKind;
+  configuredPath: boolean;
+  maxAgeDays: number;
+  maxCount: number;
+};
 type RuntimeStatusAdblockCheck = AdblockEngineStatus;
 
 export type RuntimeStatus = {

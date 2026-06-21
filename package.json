@@ -27,6 +27,7 @@
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "aws4fetch": "^1.0.20",
     "lucide-react": "^0.468.0",
     "next": "^15.0.4",
     "playwright": "1.61.0",

@@ -34,7 +34,7 @@ on opposite sides of these blockers.
 | Shields "tried vs blocked" diff | yes (vendored Brave adblock-wasm) | no |
 | Async job queue | yes (in-process) | no |
 | Tracker/service catalog | full curated catalog | none |
-| Report store | filesystem (single node) | KV today; R2 code path exists, unprovisioned |
+| Report store | filesystem **or Cloudflare R2** (durable, redeploy-safe) | KV today; R2 code path exists, unprovisioned |
 
 The decisive asymmetry: **the Node path already solves blocker #1, the Worker path
 structurally cannot today.** The Worker's preflight-then-reconnect pattern is a
@@ -105,10 +105,13 @@ Once Option B is chosen, the roadmap re-collapses:
    front it with Cloudflare (WAF + Turnstile at the edge), and keep host/VPC egress
    firewall rules as the SSRF backstop. Step-by-step runbook:
    [deploy-node-container.md](deploy-node-container.md).
-2. **Durable report store (P2, reduced).** Enable R2 in the Cloudflare account, point
-   the static UI/report reads at it, and keep filesystem only as local-dev. Atomic
-   per-client quotas come from the edge (WAF rate rules) plus the existing in-process
-   Node limits; the Durable Object counter is deferred unless Option A is chosen.
+2. **Durable report store (P2, reduced).** The Node container now ships an R2
+   report-store backend ([lib/report-store-r2.ts](../lib/report-store-r2.ts), enabled
+   with `SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND=r2`), so this is **provisioning, not
+   code**: create the bucket + scoped API token and set the R2 env. Keep filesystem
+   for local-dev. Atomic per-client quotas come from the edge (WAF rate rules) plus
+   the existing in-process Node limits; the Durable Object counter is deferred unless
+   Option A is chosen.
 3. **Corpus activation (P3).** Independent of topology — expand
    [public/featured-sites.json](../public/featured-sites.json) (done: 58 sites) and
    run the featured-scan workflow until `public/reports/` clears

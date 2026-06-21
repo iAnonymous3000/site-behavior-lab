@@ -16,7 +16,7 @@ visitor ─▶ Cloudflare (WAF + rate rules + Turnstile + cache)
           per-scan connect-time SSRF proxy  ──▶  public internet only
                  │
                  ▼
-        persistent volume  (filesystem report store)
+        durable report store  (persistent volume, or Cloudflare R2)
 ```
 
 **Chosen path — B1, single origin.** The container serves *everything* from one
@@ -26,6 +26,12 @@ no separate site and **no cross-origin (CORS) surface to configure**. Steps 1–
 6 are the B1 launch path. **Optional (B2):** add a separate static Cloudflare Pages site
 as a cached marketing/gallery door whose scan form posts here via
 `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE` — that variant is step 5.
+
+**Recommended launch sequence.** Stand the container up **private/operator-only**
+first (token-gated, no public inbound), publish an operator-run **report corpus**
+(see [deployment-topology.md](deployment-topology.md) P3) so the site is useful with
+zero open-internet abuse surface, and only then decide whether to open
+`POST /api/scan` to the public behind Turnstile + the egress backstop below.
 
 ## 1. Build and run the container
 
@@ -50,9 +56,11 @@ Start from [.env.example](../.env.example). For a public-but-safe deployment:
 | Variable | Set to | Why |
 |---|---|---|
 | `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | a strong secret **or** leave unset | Unset = open scanner; rely on edge Turnstile + WAF (step 3). Set = gated. |
-| `SITE_BEHAVIOR_LAB_REPORT_STORE_DIR` | `/var/lib/site-behavior-lab/reports` | Must be a **persistent volume** or shared reports vanish on restart. |
+| `SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND` | `filesystem` or `r2` | `filesystem` needs a persistent volume (below). `r2` stores reports in Cloudflare R2 so share links survive **redeploys and host replacement** — the durable, multi-node-ready option. |
+| `SITE_BEHAVIOR_LAB_REPORT_STORE_DIR` | `/var/lib/site-behavior-lab/reports` | Filesystem backend only. Must be a **persistent volume** or shared reports vanish on restart. |
+| `SITE_BEHAVIOR_LAB_R2_*` | bucket, endpoint, key id, secret, prefix | Required when `REPORT_STORE_BACKEND=r2`. Use an R2 API token scoped to the bucket (Object Read & Write). See [.env.example](../.env.example). |
 | `SITE_BEHAVIOR_LAB_SCANNER_EGRESS` | a region/network label | Shown in report methodology and JSON export. |
-| `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | `1` | **Only** because Cloudflare fronts the origin and direct origin access is blocked (step 5). Without a trusted proxy this lets clients spoof their rate-limit identity. |
+| `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | `1` | **Only** once Cloudflare fronts the origin and you block direct origin access (step 3). Without a trusted proxy this lets clients spoof their rate-limit identity. |
 | `SITE_BEHAVIOR_LAB_ASYNC_SCANS` | `0` (or `1`) | `1` returns `202 + jobId` so long scans do not hold the HTTP connection. Still single-process/in-memory—fine for one node. |
 
 `/api/health` reports `degraded` until the token, store dir, and egress label are
@@ -61,13 +69,20 @@ all set; drive it from your load balancer and alert on `degraded`.
 ## 3. Put Cloudflare in front
 
 1. Proxy the origin hostname through Cloudflare (orange-cloud DNS), TLS at the edge.
-2. Add **WAF rate-limiting rules** on `POST /api/scan` — this is the atomic abuse
+2. **Block direct origin access.** Orange-clouding alone does not hide the origin IP
+   (cert logs, historical DNS, and scanners expose it), and an exposed origin lets
+   clients bypass your WAF and spoof `x-forwarded-for`. Put the container behind a
+   **Cloudflare Tunnel** (`cloudflared`) so it has **no public inbound**, or restrict
+   the host firewall to Cloudflare's IP ranges. Do this **before** setting
+   `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1`.
+3. Add **WAF rate-limiting rules** on `POST /api/scan` — this is the atomic abuse
    control the topology decision relies on (it replaces the Worker's best-effort
    KV counters). A GPC/Shields comparison is two visits, so budget accordingly.
-3. Optional: enable **Turnstile** at the edge (or keep the in-app token). For an
+4. Optional: enable **Turnstile** at the edge (or keep the in-app token). For an
    open scanner, Turnstile is the human-verification wall that makes "open" safe
-   to expose.
-4. Cache the static gallery aggressively; never cache `POST /api/scan` responses.
+   to expose. Note Turnstile only gates the browser UI path; a programmatic
+   `POST /api/scan` needs the access token or a per-key quota instead.
+5. Cache the static gallery aggressively; never cache `POST /api/scan` responses.
 
 ## 4. Lock down egress (defense in depth)
 
@@ -76,6 +91,10 @@ only line of defense. Enforce host/container/VPC egress firewall rules so Chromi
 cannot reach localhost, RFC-1918, link-local, or cloud-metadata
 (`169.254.169.254`) even if an application bug slips the in-app guard. This is the
 required backstop for any public scanner.
+
+On a cloud host, also harden the instance metadata service directly: require
+**IMDSv2** (token + hop limit 1) or disable IMDS for the container, so a slipped
+guard cannot reach `169.254.169.254` even if an egress rule is misconfigured.
 
 ## 5. Optional: separate static Pages front door (two-origin / B2)
 
