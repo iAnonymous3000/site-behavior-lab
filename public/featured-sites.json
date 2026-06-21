@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "_note": "Single source of truth for the curated 'Start here' gallery. The static UI fetches this to group pre-scanned reports by category; scripts/run-featured-scans.mjs reads it to batch-scan the listed public homepages. The gallery only shows sites that already have a committed report and is capped per category, so this list also doubles as the corpus seed: scanning all entries pushes public/reports past CORPUS_MIN_SAMPLE (50) so corpus-relative percentiles activate. Edit here, then re-run the featured scan workflow to populate reports.",
+  "_note": "Single source of truth for the curated 'Start here' gallery. The static UI fetches this to group pre-scanned reports by category; scripts/run-featured-scans.mjs reads it to batch-scan the listed public homepages. The gallery only shows sites that already have a committed report and is capped per category, so this list also doubles as the corpus seed: scanning all entries pushes public/reports past CORPUS_MIN_SAMPLE (50) so corpus-relative percentiles activate. The list is kept comfortably above 50 so per-site scan failures (bot challenges, timeouts) do not drop the corpus below the threshold. Edit here, then re-run the featured scan workflow to populate reports.",
   "categories": [
     { "id": "money", "label": "Banking & money" },
     { "id": "health", "label": "Health" },
@@ -20,6 +20,10 @@
     { "domain": "capitalone.com", "label": "Capital One", "category": "money", "url": "https://www.capitalone.com/" },
     { "domain": "americanexpress.com", "label": "American Express", "category": "money", "url": "https://www.americanexpress.com/" },
     { "domain": "coinbase.com", "label": "Coinbase", "category": "money", "url": "https://www.coinbase.com/" },
+    { "domain": "discover.com", "label": "Discover", "category": "money", "url": "https://www.discover.com/" },
+    { "domain": "citi.com", "label": "Citi", "category": "money", "url": "https://www.citi.com/" },
+    { "domain": "fidelity.com", "label": "Fidelity", "category": "money", "url": "https://www.fidelity.com/" },
+    { "domain": "robinhood.com", "label": "Robinhood", "category": "money", "url": "https://robinhood.com/" },
 
     { "domain": "webmd.com", "label": "WebMD", "category": "health", "url": "https://www.webmd.com/" },
     { "domain": "goodrx.com", "label": "GoodRx", "category": "health", "url": "https://www.goodrx.com/" },
@@ -29,6 +33,9 @@
     { "domain": "walgreens.com", "label": "Walgreens", "category": "health", "url": "https://www.walgreens.com/" },
     { "domain": "drugs.com", "label": "Drugs.com", "category": "health", "url": "https://www.drugs.com/" },
     { "domain": "everydayhealth.com", "label": "Everyday Health", "category": "health", "url": "https://www.everydayhealth.com/" },
+    { "domain": "clevelandclinic.org", "label": "Cleveland Clinic", "category": "health", "url": "https://www.clevelandclinic.org/" },
+    { "domain": "zocdoc.com", "label": "Zocdoc", "category": "health", "url": "https://www.zocdoc.com/" },
+    { "domain": "psychologytoday.com", "label": "Psychology Today", "category": "health", "url": "https://www.psychologytoday.com/" },
 
     { "domain": "tinder.com", "label": "Tinder", "category": "dating", "url": "https://tinder.com/" },
     { "domain": "match.com", "label": "Match", "category": "dating", "url": "https://www.match.com/" },
@@ -36,6 +43,8 @@
     { "domain": "hinge.co", "label": "Hinge", "category": "dating", "url": "https://hinge.co/" },
     { "domain": "okcupid.com", "label": "OkCupid", "category": "dating", "url": "https://www.okcupid.com/" },
     { "domain": "pof.com", "label": "Plenty of Fish", "category": "dating", "url": "https://www.pof.com/" },
+    { "domain": "eharmony.com", "label": "eHarmony", "category": "dating", "url": "https://www.eharmony.com/" },
+    { "domain": "grindr.com", "label": "Grindr", "category": "dating", "url": "https://www.grindr.com/" },
 
     { "domain": "roblox.com", "label": "Roblox", "category": "kids", "url": "https://www.roblox.com/" },
     { "domain": "duolingo.com", "label": "Duolingo", "category": "kids", "url": "https://www.duolingo.com/" },
@@ -43,6 +52,9 @@
     { "domain": "khanacademy.org", "label": "Khan Academy", "category": "kids", "url": "https://www.khanacademy.org/" },
     { "domain": "nick.com", "label": "Nickelodeon", "category": "kids", "url": "https://www.nick.com/" },
     { "domain": "scholastic.com", "label": "Scholastic", "category": "kids", "url": "https://www.scholastic.com/" },
+    { "domain": "coolmathgames.com", "label": "Cool Math Games", "category": "kids", "url": "https://www.coolmathgames.com/" },
+    { "domain": "abcya.com", "label": "ABCya", "category": "kids", "url": "https://www.abcya.com/" },
+    { "domain": "starfall.com", "label": "Starfall", "category": "kids", "url": "https://www.starfall.com/" },
 
     { "domain": "cnn.com", "label": "CNN", "category": "news", "url": "https://www.cnn.com/" },
     { "domain": "foxnews.com", "label": "Fox News", "category": "news", "url": "https://www.foxnews.com/" },
@@ -52,6 +64,9 @@
     { "domain": "bbc.com", "label": "BBC", "category": "news", "url": "https://www.bbc.com/" },
     { "domain": "reuters.com", "label": "Reuters", "category": "news", "url": "https://www.reuters.com/" },
     { "domain": "npr.org", "label": "NPR", "category": "news", "url": "https://www.npr.org/" },
+    { "domain": "theguardian.com", "label": "The Guardian", "category": "news", "url": "https://www.theguardian.com/" },
+    { "domain": "usatoday.com", "label": "USA Today", "category": "news", "url": "https://www.usatoday.com/" },
+    { "domain": "apnews.com", "label": "AP News", "category": "news", "url": "https://apnews.com/" },
 
     { "domain": "amazon.com", "label": "Amazon", "category": "shopping", "url": "https://www.amazon.com/" },
     { "domain": "walmart.com", "label": "Walmart", "category": "shopping", "url": "https://www.walmart.com/" },
@@ -61,6 +76,9 @@
     { "domain": "bestbuy.com", "label": "Best Buy", "category": "shopping", "url": "https://www.bestbuy.com/" },
     { "domain": "homedepot.com", "label": "The Home Depot", "category": "shopping", "url": "https://www.homedepot.com/" },
     { "domain": "wayfair.com", "label": "Wayfair", "category": "shopping", "url": "https://www.wayfair.com/" },
+    { "domain": "costco.com", "label": "Costco", "category": "shopping", "url": "https://www.costco.com/" },
+    { "domain": "macys.com", "label": "Macy's", "category": "shopping", "url": "https://www.macys.com/" },
+    { "domain": "nike.com", "label": "Nike", "category": "shopping", "url": "https://www.nike.com/" },
 
     { "domain": "google.com", "label": "Google", "category": "search", "url": "https://www.google.com/" },
     { "domain": "youtube.com", "label": "YouTube", "category": "search", "url": "https://www.youtube.com/" },
@@ -70,12 +88,17 @@
     { "domain": "reddit.com", "label": "Reddit", "category": "search", "url": "https://www.reddit.com/" },
     { "domain": "linkedin.com", "label": "LinkedIn", "category": "search", "url": "https://www.linkedin.com/" },
     { "domain": "facebook.com", "label": "Facebook", "category": "search", "url": "https://www.facebook.com/" },
+    { "domain": "pinterest.com", "label": "Pinterest", "category": "search", "url": "https://www.pinterest.com/" },
+    { "domain": "twitch.tv", "label": "Twitch", "category": "search", "url": "https://www.twitch.tv/" },
 
     { "domain": "irs.gov", "label": "IRS", "category": "gov", "url": "https://www.irs.gov/" },
     { "domain": "usa.gov", "label": "USA.gov", "category": "gov", "url": "https://www.usa.gov/" },
     { "domain": "ssa.gov", "label": "Social Security", "category": "gov", "url": "https://www.ssa.gov/" },
     { "domain": "weather.gov", "label": "National Weather Service", "category": "gov", "url": "https://www.weather.gov/" },
     { "domain": "cdc.gov", "label": "CDC", "category": "gov", "url": "https://www.cdc.gov/" },
-    { "domain": "nih.gov", "label": "NIH", "category": "gov", "url": "https://www.nih.gov/" }
+    { "domain": "nih.gov", "label": "NIH", "category": "gov", "url": "https://www.nih.gov/" },
+    { "domain": "medicare.gov", "label": "Medicare", "category": "gov", "url": "https://www.medicare.gov/" },
+    { "domain": "studentaid.gov", "label": "Federal Student Aid", "category": "gov", "url": "https://studentaid.gov/" },
+    { "domain": "nasa.gov", "label": "NASA", "category": "gov", "url": "https://www.nasa.gov/" }
   ]
 }
