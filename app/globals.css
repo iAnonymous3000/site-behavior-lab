@@ -2015,6 +2015,14 @@ a {
   white-space: nowrap;
 }
 
+.rollup-note {
+  color: var(--text-subtle);
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 16px 0 0;
+  max-width: 78ch;
+}
+
 /* ---- Metric grid ---- */
 .metric-grid {
   display: grid;

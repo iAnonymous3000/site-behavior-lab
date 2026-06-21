@@ -120,10 +120,10 @@ export default async function DirectoryPage() {
                   </span>
                   <strong>{rollup.medianTrackers.toLocaleString()}</strong>
                 </div>
-                <span className="rollup-bar-label">median trackers per site</span>
+                <span className="rollup-bar-label">median catalogued tracker requests per site</span>
                 <dl className="rollup-stats">
                   <div>
-                    <dt>Third-party</dt>
+                    <dt>Third-party reqs</dt>
                     <dd>{rollup.medianThirdParty.toLocaleString()}</dd>
                   </div>
                   <div>
@@ -132,7 +132,7 @@ export default async function DirectoryPage() {
                   </div>
                   {rollup.medianShieldsBlocked !== null && (
                     <div>
-                      <dt>Brave blocks</dt>
+                      <dt>Brave would block</dt>
                       <dd>{rollup.medianShieldsBlocked.toLocaleString()}</dd>
                     </div>
                   )}
@@ -142,7 +142,7 @@ export default async function DirectoryPage() {
           </div>
           {heaviest.length > 0 && (
             <div className="rollup-leaderboard">
-              <h3>Heaviest sites by trackers</h3>
+              <h3>Heaviest sites by tracker requests</h3>
               <ol>
                 {heaviest.map((site) => (
                   <li key={site.id}>
@@ -153,6 +153,12 @@ export default async function DirectoryPage() {
               </ol>
             </div>
           )}
+          <p className="rollup-note">
+            Medians from one controlled visit per site, using the curated service catalog (a lower bound). A 0 means no{" "}
+            <em>catalogued third-party</em> trackers were seen — large platforms like Google, YouTube, and X serve much of
+            their own tracking first-party, which is not counted as third-party here. &ldquo;Brave would block&rdquo; is the
+            median third-party requests Brave&rsquo;s default Shields would remove, from a block simulation.
+          </p>
         </section>
       )}
 
