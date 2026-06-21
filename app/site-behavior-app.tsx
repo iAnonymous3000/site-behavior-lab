@@ -1250,11 +1250,18 @@ function EmptyState({
   );
 }
 
-function PageGraphUploadButton({
-  onUploadReport,
+// Shared file-picker button. Resets the input after each pick so re-selecting
+// the same file fires onChange again; an optional onError surfaces a rejected
+// selection (callers that handle their own errors omit it).
+function FileUploadButton({
+  accept,
+  onSelect,
+  onError,
   children
 }: {
-  onUploadReport: (file: File | null) => Promise<void>;
+  accept: string;
+  onSelect: (file: File | null) => Promise<void>;
+  onError?: (message: string) => void;
   children: ReactNode;
 }) {
   return (
@@ -1263,16 +1270,35 @@ function PageGraphUploadButton({
       {children}
       <input
         type="file"
-        accept=".graphml,.xml,application/xml,text/xml"
+        accept={accept}
         onChange={(event) => {
           const input = event.currentTarget;
           const file = input.files?.[0] ?? null;
-          void onUploadReport(file).finally(() => {
+          const handled = onError
+            ? onSelect(file).catch((error) =>
+                onError(error instanceof Error ? error.message : "Report JSON could not be opened.")
+              )
+            : onSelect(file);
+          void handled.finally(() => {
             input.value = "";
           });
         }}
       />
     </label>
+  );
+}
+
+function PageGraphUploadButton({
+  onUploadReport,
+  children
+}: {
+  onUploadReport: (file: File | null) => Promise<void>;
+  children: ReactNode;
+}) {
+  return (
+    <FileUploadButton accept=".graphml,.xml,application/xml,text/xml" onSelect={onUploadReport}>
+      {children}
+    </FileUploadButton>
   );
 }
 
@@ -1284,21 +1310,9 @@ function ReportUploadButton({
   children: ReactNode;
 }) {
   return (
-    <label className="secondary-button file-button">
-      <Upload size={17} aria-hidden="true" />
+    <FileUploadButton accept="application/json,.json" onSelect={onUploadReport}>
       {children}
-      <input
-        type="file"
-        accept="application/json,.json"
-        onChange={(event) => {
-          const input = event.currentTarget;
-          const file = input.files?.[0] ?? null;
-          void onUploadReport(file).finally(() => {
-            input.value = "";
-          });
-        }}
-      />
-    </label>
+    </FileUploadButton>
   );
 }
 
@@ -1761,25 +1775,9 @@ function CompareUploadButton({
   onError: (message: string) => void;
 }) {
   return (
-    <label className="secondary-button file-button">
-      <Upload size={17} aria-hidden="true" />
+    <FileUploadButton accept="application/json,.json" onSelect={onUploadReport} onError={onError}>
       <span className="compare-upload-label">{label}</span>
-      <input
-        type="file"
-        accept="application/json,.json"
-        onChange={(event) => {
-          const input = event.currentTarget;
-          const file = input.files?.[0] ?? null;
-          void onUploadReport(file)
-            .catch((error) => {
-              onError(error instanceof Error ? error.message : "Report JSON could not be opened.");
-            })
-            .finally(() => {
-              input.value = "";
-            });
-        }}
-      />
-    </label>
+    </FileUploadButton>
   );
 }
 
