@@ -7,6 +7,8 @@
 
 Site Behavior Lab runs controlled Chromium visits and reports observable site behavior: network requests, third-party domains, curated service labels, cookies, storage keys, screenshot evidence, scan conditions, high-entropy browser API calls, behavioral fingerprinting heuristics, and third-party session/input-monitoring listener signals seen by lightweight instrumentation.
 
+> **Deployment status (free-tier launch).** The live product is the static **Cloudflare Pages** site at [https://sitebehavior.org](https://sitebehavior.org) plus the Cloudflare **Worker** as a live **GPC / trackers** scanner. Brave Shields block-simulation (the tried-vs-blocked diff) runs only in the Node/Playwright scanner, which needs always-on compute, so it is generated operator/CI-side and published into the static evidence corpus rather than run live. The **Node-container path documented under "Production Deployment" is therefore parked** pending paid compute — the code is complete and tested, just not currently hosted. See [docs/deployment-topology.md](docs/deployment-topology.md) for the decision record.
+
 ## Why It Is Different
 
 Site Behavior Lab is built for reproducible, inspectable evidence instead of opaque scoring. Each report records the scan conditions that affect results, including browser version, viewport, timezone, locale, Global Privacy Control state, scanner egress, tracker catalog version, and scanner disclosure text.
@@ -93,7 +95,7 @@ Copy `.env.example` for a production-oriented starting point.
 
 ## Production Deployment
 
-> **Choosing a topology.** For a public deployment the Node container and the Cloudflare Worker are not equivalent: they sit on opposite sides of the SSRF/DNS-rebinding boundary (the Node scanner pins to a public IP at connect time; the Worker preflight can be rebound). See [docs/deployment-topology.md](docs/deployment-topology.md) for the decision record — recommended path is the Node scanner container behind Cloudflare for edge/WAF/R2.
+> **Choosing a topology.** For a public deployment the Node container and the Cloudflare Worker are not equivalent: they sit on opposite sides of the SSRF/DNS-rebinding boundary (the Node scanner pins to a public IP at connect time; the Worker preflight can be rebound). See [docs/deployment-topology.md](docs/deployment-topology.md) for the decision record — the recommended path is the Node scanner container behind Cloudflare for edge/WAF/R2. That path is **parked for the current free-tier launch** (it needs always-on compute); the steps below are the runbook for when it ships. The live deployment today is the static Pages site plus the GPC/trackers-only Worker described under "Static Hosting" and "Cloudflare Worker Deployment".
 
 For a single-node deployment:
 

@@ -4,6 +4,7 @@ import { buildReportHeadline, type HeadlineTone } from "@/lib/report-headline";
 import { reportPagePath } from "@/lib/report-locator";
 import { readReportForId } from "@/lib/report-source";
 import { listStaticReportIds } from "@/lib/static-report-files";
+import type { ComparisonType } from "@/lib/types";
 
 export const dynamic = "force-static";
 
@@ -24,7 +25,16 @@ type DirectoryEntry = {
   thirdPartyCookies: number;
   scannedAt: string;
   reportType: "single" | "comparison";
+  comparisonType?: ComparisonType;
 };
+
+function reportTypeLabel(entry: DirectoryEntry): string {
+  if (entry.reportType !== "comparison") return "single scan";
+  if (entry.comparisonType === "shields") return "Shields comparison";
+  if (entry.comparisonType === "temporal") return "temporal comparison";
+  if (entry.comparisonType === "gpc") return "GPC comparison";
+  return "comparison";
+}
 
 export default async function DirectoryPage() {
   const entries = await loadDirectoryEntries();
@@ -51,7 +61,7 @@ export default async function DirectoryPage() {
               <Link href={`${reportPagePath(entry.id)}/`}>
                 <span className="directory-row-top">
                   <span className="directory-domain">{entry.domain}</span>
-                  <span className="directory-type">{entry.reportType === "comparison" ? "GPC comparison" : "single scan"}</span>
+                  <span className="directory-type">{reportTypeLabel(entry)}</span>
                 </span>
                 <span className="directory-headline">{entry.headline}</span>
                 <span className="directory-metrics">
@@ -94,7 +104,8 @@ async function loadDirectoryEntries(): Promise<DirectoryEntry[]> {
       trackerRequests: result.summary.knownTrackerRequests,
       thirdPartyCookies: result.summary.thirdPartyCookies,
       scannedAt: report.reportType === "comparison" ? report.scannedAt : result.conditions.scannedAt,
-      reportType: report.reportType === "comparison" ? "comparison" : "single"
+      reportType: report.reportType === "comparison" ? "comparison" : "single",
+      ...(report.reportType === "comparison" ? { comparisonType: report.comparisonType } : {})
     });
   }
 

@@ -2105,10 +2105,10 @@ function ComparisonPanel({ report }: { report: ComparisonScanResult }) {
         </div>
         <div className="comparison-runs">
           <span>
-            {labels.baseline}: {report.baseline.summary.durationMs}ms
+            {labels.baseline}: {report.baseline.summary.durationMs.toLocaleString()}ms
           </span>
           <span>
-            {labels.variant}: {report.variant.summary.durationMs}ms
+            {labels.variant}: {report.variant.summary.durationMs.toLocaleString()}ms
           </span>
         </div>
       </div>
@@ -2160,13 +2160,13 @@ function comparisonEyebrow(report: ComparisonScanResult): string {
 
 function DeltaTile({ label, metric }: { label: string; metric: ComparisonMetricDelta }) {
   const direction = metric.delta > 0 ? "up" : metric.delta < 0 ? "down" : "flat";
-  const formattedDelta = `${metric.delta > 0 ? "+" : ""}${metric.delta}`;
+  const formattedDelta = `${metric.delta > 0 ? "+" : ""}${metric.delta.toLocaleString()}`;
   return (
     <div className={`delta-tile delta-${direction}`}>
       <span>{label}</span>
       <strong>{formattedDelta}</strong>
       <small>
-        {metric.before} → {metric.after}
+        {metric.before.toLocaleString()} → {metric.after.toLocaleString()}
       </small>
     </div>
   );
@@ -3025,13 +3025,18 @@ function MetricGrid({ result }: { result: ScanResult }) {
   const apiFamilies = result.fingerprintEvents.length;
   const detectionCount = fingerprintDetectionCount(result);
   const metrics = [
-    { label: "Requests", value: result.summary.totalRequests, detail: `${result.summary.thirdPartyRequests} third-party`, icon: Network },
+    {
+      label: "Requests",
+      value: result.summary.totalRequests,
+      detail: `${result.summary.thirdPartyRequests.toLocaleString()} third-party`,
+      icon: Network
+    },
     ...(result.conditions.adblock?.active
       ? [
           {
             label: "Shields blocks",
             value: result.summary.shieldsBlockedRequests ?? 0,
-            detail: `of ${result.summary.totalRequests} requests`,
+            detail: `of ${result.summary.totalRequests.toLocaleString()} requests`,
             icon: ShieldCheck
           }
         ]
@@ -3039,10 +3044,15 @@ function MetricGrid({ result }: { result: ScanResult }) {
     {
       label: "Third-party domains",
       value: result.summary.thirdPartyDomains,
-      detail: `${knownServices} known ${knownServices === 1 ? "service" : "services"}`,
+      detail: `${knownServices.toLocaleString()} known ${knownServices === 1 ? "service" : "services"}`,
       icon: Globe2
     },
-    { label: "Cookies", value: result.summary.cookies, detail: `${result.summary.thirdPartyCookies} third-party`, icon: Cookie },
+    {
+      label: "Cookies",
+      value: result.summary.cookies,
+      detail: `${result.summary.thirdPartyCookies.toLocaleString()} third-party`,
+      icon: Cookie
+    },
     { label: "Storage keys", value: result.summary.storageEntries, detail: "values redacted", icon: Database },
     {
       label: "Fingerprint-like calls",
@@ -3050,7 +3060,7 @@ function MetricGrid({ result }: { result: ScanResult }) {
       detail:
         detectionCount > 0
           ? `${plural(detectionCount, "behavior")} matched`
-          : `${apiFamilies} API ${apiFamilies === 1 ? "family" : "families"}`,
+          : `${apiFamilies.toLocaleString()} API ${apiFamilies === 1 ? "family" : "families"}`,
       icon: Fingerprint
     },
     {
@@ -3080,7 +3090,9 @@ function MetricGrid({ result }: { result: ScanResult }) {
             <div className="metric-card" key={metric.label}>
               <Icon size={18} aria-hidden="true" />
               <span className="m-label">{metric.label}</span>
-              <strong className="m-value">{metric.value}</strong>
+              <strong className="m-value">
+                {typeof metric.value === "number" ? metric.value.toLocaleString() : metric.value}
+              </strong>
               <small className="m-detail">{metric.detail}</small>
             </div>
           );
@@ -3109,15 +3121,15 @@ function TrafficViz({ result }: { result: ScanResult }) {
       <div className="party-legend">
         <div>
           <span className="legend-swatch party-seg-first" />
-          First-party <span className="legend-count">{first}</span>
+          First-party <span className="legend-count">{first.toLocaleString()}</span>
         </div>
         <div>
           <span className="legend-swatch party-seg-third" />
-          Third-party <span className="legend-count">{third}</span>
+          Third-party <span className="legend-count">{third.toLocaleString()}</span>
         </div>
         <div>
           <span className="legend-swatch party-seg-track" />
-          Known service <span className="legend-count">{tracker}</span>
+          Known service <span className="legend-count">{tracker.toLocaleString()}</span>
         </div>
       </div>
       <RequestTimeline requests={result.requests} />
@@ -3146,7 +3158,7 @@ function RequestTimeline({ requests }: { requests: NetworkRequestRecord[] }) {
       </svg>
       <div className="timeline-axis">
         <span>0 ms</span>
-        <span>{maxTime} ms</span>
+        <span>{maxTime.toLocaleString()} ms</span>
       </div>
     </div>
   );
@@ -3234,7 +3246,7 @@ function DomainTable({ domains }: { domains: DomainSummary[] }) {
               <tr key={domain.domain}>
                 <td className="mono" data-label="Domain">{domain.domain}</td>
                 <td data-label="Role">{roleTag(domain)}</td>
-                <td data-label="Requests">{domain.requests}</td>
+                <td data-label="Requests">{domain.requests.toLocaleString()}</td>
                 <td data-label="Known service">{domain.tracker ? `${domain.tracker.entity}: ${domain.tracker.category}` : "-"}</td>
                 <td data-label="Resource types">{domain.resourceTypes.join(", ")}</td>
               </tr>
@@ -3350,7 +3362,7 @@ function RequestTable({ result }: { result: ScanResult }) {
           <tbody>
             {shown.map((request) => (
               <tr key={request.id}>
-                <td className="mono" data-label="Time">{request.startedAtMs}ms</td>
+                <td className="mono" data-label="Time">{request.startedAtMs.toLocaleString()}ms</td>
                 <td data-label="Status">
                   <StatusCell status={request.status} />
                 </td>
@@ -3435,7 +3447,7 @@ function TopThirdParties({ domains }: { domains: DomainSummary[] }) {
             <strong>{domain.domain}</strong>
             <span className="chip-sub">{domain.tracker ? `${domain.tracker.entity} · ${domain.tracker.category}` : "unlabeled third party"}</span>
           </div>
-          <span className="count-pill">{domain.requests}</span>
+          <span className="count-pill">{domain.requests.toLocaleString()}</span>
         </div>
       ))}
     </div>
