@@ -1,13 +1,15 @@
 # Deployment Topology Decision
 
-> Status: **Free-tier launch (2026-06-21).** No paid compute is available (no host;
-> Cloudflare Containers require the Workers Paid plan), so the live public product is the
-> static **Cloudflare Pages** site at https://sitebehavior.org — a **published
-> Shields-diff evidence corpus** — plus the Cloudflare **Worker** as a **GPC / trackers**
-> live scan (no live Shields). **Option B (the Node/Playwright container) is the
-> moat-on-demand path, but PARKED** pending paid compute: the Shields tried-vs-blocked
-> diff only runs in the Node+wasm scanner, which has no free home. The analysis below is
-> the plan to execute if/when paid compute is on the table — keep it, don't delete it.
+> Status: **Option B DEPLOYED — 2026-06-21.** Workers Paid is active, and the
+> recommended Node/Playwright container (Option B below) now runs on **Cloudflare
+> Containers** — operator-gated, with R2-backed report storage — so the Shields
+> tried-vs-blocked "moat-on-demand" is live (runbook:
+> [deploy-cloudflare-containers.md](deploy-cloudflare-containers.md)). The public front
+> door is still the static **Cloudflare Pages** site at https://sitebehavior.org (the
+> published Shields-diff evidence corpus) plus the Cloudflare **Worker** as the open
+> **GPC / trackers** live scan; point the Pages site's scan-API base at the container to
+> surface live Shields in the public UI. The analysis below is the decision record that
+> led to Option B — keep it.
 
 ## Context
 
@@ -100,7 +102,10 @@ Turnstile wall on every scan and budget P2 + P4 as new Worker work.
 
 ## Consequences and sequenced follow-on work
 
-Once Option B is chosen, the roadmap re-collapses:
+Once Option B is chosen, the roadmap re-collapses (**executed 2026-06-21:** P1 container
+deploy + P2 R2 store, operator-gated; P3 corpus active at 88 sites; P4 Shields runs live on
+the container. **Remaining:** surface live Shields on the public front door behind edge
+WAF/Turnstile, plus P5 durable queue):
 
 1. **Container + edge wiring (P1 execution).** Build/ship the Node scanner container
    ([Dockerfile](../Dockerfile) exists; validate with `npm run test:smoke:docker`),
