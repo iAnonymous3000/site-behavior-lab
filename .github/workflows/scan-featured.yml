@@ -14,6 +14,14 @@ on:
       compare_gpc:
         description: Run a GPC off/on comparison per site
         required: true
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      compare_shields:
+        description: Run a Shields off/on comparison per site (tried-vs-blocked; takes precedence over GPC)
+        required: true
         default: "true"
         type: choice
         options:
@@ -43,8 +51,12 @@ env:
   NEXT_TELEMETRY_DISABLED: "1"
   FEATURED_CATEGORIES: ${{ github.event.inputs.categories || github.event.client_payload.categories || '' }}
   FEATURED_LIMIT: ${{ github.event.inputs.limit || github.event.client_payload.limit || '' }}
-  FEATURED_COMPARE_GPC: ${{ github.event.inputs.compare_gpc || github.event.client_payload.compare_gpc || 'true' }}
+  FEATURED_COMPARE_GPC: ${{ github.event.inputs.compare_gpc || github.event.client_payload.compare_gpc || 'false' }}
+  FEATURED_COMPARE_SHIELDS: ${{ github.event.inputs.compare_shields || github.event.client_payload.compare_shields || 'true' }}
   FEATURED_DEVICE: ${{ github.event.inputs.device || github.event.client_payload.device || 'desktop' }}
+  # Disclose that the corpus was scanned from CI (GitHub-hosted runner egress).
+  # Override with a repo Actions variable named SCANNER_EGRESS if you scan elsewhere.
+  SITE_BEHAVIOR_LAB_SCANNER_EGRESS: ${{ vars.SCANNER_EGRESS || 'github-actions-ubuntu' }}
 
 jobs:
   scan-featured:

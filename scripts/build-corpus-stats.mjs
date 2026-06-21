@@ -35,13 +35,18 @@ async function main() {
     }
     if (!isCurrentReport(report)) continue;
 
-    const result = report.reportType === "comparison" ? report.variant : report;
+    // Use the baseline (the plain "off" state) of any comparison so the corpus
+    // distribution stays comparable to a normal single scan. The "on" variant is a
+    // protected state (Shields/GPC enabled) that no default scan is in, so ranking
+    // ordinary scans against it — especially Shields-on, which blocks most third
+    // parties — would misrank nearly every site.
+    const result = report.reportType === "comparison" ? report.baseline : report;
     if (!isRecord(result) || !isRecord(result.summary) || !isRecord(result.conditions)) continue;
 
     const domain = normalizeDomain(result.summary.firstPartyDomain);
     if (!domain || excludedDomains.has(domain)) continue;
 
-    const scannedAt = report.reportType === "comparison" ? report.scannedAt : result.conditions.scannedAt;
+    const scannedAt = result.conditions.scannedAt;
     const existing = bySite.get(domain);
     if (existing && Date.parse(existing.scannedAt) >= Date.parse(typeof scannedAt === "string" ? scannedAt : 0)) {
       continue;
@@ -102,7 +107,7 @@ function normalizeDomain(value) {
 
 function isCurrentReport(report) {
   if (!isRecord(report) || report.ok !== true || report.schemaVersion !== schemaVersion) return false;
-  if (report.reportType === "comparison") return isRecord(report.variant);
+  if (report.reportType === "comparison") return isRecord(report.baseline) && isRecord(report.variant);
   return true;
 }
 

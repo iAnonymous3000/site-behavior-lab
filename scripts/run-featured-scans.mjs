@@ -35,11 +35,12 @@ async function main() {
     process.exit(1);
   }
 
+  const compareShields = booleanEnv("FEATURED_COMPARE_SHIELDS", false);
   const compareGpc = booleanEnv("FEATURED_COMPARE_GPC", true);
   const device = process.env.FEATURED_DEVICE === "mobile" ? "mobile" : "desktop";
   const delayMs = positiveIntEnv("FEATURED_DELAY_MS", 1500);
 
-  console.log(`Scanning ${sites.length} featured site${sites.length === 1 ? "" : "s"} (compareGpc=${compareGpc}, device=${device}).`);
+  console.log(`Scanning ${sites.length} featured site${sites.length === 1 ? "" : "s"} (compareShields=${compareShields}, compareGpc=${compareShields ? false : compareGpc}, device=${device}).`);
 
   let succeeded = 0;
   const failures = [];
@@ -47,7 +48,7 @@ async function main() {
   for (const [index, site] of sites.entries()) {
     console.log(`\n[${index + 1}/${sites.length}] ${site.label} — ${site.url}`);
     try {
-      await runOneScan(site, { compareGpc, device });
+      await runOneScan(site, { compareGpc, compareShields, device });
       succeeded += 1;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -110,12 +111,15 @@ function selectSites(config) {
   return sites.map((site) => ({ ...site, label: site.label || site.domain }));
 }
 
-function runOneScan(site, { compareGpc, device }) {
+function runOneScan(site, { compareGpc, compareShields, device }) {
   return run(process.execPath, [ciScanScript], {
     SCAN_URL: site.url,
     SCAN_DEVICE: device,
     SCAN_GPC_ENABLED: "true",
-    SCAN_COMPARE_GPC: compareGpc ? "true" : "false",
+    SCAN_COMPARE_SHIELDS: compareShields ? "true" : "false",
+    // Only one comparison mode per scan; Shields (the tried-vs-blocked moat) wins
+    // when both are requested.
+    SCAN_COMPARE_GPC: compareShields ? "false" : compareGpc ? "true" : "false",
     // Avoid each child appending duplicate keys to a shared GITHUB_OUTPUT file.
     GITHUB_OUTPUT: ""
   });

@@ -31,6 +31,14 @@ on:
         options:
           - "false"
           - "true"
+      compare_shields:
+        description: Run a Shields off/on comparison (takes precedence over GPC)
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
   repository_dispatch:
     types:
       - site-behavior-scan
@@ -49,6 +57,7 @@ env:
   SCAN_DEVICE: ${{ github.event.inputs.device || github.event.client_payload.device || 'desktop' }}
   SCAN_GPC_ENABLED: ${{ github.event.inputs.gpc_enabled || github.event.client_payload.gpc_enabled || 'true' }}
   SCAN_COMPARE_GPC: ${{ github.event.inputs.compare_gpc || github.event.client_payload.compare_gpc || 'false' }}
+  SCAN_COMPARE_SHIELDS: ${{ github.event.inputs.compare_shields || github.event.client_payload.compare_shields || 'false' }}
 
 jobs:
   scan:
