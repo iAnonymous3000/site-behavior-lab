@@ -108,6 +108,19 @@ jobs:
       - name: Build corpus stats
         run: npm run corpus:stats
 
+      - name: Summarize corpus
+        run: |
+          REPORTS=$(jq '.reports | length' public/reports/index.json 2>/dev/null || echo 0)
+          SAMPLE=$(jq '.sampleSize' public/corpus-stats.json 2>/dev/null || echo 0)
+          {
+            echo "## Featured scan corpus"
+            echo ""
+            echo "- Listed reports in manifest: **$REPORTS**"
+            echo "- Distinct sites in corpus (sampleSize): **$SAMPLE**"
+            echo "- Corpus-relative percentile findings activate at 50 distinct sites (CORPUS_MIN_SAMPLE)."
+            echo "- Branch \`${GITHUB_REF_NAME}\`: reports were committed here. Review the Cloudflare Pages preview for this branch, then merge to the production branch to publish."
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload report artifacts
         uses: actions/upload-artifact@v4
         with:

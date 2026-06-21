@@ -179,6 +179,8 @@ BASE_URL=http://127.0.0.1:3100 npm run scan:featured
 
 Filter and tune with `FEATURED_CATEGORIES` (comma-separated category ids), `FEATURED_LIMIT`, `FEATURED_COMPARE_GPC` (default `true`, the GPC off/on comparison), `FEATURED_DEVICE`, and `FEATURED_DELAY_MS`. Edit the catalog in `public/featured-sites.json`, then re-run the scan to refresh the gallery.
 
+> **Preview a corpus run before publishing.** The workflow commits and pushes the new reports to the branch it runs on, so dispatch it from a non-production branch (in **Actions > Scan Featured Sites**, choose the branch under "Use workflow from") to stage the corpus there instead of `main`. Cloudflare Pages builds a preview deployment for that branch — review the gallery, `/directory/`, and whether the corpus cleared `CORPUS_MIN_SAMPLE` (the run's job summary reports the report and distinct-site counts) — then merge into `main` to publish. Running it directly on `main` publishes immediately.
+
 ## Corpus Percentiles and Directory
 
 `npm run corpus:stats` (`scripts/build-corpus-stats.mjs`) reads the committed reports under `public/reports/`, keeps one data point per distinct real site (most recent scan wins; reserved/test domains like `example.com` are excluded), and writes percentile distributions of the key behavior metrics to `public/corpus-stats.json`. The Pages build and both scan workflows rebuild it after the report manifest, so the committed stats stay in sync with the corpus.
