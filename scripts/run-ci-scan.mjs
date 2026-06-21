@@ -11,6 +11,11 @@ const baseUrl = stripTrailingSlash(process.env.BASE_URL || "http://127.0.0.1:310
 const targetUrl = process.env.SCAN_URL?.trim();
 const reportIdPattern = /^[0-9]{8}-[0-9a-f]{32}$/;
 const scanReportSchemaVersion = 1;
+// Titles served by common bot walls (Cloudflare, Akamai, PerimeterX, Google). A
+// report whose landing page is one of these is a challenge page, not the site, and
+// must not enter the public corpus.
+const BLOCK_TITLE_PATTERN =
+  /access denied|attention required|just a moment|pardon our interruption|are you (a )?(human|robot)|verify (you are|you'?re|your) (a )?human|checking your browser|unusual traffic|security check|request unsuccessful|captcha|enable javascript/i;
 
 if (!targetUrl) {
   console.error("SCAN_URL is required.");
@@ -43,6 +48,15 @@ try {
   const id = reportIdPattern.test(scanReport.share?.id || "") ? scanReport.share.id : createReportId();
   const savedReport = await fetchSavedReport(scanReport, id);
   const publicReport = makePublicReport(savedReport, id);
+
+  // Bot-detection interstitials return HTTP 200 with a challenge page, so the scan
+  // "succeeds" but the report misrepresents the site (e.g. a cnn.com report with 0
+  // trackers). Refuse to commit those; the caller logs it as a skipped site.
+  const blockReason = botBlockReason(publicReport);
+  if (blockReason) {
+    console.error(`Skipping ${targetUrl}: ${blockReason}.`);
+    process.exit(1);
+  }
 
   await mkdir(reportsDir, { recursive: true });
   const reportPath = path.join(reportsDir, `${id}.json`);
@@ -125,6 +139,22 @@ async function readJsonResponse(response) {
     throw new Error(`Expected JSON from ${response.url}, got ${response.status}.`);
   }
   return response.json();
+}
+
+function botBlockReason(report) {
+  const result = report.reportType === "comparison" ? report.baseline : report;
+  const summary = result?.summary;
+  if (!summary) return null;
+
+  const title = String(summary.pageTitle || "").trim();
+  const totalRequests = Number(summary.totalRequests) || 0;
+  if (title && BLOCK_TITLE_PATTERN.test(title)) {
+    return `landing page title "${title}" matches a bot-block/challenge page`;
+  }
+  if (totalRequests <= 1) {
+    return `only ${totalRequests} network request(s) observed — navigation likely failed or was blocked`;
+  }
+  return null;
 }
 
 function makePublicReport(report, id) {
