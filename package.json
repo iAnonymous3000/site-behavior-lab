@@ -23,6 +23,7 @@
     "start": "next start",
     "test:smoke:static": "node scripts/smoke-static-site.mjs",
     "test:smoke:docker": "node scripts/smoke-docker.mjs",
+    "test:smoke:scanner": "node scripts/smoke-deployed-scanner.mjs",
     "test:unit": "rm -rf .unit-test-dist && tsc -p tsconfig.test.json && node --test --test-concurrency=1 .unit-test-dist/lib/*.test.js",
     "test:smoke": "node scripts/smoke-test.mjs",
     "typecheck": "next typegen && tsc --noEmit"
