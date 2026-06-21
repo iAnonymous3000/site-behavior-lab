@@ -59,10 +59,14 @@ export default {
   async fetch(request: Request, env: { SCANNER: DurableObjectNamespace }): Promise<Response> {
     // One warm instance keeps the in-memory async job queue coherent. Scale by
     // sharding on a key here once a single instance is not enough.
-    return getContainer(env.SCANNER, "scanner").fetch(request);
+    return getContainer(env.SCANNER).fetch(request);
   }
 };
 ```
+
+> The committed `cloudflare/container-worker.ts` is fuller than this sketch: it
+> also forwards the report-store, egress, async, CORS, and secret env vars into
+> the container via the `ScannerContainer` `envVars`. Use the committed file.
 
 `wrangler.container.jsonc` (kept separate from the existing GPC `wrangler.jsonc` so the
 live Worker is untouched):
@@ -72,6 +76,10 @@ live Worker is untouched):
   "name": "site-behavior-lab-scanner",
   "main": "cloudflare/container-worker.ts",
   "compatibility_date": "2026-06-19",
+  "vars": {
+    // Browser CORS allow-list, forwarded into the container by container-worker.ts.
+    "SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN": "https://sitebehavior.org"
+  },
   "containers": [
     {
       "class_name": "ScannerContainer",
@@ -136,10 +144,11 @@ NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE = https://scan.sitebehavior.org
 ```
 
 No code change — the UI reads `/api/health` and lights up the **Shields** and GPC toggles.
-On the scanner set `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN=https://sitebehavior.org` so the
-browser CORS preflight from Pages is allowed (or `*` for an open scanner). For an open
-scanner add `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_OPEN_ACCESS=1`; for Turnstile add
-`NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY=<site-key>`.
+The scanner's browser CORS allow-list is preconfigured to `https://sitebehavior.org` via
+the `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` var in `wrangler.container.jsonc` (the front Worker
+forwards it into the container); edit that var if your Pages origin differs, or set it to
+`*` for an open scanner. For an open scanner also add `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_OPEN_ACCESS=1`
+to the Pages build; for Turnstile add `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY=<site-key>`.
 
 ## 6. Security: the SSRF backstop is weaker here — launch operator-gated
 
@@ -154,13 +163,25 @@ and only after accepting that the egress backstop is the in-app proxy alone.
 
 ## 7. Verify
 
+Run the automated production smoke test against the deployed scanner. It checks health
+(live Shields advertised, ad-block engine active, durable storage), runs a real scan and
+confirms it is stored screenshot-stripped, runs a live Shields comparison, and confirms a
+link-local SSRF target (`169.254.169.254`) is refused. It tolerates async scan mode (the
+container returns `202` + a job id to poll):
+
+```bash
+SCAN_BASE_URL=https://scan.sitebehavior.org \
+  SMOKE_SCAN_ACCESS_TOKEN=<the scan token> \
+  npm run test:smoke:scanner
+```
+
+Point `SMOKE_SHIELDS_URL` at a tracker-heavy site to also eyeball a non-zero would-block
+count. A quick manual check of the same essentials:
+
 ```bash
 curl -s https://scan.sitebehavior.org/api/health | jq '.capabilities'
 # expect: { "singleScan": true, "gpcComparison": true, "shieldsComparison": true, "savedReports": true }
 ```
-
-Then run a Shields scan of a tracker-heavy site (confirm blocked counts) and a private
-target such as `http://169.254.169.254/` (confirm it is refused at connect time).
 
 ## Cost
 
