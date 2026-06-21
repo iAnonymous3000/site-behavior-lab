@@ -9,7 +9,13 @@ const reportsDir = path.join(rootDir, "public", "reports");
 const manifestPath = path.join(reportsDir, "index.json");
 const reportFilePattern = /^([0-9]{8}-[0-9a-f]{32})\.json$/;
 const scanReportSchemaVersion = 1;
-const excludedDomains = new Set(["example.com", "example.org", "example.net", "example.edu", "localhost"]);
+// Canonical reserved-domain list, shared with lib/reserved-report-domains.ts so the
+// manifest builder and the app (/directory/, sitemap.xml) cannot drift.
+const excludedDomains = new Set(
+  JSON.parse(await readFile(path.join(rootDir, "lib", "reserved-report-domains.json"), "utf8")).map((domain) =>
+    String(domain).toLowerCase()
+  )
+);
 
 async function main() {
   await mkdir(reportsDir, { recursive: true });

@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 import { reportPagePath } from "@/lib/report-locator";
+import { readReportForId } from "@/lib/report-source";
+import { isReservedReportDomain } from "@/lib/reserved-report-domains";
 import { listStaticReportIds } from "@/lib/static-report-files";
 import { siteBaseUrl } from "@/lib/site-url";
 
@@ -21,6 +23,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // listed here (and are disallowed in robots.txt).
   if (STATIC_EXPORT) {
     for (const id of await listStaticReportIds()) {
+      const report = await readReportForId(id);
+      if (!report) continue;
+      const result = report.reportType === "comparison" ? report.variant : report;
+      // Reserved/test domains stay out of the sitemap, matching the gallery and directory.
+      if (isReservedReportDomain(result.summary.firstPartyDomain)) continue;
       entries.push({ url: `${base}${reportPagePath(id)}/`, lastModified, changeFrequency: "monthly", priority: 0.7 });
     }
   }

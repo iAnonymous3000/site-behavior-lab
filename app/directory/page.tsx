@@ -3,6 +3,7 @@ import Link from "next/link";
 import { buildReportHeadline, type HeadlineTone } from "@/lib/report-headline";
 import { reportPagePath } from "@/lib/report-locator";
 import { readReportForId } from "@/lib/report-source";
+import { isReservedReportDomain } from "@/lib/reserved-report-domains";
 import { listStaticReportIds } from "@/lib/static-report-files";
 import type { ComparisonType } from "@/lib/types";
 
@@ -93,6 +94,9 @@ async function loadDirectoryEntries(): Promise<DirectoryEntry[]> {
     if (!report) continue;
 
     const result = report.reportType === "comparison" ? report.variant : report;
+    // Keep reserved/test domains out of the public directory, mirroring the gallery
+    // manifest exclusion (a reserved-domain report is reachable by permalink only).
+    if (isReservedReportDomain(result.summary.firstPartyDomain)) continue;
     const headline = buildReportHeadline(report);
 
     entries.push({
