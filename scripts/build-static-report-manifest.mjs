@@ -9,6 +9,7 @@ const reportsDir = path.join(rootDir, "public", "reports");
 const manifestPath = path.join(reportsDir, "index.json");
 const reportFilePattern = /^([0-9]{8}-[0-9a-f]{32})\.json$/;
 const scanReportSchemaVersion = 1;
+const excludedDomains = new Set(["example.com", "example.org", "example.net", "example.edu", "localhost"]);
 
 async function main() {
   await mkdir(reportsDir, { recursive: true });
@@ -85,6 +86,9 @@ function toManifestEntry(id, report) {
     return null;
   }
 
+  // Keep reserved/test domains (example.com fixtures, localhost) out of the public gallery.
+  if (isExcludedDomain(result.summary.firstPartyDomain)) return null;
+
   return {
     id,
     title: displayTitle(report, result),
@@ -128,6 +132,11 @@ function displayTitle(report, result) {
   }
 
   return String(result.summary.pageTitle || result.summary.firstPartyDomain);
+}
+
+function isExcludedDomain(domain) {
+  const normalized = String(domain || "").trim().toLowerCase().replace(/^www\./, "");
+  return excludedDomains.has(normalized);
 }
 
 function numberOrZero(value) {

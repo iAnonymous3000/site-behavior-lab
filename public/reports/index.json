@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-20T18:01:26.487Z",
+  "generatedAt": "2026-06-21T12:56:41.908Z",
   "reports": [
     {
       "id": "20260619-1cae9eb5a7b2fae0d49af5acda78031b",
@@ -8,54 +8,18 @@
       "requestedUrl": "https://www.amazon.com/",
       "scannedAt": "2026-06-19T18:14:49.396Z",
       "reportType": "comparison",
+      "comparisonType": "gpc",
       "device": "desktop",
       "gpcEnabled": "comparison",
       "metrics": {
-        "totalRequests": 449,
-        "thirdPartyRequests": 425,
-        "knownTrackerRequests": 35,
-        "thirdPartyDomains": 42,
-        "cookies": 45,
-        "thirdPartyCookies": 36,
-        "fingerprintEvents": 1
-      }
-    },
-    {
-      "id": "20260619-22222222222222222222222222222222",
-      "title": "Sample Shields comparison",
-      "domain": "example.com",
-      "requestedUrl": "https://example.com/",
-      "scannedAt": "2026-06-19T12:05:00.000Z",
-      "reportType": "comparison",
-      "device": "desktop",
-      "gpcEnabled": "comparison",
-      "metrics": {
-        "totalRequests": 2,
-        "thirdPartyRequests": 1,
-        "knownTrackerRequests": 0,
-        "thirdPartyDomains": 1,
-        "cookies": 0,
-        "thirdPartyCookies": 0,
-        "fingerprintEvents": 0
-      }
-    },
-    {
-      "id": "20260619-11111111111111111111111111111111",
-      "title": "Sample site report",
-      "domain": "example.com",
-      "requestedUrl": "https://example.com/",
-      "scannedAt": "2026-06-19T12:00:00.000Z",
-      "reportType": "single",
-      "device": "desktop",
-      "gpcEnabled": true,
-      "metrics": {
-        "totalRequests": 3,
-        "thirdPartyRequests": 2,
-        "knownTrackerRequests": 1,
-        "thirdPartyDomains": 2,
-        "cookies": 1,
-        "thirdPartyCookies": 1,
-        "fingerprintEvents": 1
+        "totalRequests": 476,
+        "thirdPartyRequests": 450,
+        "knownTrackerRequests": 46,
+        "thirdPartyDomains": 43,
+        "cookies": 61,
+        "thirdPartyCookies": 52,
+        "fingerprintEvents": 1,
+        "shieldsBlockedRequests": 95
       }
     },
     {
@@ -65,6 +29,7 @@
       "requestedUrl": "https://www.wikipedia.org/",
       "scannedAt": "2026-06-19T01:56:44.767Z",
       "reportType": "comparison",
+      "comparisonType": "gpc",
       "device": "desktop",
       "gpcEnabled": "comparison",
       "metrics": {
@@ -74,7 +39,8 @@
         "thirdPartyDomains": 0,
         "cookies": 5,
         "thirdPartyCookies": 0,
-        "fingerprintEvents": 0
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 0
       }
     }
   ]
