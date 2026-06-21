@@ -1,0 +1,868 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.postgresql.org/",
+  "scannedAt": "2026-06-21T17:00:45.280Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "PostgreSQL: The world's most advanced open source database",
+      "status": 200,
+      "durationMs": 1478,
+      "firstPartyDomain": "www.postgresql.org",
+      "totalRequests": 21,
+      "thirdPartyRequests": 5,
+      "knownTrackerRequests": 5,
+      "thirdPartyDomains": 2,
+      "cookies": 4,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://www.postgresql.org/",
+      "finalUrl": "https://www.postgresql.org/",
+      "scannedAt": "2026-06-21T17:00:43.798Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.postgresql.org/",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 36,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.postgresql.org/media/css/fontawesome.css",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 258,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.postgresql.org/media/css/bootstrap-4.4.1.min.css",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 259,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.postgresql.org/dyncss/base.css",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 259,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.postgresql.org/media/js/theme.js",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 260,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.postgresql.org/media/img/about/press/elephant.png",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 260,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.postgresql.org/media/img/PostgreSQL_Badge1.svg",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 261,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.postgresql.org/media/js/main.js",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 381,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.postgresql.org/media/css/open-sans-woff.css",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 385,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.postgresql.org/media/css/open-sans-woff2.css",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 385,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 450,
+        "blockedByShields": true
+      },
+      {
+        "id": 12,
+        "url": "https://www.postgresql.org/media/img/misc/banner.jpg",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 477,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.postgresql.org/media/img/misc/training.jpg",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 479,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.postgresql.org/media/img/misc/bugs.jpg",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 480,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.postgresql.org/media/webfonts/latin.woff2",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 480,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.postgresql.org/media/webfonts/fa-solid-900.woff2",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 480,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.postgresql.org/media/webfonts/fa-regular-400.woff2",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 481,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.google-analytics.com/analytics.js",
+        "domain": "www.google-analytics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 641,
+        "blockedByShields": true
+      },
+      {
+        "id": 19,
+        "url": "https://www.google-analytics.com/j/collect?v=&_v=&a=&t=&_s=&dl=&ul=&dt=&sr=&vp=&_u=&jid=&gjid=&cid=&tid=&_gid=&_r=&_slc=&gtm=&gcd=&dma=&tag_exp=&z=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 702,
+        "blockedByShields": true
+      },
+      {
+        "id": 20,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&_slc=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 722,
+        "blockedByShields": true
+      },
+      {
+        "id": 21,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&sid=&sct=&seg=&_tu=&en=&_fv=&_ss=&_ee=&gap.uat=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 895,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.postgresql.org",
+        "requests": 16,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "_ga",
+        "domain": ".postgresql.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".postgresql.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gat_UA-1345454-1",
+        "domain": ".postgresql.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_FGJ68XB9NC",
+        "domain": ".postgresql.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "theme",
+        "valueBytes": 5
+      }
+    ],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "PostgreSQL: The world's most advanced open source database",
+      "status": 200,
+      "durationMs": 2032,
+      "firstPartyDomain": "www.postgresql.org",
+      "totalRequests": 16,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 1
+    },
+    "conditions": {
+      "requestedUrl": "https://www.postgresql.org/",
+      "finalUrl": "https://www.postgresql.org/",
+      "scannedAt": "2026-06-21T17:00:45.280Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.postgresql.org/",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 35,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.postgresql.org/media/css/fontawesome.css",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 578,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.postgresql.org/media/css/bootstrap-4.4.1.min.css",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 580,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.postgresql.org/dyncss/base.css",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 580,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.postgresql.org/media/js/theme.js",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 580,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.postgresql.org/media/img/about/press/elephant.png",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 581,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.postgresql.org/media/img/PostgreSQL_Badge1.svg",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 586,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.postgresql.org/media/css/open-sans-woff.css",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 985,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.postgresql.org/media/css/open-sans-woff2.css",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 986,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.postgresql.org/media/js/main.js",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 987,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.postgresql.org/media/img/misc/banner.jpg",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1115,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.postgresql.org/media/img/misc/training.jpg",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1116,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.postgresql.org/media/img/misc/bugs.jpg",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1116,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.postgresql.org/media/webfonts/latin.woff2",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1117,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.postgresql.org/media/webfonts/fa-solid-900.woff2",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1117,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.postgresql.org/media/webfonts/fa-regular-400.woff2",
+        "domain": "www.postgresql.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1118,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.postgresql.org",
+        "requests": 16,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "theme",
+        "valueBytes": 5
+      }
+    ],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 21,
+      "after": 16,
+      "delta": -5
+    },
+    "thirdPartyRequests": {
+      "before": 5,
+      "after": 0,
+      "delta": -5
+    },
+    "knownTrackerRequests": {
+      "before": 5,
+      "after": 0,
+      "delta": -5
+    },
+    "thirdPartyDomains": {
+      "before": 2,
+      "after": 0,
+      "delta": -2
+    },
+    "cookies": {
+      "before": 4,
+      "after": 0,
+      "delta": -4
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 5,
+        "domains": 2
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_ga",
+        "domain": ".postgresql.org",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_FGJ68XB9NC",
+        "domain": ".postgresql.org",
+        "thirdParty": false
+      },
+      {
+        "name": "_gat_UA-1345454-1",
+        "domain": ".postgresql.org",
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".postgresql.org",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 5,
+      "after": 1,
+      "delta": -4
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260621-ed613f45d011663ad05bb0755edf2ecd",
+    "path": "/reports/20260621-ed613f45d011663ad05bb0755edf2ecd/",
+    "jsonPath": "/reports/20260621-ed613f45d011663ad05bb0755edf2ecd.json"
+  }
+}

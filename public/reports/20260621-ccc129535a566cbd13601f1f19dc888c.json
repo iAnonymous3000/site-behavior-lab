@@ -1,0 +1,2371 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://wordpress.org/",
+  "scannedAt": "2026-06-21T17:03:08.183Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Blog Tool, Publishing Platform, and CMS – WordPress.org",
+      "status": 200,
+      "durationMs": 2005,
+      "firstPartyDomain": "wordpress.org",
+      "totalRequests": 63,
+      "thirdPartyRequests": 34,
+      "knownTrackerRequests": 7,
+      "thirdPartyDomains": 15,
+      "cookies": 7,
+      "thirdPartyCookies": 5,
+      "storageEntries": 1,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 10
+    },
+    "conditions": {
+      "requestedUrl": "https://wordpress.org/",
+      "finalUrl": "https://wordpress.org/",
+      "scannedAt": "2026-06-21T17:03:06.166Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://wordpress.org/",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 34,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/global-fonts/Inter/Inter-latin.woff2",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 136,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/global-fonts/EB-Garamond/EBGaramond-latin.woff2",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 137,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://wordpress.org/wp-content/plugins/gutenberg/build/styles/block-library/navigation/style.min.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 138,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://wordpress.org/wp-content/plugins/gutenberg/build/styles/block-library/social-links/style.min.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/global-fonts/style.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://wordpress.org/wp-content/themes/wporg-parent-2021/build/block-styles.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://wordpress.org/wp-content/themes/wporg-parent-2021/build/style.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://wordpress.org/wp-includes/css/dashicons.min.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://wordpress.org/wp-content/themes/wporg-main-2022/build/style/style-index.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/blocks/global-header-footer/build/style.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 145,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://i0.wp.com/wordpress.org/files/2025/12/wporg-69-design.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 145,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://i0.wp.com/wordpress.org/files/2025/12/wporg-69-build.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 145,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/global-fonts/NotoSerif/NotoSerifJP/style.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 194,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/global-fonts/NotoSerif/NotoSerifKR/style.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 195,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/global-fonts/NotoSerif/NotoSerifSC/style.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 195,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://i0.wp.com/wordpress.org/files/2025/12/wporg-69-publish.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 217,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://i0.wp.com/wordpress.org/files/2026/05/wporg-70-new.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 223,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://i0.wp.com/wordpress.org/files/2023/12/rolling-stone.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 232,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/blocks/global-header-footer/js/view.js",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 238,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 249,
+        "blockedByShields": true
+      },
+      {
+        "id": 22,
+        "url": "https://wordpress.org/wp-content/plugins/gutenberg/build/modules/interactivity/index.min.js",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 253,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/blocks/language-suggest/build/front.js",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 253,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://wordpress.org/files/2022/08/Time-Magazine.png",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 254,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://wordpress.org/files/2023/10/NASA-1.png",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 254,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://i0.wp.com/wordpress.org/files/2023/10/Microsoft.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 256,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://wordpress.org/files/2023/10/tech-crunch.png",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 256,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://i0.wp.com/wordpress.org/files/2023/10/Harvard.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 257,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://i0.wp.com/wordpress.org/files/2023/10/showcase-top-row-full.png?resize=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 257,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://i0.wp.com/wordpress.org/files/2023/10/showcase-middle-row.png?resize=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 257,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://i0.wp.com/wordpress.org/files/2023/10/showcase-bottom-row.png?resize=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 257,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://i0.wp.com/wordpress.org/files/2024/04/photo-community-1.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 258,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://s.w.org/style/images/code-is-poetry-for-dark-bg.svg",
+        "domain": "s.w.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 258,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://wordpress.org/wp-content/plugins/gutenberg/build/modules/block-library/navigation/view.min.js",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 259,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/blocks/time/build/view.js",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 260,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://stats.wp.com/e-202625.js",
+        "domain": "stats.wp.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 260,
+        "blockedByShields": true
+      },
+      {
+        "id": 37,
+        "url": "https://wordpress.org/wp-content/themes/wporg-parent-2021/build/print.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 260,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.youtube.com/embed?version=&rel=&showsearch=&showinfo=&iv_load_policy=&fs=&hl=&autohide=&wmode=&listType=&list=",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 260,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/blocks/global-header-footer/images/search-for-light-bg.svg",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 305,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://wordpress.org/files/2026/06/wceu-pattern_light.png",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 306,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://wordpress.org/wp-content/themes/wporg-parent-2021/images/dots-banner.svg",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 306,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/global-fonts/Inter/Inter-arrows.woff2",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 306,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://pixel.wp.com/g.gif?v=&blog=&post=&tz=&srv=&j=&host=&ref=&fcp=&rand=",
+        "domain": "pixel.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 337,
+        "blockedByShields": true
+      },
+      {
+        "id": 44,
+        "url": "https://wordpress.org/lang-guess/lang-guess-ajax.php",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 345,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://wordpress.org/wp-includes/js/wp-emoji-release.min.js",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 439,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.youtube.com/s/player/ac678d18/www-player.css",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 446,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://www.youtube.com/s/_/ytembeds/_/ss/k=ytembeds.base.rACeXLWSXqE.L.W.O/am=AAAAAAAAAAI/d=0/br=1/rs=AGKMywEOrDIDDFzjO_4QpitsyhqNBEfOIA",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 447,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://www.youtube.com/s/_/ytembeds/_/js/k=ytembeds.base.en_US.-z10S3WiiHs.es5.O/am=AAAAAAAAAAI/d=1/br=1/rs=AGKMywFOiXt42ZKEVHyL8kcxHYGpWNl0pg/m=root,base",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 447,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.youtube.com/s/player/ac678d18/player_embed.vflset/en_US/base.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 447,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 466,
+        "blockedByShields": true
+      },
+      {
+        "id": 51,
+        "url": "https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 485,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://googleads.g.doubleclick.net/pagead/id",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 750,
+        "blockedByShields": true
+      },
+      {
+        "id": 53,
+        "url": "https://static.doubleclick.net/instream/ad_status.js",
+        "domain": "static.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 751,
+        "blockedByShields": true
+      },
+      {
+        "id": 54,
+        "url": "https://www.youtube.com/s/_/ytembeds/_/js/k=ytembeds.base.en_US.-z10S3WiiHs.es5.O/am=AAAAAAAAAAI/d=1/exm=base,root/ed=1/br=1/rs=AGKMywFOiXt42ZKEVHyL8kcxHYGpWNl0pg/m=OtKSJe",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 842,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://i.ytimg.com/vi/3LvVNopOajo/sddefault.jpg",
+        "domain": "i.ytimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 842,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://googleads.g.doubleclick.net/pagead/id?slf_rd=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 847,
+        "blockedByShields": true
+      },
+      {
+        "id": 57,
+        "url": "https://yt3.ggpht.com/AAjXPoqcW2_5-ZTXOZkzHqeDRo0txouUxhKXzEfbZ6gKAfsbKHnaZ-J4SPn862vkQT5GriJDhg=s68-c-k-c0x00ffffff-no-rj",
+        "domain": "yt3.ggpht.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 849,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://www.gstatic.com/youtube/img/icons/mweb/youtube_fill/logo/v2/67px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 850,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&_geo=&_prs=&_rdi=&are=&cid=&frm=&pscdl=&rcb=&ul=&_s=&tag_exp=&dt=&dl=&uid=&sid=&sct=&seg=&en=&_fv=&_nsi=&_ss=&_c=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 932,
+        "blockedByShields": true
+      },
+      {
+        "id": 60,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&_geo=&_prs=&_rdi=&are=&cid=&frm=&pscdl=&rcb=&ul=&_s=&tag_exp=&dt=&dl=&uid=&sid=&sct=&seg=&en=&_c=&_et=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 932,
+        "blockedByShields": true
+      },
+      {
+        "id": 61,
+        "url": "https://www.google.com/js/th/MXpLTimhVUPHzVBARHXnaCdS4doYGd2ta2divTDXBmI.js",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1250,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://www.youtube.com/generate_204?ksjx3A=",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1360,
+        "blockedByShields": true
+      },
+      {
+        "id": 63,
+        "url": "https://jnn-pa.googleapis.com/$rpc/google.internal.waa.v1.Waa/GenerateIT",
+        "domain": "jnn-pa.googleapis.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1387,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "static.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "i0.wp.com",
+        "requests": 11,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "s.w.org",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "stats.wp.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "pixel.wp.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "i.ytimg.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "yt3.ggpht.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "jnn-pa.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "wordpress.org",
+        "requests": 29,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "image",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__Secure-YNID",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "YSC",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "__Secure-ROLLOUT_TOKEN",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_INFO1_LIVE",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_PRIVACY_METADATA",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "_ga",
+        "domain": ".wordpress.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_CG6GJ50G8J",
+        "domain": ".wordpress.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "sessionStorage",
+        "key": "wpEmojiSettingsSupports",
+        "valueBytes": 70
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.google.com"
+          ],
+          "totalListenerCalls": 6
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "touchmove",
+            "touchstart",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.google.com"
+          ],
+          "totalListenerCalls": 18
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL"
+          ],
+          "getParameterCalls": 1,
+          "readPixelsCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Blog Tool, Publishing Platform, and CMS – WordPress.org",
+      "status": 200,
+      "durationMs": 2070,
+      "firstPartyDomain": "wordpress.org",
+      "totalRequests": 53,
+      "thirdPartyRequests": 24,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 9,
+      "cookies": 5,
+      "thirdPartyCookies": 5,
+      "storageEntries": 1,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://wordpress.org/",
+      "finalUrl": "https://wordpress.org/",
+      "scannedAt": "2026-06-21T17:03:08.183Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://wordpress.org/",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 47,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/global-fonts/Inter/Inter-latin.woff2",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 150,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/global-fonts/EB-Garamond/EBGaramond-latin.woff2",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 151,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://wordpress.org/wp-content/plugins/gutenberg/build/styles/block-library/navigation/style.min.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 152,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://wordpress.org/wp-content/plugins/gutenberg/build/styles/block-library/social-links/style.min.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 152,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/global-fonts/style.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 156,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://wordpress.org/wp-content/themes/wporg-parent-2021/build/block-styles.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 157,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://wordpress.org/wp-content/themes/wporg-parent-2021/build/style.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 157,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://wordpress.org/wp-includes/css/dashicons.min.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 158,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://wordpress.org/wp-content/themes/wporg-main-2022/build/style/style-index.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 158,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/blocks/global-header-footer/build/style.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 158,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://i0.wp.com/wordpress.org/files/2025/12/wporg-69-design.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 158,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://i0.wp.com/wordpress.org/files/2025/12/wporg-69-build.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 159,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://i0.wp.com/wordpress.org/files/2025/12/wporg-69-publish.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 205,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/global-fonts/NotoSerif/NotoSerifJP/style.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 211,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/global-fonts/NotoSerif/NotoSerifKR/style.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 212,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/global-fonts/NotoSerif/NotoSerifSC/style.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 212,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://i0.wp.com/wordpress.org/files/2026/05/wporg-70-new.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 214,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://i0.wp.com/wordpress.org/files/2023/12/rolling-stone.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 224,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/blocks/global-header-footer/js/view.js",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 231,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/blocks/language-suggest/build/front.js",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 270,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.youtube.com/embed?version=&rel=&showsearch=&showinfo=&iv_load_policy=&fs=&hl=&autohide=&wmode=&listType=&list=",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 276,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://wordpress.org/wp-content/plugins/gutenberg/build/modules/interactivity/index.min.js",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 279,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://wordpress.org/files/2022/08/Time-Magazine.png",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 279,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://wordpress.org/files/2023/10/NASA-1.png",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 280,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://i0.wp.com/wordpress.org/files/2023/10/Microsoft.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 280,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://wordpress.org/files/2023/10/tech-crunch.png",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 281,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://i0.wp.com/wordpress.org/files/2023/10/Harvard.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 281,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://i0.wp.com/wordpress.org/files/2023/10/showcase-top-row-full.png?resize=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://i0.wp.com/wordpress.org/files/2023/10/showcase-middle-row.png?resize=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://i0.wp.com/wordpress.org/files/2023/10/showcase-bottom-row.png?resize=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://i0.wp.com/wordpress.org/files/2024/04/photo-community-1.png?w=&ssl=",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 283,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://s.w.org/style/images/code-is-poetry-for-dark-bg.svg",
+        "domain": "s.w.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 283,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://wordpress.org/wp-content/plugins/gutenberg/build/modules/block-library/navigation/view.min.js",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 284,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/blocks/time/build/view.js",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 284,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://wordpress.org/wp-content/themes/wporg-parent-2021/build/print.css",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 285,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/blocks/global-header-footer/images/search-for-light-bg.svg",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 320,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://wordpress.org/files/2026/06/wceu-pattern_light.png",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 320,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://wordpress.org/wp-content/themes/wporg-parent-2021/images/dots-banner.svg",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 321,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://wordpress.org/wp-content/mu-plugins/pub-sync/global-fonts/Inter/Inter-arrows.woff2",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 322,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://wordpress.org/lang-guess/lang-guess-ajax.php",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 358,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://wordpress.org/wp-includes/js/wp-emoji-release.min.js",
+        "domain": "wordpress.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 400,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://www.youtube.com/s/player/ac678d18/www-player.css",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 463,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.youtube.com/s/_/ytembeds/_/ss/k=ytembeds.base.rACeXLWSXqE.L.W.O/am=AAAAAAAAAAI/d=0/br=1/rs=AGKMywEOrDIDDFzjO_4QpitsyhqNBEfOIA",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 464,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 465,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://www.youtube.com/s/_/ytembeds/_/js/k=ytembeds.base.en_US.-z10S3WiiHs.es5.O/am=AAAAAAAAAAI/d=1/br=1/rs=AGKMywFOiXt42ZKEVHyL8kcxHYGpWNl0pg/m=root,base",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 466,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.youtube.com/s/player/ac678d18/player_embed.vflset/en_US/base.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 466,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.youtube.com/s/_/ytembeds/_/js/k=ytembeds.base.en_US.-z10S3WiiHs.es5.O/am=AAAAAAAAAAI/d=1/exm=base,root/ed=1/br=1/rs=AGKMywFOiXt42ZKEVHyL8kcxHYGpWNl0pg/m=OtKSJe",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 845,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://i.ytimg.com/vi/3LvVNopOajo/sddefault.jpg",
+        "domain": "i.ytimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 846,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://yt3.ggpht.com/AAjXPoqcW2_5-ZTXOZkzHqeDRo0txouUxhKXzEfbZ6gKAfsbKHnaZ-J4SPn862vkQT5GriJDhg=s68-c-k-c0x00ffffff-no-rj",
+        "domain": "yt3.ggpht.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 852,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://www.gstatic.com/youtube/img/icons/mweb/youtube_fill/logo/v2/67px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 854,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://www.google.com/js/th/MXpLTimhVUPHzVBARHXnaCdS4doYGd2ta2divTDXBmI.js",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1255,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://jnn-pa.googleapis.com/$rpc/google.internal.waa.v1.Waa/GenerateIT",
+        "domain": "jnn-pa.googleapis.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1466,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "i0.wp.com",
+        "requests": 11,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script"
+        ]
+      },
+      {
+        "domain": "s.w.org",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "i.ytimg.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "yt3.ggpht.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "jnn-pa.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "wordpress.org",
+        "requests": 29,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "image",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__Secure-YNID",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "YSC",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_INFO1_LIVE",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_PRIVACY_METADATA",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "__Secure-ROLLOUT_TOKEN",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      }
+    ],
+    "storage": [
+      {
+        "area": "sessionStorage",
+        "key": "wpEmojiSettingsSupports",
+        "valueBytes": 70
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.google.com"
+          ],
+          "totalListenerCalls": 6
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "touchmove",
+            "touchstart",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.google.com"
+          ],
+          "totalListenerCalls": 18
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL"
+          ],
+          "getParameterCalls": 1,
+          "readPixelsCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 63,
+      "after": 53,
+      "delta": -10
+    },
+    "thirdPartyRequests": {
+      "before": 34,
+      "after": 24,
+      "delta": -10
+    },
+    "knownTrackerRequests": {
+      "before": 7,
+      "after": 0,
+      "delta": -7
+    },
+    "thirdPartyDomains": {
+      "before": 15,
+      "after": 9,
+      "delta": -6
+    },
+    "cookies": {
+      "before": 7,
+      "after": 5,
+      "delta": -2
+    },
+    "thirdPartyCookies": {
+      "before": 5,
+      "after": 5,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "pixel.wp.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "static.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "stats.wp.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 7,
+        "domains": 4
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_ga",
+        "domain": ".wordpress.org",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_CG6GJ50G8J",
+        "domain": ".wordpress.org",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 10,
+      "after": 5,
+      "delta": -5
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260621-ccc129535a566cbd13601f1f19dc888c",
+    "path": "/reports/20260621-ccc129535a566cbd13601f1f19dc888c/",
+    "jsonPath": "/reports/20260621-ccc129535a566cbd13601f1f19dc888c.json"
+  }
+}

@@ -1,0 +1,3023 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://ocw.mit.edu/",
+  "scannedAt": "2026-06-21T17:02:00.597Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "MIT OpenCourseWare | Free Online Course Materials",
+      "status": 200,
+      "durationMs": 1731,
+      "firstPartyDomain": "ocw.mit.edu",
+      "totalRequests": 100,
+      "thirdPartyRequests": 22,
+      "knownTrackerRequests": 9,
+      "thirdPartyDomains": 12,
+      "cookies": 4,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 8
+    },
+    "conditions": {
+      "requestedUrl": "https://ocw.mit.edu/",
+      "finalUrl": "https://ocw.mit.edu/",
+      "scannedAt": "2026-06-21T17:01:58.862Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://ocw.mit.edu/",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 38,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://ocw.mit.edu/static_shared/css/www.3c6a0.css",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 134,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://ocw.mit.edu/static_shared/css/common.3c6a0.css",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 135,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://cdn-images.mailchimp.com/embedcode/classic-061523.css",
+        "domain": "cdn-images.mailchimp.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "mailchimp.com",
+          "entity": "Mailchimp",
+          "category": "email marketing",
+          "confidence": "curated"
+        },
+        "startedAtMs": 135,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://ocw.mit.edu/static_shared/images/ocw_logo_white.cabdc9a745b03db3dad4.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 135,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://ocw.mit.edu/static_shared/images/heart_burgundy.e7c8635e8cc6538b89fa.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 137,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://ocw.mit.edu/ocw-www/ocw-sp26-crowdfund-promo.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 141,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://ocw.mit.edu/ocw-www/mit-learn-promo-2025.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 141,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://ocw.mit.edu/ocw-www/chalk-radio2024.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://ocw.mit.edu/ocw-www/oe-global-date-v2.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://ocw.mit.edu/courses/9-401-tools-for-robust-science-fall-2022/mit9_401_f22.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://ocw.mit.edu/courses/21l-021-comedy-spring-2016/be014ea0f901e5b1c5946d1c6441b930_21L-021s16.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://ocw.mit.edu/courses/res-tll-008-social-and-ethical-responsibilities-of-computing-serc/5bffed1db8808a9990e7cce29e5b27c6_res-tll-008f21.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://ocw.mit.edu/courses/1-74-land-water-food-and-climate-fall-2020/91c7e46aac2bd5748ba131e1e5a55ee2_1-74s19.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 147,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://ocw.mit.edu/courses/18-353j-nonlinear-dynamics-i-chaos-fall-2012/77a54ac6a70457dd6db42aaa1fc8ba51_18-353jf12.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 148,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://ocw.mit.edu/courses/sts-050-the-history-of-mit-spring-2016/c64bfb42612c8825bc86256f98b1ced2_STS-050S16.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 149,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://ocw.mit.edu/courses/18-s191-introduction-to-computational-thinking-fall-2022/18-s191f22.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 150,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://ocw.mit.edu/courses/res-16-002-how-to-cad-almost-anything-january-iap-2024/mit_res_16_002_s24.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 150,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://ocw.mit.edu/courses/res-10-001-making-science-and-engineering-pictures-a-practical-guide-to-presenting-your-work-spring-2026/mitres_10_001_chp.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 151,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://ocw.mit.edu/courses/es-010-chemistry-of-sports-spring-2013/330d55d55168b0cb15fd57c895857d7b_ES-010S13.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 153,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://ocw.mit.edu/courses/21m-s53-chinese-popular-musics-in-dialogue-spring-2014/c971c3732786901a558549fd77e08b72_21m-s53s14.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 154,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://ocw.mit.edu/courses/22-51-quantum-theory-of-radiation-interactions-fall-2012/d8a34810437df914ef4d9469678e86e2_22-51f12.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 154,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://ocw.mit.edu/courses/17-449-emerging-technology-and-international-security-fall-2024/mit17_449_f24.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 154,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://ocw.mit.edu/courses/res-12-003-fluid-motions-sediment-transport-and-current-generated-sedimentary-structures-fall-2025/mitres_12_003_f25.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 155,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://ocw.mit.edu/courses/15-392-scaling-entrepreneurial-ventures-spring-2026/mit15_392s26.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 155,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://ocw.mit.edu/courses/14-12-economic-applications-of-game-theory-fall-2025/mit14_12_f25_chp.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 155,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://ocw.mit.edu/courses/21a-501j-art-craft-science-fall-2024/mit21a_501j_f24.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 155,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://ocw.mit.edu/courses/6-s890-topics-in-multiagent-learning-fall-2024/mit6_s890_f24.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 156,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://ocw.mit.edu/courses/6-7220j-nonlinear-optimization-spring-2025/mit6_7220_s25.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 156,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://ocw.mit.edu/courses/4-241j-the-making-of-cities-spring-2025/mit4_241_s25.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 156,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://ocw.mit.edu/courses/21h-151-dynastic-china-fall-2024/mit21h_151_f24.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 157,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://ocw.mit.edu/courses/9-35-perception-spring-2024/mit9_35_s24.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 157,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://ocw.mit.edu/courses/15-393-nuts-and-bolts-of-new-ventures-january-iap-2025/mit15_393_iap25_chpimage.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 157,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://ocw.mit.edu/courses/res-11-003-climate-justice-instructional-toolkit-spring-2025/mitres_11_003_f23_chp.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 157,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.ocw-openmatters.org/wp-content/uploads/2026/03/Picture1.jpg",
+        "domain": "www.ocw-openmatters.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 157,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.ocw-openmatters.org/wp-content/uploads/2026/03/Tokyo@0.75x.jpg",
+        "domain": "www.ocw-openmatters.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 158,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.ocw-openmatters.org/wp-content/uploads/2026/02/Voices@0.33x.jpg",
+        "domain": "www.ocw-openmatters.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 158,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.ocw-openmatters.org/wp-content/uploads/2026/02/Group-Photo.jpg",
+        "domain": "www.ocw-openmatters.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 158,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.ocw-openmatters.org/wp-content/uploads/2026/02/Open-reduced@0.5x.jpg",
+        "domain": "www.ocw-openmatters.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 158,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://ocw.mit.edu/ocw-www/ocw-story-freesia.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 158,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://ocw.mit.edu/ocw-www/ocw-story-hinata.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 158,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://ocw.mit.edu/ocw-www/ocw-story-salim-a-h.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 159,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://ocw.mit.edu/ocw-www/ocw-story-mostafa.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 159,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://ocw.mit.edu/ocw-www/martina.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 159,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://ocw.mit.edu/ocw-www/ocw-story-sangat-2.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 159,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://ocw.mit.edu/ocw-www/mit-news-story-image-sujood-eldouma.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 159,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://ocw.mit.edu/ocw-www/sofiia-lipkevych.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 160,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://ocw.mit.edu/ocw-www/bernardo-picao.jpeg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 160,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://ocw.mit.edu/ocw-www/ana_t.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 160,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://ocw.mit.edu/ocw-www/mitnews_biaadams_3000x2000px.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 161,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://ocw.mit.edu/ocw-www/june-odongo-senga-mit-00.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 161,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://ocw.mit.edu/ocw-www/ahenshall_photo_by_lillie_paquette-small.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 161,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://ocw.mit.edu/ocw-www/mit-ocw-ege-university-faculty-of-medicine-in-turkey-founders2.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 162,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://ocw.mit.edu/ocw-www/emmanuel-kasi-small.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 162,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://ocw.mit.edu/ocw-www/juan-g2.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 163,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 163,
+        "blockedByShields": true
+      },
+      {
+        "id": 57,
+        "url": "https://ocw.mit.edu/static_shared/images/ocw_stories_home_btn_arrow_right.be61ab3faf488e15d55f.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 170,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://ocw.mit.edu/static_shared/images/ocw_testimonial_quote_modal_close.ef116a87c95eea8ad2a2.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 171,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://ocw.mit.edu/images/social-facebook-white.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 171,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://ocw.mit.edu/images/social-instagram-white.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 171,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://ocw.mit.edu/images/social-x-formerly-twitter-white.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 172,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://ocw.mit.edu/images/social-youtube-white.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 172,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://ocw.mit.edu/images/social-linkedin-white.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 172,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://ocw.mit.edu/images/social-bluesky-white.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 173,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://ocw.mit.edu/images/social-mastodon-white.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 173,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://ocw.mit.edu/images/envelope.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 177,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://ocw.mit.edu/images/sponsor_logos/ab_initio_logo.jpeg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 177,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://ocw.mit.edu/images/sponsor_logos/mathworks.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 178,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://ocw.mit.edu/images/sponsor_logos/william-and-flora-hewlett-foundation.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 178,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://ocw.mit.edu/images/sponsor_logos/mellon-foundation-logo.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 178,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://ocw.mit.edu/static_shared/images/mit_ol.4165342f87abb1da46fd.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 179,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://ocw.mit.edu/static_shared/images/oeg_logo.8a31f7b87f30df2d0169.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 179,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://ocw.mit.edu/static_shared/images/Facebook.d1f5caeb73d7d12505a2.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 179,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://ocw.mit.edu/static_shared/images/Instagram.4df41828ffee4ff33d8a.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 180,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://ocw.mit.edu/static_shared/images/x-formerly-twitter-black.f8c75ad9f42902726d25.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 180,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://ocw.mit.edu/static_shared/images/Youtube.7c9f62c4f1dc9515ebb4.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 181,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://ocw.mit.edu/static_shared/images/linkedin-black.2f7f8a6a3899f5d1e1d6.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 181,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://ocw.mit.edu/static_shared/images/bluesky-black.9f4523fcefa9b6f25be7.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 181,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://ocw.mit.edu/static_shared/images/mastodon-black.9e2de31a28415c123800.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 182,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://ocw.mit.edu/static_shared/js/www.3c6a0.js",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 182,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://ocw.mit.edu/static_shared/js/common.3c6a0.js",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 182,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://ocw.mit.edu/static_shared/images/external_link.58bbdd86c00a2c146c36.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 182,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://w.appzi.io/w.js?token=",
+        "domain": "w.appzi.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 183,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://ocw.mit.edu/images/homepage_hero.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 504,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://ocw.mit.edu/images/homepage_bg.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 504,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://ocw.mit.edu/static_shared/fonts/MaterialIcons-Regular.subset.84f45410d085472240e2.woff2",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 505,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://o48788.ingest.sentry.io/api/5304953/envelope/?sentry_version=&sentry_key=&sentry_client=",
+        "domain": "o48788.ingest.sentry.io",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 633,
+        "blockedByShields": true
+      },
+      {
+        "id": 88,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 694,
+        "blockedByShields": true
+      },
+      {
+        "id": 89,
+        "url": "https://www.google-analytics.com/analytics.js",
+        "domain": "www.google-analytics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 695,
+        "blockedByShields": true
+      },
+      {
+        "id": 90,
+        "url": "https://script.crazyegg.com/pages/scripts/0017/3534.js",
+        "domain": "script.crazyegg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "crazyegg.com",
+          "entity": "Crazy Egg",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 696,
+        "blockedByShields": true
+      },
+      {
+        "id": 91,
+        "url": "https://api.appzi.io/api/probe/Tgs1d",
+        "domain": "api.appzi.io",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 702,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://www.google-analytics.com/j/collect?v=&_v=&a=&t=&_s=&dl=&ul=&dt=&sr=&vp=&_u=&jid=&gjid=&cid=&tid=&_gid=&_r=&_slc=&gtm=&gcd=&dma=&tag_exp=&z=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 781,
+        "blockedByShields": true
+      },
+      {
+        "id": 93,
+        "url": "https://analytics.google.com/g/collect?v=&tid=&gtm=&_p=&_gaz=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&gaf=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&en=&_fv=&_ss=&ep.instructor_insights=&tfd=",
+        "domain": "analytics.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 882,
+        "blockedByShields": true
+      },
+      {
+        "id": 94,
+        "url": "https://stats.g.doubleclick.net/g/collect?v=&tid=&cid=&gtm=&rcb=&aip=&dma=&gcd=&npa=&frm=&tag_exp=",
+        "domain": "stats.g.doubleclick.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 882,
+        "blockedByShields": true
+      },
+      {
+        "id": 95,
+        "url": "https://w.appzi.io/boot-wt-v2600-g9edr0.js",
+        "domain": "w.appzi.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 885,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://w.appzi.io/40-7a338c05e28823022d6b-v2600-g9edr0.css",
+        "domain": "w.appzi.io",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 914,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://w.appzi.io/lazy-v2600-g9edr0-40.js",
+        "domain": "w.appzi.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 915,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://w.appzi.io/l-v2600-g9edr0.js",
+        "domain": "w.appzi.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 962,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://fonts.googleapis.com/css2?family=&display=&text=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 994,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://fonts.gstatic.com/l/font?kit=&skey=&v=",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1061,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn-images.mailchimp.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "mailchimp.com",
+          "entity": "Mailchimp",
+          "category": "email marketing",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "o48788.ingest.sentry.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "script.crazyegg.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "crazyegg.com",
+          "entity": "Crazy Egg",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "stats.g.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "www.ocw-openmatters.org",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "w.appzi.io",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "api.appzi.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "ocw.mit.edu",
+        "requests": 78,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "_gid",
+        "domain": ".mit.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gat_UA-5145472-1",
+        "domain": ".mit.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_NWDK3DX66P",
+        "domain": ".mit.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".mit.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "MIT OpenCourseWare | Free Online Course Materials",
+      "status": 200,
+      "durationMs": 1745,
+      "firstPartyDomain": "ocw.mit.edu",
+      "totalRequests": 92,
+      "thirdPartyRequests": 14,
+      "knownTrackerRequests": 1,
+      "thirdPartyDomains": 6,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://ocw.mit.edu/",
+      "finalUrl": "https://ocw.mit.edu/",
+      "scannedAt": "2026-06-21T17:02:00.597Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://ocw.mit.edu/",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 39,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://ocw.mit.edu/static_shared/css/www.3c6a0.css",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 201,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://ocw.mit.edu/static_shared/css/common.3c6a0.css",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 201,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://cdn-images.mailchimp.com/embedcode/classic-061523.css",
+        "domain": "cdn-images.mailchimp.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "mailchimp.com",
+          "entity": "Mailchimp",
+          "category": "email marketing",
+          "confidence": "curated"
+        },
+        "startedAtMs": 202,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://ocw.mit.edu/static_shared/images/ocw_logo_white.cabdc9a745b03db3dad4.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 202,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://ocw.mit.edu/static_shared/images/heart_burgundy.e7c8635e8cc6538b89fa.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 203,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://ocw.mit.edu/ocw-www/ocw-sp26-crowdfund-promo.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 206,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://ocw.mit.edu/ocw-www/mit-learn-promo-2025.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 207,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://ocw.mit.edu/ocw-www/chalk-radio2024.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 208,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://ocw.mit.edu/ocw-www/oe-global-date-v2.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 211,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://ocw.mit.edu/courses/9-401-tools-for-robust-science-fall-2022/mit9_401_f22.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 212,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://ocw.mit.edu/courses/21l-021-comedy-spring-2016/be014ea0f901e5b1c5946d1c6441b930_21L-021s16.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 212,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://ocw.mit.edu/courses/res-tll-008-social-and-ethical-responsibilities-of-computing-serc/5bffed1db8808a9990e7cce29e5b27c6_res-tll-008f21.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 213,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://ocw.mit.edu/courses/1-74-land-water-food-and-climate-fall-2020/91c7e46aac2bd5748ba131e1e5a55ee2_1-74s19.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 213,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://ocw.mit.edu/courses/18-353j-nonlinear-dynamics-i-chaos-fall-2012/77a54ac6a70457dd6db42aaa1fc8ba51_18-353jf12.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 213,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://ocw.mit.edu/courses/sts-050-the-history-of-mit-spring-2016/c64bfb42612c8825bc86256f98b1ced2_STS-050S16.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 214,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://ocw.mit.edu/courses/18-s191-introduction-to-computational-thinking-fall-2022/18-s191f22.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 214,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://ocw.mit.edu/courses/res-16-002-how-to-cad-almost-anything-january-iap-2024/mit_res_16_002_s24.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 215,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://ocw.mit.edu/courses/res-10-001-making-science-and-engineering-pictures-a-practical-guide-to-presenting-your-work-spring-2026/mitres_10_001_chp.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 215,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://ocw.mit.edu/courses/es-010-chemistry-of-sports-spring-2013/330d55d55168b0cb15fd57c895857d7b_ES-010S13.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 215,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://ocw.mit.edu/courses/21m-s53-chinese-popular-musics-in-dialogue-spring-2014/c971c3732786901a558549fd77e08b72_21m-s53s14.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 216,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://ocw.mit.edu/courses/22-51-quantum-theory-of-radiation-interactions-fall-2012/d8a34810437df914ef4d9469678e86e2_22-51f12.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 216,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://ocw.mit.edu/courses/17-449-emerging-technology-and-international-security-fall-2024/mit17_449_f24.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 217,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://ocw.mit.edu/courses/res-12-003-fluid-motions-sediment-transport-and-current-generated-sedimentary-structures-fall-2025/mitres_12_003_f25.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 217,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://ocw.mit.edu/courses/15-392-scaling-entrepreneurial-ventures-spring-2026/mit15_392s26.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 218,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://ocw.mit.edu/courses/14-12-economic-applications-of-game-theory-fall-2025/mit14_12_f25_chp.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 218,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://ocw.mit.edu/courses/21a-501j-art-craft-science-fall-2024/mit21a_501j_f24.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 218,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://ocw.mit.edu/courses/6-s890-topics-in-multiagent-learning-fall-2024/mit6_s890_f24.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 219,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://ocw.mit.edu/courses/6-7220j-nonlinear-optimization-spring-2025/mit6_7220_s25.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 219,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://ocw.mit.edu/courses/4-241j-the-making-of-cities-spring-2025/mit4_241_s25.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 220,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://ocw.mit.edu/courses/21h-151-dynastic-china-fall-2024/mit21h_151_f24.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 220,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://ocw.mit.edu/courses/9-35-perception-spring-2024/mit9_35_s24.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 221,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://ocw.mit.edu/courses/15-393-nuts-and-bolts-of-new-ventures-january-iap-2025/mit15_393_iap25_chpimage.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 221,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://ocw.mit.edu/courses/res-11-003-climate-justice-instructional-toolkit-spring-2025/mitres_11_003_f23_chp.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 221,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.ocw-openmatters.org/wp-content/uploads/2026/03/Picture1.jpg",
+        "domain": "www.ocw-openmatters.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 222,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.ocw-openmatters.org/wp-content/uploads/2026/03/Tokyo@0.75x.jpg",
+        "domain": "www.ocw-openmatters.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 222,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.ocw-openmatters.org/wp-content/uploads/2026/02/Voices@0.33x.jpg",
+        "domain": "www.ocw-openmatters.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 222,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.ocw-openmatters.org/wp-content/uploads/2026/02/Group-Photo.jpg",
+        "domain": "www.ocw-openmatters.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 222,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.ocw-openmatters.org/wp-content/uploads/2026/02/Open-reduced@0.5x.jpg",
+        "domain": "www.ocw-openmatters.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 223,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://ocw.mit.edu/ocw-www/ocw-story-freesia.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 223,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://ocw.mit.edu/ocw-www/ocw-story-hinata.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 223,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://ocw.mit.edu/ocw-www/ocw-story-salim-a-h.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 224,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://ocw.mit.edu/ocw-www/ocw-story-mostafa.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 224,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://ocw.mit.edu/ocw-www/martina.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 225,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://ocw.mit.edu/ocw-www/ocw-story-sangat-2.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 225,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://ocw.mit.edu/ocw-www/mit-news-story-image-sujood-eldouma.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 226,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://ocw.mit.edu/ocw-www/sofiia-lipkevych.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 226,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://ocw.mit.edu/ocw-www/bernardo-picao.jpeg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 227,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://ocw.mit.edu/ocw-www/ana_t.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 227,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://ocw.mit.edu/ocw-www/mitnews_biaadams_3000x2000px.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 236,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://ocw.mit.edu/ocw-www/june-odongo-senga-mit-00.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 237,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://ocw.mit.edu/ocw-www/ahenshall_photo_by_lillie_paquette-small.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 237,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://ocw.mit.edu/ocw-www/mit-ocw-ege-university-faculty-of-medicine-in-turkey-founders2.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 240,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://ocw.mit.edu/ocw-www/emmanuel-kasi-small.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 241,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://ocw.mit.edu/ocw-www/juan-g2.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 241,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://ocw.mit.edu/static_shared/images/ocw_stories_home_btn_arrow_right.be61ab3faf488e15d55f.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 241,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://ocw.mit.edu/static_shared/images/ocw_testimonial_quote_modal_close.ef116a87c95eea8ad2a2.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 242,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://ocw.mit.edu/images/social-facebook-white.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 245,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://ocw.mit.edu/images/social-instagram-white.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 246,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://ocw.mit.edu/images/social-x-formerly-twitter-white.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 246,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://ocw.mit.edu/images/social-youtube-white.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 246,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://ocw.mit.edu/images/social-linkedin-white.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 246,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://ocw.mit.edu/images/social-bluesky-white.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 247,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://ocw.mit.edu/images/social-mastodon-white.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 247,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://ocw.mit.edu/images/envelope.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 247,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://ocw.mit.edu/images/sponsor_logos/ab_initio_logo.jpeg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 247,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://ocw.mit.edu/images/sponsor_logos/mathworks.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 248,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://ocw.mit.edu/images/sponsor_logos/william-and-flora-hewlett-foundation.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 248,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://ocw.mit.edu/images/sponsor_logos/mellon-foundation-logo.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 248,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://ocw.mit.edu/static_shared/images/mit_ol.4165342f87abb1da46fd.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 249,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://ocw.mit.edu/static_shared/images/oeg_logo.8a31f7b87f30df2d0169.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 249,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://ocw.mit.edu/static_shared/images/Facebook.d1f5caeb73d7d12505a2.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 249,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://ocw.mit.edu/static_shared/images/Instagram.4df41828ffee4ff33d8a.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 250,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://ocw.mit.edu/static_shared/images/x-formerly-twitter-black.f8c75ad9f42902726d25.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 250,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://ocw.mit.edu/static_shared/images/Youtube.7c9f62c4f1dc9515ebb4.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 255,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://ocw.mit.edu/static_shared/images/linkedin-black.2f7f8a6a3899f5d1e1d6.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 256,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://ocw.mit.edu/static_shared/images/bluesky-black.9f4523fcefa9b6f25be7.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 257,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://ocw.mit.edu/static_shared/images/mastodon-black.9e2de31a28415c123800.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 257,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://ocw.mit.edu/static_shared/js/www.3c6a0.js",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 258,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://ocw.mit.edu/static_shared/js/common.3c6a0.js",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 259,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://ocw.mit.edu/static_shared/images/external_link.58bbdd86c00a2c146c36.svg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 259,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://w.appzi.io/w.js?token=",
+        "domain": "w.appzi.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 260,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://ocw.mit.edu/images/homepage_hero.jpg",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 452,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://ocw.mit.edu/images/homepage_bg.png",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 453,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://ocw.mit.edu/static_shared/fonts/MaterialIcons-Regular.subset.84f45410d085472240e2.woff2",
+        "domain": "ocw.mit.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 457,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://api.appzi.io/api/probe/Tgs1d",
+        "domain": "api.appzi.io",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 673,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://w.appzi.io/boot-wt-v2600-g9edr0.js",
+        "domain": "w.appzi.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 979,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://w.appzi.io/40-7a338c05e28823022d6b-v2600-g9edr0.css",
+        "domain": "w.appzi.io",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1007,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://w.appzi.io/lazy-v2600-g9edr0-40.js",
+        "domain": "w.appzi.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1008,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://w.appzi.io/l-v2600-g9edr0.js",
+        "domain": "w.appzi.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1057,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://fonts.googleapis.com/css2?family=&display=&text=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1083,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://fonts.gstatic.com/l/font?kit=&skey=&v=",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1142,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "cdn-images.mailchimp.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "mailchimp.com",
+          "entity": "Mailchimp",
+          "category": "email marketing",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "www.ocw-openmatters.org",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "w.appzi.io",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "api.appzi.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "ocw.mit.edu",
+        "requests": 78,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 100,
+      "after": 92,
+      "delta": -8
+    },
+    "thirdPartyRequests": {
+      "before": 22,
+      "after": 14,
+      "delta": -8
+    },
+    "knownTrackerRequests": {
+      "before": 9,
+      "after": 1,
+      "delta": -8
+    },
+    "thirdPartyDomains": {
+      "before": 12,
+      "after": 6,
+      "delta": -6
+    },
+    "cookies": {
+      "before": 4,
+      "after": 0,
+      "delta": -4
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "o48788.ingest.sentry.io",
+        "requests": 1,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "script.crazyegg.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "crazyegg.com",
+          "entity": "Crazy Egg",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "stats.g.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 6,
+        "domains": 4
+      },
+      {
+        "entity": "Crazy Egg",
+        "requests": 1,
+        "domains": 1
+      },
+      {
+        "entity": "Sentry",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_ga",
+        "domain": ".mit.edu",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_NWDK3DX66P",
+        "domain": ".mit.edu",
+        "thirdParty": false
+      },
+      {
+        "name": "_gat_UA-5145472-1",
+        "domain": ".mit.edu",
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".mit.edu",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 8,
+      "after": 2,
+      "delta": -6
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260621-5db32501108ad5d7cbe1c84178df3feb",
+    "path": "/reports/20260621-5db32501108ad5d7cbe1c84178df3feb/",
+    "jsonPath": "/reports/20260621-5db32501108ad5d7cbe1c84178df3feb.json"
+  }
+}

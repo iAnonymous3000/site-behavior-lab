@@ -1,0 +1,1511 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://creativecommons.org/",
+  "scannedAt": "2026-06-21T17:01:25.757Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "The commons belongs to us all - Creative Commons",
+      "status": 200,
+      "durationMs": 1200,
+      "firstPartyDomain": "creativecommons.org",
+      "totalRequests": 46,
+      "thirdPartyRequests": 7,
+      "knownTrackerRequests": 4,
+      "thirdPartyDomains": 5,
+      "cookies": 4,
+      "thirdPartyCookies": 1,
+      "storageEntries": 2,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 8
+    },
+    "conditions": {
+      "requestedUrl": "https://creativecommons.org/",
+      "finalUrl": "https://creativecommons.org/",
+      "scannedAt": "2026-06-21T17:01:24.553Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://creativecommons.org/",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 34,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/style.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 92,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/css/pidgin.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 92,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://creativecommons.org/wp-content/plugins/tablepress/css/build/default.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 93,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://creativecommons.org/wp-content/plugins/google-analytics-for-wordpress/assets/js/frontend-gtag.min.js",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 93,
+        "blockedByShields": true
+      },
+      {
+        "id": 6,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Group-32.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 93,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Group-20-1.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 93,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/css/library-vars.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 113,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/tools-for-building.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 137,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Rectangle-1.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 138,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/css/vocabulary.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 152,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/chooser/css/chooser.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 152,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/css/vendor/normalize.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 173,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/css/library-vars.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 174,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Teams-2-1-1.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 193,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/js/vocabulary.js",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 227,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/js/pidgin.js",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 231,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 236,
+        "blockedByShields": true
+      },
+      {
+        "id": 19,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Support-CC-in-Style.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 240,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Group-33.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 242,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Commons-in-the-age-of-AI.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 242,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/support-1.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 243,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/05/Social-Header-1-1024x576.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 243,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/05/Social-Header-1024x576.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 244,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Social-Header-2-2-1024x576.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 244,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Social-Header-1024x576.jpg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 245,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/newsletter.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 245,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/svg/cc/icons/cc-icons.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 250,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/svg/25.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 288,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/svg/cc/logos/cc/logomark.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 291,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/svg/font-awesome/icons/fa-icons.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 293,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/svg/cc/icons/cc-icons.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 294,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/svg/blob_c2.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 296,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/svg/star_c.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 297,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/svg/repeat_c.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 297,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/fonts/dm-mono/exports/DMMono-Medium.ttf",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 298,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/fonts/dm-fonts/Sans/fonts/webfonts/DMSans-SemiBold.woff2",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 302,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/fonts/dm-mono/exports/DMMono-Regular.ttf",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 302,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/fonts/dm-fonts/Sans/fonts/webfonts/DMSans-Regular.woff2",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 302,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/fonts/SourceSansPro-Regular.woff2",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 303,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&_eu=&_prs=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&en=&_fv=&_nsi=&_ss=&_c=&_ee=&ep.forceSSL=&ep.anonymize_ip=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 534,
+        "blockedByShields": true
+      },
+      {
+        "id": 42,
+        "url": "https://ad.doubleclick.net/ccm/s/collect?auid=&gtm=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 535,
+        "blockedByShields": true
+      },
+      {
+        "id": 43,
+        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/937044476/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 535,
+        "blockedByShields": true
+      },
+      {
+        "id": 44,
+        "url": "https://www.google.com/rmkt/collect/937044476/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&gcp=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 535,
+        "blockedByShields": true
+      },
+      {
+        "id": 45,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&ep.forceSSL=&ep.anonymize_ip=&did=&gdid=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 536,
+        "blockedByShields": true
+      },
+      {
+        "id": 46,
+        "url": "https://www.google.com/pagead/1p-user-list/937044476/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 617,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "creativecommons.org",
+        "requests": 39,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "other",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "_ga_J83GSCH0LS",
+        "domain": ".creativecommons.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".creativecommons.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".creativecommons.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls",
+        "valueBytes": 277
+      },
+      {
+        "area": "sessionStorage",
+        "key": "wpEmojiSettingsSupports",
+        "valueBytes": 69
+      }
+    ],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "The commons belongs to us all - Creative Commons",
+      "status": 200,
+      "durationMs": 929,
+      "firstPartyDomain": "creativecommons.org",
+      "totalRequests": 38,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://creativecommons.org/",
+      "finalUrl": "https://creativecommons.org/",
+      "scannedAt": "2026-06-21T17:01:25.757Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://creativecommons.org/",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 38,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/style.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 90,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/css/pidgin.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 91,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://creativecommons.org/wp-content/plugins/tablepress/css/build/default.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 91,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Group-32.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 92,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Group-20-1.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 92,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/css/vocabulary.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 108,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/chooser/css/chooser.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 108,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/css/library-vars.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 120,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/tools-for-building.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 132,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Rectangle-1.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 132,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/css/vendor/normalize.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 133,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/css/library-vars.css",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 134,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Teams-2-1-1.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 170,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/js/vocabulary.js",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 176,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/js/pidgin.js",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 176,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Support-CC-in-Style.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 177,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Group-33.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 178,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Commons-in-the-age-of-AI.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 178,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/support-1.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 178,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/05/Social-Header-1-1024x576.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 179,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/05/Social-Header-1024x576.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 179,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Social-Header-2-2-1024x576.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 180,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/Social-Header-1024x576.jpg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 181,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://creativecommons.org/wp-content/uploads/2026/04/newsletter.png",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 181,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/svg/cc/icons/cc-icons.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 182,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/svg/25.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 216,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/svg/cc/logos/cc/logomark.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 217,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/svg/font-awesome/icons/fa-icons.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 217,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/svg/cc/icons/cc-icons.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 218,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/svg/blob_c2.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 221,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/svg/star_c.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 222,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/svg/repeat_c.svg",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 223,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/fonts/dm-mono/exports/DMMono-Medium.ttf",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 223,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/fonts/dm-fonts/Sans/fonts/webfonts/DMSans-SemiBold.woff2",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 224,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/fonts/dm-mono/exports/DMMono-Regular.ttf",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 224,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/pidgin/fonts/dm-fonts/Sans/fonts/webfonts/DMSans-Regular.woff2",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 225,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/fonts/SourceSansPro-Regular.woff2",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 225,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "creativecommons.org",
+        "requests": 38,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "other",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [
+      {
+        "area": "sessionStorage",
+        "key": "wpEmojiSettingsSupports",
+        "valueBytes": 69
+      }
+    ],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 46,
+      "after": 38,
+      "delta": -8
+    },
+    "thirdPartyRequests": {
+      "before": 7,
+      "after": 0,
+      "delta": -7
+    },
+    "knownTrackerRequests": {
+      "before": 4,
+      "after": 0,
+      "delta": -4
+    },
+    "thirdPartyDomains": {
+      "before": 5,
+      "after": 0,
+      "delta": -5
+    },
+    "cookies": {
+      "before": 4,
+      "after": 0,
+      "delta": -4
+    },
+    "thirdPartyCookies": {
+      "before": 1,
+      "after": 0,
+      "delta": -1
+    },
+    "storageEntries": {
+      "before": 2,
+      "after": 1,
+      "delta": -1
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.google.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 4,
+        "domains": 4
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "_ga",
+        "domain": ".creativecommons.org",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_J83GSCH0LS",
+        "domain": ".creativecommons.org",
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".creativecommons.org",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 8,
+      "after": 2,
+      "delta": -6
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260621-9ecb783df36b1c62f990408d804627ac",
+    "path": "/reports/20260621-9ecb783df36b1c62f990408d804627ac/",
+    "jsonPath": "/reports/20260621-9ecb783df36b1c62f990408d804627ac.json"
+  }
+}

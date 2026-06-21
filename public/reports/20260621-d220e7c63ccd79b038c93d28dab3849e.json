@@ -1,0 +1,2783 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.stanford.edu/",
+  "scannedAt": "2026-06-21T17:01:56.025Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Stanford University",
+      "status": 200,
+      "durationMs": 2057,
+      "firstPartyDomain": "www.stanford.edu",
+      "totalRequests": 84,
+      "thirdPartyRequests": 39,
+      "knownTrackerRequests": 18,
+      "thirdPartyDomains": 17,
+      "cookies": 13,
+      "thirdPartyCookies": 5,
+      "storageEntries": 4,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 22
+    },
+    "conditions": {
+      "requestedUrl": "https://www.stanford.edu/",
+      "finalUrl": "https://www.stanford.edu/",
+      "scannedAt": "2026-06-21T17:01:53.963Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.stanford.edu/",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 35,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.stanford.edu/wp-content/plugins/formidable/css/formidableforms.css",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 113,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.stanford.edu/wp-content/plugins/awesome-weather-pro/awesome-weather.css",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 114,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://fonts.googleapis.com/css?family=&ver=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 114,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.stanford.edu/wp-content/themes/homesite17/style.css",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 114,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.stanford.edu/wp-content/themes/homesite17/css/master.min.css",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.stanford.edu/wp-includes/js/jquery/jquery.min.js",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.stanford.edu/wp-includes/js/jquery/jquery-migrate.min.js",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.stanford.edu/wp-content/plugins/site-improve-snippet/snippet.js",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 116,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.stanford.edu/wp-content/plugins/stanford-fb-pixel/pixel.js",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 116,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/04/Renee_Zhao-sqr-240x240.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 116,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/06/Khoi-profile.png",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 116,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/10/helena-240x240.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 118,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.stanford.edu/wp-content/plugins/awesome-weather-pro/js/awesome-weather-widget-frontend.js",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 138,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.stanford.edu/wp-content/plugins/awesome-weather-pro/js/js-cookie.js",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://fonts.googleapis.com/css?family=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 158,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://fonts.googleapis.com/css?family=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 159,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://fonts.googleapis.com/css?family=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 160,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.stanford.edu/wp-content/themes/homesite17/js/dist/master.min.js",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 164,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://events.stanford.edu/widget/view",
+        "domain": "events.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 274,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://siteimproveanalytics.com/js/siteanalyze_80352.js",
+        "domain": "siteimproveanalytics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 307,
+        "blockedByShields": true
+      },
+      {
+        "id": 22,
+        "url": "https://connect.facebook.net/en_US/fbevents.js",
+        "domain": "connect.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "connect.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 309,
+        "blockedByShields": true
+      },
+      {
+        "id": 23,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 309,
+        "blockedByShields": true
+      },
+      {
+        "id": 24,
+        "url": "https://www.stanford.edu/wp-content/uploads/2026/06/20260613_Commencement_N6A1207.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 310,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.stanford.edu/wp-content/uploads/2026/06/Slideshow-8-20260613_Commencement_95A6803.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 310,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.stanford.edu/wp-content/uploads/2026/06/Lead-Overlay-20260612_Baccalaureate_N6A0329.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 310,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.stanford.edu/wp-content/uploads/2026/06/Sum26_Sattely_Main.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 310,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.stanford.edu/wp-content/uploads/2026/06/puma_p_002018_20231015-1499x999.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 311,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.stanford.edu/wp-content/uploads/2026/06/8a1a4337794f6fe419cab71c2e98c0ad3e38b79e.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 311,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.stanford.edu/wp-content/uploads/2026/06/20260531_Grad_Profile_Gabrielle_Edelin_95A2420-1.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 311,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.stanford.edu/wp-content/uploads/2023/05/20230418_Grayson_Armour_95A0681-2.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 311,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.stanford.edu/wp-content/uploads/2023/03/20220714Hopkins_Marine_Station_N6A7270-1-1499x1000.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 312,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.stanford.edu/wp-content/uploads/2023/03/20211117_Elizabeth_Reese_N6A0441-1499x1000.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 312,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/04/20250320_Renee_Zhao-5.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 312,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/06/Khoi-background-1499x750.png",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 313,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/04/Campus-life-1-1499x940.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 313,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/10/ePluribus-1499x939.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 313,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/04/Campus-life-3-1499x940.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 314,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/10/20220510_Helena_Zhang_N6A1299.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 314,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/10/20200212_Conservator_SRA6885-1499x1000.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 314,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/10/20240826_Spirit_House_N6A3451-1499x1000.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 315,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/10/2012JG23.625RE-1499x999.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 315,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/04/Health-care-1.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 315,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/04/Health-care-2-1499x999.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 316,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/04/Health-care-3.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 316,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/04/Gym-champs-1499x937.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 316,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://www.stanford.edu/wp-content/uploads/2024/08/Ledecky2-1499x937.png",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 317,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/04/Impact-1499x937.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 319,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/08/Maya-admission.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 320,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xK3dSBYKcSV-LCoeQqfX1RYOo3qOK7l.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 388,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://www.stanford.edu/wp-content/themes/homesite17/fonts/Stanford.ttf",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 388,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xKydSBYKcSV-LCoeQqfX1RYOo3i54rwlxdu.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 388,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://www.stanford.edu/wp-content/themes/homesite17/fonts/fontawesome-webfont.woff2",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 388,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xKydSBYKcSV-LCoeQqfX1RYOo3ig4vwlxdu.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 389,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xKydSBYKcSV-LCoeQqfX1RYOo3iu4nwlxdu.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 389,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdu.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 390,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xK1dSBYKcSV-LCoeQqfX1RYOo3qPZ7nsDI.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 390,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://www.stanford.edu/wp-content/uploads/2021/10/dish-andrew-lg-1499x551.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 466,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://connect.facebook.net/signals/config/1199096620574484?v=&r=&domain=&hme=&ex_m=",
+        "domain": "connect.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "connect.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 570,
+        "blockedByShields": true
+      },
+      {
+        "id": 60,
+        "url": "https://fonts.googleapis.com/css2?family=&display=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 573,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://localist-images.azureedge.net/photos/53004541056832/square_300/a31797a7ed6091ab48a32ed4c2dc730b3c8e6b48.jpg",
+        "domain": "localist-images.azureedge.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 573,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://localist-images.azureedge.net/photos/41032187193603/square_300/691d439746ff6c8ee4d2d870f750c3f0f27a5762.jpg",
+        "domain": "localist-images.azureedge.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 573,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://localist-images.azureedge.net/photos/53026874608130/square_300/4eb6cc4b4ff16006d00aa7068265317fda6241ab.jpg",
+        "domain": "localist-images.azureedge.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 573,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://localist-images.azureedge.net/photos/53134732363951/square_300/65d7c610765d2ea87eba59a6f4d0e8e9c774fede.jpg",
+        "domain": "localist-images.azureedge.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 574,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://80352.global.siteimproveanalytics.io/image.aspx?url=&title=&res=&accountid=&rt=&prev=&luid=&rnd=",
+        "domain": "80352.global.siteimproveanalytics.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 595,
+        "blockedByShields": true
+      },
+      {
+        "id": 66,
+        "url": "https://6343745.global.r2.siteimproveanalytics.io/image.aspx?url=&title=&res=&accountid=&rt=&prev=&luid=&rnd=",
+        "domain": "6343745.global.r2.siteimproveanalytics.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 596,
+        "blockedByShields": true
+      },
+      {
+        "id": 67,
+        "url": "https://ad.doubleclick.net/ccm/s/collect?auid=&gtm=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 707,
+        "blockedByShields": true
+      },
+      {
+        "id": 68,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 708,
+        "blockedByShields": true
+      },
+      {
+        "id": 69,
+        "url": "https://www.google-analytics.com/analytics.js",
+        "domain": "www.google-analytics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 709,
+        "blockedByShields": true
+      },
+      {
+        "id": 70,
+        "url": "https://www.youtube.com/iframe_api",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 709,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://static.hotjar.com/c/hotjar-6430056.js?sv=",
+        "domain": "static.hotjar.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "hotjar.com",
+          "entity": "Hotjar",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 709,
+        "blockedByShields": true
+      },
+      {
+        "id": 72,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&ae=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&ep.ads_data_redaction=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&gap.plf=&apvc=&tft=&tfd=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 709,
+        "blockedByShields": true
+      },
+      {
+        "id": 73,
+        "url": "https://analytics.google.com/g/collect?v=&tid=&gtm=&_p=&_gaz=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&gaf=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&en=&_fv=&_nsi=&_ss=&gap.plf=&tfd=",
+        "domain": "analytics.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 888,
+        "blockedByShields": true
+      },
+      {
+        "id": 74,
+        "url": "https://stats.g.doubleclick.net/g/collect?v=&tid=&cid=&gtm=&rcb=&aip=&dma=&gcd=&npa=&frm=&tag_exp=",
+        "domain": "stats.g.doubleclick.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 889,
+        "blockedByShields": true
+      },
+      {
+        "id": 75,
+        "url": "https://www.youtube.com/s/player/ac678d18/www-widgetapi.vflset/www-widgetapi.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 896,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://www.google-analytics.com/j/collect?v=&_v=&a=&t=&_s=&dl=&ul=&dt=&sr=&vp=&_u=&jid=&gjid=&cid=&tid=&_gid=&_r=&_slc=&gtm=&gcd=&dma=&tag_exp=&z=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 940,
+        "blockedByShields": true
+      },
+      {
+        "id": 77,
+        "url": "https://js-agent.newrelic.com/nr-spa-1.316.0.min.js",
+        "domain": "js-agent.newrelic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 948,
+        "blockedByShields": true
+      },
+      {
+        "id": 78,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&_slc=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 965,
+        "blockedByShields": true
+      },
+      {
+        "id": 79,
+        "url": "https://bam.nr-data.net/1/NRJS-a5e9036dbeb441881bb?a=&v=&to=&rst=&ck=&s=&ref=&ptid=&af=&ap=&be=&fe=&dc=&at=&fsh=&perf=&fp=&fcp=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1013,
+        "blockedByShields": true
+      },
+      {
+        "id": 80,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&ir=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&sid=&sct=&seg=&_tu=&en=&_fv=&_ss=&_ee=&gap.uat=&gap.plf=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1145,
+        "blockedByShields": true
+      },
+      {
+        "id": 81,
+        "url": "https://bam.nr-data.net/events/1/NRJS-a5e9036dbeb441881bb?a=&v=&to=&rst=&ck=&s=&ref=&ptid=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1313,
+        "blockedByShields": true
+      },
+      {
+        "id": 82,
+        "url": "https://bam.nr-data.net/jserrors/1/NRJS-a5e9036dbeb441881bb?a=&v=&to=&rst=&ck=&s=&ref=&ptid=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1314,
+        "blockedByShields": true
+      },
+      {
+        "id": 83,
+        "url": "https://bam.nr-data.net/events/1/NRJS-a5e9036dbeb441881bb?a=&v=&to=&rst=&ck=&s=&ref=&ptid=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1316,
+        "blockedByShields": true
+      },
+      {
+        "id": 84,
+        "url": "https://bam.nr-data.net/events/1/NRJS-a5e9036dbeb441881bb?a=&v=&to=&rst=&ck=&s=&ref=&ptid=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1317,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "bam.nr-data.net",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "connect.facebook.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "connect.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "static.hotjar.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "hotjar.com",
+          "entity": "Hotjar",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "stats.g.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "js-agent.newrelic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "localist-images.azureedge.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "siteimproveanalytics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "80352.global.siteimproveanalytics.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "6343745.global.r2.siteimproveanalytics.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.stanford.edu",
+        "requests": 44,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      },
+      {
+        "domain": "events.stanford.edu",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__Secure-YNID",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "YSC",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "__Secure-ROLLOUT_TOKEN",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_INFO1_LIVE",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_PRIVACY_METADATA",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "nmstat",
+        "domain": ".stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_fbp",
+        "domain": ".stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gat_UA-1860414-1",
+        "domain": ".stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_RBCPHN00S7",
+        "domain": ".stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_E08J4Q7DG7",
+        "domain": ".stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "lastExternalReferrer",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "NRBA_SESSION::7d5cfb98",
+        "valueBytes": 311
+      },
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls",
+        "valueBytes": 277
+      },
+      {
+        "area": "localStorage",
+        "key": "lastExternalReferrerTime",
+        "valueBytes": 13
+      }
+    ],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Stanford University",
+      "status": 200,
+      "durationMs": 1138,
+      "firstPartyDomain": "www.stanford.edu",
+      "totalRequests": 60,
+      "thirdPartyRequests": 15,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 3,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://www.stanford.edu/",
+      "finalUrl": "https://www.stanford.edu/",
+      "scannedAt": "2026-06-21T17:01:56.025Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.stanford.edu/",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 37,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.stanford.edu/wp-content/plugins/formidable/css/formidableforms.css",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 111,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.stanford.edu/wp-content/plugins/awesome-weather-pro/awesome-weather.css",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 112,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://fonts.googleapis.com/css?family=&ver=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 113,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.stanford.edu/wp-content/themes/homesite17/style.css",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 114,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.stanford.edu/wp-content/themes/homesite17/css/master.min.css",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 114,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.stanford.edu/wp-includes/js/jquery/jquery.min.js",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 114,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.stanford.edu/wp-includes/js/jquery/jquery-migrate.min.js",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.stanford.edu/wp-content/plugins/site-improve-snippet/snippet.js",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.stanford.edu/wp-content/plugins/stanford-fb-pixel/pixel.js",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/04/Renee_Zhao-sqr-240x240.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 116,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/06/Khoi-profile.png",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 116,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/10/helena-240x240.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 116,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.stanford.edu/wp-content/plugins/awesome-weather-pro/js/awesome-weather-widget-frontend.js",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 141,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.stanford.edu/wp-content/plugins/awesome-weather-pro/js/js-cookie.js",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://fonts.googleapis.com/css?family=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 157,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://fonts.googleapis.com/css?family=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 159,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://fonts.googleapis.com/css?family=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 159,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.stanford.edu/wp-content/themes/homesite17/js/dist/master.min.js",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 161,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://events.stanford.edu/widget/view",
+        "domain": "events.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 274,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.stanford.edu/wp-content/uploads/2026/06/20260613_Commencement_N6A1207.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 305,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.stanford.edu/wp-content/uploads/2026/06/Slideshow-8-20260613_Commencement_95A6803.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 306,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.stanford.edu/wp-content/uploads/2026/06/Lead-Overlay-20260612_Baccalaureate_N6A0329.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 306,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.stanford.edu/wp-content/uploads/2026/06/Sum26_Sattely_Main.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 307,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.stanford.edu/wp-content/uploads/2026/06/puma_p_002018_20231015-1499x999.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 307,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.stanford.edu/wp-content/uploads/2026/06/8a1a4337794f6fe419cab71c2e98c0ad3e38b79e.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 307,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.stanford.edu/wp-content/uploads/2026/06/20260531_Grad_Profile_Gabrielle_Edelin_95A2420-1.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 308,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.stanford.edu/wp-content/uploads/2023/05/20230418_Grayson_Armour_95A0681-2.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 308,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.stanford.edu/wp-content/uploads/2023/03/20220714Hopkins_Marine_Station_N6A7270-1-1499x1000.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 309,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.stanford.edu/wp-content/uploads/2023/03/20211117_Elizabeth_Reese_N6A0441-1499x1000.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 309,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/04/20250320_Renee_Zhao-5.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 310,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/06/Khoi-background-1499x750.png",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 310,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/04/Campus-life-1-1499x940.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 311,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/10/ePluribus-1499x939.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 311,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/04/Campus-life-3-1499x940.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 311,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/10/20220510_Helena_Zhang_N6A1299.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 312,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/10/20200212_Conservator_SRA6885-1499x1000.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 312,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/10/20240826_Spirit_House_N6A3451-1499x1000.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 313,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.stanford.edu/wp-content/uploads/2025/10/2012JG23.625RE-1499x999.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 313,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/04/Health-care-1.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 319,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/04/Health-care-2-1499x999.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 320,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/04/Health-care-3.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 320,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/04/Gym-champs-1499x937.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 321,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://www.stanford.edu/wp-content/uploads/2024/08/Ledecky2-1499x937.png",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 321,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/04/Impact-1499x937.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 321,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.stanford.edu/wp-content/uploads/2022/08/Maya-admission.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 322,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://www.stanford.edu/wp-content/uploads/2021/10/dish-andrew-lg-1499x551.jpg",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 322,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xK3dSBYKcSV-LCoeQqfX1RYOo3qOK7l.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 380,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.stanford.edu/wp-content/themes/homesite17/fonts/Stanford.ttf",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 381,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xKydSBYKcSV-LCoeQqfX1RYOo3i54rwlxdu.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 381,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://www.stanford.edu/wp-content/themes/homesite17/fonts/fontawesome-webfont.woff2",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 381,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xKydSBYKcSV-LCoeQqfX1RYOo3ig4vwlxdu.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 382,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xKydSBYKcSV-LCoeQqfX1RYOo3iu4nwlxdu.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 382,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdu.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 382,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xK1dSBYKcSV-LCoeQqfX1RYOo3qPZ7nsDI.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 382,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://fonts.googleapis.com/css2?family=&display=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 469,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://localist-images.azureedge.net/photos/53004541056832/square_300/a31797a7ed6091ab48a32ed4c2dc730b3c8e6b48.jpg",
+        "domain": "localist-images.azureedge.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 470,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://localist-images.azureedge.net/photos/41032187193603/square_300/691d439746ff6c8ee4d2d870f750c3f0f27a5762.jpg",
+        "domain": "localist-images.azureedge.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 470,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://localist-images.azureedge.net/photos/53026874608130/square_300/4eb6cc4b4ff16006d00aa7068265317fda6241ab.jpg",
+        "domain": "localist-images.azureedge.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 470,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://localist-images.azureedge.net/photos/53134732363951/square_300/65d7c610765d2ea87eba59a6f4d0e8e9c774fede.jpg",
+        "domain": "localist-images.azureedge.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 470,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "localist-images.azureedge.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.stanford.edu",
+        "requests": 44,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      },
+      {
+        "domain": "events.stanford.edu",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 84,
+      "after": 60,
+      "delta": -24
+    },
+    "thirdPartyRequests": {
+      "before": 39,
+      "after": 15,
+      "delta": -24
+    },
+    "knownTrackerRequests": {
+      "before": 18,
+      "after": 0,
+      "delta": -18
+    },
+    "thirdPartyDomains": {
+      "before": 17,
+      "after": 3,
+      "delta": -14
+    },
+    "cookies": {
+      "before": 13,
+      "after": 0,
+      "delta": -13
+    },
+    "thirdPartyCookies": {
+      "before": 5,
+      "after": 0,
+      "delta": -5
+    },
+    "storageEntries": {
+      "before": 4,
+      "after": 0,
+      "delta": -4
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "bam.nr-data.net",
+        "requests": 5,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "connect.facebook.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "connect.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "6343745.global.r2.siteimproveanalytics.io",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "80352.global.siteimproveanalytics.io",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "js-agent.newrelic.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "siteimproveanalytics.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "static.hotjar.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "hotjar.com",
+          "entity": "Hotjar",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "stats.g.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 9,
+        "domains": 5
+      },
+      {
+        "entity": "New Relic",
+        "requests": 6,
+        "domains": 2
+      },
+      {
+        "entity": "Meta",
+        "requests": 2,
+        "domains": 1
+      },
+      {
+        "entity": "Hotjar",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "__Secure-ROLLOUT_TOKEN",
+        "domain": ".youtube.com",
+        "thirdParty": true
+      },
+      {
+        "name": "__Secure-YNID",
+        "domain": ".youtube.com",
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_INFO1_LIVE",
+        "domain": ".youtube.com",
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_PRIVACY_METADATA",
+        "domain": ".youtube.com",
+        "thirdParty": true
+      },
+      {
+        "name": "YSC",
+        "domain": ".youtube.com",
+        "thirdParty": true
+      },
+      {
+        "name": "_fbp",
+        "domain": ".stanford.edu",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".stanford.edu",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_E08J4Q7DG7",
+        "domain": ".stanford.edu",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_RBCPHN00S7",
+        "domain": ".stanford.edu",
+        "thirdParty": false
+      },
+      {
+        "name": "_gat_UA-1860414-1",
+        "domain": ".stanford.edu",
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".stanford.edu",
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".stanford.edu",
+        "thirdParty": false
+      },
+      {
+        "name": "nmstat",
+        "domain": ".stanford.edu",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls"
+      },
+      {
+        "area": "localStorage",
+        "key": "lastExternalReferrer"
+      },
+      {
+        "area": "localStorage",
+        "key": "lastExternalReferrerTime"
+      },
+      {
+        "area": "localStorage",
+        "key": "NRBA_SESSION::7d5cfb98"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 22,
+      "after": 5,
+      "delta": -17
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260621-d220e7c63ccd79b038c93d28dab3849e",
+    "path": "/reports/20260621-d220e7c63ccd79b038c93d28dab3849e/",
+    "jsonPath": "/reports/20260621-d220e7c63ccd79b038c93d28dab3849e.json"
+  }
+}

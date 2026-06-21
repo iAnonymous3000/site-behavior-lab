@@ -1,0 +1,974 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.fsf.org/",
+  "scannedAt": "2026-06-21T17:01:21.493Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Front Page — Free Software Foundation — working together for free software",
+      "status": 200,
+      "durationMs": 2725,
+      "firstPartyDomain": "www.fsf.org",
+      "totalRequests": 28,
+      "thirdPartyRequests": 1,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://www.fsf.org/",
+      "finalUrl": "https://www.fsf.org/",
+      "scannedAt": "2026-06-21T17:01:18.762Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.fsf.org/",
+        "domain": "www.fsf.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 35,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://static.fsf.org/nosvn/yui3-3.18.1/build/cssgrids-responsive/cssgrids-responsive-min.css",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 277,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://static.fsf.org/common/fonts/roboto/roboto.css",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://static.fsf.org/nosvn/plone4/css/fsf-2017-11-13.css",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://static.gnu.org/nosvn/fonts/fa/css/font-awesome.min.css",
+        "domain": "static.gnu.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://static.fsf.org/common/img/logo-new.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 279,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://static.fsf.org/nosvn/join.en.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 279,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.fsf.org/blogs/community/2026-free-software-awards-2025-nominations-open/@@images/6220a560-05f5-4590-827a-8fb6a0183c14.png",
+        "domain": "www.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 281,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.fsf.org/news/2026-job-opportunity-fsf-engineering-and-certification-manager/@@images/a8960fbe-10b6-4f7c-80fa-8af1f8941af7.png",
+        "domain": "www.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 281,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://static.fsf.org/nosvn/images/socials/share.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://static.fsf.org/nosvn/images/socials/mastodon.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://static.fsf.org/nosvn/images/socials/twitter.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://static.fsf.org/nosvn/images/socials/peertube.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://static.fsf.org/nosvn/dbd/sites/www.defectivebydesign.org/files/sites/nodrm.civicactions.net/files/images/dbd_color_logo_trim_square.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://static.fsf.org/nosvn/enc-dev0/img/en/screenshots/step2a-01-make-keypair.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://static.fsf.org/nosvn/logos/esp-b.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://static.fsf.org/nosvn/logos/freejs.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://static.fsf.org/nosvn/logos/fsd_logo_stacked.svg",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 283,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://static.fsf.org/nosvn/logos/campaigns_gnu.small.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 283,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://static.fsf.org/nosvn/logos/lp-logo-square.svg",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 283,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://static.fsf.org/nosvn/plone3/css/print-2011-10-13.css",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 284,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://static.fsf.org/nosvn/banners/202606fundraiser/",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 284,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://static.fsf.org/nosvn/logos/LCL_red.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 285,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://static.fsf.org/nosvn/logos/ryf.svg",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 285,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://static.fsf.org/nosvn/libreplanet/speaker-pics/snowden-large.jpg",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 285,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://static.fsf.org/nosvn/blogs/free-software-award-s.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 285,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://piwik.fsf.org/matomo.js",
+        "domain": "piwik.fsf.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1377,
+        "blockedByShields": true
+      },
+      {
+        "id": 28,
+        "url": "https://piwik.fsf.org/matomo.php",
+        "domain": "piwik.fsf.org",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1939,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "static.gnu.org",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "static.fsf.org",
+        "requests": 22,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          403
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "document"
+        ]
+      },
+      {
+        "domain": "www.fsf.org",
+        "requests": 3,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "piwik.fsf.org",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "ping"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Front Page — Free Software Foundation — working together for free software",
+      "status": 200,
+      "durationMs": 1243,
+      "firstPartyDomain": "www.fsf.org",
+      "totalRequests": 26,
+      "thirdPartyRequests": 1,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 1
+    },
+    "conditions": {
+      "requestedUrl": "https://www.fsf.org/",
+      "finalUrl": "https://www.fsf.org/",
+      "scannedAt": "2026-06-21T17:01:21.493Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.fsf.org/",
+        "domain": "www.fsf.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 35,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://static.fsf.org/nosvn/yui3-3.18.1/build/cssgrids-responsive/cssgrids-responsive-min.css",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 288,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://static.fsf.org/common/fonts/roboto/roboto.css",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 288,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://static.fsf.org/nosvn/plone4/css/fsf-2017-11-13.css",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 290,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://static.gnu.org/nosvn/fonts/fa/css/font-awesome.min.css",
+        "domain": "static.gnu.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 290,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://static.fsf.org/common/img/logo-new.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 290,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://static.fsf.org/nosvn/join.en.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 291,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.fsf.org/blogs/community/2026-free-software-awards-2025-nominations-open/@@images/6220a560-05f5-4590-827a-8fb6a0183c14.png",
+        "domain": "www.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 299,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.fsf.org/news/2026-job-opportunity-fsf-engineering-and-certification-manager/@@images/a8960fbe-10b6-4f7c-80fa-8af1f8941af7.png",
+        "domain": "www.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 299,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://static.fsf.org/nosvn/images/socials/share.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 300,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://static.fsf.org/nosvn/images/socials/mastodon.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 302,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://static.fsf.org/nosvn/images/socials/twitter.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 302,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://static.fsf.org/nosvn/images/socials/peertube.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 303,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://static.fsf.org/nosvn/dbd/sites/www.defectivebydesign.org/files/sites/nodrm.civicactions.net/files/images/dbd_color_logo_trim_square.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 303,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://static.fsf.org/nosvn/enc-dev0/img/en/screenshots/step2a-01-make-keypair.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 303,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://static.fsf.org/nosvn/banners/202606fundraiser/",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 304,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://static.fsf.org/nosvn/logos/esp-b.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 304,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://static.fsf.org/nosvn/logos/freejs.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 304,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://static.fsf.org/nosvn/logos/fsd_logo_stacked.svg",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 304,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://static.fsf.org/nosvn/logos/campaigns_gnu.small.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 305,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://static.fsf.org/nosvn/logos/lp-logo-square.svg",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 305,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://static.fsf.org/nosvn/plone3/css/print-2011-10-13.css",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 305,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://static.fsf.org/nosvn/logos/LCL_red.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 307,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://static.fsf.org/nosvn/logos/ryf.svg",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 308,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://static.fsf.org/nosvn/libreplanet/speaker-pics/snowden-large.jpg",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 308,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://static.fsf.org/nosvn/blogs/free-software-award-s.png",
+        "domain": "static.fsf.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 308,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "static.gnu.org",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "static.fsf.org",
+        "requests": 22,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          403
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "document"
+        ]
+      },
+      {
+        "domain": "www.fsf.org",
+        "requests": 3,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 28,
+      "after": 26,
+      "delta": -2
+    },
+    "thirdPartyRequests": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "piwik.fsf.org",
+        "requests": 2,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 2,
+      "after": 1,
+      "delta": -1
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260621-583f1f75e4cae16314e74cdc395fc4d0",
+    "path": "/reports/20260621-583f1f75e4cae16314e74cdc395fc4d0/",
+    "jsonPath": "/reports/20260621-583f1f75e4cae16314e74cdc395fc4d0.json"
+  }
+}

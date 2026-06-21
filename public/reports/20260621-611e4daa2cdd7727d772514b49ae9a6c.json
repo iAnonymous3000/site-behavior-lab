@@ -1,0 +1,912 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://letsencrypt.org/",
+  "scannedAt": "2026-06-21T17:01:36.860Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Let's Encrypt",
+      "status": 200,
+      "durationMs": 1514,
+      "firstPartyDomain": "letsencrypt.org",
+      "totalRequests": 23,
+      "thirdPartyRequests": 7,
+      "knownTrackerRequests": 2,
+      "thirdPartyDomains": 4,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://letsencrypt.org/",
+      "finalUrl": "https://letsencrypt.org/",
+      "scannedAt": "2026-06-21T17:01:35.340Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://letsencrypt.org/",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 33,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://letsencrypt.org/css/le-2025-theme-input.1a84d21d314a2a165316dbe9006b36a5eefd041136c58c1efbfdd722c77b98c5.css",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 77,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://letsencrypt.org/fontawesome-free-6.5.2-web/css/all.min.css",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 77,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://letsencrypt.org/js/le-2025-theme.baca0a37d412391799a4e5f6d58968c12b948b4c91c053a3c025ab758ffb70bc.js",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 78,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://letsencrypt.org/js/autoanchor.44783525c73cfeef565e5b8441cd42a848cb630d9f365def73edce4867e6f4c8.js",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 79,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://letsencrypt.org/js/number-animation.137c25102252dc89411a5c2d9eb00a383f12425cb7845c8d8ac4c615c0af1f8e.js",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 79,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://letsencrypt.org/images/language-icon128px-black.png",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 79,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://letsencrypt.org/images/letsencrypt-logo-horizontal.svg",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 79,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://letsencrypt.org/images/le-logo-lockonly.svg",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 104,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://letsencrypt.org/js/main.a572b61495f9d8fe4e5ec075082ddfe85e5a5ff501c15c499d3f2a4bed71afb6fe89e85f3202aa8fdeebcda97645416bfc75683c2d3471485b5668a6d5f98740.js",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 105,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://letsencrypt.org/js/plotly-min.js",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 108,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://letsencrypt.org/js/stats.js",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 108,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://letsencrypt.org/images/Prossimo%20Horizontal%20Full%20Color.svg",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 109,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://letsencrypt.org/images/Divvi-Up-Large-Full-Color-Logo.png",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 109,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://letsencrypt.org/images/ISRG-Logo-Blue.svg",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 110,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://outreach.abetterinternet.org/l/1011011/2025-01-14/31v6r",
+        "domain": "outreach.abetterinternet.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 113,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://letsencrypt.org/images/radiant_london_resized/radiant_london_5_1280w.jpg",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 141,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://fonts.googleapis.com/css?family=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 529,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://outreach.abetterinternet.org/css/form.css?ver=",
+        "domain": "outreach.abetterinternet.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 530,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://outreach.abetterinternet.org/js/piUtils.js?ver=",
+        "domain": "outreach.abetterinternet.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 530,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://pi.pardot.com/pd.js",
+        "domain": "pi.pardot.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "pardot.com",
+          "entity": "Salesforce",
+          "category": "marketing automation / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 692,
+        "blockedByShields": true
+      },
+      {
+        "id": 22,
+        "url": "https://d4twhgtvn0ff5.cloudfront.net/cert-timeline.tsv",
+        "domain": "d4twhgtvn0ff5.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 693,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://pi.pardot.com/analytics?ver=&pi_form=&visitor_id=&visitor_id_sign=&pi_opt_in=&campaign_id=&account_id=&title=&url=&referrer=",
+        "domain": "pi.pardot.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "pardot.com",
+          "entity": "Salesforce",
+          "category": "marketing automation / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 793,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "pi.pardot.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "pardot.com",
+          "entity": "Salesforce",
+          "category": "marketing automation / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "outreach.abetterinternet.org",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "d4twhgtvn0ff5.cloudfront.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "letsencrypt.org",
+        "requests": 16,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Let's Encrypt",
+      "status": 200,
+      "durationMs": 1152,
+      "firstPartyDomain": "letsencrypt.org",
+      "totalRequests": 21,
+      "thirdPartyRequests": 5,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 3,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 1
+    },
+    "conditions": {
+      "requestedUrl": "https://letsencrypt.org/",
+      "finalUrl": "https://letsencrypt.org/",
+      "scannedAt": "2026-06-21T17:01:36.860Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://letsencrypt.org/",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 39,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://letsencrypt.org/css/le-2025-theme-input.1a84d21d314a2a165316dbe9006b36a5eefd041136c58c1efbfdd722c77b98c5.css",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 86,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://letsencrypt.org/fontawesome-free-6.5.2-web/css/all.min.css",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 86,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://letsencrypt.org/js/le-2025-theme.baca0a37d412391799a4e5f6d58968c12b948b4c91c053a3c025ab758ffb70bc.js",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 87,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://letsencrypt.org/js/autoanchor.44783525c73cfeef565e5b8441cd42a848cb630d9f365def73edce4867e6f4c8.js",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 88,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://letsencrypt.org/js/number-animation.137c25102252dc89411a5c2d9eb00a383f12425cb7845c8d8ac4c615c0af1f8e.js",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 88,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://letsencrypt.org/images/language-icon128px-black.png",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 89,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://letsencrypt.org/images/letsencrypt-logo-horizontal.svg",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 89,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://letsencrypt.org/images/le-logo-lockonly.svg",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 111,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://letsencrypt.org/js/main.a572b61495f9d8fe4e5ec075082ddfe85e5a5ff501c15c499d3f2a4bed71afb6fe89e85f3202aa8fdeebcda97645416bfc75683c2d3471485b5668a6d5f98740.js",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 114,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://letsencrypt.org/js/plotly-min.js",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 118,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://letsencrypt.org/js/stats.js",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 118,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://letsencrypt.org/images/Prossimo%20Horizontal%20Full%20Color.svg",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 119,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://letsencrypt.org/images/Divvi-Up-Large-Full-Color-Logo.png",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 119,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://letsencrypt.org/images/ISRG-Logo-Blue.svg",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 120,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://outreach.abetterinternet.org/l/1011011/2025-01-14/31v6r",
+        "domain": "outreach.abetterinternet.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 124,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://letsencrypt.org/images/radiant_london_resized/radiant_london_5_1280w.jpg",
+        "domain": "letsencrypt.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 148,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://fonts.googleapis.com/css?family=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 432,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://outreach.abetterinternet.org/css/form.css?ver=",
+        "domain": "outreach.abetterinternet.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 432,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://outreach.abetterinternet.org/js/piUtils.js?ver=",
+        "domain": "outreach.abetterinternet.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 433,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://d4twhgtvn0ff5.cloudfront.net/cert-timeline.tsv",
+        "domain": "d4twhgtvn0ff5.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 525,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "outreach.abetterinternet.org",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "d4twhgtvn0ff5.cloudfront.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "letsencrypt.org",
+        "requests": 16,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 23,
+      "after": 21,
+      "delta": -2
+    },
+    "thirdPartyRequests": {
+      "before": 7,
+      "after": 5,
+      "delta": -2
+    },
+    "knownTrackerRequests": {
+      "before": 2,
+      "after": 0,
+      "delta": -2
+    },
+    "thirdPartyDomains": {
+      "before": 4,
+      "after": 3,
+      "delta": -1
+    },
+    "cookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "pi.pardot.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "pardot.com",
+          "entity": "Salesforce",
+          "category": "marketing automation / analytics",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Salesforce",
+        "requests": 2,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 2,
+      "after": 1,
+      "delta": -1
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260621-611e4daa2cdd7727d772514b49ae9a6c",
+    "path": "/reports/20260621-611e4daa2cdd7727d772514b49ae9a6c/",
+    "jsonPath": "/reports/20260621-611e4daa2cdd7727d772514b49ae9a6c.json"
+  }
+}

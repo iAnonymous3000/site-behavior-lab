@@ -1,0 +1,945 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.mit.edu/",
+  "scannedAt": "2026-06-21T17:01:50.981Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "MIT - Massachusetts Institute of Technology",
+      "status": 200,
+      "durationMs": 1452,
+      "firstPartyDomain": "www.mit.edu",
+      "totalRequests": 26,
+      "thirdPartyRequests": 8,
+      "knownTrackerRequests": 1,
+      "thirdPartyDomains": 3,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://www.mit.edu/",
+      "finalUrl": "https://www.mit.edu/",
+      "scannedAt": "2026-06-21T17:01:49.524Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.mit.edu/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 34,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.mit.edu/themes/mit/assets/css/main.css",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 169,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.mit.edu/files/images/202606/MIT_Modeling-Metals-SL_0.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 170,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.mit.edu/themes/mit/assets/js/modernizr.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 170,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://use.typekit.net/uby1wjv.css",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 289,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.mit.edu/themes/mit/assets/js/main.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 291,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://p.typekit.net/p.css?s=&k=&ht=&f=&a=&app=&e=",
+        "domain": "p.typekit.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 400,
+        "blockedByShields": true
+      },
+      {
+        "id": 8,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 515,
+        "blockedByShields": true
+      },
+      {
+        "id": 9,
+        "url": "https://use.typekit.net/af/912d1e/00000000000000007735bb33/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 544,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://use.typekit.net/af/2288cb/00000000000000007735bb39/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 545,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://use.typekit.net/af/c002e2/00000000000000007735bb32/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 545,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://use.typekit.net/af/216c2e/00000000000000007735bb6a/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 545,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://use.typekit.net/af/174ae3/00000000000000007735bb5a/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 546,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.mit.edu/files/images/202606/MIT-TempSensor-0.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 551,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.mit.edu/files/images/202606/MIT_Ferveret-Cooling-home.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 552,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.mit.edu/files/images/202606/MIT-VR-Ultrasound-home.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 552,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.mit.edu/files/images/202605/MIT_CuriosityOnAMission-01-press-SLdw.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 553,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.mit.edu/files/images/202505/Final-Thumbnails-Filehm.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 553,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.mit.edu/files/images/202505/MIT-This-is-MIT-SLsub_0_0.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 554,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.mit.edu/spotlights-export/suggested-links/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 633,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.mit.edu/themes/mit/assets/js/SpotlightsExploreMoreLink.24ae33fb185156d3181a.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 634,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.mit.edu/themes/mit/assets/js/SpotlightsRecent.d6a3aa4b97b1659f1bbb.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 634,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.mit.edu/themes/mit/assets/js/Notification.11fc703b491d61aecf97.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 637,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.mit.edu/spotlights-export/recent/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 773,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.mit.edu/spotlights-export/recent/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 774,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.mit.edu/spotlights-export/announcements/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 790,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "use.typekit.net",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "font"
+        ]
+      },
+      {
+        "domain": "p.typekit.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "www.mit.edu",
+        "requests": 18,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "MIT - Massachusetts Institute of Technology",
+      "status": 200,
+      "durationMs": 1327,
+      "firstPartyDomain": "www.mit.edu",
+      "totalRequests": 24,
+      "thirdPartyRequests": 6,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://www.mit.edu/",
+      "finalUrl": "https://www.mit.edu/",
+      "scannedAt": "2026-06-21T17:01:50.981Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.mit.edu/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 36,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.mit.edu/themes/mit/assets/css/main.css",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 203,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.mit.edu/files/images/202606/MIT_Modeling-Metals-SL_0.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 204,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.mit.edu/themes/mit/assets/js/modernizr.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 205,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://use.typekit.net/uby1wjv.css",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 313,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.mit.edu/themes/mit/assets/js/main.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 336,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://use.typekit.net/af/912d1e/00000000000000007735bb33/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 375,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://use.typekit.net/af/2288cb/00000000000000007735bb39/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 376,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://use.typekit.net/af/c002e2/00000000000000007735bb32/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 377,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://use.typekit.net/af/216c2e/00000000000000007735bb6a/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 378,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://use.typekit.net/af/174ae3/00000000000000007735bb5a/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 378,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.mit.edu/files/images/202606/MIT-TempSensor-0.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 382,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.mit.edu/files/images/202606/MIT_Ferveret-Cooling-home.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 382,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.mit.edu/files/images/202606/MIT-VR-Ultrasound-home.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 383,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.mit.edu/files/images/202605/MIT_CuriosityOnAMission-01-press-SLdw.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 384,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.mit.edu/files/images/202505/Final-Thumbnails-Filehm.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 384,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.mit.edu/files/images/202505/MIT-This-is-MIT-SLsub_0_0.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 385,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.mit.edu/spotlights-export/suggested-links/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 536,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.mit.edu/themes/mit/assets/js/SpotlightsExploreMoreLink.24ae33fb185156d3181a.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 537,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.mit.edu/themes/mit/assets/js/SpotlightsRecent.d6a3aa4b97b1659f1bbb.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 538,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.mit.edu/themes/mit/assets/js/Notification.11fc703b491d61aecf97.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 538,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.mit.edu/spotlights-export/recent/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 638,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.mit.edu/spotlights-export/announcements/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 655,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.mit.edu/spotlights-export/recent/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 693,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "use.typekit.net",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "font"
+        ]
+      },
+      {
+        "domain": "www.mit.edu",
+        "requests": 18,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 26,
+      "after": 24,
+      "delta": -2
+    },
+    "thirdPartyRequests": {
+      "before": 8,
+      "after": 6,
+      "delta": -2
+    },
+    "knownTrackerRequests": {
+      "before": 1,
+      "after": 0,
+      "delta": -1
+    },
+    "thirdPartyDomains": {
+      "before": 3,
+      "after": 1,
+      "delta": -2
+    },
+    "cookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "p.typekit.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260621-b59a8513f403a2896d3bde51d27dbe92",
+    "path": "/reports/20260621-b59a8513f403a2896d3bde51d27dbe92/",
+    "jsonPath": "/reports/20260621-b59a8513f403a2896d3bde51d27dbe92.json"
+  }
+}
