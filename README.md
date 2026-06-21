@@ -205,6 +205,8 @@ The scan workflow prunes committed static reports before updating the manifest. 
 
 The repo also includes a Cloudflare-native scanner in `cloudflare/worker.ts`. It powers the public static scan form with Cloudflare Browser Run, KV-backed report storage, DNS-over-HTTPS public-address checks, public scan quotas, and GPC comparison support.
 
+> For the **full Node/Playwright scanner with live Shields** running on Cloudflare (Containers, fronted by a Worker, with R2 report storage), see [docs/deploy-cloudflare-containers.md](docs/deploy-cloudflare-containers.md). That is the Cloudflare-native version of the Node container path; this Browser Run Worker stays the lightweight GPC/trackers option.
+
 One-time Cloudflare setup:
 
 1. Create the KV namespace used by the report store and public scan rate limiter:
