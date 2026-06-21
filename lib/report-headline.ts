@@ -54,7 +54,7 @@ const KICKER = "What this actually means";
 const SHARE_TAGLINE = "See what a site does, not what it says. Open-source and reproducible:";
 
 export function buildReportHeadline(report: ScanReport): ReportHeadline {
-  const result = primaryResult(report);
+  const result = displayScanResult(report);
   const domain = friendlyDomain(result);
   const entities = trackerEntitySummaries(result);
   const trackingEntities = entities.filter((entity) => !isOperationalEntity(entity));
@@ -233,8 +233,16 @@ function isComparison(report: ScanReport): report is ComparisonScanResult {
   return report.reportType === "comparison";
 }
 
-function primaryResult(report: ScanReport): ScanResult {
-  return isComparison(report) ? report.variant : report;
+/**
+ * The run to display as the report's primary view. Comparison reports lead with
+ * the baseline (the off / unprotected run) so the report shows what the site
+ * actually did; the GPC/Shields "on" run is the protected state, surfaced in the
+ * comparison diff rather than the headline numbers. Temporal diffs lead with the
+ * newer "after" run.
+ */
+export function displayScanResult(report: ScanReport): ScanResult {
+  if (report.reportType !== "comparison") return report;
+  return report.comparisonType === "temporal" ? report.variant : report.baseline;
 }
 
 function friendlyDomain(result: ScanResult): string {

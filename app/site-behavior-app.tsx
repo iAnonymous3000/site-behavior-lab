@@ -34,7 +34,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createTemporalComparisonReport } from "@/lib/compare-reports";
 import { corpusBenchmark, corpusIsUsable, isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
 import { domainsMatch, isFeaturedSiteConfig, type FeaturedSite, type FeaturedSiteConfig } from "@/lib/featured-sites";
-import { buildReportHeadline, type ReportHeadline } from "@/lib/report-headline";
+import { buildReportHeadline, displayScanResult, type ReportHeadline } from "@/lib/report-headline";
 import { committedReportLocation, locateReport, type ReportRuntime } from "@/lib/report-locator";
 import { isScanRuntimeHealth, type ScanRuntimeHealth } from "@/lib/scan-runtime-health";
 import {
@@ -958,7 +958,10 @@ function isComparisonReport(result: ScanReport): result is ComparisonScanResult 
 }
 
 function primaryScanResult(result: ScanReport): ScanResult {
-  return isComparisonReport(result) ? result.variant : result;
+  // Lead with the baseline (off / unprotected) run for GPC/Shields so the report
+  // shows what the site actually did, not the cleaned-up protected residual; the
+  // ComparisonPanel carries the diff. (Temporal diffs lead with "after".)
+  return displayScanResult(result);
 }
 
 function reportDomain(result: ScanReport): string {
