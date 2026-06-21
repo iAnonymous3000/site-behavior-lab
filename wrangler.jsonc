@@ -17,8 +17,16 @@
   ],
   "vars": {
     "SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN": "*",
-    "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS": "0",
-    "SITE_BEHAVIOR_LAB_ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK": "0",
+    // sitebehavior.org runs as an intentionally open public GPC/trackers scanner.
+    // Both flags must be "1" together to enable unauthenticated scans; setting the
+    // risk flag accepts the documented Browser Run DNS-rebinding limitation
+    // (preflight-only DNS, no connect-time pinning). If this Worker is routed
+    // through a Cloudflare zone, add WAF rate rules; otherwise the KV quotas below
+    // (best-effort, not atomic) are the only in-app abuse control.
+    // Self-hosting a gated instance instead? Set both back to "0" and put a token
+    // in the SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN secret.
+    "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS": "1",
+    "SITE_BEHAVIOR_LAB_ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK": "1",
     "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE": "6",
     "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY": "120",
     "SITE_BEHAVIOR_LAB_SCANNER_EGRESS": "cloudflare-browser-run"

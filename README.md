@@ -202,7 +202,7 @@ npm run cf:kv:create
 ```
 
 2. Put the returned namespace id in `wrangler.jsonc` under the `REPORTS_KV` binding.
-3. Gated deployments are the default. Keep `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=0` and set a scan token:
+3. Gating is the safer default for self-hosting, but the committed `wrangler.jsonc` ships the intentionally-open posture used by sitebehavior.org (`SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1` plus the risk flag — see step 5). For a gated instance, set both flags back to `0` in `wrangler.jsonc` and set a scan token:
 
 ```bash
 npx wrangler secret put SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN
