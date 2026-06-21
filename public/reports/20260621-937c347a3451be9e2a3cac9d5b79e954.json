@@ -1,0 +1,5481 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.bestbuy.com/",
+  "scannedAt": "2026-06-21T14:54:44.400Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Best Buy | Official Online Store | Shop Now & Save",
+      "status": 200,
+      "durationMs": 21465,
+      "firstPartyDomain": "www.bestbuy.com",
+      "totalRequests": 199,
+      "thirdPartyRequests": 48,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 5,
+      "cookies": 20,
+      "thirdPartyCookies": 0,
+      "storageEntries": 19,
+      "fingerprintEvents": 12,
+      "shieldsBlockedRequests": 22
+    },
+    "conditions": {
+      "requestedUrl": "https://www.bestbuy.com/",
+      "finalUrl": "https://www.bestbuy.com/",
+      "scannedAt": "2026-06-21T14:54:22.927Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.bestbuy.com/",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 34,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/c3abe0d2-3129-4e47-8904-aadaf47eb4af.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11653,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/ghp-gi-custom-icon-4a114f96-9e1d-4028-ab2b-a45ce30239f2.png;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11654,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/9c270b573126c360.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11655,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/8f099566d0189876.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11656,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/aab2e41613d88944.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11656,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/5819ecadae7f6e37.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11656,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/475a136ffe2a5722.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11656,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/9992d60879981043.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11657,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/61820c36d2e13814.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11657,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/69c957d43c81f3fe.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11657,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/5957a085267896e1.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11658,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/811dbabdc039b665.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11659,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/deo-client-script.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11660,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.google.com/recaptcha/enterprise.js?render=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11661,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/fonts/164de2c41958523c.woff2",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11661,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/fonts/ff935616cc06e2b0.woff2",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11661,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/fonts/e034ae9741bc6156.woff2",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11662,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/fonts/983f6f02206eaf62.woff2",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11662,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/fonts/563588ea1956e901.woff2",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11663,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/fonts/dfda316ca723dc1c.woff2",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11663,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/libs/goteam/v26.22.2.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11663,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/deo-lss-activation.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11664,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://nexus.ensighten.com/bestbuy/privacy_init/Bootstrap.js",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11664,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/gvp/lib-config-service/2.3.3/dist/main.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11664,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/5873267-herov2-dads-flag-260608-311a2d41-9323-4156-a468-d613a71d247e.jpg",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11665,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/5873267-herov2-dads-260608-73418b80-0201-4d95-8693-81275825fc5e.jpg",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11665,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/2c3f0bff-9d72-4850-97ac-879cc3cd8162.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11784,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/lib-mf-assets/2.1.2/dist/main.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11788,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/c6199c31-992f-4363-9c38-15ad8f286c93.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11849,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/c1959732-3702-4073-9286-21cda67101b1.png;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11852,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11903,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/ba6437d4-1d68-4a12-b6be-c39f47f59e52.png;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11905,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9b097944-fdf1-43bf-a7aa-35421f78caa5.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11906,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/webpack-665ffbc64efcd038.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11911,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/1dd3208c-8e2ba5a388a5908a.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11916,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/1528-17b96b3e5ab7e41c.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11916,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/main-app-ce53f2d65e28bbc7.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11916,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/4dc235f5-58b7ffc5f7e5b6d1.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11916,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/15809608-79d2ae953c1f7a86.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11917,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/bdca1010-ff7dc508ecc60644.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11917,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/7bf36345-4fd13c09e56ed29e.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11917,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/96c7d161-45a3b95c44c4c34d.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11917,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/74197371-7bcbe93e71baa6f2.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11917,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/8bb4d8db-a51c4c82dc0a7024.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11918,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/50f238d9-09ee32006e718d21.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11918,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/84f9ef10-10a4fb45c7e4492d.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11918,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/bb7f45ac-05c8d2dbecd74cd0.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11918,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/990a3170-5c967a0cf1840f29.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11919,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/55c739f6-7d8746c34f00b7cb.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11919,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/15f9c5db-da2c6f5ec929c2f9.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11919,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/eb2fce1c-a62d260a3edd87f5.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11919,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/2580-063d2eae3fa8b3d7.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11922,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/4648-48f88cd052007285.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11922,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/1052-c733d0a881cc5330.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11923,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/5463-16efb25bc59df155.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11923,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/5139-a25575f0ace9f9cb.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11924,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/8019-126b6ec6848c0080.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11924,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/274-da0272210ef1ff07.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11924,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/3684-a9536bbfabdbe53f.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11925,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/6255-43fb2678b05cd219.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11925,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/1612-c9285b55a05ec61e.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11925,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/app/page-a855b9ed43405e50.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11926,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/557ea5cb-6abc0a00d388e5c0.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11926,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/ea05c48a-158ad2821facb5ce.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11926,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/f2b77ed6-d11e6f1f7d4148d2.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11927,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/2f9fc831-7ed88e530d967b40.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11927,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/1072-a05425dd7cb06f99.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11930,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/2052-1b46814954fd1b60.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11930,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/6232-64f1918cd1192457.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11930,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/app/layout-5659a85359784082.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11930,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/@ds/unified-chat/dist/javascript/unified-chat-init-3cb44005.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11931,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/app/error-feb6d77ae3fde9c3.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11931,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/app/not-found-584a3ad77cf093d5.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11931,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://www.bestbuy.com/~assets/bby/_js/ext/bbydyn/dyn_digital_homepage.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11931,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/federation/platformContainerOrchestrationProxy.11.10.1.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11931,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://www.bestbuy.com/lux.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11931,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/shop/lib-eventmanager/3.1.0/dist/event-manager.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11932,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-q/6.0.4/dist/analyticsQ.bundle.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11932,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/setup-event-manager.8.9.11.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11932,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/shop/@bestbuy/bby-debug/dist/client/auto-loader-ed7b188824255f749a3e17f8c987349c.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11932,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/brix/7.11.35/js/brixRemoteEntry.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11932,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/@ds/unified-chat/dist/javascript/unified-chat-init-d353e0d8.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11936,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://nexus.ensighten.com/bestbuy/privacy_prod/Bootstrap.js",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11936,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://www.bestbuy.com/TXjlrF/6yvvl/YFVP3/vnnN/uzOpDQLY1XY3rbOi/CWFtAQ/Ng0nZllQ/HyEB",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11950,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://www.bestbuy.com/TXjlrF/6yvvl/YFVP3/vnnN/wtOpDQLY1X/dzl2AQ/F0AMAAp1/KQ1S",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11952,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://t.nc0.co/pc/bestbuy/privacy?publishPath=&ensDisableTracking=&format=&output=",
+        "domain": "t.nc0.co",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12009,
+        "blockedByShields": true
+      },
+      {
+        "id": 88,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/6884-92e0f45f7ff45dc53aa1.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12231,
+        "blockedByShields": true
+      },
+      {
+        "id": 89,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/2286-2de9f8c8dd2cd7a6ea7a.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12232,
+        "blockedByShields": true
+      },
+      {
+        "id": 90,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/2378-349afca4a15c6123930e.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12233,
+        "blockedByShields": true
+      },
+      {
+        "id": 91,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/2163-96b13f964ee56d2be4d0.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12233,
+        "blockedByShields": true
+      },
+      {
+        "id": 92,
+        "url": "https://www.bestbuy.com/TXjlrF/6yvvl/YFVP3/vnnN/uzOpDQLY1XY3rbOi/CWFtAQ/Ng0nZllQ/HyEB",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12388,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/@ds/unified-chat/dist/javascript/unified-chat-initBootstrap-5e6a345e.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12443,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/1766.93e8076438d8810f.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13226,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/5581-31e814a9669e4e4d2a5b.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13242,
+        "blockedByShields": true
+      },
+      {
+        "id": 96,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/7164-5a2150af1cca5653aa78.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13243,
+        "blockedByShields": true
+      },
+      {
+        "id": 97,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/customer-journal-bcc72928e72c3296ed74.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13243,
+        "blockedByShields": true
+      },
+      {
+        "id": 98,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/interaction-085232759388d977130f.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13245,
+        "blockedByShields": true
+      },
+      {
+        "id": 99,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/@ds/unified-chat/dist/javascript/unified-chat-initBootstrap-49d0a293-812b959a.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13278,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/@ds/unified-chat/dist/javascript/unified-chat-initBootstrap-e96e9bea-05799a6c.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13278,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/@ds/unified-chat/dist/javascript/unified-chat-initBootstrap-532a915d-c20ac64b.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13279,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/@ds/unified-chat/dist/javascript/unified-chat-initBootstrap-37f2faf7-8af6b5b8.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13279,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://data.privacy.ensighten.com/privacy/v1/b/b.rnc?n=&c=&i=&p=&s=&d=",
+        "domain": "data.privacy.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 13395,
+        "blockedByShields": true
+      },
+      {
+        "id": 104,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13416,
+        "blockedByShields": false
+      },
+      {
+        "id": 105,
+        "url": "https://www.bestbuy.com/services/conversation/web/api/v2/unified-chat/configuration",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13469,
+        "blockedByShields": false
+      },
+      {
+        "id": 106,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/cj-digital-schema1-4fd03ffe1024d6c4e3fa.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13478,
+        "blockedByShields": true
+      },
+      {
+        "id": 107,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13543,
+        "blockedByShields": false
+      },
+      {
+        "id": 108,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/2616-42944d1170c0cf703cda.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13588,
+        "blockedByShields": true
+      },
+      {
+        "id": 109,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/1384-4693ca8eb76349c42cf2.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13589,
+        "blockedByShields": true
+      },
+      {
+        "id": 110,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/6654-d19259e38b4089c370c4.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13589,
+        "blockedByShields": true
+      },
+      {
+        "id": 111,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/4913-e4d17e3a9909ec7262c3.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13590,
+        "blockedByShields": true
+      },
+      {
+        "id": 112,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/6133-f61840408b823fe9b03e.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13591,
+        "blockedByShields": true
+      },
+      {
+        "id": 113,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/5874-e8dccc3b203541563679.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13591,
+        "blockedByShields": true
+      },
+      {
+        "id": 114,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/adobeInit-17cbccacf246d0bcfc99.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13592,
+        "blockedByShields": true
+      },
+      {
+        "id": 115,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14049,
+        "blockedByShields": false
+      },
+      {
+        "id": 116,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14053,
+        "blockedByShields": false
+      },
+      {
+        "id": 117,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/eb0e8eb7a28693bc.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14053,
+        "blockedByShields": false
+      },
+      {
+        "id": 118,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/upa-visitor-optimization-lv.846fc2c2beb2443b.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14054,
+        "blockedByShields": false
+      },
+      {
+        "id": 119,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/8977.949ccb7e2e1df513.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14054,
+        "blockedByShields": false
+      },
+      {
+        "id": 120,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/7567.675acb9fd90a9fa2.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14057,
+        "blockedByShields": false
+      },
+      {
+        "id": 121,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/9b17c4945ab0f740.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14057,
+        "blockedByShields": false
+      },
+      {
+        "id": 122,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/8024.66f9bb921661a89a.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14058,
+        "blockedByShields": false
+      },
+      {
+        "id": 123,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/2274.0c1def6b3f13f248.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14060,
+        "blockedByShields": false
+      },
+      {
+        "id": 124,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/287.82ecf6a4c46dbdb2.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14061,
+        "blockedByShields": false
+      },
+      {
+        "id": 125,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/5873267-herov2-dads-flag-260608-311a2d41-9323-4156-a468-d613a71d247e.jpg",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14061,
+        "blockedByShields": false
+      },
+      {
+        "id": 126,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/5873267-herov2-dads-260608-73418b80-0201-4d95-8693-81275825fc5e.jpg",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14062,
+        "blockedByShields": false
+      },
+      {
+        "id": 127,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/federation/platformContainer.11.10.1.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14068,
+        "blockedByShields": false
+      },
+      {
+        "id": 128,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14068,
+        "blockedByShields": false
+      },
+      {
+        "id": 129,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14069,
+        "blockedByShields": false
+      },
+      {
+        "id": 130,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14069,
+        "blockedByShields": false
+      },
+      {
+        "id": 131,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14070,
+        "blockedByShields": false
+      },
+      {
+        "id": 132,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14070,
+        "blockedByShields": false
+      },
+      {
+        "id": 133,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14070,
+        "blockedByShields": false
+      },
+      {
+        "id": 134,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9714a698-bae1-41a1-9149-4833aaf49f7b.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14073,
+        "blockedByShields": false
+      },
+      {
+        "id": 135,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6576/6576524_sd.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14074,
+        "blockedByShields": false
+      },
+      {
+        "id": 136,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6526/6526125_sd.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14074,
+        "blockedByShields": false
+      },
+      {
+        "id": 137,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/4dc64937-0e24-48cc-91de-1bd9dbc52eac.png;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14074,
+        "blockedByShields": false
+      },
+      {
+        "id": 138,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/30bca356-6f16-4fde-9028-31741f19bea2.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14075,
+        "blockedByShields": false
+      },
+      {
+        "id": 139,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6582/6582065_sd.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14075,
+        "blockedByShields": false
+      },
+      {
+        "id": 140,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/78dfeb63-083c-455c-99ca-772cacb5b7b9.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14076,
+        "blockedByShields": false
+      },
+      {
+        "id": 141,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/fde151ae-6b9f-442f-8975-6d03d9869409.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14076,
+        "blockedByShields": false
+      },
+      {
+        "id": 142,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/43bf2a4e-10a9-4242-aed7-61f9f918a04b.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14076,
+        "blockedByShields": false
+      },
+      {
+        "id": 143,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/6084521-ghp1-mappls-v3-b0726e43-dfc3-4df4-995b-9501b7537c19.jpg;maxHeight=1200;maxWidth=1800;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14077,
+        "blockedByShields": false
+      },
+      {
+        "id": 144,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/6084457-ghp4-roadrunner-v2-60412910-137d-49e8-b4f2-bb471026fe57.jpg;maxHeight=1200;maxWidth=1800;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14077,
+        "blockedByShields": false
+      },
+      {
+        "id": 145,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-dotcom/chunks/confirmIt-760487fc8564e8679af8.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14078,
+        "blockedByShields": true
+      },
+      {
+        "id": 146,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/c3abe0d2-3129-4e47-8904-aadaf47eb4af.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14155,
+        "blockedByShields": false
+      },
+      {
+        "id": 147,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/ghp-gi-custom-icon-4a114f96-9e1d-4028-ab2b-a45ce30239f2.png;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14159,
+        "blockedByShields": false
+      },
+      {
+        "id": 148,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/2c3f0bff-9d72-4850-97ac-879cc3cd8162.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14159,
+        "blockedByShields": false
+      },
+      {
+        "id": 149,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/c6199c31-992f-4363-9c38-15ad8f286c93.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14160,
+        "blockedByShields": false
+      },
+      {
+        "id": 150,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/c1959732-3702-4073-9286-21cda67101b1.png;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14160,
+        "blockedByShields": false
+      },
+      {
+        "id": 151,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/ba6437d4-1d68-4a12-b6be-c39f47f59e52.png;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14160,
+        "blockedByShields": false
+      },
+      {
+        "id": 152,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9b097944-fdf1-43bf-a7aa-35421f78caa5.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14161,
+        "blockedByShields": false
+      },
+      {
+        "id": 153,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/a0def558-7887-45ff-94ea-e3bb3c5efc6a.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14161,
+        "blockedByShields": false
+      },
+      {
+        "id": 154,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/73ed462e-13f7-4a72-a5a4-cd4fed713606.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14161,
+        "blockedByShields": false
+      },
+      {
+        "id": 155,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/0c7783a0-2aaf-40e7-9cb4-cd780d5d295b.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14162,
+        "blockedByShields": false
+      },
+      {
+        "id": 156,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6576/6576697_sd.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14162,
+        "blockedByShields": false
+      },
+      {
+        "id": 157,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/ff4e5ccf-7668-4838-992c-73c49ad1e000.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14163,
+        "blockedByShields": false
+      },
+      {
+        "id": 158,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14163,
+        "blockedByShields": false
+      },
+      {
+        "id": 159,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9714a698-bae1-41a1-9149-4833aaf49f7b.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14174,
+        "blockedByShields": false
+      },
+      {
+        "id": 160,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6576/6576524_sd.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14175,
+        "blockedByShields": false
+      },
+      {
+        "id": 161,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6526/6526125_sd.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14175,
+        "blockedByShields": false
+      },
+      {
+        "id": 162,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/30bca356-6f16-4fde-9028-31741f19bea2.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14176,
+        "blockedByShields": false
+      },
+      {
+        "id": 163,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6582/6582065_sd.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14176,
+        "blockedByShields": false
+      },
+      {
+        "id": 164,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/43bf2a4e-10a9-4242-aed7-61f9f918a04b.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14177,
+        "blockedByShields": false
+      },
+      {
+        "id": 165,
+        "url": "https://streams.bestbuy.com/customer/web-streams/v1/events/cj-page-visits",
+        "domain": "streams.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14192,
+        "blockedByShields": false
+      },
+      {
+        "id": 166,
+        "url": "https://streams.bestbuy.com/customer/web-streams/v1/events/digital-experience-event",
+        "domain": "streams.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14212,
+        "blockedByShields": false
+      },
+      {
+        "id": 167,
+        "url": "https://streams.bestbuy.com/customer/web-streams/v1/events/digital-experience-event",
+        "domain": "streams.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14265,
+        "blockedByShields": false
+      },
+      {
+        "id": 168,
+        "url": "https://streams.bestbuy.com/customer/web-streams/v1/events/digital-experience-event",
+        "domain": "streams.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14277,
+        "blockedByShields": false
+      },
+      {
+        "id": 169,
+        "url": "https://streams.bestbuy.com/customer/web-streams/v1/events/digital-experience-event",
+        "domain": "streams.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14278,
+        "blockedByShields": false
+      },
+      {
+        "id": 170,
+        "url": "https://streams.bestbuy.com/customer/web-streams/v1/events/digital-experience-event",
+        "domain": "streams.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14280,
+        "blockedByShields": false
+      },
+      {
+        "id": 171,
+        "url": "https://streams.bestbuy.com/customer/web-streams/v1/events/digital-experience-event",
+        "domain": "streams.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14287,
+        "blockedByShields": false
+      },
+      {
+        "id": 172,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/federation/mf-dep-vendors-_yarn_cache_gvp-lib-action-log-npm-3_0_42-44cb3d901a-6d372056bf_zip_node_modules_gvp_-ac6ae1-62999d530f9aeade26ca.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14354,
+        "blockedByShields": false
+      },
+      {
+        "id": 173,
+        "url": "https://www.bestbuy.com/TXjlrF/6yvvl/YFVP3/vnnN/uzOpDQLY1XY3rbOi/CWFtAQ/Ng0nZllQ/HyEB",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14371,
+        "blockedByShields": false
+      },
+      {
+        "id": 174,
+        "url": "https://www.bestbuy.com/~assets/bby/_img/int/plsvgdef-frontend/svg/Question_Line_Sm.svg",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14433,
+        "blockedByShields": false
+      },
+      {
+        "id": 175,
+        "url": "https://www.bestbuy.com/~assets/bby/_img/int/plsvgdef-frontend/svg/Shipping_Line_Sm.svg",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14434,
+        "blockedByShields": false
+      },
+      {
+        "id": 176,
+        "url": "https://www.bestbuy.com/~assets/bby/_img/int/plsvgdef-frontend/svg/Delivery_Line_Sm.svg",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14438,
+        "blockedByShields": false
+      },
+      {
+        "id": 177,
+        "url": "https://www.bestbuy.com/~assets/bby/_img/int/plsvgdef-frontend/svg/ReturnPolicy_Line_Sm.svg",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14438,
+        "blockedByShields": false
+      },
+      {
+        "id": 178,
+        "url": "https://www.bestbuy.com/~assets/bby/_img/int/plsvgdef-frontend/svg/PriceMatchGuarantee_Line_Sm.svg",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14438,
+        "blockedByShields": false
+      },
+      {
+        "id": 179,
+        "url": "https://www.bestbuy.com/~assets/bby/_img/int/plsvgdef-frontend/svg/MobileApp_Line_Sm.svg",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14439,
+        "blockedByShields": false
+      },
+      {
+        "id": 180,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14440,
+        "blockedByShields": false
+      },
+      {
+        "id": 181,
+        "url": "https://www.bestbuy.com/streams/v1/SEARCH_TERM",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14479,
+        "blockedByShields": false
+      },
+      {
+        "id": 182,
+        "url": "https://fel-api.prod.browse.bestbuy.com/exception",
+        "domain": "fel-api.prod.browse.bestbuy.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14481,
+        "blockedByShields": false
+      },
+      {
+        "id": 183,
+        "url": "https://fel-api.prod.browse.bestbuy.com/exception",
+        "domain": "fel-api.prod.browse.bestbuy.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14484,
+        "blockedByShields": false
+      },
+      {
+        "id": 184,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14539,
+        "blockedByShields": false
+      },
+      {
+        "id": 185,
+        "url": "https://streams.bestbuy.com/customer/web-streams/v1/events/cjc-page-requests",
+        "domain": "streams.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14547,
+        "blockedByShields": false
+      },
+      {
+        "id": 186,
+        "url": "https://www.bestbuy.com/site/canopy/component/shop/account-menu/v1",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14557,
+        "blockedByShields": false
+      },
+      {
+        "id": 187,
+        "url": "https://www.bestbuy.com/site/canopy/component/shop/stips/v1",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14561,
+        "blockedByShields": false
+      },
+      {
+        "id": 188,
+        "url": "https://www.bestbuy.com/site/canopy/component/evoc/talk-to-us/v1",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14574,
+        "blockedByShields": false
+      },
+      {
+        "id": 189,
+        "url": "https://www.bestbuy.com/site/canopy/component/evoc/talk-to-us/v1",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14576,
+        "blockedByShields": false
+      },
+      {
+        "id": 190,
+        "url": "https://www.bestbuy.com/site/canopy/component/shop/stips/v1",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14586,
+        "blockedByShields": false
+      },
+      {
+        "id": 191,
+        "url": "https://fel-api.prod.browse.bestbuy.com/exception",
+        "domain": "fel-api.prod.browse.bestbuy.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14603,
+        "blockedByShields": false
+      },
+      {
+        "id": 192,
+        "url": "https://data.privacy.ensighten.com/privacy/v1/b/b.rnc?n=&c=&i=&p=&s=&d=",
+        "domain": "data.privacy.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 14716,
+        "blockedByShields": true
+      },
+      {
+        "id": 193,
+        "url": "https://www.bestbuy.com/site/canopy/component/pricing/price-change-notification/v1",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14847,
+        "blockedByShields": false
+      },
+      {
+        "id": 194,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14852,
+        "blockedByShields": false
+      },
+      {
+        "id": 195,
+        "url": "https://fel-api.prod.browse.bestbuy.com/exception",
+        "domain": "fel-api.prod.browse.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14904,
+        "blockedByShields": false
+      },
+      {
+        "id": 196,
+        "url": "https://streams.bestbuy.com/customer/web-streams/v1/events/digital-experience-event",
+        "domain": "streams.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 15266,
+        "blockedByShields": false
+      },
+      {
+        "id": 197,
+        "url": "https://www.bestbuy.com/TXjlrF/6yvvl/YFVP3/vnnN/wtOpDQLY1X/dzl2AQ/F0AMAAp1/KQ1S",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 16718,
+        "blockedByShields": false
+      },
+      {
+        "id": 198,
+        "url": "https://data.privacy.ensighten.com/privacy/v1/b/b.rnc?n=&c=&i=&p=&s=&d=",
+        "domain": "data.privacy.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 17217,
+        "blockedByShields": true
+      },
+      {
+        "id": 199,
+        "url": "https://data.privacy.ensighten.com/privacy/v1/b/b.rnc?n=&c=&i=&p=&s=&d=",
+        "domain": "data.privacy.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 19719,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "pisces.bbystatic.com",
+        "requests": 40,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "data.privacy.ensighten.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "nexus.ensighten.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "t.nc0.co",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.bestbuy.com",
+        "requests": 138,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          201
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "font",
+          "fetch",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "streams.bestbuy.com",
+        "requests": 9,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "fel-api.prod.browse.bestbuy.com",
+        "requests": 4,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "vt",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "SID",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "CTT",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bby_rdp",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_ss",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_so",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_sz",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bby_cbc_lb",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "askBlueViewMode",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ak_bmsc",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_s",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "dtCookie",
+        "domain": ".www.bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "rxVisitor",
+        "domain": ".www.bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "dtSa",
+        "domain": ".www.bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_lso",
+        "domain": ".www.bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "dtPC",
+        "domain": ".www.bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "rxvt",
+        "domain": ".www.bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "akacd_PR_www_bestbuy_com",
+        "domain": "www.bestbuy.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "lux_uid",
+        "domain": "www.bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "cjcDataLayers",
+        "valueBytes": 2519
+      },
+      {
+        "area": "localStorage",
+        "key": "cj_session_object",
+        "valueBytes": 247
+      },
+      {
+        "area": "localStorage",
+        "key": "BESTBUY_ENSIGHTEN_PRIVACY_TLD-www.bestbuy.com",
+        "valueBytes": 11
+      },
+      {
+        "area": "localStorage",
+        "key": "ak_a",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "healthSkuFlag",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "ak_ax",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "cjc_route_determination",
+        "valueBytes": 188
+      },
+      {
+        "area": "sessionStorage",
+        "key": "ak_bm_tab_id",
+        "valueBytes": 18
+      },
+      {
+        "area": "sessionStorage",
+        "key": "askblue_previous_url",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "visitorIdStore",
+        "valueBytes": 167
+      },
+      {
+        "area": "sessionStorage",
+        "key": "dtSa",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "cijSnapshotCache",
+        "valueBytes": 9734
+      },
+      {
+        "area": "sessionStorage",
+        "key": "cijCacheUuid",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "rxvisitid",
+        "valueBytes": 34
+      },
+      {
+        "area": "sessionStorage",
+        "key": "privacy_geo",
+        "valueBytes": 62
+      },
+      {
+        "area": "sessionStorage",
+        "key": "TAB_ID",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "rxVisitor",
+        "valueBytes": 45
+      },
+      {
+        "area": "sessionStorage",
+        "key": "cijCache",
+        "valueBytes": 239
+      },
+      {
+        "area": "sessionStorage",
+        "key": "rxvt",
+        "valueBytes": 27
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 250,
+          "maxCanvasHeight": 80,
+          "maxDistinctTextCharacters": 23,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+            "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl2.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 10,
+          "readPixelsCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 3
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 3
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "The page did not reach network idle before the scan window ended."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Best Buy | Official Online Store | Shop Now & Save",
+      "status": 200,
+      "durationMs": 19334,
+      "firstPartyDomain": "www.bestbuy.com",
+      "totalRequests": 163,
+      "thirdPartyRequests": 37,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 3,
+      "cookies": 20,
+      "thirdPartyCookies": 0,
+      "storageEntries": 17,
+      "fingerprintEvents": 12,
+      "shieldsBlockedRequests": 33
+    },
+    "conditions": {
+      "requestedUrl": "https://www.bestbuy.com/",
+      "finalUrl": "https://www.bestbuy.com/",
+      "scannedAt": "2026-06-21T14:54:44.400Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.bestbuy.com/",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 41,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/c3abe0d2-3129-4e47-8904-aadaf47eb4af.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9665,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/ghp-gi-custom-icon-4a114f96-9e1d-4028-ab2b-a45ce30239f2.png;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9668,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/9c270b573126c360.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9668,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/8f099566d0189876.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9669,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/aab2e41613d88944.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9669,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/5819ecadae7f6e37.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9670,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/475a136ffe2a5722.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9670,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/9992d60879981043.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9670,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/61820c36d2e13814.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9671,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/69c957d43c81f3fe.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9671,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/5957a085267896e1.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9672,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/811dbabdc039b665.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9673,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/deo-client-script.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9678,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.google.com/recaptcha/enterprise.js?render=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9679,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/fonts/164de2c41958523c.woff2",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9679,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/fonts/ff935616cc06e2b0.woff2",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9679,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/fonts/e034ae9741bc6156.woff2",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9680,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/fonts/983f6f02206eaf62.woff2",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9680,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/fonts/563588ea1956e901.woff2",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9680,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/fonts/dfda316ca723dc1c.woff2",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9680,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/libs/goteam/v26.22.2.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9681,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/deo-lss-activation.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9681,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://nexus.ensighten.com/bestbuy/privacy_init/Bootstrap.js",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9682,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/gvp/lib-config-service/2.3.3/dist/main.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9682,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/5873267-herov2-dads-flag-260608-311a2d41-9323-4156-a468-d613a71d247e.jpg",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9682,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/5873267-herov2-dads-260608-73418b80-0201-4d95-8693-81275825fc5e.jpg",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9683,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/2c3f0bff-9d72-4850-97ac-879cc3cd8162.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9743,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9808,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/lib-mf-assets/2.1.2/dist/main.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9814,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.bestbuy.com/TXjlrF/6yvvl/YFVP3/vnnN/uzOpDQLY1XY3rbOi/CWFtAQ/Ng0nZllQ/HyEB",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9815,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/c6199c31-992f-4363-9c38-15ad8f286c93.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9816,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/c1959732-3702-4073-9286-21cda67101b1.png;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9816,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/ba6437d4-1d68-4a12-b6be-c39f47f59e52.png;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9817,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9b097944-fdf1-43bf-a7aa-35421f78caa5.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9817,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/webpack-665ffbc64efcd038.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9821,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/1dd3208c-8e2ba5a388a5908a.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9821,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/1528-17b96b3e5ab7e41c.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9822,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/main-app-ce53f2d65e28bbc7.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9822,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/4dc235f5-58b7ffc5f7e5b6d1.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9823,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/15809608-79d2ae953c1f7a86.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9823,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/bdca1010-ff7dc508ecc60644.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9824,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/7bf36345-4fd13c09e56ed29e.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9824,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/96c7d161-45a3b95c44c4c34d.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9828,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/74197371-7bcbe93e71baa6f2.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9829,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/8bb4d8db-a51c4c82dc0a7024.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9829,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/50f238d9-09ee32006e718d21.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9830,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/84f9ef10-10a4fb45c7e4492d.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9830,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/bb7f45ac-05c8d2dbecd74cd0.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9830,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/990a3170-5c967a0cf1840f29.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9831,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/55c739f6-7d8746c34f00b7cb.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9831,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/15f9c5db-da2c6f5ec929c2f9.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9832,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/eb2fce1c-a62d260a3edd87f5.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9832,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/2580-063d2eae3fa8b3d7.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9832,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/4648-48f88cd052007285.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9833,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/1052-c733d0a881cc5330.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9833,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/5463-16efb25bc59df155.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9834,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/5139-a25575f0ace9f9cb.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9834,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/8019-126b6ec6848c0080.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9840,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/274-da0272210ef1ff07.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9841,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/3684-a9536bbfabdbe53f.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9841,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/6255-43fb2678b05cd219.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9842,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/1612-c9285b55a05ec61e.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9842,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/app/page-a855b9ed43405e50.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9843,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/557ea5cb-6abc0a00d388e5c0.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9844,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/ea05c48a-158ad2821facb5ce.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9844,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/f2b77ed6-d11e6f1f7d4148d2.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9845,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/2f9fc831-7ed88e530d967b40.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9845,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/1072-a05425dd7cb06f99.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9846,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/2052-1b46814954fd1b60.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9846,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/6232-64f1918cd1192457.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9846,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/app/layout-5659a85359784082.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9847,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/@ds/unified-chat/dist/javascript/unified-chat-init-3cb44005.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9847,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/app/error-feb6d77ae3fde9c3.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9847,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/app/not-found-584a3ad77cf093d5.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9848,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://www.bestbuy.com/~assets/bby/_js/ext/bbydyn/dyn_digital_homepage.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9848,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/federation/platformContainerOrchestrationProxy.11.10.1.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9848,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://www.bestbuy.com/lux.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9849,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/shop/lib-eventmanager/3.1.0/dist/event-manager.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9849,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/analytics-q/6.0.4/dist/analyticsQ.bundle.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9849,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/setup-event-manager.8.9.11.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9849,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/shop/@bestbuy/bby-debug/dist/client/auto-loader-ed7b188824255f749a3e17f8c987349c.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9850,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/brix/7.11.35/js/brixRemoteEntry.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9850,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/@ds/unified-chat/dist/javascript/unified-chat-init-d353e0d8.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9850,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://www.bestbuy.com/TXjlrF/6yvvl/YFVP3/vnnN/wtOpDQLY1X/dzl2AQ/F0AMAAp1/KQ1S",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9851,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://nexus.ensighten.com/bestbuy/privacy_prod/Bootstrap.js",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9851,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://www.bestbuy.com/TXjlrF/6yvvl/YFVP3/vnnN/uzOpDQLY1XY3rbOi/CWFtAQ/Ng0nZllQ/HyEB",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 10244,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/@ds/unified-chat/dist/javascript/unified-chat-initBootstrap-5e6a345e.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 10276,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/1766.93e8076438d8810f.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11093,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/@ds/unified-chat/dist/javascript/unified-chat-initBootstrap-49d0a293-812b959a.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11126,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/@ds/unified-chat/dist/javascript/unified-chat-initBootstrap-e96e9bea-05799a6c.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11127,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/@ds/unified-chat/dist/javascript/unified-chat-initBootstrap-532a915d-c20ac64b.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11128,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/@ds/unified-chat/dist/javascript/unified-chat-initBootstrap-37f2faf7-8af6b5b8.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11129,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11355,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://www.bestbuy.com/services/conversation/web/api/v2/unified-chat/configuration",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11377,
+        "blockedByShields": false
+      },
+      {
+        "id": 115,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11497,
+        "blockedByShields": false
+      },
+      {
+        "id": 116,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12095,
+        "blockedByShields": false
+      },
+      {
+        "id": 117,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12097,
+        "blockedByShields": false
+      },
+      {
+        "id": 118,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/eb0e8eb7a28693bc.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12098,
+        "blockedByShields": false
+      },
+      {
+        "id": 119,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/upa-visitor-optimization-lv.846fc2c2beb2443b.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12098,
+        "blockedByShields": false
+      },
+      {
+        "id": 120,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/8977.949ccb7e2e1df513.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12099,
+        "blockedByShields": false
+      },
+      {
+        "id": 121,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/7567.675acb9fd90a9fa2.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12100,
+        "blockedByShields": false
+      },
+      {
+        "id": 122,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/css/9b17c4945ab0f740.css",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12100,
+        "blockedByShields": false
+      },
+      {
+        "id": 123,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/8024.66f9bb921661a89a.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12101,
+        "blockedByShields": false
+      },
+      {
+        "id": 124,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/2274.0c1def6b3f13f248.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12101,
+        "blockedByShields": false
+      },
+      {
+        "id": 125,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/bestbuy/homepage/_next/static/chunks/287.82ecf6a4c46dbdb2.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12108,
+        "blockedByShields": false
+      },
+      {
+        "id": 126,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/5873267-herov2-dads-flag-260608-311a2d41-9323-4156-a468-d613a71d247e.jpg",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12108,
+        "blockedByShields": false
+      },
+      {
+        "id": 127,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/5873267-herov2-dads-260608-73418b80-0201-4d95-8693-81275825fc5e.jpg",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12109,
+        "blockedByShields": false
+      },
+      {
+        "id": 128,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/federation/platformContainer.11.10.1.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12109,
+        "blockedByShields": false
+      },
+      {
+        "id": 129,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12110,
+        "blockedByShields": false
+      },
+      {
+        "id": 130,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12110,
+        "blockedByShields": false
+      },
+      {
+        "id": 131,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12113,
+        "blockedByShields": false
+      },
+      {
+        "id": 132,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12114,
+        "blockedByShields": false
+      },
+      {
+        "id": 133,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12114,
+        "blockedByShields": false
+      },
+      {
+        "id": 134,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12114,
+        "blockedByShields": false
+      },
+      {
+        "id": 135,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9714a698-bae1-41a1-9149-4833aaf49f7b.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12115,
+        "blockedByShields": false
+      },
+      {
+        "id": 136,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6576/6576524_sd.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12115,
+        "blockedByShields": false
+      },
+      {
+        "id": 137,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6526/6526125_sd.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12116,
+        "blockedByShields": false
+      },
+      {
+        "id": 138,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/4dc64937-0e24-48cc-91de-1bd9dbc52eac.png;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12116,
+        "blockedByShields": false
+      },
+      {
+        "id": 139,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/30bca356-6f16-4fde-9028-31741f19bea2.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12117,
+        "blockedByShields": false
+      },
+      {
+        "id": 140,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6582/6582065_sd.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12118,
+        "blockedByShields": false
+      },
+      {
+        "id": 141,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/78dfeb63-083c-455c-99ca-772cacb5b7b9.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12118,
+        "blockedByShields": false
+      },
+      {
+        "id": 142,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/fde151ae-6b9f-442f-8975-6d03d9869409.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12121,
+        "blockedByShields": false
+      },
+      {
+        "id": 143,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/43bf2a4e-10a9-4242-aed7-61f9f918a04b.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12122,
+        "blockedByShields": false
+      },
+      {
+        "id": 144,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/6084521-ghp1-mappls-v3-b0726e43-dfc3-4df4-995b-9501b7537c19.jpg;maxHeight=1200;maxWidth=1800;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12122,
+        "blockedByShields": false
+      },
+      {
+        "id": 145,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/6084457-ghp4-roadrunner-v2-60412910-137d-49e8-b4f2-bb471026fe57.jpg;maxHeight=1200;maxWidth=1800;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12123,
+        "blockedByShields": false
+      },
+      {
+        "id": 146,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/c3abe0d2-3129-4e47-8904-aadaf47eb4af.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12199,
+        "blockedByShields": false
+      },
+      {
+        "id": 147,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/dam/ghp-gi-custom-icon-4a114f96-9e1d-4028-ab2b-a45ce30239f2.png;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12200,
+        "blockedByShields": false
+      },
+      {
+        "id": 148,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/2c3f0bff-9d72-4850-97ac-879cc3cd8162.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12201,
+        "blockedByShields": false
+      },
+      {
+        "id": 149,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/c6199c31-992f-4363-9c38-15ad8f286c93.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12201,
+        "blockedByShields": false
+      },
+      {
+        "id": 150,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/c1959732-3702-4073-9286-21cda67101b1.png;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12201,
+        "blockedByShields": false
+      },
+      {
+        "id": 151,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/ba6437d4-1d68-4a12-b6be-c39f47f59e52.png;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12203,
+        "blockedByShields": false
+      },
+      {
+        "id": 152,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9b097944-fdf1-43bf-a7aa-35421f78caa5.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12204,
+        "blockedByShields": false
+      },
+      {
+        "id": 153,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/a0def558-7887-45ff-94ea-e3bb3c5efc6a.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12205,
+        "blockedByShields": false
+      },
+      {
+        "id": 154,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/73ed462e-13f7-4a72-a5a4-cd4fed713606.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12205,
+        "blockedByShields": false
+      },
+      {
+        "id": 155,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/0c7783a0-2aaf-40e7-9cb4-cd780d5d295b.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12206,
+        "blockedByShields": false
+      },
+      {
+        "id": 156,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6576/6576697_sd.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12206,
+        "blockedByShields": false
+      },
+      {
+        "id": 157,
+        "url": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/ff4e5ccf-7668-4838-992c-73c49ad1e000.jpg;maxHeight=222;maxWidth=222;format=webp",
+        "domain": "pisces.bbystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 12207,
+        "blockedByShields": false
+      },
+      {
+        "id": 158,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12207,
+        "blockedByShields": false
+      },
+      {
+        "id": 159,
+        "url": "https://streams.bestbuy.com/customer/web-streams/v1/events/cj-page-visits",
+        "domain": "streams.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12224,
+        "blockedByShields": false
+      },
+      {
+        "id": 168,
+        "url": "https://www.bestbuy.com/TXjlrF/6yvvl/YFVP3/vnnN/uzOpDQLY1XY3rbOi/CWFtAQ/Ng0nZllQ/HyEB",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12255,
+        "blockedByShields": false
+      },
+      {
+        "id": 169,
+        "url": "https://www.bestbuy.com/~assets/bby/_com/federation/mf-dep-vendors-_yarn_cache_gvp-lib-action-log-npm-3_0_42-44cb3d901a-6d372056bf_zip_node_modules_gvp_-ac6ae1-62999d530f9aeade26ca.js",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12330,
+        "blockedByShields": false
+      },
+      {
+        "id": 170,
+        "url": "https://www.bestbuy.com/~assets/bby/_img/int/plsvgdef-frontend/svg/Question_Line_Sm.svg",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12374,
+        "blockedByShields": false
+      },
+      {
+        "id": 171,
+        "url": "https://www.bestbuy.com/~assets/bby/_img/int/plsvgdef-frontend/svg/Shipping_Line_Sm.svg",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12376,
+        "blockedByShields": false
+      },
+      {
+        "id": 172,
+        "url": "https://www.bestbuy.com/~assets/bby/_img/int/plsvgdef-frontend/svg/Delivery_Line_Sm.svg",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12377,
+        "blockedByShields": false
+      },
+      {
+        "id": 173,
+        "url": "https://www.bestbuy.com/~assets/bby/_img/int/plsvgdef-frontend/svg/ReturnPolicy_Line_Sm.svg",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12377,
+        "blockedByShields": false
+      },
+      {
+        "id": 174,
+        "url": "https://www.bestbuy.com/~assets/bby/_img/int/plsvgdef-frontend/svg/PriceMatchGuarantee_Line_Sm.svg",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12377,
+        "blockedByShields": false
+      },
+      {
+        "id": 175,
+        "url": "https://www.bestbuy.com/~assets/bby/_img/int/plsvgdef-frontend/svg/MobileApp_Line_Sm.svg",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12378,
+        "blockedByShields": false
+      },
+      {
+        "id": 176,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12379,
+        "blockedByShields": false
+      },
+      {
+        "id": 177,
+        "url": "https://www.bestbuy.com/streams/v1/SEARCH_TERM",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12421,
+        "blockedByShields": false
+      },
+      {
+        "id": 178,
+        "url": "https://fel-api.prod.browse.bestbuy.com/exception",
+        "domain": "fel-api.prod.browse.bestbuy.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12422,
+        "blockedByShields": false
+      },
+      {
+        "id": 182,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12460,
+        "blockedByShields": false
+      },
+      {
+        "id": 183,
+        "url": "https://streams.bestbuy.com/customer/web-streams/v1/events/cjc-page-requests",
+        "domain": "streams.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12472,
+        "blockedByShields": false
+      },
+      {
+        "id": 184,
+        "url": "https://www.bestbuy.com/site/canopy/component/shop/account-menu/v1",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12485,
+        "blockedByShields": false
+      },
+      {
+        "id": 185,
+        "url": "https://www.bestbuy.com/site/canopy/component/shop/stips/v1",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12490,
+        "blockedByShields": false
+      },
+      {
+        "id": 186,
+        "url": "https://www.bestbuy.com/site/canopy/component/evoc/talk-to-us/v1",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12495,
+        "blockedByShields": false
+      },
+      {
+        "id": 187,
+        "url": "https://www.bestbuy.com/site/canopy/component/evoc/talk-to-us/v1",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12498,
+        "blockedByShields": false
+      },
+      {
+        "id": 188,
+        "url": "https://www.bestbuy.com/site/canopy/component/shop/stips/v1",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12502,
+        "blockedByShields": false
+      },
+      {
+        "id": 189,
+        "url": "https://fel-api.prod.browse.bestbuy.com/exception",
+        "domain": "fel-api.prod.browse.bestbuy.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12514,
+        "blockedByShields": false
+      },
+      {
+        "id": 190,
+        "url": "https://www.bestbuy.com/site/canopy/component/pricing/price-change-notification/v1",
+        "domain": "www.bestbuy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12779,
+        "blockedByShields": false
+      },
+      {
+        "id": 191,
+        "url": "https://www.bestbuy.com/gateway/graphql",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12785,
+        "blockedByShields": false
+      },
+      {
+        "id": 192,
+        "url": "https://fel-api.prod.browse.bestbuy.com/exception",
+        "domain": "fel-api.prod.browse.bestbuy.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 12857,
+        "blockedByShields": false
+      },
+      {
+        "id": 195,
+        "url": "https://www.bestbuy.com/TXjlrF/6yvvl/YFVP3/vnnN/wtOpDQLY1X/dzl2AQ/F0AMAAp1/KQ1S",
+        "domain": "www.bestbuy.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 14562,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "pisces.bbystatic.com",
+        "requests": 34,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "nexus.ensighten.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.bestbuy.com",
+        "requests": 121,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          201
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "font",
+          "fetch",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "fel-api.prod.browse.bestbuy.com",
+        "requests": 3,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "streams.bestbuy.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "vt",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "SID",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "CTT",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bby_rdp",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_ss",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_so",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_sz",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bby_cbc_lb",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "askBlueViewMode",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ak_bmsc",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_s",
+        "domain": ".bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "dtCookie",
+        "domain": ".www.bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "rxVisitor",
+        "domain": ".www.bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "dtSa",
+        "domain": ".www.bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_lso",
+        "domain": ".www.bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "dtPC",
+        "domain": ".www.bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "rxvt",
+        "domain": ".www.bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "akacd_PR_www_bestbuy_com",
+        "domain": "www.bestbuy.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "lux_uid",
+        "domain": "www.bestbuy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "cjcDataLayers",
+        "valueBytes": 2519
+      },
+      {
+        "area": "localStorage",
+        "key": "cj_session_object",
+        "valueBytes": 247
+      },
+      {
+        "area": "localStorage",
+        "key": "BESTBUY_ENSIGHTEN_PRIVACY_TLD-www.bestbuy.com",
+        "valueBytes": 11
+      },
+      {
+        "area": "localStorage",
+        "key": "ak_a",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "healthSkuFlag",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "ak_ax",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "cjc_route_determination",
+        "valueBytes": 143
+      },
+      {
+        "area": "sessionStorage",
+        "key": "ak_bm_tab_id",
+        "valueBytes": 19
+      },
+      {
+        "area": "sessionStorage",
+        "key": "askblue_previous_url",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "visitorIdStore",
+        "valueBytes": 167
+      },
+      {
+        "area": "sessionStorage",
+        "key": "dtSa",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "cijCacheUuid",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "rxvisitid",
+        "valueBytes": 34
+      },
+      {
+        "area": "sessionStorage",
+        "key": "TAB_ID",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "rxVisitor",
+        "valueBytes": 45
+      },
+      {
+        "area": "sessionStorage",
+        "key": "cijCache",
+        "valueBytes": 222
+      },
+      {
+        "area": "sessionStorage",
+        "key": "rxvt",
+        "valueBytes": 27
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 250,
+          "maxCanvasHeight": 80,
+          "maxDistinctTextCharacters": 23,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+            "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl2.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 10,
+          "readPixelsCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 3
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 3
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "The page did not reach network idle before the scan window ended."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 199,
+      "after": 163,
+      "delta": -36
+    },
+    "thirdPartyRequests": {
+      "before": 48,
+      "after": 37,
+      "delta": -11
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 5,
+      "after": 3,
+      "delta": -2
+    },
+    "cookies": {
+      "before": 20,
+      "after": 20,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 19,
+      "after": 17,
+      "delta": -2
+    },
+    "fingerprintEvents": {
+      "before": 12,
+      "after": 12,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "data.privacy.ensighten.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "t.nc0.co",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "sessionStorage",
+        "key": "cijSnapshotCache"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "privacy_geo"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 22,
+      "after": 33,
+      "delta": 11
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: The page did not reach network idle before the scan window ended.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: The page did not reach network idle before the scan window ended."
+  ],
+  "share": {
+    "id": "20260621-937c347a3451be9e2a3cac9d5b79e954",
+    "path": "/reports/20260621-937c347a3451be9e2a3cac9d5b79e954/",
+    "jsonPath": "/reports/20260621-937c347a3451be9e2a3cac9d5b79e954.json"
+  }
+}

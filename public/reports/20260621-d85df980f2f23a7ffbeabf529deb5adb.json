@@ -1,0 +1,4858 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.macys.com/",
+  "scannedAt": "2026-06-21T14:55:43.707Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Access Denied - Macy's",
+      "status": 403,
+      "durationMs": 8507,
+      "firstPartyDomain": "www.macys.com",
+      "totalRequests": 145,
+      "thirdPartyRequests": 141,
+      "knownTrackerRequests": 54,
+      "thirdPartyDomains": 55,
+      "cookies": 32,
+      "thirdPartyCookies": 12,
+      "storageEntries": 31,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 103
+    },
+    "conditions": {
+      "requestedUrl": "https://www.macys.com/",
+      "finalUrl": "https://www.macys.com/",
+      "scannedAt": "2026-06-21T14:55:35.189Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.macys.com/",
+        "domain": "www.macys.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 33,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.macys.com/navigation/header-footer",
+        "domain": "www.macys.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 244,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.js",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 245,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://s.go-mpulse.net/boomerang/WVZ92-598Q4-C592Z-HWSHG-PBBKW",
+        "domain": "s.go-mpulse.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 425,
+        "blockedByShields": true
+      },
+      {
+        "id": 5,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1437.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 507,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1896.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 509,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://cdn1.adoberesources.net/alloy/2.27.0/alloy.min.js",
+        "domain": "cdn1.adoberesources.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 509,
+        "blockedByShields": true
+      },
+      {
+        "id": 8,
+        "url": "https://edge.fullstory.com/s/fs.js",
+        "domain": "edge.fullstory.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "fullstory.com",
+          "entity": "FullStory",
+          "category": "session replay",
+          "confidence": "curated"
+        },
+        "startedAtMs": 509,
+        "blockedByShields": true
+      },
+      {
+        "id": 9,
+        "url": "https://s.pinimg.com/ct/core.js",
+        "domain": "s.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 510,
+        "blockedByShields": true
+      },
+      {
+        "id": 10,
+        "url": "https://sc-static.net/scevent.min.js",
+        "domain": "sc-static.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 510,
+        "blockedByShields": true
+      },
+      {
+        "id": 11,
+        "url": "https://resources.xg4ken.com/js/v2/ktag.js?tid=",
+        "domain": "resources.xg4ken.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 529,
+        "blockedByShields": true
+      },
+      {
+        "id": 12,
+        "url": "https://bk8d4asi.micpn.com/p/js/1.js",
+        "domain": "bk8d4asi.micpn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 529,
+        "blockedByShields": true
+      },
+      {
+        "id": 13,
+        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 531,
+        "blockedByShields": true
+      },
+      {
+        "id": 14,
+        "url": "https://js.cnnx.link/roi/cnxtag-min.js?id=",
+        "domain": "js.cnnx.link",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 531,
+        "blockedByShields": true
+      },
+      {
+        "id": 15,
+        "url": "https://track.coherentpath.com/v1/track.js",
+        "domain": "track.coherentpath.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 531,
+        "blockedByShields": true
+      },
+      {
+        "id": 16,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1119.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 531,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.146.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 532,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.545.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 532,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.574.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 532,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.775.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 532,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.787.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 533,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1110.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 533,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1291.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 533,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1385.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 533,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1485.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 535,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1523.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 535,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1562.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 535,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1609.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 536,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1620.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 536,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1708.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 536,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1933.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 537,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1962.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 537,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1381.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 537,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.2064.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 537,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.2078.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 538,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://b.videoamp.com/d2/199089fa-88de-4f51-8431-6d9003e33cb7/5232/impression?dnt=&vpxid=&bwb=&cevt=",
+        "domain": "b.videoamp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 538,
+        "blockedByShields": true
+      },
+      {
+        "id": 37,
+        "url": "https://14350673.fls.doubleclick.net/activityi;src=14350673;type=globa0;cat=visit0;ord=1782053735631",
+        "domain": "14350673.fls.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 538,
+        "blockedByShields": true
+      },
+      {
+        "id": 38,
+        "url": "https://cdn.cookielaw.org/scripttemplates/otSDKStub.js",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 538,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://di.rlcdn.com/466956.html?pdata=",
+        "domain": "di.rlcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 568,
+        "blockedByShields": true
+      },
+      {
+        "id": 40,
+        "url": "https://static.ads-twitter.com/uwt.js",
+        "domain": "static.ads-twitter.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads-twitter.com",
+          "entity": "X",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 568,
+        "blockedByShields": true
+      },
+      {
+        "id": 41,
+        "url": "https://d1n00d49gkbray.cloudfront.net/js/macys.js",
+        "domain": "d1n00d49gkbray.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 572,
+        "blockedByShields": true
+      },
+      {
+        "id": 42,
+        "url": "https://d.oracleinfinity.io/infy/acs/account/b8329d0ce88880c0e053ae14000a63e5/js/macys/odc.js",
+        "domain": "d.oracleinfinity.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 574,
+        "blockedByShields": true
+      },
+      {
+        "id": 43,
+        "url": "https://d.agkn.com/pixel/8532/?omid=",
+        "domain": "d.agkn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 575,
+        "blockedByShields": true
+      },
+      {
+        "id": 44,
+        "url": "https://resources.digital-cloud.medallia.com/wdcus/12914/onsite/embed.js",
+        "domain": "resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 577,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://s.adroll.com/j/roundtrip.js",
+        "domain": "s.adroll.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adroll.com",
+          "entity": "AdRoll",
+          "category": "advertising / retargeting",
+          "confidence": "curated"
+        },
+        "startedAtMs": 578,
+        "blockedByShields": true
+      },
+      {
+        "id": 46,
+        "url": "https://www.macys.com/tag_path/profile/visit/js/1_0",
+        "domain": "www.macys.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 580,
+        "blockedByShields": true
+      },
+      {
+        "id": 47,
+        "url": "https://bat.bing.com/bat.js",
+        "domain": "bat.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 584,
+        "blockedByShields": true
+      },
+      {
+        "id": 48,
+        "url": "https://cdn.pbbl.co/r/1376.js",
+        "domain": "cdn.pbbl.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 588,
+        "blockedByShields": true
+      },
+      {
+        "id": 49,
+        "url": "https://servedby.flashtalking.com/container/12518;131342;14478;iframe/?ft_referrer=&cachebuster=",
+        "domain": "servedby.flashtalking.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 589,
+        "blockedByShields": true
+      },
+      {
+        "id": 50,
+        "url": "https://collect.tealiumiq.com/macys/main/2/i.gif",
+        "domain": "collect.tealiumiq.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "tealiumiq.com",
+          "entity": "Tealium",
+          "category": "tag management / customer data",
+          "confidence": "curated"
+        },
+        "startedAtMs": 598,
+        "blockedByShields": true
+      },
+      {
+        "id": 51,
+        "url": "https://bc.macys.com/triggermail.js/macys.js",
+        "domain": "bc.macys.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 598,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://track.sv.rkdms.com/js/sv.js?sv_cid=&sv_origin=",
+        "domain": "track.sv.rkdms.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 600,
+        "blockedByShields": true
+      },
+      {
+        "id": 53,
+        "url": "https://tags.tiqcdn.com/utag/tiqapp/utag.v.js?a=&cb=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 600,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://c.go-mpulse.net/api/config.json?key=&d=&t=&v=&if=&sl=&si=&plugins=&acao=",
+        "domain": "c.go-mpulse.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 665,
+        "blockedByShields": true
+      },
+      {
+        "id": 55,
+        "url": "https://adobedc.demdex.net/ee/v1/interact?configId=&requestId=",
+        "domain": "adobedc.demdex.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1021,
+        "blockedByShields": true
+      },
+      {
+        "id": 56,
+        "url": "https://s.pinimg.com/ct/lib/main.0cb4b510.js",
+        "domain": "s.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1178,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://ct.pinterest.com/user/?tid=&ov=&pd=&cb=&dep=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1241,
+        "blockedByShields": true
+      },
+      {
+        "id": 58,
+        "url": "https://ct.pinterest.com/v3/?tid=&ov=&pd=&event=&ad=&cb=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1243,
+        "blockedByShields": true
+      },
+      {
+        "id": 59,
+        "url": "https://edge.fullstory.com/s/settings/104H4B/v1/web",
+        "domain": "edge.fullstory.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "fullstory.com",
+          "entity": "FullStory",
+          "category": "session replay",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1447,
+        "blockedByShields": true
+      },
+      {
+        "id": 60,
+        "url": "https://bk8d4asi.micpn.com/p/cp/-1/track.gif?t=&mi_u=&mi_cid=&page_title=&event_type=&cdate=&anon=",
+        "domain": "bk8d4asi.micpn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1457,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://14350673.fls.doubleclick.net/activityi;dc_pre=CNzaxL_LmJUDFYLfzgAddR02DA;src=14350673;type=globa0;cat=visit0;ord=1782053735631",
+        "domain": "14350673.fls.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1458,
+        "blockedByShields": true
+      },
+      {
+        "id": 62,
+        "url": "https://cdn.taboola.com/libtrc/unip/1424784/tfa.js",
+        "domain": "cdn.taboola.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1462,
+        "blockedByShields": true
+      },
+      {
+        "id": 63,
+        "url": "https://cdn.cookielaw.org/consent/01ccd164-62fb-406d-a827-692c34dd9eda/01ccd164-62fb-406d-a827-692c34dd9eda.json",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1467,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://tr.snapchat.com/config/com/243d8345-f682-4dc3-8ef8-f38bef12bd39.js?v=",
+        "domain": "tr.snapchat.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1505,
+        "blockedByShields": true
+      },
+      {
+        "id": 65,
+        "url": "https://tr.snapchat.com/config/com/1746695c-6813-4174-87a6-d774871422bd.js?v=",
+        "domain": "tr.snapchat.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1511,
+        "blockedByShields": true
+      },
+      {
+        "id": 66,
+        "url": "https://tr.snapchat.com/cm/i?pid=&u_scsid=&u_sclid=",
+        "domain": "tr.snapchat.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1511,
+        "blockedByShields": true
+      },
+      {
+        "id": 67,
+        "url": "https://tr.snapchat.com/cm/i?pid=&u_scsid=&u_sclid=",
+        "domain": "tr.snapchat.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1512,
+        "blockedByShields": true
+      },
+      {
+        "id": 68,
+        "url": "https://rs.fullstory.com/rec/page",
+        "domain": "rs.fullstory.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "fullstory.com",
+          "entity": "FullStory",
+          "category": "session replay",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1512,
+        "blockedByShields": true
+      },
+      {
+        "id": 69,
+        "url": "https://servedby.flashtalking.com/spot/8/12518;131562;14478/?ft_referrer=&cachebuster=&ft_trackID=",
+        "domain": "servedby.flashtalking.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1514,
+        "blockedByShields": true
+      },
+      {
+        "id": 70,
+        "url": "https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location",
+        "domain": "geolocation.onetrust.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1520,
+        "blockedByShields": true
+      },
+      {
+        "id": 71,
+        "url": "https://aa.agkn.com/adscores/g.pixel?sid=",
+        "domain": "aa.agkn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1548,
+        "blockedByShields": true
+      },
+      {
+        "id": 72,
+        "url": "https://ad.doubleclick.net/ccm/s/collect?auid=&gtm=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1640,
+        "blockedByShields": true
+      },
+      {
+        "id": 73,
+        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/983383761/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1641,
+        "blockedByShields": true
+      },
+      {
+        "id": 74,
+        "url": "https://www.google.com/rmkt/collect/983383761/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&gcp=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1641,
+        "blockedByShields": true
+      },
+      {
+        "id": 75,
+        "url": "https://www.google.com/ccm/form-data/983383761?gtm=&gcd=&dma=&tag_exp=&rcb=&did=&gdid=&npa=&frm=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&ec_mode=&em=&emd=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1641,
+        "blockedByShields": true
+      },
+      {
+        "id": 76,
+        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/983383761/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1642,
+        "blockedByShields": true
+      },
+      {
+        "id": 77,
+        "url": "https://www.google.com/rmkt/collect/983383761/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&gcp=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1642,
+        "blockedByShields": true
+      },
+      {
+        "id": 78,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1642,
+        "blockedByShields": true
+      },
+      {
+        "id": 79,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1642,
+        "blockedByShields": true
+      },
+      {
+        "id": 80,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1643,
+        "blockedByShields": true
+      },
+      {
+        "id": 81,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&did=&gdid=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1645,
+        "blockedByShields": true
+      },
+      {
+        "id": 82,
+        "url": "https://edge.adobedc.net/ee/va6/v1/interact?configId=&requestId=",
+        "domain": "edge.adobedc.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1651,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://d.oracleinfinity.io/infy/acs/common/js/1.3.45/common.js",
+        "domain": "d.oracleinfinity.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1657,
+        "blockedByShields": true
+      },
+      {
+        "id": 84,
+        "url": "https://s.adroll.com/j/pre/4ZLPZQACRNFOLJWBPC5HW4/OKFHZQ7HJNH7RL3K7UNB2R/fpconsent.js",
+        "domain": "s.adroll.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adroll.com",
+          "entity": "AdRoll",
+          "category": "advertising / retargeting",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1663,
+        "blockedByShields": true
+      },
+      {
+        "id": 85,
+        "url": "https://s.adroll.com/j/pre/4ZLPZQACRNFOLJWBPC5HW4/OKFHZQ7HJNH7RL3K7UNB2R/index.js",
+        "domain": "s.adroll.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adroll.com",
+          "entity": "AdRoll",
+          "category": "advertising / retargeting",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1664,
+        "blockedByShields": true
+      },
+      {
+        "id": 86,
+        "url": "https://bat.bing.com/p/action/5438349.js",
+        "domain": "bat.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1670,
+        "blockedByShields": true
+      },
+      {
+        "id": 87,
+        "url": "https://s.adroll.com/j/pre/index.js",
+        "domain": "s.adroll.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adroll.com",
+          "entity": "AdRoll",
+          "category": "advertising / retargeting",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1676,
+        "blockedByShields": true
+      },
+      {
+        "id": 88,
+        "url": "https://cdn.pbbl.co/i/pp.html",
+        "domain": "cdn.pbbl.co",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1692,
+        "blockedByShields": true
+      },
+      {
+        "id": 89,
+        "url": "https://bat.bing.com/actionp/0?ti=&Ver=&mid=&bo=&evt=&src=&cdb=&asc=",
+        "domain": "bat.bing.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1698,
+        "blockedByShields": true
+      },
+      {
+        "id": 90,
+        "url": "https://bat.bing.com/action/0?ti=&Ver=&mid=&bo=&sid=&vid=&vids=&msclkid=&pi=&lg=&sw=&sh=&sc=&nwd=&tl=&kw=&p=&r=&lt=&evt=&sv=&asc=&cdb=&rn=",
+        "domain": "bat.bing.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1698,
+        "blockedByShields": true
+      },
+      {
+        "id": 91,
+        "url": "https://tr.snapchat.com/p",
+        "domain": "tr.snapchat.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1725,
+        "blockedByShields": true
+      },
+      {
+        "id": 92,
+        "url": "https://px0.pbbl.co/ns/__p2.gif?ppid=&chk=&brid=&brcid=&email=&orderId=&orderValue=&productId=&offerCode=&label=&pageUrl=&referrerUrl=&targetUrl=&sessionId=&markerType=&rand=&iabOptOut=&jsVer=&frVer=&markerId=",
+        "domain": "px0.pbbl.co",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1742,
+        "blockedByShields": true
+      },
+      {
+        "id": 93,
+        "url": "https://idsync.rlcdn.com/379118.gif?partner_uid=",
+        "domain": "idsync.rlcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1745,
+        "blockedByShields": true
+      },
+      {
+        "id": 94,
+        "url": "https://trc.taboola.com/1424784/trc/3/json?tim=&data=&pubit=",
+        "domain": "trc.taboola.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1794,
+        "blockedByShields": true
+      },
+      {
+        "id": 95,
+        "url": "https://d.adroll.com/consent/check/4ZLPZQACRNFOLJWBPC5HW4?pv=&arrfrr=&_s=&_b=",
+        "domain": "d.adroll.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adroll.com",
+          "entity": "AdRoll",
+          "category": "advertising / retargeting",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1800,
+        "blockedByShields": true
+      },
+      {
+        "id": 96,
+        "url": "https://sc-static.net/scevent.min.js",
+        "domain": "sc-static.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1802,
+        "blockedByShields": true
+      },
+      {
+        "id": 97,
+        "url": "https://sc-static.net/scevent.min.js",
+        "domain": "sc-static.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1803,
+        "blockedByShields": true
+      },
+      {
+        "id": 98,
+        "url": "https://cdn.cookielaw.org/scripttemplates/202510.2.0/otBannerSdk.js",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1808,
+        "blockedByShields": true
+      },
+      {
+        "id": 99,
+        "url": "https://tr.snapchat.com/cm/s?bt=&pnid=&cb=&u_scsid=&u_sclid=",
+        "domain": "tr.snapchat.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1861,
+        "blockedByShields": true
+      },
+      {
+        "id": 100,
+        "url": "https://tr.snapchat.com/cm/s?bt=&pnid=&cb=&u_scsid=&u_sclid=",
+        "domain": "tr.snapchat.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1865,
+        "blockedByShields": true
+      },
+      {
+        "id": 101,
+        "url": "https://pixel.tapad.com/idsync/ex/push?partner_id=&partner_url=",
+        "domain": "pixel.tapad.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 403,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1902,
+        "blockedByShields": true
+      },
+      {
+        "id": 102,
+        "url": "https://pixel.tapad.com/idsync/ex/push?partner_id=&partner_url=",
+        "domain": "pixel.tapad.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 403,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1904,
+        "blockedByShields": true
+      },
+      {
+        "id": 103,
+        "url": "https://ad.doubleclick.net/activity;src=10289658;type=globmmn;cat=mmn_g0;rcb=14;ord=1782053735631;npa=0;auiddc=1811480292.1782053737;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=IAAB;gtm=45fe66h0v9190905602za200zb9215740020zd9215740020xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=3;tag_exp=115938465~115938468~118131810~118395333~119027224~119392696~119392704~119456239~119456247;epver=2;dc_random=1782053737_uMT7WGpOxFxk0TaRf7ZDQ_aYcvKAB985QQ;~oref=https%3A%2F%2Fwww.macys.com%2F",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1918,
+        "blockedByShields": true
+      },
+      {
+        "id": 104,
+        "url": "https://10289658.fls.doubleclick.net/activityi;src=10289658;type=globmmn;cat=mmn_g0;rcb=14;ord=1782053735631;npa=0;auiddc=1811480292.1782053737;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=IAAB;gtm=45fe66h0v9190905602za200zb9215740020zd9215740020xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=2;tag_exp=115938465~115938468~118131810~118395333~119027224~119392696~119392704~119456239~119456247;epver=2;dc_random=1782053737_uMT7WGpOxFxk0TaRf7ZDQ_aYcvKAB985QQ;_dc_test=1;~oref=https%3A%2F%2Fwww.macys.com%2F",
+        "domain": "10289658.fls.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1921,
+        "blockedByShields": true
+      },
+      {
+        "id": 105,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&gdid=&_tu=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1922,
+        "blockedByShields": true
+      },
+      {
+        "id": 106,
+        "url": "https://ad.doubleclick.net/activity;src=3856256;type=global;cat=landing;rcb=12;ord=1782053735631;npa=0;auiddc=1811480292.1782053737;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=IAAB;gtm=45fe66h0v9168096634za200zb9215740020zd9215740020xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=3;tag_exp=115938465~115938469~118131810~119027224~119392696~119392704~119456239~119456247;epver=2;dc_random=1782053737_yxJAIbA_tJrw1wadkxeTIAWTKpbnxXrazQ;~oref=https%3A%2F%2Fwww.macys.com%2F",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1983,
+        "blockedByShields": true
+      },
+      {
+        "id": 107,
+        "url": "https://3856256.fls.doubleclick.net/activityi;src=3856256;type=global;cat=landing;rcb=12;ord=1782053735631;npa=0;auiddc=1811480292.1782053737;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=IAAB;gtm=45fe66h0v9168096634za200zb9215740020zd9215740020xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=2;tag_exp=115938465~115938469~118131810~119027224~119392696~119392704~119456239~119456247;epver=2;dc_random=1782053737_yxJAIbA_tJrw1wadkxeTIAWTKpbnxXrazQ;_dc_test=1;~oref=https%3A%2F%2Fwww.macys.com%2F",
+        "domain": "3856256.fls.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1985,
+        "blockedByShields": true
+      },
+      {
+        "id": 108,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&gdid=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1990,
+        "blockedByShields": true
+      },
+      {
+        "id": 109,
+        "url": "https://ad.doubleclick.net/activity;src=3856256;type=global;cat=landing;rcb=12;npa=0;auiddc=1811480292.1782053737;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;user_data_mode=c;_tu=IAAB;gtm=45fe66h0v9168096634za200zb9215740020zd9215740020xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=3;tag_exp=115938465~115938469~118131810~119027224~119392696~119392704~119456239~119456247;epver=2;em=tv.1;dc_random=1782053737_UxQPS1y5OIiHzh99qM5ArM1FGptTwLIqlw;~oref=https%3A%2F%2Fwww.macys.com%2F",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1991,
+        "blockedByShields": true
+      },
+      {
+        "id": 110,
+        "url": "https://3856256.fls.doubleclick.net/activityi;src=3856256;type=global;cat=landing;rcb=12;npa=0;auiddc=1811480292.1782053737;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;user_data_mode=c;_tu=IAAB;gtm=45fe66h0v9168096634za200zb9215740020zd9215740020xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=2;tag_exp=115938465~115938469~118131810~119027224~119392696~119392704~119456239~119456247;epver=2;em=tv.1;dc_random=1782053737_UxQPS1y5OIiHzh99qM5ArM1FGptTwLIqlw;_dc_test=1;~oref=https%3A%2F%2Fwww.macys.com%2F",
+        "domain": "3856256.fls.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1992,
+        "blockedByShields": true
+      },
+      {
+        "id": 111,
+        "url": "https://www.google.com/pagead/1p-user-list/983383761/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1994,
+        "blockedByShields": true
+      },
+      {
+        "id": 112,
+        "url": "https://www.google.com/pagead/1p-user-list/983383761/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1995,
+        "blockedByShields": true
+      },
+      {
+        "id": 113,
+        "url": "https://10289658.fls.doubleclick.net/activityi;dc_pre=CISm5r_LmJUDFejFzgAdxMI6VQ;src=10289658;type=globmmn;cat=mmn_g0;rcb=14;ord=1782053735631;npa=0;auiddc=1811480292.1782053737;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=IAAB;gtm=45fe66h0v9190905602za200zb9215740020zd9215740020xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=2;tag_exp=115938465~115938468~118131810~118395333~119027224~119392696~119392704~119456239~119456247;epver=2;dc_random=1782053737_uMT7WGpOxFxk0TaRf7ZDQ_aYcvKAB985QQ;_dc_test=1;~oref=https%3A%2F%2Fwww.macys.com%2F",
+        "domain": "10289658.fls.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1996,
+        "blockedByShields": true
+      },
+      {
+        "id": 114,
+        "url": "https://3856256.fls.doubleclick.net/activityi;dc_pre=CL6V6r_LmJUDFYnjzgAdpcUzxA;src=3856256;type=global;cat=landing;rcb=12;ord=1782053735631;npa=0;auiddc=1811480292.1782053737;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=IAAB;gtm=45fe66h0v9168096634za200zb9215740020zd9215740020xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=2;tag_exp=115938465~115938469~118131810~119027224~119392696~119392704~119456239~119456247;epver=2;dc_random=1782053737_yxJAIbA_tJrw1wadkxeTIAWTKpbnxXrazQ;_dc_test=1;~oref=https%3A%2F%2Fwww.macys.com%2F",
+        "domain": "3856256.fls.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2062,
+        "blockedByShields": true
+      },
+      {
+        "id": 115,
+        "url": "https://3856256.fls.doubleclick.net/activityi;dc_pre=CLWi6r_LmJUDFVMLkQEdNwYURQ;src=3856256;type=global;cat=landing;rcb=12;npa=0;auiddc=1811480292.1782053737;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;user_data_mode=c;_tu=IAAB;gtm=45fe66h0v9168096634za200zb9215740020zd9215740020xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=2;tag_exp=115938465~115938469~118131810~119027224~119392696~119392704~119456239~119456247;epver=2;em=tv.1;dc_random=1782053737_UxQPS1y5OIiHzh99qM5ArM1FGptTwLIqlw;_dc_test=1;~oref=https%3A%2F%2Fwww.macys.com%2F",
+        "domain": "3856256.fls.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2064,
+        "blockedByShields": true
+      },
+      {
+        "id": 116,
+        "url": "https://analytics.google.com/g/collect?v=&tid=&gtm=&_p=&_gaz=&gcd=&npa=&dma=&gdid=&ecid=&_eu=&are=&cid=&ec_mode=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&gaf=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&_tu=&en=&_fv=&_nsi=&_ss=&_ee=&up.tealium_visitor_id=&tfd=",
+        "domain": "analytics.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2076,
+        "blockedByShields": true
+      },
+      {
+        "id": 117,
+        "url": "https://stats.g.doubleclick.net/g/collect?v=&tid=&cid=&gtm=&rcb=&aip=&dma=&gcd=&npa=&frm=&tag_exp=",
+        "domain": "stats.g.doubleclick.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2076,
+        "blockedByShields": true
+      },
+      {
+        "id": 118,
+        "url": "https://www.googleadservices.com/pagead/conversion.js",
+        "domain": "www.googleadservices.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2083,
+        "blockedByShields": true
+      },
+      {
+        "id": 119,
+        "url": "https://adservice.google.com/ddm/fls/z/dc_pre=CISm5r_LmJUDFejFzgAdxMI6VQ;src=10289658;type=globmmn;cat=mmn_g0;rcb=14;ord=1782053735631;npa=0;auiddc=*;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=IAAB;gtm=45fe66h0v9190905602za200zb9215740020zd9215740020xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=2;tag_exp=115938465~115938468~118131810~118395333~119027224~119392696~119392704~119456239~119456247;epver=2;dc_random=1782053737_uMT7WGpOxFxk0TaRf7ZDQ_aYcvKAB985QQ;_dc_test=1;~oref=https%3A%2F%2Fwww.macys.com%2F",
+        "domain": "adservice.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adservice.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2083,
+        "blockedByShields": true
+      },
+      {
+        "id": 120,
+        "url": "https://www.googleadservices.com/pagead/conversion.js",
+        "domain": "www.googleadservices.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2104,
+        "blockedByShields": true
+      },
+      {
+        "id": 121,
+        "url": "https://adservice.google.com/ddm/fls/z/dc_pre=CL6V6r_LmJUDFYnjzgAdpcUzxA;src=3856256;type=global;cat=landing;rcb=12;ord=1782053735631;npa=0;auiddc=*;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=IAAB;gtm=45fe66h0v9168096634za200zb9215740020zd9215740020xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=2;tag_exp=115938465~115938469~118131810~119027224~119392696~119392704~119456239~119456247;epver=2;dc_random=1782053737_yxJAIbA_tJrw1wadkxeTIAWTKpbnxXrazQ;_dc_test=1;~oref=https%3A%2F%2Fwww.macys.com%2F",
+        "domain": "adservice.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adservice.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2104,
+        "blockedByShields": true
+      },
+      {
+        "id": 122,
+        "url": "https://tr6.snapchat.com/p",
+        "domain": "tr6.snapchat.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2107,
+        "blockedByShields": true
+      },
+      {
+        "id": 123,
+        "url": "https://www.googleadservices.com/pagead/conversion.js",
+        "domain": "www.googleadservices.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2110,
+        "blockedByShields": true
+      },
+      {
+        "id": 124,
+        "url": "https://adservice.google.com/ddm/fls/z/dc_pre=CLWi6r_LmJUDFVMLkQEdNwYURQ;src=3856256;type=global;cat=landing;rcb=12;npa=0;auiddc=*;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;user_data_mode=c;_tu=IAAB;gtm=45fe66h0v9168096634za200zb9215740020zd9215740020xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=2;tag_exp=115938465~115938469~118131810~119027224~119392696~119392704~119456239~119456247;epver=2;em=tv.*;dc_random=1782053737_UxQPS1y5OIiHzh99qM5ArM1FGptTwLIqlw;_dc_test=1;~oref=https%3A%2F%2Fwww.macys.com%2F",
+        "domain": "adservice.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adservice.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2110,
+        "blockedByShields": true
+      },
+      {
+        "id": 125,
+        "url": "https://cdn.cookielaw.org/consent/01ccd164-62fb-406d-a827-692c34dd9eda/018f0757-6245-7717-b39e-affd73840606/en.json",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2148,
+        "blockedByShields": false
+      },
+      {
+        "id": 126,
+        "url": "https://www.googleadservices.com/pagead/conversion/792985800/?random=&cv=&fst=&num=&npa=&label=&guid=&resp=&eid=&u_h=&u_w=&ig=&auid=&frm=&url=&ref=&top=&capi=&hn=&rfmt=&fmt=",
+        "domain": "www.googleadservices.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2159,
+        "blockedByShields": true
+      },
+      {
+        "id": 127,
+        "url": "https://www.googleadservices.com/pagead/conversion/792985800/?random=&cv=&fst=&num=&npa=&label=&guid=&resp=&eid=&u_h=&u_w=&ig=&auid=&frm=&url=&ref=&top=&capi=&hn=&rfmt=&fmt=",
+        "domain": "www.googleadservices.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2162,
+        "blockedByShields": true
+      },
+      {
+        "id": 128,
+        "url": "https://www.googleadservices.com/pagead/conversion/393445510/?random=&cv=&fst=&num=&npa=&label=&guid=&resp=&eid=&u_h=&u_w=&ig=&auid=&frm=&url=&ref=&top=&capi=&hn=&rfmt=&fmt=",
+        "domain": "www.googleadservices.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2164,
+        "blockedByShields": true
+      },
+      {
+        "id": 129,
+        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/792985800/?random=&cv=&fst=&num=&npa=&label=&guid=&resp=&eid=&u_h=&u_w=&ig=&auid=&frm=&url=&ref=&top=&capi=&hn=&fmt=&ct_cookie_present=&crd=&cerd=&fsk=&pscrd=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2186,
+        "blockedByShields": true
+      },
+      {
+        "id": 130,
+        "url": "https://cdn.cookielaw.org/scripttemplates/202510.2.0/assets/otFlat.json",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2203,
+        "blockedByShields": false
+      },
+      {
+        "id": 131,
+        "url": "https://cdn.cookielaw.org/scripttemplates/202510.2.0/assets/otCommonStyles.css",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2203,
+        "blockedByShields": false
+      },
+      {
+        "id": 132,
+        "url": "https://www.google.com/pagead/1p-conversion/792985800/?random=&cv=&fst=&num=&npa=&label=&guid=&resp=&eid=&u_h=&u_w=&ig=&auid=&frm=&url=&ref=&top=&capi=&hn=&fmt=&ct_cookie_present=&crd=&cerd=&fsk=&pscrd=&is_vtc=&vdi=&cid=&random=&resp=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2210,
+        "blockedByShields": true
+      },
+      {
+        "id": 133,
+        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/792985800/?random=&cv=&fst=&num=&npa=&label=&guid=&resp=&eid=&u_h=&u_w=&ig=&auid=&frm=&url=&ref=&top=&capi=&hn=&fmt=&ct_cookie_present=&crd=&cerd=&fsk=&pscrd=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2224,
+        "blockedByShields": true
+      },
+      {
+        "id": 134,
+        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/393445510/?random=&cv=&fst=&num=&npa=&label=&guid=&resp=&eid=&u_h=&u_w=&ig=&auid=&frm=&url=&ref=&top=&capi=&hn=&fmt=&ct_cookie_present=&crd=&cerd=&fsk=&pscrd=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2229,
+        "blockedByShields": true
+      },
+      {
+        "id": 135,
+        "url": "https://www.google.com/pagead/1p-conversion/792985800/?random=&cv=&fst=&num=&npa=&label=&guid=&resp=&eid=&u_h=&u_w=&ig=&auid=&frm=&url=&ref=&top=&capi=&hn=&fmt=&ct_cookie_present=&crd=&cerd=&fsk=&pscrd=&is_vtc=&vdi=&cid=&random=&resp=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2246,
+        "blockedByShields": true
+      },
+      {
+        "id": 136,
+        "url": "https://www.google.com/pagead/1p-conversion/393445510/?random=&cv=&fst=&num=&npa=&label=&guid=&resp=&eid=&u_h=&u_w=&ig=&auid=&frm=&url=&ref=&top=&capi=&hn=&fmt=&ct_cookie_present=&crd=&cerd=&fsk=&pscrd=&is_vtc=&vdi=&cid=&random=&resp=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2252,
+        "blockedByShields": true
+      },
+      {
+        "id": 137,
+        "url": "https://resources.digital-cloud.medallia.com/wdcus/12914/onsite/generic1781689263850.js",
+        "domain": "resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2286,
+        "blockedByShields": false
+      },
+      {
+        "id": 138,
+        "url": "https://ct.pinterest.com/ct.html",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2286,
+        "blockedByShields": true
+      },
+      {
+        "id": 139,
+        "url": "https://tr.snapchat.com/p",
+        "domain": "tr.snapchat.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2310,
+        "blockedByShields": true
+      },
+      {
+        "id": 140,
+        "url": "https://resources.digital-cloud.medallia.com/wdcus/12914/onsite/onsiteData1781824024242.json",
+        "domain": "resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2328,
+        "blockedByShields": false
+      },
+      {
+        "id": 141,
+        "url": "https://trial-eum-clientnsv4-s.akamaihd.net/eum/getdns.txt?c=",
+        "domain": "trial-eum-clientnsv4-s.akamaihd.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2495,
+        "blockedByShields": false
+      },
+      {
+        "id": 142,
+        "url": "https://trial-eum-clienttons-s.akamaihd.net/eum/getdns.txt?c=",
+        "domain": "trial-eum-clienttons-s.akamaihd.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2496,
+        "blockedByShields": false
+      },
+      {
+        "id": 143,
+        "url": "https://4-227-135-144_s-2-18-67-67_ts-1782053737-clienttons-s.akamaihd.net/eum/results.txt",
+        "domain": "4-227-135-144_s-2-18-67-67_ts-1782053737-clienttons-s.akamaihd.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2610,
+        "blockedByShields": false
+      },
+      {
+        "id": 144,
+        "url": "https://atrypeax24ako2rx7nuq-pu41wj-4c7c7398a-clientnsv4-s.akamaihd.net/eum/results.txt",
+        "domain": "atrypeax24ako2rx7nuq-pu41wj-4c7c7398a-clientnsv4-s.akamaihd.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2611,
+        "blockedByShields": false
+      },
+      {
+        "id": 145,
+        "url": "https://68794905.akstat.io/",
+        "domain": "68794905.akstat.io",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2817,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googleadservices.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "s.adroll.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adroll.com",
+          "entity": "AdRoll",
+          "category": "advertising / retargeting",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "bat.bing.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "ping",
+          "image"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "3856256.fls.doubleclick.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "ct.pinterest.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "fetch",
+          "document"
+        ]
+      },
+      {
+        "domain": "adservice.google.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adservice.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "edge.fullstory.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "fullstory.com",
+          "entity": "FullStory",
+          "category": "session replay",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "14350673.fls.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "10289658.fls.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "di.rlcdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "static.ads-twitter.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads-twitter.com",
+          "entity": "X",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "collect.tealiumiq.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "tealiumiq.com",
+          "entity": "Tealium",
+          "category": "tag management / customer data",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "adobedc.demdex.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cdn.taboola.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "rs.fullstory.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "fullstory.com",
+          "entity": "FullStory",
+          "category": "session replay",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          202
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "idsync.rlcdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "trc.taboola.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "d.adroll.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adroll.com",
+          "entity": "AdRoll",
+          "category": "advertising / retargeting",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "stats.g.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "tags.tiqcdn.com",
+        "requests": 24,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 11,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "tr.snapchat.com",
+        "requests": 8,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "ping"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "sc-static.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "resources.digital-cloud.medallia.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "s.pinimg.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "bk8d4asi.micpn.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "d.oracleinfinity.io",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.pbbl.co",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "servedby.flashtalking.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "pixel.tapad.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          403
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "s.go-mpulse.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn1.adoberesources.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "resources.xg4ken.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "js.cnnx.link",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "track.coherentpath.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "b.videoamp.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "d1n00d49gkbray.cloudfront.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "d.agkn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "track.sv.rkdms.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "c.go-mpulse.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "geolocation.onetrust.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "aa.agkn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "edge.adobedc.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "px0.pbbl.co",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "tr6.snapchat.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "trial-eum-clientnsv4-s.akamaihd.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "trial-eum-clienttons-s.akamaihd.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "4-227-135-144_s-2-18-67-67_ts-1782053737-clienttons-s.akamaihd.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "atrypeax24ako2rx7nuq-pu41wj-4c7c7398a-clientnsv4-s.akamaihd.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "68794905.akstat.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "www.macys.com",
+        "requests": 3,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          403
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "bc.macys.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "aa",
+        "domain": ".agkn.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "u",
+        "domain": ".agkn.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "MR",
+        "domain": ".bat.bing.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "MUID",
+        "domain": ".bing.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "demdex",
+        "domain": ".demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "sc_at",
+        "domain": ".snapchat.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "taboola_session_id",
+        "domain": ".taboola.com",
+        "path": "/macys-sccnx/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "t_gid",
+        "domain": ".taboola.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "t_pt_gid",
+        "domain": ".taboola.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "TAPID",
+        "domain": ".tealiumiq.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "X-AB",
+        "domain": "sc-static.net",
+        "path": "/scevent.min.js",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "_scid",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "utag_main",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_scid_r",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kndctr_8D0867C25245AE650A490D4C_AdobeOrg_cluster",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kndctr_8D0867C25245AE650A490D4C_AdobeOrg_identity",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AMCV_8D0867C25245AE650A490D4C%40AdobeOrg",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_uetsid",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_uetvid",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_HXF6P409HF",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_sctr",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "RT",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "Tld-kampyleUserSession",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "Tld-kampyleUserSessionsCount",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "Tld-kampyleUserPercentile",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "Tld-kampyleSessionPageCounter",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_mibhv",
+        "domain": "www.macys.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kampyle_userid",
+        "domain": "www.macys.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "u_sclid",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "targetResponseToken",
+        "valueBytes": 548
+      },
+      {
+        "area": "localStorage",
+        "key": "previous_page_name_aep",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "signal_sessionId",
+        "valueBytes": 111
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetvid_exp",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "_mibhv",
+        "valueBytes": 103
+      },
+      {
+        "area": "localStorage",
+        "key": "signal_browserId",
+        "valueBytes": 115
+      },
+      {
+        "area": "localStorage",
+        "key": "last_adobe_hit",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "tealium_timing",
+        "valueBytes": 314
+      },
+      {
+        "area": "localStorage",
+        "key": "page_name_aep",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "1424784:session-data",
+        "valueBytes": 195
+      },
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls",
+        "valueBytes": 277
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetsid",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "_boomr_akamaiXhrRetry",
+        "valueBytes": 36
+      },
+      {
+        "area": "localStorage",
+        "key": "u_sclid_r",
+        "valueBytes": 75
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyle_userid",
+        "valueBytes": 39
+      },
+      {
+        "area": "localStorage",
+        "key": "first_adobe_hit",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetsid_exp",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "targetResponseTokenExpiry",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetvid",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "taboola global:user-id",
+        "valueBytes": 49
+      },
+      {
+        "area": "localStorage",
+        "key": "search_bar_click_event_sent",
+        "valueBytes": 5
+      },
+      {
+        "area": "sessionStorage",
+        "key": "u_scsid_r",
+        "valueBytes": 112
+      },
+      {
+        "area": "sessionStorage",
+        "key": "_fs_tab_id",
+        "valueBytes": 13
+      },
+      {
+        "area": "sessionStorage",
+        "key": "is_eu",
+        "valueBytes": 5
+      },
+      {
+        "area": "sessionStorage",
+        "key": "adroll_dqs",
+        "valueBytes": 57
+      },
+      {
+        "area": "sessionStorage",
+        "key": "u_scsid",
+        "valueBytes": 96
+      },
+      {
+        "area": "sessionStorage",
+        "key": "correlationIDs",
+        "valueBytes": 32
+      },
+      {
+        "area": "sessionStorage",
+        "key": "_fs_akamai_error_s",
+        "valueBytes": 4
+      },
+      {
+        "area": "sessionStorage",
+        "key": "com.adobe.alloy.8D0867C25245AE650A490D4C@AdobeOrgclickData",
+        "valueBytes": 35
+      },
+      {
+        "area": "sessionStorage",
+        "key": "adroll_flgs",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "keydown"
+          ],
+          "listenerTargets": [
+            "document",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://s.go-mpulse.net",
+            "https://s.pinimg.com",
+            "https://sc-static.net",
+            "https://www.googletagmanager.com"
+          ],
+          "totalListenerCalls": 4
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "mousemove",
+            "mouseup",
+            "scroll",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "documentElement",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.cookielaw.org",
+            "https://cdn1.adoberesources.net",
+            "https://s.go-mpulse.net",
+            "https://sc-static.net",
+            "https://static.ads-twitter.com",
+            "https://tags.tiqcdn.com",
+            "https://www.googletagmanager.com"
+          ],
+          "totalListenerCalls": 19
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "The page did not reach network idle before the scan window ended."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Access Denied - Macy's",
+      "status": 403,
+      "durationMs": 1701,
+      "firstPartyDomain": "www.macys.com",
+      "totalRequests": 32,
+      "thirdPartyRequests": 29,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 3,
+      "cookies": 6,
+      "thirdPartyCookies": 0,
+      "storageEntries": 8,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 26
+    },
+    "conditions": {
+      "requestedUrl": "https://www.macys.com/",
+      "finalUrl": "https://www.macys.com/",
+      "scannedAt": "2026-06-21T14:55:43.707Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.macys.com/",
+        "domain": "www.macys.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 36,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.macys.com/navigation/header-footer",
+        "domain": "www.macys.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 301,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.js",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 301,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1437.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 566,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1896.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 567,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1119.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 588,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.146.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 588,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.545.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 588,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.574.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 589,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.775.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 589,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.787.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 589,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1110.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 590,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1291.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 590,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1385.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 591,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1485.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 591,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1523.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 592,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1562.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 592,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1609.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 592,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1620.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 593,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1708.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 593,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1933.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 594,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1962.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 594,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.1381.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 594,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.2064.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 595,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://tags.tiqcdn.com/utag/macys/main/prod/utag.2078.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 595,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://cdn.cookielaw.org/scripttemplates/otSDKStub.js",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 598,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://resources.digital-cloud.medallia.com/wdcus/12914/onsite/embed.js",
+        "domain": "resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 629,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://bc.macys.com/triggermail.js/macys.js",
+        "domain": "bc.macys.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 656,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://tags.tiqcdn.com/utag/tiqapp/utag.v.js?a=&cb=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 658,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://cdn.cookielaw.org/consent/01ccd164-62fb-406d-a827-692c34dd9eda/01ccd164-62fb-406d-a827-692c34dd9eda.json",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 931,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://resources.digital-cloud.medallia.com/wdcus/12914/onsite/generic1781689263850.js",
+        "domain": "resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1072,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://resources.digital-cloud.medallia.com/wdcus/12914/onsite/onsiteData1781824024242.json",
+        "domain": "resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1110,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "tags.tiqcdn.com",
+        "requests": 24,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "resources.digital-cloud.medallia.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.macys.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          403
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "bc.macys.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "utag_main",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "Tld-kampyleUserSession",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "Tld-kampyleUserSessionsCount",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "Tld-kampyleUserPercentile",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "Tld-kampyleSessionPageCounter",
+        "domain": ".macys.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kampyle_userid",
+        "domain": "www.macys.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "kampyle_userid",
+        "valueBytes": 39
+      },
+      {
+        "area": "localStorage",
+        "key": "previous_page_name_aep",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "first_adobe_hit",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "search_bar_click_event_sent",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "last_adobe_hit",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "tealium_timing",
+        "valueBytes": 312
+      },
+      {
+        "area": "localStorage",
+        "key": "page_name_aep",
+        "valueBytes": 5
+      },
+      {
+        "area": "sessionStorage",
+        "key": "_fs_akamai_error_s",
+        "valueBytes": 4
+      }
+    ],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 145,
+      "after": 32,
+      "delta": -113
+    },
+    "thirdPartyRequests": {
+      "before": 141,
+      "after": 29,
+      "delta": -112
+    },
+    "knownTrackerRequests": {
+      "before": 54,
+      "after": 0,
+      "delta": -54
+    },
+    "thirdPartyDomains": {
+      "before": 55,
+      "after": 3,
+      "delta": -52
+    },
+    "cookies": {
+      "before": 32,
+      "after": 6,
+      "delta": -26
+    },
+    "thirdPartyCookies": {
+      "before": 12,
+      "after": 0,
+      "delta": -12
+    },
+    "storageEntries": {
+      "before": 31,
+      "after": 8,
+      "delta": -23
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.google.com",
+        "requests": 11,
+        "tracker": null
+      },
+      {
+        "domain": "tr.snapchat.com",
+        "requests": 8,
+        "tracker": null
+      },
+      {
+        "domain": "www.googleadservices.com",
+        "requests": 6,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 5,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "3856256.fls.doubleclick.net",
+        "requests": 4,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 4,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "bat.bing.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "s.adroll.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "adroll.com",
+          "entity": "AdRoll",
+          "category": "advertising / retargeting",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "adservice.google.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "adservice.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ct.pinterest.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "sc-static.net",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "10289658.fls.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "14350673.fls.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "bk8d4asi.micpn.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.pbbl.co",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "d.oracleinfinity.io",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "edge.fullstory.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "fullstory.com",
+          "entity": "FullStory",
+          "category": "session replay",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "pixel.tapad.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "s.pinimg.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "servedby.flashtalking.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "4-227-135-144_s-2-18-67-67_ts-1782053737-clienttons-s.akamaihd.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "68794905.akstat.io",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "aa.agkn.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "adobedc.demdex.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "atrypeax24ako2rx7nuq-pu41wj-4c7c7398a-clientnsv4-s.akamaihd.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "b.videoamp.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "c.go-mpulse.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.taboola.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cdn1.adoberesources.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "collect.tealiumiq.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "tealiumiq.com",
+          "entity": "Tealium",
+          "category": "tag management / customer data",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "d.adroll.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "adroll.com",
+          "entity": "AdRoll",
+          "category": "advertising / retargeting",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "d.agkn.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "d1n00d49gkbray.cloudfront.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "di.rlcdn.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "edge.adobedc.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "geolocation.onetrust.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "idsync.rlcdn.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "js.cnnx.link",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "px0.pbbl.co",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "resources.xg4ken.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "rs.fullstory.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "fullstory.com",
+          "entity": "FullStory",
+          "category": "session replay",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "s.go-mpulse.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "static.ads-twitter.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "ads-twitter.com",
+          "entity": "X",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "stats.g.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "tr6.snapchat.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "track.coherentpath.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "track.sv.rkdms.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "trc.taboola.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "trial-eum-clientnsv4-s.akamaihd.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "trial-eum-clienttons-s.akamaihd.net",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 32,
+        "domains": 10
+      },
+      {
+        "entity": "AdRoll",
+        "requests": 5,
+        "domains": 2
+      },
+      {
+        "entity": "Microsoft",
+        "requests": 4,
+        "domains": 1
+      },
+      {
+        "entity": "FullStory",
+        "requests": 3,
+        "domains": 2
+      },
+      {
+        "entity": "Pinterest",
+        "requests": 3,
+        "domains": 1
+      },
+      {
+        "entity": "LiveRamp",
+        "requests": 2,
+        "domains": 2
+      },
+      {
+        "entity": "Taboola",
+        "requests": 2,
+        "domains": 2
+      },
+      {
+        "entity": "Adobe",
+        "requests": 1,
+        "domains": 1
+      },
+      {
+        "entity": "Tealium",
+        "requests": 1,
+        "domains": 1
+      },
+      {
+        "entity": "X",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "aa",
+        "domain": ".agkn.com",
+        "thirdParty": true
+      },
+      {
+        "name": "u",
+        "domain": ".agkn.com",
+        "thirdParty": true
+      },
+      {
+        "name": "MR",
+        "domain": ".bat.bing.com",
+        "thirdParty": true
+      },
+      {
+        "name": "MUID",
+        "domain": ".bing.com",
+        "thirdParty": true
+      },
+      {
+        "name": "demdex",
+        "domain": ".demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "sc_at",
+        "domain": ".snapchat.com",
+        "thirdParty": true
+      },
+      {
+        "name": "t_gid",
+        "domain": ".taboola.com",
+        "thirdParty": true
+      },
+      {
+        "name": "t_pt_gid",
+        "domain": ".taboola.com",
+        "thirdParty": true
+      },
+      {
+        "name": "taboola_session_id",
+        "domain": ".taboola.com",
+        "thirdParty": true
+      },
+      {
+        "name": "TAPID",
+        "domain": ".tealiumiq.com",
+        "thirdParty": true
+      },
+      {
+        "name": "X-AB",
+        "domain": "sc-static.net",
+        "thirdParty": true
+      },
+      {
+        "name": "_ga",
+        "domain": ".macys.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_HXF6P409HF",
+        "domain": ".macys.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".macys.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_scid",
+        "domain": ".macys.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_scid_r",
+        "domain": ".macys.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_sctr",
+        "domain": ".macys.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_uetsid",
+        "domain": ".macys.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_uetvid",
+        "domain": ".macys.com",
+        "thirdParty": false
+      },
+      {
+        "name": "AMCV_8D0867C25245AE650A490D4C%40AdobeOrg",
+        "domain": ".macys.com",
+        "thirdParty": false
+      },
+      {
+        "name": "kndctr_8D0867C25245AE650A490D4C_AdobeOrg_cluster",
+        "domain": ".macys.com",
+        "thirdParty": false
+      },
+      {
+        "name": "kndctr_8D0867C25245AE650A490D4C_AdobeOrg_identity",
+        "domain": ".macys.com",
+        "thirdParty": false
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".macys.com",
+        "thirdParty": false
+      },
+      {
+        "name": "RT",
+        "domain": ".macys.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_mibhv",
+        "domain": "www.macys.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "_boomr_akamaiXhrRetry"
+      },
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls"
+      },
+      {
+        "area": "localStorage",
+        "key": "_mibhv"
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetsid"
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetsid_exp"
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetvid"
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetvid_exp"
+      },
+      {
+        "area": "localStorage",
+        "key": "1424784:session-data"
+      },
+      {
+        "area": "localStorage",
+        "key": "signal_browserId"
+      },
+      {
+        "area": "localStorage",
+        "key": "signal_sessionId"
+      },
+      {
+        "area": "localStorage",
+        "key": "taboola global:user-id"
+      },
+      {
+        "area": "localStorage",
+        "key": "targetResponseToken"
+      },
+      {
+        "area": "localStorage",
+        "key": "targetResponseTokenExpiry"
+      },
+      {
+        "area": "localStorage",
+        "key": "u_sclid"
+      },
+      {
+        "area": "localStorage",
+        "key": "u_sclid_r"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "_fs_tab_id"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "adroll_dqs"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "adroll_flgs"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "com.adobe.alloy.8D0867C25245AE650A490D4C@AdobeOrgclickData"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "correlationIDs"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "is_eu"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "u_scsid"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "u_scsid_r"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 103,
+      "after": 26,
+      "delta": -77
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: The page did not reach network idle before the scan window ended.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260621-d85df980f2f23a7ffbeabf529deb5adb",
+    "path": "/reports/20260621-d85df980f2f23a7ffbeabf529deb5adb/",
+    "jsonPath": "/reports/20260621-d85df980f2f23a7ffbeabf529deb5adb.json"
+  }
+}

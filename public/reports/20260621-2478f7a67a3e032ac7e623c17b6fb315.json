@@ -1,0 +1,415 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.mayoclinic.org/",
+  "scannedAt": "2026-06-21T14:48:08.354Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Access Denied",
+      "status": 403,
+      "durationMs": 707,
+      "firstPartyDomain": "www.mayoclinic.org",
+      "totalRequests": 5,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 2,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://www.mayoclinic.org/",
+      "finalUrl": "https://www.mayoclinic.org/",
+      "scannedAt": "2026-06-21T14:48:07.644Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.mayoclinic.org/",
+        "domain": "www.mayoclinic.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 37,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.mayoclinic.org/mayofonts/Fonts/mayo/MayoClinicSans-Regular.woff2",
+        "domain": "www.mayoclinic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 96,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.mayoclinic.org/mayofonts/Fonts/mayo/MayoClinicSerif-Bold.woff2",
+        "domain": "www.mayoclinic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 97,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.mayoclinic.org/mayofonts/Fonts/mayo/MayoClinicSans-Bold.woff2",
+        "domain": "www.mayoclinic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 98,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.mayoclinic.org/mayofonts/Fonts/mayo/MayoClinicSerifDisplay-Bold.woff2",
+        "domain": "www.mayoclinic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 98,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.mayoclinic.org",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          403
+        ],
+        "resourceTypes": [
+          "document",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "AKA_A2",
+        "domain": ".mayoclinic.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "MAYO_CLINIC_USER_GEO",
+        "domain": "www.mayoclinic.org",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Access Denied",
+      "status": 403,
+      "durationMs": 770,
+      "firstPartyDomain": "www.mayoclinic.org",
+      "totalRequests": 5,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 2,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://www.mayoclinic.org/",
+      "finalUrl": "https://www.mayoclinic.org/",
+      "scannedAt": "2026-06-21T14:48:08.354Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.mayoclinic.org/",
+        "domain": "www.mayoclinic.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 36,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.mayoclinic.org/mayofonts/Fonts/mayo/MayoClinicSans-Regular.woff2",
+        "domain": "www.mayoclinic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 98,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.mayoclinic.org/mayofonts/Fonts/mayo/MayoClinicSerif-Bold.woff2",
+        "domain": "www.mayoclinic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 98,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.mayoclinic.org/mayofonts/Fonts/mayo/MayoClinicSans-Bold.woff2",
+        "domain": "www.mayoclinic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 99,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.mayoclinic.org/mayofonts/Fonts/mayo/MayoClinicSerifDisplay-Bold.woff2",
+        "domain": "www.mayoclinic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 100,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.mayoclinic.org",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          403
+        ],
+        "resourceTypes": [
+          "document",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "AKA_A2",
+        "domain": ".mayoclinic.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "MAYO_CLINIC_USER_GEO",
+        "domain": "www.mayoclinic.org",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 5,
+      "after": 5,
+      "delta": 0
+    },
+    "thirdPartyRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260621-2478f7a67a3e032ac7e623c17b6fb315",
+    "path": "/reports/20260621-2478f7a67a3e032ac7e623c17b6fb315/",
+    "jsonPath": "/reports/20260621-2478f7a67a3e032ac7e623c17b6fb315.json"
+  }
+}

@@ -1,0 +1,555 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.etsy.com/",
+  "scannedAt": "2026-06-21T14:53:20.321Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "etsy.com",
+      "status": 403,
+      "durationMs": 1332,
+      "firstPartyDomain": "www.etsy.com",
+      "totalRequests": 7,
+      "thirdPartyRequests": 6,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 3,
+      "cookies": 2,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://www.etsy.com/",
+      "finalUrl": "https://www.etsy.com/",
+      "scannedAt": "2026-06-21T14:53:18.983Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.etsy.com/",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 35,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://ct.captcha-delivery.com/c.js",
+        "domain": "ct.captcha-delivery.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 103,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://geo.captcha-delivery.com/captcha/?initialCid=&hash=&cid=&t=&referer=&s=&e=&dm=",
+        "domain": "geo.captcha-delivery.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 252,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://static.captcha-delivery.com/captcha/assets/tpl/6dc485c0c428c35b53577b146dc6f9179f55ef9ad41b327a2a179998839364bf/index.css",
+        "domain": "static.captcha-delivery.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 400,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://static.captcha-delivery.com/common/fonts/roboto/font-face.css",
+        "domain": "static.captcha-delivery.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 401,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://static.captcha-delivery.com/captcha/assets/set/e0aa99be678965d8c0263bcfd73bf046792f8a69/logo.png?update_cache=",
+        "domain": "static.captcha-delivery.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 401,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://static.captcha-delivery.com/common/fonts/roboto/roboto.woff2",
+        "domain": "static.captcha-delivery.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 559,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "static.captcha-delivery.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "font"
+        ]
+      },
+      {
+        "domain": "ct.captcha-delivery.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "geo.captcha-delivery.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "www.etsy.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          403
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "datadome",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "exp_ebid",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "sessionStorage",
+        "key": "ddOriginalReferrer",
+        "valueBytes": 0
+      }
+    ],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "etsy.com",
+      "status": 403,
+      "durationMs": 1117,
+      "firstPartyDomain": "www.etsy.com",
+      "totalRequests": 7,
+      "thirdPartyRequests": 6,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 3,
+      "cookies": 2,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://www.etsy.com/",
+      "finalUrl": "https://www.etsy.com/",
+      "scannedAt": "2026-06-21T14:53:20.321Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.etsy.com/",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 35,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://ct.captcha-delivery.com/c.js",
+        "domain": "ct.captcha-delivery.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://geo.captcha-delivery.com/captcha/?initialCid=&hash=&cid=&t=&referer=&s=&e=&dm=",
+        "domain": "geo.captcha-delivery.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 227,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://static.captcha-delivery.com/captcha/assets/tpl/6dc485c0c428c35b53577b146dc6f9179f55ef9ad41b327a2a179998839364bf/index.css",
+        "domain": "static.captcha-delivery.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 319,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://static.captcha-delivery.com/common/fonts/roboto/font-face.css",
+        "domain": "static.captcha-delivery.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 319,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://static.captcha-delivery.com/captcha/assets/set/e0aa99be678965d8c0263bcfd73bf046792f8a69/logo.png?update_cache=",
+        "domain": "static.captcha-delivery.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 320,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://static.captcha-delivery.com/common/fonts/roboto/roboto.woff2",
+        "domain": "static.captcha-delivery.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 342,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "static.captcha-delivery.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "font"
+        ]
+      },
+      {
+        "domain": "ct.captcha-delivery.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "geo.captcha-delivery.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "www.etsy.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          403
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "datadome",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "exp_ebid",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "sessionStorage",
+        "key": "ddOriginalReferrer",
+        "valueBytes": 0
+      }
+    ],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 7,
+      "after": 7,
+      "delta": 0
+    },
+    "thirdPartyRequests": {
+      "before": 6,
+      "after": 6,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 3,
+      "after": 3,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260621-a65f61538739572d6137892b72403c15",
+    "path": "/reports/20260621-a65f61538739572d6137892b72403c15/",
+    "jsonPath": "/reports/20260621-a65f61538739572d6137892b72403c15.json"
+  }
+}

@@ -1,0 +1,3914 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.coolmathgames.com/",
+  "scannedAt": "2026-06-21T14:50:41.484Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Cool Math Games - Free Online Games for Learning and Fun",
+      "status": 200,
+      "durationMs": 3765,
+      "firstPartyDomain": "www.coolmathgames.com",
+      "totalRequests": 132,
+      "thirdPartyRequests": 36,
+      "knownTrackerRequests": 17,
+      "thirdPartyDomains": 17,
+      "cookies": 11,
+      "thirdPartyCookies": 1,
+      "storageEntries": 6,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 28
+    },
+    "conditions": {
+      "requestedUrl": "https://www.coolmathgames.com/",
+      "finalUrl": "https://www.coolmathgames.com/",
+      "scannedAt": "2026-06-21T14:50:37.710Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.coolmathgames.com/",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 34,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.coolmathgames.com/logo.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 89,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/portal-hop.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 90,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/vex-x3m-3.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 90,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/gift-rush-3-update.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 90,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/mini-sudoku-update.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 94,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/soccer-challenge.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 95,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/car-ferry.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 95,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/arrow-direction.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 96,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/electron-dash.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 96,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/run3_og-logo.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 96,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/papasfreezeria_og-logo.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 96,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/chess_og-logo.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 97,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/investor-tower.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 97,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.coolmathgames.com/sites/default/files/quiz/icons/2023-02/great-soccer-players-vol-1.jpg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 97,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/cookie-clicker.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 100,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/penaltykickonline_og-logo.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 101,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/fireboy-watergirl-foresttemple_og-logo.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 101,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.coolmathgames.com/sites/default/files/2021-11/papas-pizzeria.png",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 101,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.coolmathgames.com/_next/static/media/de42cfb9a3b980ae-s.p.woff2",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 102,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.coolmathgames.com/_next/static/media/cc4a5103f24b59ab-s.p.woff2",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 102,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.coolmathgames.com/_next/static/media/c166665af6ba1ec9-s.p.woff2",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 102,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.coolmathgames.com/_next/static/media/d87379bffad347b6-s.p.woff2",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 103,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.coolmathgames.com/_next/static/media/5f005b48945548d8-s.p.ttf",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 103,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.coolmathgames.com/_next/static/media/9cd11c0634954621-s.p.ttf",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 103,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.coolmathgames.com/_next/static/media/5d15ee4de3382558-s.p.ttf",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 104,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.coolmathgames.com/_next/static/css/3db1387a7b7f7047.css",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 104,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/518.a5f1da60e9792743.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 110,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/323.107ffcdd412a17bd.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 110,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/456-b0a52d30730bcc2f.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 110,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/267.9af384829b6f3736.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 111,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/708-4bd731c61febb4e7.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 111,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/648.9af384829b6f3736.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 111,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/webpack-487cda471bdec6a0.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 111,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/framework-a6e0b7e30f98059a.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 112,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/main-7897e6cc41b40f0d.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 112,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/pages/_app-0edfa2aaa4721dd6.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 112,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/749-844f2aea16abc3fe.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 112,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/585-fe4128585281316a.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 113,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/820-29a2e513d505e206.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 113,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/230-4ce3b7940031c473.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 113,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/925-f832d0f97123853e.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 114,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/261-531322b0dda827ca.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 114,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/606-66b86a6e9ad98404.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 114,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/47-fa3ccf2d8cda3117.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/328-2127e8b07d19accd.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/pages/new-home-f2c1be6eef08e7b3.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://www.coolmathgames.com/_next/static/prd4s6f0e7f9d4a1c/_buildManifest.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 116,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.coolmathgames.com/_next/static/prd4s6f0e7f9d4a1c/_ssgManifest.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 116,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Creative.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 117,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://www.coolmathgames.com/sites/default/files/2026-06/Savings.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 117,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Business.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 117,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://dev.visualwebsiteoptimizer.com/j.php?a=&u=&vn=&ph=&st=&x=",
+        "domain": "dev.visualwebsiteoptimizer.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "visualwebsiteoptimizer.com",
+          "entity": "VWO",
+          "category": "experimentation / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 118,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-10/Multiplayer.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 118,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Daily.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 118,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Papa-series.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 118,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Board-games.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 119,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Escape.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 119,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Physics-puzzles.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 119,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://www.coolmathgames.com/sites/default/files/2026-03/collection-icon-coding.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 119,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Science.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 119,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Building-blocks.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 120,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Applied-math.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 120,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://www.coolmathgames.com/assets/svg/categories/Trivia.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 120,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Clicker.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 126,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://www.coolmathgames.com/sites/default/files/2026-06/Soccer.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 127,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/2-player.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 127,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Tower-defense.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 128,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://www.coolmathgames.com/assets/svg/categories/popular-categories.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 128,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://www.coolmathgames.com/assets/images/about-bg.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 233,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://apis.google.com/js/platform.js",
+        "domain": "apis.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 290,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://dev.visualwebsiteoptimizer.com/ee.gif?a=&s=&_cu=&e=",
+        "domain": "dev.visualwebsiteoptimizer.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "visualwebsiteoptimizer.com",
+          "entity": "VWO",
+          "category": "experimentation / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 339,
+        "blockedByShields": true
+      },
+      {
+        "id": 73,
+        "url": "https://dev.visualwebsiteoptimizer.com/cdn/edrv/worker-9f8c2ca22a3bef7f42ea3a248f17d850.br.js",
+        "domain": "dev.visualwebsiteoptimizer.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "visualwebsiteoptimizer.com",
+          "entity": "VWO",
+          "category": "experimentation / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 339,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://dev.visualwebsiteoptimizer.com/cdn/edrv/va_gq-6415e64e8cf15f1d489c2d81edc79007.br.js",
+        "domain": "dev.visualwebsiteoptimizer.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "visualwebsiteoptimizer.com",
+          "entity": "VWO",
+          "category": "experimentation / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 340,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 583,
+        "blockedByShields": true
+      },
+      {
+        "id": 76,
+        "url": "https://cdn.intergient.com/1023174/71134/ramp.js",
+        "domain": "cdn.intergient.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 584,
+        "blockedByShields": true
+      },
+      {
+        "id": 77,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/drift-boss-advanced.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 821,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/slice-master-new.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 821,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/8-ball-pool-v2.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 822,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-sports.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 889,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://www.coolmathgames.com/sites/default/files/2026-03/Trivia-finlit.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 889,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-fun.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 889,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-science.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 889,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-food.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 890,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-places.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 890,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://www.coolmathgames.com/assets/images/thoughtfully-curated.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 890,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://www.coolmathgames.com/assets/images/privacy-focused.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 891,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://www.coolmathgames.com/assets/images/learning-through-fun.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 893,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://www.coolmathgames.com/assets/images/accessible.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 893,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://www.coolmathgames.com/assets/images/reviewed-check.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 893,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://www.coolmathgames.com/assets/images/octo.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 894,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-05/Coolmath%20Games%20Financial%20Literacy%20Game%20Jam%20Blog%20Thumbnail.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 894,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-05/Drift%20Boss%202026%20Update%20Blog%20Thumbnail.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 894,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-04/Introducing%20Financial%20Literacy%20Blog%20Thumbnail.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 895,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-04/How%20to%20Play%20More%20Sushi%20Blog%20Thumbnail.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 896,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://www.coolmathgames.com/assets/images/nav_icon/icon_profile.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 897,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://www.coolmathgames.com/assets/svg/random.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 897,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://dev.visualwebsiteoptimizer.com/cdn/edrv/nc-8dd4a6da620cbe9f557911ea0297faec.br.js",
+        "domain": "dev.visualwebsiteoptimizer.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "visualwebsiteoptimizer.com",
+          "entity": "VWO",
+          "category": "experimentation / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 915,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/tinyfishing_og-logo.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1223,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/worldguessr-default.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1229,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/slice-of-the-market.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1229,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/tax-season_0.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1230,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/cryptid-kimber.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1230,
+        "blockedByShields": false
+      },
+      {
+        "id": 104,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/dont-get-duped.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1230,
+        "blockedByShields": false
+      },
+      {
+        "id": 105,
+        "url": "https://dev.visualwebsiteoptimizer.com/dcdn/settings.js?a=&settings_type=&ts=&dt=&cc=",
+        "domain": "dev.visualwebsiteoptimizer.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "visualwebsiteoptimizer.com",
+          "entity": "VWO",
+          "category": "experimentation / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1329,
+        "blockedByShields": false
+      },
+      {
+        "id": 106,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1523,
+        "blockedByShields": true
+      },
+      {
+        "id": 107,
+        "url": "https://metrics.rapidedge.io/gamera.js?ltv=&audience=&partner=",
+        "domain": "metrics.rapidedge.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1754,
+        "blockedByShields": true
+      },
+      {
+        "id": 108,
+        "url": "https://securepubads.g.doubleclick.net/tag/js/gpt.js",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1754,
+        "blockedByShields": true
+      },
+      {
+        "id": 109,
+        "url": "https://cdn.intergient.com/prebid/prebid.000a2ca3b9494b10e183.js",
+        "domain": "cdn.intergient.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1755,
+        "blockedByShields": true
+      },
+      {
+        "id": 110,
+        "url": "https://cdn.intergient.com/ramp_core.js",
+        "domain": "cdn.intergient.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1756,
+        "blockedByShields": true
+      },
+      {
+        "id": 111,
+        "url": "https://ad.doubleclick.net/ccm/s/collect?auid=&gtm=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2111,
+        "blockedByShields": true
+      },
+      {
+        "id": 112,
+        "url": "https://www.google-analytics.com/analytics.js",
+        "domain": "www.google-analytics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2111,
+        "blockedByShields": true
+      },
+      {
+        "id": 113,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&ae=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&ep.ads_data_redaction=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tft=&tfd=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2112,
+        "blockedByShields": true
+      },
+      {
+        "id": 114,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&en=&_fv=&_nsi=&_ss=&ep.device_type=&ep.ad_blocker_detected=&up.user_type=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2162,
+        "blockedByShields": true
+      },
+      {
+        "id": 115,
+        "url": "https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202606180101/pubads_impl.js?cb=",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2893,
+        "blockedByShields": true
+      },
+      {
+        "id": 116,
+        "url": "https://fundingchoicesmessages.google.com/i/45966600?ers=",
+        "domain": "fundingchoicesmessages.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3233,
+        "blockedByShields": true
+      },
+      {
+        "id": 117,
+        "url": "https://www.google-analytics.com/j/collect?v=&_v=&a=&t=&ni=&_s=&dl=&ul=&dt=&sr=&vp=&ec=&ea=&el=&_u=&jid=&gjid=&cid=&tid=&_gid=&_r=&_slc=&gtm=&gcd=&dma=&tag_exp=&z=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3290,
+        "blockedByShields": true
+      },
+      {
+        "id": 118,
+        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxW5IfZXp4czDbJQCumcIZ2T8JqZx2lRScQD988ZFKnf-ualclj7RPkHf1DOFzB-abVOQ5-OtZ-pBh_ykWKOvQ979VxB6YN42PE6fjCNFqUOz9TCfHGjUl4SmsDY5eXpIcxGuAd-Fw==",
+        "domain": "fundingchoicesmessages.google.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3394,
+        "blockedByShields": true
+      },
+      {
+        "id": 119,
+        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxW5IfZXp4czDbJQCumcIZ2T8JqZx2lRScQD988ZFKnf-ualclj7RPkHf1DOFzB-abVOQ5-OtZ-pBh_ykWKOvQ979VxB6YN42PE6fjCNFqUOz9TCfHGjUl4SmsDY5eXpIcxGuAd-Fw==",
+        "domain": "fundingchoicesmessages.google.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3395,
+        "blockedByShields": true
+      },
+      {
+        "id": 120,
+        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxW5IfZXp4czDbJQCumcIZ2T8JqZx2lRScQD988ZFKnf-ualclj7RPkHf1DOFzB-abVOQ5-OtZ-pBh_ykWKOvQ979VxB6YN42PE6fjCNFqUOz9TCfHGjUl4SmsDY5eXpIcxGuAd-Fw==",
+        "domain": "fundingchoicesmessages.google.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3401,
+        "blockedByShields": true
+      },
+      {
+        "id": 121,
+        "url": "https://fundingchoicesmessages.google.com/f/AGSKWxVCw1AYOaeV-LZssX9qNsXgB6WQpHxRhr7EloQpKN7fB6kivQkgPfS2rzqospRB3Lk-le9MRRZECb30O2kZFheMETfM9LwjamshY7yTzrYu2QGEY2fsY-D-r2k-zmN3W8vrxZ7GsA==?fccs=",
+        "domain": "fundingchoicesmessages.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3430,
+        "blockedByShields": true
+      },
+      {
+        "id": 122,
+        "url": "https://fonts.googleapis.com/css?family=&display=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3563,
+        "blockedByShields": false
+      },
+      {
+        "id": 123,
+        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxW5IfZXp4czDbJQCumcIZ2T8JqZx2lRScQD988ZFKnf-ualclj7RPkHf1DOFzB-abVOQ5-OtZ-pBh_ykWKOvQ979VxB6YN42PE6fjCNFqUOz9TCfHGjUl4SmsDY5eXpIcxGuAd-Fw==",
+        "domain": "fundingchoicesmessages.google.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3564,
+        "blockedByShields": true
+      },
+      {
+        "id": 124,
+        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxW5IfZXp4czDbJQCumcIZ2T8JqZx2lRScQD988ZFKnf-ualclj7RPkHf1DOFzB-abVOQ5-OtZ-pBh_ykWKOvQ979VxB6YN42PE6fjCNFqUOz9TCfHGjUl4SmsDY5eXpIcxGuAd-Fw==",
+        "domain": "fundingchoicesmessages.google.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3565,
+        "blockedByShields": true
+      },
+      {
+        "id": 125,
+        "url": "https://lh3.googleusercontent.com/xzYhFSFhl32UXolGgI1UqHBpnvA_K5I3U2_nzaXr47UlvFrWa3yA5IpAfn3Is9CrS5rPckRjNRTIHuWwicLn3rbCT5flDQrmAlLqcbHT88CH_RhQxDsh=h60",
+        "domain": "lh3.googleusercontent.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3566,
+        "blockedByShields": false
+      },
+      {
+        "id": 126,
+        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxW5IfZXp4czDbJQCumcIZ2T8JqZx2lRScQD988ZFKnf-ualclj7RPkHf1DOFzB-abVOQ5-OtZ-pBh_ykWKOvQ979VxB6YN42PE6fjCNFqUOz9TCfHGjUl4SmsDY5eXpIcxGuAd-Fw==",
+        "domain": "fundingchoicesmessages.google.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3566,
+        "blockedByShields": true
+      },
+      {
+        "id": 127,
+        "url": "https://fundingchoicesmessages.google.com/f/AGSKWxX0LvwXXcmIHaegRhSAxcZnDO2DE6nAqqDiH7DPUhSjTgc-ePkogkxnkT6InE0KQN73k-tYA3H6f8FmU5M2Q-iHHVO1V1gTUTBWDYX88VVHz8GBhiwelLmesTIjAmAtFrjnNuf3wg==?fccs=",
+        "domain": "fundingchoicesmessages.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3567,
+        "blockedByShields": true
+      },
+      {
+        "id": 128,
+        "url": "https://cm.g.doubleclick.net/partnerpixels?gdpr=&us_privacy=&gpp=&gpp_sid=&url=",
+        "domain": "cm.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3572,
+        "blockedByShields": true
+      },
+      {
+        "id": 129,
+        "url": "https://tags.crwdcntrl.net/lt/c/16589/sync.min.js",
+        "domain": "tags.crwdcntrl.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "crwdcntrl.net",
+          "entity": "Lotame",
+          "category": "advertising / data management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3573,
+        "blockedByShields": true
+      },
+      {
+        "id": 130,
+        "url": "https://static.criteo.net/js/ld/publishertag.ids.js",
+        "domain": "static.criteo.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.net",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3573,
+        "blockedByShields": true
+      },
+      {
+        "id": 131,
+        "url": "https://oa.openxcdn.net/esp.js",
+        "domain": "oa.openxcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3573,
+        "blockedByShields": true
+      },
+      {
+        "id": 132,
+        "url": "https://invstatic101.creativecdn.com/encrypted-signals/encrypted-tag-g.js",
+        "domain": "invstatic101.creativecdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3575,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "dev.visualwebsiteoptimizer.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "visualwebsiteoptimizer.com",
+          "entity": "VWO",
+          "category": "experimentation / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "ping",
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "securepubads.g.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cm.g.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "tags.crwdcntrl.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "crwdcntrl.net",
+          "entity": "Lotame",
+          "category": "advertising / data management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "static.criteo.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.net",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "fundingchoicesmessages.google.com",
+        "requests": 9,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn.intergient.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "apis.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "metrics.rapidedge.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "lh3.googleusercontent.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "oa.openxcdn.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "invstatic101.creativecdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.coolmathgames.com",
+        "requests": 96,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "image",
+          "font",
+          "stylesheet",
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".intergient.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "_vwo_consent",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_vis_opt_exp_92_exclude",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_vwo_uuid",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_vwo_sn",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_vwo_ds",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_vis_opt_s",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_vis_opt_test_cookie",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_YXT7RLC7WJ",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls",
+        "valueBytes": 277
+      },
+      {
+        "area": "localStorage",
+        "key": "vwoUnRegEvents",
+        "valueBytes": 39
+      },
+      {
+        "area": "localStorage",
+        "key": "vwoSn",
+        "valueBytes": 84
+      },
+      {
+        "area": "localStorage",
+        "key": "pw_session_config",
+        "valueBytes": 71799
+      },
+      {
+        "area": "localStorage",
+        "key": "searchClicked",
+        "valueBytes": 0
+      },
+      {
+        "area": "localStorage",
+        "key": "_vwo_712202_config",
+        "valueBytes": 23
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.intergient.com",
+            "https://metrics.rapidedge.io",
+            "https://www.googletagmanager.com"
+          ],
+          "totalListenerCalls": 5
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "pointermove",
+            "scroll",
+            "touchstart",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.intergient.com",
+            "https://metrics.rapidedge.io",
+            "https://www.googletagmanager.com"
+          ],
+          "totalListenerCalls": 26
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Cool Math Games - Free Online Games for Learning and Fun",
+      "status": 200,
+      "durationMs": 2487,
+      "firstPartyDomain": "www.coolmathgames.com",
+      "totalRequests": 102,
+      "thirdPartyRequests": 6,
+      "knownTrackerRequests": 5,
+      "thirdPartyDomains": 2,
+      "cookies": 7,
+      "thirdPartyCookies": 0,
+      "storageEntries": 3,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 3
+    },
+    "conditions": {
+      "requestedUrl": "https://www.coolmathgames.com/",
+      "finalUrl": "https://www.coolmathgames.com/",
+      "scannedAt": "2026-06-21T14:50:41.484Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.coolmathgames.com/",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 40,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.coolmathgames.com/logo.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 111,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/portal-hop.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 112,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/vex-x3m-3.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 114,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/gift-rush-3-update.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 114,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/mini-sudoku-update.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/soccer-challenge.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/car-ferry.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/arrow-direction.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 119,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/electron-dash.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 119,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/run3_og-logo.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 120,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/papasfreezeria_og-logo.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 120,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/chess_og-logo.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 121,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/investor-tower.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 121,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.coolmathgames.com/sites/default/files/quiz/icons/2023-02/great-soccer-players-vol-1.jpg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 122,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/cookie-clicker.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 122,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/penaltykickonline_og-logo.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 122,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/fireboy-watergirl-foresttemple_og-logo.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 123,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.coolmathgames.com/sites/default/files/2021-11/papas-pizzeria.png",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 123,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.coolmathgames.com/_next/static/media/de42cfb9a3b980ae-s.p.woff2",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 124,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.coolmathgames.com/_next/static/media/cc4a5103f24b59ab-s.p.woff2",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 124,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.coolmathgames.com/_next/static/media/c166665af6ba1ec9-s.p.woff2",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 124,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.coolmathgames.com/_next/static/media/d87379bffad347b6-s.p.woff2",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 125,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.coolmathgames.com/_next/static/media/5f005b48945548d8-s.p.ttf",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 125,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.coolmathgames.com/_next/static/media/9cd11c0634954621-s.p.ttf",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 125,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.coolmathgames.com/_next/static/media/5d15ee4de3382558-s.p.ttf",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 126,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.coolmathgames.com/_next/static/css/3db1387a7b7f7047.css",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 126,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/518.a5f1da60e9792743.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 137,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/323.107ffcdd412a17bd.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 138,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/456-b0a52d30730bcc2f.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 138,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/267.9af384829b6f3736.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 139,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/708-4bd731c61febb4e7.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 139,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/648.9af384829b6f3736.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 139,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/webpack-487cda471bdec6a0.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 140,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/framework-a6e0b7e30f98059a.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 140,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/main-7897e6cc41b40f0d.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 140,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/pages/_app-0edfa2aaa4721dd6.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 141,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/749-844f2aea16abc3fe.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 141,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/585-fe4128585281316a.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/820-29a2e513d505e206.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/230-4ce3b7940031c473.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/925-f832d0f97123853e.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/261-531322b0dda827ca.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/606-66b86a6e9ad98404.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/47-fa3ccf2d8cda3117.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/328-2127e8b07d19accd.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://www.coolmathgames.com/_next/static/chunks/pages/new-home-f2c1be6eef08e7b3.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://www.coolmathgames.com/_next/static/prd4s6f0e7f9d4a1c/_buildManifest.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 145,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.coolmathgames.com/_next/static/prd4s6f0e7f9d4a1c/_ssgManifest.js",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 145,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Creative.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 145,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://www.coolmathgames.com/sites/default/files/2026-06/Savings.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 146,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Business.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 146,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-10/Multiplayer.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 146,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Daily.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 146,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Papa-series.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 146,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://dev.visualwebsiteoptimizer.com/j.php?a=&u=&vn=&ph=&st=&x=",
+        "domain": "dev.visualwebsiteoptimizer.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "visualwebsiteoptimizer.com",
+          "entity": "VWO",
+          "category": "experimentation / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 147,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Board-games.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 147,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Escape.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 147,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Physics-puzzles.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 147,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://www.coolmathgames.com/sites/default/files/2026-03/collection-icon-coding.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 148,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Science.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 148,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Building-blocks.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 149,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Applied-math.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 149,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://www.coolmathgames.com/assets/svg/categories/Trivia.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 149,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Clicker.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 149,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://www.coolmathgames.com/sites/default/files/2026-06/Soccer.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 150,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/2-player.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 153,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Tower-defense.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 154,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://www.coolmathgames.com/assets/svg/categories/popular-categories.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 154,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://dev.visualwebsiteoptimizer.com/cdn/edrv/worker-9f8c2ca22a3bef7f42ea3a248f17d850.br.js",
+        "domain": "dev.visualwebsiteoptimizer.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "visualwebsiteoptimizer.com",
+          "entity": "VWO",
+          "category": "experimentation / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 200,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://dev.visualwebsiteoptimizer.com/cdn/edrv/va_gq-6415e64e8cf15f1d489c2d81edc79007.br.js",
+        "domain": "dev.visualwebsiteoptimizer.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "visualwebsiteoptimizer.com",
+          "entity": "VWO",
+          "category": "experimentation / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 201,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://apis.google.com/js/platform.js",
+        "domain": "apis.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 279,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://www.coolmathgames.com/assets/images/about-bg.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 410,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://dev.visualwebsiteoptimizer.com/cdn/edrv/nc-8dd4a6da620cbe9f557911ea0297faec.br.js",
+        "domain": "dev.visualwebsiteoptimizer.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "visualwebsiteoptimizer.com",
+          "entity": "VWO",
+          "category": "experimentation / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 464,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/drift-boss-advanced.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 884,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/slice-master-new.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 885,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/8-ball-pool-v2.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 885,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-sports.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 946,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://www.coolmathgames.com/sites/default/files/2026-03/Trivia-finlit.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 947,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-fun.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 947,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-science.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 949,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-food.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 950,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-places.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 950,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://www.coolmathgames.com/assets/images/thoughtfully-curated.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 951,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://www.coolmathgames.com/assets/images/privacy-focused.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 951,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://www.coolmathgames.com/assets/images/learning-through-fun.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 951,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://www.coolmathgames.com/assets/images/accessible.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 952,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://www.coolmathgames.com/assets/images/reviewed-check.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 952,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://www.coolmathgames.com/assets/images/octo.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 953,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-05/Coolmath%20Games%20Financial%20Literacy%20Game%20Jam%20Blog%20Thumbnail.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 953,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-05/Drift%20Boss%202026%20Update%20Blog%20Thumbnail.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 953,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-04/Introducing%20Financial%20Literacy%20Blog%20Thumbnail.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 954,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-04/How%20to%20Play%20More%20Sushi%20Blog%20Thumbnail.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 954,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://www.coolmathgames.com/assets/images/nav_icon/icon_profile.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 954,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://www.coolmathgames.com/assets/svg/random.svg",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 954,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/tinyfishing_og-logo.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1269,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/worldguessr-default.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1274,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/slice-of-the-market.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1277,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/tax-season_0.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1277,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/cryptid-kimber.jpg.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1278,
+        "blockedByShields": false
+      },
+      {
+        "id": 104,
+        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/dont-get-duped.png.webp",
+        "domain": "www.coolmathgames.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1278,
+        "blockedByShields": false
+      },
+      {
+        "id": 105,
+        "url": "https://dev.visualwebsiteoptimizer.com/dcdn/settings.js?a=&settings_type=&ts=&dt=&cc=",
+        "domain": "dev.visualwebsiteoptimizer.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "visualwebsiteoptimizer.com",
+          "entity": "VWO",
+          "category": "experimentation / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1372,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "dev.visualwebsiteoptimizer.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "visualwebsiteoptimizer.com",
+          "entity": "VWO",
+          "category": "experimentation / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script"
+        ]
+      },
+      {
+        "domain": "apis.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.coolmathgames.com",
+        "requests": 96,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "image",
+          "font",
+          "stylesheet",
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "_vwo_consent",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_vis_opt_exp_92_exclude",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_vwo_uuid",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_vwo_sn",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_vwo_ds",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_vis_opt_s",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_vis_opt_test_cookie",
+        "domain": ".coolmathgames.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "vwoSn",
+        "valueBytes": 84
+      },
+      {
+        "area": "localStorage",
+        "key": "_vwo_712202_config",
+        "valueBytes": 23
+      },
+      {
+        "area": "localStorage",
+        "key": "searchClicked",
+        "valueBytes": 0
+      }
+    ],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 132,
+      "after": 102,
+      "delta": -30
+    },
+    "thirdPartyRequests": {
+      "before": 36,
+      "after": 6,
+      "delta": -30
+    },
+    "knownTrackerRequests": {
+      "before": 17,
+      "after": 5,
+      "delta": -12
+    },
+    "thirdPartyDomains": {
+      "before": 17,
+      "after": 2,
+      "delta": -15
+    },
+    "cookies": {
+      "before": 11,
+      "after": 7,
+      "delta": -4
+    },
+    "thirdPartyCookies": {
+      "before": 1,
+      "after": 0,
+      "delta": -1
+    },
+    "storageEntries": {
+      "before": 6,
+      "after": 3,
+      "delta": -3
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "fundingchoicesmessages.google.com",
+        "requests": 9,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.intergient.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "securepubads.g.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cm.g.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "invstatic101.creativecdn.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "lh3.googleusercontent.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "metrics.rapidedge.io",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "oa.openxcdn.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "static.criteo.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "criteo.net",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "tags.crwdcntrl.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "crwdcntrl.net",
+          "entity": "Lotame",
+          "category": "advertising / data management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 9,
+        "domains": 5
+      },
+      {
+        "entity": "Criteo",
+        "requests": 1,
+        "domains": 1
+      },
+      {
+        "entity": "Lotame",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".intergient.com",
+        "thirdParty": true
+      },
+      {
+        "name": "_ga",
+        "domain": ".coolmathgames.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_YXT7RLC7WJ",
+        "domain": ".coolmathgames.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".coolmathgames.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls"
+      },
+      {
+        "area": "localStorage",
+        "key": "pw_session_config"
+      },
+      {
+        "area": "localStorage",
+        "key": "vwoUnRegEvents"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 28,
+      "after": 3,
+      "delta": -25
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260621-e5ed45ef26d4ca0c495bf023ad728abc",
+    "path": "/reports/20260621-e5ed45ef26d4ca0c495bf023ad728abc/",
+    "jsonPath": "/reports/20260621-e5ed45ef26d4ca0c495bf023ad728abc.json"
+  }
+}
