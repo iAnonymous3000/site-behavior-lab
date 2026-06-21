@@ -1,5 +1,12 @@
 # Deploying the Node Container Behind Cloudflare (Option B)
 
+> **Status: PARKED (2026-06-21).** This is the *future* path for live, on-demand Shields
+> scanning, and it requires **paid compute** — Cloudflare Workers Paid + Containers, or a
+> Docker-capable host — none of which is available today. The **current free launch does
+> not use this**: the live public product is the **Cloudflare Pages corpus** (published
+> Shields-diff evidence) plus the **Worker GPC / trackers scan**. Keep this runbook for
+> when paid compute is on the table.
+
 The runbook for the recommended public topology from
 [deployment-topology.md](deployment-topology.md): the **Node/Playwright scanner
 runs as a container** (it pins to a public IP at connect time, so it closes the

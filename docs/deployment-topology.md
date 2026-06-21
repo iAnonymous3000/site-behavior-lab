@@ -1,11 +1,13 @@
 # Deployment Topology Decision
 
-> Status: **Decided — Option B** (2026-06-20). Interim launch shipped: the public site
-> is live as a static **Cloudflare Pages** deployment at https://sitebehavior.org, with
-> the Cloudflare **Worker** as a stopgap scan API. The **Node/Playwright container** —
-> Option B's core — is **not yet deployed**; standing it up is the next step (see
-> [deploy-node-container.md](deploy-node-container.md)). Until then the live scan path
-> inherits the Worker's gated-scan limitation described below.
+> Status: **Free-tier launch (2026-06-21).** No paid compute is available (no host;
+> Cloudflare Containers require the Workers Paid plan), so the live public product is the
+> static **Cloudflare Pages** site at https://sitebehavior.org — a **published
+> Shields-diff evidence corpus** — plus the Cloudflare **Worker** as a **GPC / trackers**
+> live scan (no live Shields). **Option B (the Node/Playwright container) is the
+> moat-on-demand path, but PARKED** pending paid compute: the Shields tried-vs-blocked
+> diff only runs in the Node+wasm scanner, which has no free home. The analysis below is
+> the plan to execute if/when paid compute is on the table — keep it, don't delete it.
 
 ## Context
 
