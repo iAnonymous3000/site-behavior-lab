@@ -5,12 +5,12 @@ import "./globals.css";
 const TITLE = "Site Behavior Lab";
 const DESCRIPTION = "See what a site does, not just what it says. Reproducible, evidence-first web behavior scans.";
 
-// Optional canonical origin (e.g. https://sitebehaviorlab.org). When set, social
-// cards resolve to absolute URLs, which X and other unfurlers prefer.
-const siteUrl = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL?.trim();
-
+// Resolve social-card URLs against the canonical origin when
+// NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL is set, else an explicit localhost
+// fallback (siteOrigin handles validation). Setting it unconditionally avoids
+// Next's "metadataBase is not set" warning without hardcoding any one origin.
 export const metadata: Metadata = {
-  ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
+  metadataBase: new URL(siteOrigin()),
   title: {
     default: TITLE,
     template: "%s · Site Behavior Lab"
