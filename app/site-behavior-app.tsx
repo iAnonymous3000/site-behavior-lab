@@ -93,7 +93,7 @@ type ScannerHealth = ScanRuntimeHealth;
 
 const EXAMPLES: { url: string; hint: string }[] = [
   { url: "youtube.com", hint: "one mega-entity" },
-  { url: "cnn.com", hint: "heavy trackers" },
+  { url: "usatoday.com", hint: "heavy trackers" },
   { url: "amazon.com", hint: "retail + retargeting" },
   { url: "weather.com", hint: "tracker-dense" },
   { url: "wikipedia.org", hint: "minimal" }
