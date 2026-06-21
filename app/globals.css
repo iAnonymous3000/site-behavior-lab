@@ -367,6 +367,72 @@ a {
 }
 
 /* ---- Workbench ---- */
+.corpus-hero {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 18px;
+  padding: 28px 28px 24px;
+}
+
+.corpus-hero h2 {
+  font-size: clamp(24px, 4vw, 34px);
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  margin: 6px 0 10px;
+  max-width: 22ch;
+}
+
+.corpus-hero-lead {
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 18px;
+  max-width: 68ch;
+}
+
+.corpus-hero-cats {
+  align-items: flex-end;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding-top: 18px;
+}
+
+.corpus-hero-cat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.corpus-hero-cat-num {
+  color: var(--sig-warn);
+  font-size: 30px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.corpus-hero-cat-label {
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.corpus-hero-cat-note {
+  align-self: flex-end;
+  color: var(--text-subtle);
+  font-size: 11px;
+  margin-left: auto;
+}
+
+.corpus-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
 .scan-workbench {
   display: grid;
   gap: 16px;

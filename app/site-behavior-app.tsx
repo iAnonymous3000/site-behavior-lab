@@ -137,16 +137,23 @@ declare global {
   }
 }
 
+export type CorpusHighlights = {
+  siteCount: number;
+  topCategories: { label: string; medianTrackers: number }[];
+};
+
 type SiteBehaviorAppProps = {
   initialResult?: ScanReport | null;
   initialError?: string | null;
   initialLoading?: boolean;
+  corpusHighlights?: CorpusHighlights | null;
 };
 
 export function SiteBehaviorApp({
   initialResult = null,
   initialError = null,
-  initialLoading = false
+  initialLoading = false,
+  corpusHighlights = null
 }: SiteBehaviorAppProps) {
   const [form, setForm] = useState<ScanFormState>(initialForm);
   const [result, setResult] = useState<ScanReport | null>(initialResult);
@@ -627,6 +634,10 @@ export function SiteBehaviorApp({
           </div>
         </header>
 
+        {corpusHighlights && corpusHighlights.siteCount > 0 && !result && !loading && !error && (
+          <CorpusHero highlights={corpusHighlights} />
+        )}
+
         <section className="scan-workbench">
           {LIVE_SCAN_ENABLED ? (
             scanForm
@@ -820,6 +831,40 @@ function StaticPublicPanel({ onUploadReport }: { onUploadReport: (file: File | n
             Maintainer scan
           </a>
         )}
+      </div>
+    </section>
+  );
+}
+
+function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
+  return (
+    <section className="corpus-hero" aria-labelledby="corpus-hero-title">
+      <p className="eyebrow">Transparency index</p>
+      <h2 id="corpus-hero-title">What websites actually load — measured, not claimed.</h2>
+      <p className="corpus-hero-lead">
+        We open {plural(highlights.siteCount, "real site")} in a controlled browser and record every request, cookie, and
+        tracker, then run each through <strong>Brave&rsquo;s own ad-block engine</strong> (the open-source{" "}
+        <code>adblock-rust</code>, with Brave&rsquo;s default lists) to show what Shields would block. Reproducible
+        evidence, not a score.
+      </p>
+      {highlights.topCategories.length > 0 && (
+        <div className="corpus-hero-cats">
+          {highlights.topCategories.map((category) => (
+            <div className="corpus-hero-cat" key={category.label}>
+              <span className="corpus-hero-cat-num">{category.medianTrackers.toLocaleString()}</span>
+              <span className="corpus-hero-cat-label">{category.label}</span>
+            </div>
+          ))}
+          <span className="corpus-hero-cat-note">median trackers per site, by category</span>
+        </div>
+      )}
+      <div className="corpus-hero-actions">
+        <a className="primary-button" href={staticAssetPath("/directory/")}>
+          See the breakdown by category
+        </a>
+        <a className="secondary-button" href="#report">
+          Browse the report library
+        </a>
       </div>
     </section>
   );
