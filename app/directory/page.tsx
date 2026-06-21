@@ -1,5 +1,9 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { buildCategoryRollups } from "@/lib/category-rollups";
+import { domainsMatch } from "@/lib/featured-sites";
 import { buildReportHeadline, displayScanResult, type HeadlineTone } from "@/lib/report-headline";
 import { reportPagePath } from "@/lib/report-locator";
 import { readReportForId } from "@/lib/report-source";
@@ -24,10 +28,15 @@ type DirectoryEntry = {
   thirdPartyRequests: number;
   trackerRequests: number;
   thirdPartyCookies: number;
+  shieldsBlocked: number | null;
+  category: string;
+  categoryLabel: string;
   scannedAt: string;
   reportType: "single" | "comparison";
   comparisonType?: ComparisonType;
 };
+
+type CatalogEntry = { domain: string; id: string; label: string };
 
 function reportTypeLabel(entry: DirectoryEntry): string {
   if (entry.reportType !== "comparison") return "single scan";
@@ -38,7 +47,35 @@ function reportTypeLabel(entry: DirectoryEntry): string {
 }
 
 export default async function DirectoryPage() {
-  const entries = await loadDirectoryEntries();
+  const catalog = await loadCategoryCatalog();
+  const entries = await loadDirectoryEntries(catalog);
+
+  // One data point per site for the rollups and leaderboard (a site may carry both
+  // a GPC and a Shields report; prefer the Shields one so the blocked number is real).
+  const byDomain = new Map<string, DirectoryEntry>();
+  for (const entry of entries) {
+    const existing = byDomain.get(entry.domain);
+    if (!existing || (entry.comparisonType === "shields" && existing.comparisonType !== "shields")) {
+      byDomain.set(entry.domain, entry);
+    }
+  }
+  const sites = [...byDomain.values()];
+
+  const rollups = buildCategoryRollups(
+    sites.map((site) => ({
+      category: site.category,
+      categoryLabel: site.categoryLabel,
+      trackerRequests: site.trackerRequests,
+      thirdPartyRequests: site.thirdPartyRequests,
+      thirdPartyCookies: site.thirdPartyCookies,
+      shieldsBlocked: site.shieldsBlocked
+    }))
+  );
+  const maxMedianTrackers = Math.max(1, ...rollups.map((rollup) => rollup.medianTrackers));
+  const heaviest = [...sites]
+    .filter((site) => site.trackerRequests > 0)
+    .sort((a, b) => b.trackerRequests - a.trackerRequests)
+    .slice(0, 5);
 
   return (
     <main className="directory-page">
@@ -54,6 +91,70 @@ export default async function DirectoryPage() {
           <Link href="/">&larr; Back to Site Behavior Lab</Link>
         </p>
       </header>
+
+      {rollups.length > 0 && (
+        <section className="category-rollups" aria-labelledby="rollup-title">
+          <div className="rollup-heading">
+            <p className="eyebrow">By category</p>
+            <h2 id="rollup-title">What different kinds of sites load</h2>
+            <p>
+              Median per site in each category — what sites tried to load during a controlled visit, before any
+              blocking. Heaviest first.
+            </p>
+          </div>
+          <div className="rollup-grid">
+            {rollups.map((rollup) => (
+              <article className="rollup-card" key={rollup.id}>
+                <div className="rollup-card-top">
+                  <h3>{rollup.label}</h3>
+                  <span className="rollup-count">
+                    {rollup.siteCount} {rollup.siteCount === 1 ? "site" : "sites"}
+                  </span>
+                </div>
+                <div className="rollup-bar-row">
+                  <span className="rollup-bar-track" aria-hidden="true">
+                    <span
+                      className="rollup-bar"
+                      style={{ width: `${Math.round((rollup.medianTrackers / maxMedianTrackers) * 100)}%` }}
+                    />
+                  </span>
+                  <strong>{rollup.medianTrackers.toLocaleString()}</strong>
+                </div>
+                <span className="rollup-bar-label">median trackers per site</span>
+                <dl className="rollup-stats">
+                  <div>
+                    <dt>Third-party</dt>
+                    <dd>{rollup.medianThirdParty.toLocaleString()}</dd>
+                  </div>
+                  <div>
+                    <dt>3rd-party cookies</dt>
+                    <dd>{rollup.medianCookies.toLocaleString()}</dd>
+                  </div>
+                  {rollup.medianShieldsBlocked !== null && (
+                    <div>
+                      <dt>Brave blocks</dt>
+                      <dd>{rollup.medianShieldsBlocked.toLocaleString()}</dd>
+                    </div>
+                  )}
+                </dl>
+              </article>
+            ))}
+          </div>
+          {heaviest.length > 0 && (
+            <div className="rollup-leaderboard">
+              <h3>Heaviest sites by trackers</h3>
+              <ol>
+                {heaviest.map((site) => (
+                  <li key={site.id}>
+                    <Link href={`${reportPagePath(site.id)}/`}>{site.domain}</Link>
+                    <b>{site.trackerRequests.toLocaleString()}</b>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </section>
+      )}
 
       {entries.length > 0 && (
         <ul className="directory-list">
@@ -85,7 +186,35 @@ export default async function DirectoryPage() {
   );
 }
 
-async function loadDirectoryEntries(): Promise<DirectoryEntry[]> {
+async function loadCategoryCatalog(): Promise<CatalogEntry[]> {
+  const files = ["featured-sites.json", "corpus-seed-sites.json"];
+  const catalog: CatalogEntry[] = [];
+  for (const file of files) {
+    try {
+      const raw = await readFile(path.join(process.cwd(), "public", file), "utf8");
+      const config = JSON.parse(raw) as {
+        categories?: { id: string; label: string }[];
+        sites?: { domain: string; category: string }[];
+      };
+      const labels = new Map((config.categories ?? []).map((category) => [category.id, category.label]));
+      for (const site of config.sites ?? []) {
+        if (typeof site.domain === "string" && typeof site.category === "string") {
+          catalog.push({ domain: site.domain, id: site.category, label: labels.get(site.category) ?? site.category });
+        }
+      }
+    } catch {
+      // A catalog file is optional; skip it if missing or malformed.
+    }
+  }
+  return catalog;
+}
+
+function categoryFor(domain: string, catalog: CatalogEntry[]): { id: string; label: string } {
+  const hit = catalog.find((entry) => domainsMatch(domain, entry.domain));
+  return hit ? { id: hit.id, label: hit.label } : { id: "", label: "Other" };
+}
+
+async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryEntry[]> {
   const ids = await listStaticReportIds();
   const entries: DirectoryEntry[] = [];
 
@@ -100,6 +229,11 @@ async function loadDirectoryEntries(): Promise<DirectoryEntry[]> {
     // manifest exclusion (a reserved-domain report is reachable by permalink only).
     if (isReservedReportDomain(result.summary.firstPartyDomain)) continue;
     const headline = buildReportHeadline(report);
+    const { id: category, label: categoryLabel } = categoryFor(result.summary.firstPartyDomain, catalog);
+    const shieldsBlocked =
+      report.reportType === "comparison" && report.comparisonType === "shields"
+        ? Math.max(0, report.baseline.summary.thirdPartyRequests - report.variant.summary.thirdPartyRequests)
+        : null;
 
     entries.push({
       id,
@@ -109,6 +243,9 @@ async function loadDirectoryEntries(): Promise<DirectoryEntry[]> {
       thirdPartyRequests: result.summary.thirdPartyRequests,
       trackerRequests: result.summary.knownTrackerRequests,
       thirdPartyCookies: result.summary.thirdPartyCookies,
+      shieldsBlocked,
+      category,
+      categoryLabel,
       scannedAt: report.reportType === "comparison" ? report.scannedAt : result.conditions.scannedAt,
       reportType: report.reportType === "comparison" ? "comparison" : "single",
       ...(report.reportType === "comparison" ? { comparisonType: report.comparisonType } : {})

@@ -1856,6 +1856,165 @@ a {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---- Category rollups (directory) ---- */
+.category-rollups {
+  margin: 8px 0 36px;
+}
+
+.rollup-heading {
+  margin-bottom: 16px;
+}
+
+.rollup-heading h2 {
+  font-size: clamp(20px, 3vw, 26px);
+  letter-spacing: -0.01em;
+  margin: 2px 0 6px;
+}
+
+.rollup-heading p {
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 70ch;
+}
+
+.rollup-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  margin-bottom: 20px;
+}
+
+.rollup-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+}
+
+.rollup-card-top {
+  align-items: baseline;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.rollup-card-top h3 {
+  font-size: 14px;
+  margin: 0;
+}
+
+.rollup-count {
+  color: var(--text-subtle);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.rollup-bar-row {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.rollup-bar-track {
+  background: var(--surface-3);
+  border-radius: 999px;
+  flex: 1;
+  height: 8px;
+  overflow: hidden;
+}
+
+.rollup-bar {
+  background: var(--sig-warn);
+  border-radius: 999px;
+  display: block;
+  height: 100%;
+}
+
+.rollup-bar-row strong {
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  min-width: 2.5ch;
+  text-align: right;
+}
+
+.rollup-bar-label {
+  color: var(--text-subtle);
+  font-size: 11px;
+}
+
+.rollup-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 6px 0 0;
+}
+
+.rollup-stats > div {
+  display: flex;
+  font-size: 12px;
+  gap: 5px;
+}
+
+.rollup-stats dt {
+  color: var(--text-subtle);
+}
+
+.rollup-stats dd {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  margin: 0;
+}
+
+.rollup-leaderboard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+}
+
+.rollup-leaderboard h3 {
+  color: var(--text-subtle);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.rollup-leaderboard ol {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.rollup-leaderboard li {
+  align-items: baseline;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.rollup-leaderboard a {
+  color: inherit;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+.rollup-leaderboard a:hover {
+  color: var(--accent-strong);
+}
+
+.rollup-leaderboard b {
+  color: var(--sig-loud);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 /* ---- Metric grid ---- */
 .metric-grid {
   display: grid;
