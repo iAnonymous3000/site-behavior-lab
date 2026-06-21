@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns">
+  <key id="nodeType" for="node" attr.name="node type" attr.type="string"/>
+  <key id="edgeType" for="edge" attr.name="edge type" attr.type="string"/>
+  <key id="url" for="all" attr.name="url" attr.type="string"/>
+  <key id="tagName" for="node" attr.name="tag name" attr.type="string"/>
+  <key id="nodeId" for="node" attr.name="node id" attr.type="string"/>
+  <key id="scriptId" for="node" attr.name="script id" attr.type="string"/>
+  <key id="source" for="node" attr.name="source" attr.type="string"/>
+  <key id="method" for="node" attr.name="method" attr.type="string"/>
+  <key id="requestId" for="edge" attr.name="request id" attr.type="string"/>
+  <key id="requestType" for="edge" attr.name="request type" attr.type="string"/>
+  <key id="resourceType" for="edge" attr.name="resource type" attr.type="string"/>
+  <key id="status" for="edge" attr.name="status" attr.type="int"/>
+  <key id="key" for="edge" attr.name="key" attr.type="string"/>
+  <key id="value" for="edge" attr.name="value" attr.type="string"/>
+  <key id="timestamp" for="edge" attr.name="timestamp" attr.type="double"/>
+  <graph id="G" edgedefault="directed">
+    <node id="parser-1">
+      <data key="nodeType">parser</data>
+    </node>
+    <node id="script-injector">
+      <data key="nodeType">script</data>
+      <data key="url">https://loader.example/loader.js?cache=1</data>
+      <data key="scriptId">injector-script-id</data>
+      <data key="source">console.log("loader")</data>
+    </node>
+    <node id="element-child-script">
+      <data key="nodeType">HTML element</data>
+      <data key="tagName">script</data>
+      <data key="nodeId">dom-script-1</data>
+    </node>
+    <node id="resource-child-script">
+      <data key="nodeType">resource</data>
+      <data key="url">https://tags.example.net/tag.js?cache=123</data>
+    </node>
+    <node id="script-child">
+      <data key="nodeType">script</data>
+      <data key="url">https://tags.example.net/tag.js?cache=123</data>
+      <data key="scriptId">child-script-id</data>
+      <data key="source">fetch("https://tracker.example/collect")</data>
+    </node>
+    <node id="resource-tracker">
+      <data key="nodeType">resource</data>
+      <data key="url">https://tracker.example/collect?cid=abc&amp;email=a%40b.test</data>
+    </node>
+    <node id="local-storage">
+      <data key="nodeType">local storage</data>
+    </node>
+    <node id="api-canvas">
+      <data key="nodeType">web API</data>
+      <data key="method">HTMLCanvasElement.toDataURL</data>
+    </node>
+    <edge id="edge-execute-injector" source="parser-1" target="script-injector">
+      <data key="edgeType">execute</data>
+      <data key="timestamp">1</data>
+    </edge>
+    <edge id="edge-create-script-element" source="script-injector" target="element-child-script">
+      <data key="edgeType">create node</data>
+      <data key="timestamp">2</data>
+    </edge>
+    <edge id="edge-request-child-script" source="element-child-script" target="resource-child-script">
+      <data key="edgeType">request start</data>
+      <data key="requestId">req-child-script</data>
+      <data key="requestType">script</data>
+      <data key="status">0</data>
+      <data key="timestamp">3</data>
+    </edge>
+    <edge id="edge-complete-child-script" source="element-child-script" target="resource-child-script">
+      <data key="edgeType">request complete</data>
+      <data key="requestId">req-child-script</data>
+      <data key="resourceType">script</data>
+      <data key="status">200</data>
+      <data key="timestamp">4</data>
+    </edge>
+    <edge id="edge-execute-child-script" source="script-injector" target="script-child">
+      <data key="edgeType">execute</data>
+      <data key="timestamp">5</data>
+    </edge>
+    <edge id="edge-request-tracker" source="script-child" target="resource-tracker">
+      <data key="edgeType">request start</data>
+      <data key="requestId">req-tracker</data>
+      <data key="requestType">fetch</data>
+      <data key="status">0</data>
+      <data key="timestamp">6</data>
+    </edge>
+    <edge id="edge-complete-tracker" source="script-child" target="resource-tracker">
+      <data key="edgeType">request complete</data>
+      <data key="requestId">req-tracker</data>
+      <data key="resourceType">xhr</data>
+      <data key="status">204</data>
+      <data key="timestamp">7</data>
+    </edge>
+    <edge id="edge-storage-set" source="script-child" target="local-storage">
+      <data key="edgeType">storage set</data>
+      <data key="key">seen-banner</data>
+      <data key="value">true</data>
+      <data key="timestamp">8</data>
+    </edge>
+    <edge id="edge-js-call" source="script-child" target="api-canvas">
+      <data key="edgeType">js call</data>
+      <data key="timestamp">9</data>
+    </edge>
+  </graph>
+</graphml>

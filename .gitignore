@@ -1,0 +1,69 @@
+# Dependencies
+node_modules/
+
+# Next.js and build output
+.next/
+.next-pages-work/
+out/
+dist/
+build/
+.vercel/
+
+# Test and coverage output
+.unit-test-dist/
+coverage/
+test-results/
+playwright-report/
+blob-report/
+junit.xml
+
+# Local scan/report artifacts
+.site-behavior-lab/
+*.har
+*.trace.zip
+
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+.cloudflare-*.local
+.wrangler/
+*.pem
+*.key
+*.crt
+*.p12
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TypeScript
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# AI assistant/editor local state
+.claude/
+.claude.json
+CLAUDE.md
+CLAUDE.local.md
+.codex/
+.codexignore
+CODEX.md
+.cursor/
+.cursorrules
+.cursorignore
+
+# Temporary files
+*.tmp
+*.temp

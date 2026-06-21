@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["@cloudflare/workers-types", "node"],
+    "noEmit": true
+  },
+  "include": [
+    "cloudflare/**/*.ts",
+    "lib/compare-reports.ts",
+    "lib/domain-utils.ts",
+    "lib/fingerprint-observer.ts",
+    "lib/report-url.ts",
+    "lib/scan-runtime.ts",
+    "lib/scan-result-builder.ts",
+    "lib/types.ts",
+    "lib/url-normalization.ts"
+  ]
+}

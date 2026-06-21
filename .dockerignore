@@ -1,0 +1,16 @@
+node_modules
+.next
+.site-behavior-lab
+.unit-test-dist
+coverage
+test-results
+playwright-report
+blob-report
+.git
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+*.temp
+.DS_Store

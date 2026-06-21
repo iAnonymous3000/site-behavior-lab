@@ -1,0 +1,14 @@
+{
+  "kind": "schema-shaped-synthetic-fixture",
+  "source": "Hand-built from docs/pagegraph-schema.md, which cites brave/pagegraph-rust parser vocabulary.",
+  "replaceWith": "A real Brave PageGraph export plus PageGraph/Brave version before claiming parser fidelity against production data.",
+  "requirementsExercised": [
+    "node type and edge type keys",
+    "resource-node URL model",
+    "request start and request complete pairing by request id",
+    "HTML element actor attributed through create node",
+    "script actor attributed through execute injector",
+    "storage set edge",
+    "js call edge targeting a web API node"
+  ]
+}

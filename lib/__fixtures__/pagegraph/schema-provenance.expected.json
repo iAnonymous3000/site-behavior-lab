@@ -1,0 +1,53 @@
+{
+  "requests": [
+    {
+      "url": "https://tags.example.net/tag.js?cache=123",
+      "domain": "tags.example.net",
+      "resourceType": "script",
+      "status": 200,
+      "startedAtMs": 3,
+      "provenance": {
+        "graphRecordId": "resource-child-script",
+        "initiatorId": "element-child-script",
+        "initiatorType": "HTML element",
+        "scriptId": "injector-script-id",
+        "scriptUrl": "https://loader.example/loader.js?cache=1",
+        "scriptDomain": "loader.example",
+        "injectedById": "parser-1"
+      }
+    },
+    {
+      "url": "https://tracker.example/collect?cid=abc&email=a%40b.test",
+      "domain": "tracker.example",
+      "resourceType": "xhr",
+      "status": 204,
+      "startedAtMs": 6,
+      "provenance": {
+        "graphRecordId": "resource-tracker",
+        "initiatorId": "script-child",
+        "initiatorType": "script",
+        "initiatorUrl": "https://tags.example.net/tag.js?cache=123",
+        "initiatorDomain": "tags.example.net",
+        "scriptId": "child-script-id",
+        "scriptUrl": "https://tags.example.net/tag.js?cache=123",
+        "scriptDomain": "tags.example.net",
+        "injectedById": "script-injector",
+        "injectedByUrl": "https://loader.example/loader.js?cache=1",
+        "injectedByDomain": "loader.example"
+      }
+    }
+  ],
+  "storage": [
+    {
+      "area": "localStorage",
+      "key": "seen-banner",
+      "valueBytes": 4
+    }
+  ],
+  "fingerprintEvents": [
+    {
+      "api": "HTMLCanvasElement.toDataURL",
+      "count": 1
+    }
+  ]
+}

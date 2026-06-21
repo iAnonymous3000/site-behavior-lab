@@ -1,0 +1,18 @@
+[package]
+name = "sbl-adblock-wasm"
+version = "0.1.0"
+edition = "2021"
+description = "Thin wasm-bindgen wrapper over Brave's adblock engine for Site Behavior Lab"
+license = "MPL-2.0"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+adblock = { version = "0.12", default-features = false, features = ["embedded-domain-resolver"] }
+wasm-bindgen = "0.2"
+
+[profile.release]
+opt-level = "s"
+lto = true

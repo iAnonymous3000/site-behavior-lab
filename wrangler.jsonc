@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "site-behavior-lab-api",
+  "main": "cloudflare/worker.ts",
+  "compatibility_date": "2026-06-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "upload_source_maps": false,
+  "browser": {
+    "binding": "BROWSER"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "REPORTS_KV",
+      "id": "29a74d68b2284afe9f441d2278da224a"
+    }
+  ],
+  "vars": {
+    "SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN": "*",
+    "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS": "0",
+    "SITE_BEHAVIOR_LAB_ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK": "0",
+    "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE": "6",
+    "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY": "120",
+    "SITE_BEHAVIOR_LAB_SCANNER_EGRESS": "cloudflare-browser-run"
+  }
+}

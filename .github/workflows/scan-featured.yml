@@ -1,0 +1,117 @@
+name: Scan Featured Sites
+
+on:
+  workflow_dispatch:
+    inputs:
+      categories:
+        description: Comma-separated category ids to scan (blank = all)
+        required: false
+        type: string
+      limit:
+        description: Max number of sites to scan (blank = all)
+        required: false
+        type: string
+      compare_gpc:
+        description: Run a GPC off/on comparison per site
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      device:
+        description: Viewport
+        required: true
+        default: desktop
+        type: choice
+        options:
+          - desktop
+          - mobile
+  repository_dispatch:
+    types:
+      - site-behavior-featured-scan
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site-behavior-featured-scan-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CI: "1"
+  NEXT_TELEMETRY_DISABLED: "1"
+  FEATURED_CATEGORIES: ${{ github.event.inputs.categories || github.event.client_payload.categories || '' }}
+  FEATURED_LIMIT: ${{ github.event.inputs.limit || github.event.client_payload.limit || '' }}
+  FEATURED_COMPARE_GPC: ${{ github.event.inputs.compare_gpc || github.event.client_payload.compare_gpc || 'true' }}
+  FEATURED_DEVICE: ${{ github.event.inputs.device || github.event.client_payload.device || 'desktop' }}
+
+jobs:
+  scan-featured:
+    name: Populate Featured Gallery
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build scanner app
+        run: npm run build
+
+      - name: Start scanner app
+        run: |
+          npm run start -- --port 3100 > /tmp/site-behavior-lab-featured.log 2>&1 &
+          echo $! > /tmp/site-behavior-lab-featured.pid
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:3100/api/health >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/site-behavior-lab-featured.log
+          exit 1
+
+      - name: Run featured scans
+        run: npm run scan:featured
+        env:
+          BASE_URL: http://127.0.0.1:3100
+
+      - name: Prune retained static reports
+        run: npm run reports:prune
+
+      - name: Build static report manifest
+        run: npm run reports:manifest
+
+      - name: Build corpus stats
+        run: npm run corpus:stats
+
+      - name: Upload report artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-behavior-featured-reports
+          path: |
+            public/reports
+            public/corpus-stats.json
+
+      - name: Commit static reports
+        run: |
+          git config user.name "iAnonymous3000"
+          git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
+          git add public/reports public/corpus-stats.json
+          if git diff --cached --quiet; then
+            echo "No report changes to commit."
+            exit 0
+          fi
+          git commit -m "Add featured site behavior scan reports"
+          git push

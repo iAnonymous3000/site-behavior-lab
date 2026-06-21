@@ -1,0 +1,449 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "gpc",
+  "title": "GPC off/on comparison",
+  "requestedUrl": "https://www.wikipedia.org/",
+  "scannedAt": "2026-06-19T01:56:44.767Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "summary": {
+      "pageTitle": "Wikipedia",
+      "status": 200,
+      "durationMs": 3474,
+      "firstPartyDomain": "www.wikipedia.org",
+      "totalRequests": 5,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 5,
+      "thirdPartyCookies": 0,
+      "storageEntries": 3,
+      "fingerprintEvents": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://www.wikipedia.org/",
+      "finalUrl": "https://www.wikipedia.org/",
+      "scannedAt": "2026-06-19T01:56:41.284Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "this scanner instance",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 128,
+        "curatedOverrides": 128,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from this scanner instance with browser 149.0.7827.55, timezone UTC, locale en-US, and the listed viewport. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.wikipedia.org/",
+        "domain": "www.wikipedia.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2723
+      },
+      {
+        "id": 2,
+        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png",
+        "domain": "www.wikipedia.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2761
+      },
+      {
+        "id": 3,
+        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/js/index-34f340e24a.js",
+        "domain": "www.wikipedia.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2761
+      },
+      {
+        "id": 4,
+        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/js/gt-ie9-507b16b6be.js",
+        "domain": "www.wikipedia.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2765
+      },
+      {
+        "id": 5,
+        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/img/sprite-e49fbf32.svg",
+        "domain": "www.wikipedia.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2893
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.wikipedia.org",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "image",
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "WMF-Last-Access-Global",
+        "domain": ".wikipedia.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "GeoIP",
+        "domain": ".wikipedia.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "WMF-Uniq",
+        "domain": ".wikipedia.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "WMF-Last-Access",
+        "domain": "www.wikipedia.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "NetworkProbeLimit",
+        "domain": "www.wikipedia.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "portal_test_group_expires",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "translationHash",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "portal_session_id",
+        "valueBytes": 16
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report describes one automated Chromium visit under the listed conditions. Sites can behave differently for other browsers, users, regions, accounts, or network locations."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "summary": {
+      "pageTitle": "Wikipedia",
+      "status": 200,
+      "durationMs": 723,
+      "firstPartyDomain": "www.wikipedia.org",
+      "totalRequests": 5,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 5,
+      "thirdPartyCookies": 0,
+      "storageEntries": 3,
+      "fingerprintEvents": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://www.wikipedia.org/",
+      "finalUrl": "https://www.wikipedia.org/",
+      "scannedAt": "2026-06-19T01:56:44.767Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "this scanner instance",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 128,
+        "curatedOverrides": 128,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from this scanner instance with browser 149.0.7827.55, timezone UTC, locale en-US, and the listed viewport. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.wikipedia.org/",
+        "domain": "www.wikipedia.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 37
+      },
+      {
+        "id": 2,
+        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png",
+        "domain": "www.wikipedia.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 61
+      },
+      {
+        "id": 3,
+        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/js/index-34f340e24a.js",
+        "domain": "www.wikipedia.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 61
+      },
+      {
+        "id": 4,
+        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/js/gt-ie9-507b16b6be.js",
+        "domain": "www.wikipedia.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 65
+      },
+      {
+        "id": 5,
+        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/img/sprite-e49fbf32.svg",
+        "domain": "www.wikipedia.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 152
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.wikipedia.org",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "image",
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "WMF-Last-Access-Global",
+        "domain": ".wikipedia.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "GeoIP",
+        "domain": ".wikipedia.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "WMF-Uniq",
+        "domain": ".wikipedia.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "WMF-Last-Access",
+        "domain": "www.wikipedia.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "NetworkProbeLimit",
+        "domain": "www.wikipedia.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "portal_test_group_expires",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "translationHash",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "portal_session_id",
+        "valueBytes": 16
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report describes one automated Chromium visit under the listed conditions. Sites can behave differently for other browsers, users, regions, accounts, or network locations."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 5,
+      "after": 5,
+      "delta": 0
+    },
+    "thirdPartyRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 5,
+      "after": 5,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": []
+  },
+  "warnings": [
+    "Comparison runs are sequential automated visits, not simultaneous observations. Differences can also come from timing, experiments, cache state, consent state, or bot detection.",
+    "GPC off: This report describes one automated Chromium visit under the listed conditions. Sites can behave differently for other browsers, users, regions, accounts, or network locations.",
+    "GPC on: This report describes one automated Chromium visit under the listed conditions. Sites can behave differently for other browsers, users, regions, accounts, or network locations."
+  ],
+  "share": {
+    "id": "20260619-89e248901ec89ef4d47a5b6649416dc4",
+    "path": "/reports/20260619-89e248901ec89ef4d47a5b6649416dc4/",
+    "jsonPath": "/reports/20260619-89e248901ec89ef4d47a5b6649416dc4.json"
+  }
+}

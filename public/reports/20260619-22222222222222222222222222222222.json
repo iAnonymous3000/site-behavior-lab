@@ -1,0 +1,347 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Sample Shields comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://example.com/",
+  "scannedAt": "2026-06-19T12:05:00.000Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Sample site report",
+      "status": 200,
+      "durationMs": 1300,
+      "firstPartyDomain": "example.com",
+      "totalRequests": 3,
+      "thirdPartyRequests": 2,
+      "knownTrackerRequests": 1,
+      "thirdPartyDomains": 2,
+      "cookies": 1,
+      "thirdPartyCookies": 1,
+      "storageEntries": 1,
+      "fingerprintEvents": 1
+    },
+    "conditions": {
+      "requestedUrl": "https://example.com/",
+      "finalUrl": "https://example.com/",
+      "scannedAt": "2026-06-19T12:04:00.000Z",
+      "chromiumVersion": "Brave PageGraph fixture",
+      "userAgent": "Brave PageGraph fixture",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "brave-pagegraph",
+      "headless": true,
+      "scannerEgress": "fixture",
+      "trackerCatalog": {
+        "source": "Brave fixture entity catalog",
+        "version": "fixture",
+        "region": "global",
+        "entries": 1,
+        "curatedOverrides": 0,
+        "license": "internal fixture"
+      },
+      "scannerDisclosure": "Sample PageGraph-derived report for validating Shields comparison rendering."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://example.com/",
+        "domain": "example.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 0
+      },
+      {
+        "id": 2,
+        "url": "https://cdn.example.net/app.js",
+        "domain": "cdn.example.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 210
+      },
+      {
+        "id": 3,
+        "url": "https://analytics.brave.test/collect?id=",
+        "domain": "analytics.brave.test",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.brave.test",
+          "entity": "Brave Fixture Analytics",
+          "category": "fixture analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 640
+      }
+    ],
+    "domains": [
+      {
+        "domain": "analytics.brave.test",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.brave.test",
+          "entity": "Brave Fixture Analytics",
+          "category": "fixture analytics",
+          "confidence": "curated"
+        },
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn.example.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "example.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "fixture_id",
+        "domain": ".analytics.brave.test",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "seen-banner",
+        "valueBytes": 4
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": []
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Sample site report",
+      "status": 200,
+      "durationMs": 1220,
+      "firstPartyDomain": "example.com",
+      "totalRequests": 2,
+      "thirdPartyRequests": 1,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://example.com/",
+      "finalUrl": "https://example.com/",
+      "scannedAt": "2026-06-19T12:05:00.000Z",
+      "chromiumVersion": "Brave PageGraph fixture",
+      "userAgent": "Brave PageGraph fixture",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "brave-pagegraph",
+      "headless": true,
+      "scannerEgress": "fixture",
+      "trackerCatalog": {
+        "source": "Brave fixture entity catalog",
+        "version": "fixture",
+        "region": "global",
+        "entries": 1,
+        "curatedOverrides": 0,
+        "license": "internal fixture"
+      },
+      "scannerDisclosure": "Sample PageGraph-derived report for validating Shields comparison rendering."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://example.com/",
+        "domain": "example.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 0
+      },
+      {
+        "id": 2,
+        "url": "https://cdn.example.net/app.js",
+        "domain": "cdn.example.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 210
+      }
+    ],
+    "domains": [
+      {
+        "domain": "cdn.example.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "example.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "seen-banner",
+        "valueBytes": 4
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": []
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 3,
+      "after": 2,
+      "delta": -1
+    },
+    "thirdPartyRequests": {
+      "before": 2,
+      "after": 1,
+      "delta": -1
+    },
+    "knownTrackerRequests": {
+      "before": 1,
+      "after": 0,
+      "delta": -1
+    },
+    "thirdPartyDomains": {
+      "before": 2,
+      "after": 1,
+      "delta": -1
+    },
+    "cookies": {
+      "before": 1,
+      "after": 0,
+      "delta": -1
+    },
+    "thirdPartyCookies": {
+      "before": 1,
+      "after": 0,
+      "delta": -1
+    },
+    "fingerprintEvents": {
+      "before": 1,
+      "after": 0,
+      "delta": -1
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "analytics.brave.test",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.brave.test",
+          "entity": "Brave Fixture Analytics",
+          "category": "fixture analytics",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Brave Fixture Analytics",
+        "requests": 1,
+        "domains": 1
+      }
+    ]
+  },
+  "warnings": [
+    "This is sample Shields comparison data used to validate the evidence UI and static gallery."
+  ],
+  "share": {
+    "id": "20260619-22222222222222222222222222222222",
+    "path": "/reports/20260619-22222222222222222222222222222222/",
+    "jsonPath": "/reports/20260619-22222222222222222222222222222222.json"
+  }
+}

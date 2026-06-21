@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+env:
+  CI: "1"
+  NEXT_TELEMETRY_DISABLED: "1"
+  NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL: "https://sitebehavior.org"
+
+jobs:
+  app:
+    name: Typecheck, Unit Tests, Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Production dependency audit
+        run: npm audit --omit=dev
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Cloudflare Worker typecheck
+        run: npm run cf:typecheck
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Build
+        run: npm run build
+
+      - name: GitHub Pages static export
+        run: npm run build:pages
+
+      - name: Static export smoke test
+        run: npm run test:smoke:static
+
+  smoke:
+    name: Chromium Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      - name: Start app
+        run: |
+          npm run start -- --port 3100 > /tmp/site-behavior-lab.log 2>&1 &
+          echo $! > /tmp/site-behavior-lab.pid
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:3100 >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/site-behavior-lab.log
+          exit 1
+
+      - name: Smoke test
+        run: BASE_URL=http://127.0.0.1:3100 npm run test:smoke

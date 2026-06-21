@@ -1,0 +1,123 @@
+name: Run Site Scan
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: Public URL to scan
+        required: true
+        type: string
+      device:
+        description: Viewport
+        required: true
+        default: desktop
+        type: choice
+        options:
+          - desktop
+          - mobile
+      gpc_enabled:
+        description: Send Global Privacy Control for single scans
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      compare_gpc:
+        description: Run a GPC off/on comparison
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+  repository_dispatch:
+    types:
+      - site-behavior-scan
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site-behavior-scan-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CI: "1"
+  NEXT_TELEMETRY_DISABLED: "1"
+  SCAN_URL: ${{ github.event.inputs.url || github.event.client_payload.url }}
+  SCAN_DEVICE: ${{ github.event.inputs.device || github.event.client_payload.device || 'desktop' }}
+  SCAN_GPC_ENABLED: ${{ github.event.inputs.gpc_enabled || github.event.client_payload.gpc_enabled || 'true' }}
+  SCAN_COMPARE_GPC: ${{ github.event.inputs.compare_gpc || github.event.client_payload.compare_gpc || 'false' }}
+
+jobs:
+  scan:
+    name: Generate Static Report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build scanner app
+        run: npm run build
+
+      - name: Start scanner app
+        run: |
+          npm run start -- --port 3100 > /tmp/site-behavior-lab-scan.log 2>&1 &
+          echo $! > /tmp/site-behavior-lab-scan.pid
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:3100/api/health >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/site-behavior-lab-scan.log
+          exit 1
+
+      - name: Run scan
+        id: scan
+        run: npm run scan:ci
+        env:
+          BASE_URL: http://127.0.0.1:3100
+
+      - name: Prune retained static reports
+        run: npm run reports:prune
+
+      - name: Build static report manifest
+        run: npm run reports:manifest
+
+      - name: Build corpus stats
+        run: npm run corpus:stats
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-behavior-report-${{ steps.scan.outputs.report_id }}
+          path: |
+            ${{ steps.scan.outputs.report_path }}
+            public/reports/index.json
+            public/corpus-stats.json
+
+      - name: Commit static report
+        run: |
+          git config user.name "iAnonymous3000"
+          git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
+          git add public/reports public/corpus-stats.json
+          if git diff --cached --quiet; then
+            echo "No report changes to commit."
+            exit 0
+          fi
+          git commit -m "Add site behavior scan report"
+          git push
