@@ -136,7 +136,7 @@ test("frames a Shields comparison around what a blocker removes", () => {
 
   const headline = buildReportHeadline(createShieldsComparisonReport(baseline, variant));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /A basic blocker stops 55 requests on heavy\.example\./);
+  assert.match(headline.headline, /A basic blocker would stop 55 requests on heavy\.example\./);
 });
 
 test("surfaces browser probing when fingerprinting matches without catalogued trackers", () => {

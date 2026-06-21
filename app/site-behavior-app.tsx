@@ -32,7 +32,7 @@ import {
 import type { FormEvent, ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createTemporalComparisonReport } from "@/lib/compare-reports";
-import { corpusBenchmark, isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
+import { corpusBenchmark, corpusIsUsable, isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
 import { domainsMatch, isFeaturedSiteConfig, type FeaturedSite, type FeaturedSiteConfig } from "@/lib/featured-sites";
 import { buildReportHeadline, type ReportHeadline } from "@/lib/report-headline";
 import { committedReportLocation, locateReport, type ReportRuntime } from "@/lib/report-locator";
@@ -2546,17 +2546,17 @@ function buildFindings(report: ScanReport, result: ScanResult, corpus: CorpusSta
     icon: Radar,
     level: gaRemarketingOn ? "warn" : "ok",
     title: gaRemarketingOn
-      ? "Google Analytics remarketing is enabled"
+      ? "Google Analytics remarketing signal detected"
       : googleAnalyticsPresent
         ? "Google Analytics present, no remarketing signal"
         : "No Google Analytics observed",
     lead: gaRemarketingOn
-      ? "Google Analytics fired a DoubleClick sync, the signal that its advertising and remarketing features are on."
+      ? "Google Analytics fired a sync to stats.g.doubleclick.net — the request Blacklight treats as the marker that advertising and remarketing features are on."
       : googleAnalyticsPresent
         ? "Google Analytics was observed, but no DoubleClick remarketing sync appeared in this visit."
         : "This visit did not contact Google Analytics.",
     detail: gaRemarketingOn
-      ? "With remarketing on, this visit can be added to Google advertising audiences and matched to the profile Google already holds about you across sites."
+      ? "If remarketing is on, this visit can be added to Google advertising audiences and matched to the profile Google already holds about you across sites. The DoubleClick sync is a strong signal, not configuration-level proof."
       : googleAnalyticsPresent
         ? "Standard analytics collection was observed, without the stats.g.doubleclick.net advertising sync."
         : "Neither Google Analytics nor its remarketing sync was observed in this visit.",
@@ -2689,8 +2689,9 @@ function buildFindings(report: ScanReport, result: ScanResult, corpus: CorpusSta
       overallLevel === "ok"
         ? "The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls."
         : "The scan observed signals a non-expert should not have to decode from raw request tables.",
-    detail:
-      "The cards below translate the evidence into plain language; severity reflects fixed reference thresholds, not measured population percentiles. The request log, domain table, and methodology remain below for verification.",
+    detail: corpusIsUsable(corpus)
+      ? `The cards below translate the evidence into plain language. Where a measured distribution exists, severity ranks this visit against percentiles from the ${corpus.sampleSize.toLocaleString()} sites scanned so far — a curated set of popular, mostly commercial sites, not a random sample of the web — and otherwise uses fixed reference thresholds. The request log, domain table, and methodology remain below for verification.`
+      : "The cards below translate the evidence into plain language; severity reflects fixed reference thresholds, not measured population percentiles. The request log, domain table, and methodology remain below for verification.",
     evidence: `${plural(result.summary.totalRequests, "request")} observed in one controlled visit.`
   });
 

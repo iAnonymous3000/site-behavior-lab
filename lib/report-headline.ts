@@ -126,11 +126,11 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
     if (removed > 0) {
       return finish(
         removed >= 30 ? "warn" : "info",
-        `A basic blocker stops ${plural(removed, "request")} on ${domain}.`,
+        `A basic blocker would stop ${plural(removed, "request")} on ${domain}.`,
         `Of ${plural(total, "request")} this page made, ${plural(
           removed,
           "third-party request"
-        )} were ads or trackers a default blocker removes.${extraNote}`
+        )} were ads or trackers a default blocker would remove.${extraNote}`
       );
     }
   }
