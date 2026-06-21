@@ -46,6 +46,7 @@
     { "domain": "canada.ca", "label": "Canada.ca", "category": "government", "url": "https://www.canada.ca/en.html" },
     { "domain": "europa.eu", "label": "European Union", "category": "government", "url": "https://europa.eu/" },
     { "domain": "australia.gov.au", "label": "Australia.gov.au", "category": "government", "url": "https://www.australia.gov.au/" },
+    { "domain": "my.gov.au", "label": "myGov (Australia)", "category": "government", "url": "https://my.gov.au/" },
     { "domain": "india.gov.in", "label": "India.gov.in", "category": "government", "url": "https://www.india.gov.in/" },
     { "domain": "govt.nz", "label": "New Zealand Government", "category": "government", "url": "https://www.govt.nz/" },
 
