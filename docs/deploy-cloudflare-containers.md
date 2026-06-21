@@ -135,6 +135,18 @@ npx wrangler deploy -c wrangler.container.jsonc
 This builds the Dockerfile, pushes the image to Cloudflare's registry, and deploys the
 Worker + container. Add a custom domain/route (e.g. `scan.sitebehavior.org`) to the Worker.
 
+### Building without local Docker (Cloudflare Workers Builds)
+
+`wrangler deploy` builds the image locally and uploads it, which needs a working Docker
+daemon and can stall when a slow or proxied uplink pushes the multi-GB image. To build the
+image **on Cloudflare instead**, connect the repo under the scanner Worker's
+**Settings → Build**: set the deploy command to `npx wrangler deploy -c wrangler.container.jsonc`,
+leave the build command empty, and trigger a build. Cloudflare builds and stores the image
+server-side, so nothing is uploaded from your machine. Worker secrets set beforehand are
+preserved across Workers Builds deploys. Ignore the dashboard hint to rename `wrangler.jsonc`
+— this Worker deploys from `wrangler.container.jsonc`, while `wrangler.jsonc` belongs to the
+separate Browser Run GPC worker.
+
 ## 5. Point the existing Pages site at it
 
 In the Cloudflare **Pages** project (sitebehavior.org) production env, set and redeploy:
