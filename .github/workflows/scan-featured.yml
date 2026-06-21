@@ -3,6 +3,14 @@ name: Scan Featured Sites
 on:
   workflow_dispatch:
     inputs:
+      sites_file:
+        description: Catalog to scan (featured gallery, or the corpus de-bias seed list)
+        required: false
+        default: public/featured-sites.json
+        type: choice
+        options:
+          - public/featured-sites.json
+          - public/corpus-seed-sites.json
       categories:
         description: Comma-separated category ids to scan (blank = all)
         required: false
@@ -49,6 +57,7 @@ concurrency:
 env:
   CI: "1"
   NEXT_TELEMETRY_DISABLED: "1"
+  FEATURED_SITES_FILE: ${{ github.event.inputs.sites_file || github.event.client_payload.sites_file || '' }}
   FEATURED_CATEGORIES: ${{ github.event.inputs.categories || github.event.client_payload.categories || '' }}
   FEATURED_LIMIT: ${{ github.event.inputs.limit || github.event.client_payload.limit || '' }}
   FEATURED_COMPARE_GPC: ${{ github.event.inputs.compare_gpc || github.event.client_payload.compare_gpc || 'false' }}

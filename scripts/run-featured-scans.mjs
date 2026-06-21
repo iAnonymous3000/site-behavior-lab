@@ -9,6 +9,8 @@
  * Environment:
  *   BASE_URL                          Scanner origin (default http://127.0.0.1:3100), passed through to run-ci-scan.
  *   SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN  Forwarded to the scanner when set.
+ *   FEATURED_SITES_FILE               Catalog to scan, relative to repo root (default public/featured-sites.json).
+ *                                     Set to public/corpus-seed-sites.json to scan the corpus de-bias seed list.
  *   FEATURED_CATEGORIES               Comma-separated category ids to include (default: all).
  *   FEATURED_LIMIT                    Max number of sites to scan (default: all).
  *   FEATURED_COMPARE_GPC              "true"/"false" GPC off/on comparison per site (default: true).
@@ -22,7 +24,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const configPath = path.join(rootDir, "public", "featured-sites.json");
+const sitesFileEnv = process.env.FEATURED_SITES_FILE?.trim();
+const configPath = sitesFileEnv ? path.resolve(rootDir, sitesFileEnv) : path.join(rootDir, "public", "featured-sites.json");
 const ciScanScript = path.join(rootDir, "scripts", "run-ci-scan.mjs");
 const manifestScript = path.join(rootDir, "scripts", "build-static-report-manifest.mjs");
 

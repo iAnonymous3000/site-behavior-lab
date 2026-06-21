@@ -189,6 +189,14 @@ The findings board uses these percentiles to describe severity in relative terms
 
 These percentiles rank a site against the scanned corpus, **not a random sample of the web**. The corpus is seeded from the curated featured catalog — popular, mostly commercial sites chosen for their tracker prevalence — so a "more than ~90%" result means heavy even among popular sites, and a low ranking only means lighter than that set, not light in absolute terms. The sample is also small (tens of sites at launch), so tail percentiles (p90/p95) are approximate; the wording stays hedged ("about", "so far") and the bottom-line finding states the comparison set explicitly.
 
+To reduce that popular-commercial skew, scan the **corpus de-bias seed list** in `public/corpus-seed-sites.json` — a broader, lighter mix (open source, nonprofit, education, reference, international government, community/personal) kept separate from the gallery. Run **Actions > Scan Featured Sites** with the `sites_file` input set to `public/corpus-seed-sites.json`, or locally:
+
+```bash
+FEATURED_SITES_FILE=public/corpus-seed-sites.json BASE_URL=http://127.0.0.1:3100 npm run scan:featured
+```
+
+Those scans populate `public/reports/`, the corpus stats, and `/directory/`, but **not** the curated "Start here" gallery (which only matches `public/featured-sites.json`). It is a curated-diverse list, not a random sample, so it widens the distribution without claiming to represent the whole web.
+
 `/directory/` is a server-rendered, indexable index of every committed report — domain, plain-language headline, and key metrics, linking to the full evidence. It is generated for both the Node app and the static export, listed in `sitemap.xml`, and linked from the public gallery.
 
 The scan workflow prunes committed static reports before updating the manifest. By default it keeps the filesystem report-store policy of 7 days and 500 reports. Override static retention with `SITE_BEHAVIOR_LAB_STATIC_REPORT_MAX_AGE_DAYS` and `SITE_BEHAVIOR_LAB_STATIC_REPORT_MAX_COUNT`, or use the existing `SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS` and `SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT` variables as shared fallbacks.

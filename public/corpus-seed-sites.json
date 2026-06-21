@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "_note": "Corpus DE-BIAS seed list — separate from public/featured-sites.json. The curated 'Start here' gallery is deliberately popular, tracker-heavy commercial sites, which skews corpus percentiles high. This list adds a broader, lighter mix (open source, nonprofit, education, reference, international government, community/personal) so the corpus distribution moves closer to the web at large. It is NOT shown in the gallery (the gallery only matches featured-sites.json); scanned entries land in public/reports/, the /directory/, and the corpus stats. Scan it with FEATURED_SITES_FILE=public/corpus-seed-sites.json (see README), or via the Scan Featured Sites workflow's sites_file input. This is a curated-diverse list, not a random sample, so it reduces the popular-commercial skew without claiming to be representative of the whole web.",
+  "categories": [
+    { "id": "open-source", "label": "Open source & tech" },
+    { "id": "nonprofit", "label": "Nonprofit & advocacy" },
+    { "id": "education", "label": "Education" },
+    { "id": "reference", "label": "Reference & standards" },
+    { "id": "government", "label": "Government (international)" },
+    { "id": "community", "label": "Community & personal" }
+  ],
+  "sites": [
+    { "domain": "gnu.org", "label": "GNU", "category": "open-source", "url": "https://www.gnu.org/" },
+    { "domain": "kernel.org", "label": "kernel.org", "category": "open-source", "url": "https://www.kernel.org/" },
+    { "domain": "debian.org", "label": "Debian", "category": "open-source", "url": "https://www.debian.org/" },
+    { "domain": "python.org", "label": "Python", "category": "open-source", "url": "https://www.python.org/" },
+    { "domain": "rust-lang.org", "label": "Rust", "category": "open-source", "url": "https://www.rust-lang.org/" },
+    { "domain": "nodejs.org", "label": "Node.js", "category": "open-source", "url": "https://nodejs.org/" },
+    { "domain": "postgresql.org", "label": "PostgreSQL", "category": "open-source", "url": "https://www.postgresql.org/" },
+    { "domain": "mozilla.org", "label": "Mozilla", "category": "open-source", "url": "https://www.mozilla.org/" },
+
+    { "domain": "eff.org", "label": "EFF", "category": "nonprofit", "url": "https://www.eff.org/" },
+    { "domain": "archive.org", "label": "Internet Archive", "category": "nonprofit", "url": "https://archive.org/" },
+    { "domain": "fsf.org", "label": "Free Software Foundation", "category": "nonprofit", "url": "https://www.fsf.org/" },
+    { "domain": "creativecommons.org", "label": "Creative Commons", "category": "nonprofit", "url": "https://creativecommons.org/" },
+    { "domain": "torproject.org", "label": "Tor Project", "category": "nonprofit", "url": "https://www.torproject.org/" },
+    { "domain": "letsencrypt.org", "label": "Let's Encrypt", "category": "nonprofit", "url": "https://letsencrypt.org/" },
+    { "domain": "amnesty.org", "label": "Amnesty International", "category": "nonprofit", "url": "https://www.amnesty.org/en/" },
+    { "domain": "redcross.org", "label": "Red Cross", "category": "nonprofit", "url": "https://www.redcross.org/" },
+
+    { "domain": "mit.edu", "label": "MIT", "category": "education", "url": "https://www.mit.edu/" },
+    { "domain": "stanford.edu", "label": "Stanford", "category": "education", "url": "https://www.stanford.edu/" },
+    { "domain": "ocw.mit.edu", "label": "MIT OpenCourseWare", "category": "education", "url": "https://ocw.mit.edu/" },
+    { "domain": "gutenberg.org", "label": "Project Gutenberg", "category": "education", "url": "https://www.gutenberg.org/" },
+    { "domain": "plato.stanford.edu", "label": "Stanford Encyclopedia of Philosophy", "category": "education", "url": "https://plato.stanford.edu/" },
+    { "domain": "arxiv.org", "label": "arXiv", "category": "education", "url": "https://arxiv.org/" },
+
+    { "domain": "w3.org", "label": "W3C", "category": "reference", "url": "https://www.w3.org/" },
+    { "domain": "ietf.org", "label": "IETF", "category": "reference", "url": "https://www.ietf.org/" },
+    { "domain": "rfc-editor.org", "label": "RFC Editor", "category": "reference", "url": "https://www.rfc-editor.org/" },
+    { "domain": "who.int", "label": "World Health Organization", "category": "reference", "url": "https://www.who.int/" },
+    { "domain": "un.org", "label": "United Nations", "category": "reference", "url": "https://www.un.org/" },
+    { "domain": "unicode.org", "label": "Unicode", "category": "reference", "url": "https://home.unicode.org/" },
+
+    { "domain": "gov.uk", "label": "GOV.UK", "category": "government", "url": "https://www.gov.uk/" },
+    { "domain": "canada.ca", "label": "Canada.ca", "category": "government", "url": "https://www.canada.ca/en.html" },
+    { "domain": "europa.eu", "label": "European Union", "category": "government", "url": "https://europa.eu/" },
+    { "domain": "australia.gov.au", "label": "Australia.gov.au", "category": "government", "url": "https://www.australia.gov.au/" },
+    { "domain": "india.gov.in", "label": "India.gov.in", "category": "government", "url": "https://www.india.gov.in/" },
+    { "domain": "govt.nz", "label": "New Zealand Government", "category": "government", "url": "https://www.govt.nz/" },
+
+    { "domain": "news.ycombinator.com", "label": "Hacker News", "category": "community", "url": "https://news.ycombinator.com/" },
+    { "domain": "lobste.rs", "label": "Lobsters", "category": "community", "url": "https://lobste.rs/" },
+    { "domain": "github.com", "label": "GitHub", "category": "community", "url": "https://github.com/" },
+    { "domain": "stackoverflow.com", "label": "Stack Overflow", "category": "community", "url": "https://stackoverflow.com/" },
+    { "domain": "wordpress.org", "label": "WordPress.org", "category": "community", "url": "https://wordpress.org/" },
+    { "domain": "ghost.org", "label": "Ghost", "category": "community", "url": "https://ghost.org/" },
+    { "domain": "xkcd.com", "label": "xkcd", "category": "community", "url": "https://xkcd.com/" },
+    { "domain": "craigslist.org", "label": "Craigslist", "category": "community", "url": "https://www.craigslist.org/" },
+    { "domain": "neocities.org", "label": "Neocities", "category": "community", "url": "https://neocities.org/" },
+    { "domain": "substack.com", "label": "Substack", "category": "community", "url": "https://substack.com/" }
+  ]
+}
