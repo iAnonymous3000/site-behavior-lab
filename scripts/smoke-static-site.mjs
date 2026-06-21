@@ -85,12 +85,12 @@ async function main() {
     await expectCardCount(page, manifest.reports.length);
     pass("static archive sort keeps report list stable");
 
-    const singleReport = manifest.reports.find((report) => report.reportType === "single");
-    if (!singleReport) fail("static archive needs at least one single report for UI smoke coverage");
-
-    const singleReportFile = path.join(outDir, "reports", `${singleReport.id}.json`);
-    await page.locator(".static-compare-upload input").nth(0).setInputFiles(singleReportFile);
-    await page.locator(".static-compare-upload input").nth(1).setInputFiles(singleReportFile);
+    // A deterministic single-scan fixture (example.com) drives the single-report UI
+    // paths the committed comparison-only corpus cannot. It lives under scripts/, not
+    // public/reports/, so it never surfaces in the gallery, directory, or sitemap.
+    const singleReportFixture = path.join(rootDir, "scripts", "fixtures", "smoke-single-report.json");
+    await page.locator(".static-compare-upload input").nth(0).setInputFiles(singleReportFixture);
+    await page.locator(".static-compare-upload input").nth(1).setInputFiles(singleReportFixture);
     await page.getByRole("button", { name: "Compare files" }).click();
     await page.waitForSelector(".comparison-card", { timeout: 10_000 });
     await expectText(page.locator(".comparison-card"), "Temporal Comparison");
@@ -102,7 +102,17 @@ async function main() {
     await expectText(page.locator(".report-header"), "https://");
     pass("static report permalink renders saved report");
 
-    await page.goto(`${baseUrl}/reports/${singleReport.id}/`, { waitUntil: "networkidle" });
+    // Render the single-scan fixture through the "Open report file" upload path and
+    // exercise the request-log filters: the fixture has 2 third-party requests, one a
+    // known service (an xhr, not a script), so third-party=2, known-service=1, and
+    // known-service+script=0.
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page
+      .locator("label.file-button", { hasText: "Open report file" })
+      .first()
+      .locator('input[type="file"]')
+      .setInputFiles(singleReportFixture);
+    await page.waitForSelector(".report-header", { timeout: 10_000 });
     await page.locator("details.data-section", { hasText: "Request log" }).locator("summary").click();
     await page.getByRole("button", { name: "Third-party" }).click();
     await expectRequestRowCount(page, 2);
