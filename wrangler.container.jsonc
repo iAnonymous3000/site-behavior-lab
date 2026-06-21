@@ -1,0 +1,27 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Full Node/Playwright scanner (live Shields) on Cloudflare Containers.
+  // Deployed separately from wrangler.jsonc (the Browser Run GPC worker) so the
+  // existing live worker is untouched. Runbook: docs/deploy-cloudflare-containers.md
+  "name": "site-behavior-lab-scanner",
+  "main": "cloudflare/container-worker.ts",
+  "compatibility_date": "2026-06-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "containers": [
+    {
+      "class_name": "ScannerContainer",
+      // Builds the repo Dockerfile (Next.js + Playwright Chromium).
+      "image": "./Dockerfile",
+      // standard-2 = 6 GiB RAM / 12 GB disk: Chromium needs ~2 GB and the
+      // Playwright image (~2-3 GB) must fit the instance disk. standard-1 is the
+      // floor; lite/basic are too small. See docs/deploy-cloudflare-containers.md.
+      "instance_type": "standard-2",
+      "max_instances": 3
+    }
+  ],
+  "durable_objects": {
+    "bindings": [{ "name": "SCANNER", "class_name": "ScannerContainer" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ScannerContainer"] }]
+}

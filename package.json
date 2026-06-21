@@ -8,6 +8,7 @@
     "build": "next build",
     "build:pages": "node scripts/build-github-pages.mjs",
     "cf:bucket:create": "wrangler r2 bucket create site-behavior-lab-reports",
+    "cf:container:deploy": "wrangler deploy -c wrangler.container.jsonc",
     "cf:deploy": "wrangler deploy -c wrangler.jsonc",
     "cf:dev": "wrangler dev -c wrangler.jsonc",
     "cf:kv:create": "wrangler kv namespace create site-behavior-lab-reports",
@@ -39,6 +40,7 @@
     "postcss": "8.5.10"
   },
   "devDependencies": {
+    "@cloudflare/containers": "^0.3.7",
     "@cloudflare/playwright": "^1.3.0",
     "@cloudflare/workers-types": "^4.20260619.1",
     "@types/node": "^22.10.2",
