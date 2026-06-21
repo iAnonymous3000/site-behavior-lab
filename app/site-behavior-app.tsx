@@ -2711,7 +2711,7 @@ function buildFindings(report: ScanReport, result: ScanResult, corpus: CorpusSta
           : "No requests matched Brave's default ad-block and tracking lists in this visit.",
       detail:
         blocked > 0
-          ? "These are the ad, tracking, and fraud requests Brave blocks by default, reflecting Brave's actual filter lists, not just the named-service catalog. The rest loaded normally."
+          ? "Computed with Brave's own ad-block engine and default filter lists — network requests only, so no cosmetic or CNAME-based blocking — which reflects Brave's real blocking, not just the named-service catalog. The rest loaded normally."
           : "The page's requests did not match Brave's default lists in this visit.",
       evidence: `${plural(result.summary.knownTrackerRequests, "named-service request")} of them are also in the curated catalog.`
     });
