@@ -386,6 +386,9 @@ export type StaticReportManifestEntry = {
   requestedUrl: string;
   scannedAt: string;
   reportType: "single" | "comparison";
+  // Present for comparison reports so cards can pick the right framing
+  // (notably the Shields tried-vs-blocked diff).
+  comparisonType?: ComparisonType | null;
   device: ScanDevice;
   gpcEnabled: boolean | "comparison";
   metrics: {
@@ -396,6 +399,8 @@ export type StaticReportManifestEntry = {
     cookies: number;
     thirdPartyCookies: number;
     fingerprintEvents: number;
+    // Requests the Shields engine would block, measured on the baseline (off) scan.
+    shieldsBlockedRequests?: number;
   };
 };
 

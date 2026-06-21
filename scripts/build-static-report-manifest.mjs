@@ -61,7 +61,10 @@ async function readReportEntries() {
 function toManifestEntry(id, report) {
   if (!isCurrentScanReport(report)) return null;
 
-  const result = report.reportType === "comparison" ? report.variant : report;
+  // Cards summarize the baseline (the plain "off" state) so a Shields card shows
+  // what the site tried, not the blocked residual; the blocked count is surfaced
+  // separately below.
+  const result = report.reportType === "comparison" ? report.baseline : report;
   if (!isRecord(result) || !isRecord(result.summary) || !isRecord(result.conditions)) return null;
 
   const scannedAt = report.reportType === "comparison" ? report.scannedAt : result.conditions.scannedAt;
@@ -89,6 +92,7 @@ function toManifestEntry(id, report) {
     requestedUrl,
     scannedAt,
     reportType: report.reportType === "comparison" ? "comparison" : "single",
+    comparisonType: report.reportType === "comparison" ? report.comparisonType : undefined,
     device,
     gpcEnabled: report.reportType === "comparison" ? "comparison" : result.conditions.gpcEnabled === true,
     metrics: {
@@ -98,7 +102,8 @@ function toManifestEntry(id, report) {
       thirdPartyDomains: numberOrZero(result.summary.thirdPartyDomains),
       cookies: numberOrZero(result.summary.cookies),
       thirdPartyCookies: numberOrZero(result.summary.thirdPartyCookies),
-      fingerprintEvents: numberOrZero(result.summary.fingerprintEvents)
+      fingerprintEvents: numberOrZero(result.summary.fingerprintEvents),
+      shieldsBlockedRequests: numberOrZero(result.summary.shieldsBlockedRequests)
     }
   };
 }

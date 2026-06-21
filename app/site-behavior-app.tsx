@@ -1689,7 +1689,9 @@ function StaticReportCard({ report }: { report: StaticReportManifestEntry }) {
       <span className="static-report-meta" aria-label={staticReportCardLabel(report)}>
         <b>{report.metrics.thirdPartyRequests.toLocaleString()} third-party</b>
         <small>
-          {report.reportType === "comparison" ? "Comparison" : "Single"} · {report.device}
+          {report.comparisonType === "shields" && (report.metrics.shieldsBlockedRequests ?? 0) > 0
+            ? `Shields blocks ${(report.metrics.shieldsBlockedRequests ?? 0).toLocaleString()} · ${report.device}`
+            : `${report.reportType === "comparison" ? "Comparison" : "Single"} · ${report.device}`}
         </small>
       </span>
     </a>
@@ -1772,11 +1774,15 @@ function staticReportOptionLabel(report: StaticReportManifestEntry): string {
 }
 
 function staticReportCardLabel(report: StaticReportManifestEntry): string {
-  return [
+  const parts = [
     plural(report.metrics.thirdPartyRequests, "third-party request"),
     plural(report.metrics.knownTrackerRequests, "known tracker request"),
     plural(report.metrics.thirdPartyDomains, "third-party domain")
-  ].join(", ");
+  ];
+  if (report.comparisonType === "shields" && (report.metrics.shieldsBlockedRequests ?? 0) > 0) {
+    parts.push(`${plural(report.metrics.shieldsBlockedRequests ?? 0, "request")} blocked by Shields`);
+  }
+  return parts.join(", ");
 }
 
 function formatDateTime(value: string): string {
