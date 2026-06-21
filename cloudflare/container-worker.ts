@@ -9,6 +9,8 @@ import { Container, getContainer } from "@cloudflare/containers";
 
 type Env = {
   SCANNER: DurableObjectNamespace<ScannerContainer>;
+  // Non-secret browser CORS allow-list, set via `vars` in wrangler.container.jsonc.
+  SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN?: string;
   // Set as Worker secrets (`wrangler secret put -c wrangler.container.jsonc <NAME>`)
   // and forwarded into the container via envVars below.
   SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?: string;
@@ -31,6 +33,10 @@ export class ScannerContainer extends Container<Env> {
     SITE_BEHAVIOR_LAB_R2_BUCKET: "site-behavior-lab-reports",
     SITE_BEHAVIOR_LAB_R2_PREFIX: "reports/",
     SITE_BEHAVIOR_LAB_SCANNER_EGRESS: "cloudflare-containers",
+    // Browser CORS allow-list for the scan API. Pin to the Pages origin that calls
+    // this scanner (set via `vars` in wrangler.container.jsonc); "*" allows any
+    // origin, which is safe here because the scan API uses no cookies.
+    SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN: this.env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN ?? "*",
     // Long Shields scans return 202 + jobId instead of holding the connection.
     SITE_BEHAVIOR_LAB_ASYNC_SCANS: "1",
     // Operator-gated by default: managed containers have no external egress

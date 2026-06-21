@@ -8,6 +8,12 @@
   "compatibility_date": "2026-06-19",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
+  "vars": {
+    // Browser CORS allow-list for the scan API, forwarded into the container by
+    // container-worker.ts. Pin it to the Pages origin that calls this scanner;
+    // use "*" for an intentionally open scanner (the scan API uses no cookies).
+    "SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN": "https://sitebehavior.org"
+  },
   "containers": [
     {
       "class_name": "ScannerContainer",
