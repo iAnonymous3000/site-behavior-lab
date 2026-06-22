@@ -1,0 +1,6055 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.medicare.gov/",
+  "scannedAt": "2026-06-22T19:34:51.759Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Welcome to Medicare | Medicare",
+      "status": 200,
+      "durationMs": 11559,
+      "firstPartyDomain": "www.medicare.gov",
+      "totalRequests": 205,
+      "thirdPartyRequests": 138,
+      "knownTrackerRequests": 26,
+      "thirdPartyDomains": 33,
+      "cookies": 43,
+      "thirdPartyCookies": 14,
+      "storageEntries": 21,
+      "fingerprintEvents": 8,
+      "shieldsBlockedRequests": 51
+    },
+    "conditions": {
+      "requestedUrl": "https://www.medicare.gov/",
+      "finalUrl": "https://www.medicare.gov/",
+      "scannedAt": "2026-06-22T19:34:40.189Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.medicare.gov/",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 33,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.medicare.gov/static/6d3100045f13354994b8f762fa69d172d6750013ed7077",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 141,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://tealium-tags.medicare.gov/medicare-www/prod/utag.sync.js",
+        "domain": "tealium-tags.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 141,
+        "blockedByShields": true
+      },
+      {
+        "id": 4,
+        "url": "https://frontend.medicare.gov/assets/index-BUIvh5r-.css",
+        "domain": "frontend.medicare.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.medicare.gov/sites/default/files/css/css_XN6fFINERIhM0Q_HFM_GACTrS2d5bDuxaIiZjvWMQog.css",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.medicare.gov/libraries/fontawesome/css/fontawesome.min.css",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.medicare.gov/libraries/fontawesome/css/solid.min.css",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.medicare.gov/sites/default/files/css/css_70NWPk-dzZgnDYSnYeb-6t4R8bzoIdJkkheuIKRVNmA.css",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/medicare-logo-green.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.medicare.gov/sites/default/files/js/js_zi63GIBjSRj1CKcyEWhOLOPXcfqapAb7N49z5jG2Y48.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 147,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.medicare.gov/modules/contrib/ckeditor_accordion/js/accordion.frontend.min.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 206,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.medicare.gov/sites/default/files/js/js_Zjlt9dKHnyoDp5Y6oisA-VBqJKgmMW0NcCE5Wjv-G6Y.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 281,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.medicare.gov/sites/default/files/js/js_26QGc6luSWpcCOUFvRP9bvsXL_ZjUwi4Yn_zr6apl5Y.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.medicare.gov/WoAhVOHW/LGp/ZSc/m5lDSl-JOg/7ia9VbbO1hOYbm5JOJ/YwpHIloC/MnNydx0Z/OVkB",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 301,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.medicare.gov/libraries/fontawesome/js/fontawesome.min.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 302,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.medicare.gov/libraries/fontawesome/js/brands.min.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 302,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.medicare.gov/libraries/fontawesome/js/custom-icons.min.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 302,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.medicare.gov/libraries/fontawesome/js/solid.min.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 303,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://frontend.medicare.gov/assets/index-BpkP_SZl.js",
+        "domain": "frontend.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 303,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.medicare.gov/static/6d3100045f13354994b8f762fa69d172d6750013ed7077/e/65319_1825172608.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 304,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.medicare.gov/static/6d3100045f13354994b8f762fa69d172d6750013ed7077/e/65257_1825202523.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 304,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.medicare.gov/static/6d3100045f13354994b8f762fa69d172d6750013ed7077/e/64885_1825202492.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 304,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.medicare.gov/static/6d3100045f13354994b8f762fa69d172d6750013ed7077/e/65226_747628217.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 305,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/homepage-hero-upper-stroke.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 373,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/homepage-bg-white-field-top.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 374,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/homepage-bg-center-stroke-desktop-top.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 375,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/homepage-bg-center-stroke-desktop-center.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 375,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/homepage-bg-center-stroke-desktop-bottom.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 375,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/homepage-bg-white-field-bottom.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 376,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/icon-youtube-play-button-68x40.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 376,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/fonts/rubik/rubik-latin-400.woff2",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 376,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/fonts/montserrat/montserrat-latin-600.woff2",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 377,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/fonts/rubik/rubik-latin-600.woff2",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 377,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.medicare.gov/sites/default/files/styles/hero_image_775/public/resized%20hero%20man%20in%20plaid%20shirt.png.webp",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 380,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.medicare.gov/sites/default/files/styles/16_9_713x401/public/resized%2020250610_MedicareLifestyle_026.jpg.webp",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 381,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.medicare.gov/sites/default/files/styles/16_9_713x401/public/video_thumbnails/1pzZbMsyntA.jpg.webp",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 383,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.medicare.gov/sites/default/files/styles/16_9_713x401/public/20250610_MedicareLifestyle_033.jpg%20resized%20for%20initiative.jpg.webp",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 383,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.medicare.gov/sites/default/files/styles/hero_image_775/public/Cleveland-emailguy.png.webp",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 383,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://tealium-tags.medicare.gov/medicare-www/prod/utag.js",
+        "domain": "tealium-tags.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 389,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.medicare.gov/WoAhVOHW/LGp/ZSc/m5lDSl-JOg/7ia9VbbO1hOYbm5JOJ/YwpHIloC/MnNydx0Z/OVkB",
+        "domain": "www.medicare.gov",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 566,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://clientsdk.launchdarkly.us/sdk/evalx/6019fd45b36e3a100c2d2416/contexts/eyJraW5kIjoibXVsdGkiLCJ1c2VyIjp7ImtleSI6ImRlZmF1bHQtdXNlciIsImN1c3RvbSI6eyJ1c2VUZXN0RmxhZ3MiOmZhbHNlfX0sIm1heFNlc3Npb24iOnsia2V5IjoibWF4U2Vzc2lvbiIsImN1c3RvbSI6eyJtYXhBbm9ueW1vdXNJZCI6Im1heDAuMzAwMTU1MTc0MTk5OTczMDYifX19",
+        "domain": "clientsdk.launchdarkly.us",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 747,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://js-agent.newrelic.com/nr-spa-1123.min.js",
+        "domain": "js-agent.newrelic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 808,
+        "blockedByShields": true
+      },
+      {
+        "id": 43,
+        "url": "https://events.launchdarkly.us/events/diagnostic/6019fd45b36e3a100c2d2416",
+        "domain": "events.launchdarkly.us",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 809,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://www.youtube.com/iframe_api",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 810,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.215.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 814,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.8.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 815,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.9.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 815,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.194.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 815,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.220.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 815,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.266.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 815,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.377.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 815,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.299.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 815,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.321.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 815,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.336.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 815,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.353.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 815,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.395.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 815,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://bam.nr-data.net/1/642335d5b5?a=&sa=&v=&t=&rst=&ref=&be=&fe=&dc=&af=&perf=&jsonp=",
+        "domain": "bam.nr-data.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 856,
+        "blockedByShields": true
+      },
+      {
+        "id": 58,
+        "url": "https://api.medicare.gov/verify",
+        "domain": "api.medicare.gov",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 997,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://apps.use2.us-gov-pure.cloud/genesys-bootstrap/genesys.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1007,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://frontend.medicare.gov/assets/medicare-logo-green-DrWAB2BY.svg",
+        "domain": "frontend.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1007,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://frontend.medicare.gov/assets/sourcesanspro-regular-webfont-BZtNapR-.woff2",
+        "domain": "frontend.medicare.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1021,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://api.medicare.gov/siteActivity",
+        "domain": "api.medicare.gov",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1034,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://www.youtube.com/s/player/1cf32b49/www-widgetapi.vflset/www-widgetapi.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1034,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://cdn1.adoberesources.net/alloy/2.6.4/alloy.min.js",
+        "domain": "cdn1.adoberesources.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1035,
+        "blockedByShields": true
+      },
+      {
+        "id": 65,
+        "url": "https://zn56jl522ec1a1wzf-medicare.gov1.siteintercept.qualtrics.com/SIE/?Q_ZID=&Q_LOC=",
+        "domain": "zn56jl522ec1a1wzf-medicare.gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1041,
+        "blockedByShields": true
+      },
+      {
+        "id": 66,
+        "url": "https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=&subagency=",
+        "domain": "dap.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1045,
+        "blockedByShields": true
+      },
+      {
+        "id": 67,
+        "url": "https://insight.adsrvr.org/track/conv/?ct=&adv=&fmt=",
+        "domain": "insight.adsrvr.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1046,
+        "blockedByShields": true
+      },
+      {
+        "id": 68,
+        "url": "https://tealium-collect.medicare.gov/cmsgov/medicare-www/2/i.gif",
+        "domain": "tealium-collect.medicare.gov",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1052,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://insight.adsrvr.org/track/conv/?ct=&adv=&fmt=",
+        "domain": "insight.adsrvr.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1054,
+        "blockedByShields": true
+      },
+      {
+        "id": 70,
+        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1057,
+        "blockedByShields": true
+      },
+      {
+        "id": 71,
+        "url": "https://ads.nextdoor.com/public/pixel/ndp.js",
+        "domain": "ads.nextdoor.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1058,
+        "blockedByShields": true
+      },
+      {
+        "id": 72,
+        "url": "https://insight.adsrvr.org/track/conv/?ct=&adv=&fmt=",
+        "domain": "insight.adsrvr.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1060,
+        "blockedByShields": true
+      },
+      {
+        "id": 73,
+        "url": "https://bat.bing.com/bat.js",
+        "domain": "bat.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1060,
+        "blockedByShields": true
+      },
+      {
+        "id": 74,
+        "url": "https://analytics-sm.com/js/v1/beacon.js",
+        "domain": "analytics-sm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1061,
+        "blockedByShields": true
+      },
+      {
+        "id": 75,
+        "url": "https://tags.tiqcdn.com/utag/tiqapp/utag.v.js?a=&cb=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1063,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://match.adsrvr.org/track/cmf/generic?ttd_pid=&ttd_tpi=&gdpr=&domain=",
+        "domain": "match.adsrvr.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1064,
+        "blockedByShields": true
+      },
+      {
+        "id": 77,
+        "url": "https://bam.nr-data.net/events/1/642335d5b5?a=&sa=&v=&t=&rst=&ref=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1069,
+        "blockedByShields": true
+      },
+      {
+        "id": 78,
+        "url": "https://adobedc.demdex.net/ee/v1/interact?configId=&requestId=",
+        "domain": "adobedc.demdex.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1377,
+        "blockedByShields": true
+      },
+      {
+        "id": 79,
+        "url": "https://ib.adnxs.com/getuid?https%3A%2F%2Fmatch.adsrvr.org%2Ftrack%2Fcmf%2Fappnexus%3Fttd%3D1%26anid%3D%24UID=&ttd_tdid=",
+        "domain": "ib.adnxs.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1381,
+        "blockedByShields": true
+      },
+      {
+        "id": 80,
+        "url": "https://ib.adnxs.com/getuid?https%3A%2F%2Fmatch.adsrvr.org%2Ftrack%2Fcmf%2Fappnexus%3Fttd%3D1%26anid%3D%24UID=&ttd_tdid=",
+        "domain": "ib.adnxs.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1381,
+        "blockedByShields": true
+      },
+      {
+        "id": 81,
+        "url": "https://ib.adnxs.com/getuid?https%3A%2F%2Fmatch.adsrvr.org%2Ftrack%2Fcmf%2Fappnexus%3Fttd%3D1%26anid%3D%24UID=&ttd_tdid=",
+        "domain": "ib.adnxs.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1383,
+        "blockedByShields": true
+      },
+      {
+        "id": 82,
+        "url": "https://dap.digitalgov.gov/web-vitals/dist/web-vitals.attribution.iife.js",
+        "domain": "dap.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1391,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1391,
+        "blockedByShields": true
+      },
+      {
+        "id": 84,
+        "url": "https://bat.bing.com/p/action/97143892.js",
+        "domain": "bat.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1403,
+        "blockedByShields": true
+      },
+      {
+        "id": 85,
+        "url": "https://bat.bing.com/action/0?ti=&Ver=&mid=&bo=&sid=&vid=&vids=&msclkid=&pi=&lg=&sw=&sh=&sc=&nwd=&tl=&p=&r=&lt=&evt=&sv=&cdb=&rn=",
+        "domain": "bat.bing.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1427,
+        "blockedByShields": true
+      },
+      {
+        "id": 86,
+        "url": "https://api-cdn.use2.us-gov-pure.cloud/webdeployments/v1/deployments/ab956791-73f1-4395-8cdf-7a50a0a89550/domains.json",
+        "domain": "api-cdn.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1517,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://datacloud.tealiumiq.com/tealium_ttd/main/16/i.gif?t1=",
+        "domain": "datacloud.tealiumiq.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "tealiumiq.com",
+          "entity": "Tealium",
+          "category": "tag management / customer data",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1518,
+        "blockedByShields": true
+      },
+      {
+        "id": 88,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/thirdparty-plugins.html",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1526,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://tealium-visitor-service.medicare.gov/cmsgov/medicare-www/019ef0d3ec56001378abb53c19350007100190690098c",
+        "domain": "tealium-visitor-service.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1527,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://apps.use2.us-gov-pure.cloud/cxbus/cxbus.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1582,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/881.d239a4f9da069111bd06.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1588,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/941.a09c5b36bb369f224ce3.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1589,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/thirdpartyplugins.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1631,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://ad.doubleclick.net/ccm/s/collect?auid=&gtm=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1694,
+        "blockedByShields": true
+      },
+      {
+        "id": 95,
+        "url": "https://ad.doubleclick.net/activity;src=4468676;type=opene0;cat=cmsoe007;rcb=15;ord=1127388671056;npa=0;auiddc=685264860.1782156882;u1=https%3A%2F%2Fwww.medicare.gov%2F;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=IFA;gtm=45fe66h0v9190238220za200zd9190238220xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=3;tag_exp=115616986~115938465~115938468~118395333~119027224~119392696~119392704~119456239~119456247;epver=2;dc_random=1782156881_NWzAqqghi7_WYRkQJ48HPlHeqS7M6iRNbg;~oref=https%3A%2F%2Fwww.medicare.gov%2F",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1695,
+        "blockedByShields": true
+      },
+      {
+        "id": 96,
+        "url": "https://4468676.fls.doubleclick.net/activityi;src=4468676;type=opene0;cat=cmsoe007;rcb=15;ord=1127388671056;npa=0;auiddc=685264860.1782156882;u1=https%3A%2F%2Fwww.medicare.gov%2F;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=IFA;gtm=45fe66h0v9190238220za200zd9190238220xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=2;tag_exp=115616986~115938465~115938468~118395333~119027224~119392696~119392704~119456239~119456247;epver=2;dc_random=1782156881_NWzAqqghi7_WYRkQJ48HPlHeqS7M6iRNbg;_dc_test=1;~oref=https%3A%2F%2Fwww.medicare.gov%2F",
+        "domain": "4468676.fls.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1696,
+        "blockedByShields": true
+      },
+      {
+        "id": 97,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1706,
+        "blockedByShields": true
+      },
+      {
+        "id": 98,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&gdid=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1707,
+        "blockedByShields": true
+      },
+      {
+        "id": 99,
+        "url": "https://api-cdn.use2.us-gov-pure.cloud/webdeployments/v1/deployments/ab956791-73f1-4395-8cdf-7a50a0a89550/config.json",
+        "domain": "api-cdn.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1751,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://js-agent.newrelic.com/nr-spa-1.301.0.min.js",
+        "domain": "js-agent.newrelic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1754,
+        "blockedByShields": true
+      },
+      {
+        "id": 101,
+        "url": "https://analytics-sm.com/?bid=&smuid=&bt=&url=&url_path=&title=",
+        "domain": "analytics-sm.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1766,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://apps.use2.us-gov-pure.cloud/journey/messenger-plugins/offersHelper.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1813,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://4468676.fls.doubleclick.net/activityi;dc_pre=CLq_it_Lm5UDFVjizgAdSZIO4g;src=4468676;type=opene0;cat=cmsoe007;rcb=15;ord=1127388671056;npa=0;auiddc=685264860.1782156882;u1=https%3A%2F%2Fwww.medicare.gov%2F;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=IFA;gtm=45fe66h0v9190238220za200zd9190238220xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=2;tag_exp=115616986~115938465~115938468~118395333~119027224~119392696~119392704~119456239~119456247;epver=2;dc_random=1782156881_NWzAqqghi7_WYRkQJ48HPlHeqS7M6iRNbg;_dc_test=1;~oref=https%3A%2F%2Fwww.medicare.gov%2F",
+        "domain": "4468676.fls.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1819,
+        "blockedByShields": true
+      },
+      {
+        "id": 104,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_fv=&_ss=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1856,
+        "blockedByShields": true
+      },
+      {
+        "id": 105,
+        "url": "https://apps.use2.us-gov-pure.cloud/genesys-bootstrap/hub.html",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1863,
+        "blockedByShields": false
+      },
+      {
+        "id": 106,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/messenger.html",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1877,
+        "blockedByShields": false
+      },
+      {
+        "id": 107,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/messenger-renderer.html",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1877,
+        "blockedByShields": false
+      },
+      {
+        "id": 108,
+        "url": "https://gov-bam.nr-data.net/1/NRJS-dc16e7811b85d7d9b28?a=&sa=&v=&t=&rst=&ck=&s=&ref=&ptid=&af=&be=&fe=&dc=&perf=",
+        "domain": "gov-bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1903,
+        "blockedByShields": true
+      },
+      {
+        "id": 109,
+        "url": "https://adservice.google.com/ddm/fls/z/dc_pre=CLq_it_Lm5UDFVjizgAdSZIO4g;src=4468676;type=opene0;cat=cmsoe007;rcb=15;ord=1127388671056;npa=0;auiddc=*;u1=https%3A%2F%2Fwww.medicare.gov%2F;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=IFA;gtm=45fe66h0v9190238220za200zd9190238220xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=2;tag_exp=115616986~115938465~115938468~118395333~119027224~119392696~119392704~119456239~119456247;epver=2;dc_random=1782156881_NWzAqqghi7_WYRkQJ48HPlHeqS7M6iRNbg;_dc_test=1;~oref=https%3A%2F%2Fwww.medicare.gov%2F",
+        "domain": "adservice.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adservice.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1911,
+        "blockedByShields": true
+      },
+      {
+        "id": 110,
+        "url": "https://apps.use2.us-gov-pure.cloud/genesys-bootstrap/plugins/storagehub.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1921,
+        "blockedByShields": false
+      },
+      {
+        "id": 111,
+        "url": "https://apps.use2.us-gov-pure.cloud/cxbus/cxbus.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1944,
+        "blockedByShields": false
+      },
+      {
+        "id": 112,
+        "url": "https://apps.use2.us-gov-pure.cloud/cxbus/cxbus.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1946,
+        "blockedByShields": false
+      },
+      {
+        "id": 113,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/messagingMiddleware.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1999,
+        "blockedByShields": false
+      },
+      {
+        "id": 114,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/muiVendor.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1999,
+        "blockedByShields": false
+      },
+      {
+        "id": 115,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/defaultVendors.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2002,
+        "blockedByShields": false
+      },
+      {
+        "id": 116,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/main.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2003,
+        "blockedByShields": false
+      },
+      {
+        "id": 117,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/messagingMiddleware.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2004,
+        "blockedByShields": false
+      },
+      {
+        "id": 118,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/engage.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2004,
+        "blockedByShields": false
+      },
+      {
+        "id": 119,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/broadcast.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2004,
+        "blockedByShields": false
+      },
+      {
+        "id": 120,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/muiVendor.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2005,
+        "blockedByShields": false
+      },
+      {
+        "id": 121,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/defaultVendors.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2005,
+        "blockedByShields": false
+      },
+      {
+        "id": 122,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/messengerrenderer.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2005,
+        "blockedByShields": false
+      },
+      {
+        "id": 123,
+        "url": "https://ads.nextdoor.com/v2/public/pixel/advmtch.js",
+        "domain": "ads.nextdoor.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2066,
+        "blockedByShields": true
+      },
+      {
+        "id": 124,
+        "url": "https://flask.nextdoor.com/pixel?pid=&vrs=&ev=&pl=&v=&ndclid=&ndclid_src=&rf=&sem=&tm=&iid=&pageid=&sessionid=&cd=&tz=&sw=&sh=&gpuV=&gpuR=",
+        "domain": "flask.nextdoor.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2071,
+        "blockedByShields": false
+      },
+      {
+        "id": 125,
+        "url": "https://gov1.siteintercept.qualtrics.com/WRSiteInterceptEngine/Targeting.php?Q_ZoneID=&Q_CLIENTVERSION=&Q_CLIENTTYPE=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2080,
+        "blockedByShields": true
+      },
+      {
+        "id": 126,
+        "url": "https://gov-bam.nr-data.net/events/1/NRJS-dc16e7811b85d7d9b28?a=&sa=&v=&t=&rst=&ck=&s=&ref=&ptid=",
+        "domain": "gov-bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2276,
+        "blockedByShields": true
+      },
+      {
+        "id": 127,
+        "url": "https://ads.nextdoor.com/v2/api/conversions/settings?id=",
+        "domain": "ads.nextdoor.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2290,
+        "blockedByShields": false
+      },
+      {
+        "id": 128,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/CoreModule.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2312,
+        "blockedByShields": false
+      },
+      {
+        "id": 129,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/21.0e9206dee88109bb9b4b.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2315,
+        "blockedByShields": false
+      },
+      {
+        "id": 130,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/913.5ab747a7a72ad3339869.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2316,
+        "blockedByShields": false
+      },
+      {
+        "id": 131,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/147.1bd41725cb680c56bdbc.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2409,
+        "blockedByShields": false
+      },
+      {
+        "id": 132,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/308.5b6f220b63d2a0e69fe1.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2410,
+        "blockedByShields": false
+      },
+      {
+        "id": 133,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/PopOverModule.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2411,
+        "blockedByShields": false
+      },
+      {
+        "id": 134,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/FeedbackButtonModule.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2411,
+        "blockedByShields": false
+      },
+      {
+        "id": 135,
+        "url": "https://gov1.siteintercept.qualtrics.com/WRSiteInterceptEngine/Asset.php?Module=&Version=&Q_ORIGIN=&Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BrandTier=&Q_ARCACHEVERSION=&Q_BRANDDC=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2411,
+        "blockedByShields": true
+      },
+      {
+        "id": 136,
+        "url": "https://gov1.siteintercept.qualtrics.com/WRSiteInterceptEngine/Asset.php?Module=&Version=&Q_InterceptID=&Q_ORIGIN=&Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BrandTier=&Q_ARCACHEVERSION=&Q_BRANDDC=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2411,
+        "blockedByShields": true
+      },
+      {
+        "id": 137,
+        "url": "https://gov1.siteintercept.qualtrics.com/WRSiteInterceptEngine/Asset.php?Module=&Version=&Q_ORIGIN=&Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BrandTier=&Q_ARCACHEVERSION=&Q_BRANDDC=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2412,
+        "blockedByShields": true
+      },
+      {
+        "id": 138,
+        "url": "https://gov1.siteintercept.qualtrics.com/WRSiteInterceptEngine/Asset.php?Module=&Version=&Q_InterceptID=&Q_ORIGIN=&Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BrandTier=&Q_ARCACHEVERSION=&Q_BRANDDC=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2412,
+        "blockedByShields": true
+      },
+      {
+        "id": 139,
+        "url": "https://gov1.sr.qualtrics.com/sr-data-ingestion-service/v2/sessions/create",
+        "domain": "gov1.sr.qualtrics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2488,
+        "blockedByShields": false
+      },
+      {
+        "id": 140,
+        "url": "https://www.medicare.gov/WoAhVOHW/LGp/ZSc/m5lDSl-JOg/7ia9VbbO1hOYbm5JOJ/YwpHIloC/MnNydx0Z/OVkB",
+        "domain": "www.medicare.gov",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2508,
+        "blockedByShields": false
+      },
+      {
+        "id": 141,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/i18n/en-us.json",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2587,
+        "blockedByShields": false
+      },
+      {
+        "id": 142,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/i18n/en-us.json",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2589,
+        "blockedByShields": false
+      },
+      {
+        "id": 143,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/i18n/vendors/date-en.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2601,
+        "blockedByShields": false
+      },
+      {
+        "id": 144,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/i18n/vendors/date-en.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2637,
+        "blockedByShields": false
+      },
+      {
+        "id": 145,
+        "url": "https://tealium-collect.medicare.gov/cmsgov/medicare-www/2/i.gif",
+        "domain": "tealium-collect.medicare.gov",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2770,
+        "blockedByShields": false
+      },
+      {
+        "id": 146,
+        "url": "https://tealium-collect.medicare.gov/cmsgov/medicare-www/2/i.gif",
+        "domain": "tealium-collect.medicare.gov",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2797,
+        "blockedByShields": false
+      },
+      {
+        "id": 147,
+        "url": "https://gov1.siteintercept.qualtrics.com/WRQualtricsShared/Graphics/siteintercept/popup_shadow_transparent.png",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 307,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2812,
+        "blockedByShields": false
+      },
+      {
+        "id": 148,
+        "url": "https://gov1.siteintercept.qualtrics.com/static/q-siteintercept/~/img/svg-close-btn-black-7.svg",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 307,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2812,
+        "blockedByShields": false
+      },
+      {
+        "id": 149,
+        "url": "https://gov1.qualtrics.com/WRQualtricsSiteIntercept/Graphic.php?IM=",
+        "domain": "gov1.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2813,
+        "blockedByShields": false
+      },
+      {
+        "id": 150,
+        "url": "https://adobe-ep.medicare.gov/ee/v1/interact",
+        "domain": "adobe-ep.medicare.gov",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2814,
+        "blockedByShields": true
+      },
+      {
+        "id": 151,
+        "url": "https://adobe-ep.medicare.gov/ee/v1/interact",
+        "domain": "adobe-ep.medicare.gov",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2814,
+        "blockedByShields": true
+      },
+      {
+        "id": 152,
+        "url": "https://surveys.cms.gov/jfe/form/SV_9LbdFueyKSYZ2nk?Q_CHL=&Q_CanScreenCapture=",
+        "domain": "surveys.cms.gov",
+        "method": "POST",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2820,
+        "blockedByShields": false
+      },
+      {
+        "id": 153,
+        "url": "https://tealium-visitor-service.medicare.gov/cmsgov/medicare-www/019ef0d3ec56001378abb53c19350007100190690098c",
+        "domain": "tealium-visitor-service.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2823,
+        "blockedByShields": false
+      },
+      {
+        "id": 154,
+        "url": "https://tealium-visitor-service.medicare.gov/cmsgov/medicare-www/019ef0d3ec56001378abb53c19350007100190690098c",
+        "domain": "tealium-visitor-service.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2823,
+        "blockedByShields": false
+      },
+      {
+        "id": 155,
+        "url": "https://events.launchdarkly.us/events/bulk/6019fd45b36e3a100c2d2416",
+        "domain": "events.launchdarkly.us",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2826,
+        "blockedByShields": false
+      },
+      {
+        "id": 156,
+        "url": "https://gov1.siteintercept.qualtrics.com/static/q-siteintercept/~/img/popup_shadow_transparent.png",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 307,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2941,
+        "blockedByShields": false
+      },
+      {
+        "id": 157,
+        "url": "https://gov1.siteintercept.qualtrics.com/static/q-siteintercept/cd89feb9eba22f7f8ba139bc39d62ace06f2dde2/img/svg-close-btn-black-7.svg",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 301,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2943,
+        "blockedByShields": false
+      },
+      {
+        "id": 158,
+        "url": "https://gov1.siteintercept.qualtrics.com/WRSiteInterceptEngine/?Q_Impress=&Q_CID=&Q_SIID=&Q_ASID=&Q_CLIENTVERSION=&Q_CLIENTTYPE=&r=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3030,
+        "blockedByShields": true
+      },
+      {
+        "id": 159,
+        "url": "https://gov1.siteintercept.qualtrics.com/static/q-siteintercept/cd89feb9eba22f7f8ba139bc39d62ace06f2dde2/img/popup_shadow_transparent.png",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 301,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3071,
+        "blockedByShields": false
+      },
+      {
+        "id": 160,
+        "url": "https://gov1.siteintercept.qualtrics.com/static/q-siteintercept/.blob/18b9543c816550b11dd242647ba0ad6c87bae58e_svg-close-btn-black-7.svg",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3115,
+        "blockedByShields": false
+      },
+      {
+        "id": 161,
+        "url": "https://gov1.siteintercept.qualtrics.com/static/q-siteintercept/.blob/92fc0d6db300b4d3a454168811af4a2722fefeab_popup_shadow_transparent.png",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3120,
+        "blockedByShields": false
+      },
+      {
+        "id": 162,
+        "url": "https://gov1.siteintercept.qualtrics.com/WRSiteInterceptEngine/?Q_Impress=&Q_CID=&Q_SIID=&Q_ASID=&Q_CLIENTVERSION=&Q_CLIENTTYPE=&r=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3259,
+        "blockedByShields": true
+      },
+      {
+        "id": 163,
+        "url": "https://surveys.cms.gov/jfe/static/dist/jfeLib.79ca924cfa3bdfe65410.min.js",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3302,
+        "blockedByShields": false
+      },
+      {
+        "id": 164,
+        "url": "https://surveys.cms.gov/jfe/static/dist/jfe.4cd8912bfd30a89608ff.min.js",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3302,
+        "blockedByShields": false
+      },
+      {
+        "id": 165,
+        "url": "https://surveys.cms.gov/jfe/themes/skins/medicare/medicare1/version-1714491374368-a9bbd5/stylesheet.css",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3303,
+        "blockedByShields": false
+      },
+      {
+        "id": 166,
+        "url": "https://fonts.googleapis.com/css?family=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3408,
+        "blockedByShields": false
+      },
+      {
+        "id": 167,
+        "url": "https://surveys.cms.gov/jfe/static/dist/c/default~captcha~cs~db~dd~draw~fileupload~hmap~hl~hotspot~matrix~mc~meta~pgr~ro~sbs~slider~ss~te~timing.fbc16139244ecaab2353.min.js",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3470,
+        "blockedByShields": false
+      },
+      {
+        "id": 168,
+        "url": "https://surveys.cms.gov/jfe/static/dist/c/db.106a1e7bc9613636c66b.min.js",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3471,
+        "blockedByShields": false
+      },
+      {
+        "id": 169,
+        "url": "https://surveys.cms.gov/jfe/static/dist/c/default~cs~dd~hl~hotspot~matrix~mc~pgr~ro~sbs~slider~ss~te.827480b415cfecdb879c.min.js",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3471,
+        "blockedByShields": false
+      },
+      {
+        "id": 170,
+        "url": "https://surveys.cms.gov/jfe/static/dist/c/default~hmap~pgr~ro~te~timing.f90ee594e2bafae6deeb.min.js",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3471,
+        "blockedByShields": false
+      },
+      {
+        "id": 171,
+        "url": "https://surveys.cms.gov/jfe/static/dist/c/te.f8bf3e174c8227b6d3e1.min.js",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3472,
+        "blockedByShields": false
+      },
+      {
+        "id": 172,
+        "url": "https://surveys.cms.gov/jfe/static/dist/c/mc.964d8ec574bff3af3036.min.js",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3473,
+        "blockedByShields": false
+      },
+      {
+        "id": 173,
+        "url": "https://surveys.cms.gov/jfe/static/dist/c/jsApi.53c7028c91bc2d5f66cb.min.js",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3545,
+        "blockedByShields": false
+      },
+      {
+        "id": 174,
+        "url": "https://surveys.cms.gov/CP/Graphic.php?IM=",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3545,
+        "blockedByShields": false
+      },
+      {
+        "id": 175,
+        "url": "https://surveys.cms.gov/jfe/themes/skins/medicare/medicare1/version-1714491374368-a9bbd5/files/logo.png",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3554,
+        "blockedByShields": false
+      },
+      {
+        "id": 176,
+        "url": "https://fonts.cdnfonts.com/css/montserrat.woff",
+        "domain": "fonts.cdnfonts.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 404,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3554,
+        "blockedByShields": false
+      },
+      {
+        "id": 177,
+        "url": "https://fonts.cdnfonts.com/css/rubik.woff2",
+        "domain": "fonts.cdnfonts.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 404,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3555,
+        "blockedByShields": false
+      },
+      {
+        "id": 178,
+        "url": "https://surveys.cms.gov/jfe/themes/base-css/basestylesv4/version-1678899450557-81cdc8/files/external-link-icon.woff",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3555,
+        "blockedByShields": false
+      },
+      {
+        "id": 179,
+        "url": "https://surveys.cms.gov/jfe/static/dist/c/prototype.faac4bfe7ddff6595b2e.min.js",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3601,
+        "blockedByShields": false
+      },
+      {
+        "id": 180,
+        "url": "https://surveys.cms.gov/jfe/static/dist/c/mp.32526502e32463622edb.min.js",
+        "domain": "surveys.cms.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3652,
+        "blockedByShields": false
+      },
+      {
+        "id": 181,
+        "url": "https://gov1.siteintercept.qualtrics.com/WRQualtricsShared/Graphics/siteintercept/building_preview.gif",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 307,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3679,
+        "blockedByShields": false
+      },
+      {
+        "id": 182,
+        "url": "https://gov1.siteintercept.qualtrics.com/WRQualtricsShared/Graphics/siteintercept/remove_screen_capture.png",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 307,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3680,
+        "blockedByShields": false
+      },
+      {
+        "id": 183,
+        "url": "https://gov1.siteintercept.qualtrics.com/static/q-siteintercept/~/img/building_preview.gif",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 307,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3809,
+        "blockedByShields": false
+      },
+      {
+        "id": 184,
+        "url": "https://gov1.siteintercept.qualtrics.com/static/q-siteintercept/~/img/remove_screen_capture.png",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 307,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3817,
+        "blockedByShields": false
+      },
+      {
+        "id": 185,
+        "url": "https://gov1.siteintercept.qualtrics.com/static/q-siteintercept/cd89feb9eba22f7f8ba139bc39d62ace06f2dde2/img/building_preview.gif",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 301,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3938,
+        "blockedByShields": false
+      },
+      {
+        "id": 186,
+        "url": "https://gov1.siteintercept.qualtrics.com/static/q-siteintercept/cd89feb9eba22f7f8ba139bc39d62ace06f2dde2/img/remove_screen_capture.png",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 301,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3982,
+        "blockedByShields": false
+      },
+      {
+        "id": 187,
+        "url": "https://gov1.siteintercept.qualtrics.com/static/q-siteintercept/.blob/32e475586af0d1b25cd32fac5a2c7d763deeb8ac_building_preview.gif",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3987,
+        "blockedByShields": false
+      },
+      {
+        "id": 188,
+        "url": "https://gov1.siteintercept.qualtrics.com/static/q-siteintercept/.blob/9d6c0f82148c14dbcd5d160a26f1c17ff0680698_remove_screen_capture.png",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4033,
+        "blockedByShields": false
+      },
+      {
+        "id": 189,
+        "url": "https://gov1.sr.qualtrics.com/sr-data-ingestion-service/v2/sessions/record-playback",
+        "domain": "gov1.sr.qualtrics.com",
+        "method": "PUT",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4808,
+        "blockedByShields": false
+      },
+      {
+        "id": 190,
+        "url": "https://datacloud.tealiumiq.com/tealium_ttd/main/16/i.js?jsonp=",
+        "domain": "datacloud.tealiumiq.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "tealiumiq.com",
+          "entity": "Tealium",
+          "category": "tag management / customer data",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6064,
+        "blockedByShields": true
+      },
+      {
+        "id": 191,
+        "url": "https://tealium-collect.medicare.gov/vdata/i.gif",
+        "domain": "tealium-collect.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6083,
+        "blockedByShields": true
+      },
+      {
+        "id": 192,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6852,
+        "blockedByShields": true
+      },
+      {
+        "id": 193,
+        "url": "https://www.medicare.gov/WoAhVOHW/LGp/ZSc/m5lDSl-JOg/7ia9VbbO1hOYbm5JOJ/YwpHIloC/MnNydx0Z/OVkB",
+        "domain": "www.medicare.gov",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9048,
+        "blockedByShields": false
+      },
+      {
+        "id": 194,
+        "url": "https://tealium-collect.medicare.gov/cmsgov/medicare-www/2/i.gif",
+        "domain": "tealium-collect.medicare.gov",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9174,
+        "blockedByShields": false
+      },
+      {
+        "id": 195,
+        "url": "https://adobe-ep.medicare.gov/ee/v1/interact",
+        "domain": "adobe-ep.medicare.gov",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9174,
+        "blockedByShields": true
+      },
+      {
+        "id": 196,
+        "url": "https://tealium-visitor-service.medicare.gov/cmsgov/medicare-www/019ef0d3ec56001378abb53c19350007100190690098c",
+        "domain": "tealium-visitor-service.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9177,
+        "blockedByShields": false
+      },
+      {
+        "id": 197,
+        "url": "https://tealium-collect.medicare.gov/cmsgov/medicare-www/2/i.gif",
+        "domain": "tealium-collect.medicare.gov",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9206,
+        "blockedByShields": false
+      },
+      {
+        "id": 198,
+        "url": "https://adobe-ep.medicare.gov/ee/v1/interact",
+        "domain": "adobe-ep.medicare.gov",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9207,
+        "blockedByShields": true
+      },
+      {
+        "id": 199,
+        "url": "https://tealium-visitor-service.medicare.gov/cmsgov/medicare-www/019ef0d3ec56001378abb53c19350007100190690098c",
+        "domain": "tealium-visitor-service.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9207,
+        "blockedByShields": false
+      },
+      {
+        "id": 200,
+        "url": "https://tealium-collect.medicare.gov/cmsgov/medicare-www/2/i.gif",
+        "domain": "tealium-collect.medicare.gov",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9273,
+        "blockedByShields": false
+      },
+      {
+        "id": 201,
+        "url": "https://adobe-ep.medicare.gov/ee/v1/interact",
+        "domain": "adobe-ep.medicare.gov",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9274,
+        "blockedByShields": true
+      },
+      {
+        "id": 202,
+        "url": "https://tealium-visitor-service.medicare.gov/cmsgov/medicare-www/019ef0d3ec56001378abb53c19350007100190690098c",
+        "domain": "tealium-visitor-service.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9275,
+        "blockedByShields": false
+      },
+      {
+        "id": 203,
+        "url": "https://tealium-collect.medicare.gov/cmsgov/medicare-www/2/i.gif",
+        "domain": "tealium-collect.medicare.gov",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9322,
+        "blockedByShields": false
+      },
+      {
+        "id": 204,
+        "url": "https://adobe-ep.medicare.gov/ee/v1/interact",
+        "domain": "adobe-ep.medicare.gov",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9323,
+        "blockedByShields": true
+      },
+      {
+        "id": 205,
+        "url": "https://tealium-visitor-service.medicare.gov/cmsgov/medicare-www/019ef0d3ec56001378abb53c19350007100190690098c",
+        "domain": "tealium-visitor-service.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9324,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "insight.adsrvr.org",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "bat.bing.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "js-agent.newrelic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "bam.nr-data.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "datacloud.tealiumiq.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "tealiumiq.com",
+          "entity": "Tealium",
+          "category": "tag management / customer data",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "script"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "4468676.fls.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "gov-bam.nr-data.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "match.adsrvr.org",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "adobedc.demdex.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "adservice.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adservice.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "requests": 31,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          307,
+          301
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "requests": 25,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "surveys.cms.gov",
+        "requests": 16,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "image",
+          "font"
+        ]
+      },
+      {
+        "domain": "tags.tiqcdn.com",
+        "requests": 13,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ads.nextdoor.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "ib.adnxs.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "events.launchdarkly.us",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          202
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "dap.digitalgov.gov",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics-sm.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "api-cdn.use2.us-gov-pure.cloud",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "gov1.sr.qualtrics.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "fonts.cdnfonts.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          404
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "clientsdk.launchdarkly.us",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn1.adoberesources.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "zn56jl522ec1a1wzf-medicare.gov1.siteintercept.qualtrics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "flask.nextdoor.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "gov1.qualtrics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "www.medicare.gov",
+        "requests": 38,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          201
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "image",
+          "font",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "tealium-collect.medicare.gov",
+        "requests": 8,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "ping",
+          "image"
+        ]
+      },
+      {
+        "domain": "tealium-visitor-service.medicare.gov",
+        "requests": 7,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "adobe-ep.medicare.gov",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "frontend.medicare.gov",
+        "requests": 4,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      },
+      {
+        "domain": "tealium-tags.medicare.gov",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "api.medicare.gov",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr",
+          "ping"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "TDID",
+        "domain": ".adsrvr.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "TDCPM",
+        "domain": ".adsrvr.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "MR",
+        "domain": ".bat.bing.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "MUID",
+        "domain": ".bing.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "demdex",
+        "domain": ".demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "JSESSIONID",
+        "domain": ".nr-data.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "TVT",
+        "domain": ".tealiumiq.com",
+        "path": "/tealium_ttd",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "TAPID",
+        "domain": ".tealiumiq.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "__Secure-YNID",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "YSC",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_INFO1_LIVE",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_PRIVACY_METADATA",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "__Secure-ROLLOUT_TOKEN",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "cms_fpid",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_sz",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "PIM-SESSION-ID",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "max-anonymous-id",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "CONSENTMGR",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_fbc",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "max-session-id",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "max-device-id",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_uetsid",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_uetvid",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kndctr_0600459D5DBAF9400A495E7C_AdobeOrg_identity",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kndctr_0600459D5DBAF9400A495E7C_AdobeOrg_cluster",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AMCV_0600459D5DBAF9400A495E7C%40AdobeOrg",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "sm_uuid",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_CSLL4ZEK4L",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ndp_session_id",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "utag_main",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "TAPID",
+        "domain": ".tealium-collect.medicare.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tcs.ttd_uuid",
+        "domain": ".tealium-collect.medicare.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tcs.gdpr",
+        "domain": ".tealium-collect.medicare.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tcs.domain",
+        "domain": ".tealium-collect.medicare.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__Host-cms-session",
+        "domain": "api.medicare.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "QSI_HistorySession",
+        "domain": "www.medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "QSI_ReplaySession_Info_ZN_56jL522eC1a1WZf",
+        "domain": "www.medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "akavpau_default",
+        "domain": "www.medicare.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "QSI_SI_6tbIx8xW9ShoDfU_intercept",
+        "domain": "www.medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "QSI_ActionSetHistory",
+        "valueBytes": 71
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetvid_exp",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "utag_sync_version",
+        "valueBytes": 26
+      },
+      {
+        "area": "localStorage",
+        "key": "tealium_timing",
+        "valueBytes": 311
+      },
+      {
+        "area": "localStorage",
+        "key": "ak_ax",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls",
+        "valueBytes": 277
+      },
+      {
+        "area": "localStorage",
+        "key": "CH_last_load",
+        "valueBytes": 15
+      },
+      {
+        "area": "localStorage",
+        "key": "ld:6019fd45b36e3a100c2d2416:$diagnostics",
+        "valueBytes": 88
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetsid",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "gpuInfo",
+        "valueBytes": 139
+      },
+      {
+        "area": "localStorage",
+        "key": "CH_sessionId",
+        "valueBytes": 36
+      },
+      {
+        "area": "localStorage",
+        "key": "Q_INTER",
+        "valueBytes": 73
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetsid_exp",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "ak_a",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetvid",
+        "valueBytes": 32
+      },
+      {
+        "area": "sessionStorage",
+        "key": "TAB_ID",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "GULP_TH2",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "QSI_ActionSetHistory",
+        "valueBytes": 71
+      },
+      {
+        "area": "sessionStorage",
+        "key": "ndp_settings_expiry",
+        "valueBytes": 13
+      },
+      {
+        "area": "sessionStorage",
+        "key": "PIM-SESSION-ID",
+        "valueBytes": 16
+      },
+      {
+        "area": "sessionStorage",
+        "key": "ndp_settings",
+        "valueBytes": 346
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+            "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl2.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 8,
+          "readPixelsCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "The page did not reach network idle before the scan window ended.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Welcome to Medicare | Medicare",
+      "status": 200,
+      "durationMs": 11518,
+      "firstPartyDomain": "www.medicare.gov",
+      "totalRequests": 100,
+      "thirdPartyRequests": 45,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 6,
+      "cookies": 19,
+      "thirdPartyCookies": 5,
+      "storageEntries": 9,
+      "fingerprintEvents": 6,
+      "shieldsBlockedRequests": 15
+    },
+    "conditions": {
+      "requestedUrl": "https://www.medicare.gov/",
+      "finalUrl": "https://www.medicare.gov/",
+      "scannedAt": "2026-06-22T19:34:51.759Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.medicare.gov/",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 40,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.medicare.gov/static/6d3100045f13354994b8f762fa69d172d6750013ed7077",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://frontend.medicare.gov/assets/index-BUIvh5r-.css",
+        "domain": "frontend.medicare.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 115,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.medicare.gov/sites/default/files/css/css_XN6fFINERIhM0Q_HFM_GACTrS2d5bDuxaIiZjvWMQog.css",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 116,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.medicare.gov/libraries/fontawesome/css/fontawesome.min.css",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 117,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.medicare.gov/libraries/fontawesome/css/solid.min.css",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 117,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.medicare.gov/sites/default/files/css/css_70NWPk-dzZgnDYSnYeb-6t4R8bzoIdJkkheuIKRVNmA.css",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 117,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/medicare-logo-green.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 118,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.medicare.gov/sites/default/files/js/js_zi63GIBjSRj1CKcyEWhOLOPXcfqapAb7N49z5jG2Y48.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 119,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.medicare.gov/modules/contrib/ckeditor_accordion/js/accordion.frontend.min.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 155,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.medicare.gov/sites/default/files/js/js_Zjlt9dKHnyoDp5Y6oisA-VBqJKgmMW0NcCE5Wjv-G6Y.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 203,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.medicare.gov/sites/default/files/js/js_26QGc6luSWpcCOUFvRP9bvsXL_ZjUwi4Yn_zr6apl5Y.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 212,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.medicare.gov/WoAhVOHW/LGp/ZSc/m5lDSl-JOg/7ia9VbbO1hOYbm5JOJ/YwpHIloC/MnNydx0Z/OVkB",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 249,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.medicare.gov/libraries/fontawesome/js/fontawesome.min.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 322,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.medicare.gov/libraries/fontawesome/js/brands.min.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 322,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.medicare.gov/libraries/fontawesome/js/custom-icons.min.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 334,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.medicare.gov/libraries/fontawesome/js/solid.min.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 336,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://frontend.medicare.gov/assets/index-BpkP_SZl.js",
+        "domain": "frontend.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 336,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.medicare.gov/static/6d3100045f13354994b8f762fa69d172d6750013ed7077/e/65319_1825172608.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 336,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.medicare.gov/static/6d3100045f13354994b8f762fa69d172d6750013ed7077/e/65257_1825202523.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 337,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.medicare.gov/static/6d3100045f13354994b8f762fa69d172d6750013ed7077/e/64885_1825202492.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 338,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.medicare.gov/static/6d3100045f13354994b8f762fa69d172d6750013ed7077/e/65226_747628217.js",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 338,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/homepage-hero-upper-stroke.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 394,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/homepage-bg-white-field-top.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 395,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/homepage-bg-center-stroke-desktop-top.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 395,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/homepage-bg-center-stroke-desktop-center.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 398,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/homepage-bg-center-stroke-desktop-bottom.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 399,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/homepage-bg-white-field-bottom.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 402,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/images/icon-youtube-play-button-68x40.svg",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 402,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/fonts/rubik/rubik-latin-400.woff2",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 403,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/fonts/montserrat/montserrat-latin-600.woff2",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 403,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.medicare.gov/themes/custom/medicare_evo/dist/fonts/rubik/rubik-latin-600.woff2",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 408,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.medicare.gov/sites/default/files/styles/hero_image_775/public/resized%20hero%20man%20in%20plaid%20shirt.png.webp",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 409,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.medicare.gov/sites/default/files/styles/16_9_713x401/public/resized%2020250610_MedicareLifestyle_026.jpg.webp",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 410,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.medicare.gov/sites/default/files/styles/16_9_713x401/public/video_thumbnails/1pzZbMsyntA.jpg.webp",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 410,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.medicare.gov/sites/default/files/styles/16_9_713x401/public/20250610_MedicareLifestyle_033.jpg%20resized%20for%20initiative.jpg.webp",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 411,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.medicare.gov/sites/default/files/styles/hero_image_775/public/Cleveland-emailguy.png.webp",
+        "domain": "www.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 411,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://tealium-tags.medicare.gov/medicare-www/prod/utag.js",
+        "domain": "tealium-tags.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 571,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.medicare.gov/WoAhVOHW/LGp/ZSc/m5lDSl-JOg/7ia9VbbO1hOYbm5JOJ/YwpHIloC/MnNydx0Z/OVkB",
+        "domain": "www.medicare.gov",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 572,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://clientsdk.launchdarkly.us/sdk/evalx/6019fd45b36e3a100c2d2416/contexts/eyJraW5kIjoibXVsdGkiLCJ1c2VyIjp7ImtleSI6ImRlZmF1bHQtdXNlciIsImN1c3RvbSI6eyJ1c2VUZXN0RmxhZ3MiOmZhbHNlfX0sIm1heFNlc3Npb24iOnsia2V5IjoibWF4U2Vzc2lvbiIsImN1c3RvbSI6eyJtYXhBbm9ueW1vdXNJZCI6Im1heDAuNTE2OTI4NTE3NTMyMDU3In19fQ",
+        "domain": "clientsdk.launchdarkly.us",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 772,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://events.launchdarkly.us/events/diagnostic/6019fd45b36e3a100c2d2416",
+        "domain": "events.launchdarkly.us",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 834,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.youtube.com/iframe_api",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 834,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.215.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 838,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.8.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 838,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.9.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 839,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.194.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 840,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.220.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 841,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.266.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 841,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.377.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 841,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.299.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 841,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.321.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 842,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.336.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 842,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.353.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 842,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://tags.tiqcdn.com/utag/cmsgov/medicare-www/prod/utag.395.js?utv=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 842,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://api.medicare.gov/verify",
+        "domain": "api.medicare.gov",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 910,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://apps.use2.us-gov-pure.cloud/genesys-bootstrap/genesys.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 920,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://frontend.medicare.gov/assets/medicare-logo-green-DrWAB2BY.svg",
+        "domain": "frontend.medicare.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 921,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://frontend.medicare.gov/assets/sourcesanspro-regular-webfont-BZtNapR-.woff2",
+        "domain": "frontend.medicare.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 934,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://api.medicare.gov/siteActivity",
+        "domain": "api.medicare.gov",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 946,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://tealium-collect.medicare.gov/cmsgov/medicare-www/2/i.gif",
+        "domain": "tealium-collect.medicare.gov",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 964,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://tags.tiqcdn.com/utag/tiqapp/utag.v.js?a=&cb=",
+        "domain": "tags.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 972,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://www.youtube.com/s/player/1cf32b49/www-widgetapi.vflset/www-widgetapi.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 973,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://tealium-visitor-service.medicare.gov/cmsgov/medicare-www/019ef0d419a300154579198f48f50007100190690098c",
+        "domain": "tealium-visitor-service.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1111,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://api-cdn.use2.us-gov-pure.cloud/webdeployments/v1/deployments/ab956791-73f1-4395-8cdf-7a50a0a89550/domains.json",
+        "domain": "api-cdn.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1173,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/thirdparty-plugins.html",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1176,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://apps.use2.us-gov-pure.cloud/cxbus/cxbus.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1196,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/thirdpartyplugins.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1217,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://api-cdn.use2.us-gov-pure.cloud/webdeployments/v1/deployments/ab956791-73f1-4395-8cdf-7a50a0a89550/config.json",
+        "domain": "api-cdn.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1326,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://apps.use2.us-gov-pure.cloud/journey/messenger-plugins/offersHelper.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1381,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://apps.use2.us-gov-pure.cloud/genesys-bootstrap/hub.html",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1385,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/messenger.html",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1396,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/messenger-renderer.html",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1397,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://apps.use2.us-gov-pure.cloud/genesys-bootstrap/plugins/storagehub.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1418,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://apps.use2.us-gov-pure.cloud/cxbus/cxbus.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1429,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://apps.use2.us-gov-pure.cloud/cxbus/cxbus.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1432,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/messagingMiddleware.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1446,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/muiVendor.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1446,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/defaultVendors.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1447,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/main.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1448,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/engage.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1448,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/broadcast.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1449,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/messagingMiddleware.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1453,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/muiVendor.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1454,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/defaultVendors.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1455,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/messengerrenderer.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1455,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/i18n/en-us.json",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2058,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/i18n/en-us.json",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2060,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/i18n/vendors/date-en.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2074,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://apps.use2.us-gov-pure.cloud/messenger/i18n/vendors/date-en.min.js",
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2110,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://www.medicare.gov/WoAhVOHW/LGp/ZSc/m5lDSl-JOg/7ia9VbbO1hOYbm5JOJ/YwpHIloC/MnNydx0Z/OVkB",
+        "domain": "www.medicare.gov",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2535,
+        "blockedByShields": false
+      },
+      {
+        "id": 104,
+        "url": "https://events.launchdarkly.us/events/bulk/6019fd45b36e3a100c2d2416",
+        "domain": "events.launchdarkly.us",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2833,
+        "blockedByShields": false
+      },
+      {
+        "id": 106,
+        "url": "https://www.medicare.gov/WoAhVOHW/LGp/ZSc/m5lDSl-JOg/7ia9VbbO1hOYbm5JOJ/YwpHIloC/MnNydx0Z/OVkB",
+        "domain": "www.medicare.gov",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9009,
+        "blockedByShields": false
+      },
+      {
+        "id": 107,
+        "url": "https://tealium-collect.medicare.gov/cmsgov/medicare-www/2/i.gif",
+        "domain": "tealium-collect.medicare.gov",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9134,
+        "blockedByShields": false
+      },
+      {
+        "id": 108,
+        "url": "https://tealium-visitor-service.medicare.gov/cmsgov/medicare-www/019ef0d419a300154579198f48f50007100190690098c",
+        "domain": "tealium-visitor-service.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9134,
+        "blockedByShields": false
+      },
+      {
+        "id": 109,
+        "url": "https://tealium-collect.medicare.gov/cmsgov/medicare-www/2/i.gif",
+        "domain": "tealium-collect.medicare.gov",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9165,
+        "blockedByShields": false
+      },
+      {
+        "id": 110,
+        "url": "https://tealium-visitor-service.medicare.gov/cmsgov/medicare-www/019ef0d419a300154579198f48f50007100190690098c",
+        "domain": "tealium-visitor-service.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9166,
+        "blockedByShields": false
+      },
+      {
+        "id": 111,
+        "url": "https://tealium-collect.medicare.gov/cmsgov/medicare-www/2/i.gif",
+        "domain": "tealium-collect.medicare.gov",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9233,
+        "blockedByShields": false
+      },
+      {
+        "id": 112,
+        "url": "https://tealium-visitor-service.medicare.gov/cmsgov/medicare-www/019ef0d419a300154579198f48f50007100190690098c",
+        "domain": "tealium-visitor-service.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9234,
+        "blockedByShields": false
+      },
+      {
+        "id": 113,
+        "url": "https://tealium-collect.medicare.gov/cmsgov/medicare-www/2/i.gif",
+        "domain": "tealium-collect.medicare.gov",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9281,
+        "blockedByShields": false
+      },
+      {
+        "id": 114,
+        "url": "https://tealium-visitor-service.medicare.gov/cmsgov/medicare-www/019ef0d419a300154579198f48f50007100190690098c",
+        "domain": "tealium-visitor-service.medicare.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9284,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "apps.use2.us-gov-pure.cloud",
+        "requests": 25,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "tags.tiqcdn.com",
+        "requests": 13,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "events.launchdarkly.us",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          202
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "api-cdn.use2.us-gov-pure.cloud",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "clientsdk.launchdarkly.us",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.medicare.gov",
+        "requests": 38,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          201
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "image",
+          "font",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "tealium-collect.medicare.gov",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "ping"
+        ]
+      },
+      {
+        "domain": "tealium-visitor-service.medicare.gov",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "frontend.medicare.gov",
+        "requests": 4,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      },
+      {
+        "domain": "api.medicare.gov",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr",
+          "ping"
+        ]
+      },
+      {
+        "domain": "tealium-tags.medicare.gov",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__Secure-YNID",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "YSC",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "__Secure-ROLLOUT_TOKEN",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_INFO1_LIVE",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_PRIVACY_METADATA",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "_ga",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "cms_fpid",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_sz",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "PIM-SESSION-ID",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "max-anonymous-id",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "CONSENTMGR",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_fbc",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "max-session-id",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "max-device-id",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "utag_main",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".medicare.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "TAPID",
+        "domain": ".tealium-collect.medicare.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__Host-cms-session",
+        "domain": "api.medicare.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "akavpau_default",
+        "domain": "www.medicare.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "ak_a",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "ak_ax",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "CH_last_load",
+        "valueBytes": 15
+      },
+      {
+        "area": "localStorage",
+        "key": "ld:6019fd45b36e3a100c2d2416:$diagnostics",
+        "valueBytes": 88
+      },
+      {
+        "area": "localStorage",
+        "key": "CH_sessionId",
+        "valueBytes": 36
+      },
+      {
+        "area": "localStorage",
+        "key": "tealium_timing",
+        "valueBytes": 311
+      },
+      {
+        "area": "sessionStorage",
+        "key": "TAB_ID",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "GULP_TH2",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "PIM-SESSION-ID",
+        "valueBytes": 16
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+            "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl2.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 6,
+          "readPixelsCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "The page did not reach network idle before the scan window ended.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 205,
+      "after": 100,
+      "delta": -105
+    },
+    "thirdPartyRequests": {
+      "before": 138,
+      "after": 45,
+      "delta": -93
+    },
+    "knownTrackerRequests": {
+      "before": 26,
+      "after": 0,
+      "delta": -26
+    },
+    "thirdPartyDomains": {
+      "before": 33,
+      "after": 6,
+      "delta": -27
+    },
+    "cookies": {
+      "before": 43,
+      "after": 19,
+      "delta": -24
+    },
+    "thirdPartyCookies": {
+      "before": 14,
+      "after": 5,
+      "delta": -9
+    },
+    "storageEntries": {
+      "before": 21,
+      "after": 9,
+      "delta": -12
+    },
+    "fingerprintEvents": {
+      "before": 8,
+      "after": 6,
+      "delta": -2
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "requests": 31,
+        "tracker": null
+      },
+      {
+        "domain": "surveys.cms.gov",
+        "requests": 16,
+        "tracker": null
+      },
+      {
+        "domain": "adobe-ep.medicare.gov",
+        "requests": 6,
+        "tracker": null
+      },
+      {
+        "domain": "ads.nextdoor.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "bat.bing.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ib.adnxs.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "insight.adsrvr.org",
+        "requests": 3,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "4468676.fls.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics-sm.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "bam.nr-data.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "dap.digitalgov.gov",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "datacloud.tealiumiq.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "tealiumiq.com",
+          "entity": "Tealium",
+          "category": "tag management / customer data",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "fonts.cdnfonts.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "gov-bam.nr-data.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "gov1.sr.qualtrics.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "js-agent.newrelic.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "adobedc.demdex.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "adservice.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "adservice.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cdn1.adoberesources.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "flask.nextdoor.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "gov1.qualtrics.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "match.adsrvr.org",
+        "requests": 1,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "zn56jl522ec1a1wzf-medicare.gov1.siteintercept.qualtrics.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 10,
+        "domains": 5
+      },
+      {
+        "entity": "New Relic",
+        "requests": 6,
+        "domains": 3
+      },
+      {
+        "entity": "The Trade Desk",
+        "requests": 4,
+        "domains": 2
+      },
+      {
+        "entity": "Microsoft",
+        "requests": 3,
+        "domains": 1
+      },
+      {
+        "entity": "Tealium",
+        "requests": 2,
+        "domains": 1
+      },
+      {
+        "entity": "Adobe",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "TDCPM",
+        "domain": ".adsrvr.org",
+        "thirdParty": true
+      },
+      {
+        "name": "TDID",
+        "domain": ".adsrvr.org",
+        "thirdParty": true
+      },
+      {
+        "name": "MR",
+        "domain": ".bat.bing.com",
+        "thirdParty": true
+      },
+      {
+        "name": "MUID",
+        "domain": ".bing.com",
+        "thirdParty": true
+      },
+      {
+        "name": "demdex",
+        "domain": ".demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "JSESSIONID",
+        "domain": ".nr-data.net",
+        "thirdParty": true
+      },
+      {
+        "name": "TAPID",
+        "domain": ".tealiumiq.com",
+        "thirdParty": true
+      },
+      {
+        "name": "TVT",
+        "domain": ".tealiumiq.com",
+        "thirdParty": true
+      },
+      {
+        "name": "_ga_CSLL4ZEK4L",
+        "domain": ".medicare.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".medicare.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "_uetsid",
+        "domain": ".medicare.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "_uetvid",
+        "domain": ".medicare.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "AMCV_0600459D5DBAF9400A495E7C%40AdobeOrg",
+        "domain": ".medicare.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "kndctr_0600459D5DBAF9400A495E7C_AdobeOrg_cluster",
+        "domain": ".medicare.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "kndctr_0600459D5DBAF9400A495E7C_AdobeOrg_identity",
+        "domain": ".medicare.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "ndp_session_id",
+        "domain": ".medicare.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "sm_uuid",
+        "domain": ".medicare.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "tcs.domain",
+        "domain": ".tealium-collect.medicare.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "tcs.gdpr",
+        "domain": ".tealium-collect.medicare.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "tcs.ttd_uuid",
+        "domain": ".tealium-collect.medicare.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "QSI_HistorySession",
+        "domain": "www.medicare.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "QSI_ReplaySession_Info_ZN_56jL522eC1a1WZf",
+        "domain": "www.medicare.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "QSI_SI_6tbIx8xW9ShoDfU_intercept",
+        "domain": "www.medicare.gov",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls"
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetsid"
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetsid_exp"
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetvid"
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetvid_exp"
+      },
+      {
+        "area": "localStorage",
+        "key": "gpuInfo"
+      },
+      {
+        "area": "localStorage",
+        "key": "Q_INTER"
+      },
+      {
+        "area": "localStorage",
+        "key": "QSI_ActionSetHistory"
+      },
+      {
+        "area": "localStorage",
+        "key": "utag_sync_version"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "ndp_settings"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "ndp_settings_expiry"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "QSI_ActionSetHistory"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 51,
+      "after": 15,
+      "delta": -36
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: The page did not reach network idle before the scan window ended.",
+    "Shields off: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: The page did not reach network idle before the scan window ended.",
+    "Shields on: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+  ],
+  "share": {
+    "id": "20260622-ea697f76e8e7cd64d914c66c35aa3dae",
+    "path": "/reports/20260622-ea697f76e8e7cd64d914c66c35aa3dae/",
+    "jsonPath": "/reports/20260622-ea697f76e8e7cd64d914c66c35aa3dae.json"
+  }
+}

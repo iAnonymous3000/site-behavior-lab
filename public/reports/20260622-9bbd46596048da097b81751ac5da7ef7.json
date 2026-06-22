@@ -1,0 +1,4828 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.youtube.com/",
+  "scannedAt": "2026-06-22T19:31:56.079Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "YouTube",
+      "status": 200,
+      "durationMs": 6280,
+      "firstPartyDomain": "www.youtube.com",
+      "totalRequests": 168,
+      "thirdPartyRequests": 115,
+      "knownTrackerRequests": 3,
+      "thirdPartyDomains": 11,
+      "cookies": 7,
+      "thirdPartyCookies": 0,
+      "storageEntries": 9,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://www.youtube.com/",
+      "finalUrl": "https://www.youtube.com/",
+      "scannedAt": "2026-06-22T19:31:49.792Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.youtube.com/",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 32,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/web-animations-next-lite.min.vflset/web-animations-next-lite.min.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 348,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/webcomponents-all-noPatch.vflset/webcomponents-all-noPatch.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 349,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/fetch-polyfill.vflset/fetch-polyfill.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 350,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/intersection-observer.min.vflset/intersection-observer.min.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 350,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/scheduler.vflset/scheduler.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 351,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/www-i18n-constants-en_US.vflset/www-i18n-constants.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 351,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/spf.vflset/spf.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 352,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/network.vflset/network.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 352,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://fonts.googleapis.com/css2?family=&family=&display=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 353,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.youtube.com/s/desktop/61baa440/cssbin/www-main-desktop-home-page-skeleton.css",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 354,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.youtube.com/s/desktop/61baa440/cssbin/www-onepick.css",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 354,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.youtube.com/s/_/ytmainappweb/_/ss/k=ytmainappweb.kevlar_base.jOOmlw6Naxs.L.W.O/am=AAAAAAIAQgBgDg/d=0/br=1/rs=AGKMywFAI6xSS9oALGABE1IWaWAeQP6BJg",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 355,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://i.ytimg.com/generate_204",
+        "domain": "i.ytimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 399,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://accounts.google.com/ServiceLogin?service=&uilel=&passive=&continue=&hl=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 455,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 460,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.youtube.com/s/_/ytmainappweb/_/js/k=ytmainappweb.kevlar_base.en_US.TfGgm6-Cpog.es5.O/am=AAAAAAIAQABADA/d=1/br=1/rs=AGKMywG2Ikjwmw5nM4fh46jL2JM0KoXxsA/m=kevlar_base_module,kevlar_main_module,kevlar_base_sync_mod_chunk",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 493,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.youtube.com/s/desktop/61baa440/cssbin/www-main-desktop-watch-page-skeleton.css",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 497,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://accounts.google.com/InteractiveLogin?continue=&hl=&passive=&service=&uilel=&dsh=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 522,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://accounts.google.com/v3/signin/identifier?continue=&dsh=&hl=&passive=&service=&uilel=&flowName=&flowEntry=&ifkv=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 403,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 565,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_150x54dp.png",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 622,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://googleads.g.doubleclick.net/pagead/id",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1707,
+        "blockedByShields": true
+      },
+      {
+        "id": 23,
+        "url": "https://www.youtube.com/s/search/audio/failure.mp3",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1767,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.youtube.com/s/search/audio/no_input.mp3",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1773,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.youtube.com/s/search/audio/open.mp3",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1774,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.youtube.com/s/search/audio/success.mp3",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1774,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://googleads.g.doubleclick.net/pagead/id?slf_rd=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1774,
+        "blockedByShields": true
+      },
+      {
+        "id": 28,
+        "url": "https://www.google.com/js/th/2AyzTUNRml2rUslMj2WKEDbfgeaYNdJn3II-6S2lybo.js",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1782,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://rr5---sn-q4flrnee.googlevideo.com/videoplayback?expire=&ei=&ip=&id=&itag=&source=&requiressl=&mh=&mm=&mn=&ms=&mv=&mvi=&pl=&ctier=&initcwndbps=&siu=&spc=&vprv=&svpuc=&mime=&ns=&cnr=&ratebypass=&dur=&lmt=&mt=&fvip=&c=&txp=&n=&sparams=&sig=&lsparams=&lsig=",
+        "domain": "rr5---sn-q4flrnee.googlevideo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 403,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1819,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://rr5---sn-q4flrnee.googlevideo.com/videoplayback?expire=&ei=&ip=&id=&itag=&source=&requiressl=&mh=&mm=&mn=&ms=&mv=&mvi=&pl=&initcwndbps=&siu=&spc=&vprv=&svpuc=&mime=&ns=&cnr=&ratebypass=&dur=&lmt=&mt=&fvip=&c=&txp=&n=&sparams=&sig=&lsparams=&lsig=",
+        "domain": "rr5---sn-q4flrnee.googlevideo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 403,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1820,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.youtube.com/youtubei/v1/guide",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1976,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.google.com/pagead/lvz?evtid=&req_ts=&pg=&az=&sigh=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1978,
+        "blockedByShields": true
+      },
+      {
+        "id": 33,
+        "url": "https://rr5---sn-q4flrnee.googlevideo.com/videoplayback?expire=&ei=&ip=&id=&itag=&source=&requiressl=&mh=&mm=&mn=&ms=&mv=&mvi=&pl=&ctier=&initcwndbps=&siu=&spc=&vprv=&svpuc=&mime=&ns=&cnr=&ratebypass=&dur=&lmt=&mt=&fvip=&c=&txp=&n=&sparams=&sig=&lsparams=&lsig=",
+        "domain": "rr5---sn-q4flrnee.googlevideo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 403,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2039,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://rr5---sn-q4flrnee.googlevideo.com/videoplayback?expire=&ei=&ip=&id=&itag=&source=&requiressl=&mh=&mm=&mn=&ms=&mv=&mvi=&pl=&initcwndbps=&siu=&spc=&vprv=&svpuc=&mime=&ns=&cnr=&ratebypass=&dur=&lmt=&mt=&fvip=&c=&txp=&n=&sparams=&sig=&lsparams=&lsig=",
+        "domain": "rr5---sn-q4flrnee.googlevideo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 403,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2040,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://fonts.googleapis.com/css?family=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2058,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://fonts.googleapis.com/css?family=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2059,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.youtube.com/youtubei/v1/feedback",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2072,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://rr5---sn-q4flrnee.googlevideo.com/videoplayback?expire=&ei=&ip=&id=&itag=&source=&requiressl=&mh=&mm=&mn=&ms=&mv=&mvi=&pl=&ctier=&initcwndbps=&siu=&spc=&vprv=&svpuc=&mime=&ns=&cnr=&ratebypass=&dur=&lmt=&mt=&fvip=&c=&txp=&n=&sparams=&sig=&lsparams=&lsig=",
+        "domain": "rr5---sn-q4flrnee.googlevideo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 403,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2229,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://rr5---sn-q4flrnee.googlevideo.com/videoplayback?expire=&ei=&ip=&id=&itag=&source=&requiressl=&mh=&mm=&mn=&ms=&mv=&mvi=&pl=&initcwndbps=&siu=&spc=&vprv=&svpuc=&mime=&ns=&cnr=&ratebypass=&dur=&lmt=&mt=&fvip=&c=&txp=&n=&sparams=&sig=&lsparams=&lsig=",
+        "domain": "rr5---sn-q4flrnee.googlevideo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 403,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2230,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.youtube.com/generate_204",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2246,
+        "blockedByShields": true
+      },
+      {
+        "id": 41,
+        "url": "https://www.youtube.com/s/player/1cf32b49/player_ias.vflset/en_US/base.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2329,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.youtube.com/s/player/1cf32b49/www-player.css",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2330,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/search/v15/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2332,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/menu/v1/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2349,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_fill/yt-logo-updated/v3/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2350,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.youtube.com/api/jnn/v1/GenerateIT",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2390,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://youtube.com/",
+        "domain": "youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2434,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_outline/refresh/v1/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2441,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/chevron_down/v9/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2444,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/mic/v14/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2445,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/person_circle/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2447,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/overflow_vertical/v13/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2448,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/home/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2448,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/shorts/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2449,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/subscriptions/v12/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2449,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/history/v1/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2449,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/bag/v7/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2450,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/audio/v14/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2457,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/clapperboard/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2458,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/chevron_up/v9/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2458,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_fill/youtube_round/v2/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2458,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_fill/unplugged_logo/v2/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2459,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_fill/youtube_music/v2/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2459,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_fill/youtube_kids_round/v2/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2459,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/flag/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2461,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/x/v11/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2461,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/location_pin/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2462,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://www.youtube.com/s/_/ytmainappweb/_/js/k=ytmainappweb.kevlar_base.en_US.TfGgm6-Cpog.es5.O/am=AAAAAAIAQABADA/d=1/exm=kevlar_base_module,kevlar_base_sync_mod_chunk,kevlar_main_module/ed=1/br=1/rs=AGKMywG2Ikjwmw5nM4fh46jL2JM0KoXxsA/m=QlbBce,De8mUc",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2777,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://www.youtube.com/s/player/1cf32b49/player_ias.vflset/en_US/offline.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2777,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://www.youtube.com/s/player/1cf32b49/player_ias.vflset/en_US/remote.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2778,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://www.youtube.com/s/player/1cf32b49/player_ias.vflset/en_US/miniplayer.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2778,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://static.doubleclick.net/instream/ad_status.js",
+        "domain": "static.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2795,
+        "blockedByShields": true
+      },
+      {
+        "id": 73,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/add_circle/v6/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2801,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/add_circle/v6/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2803,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/alert_bubble/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2803,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/audio/v14/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2809,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/bag/v7/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2809,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/bell/v11/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2812,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/bell/v11/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2812,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/clapperboard/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2812,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/clock/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2813,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/clock/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2813,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/copy/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2814,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_fill/creator_studio_red_logo/v2/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2814,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/download/v11/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2814,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/fashion/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2814,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/fashion/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2815,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/flag/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2817,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/gaming/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2817,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/gaming/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2818,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/gear/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2818,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/gear/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2819,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/help_circle/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2819,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/home/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2819,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/lightbulb/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2820,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/lightbulb/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2820,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/live/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2824,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/mic/v14/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2825,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/news/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2825,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/news/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2825,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_fill/offline_no_content/v1/192px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2826,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/overflow_horizontal/v6/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2826,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/play_square_stack/v1/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2826,
+        "blockedByShields": false
+      },
+      {
+        "id": 104,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/play_square_stack/v1/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2826,
+        "blockedByShields": false
+      },
+      {
+        "id": 105,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/playlist/v5/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2827,
+        "blockedByShields": false
+      },
+      {
+        "id": 106,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/podcast/v6/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2827,
+        "blockedByShields": false
+      },
+      {
+        "id": 107,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/podcast/v6/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2832,
+        "blockedByShields": false
+      },
+      {
+        "id": 108,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/search/v15/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2832,
+        "blockedByShields": false
+      },
+      {
+        "id": 109,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/subscriptions/v12/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2832,
+        "blockedByShields": false
+      },
+      {
+        "id": 110,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/thumb_up/v24/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2833,
+        "blockedByShields": false
+      },
+      {
+        "id": 111,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/thumb_up/v24/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2833,
+        "blockedByShields": false
+      },
+      {
+        "id": 112,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/trash_can/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2833,
+        "blockedByShields": false
+      },
+      {
+        "id": 113,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/trash_can/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2834,
+        "blockedByShields": false
+      },
+      {
+        "id": 114,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/trending/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2834,
+        "blockedByShields": false
+      },
+      {
+        "id": 115,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/trending/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2834,
+        "blockedByShields": false
+      },
+      {
+        "id": 116,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/trophy/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2835,
+        "blockedByShields": false
+      },
+      {
+        "id": 117,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/trophy/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2835,
+        "blockedByShields": false
+      },
+      {
+        "id": 118,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/video/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2835,
+        "blockedByShields": false
+      },
+      {
+        "id": 119,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/video/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2835,
+        "blockedByShields": false
+      },
+      {
+        "id": 120,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/video_camera_add/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2836,
+        "blockedByShields": false
+      },
+      {
+        "id": 121,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/youtube_shorts/v11/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2836,
+        "blockedByShields": false
+      },
+      {
+        "id": 122,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/youtube_shorts/v11/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2836,
+        "blockedByShields": false
+      },
+      {
+        "id": 123,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/arrow_down/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2836,
+        "blockedByShields": false
+      },
+      {
+        "id": 124,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/arrow_up/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2837,
+        "blockedByShields": false
+      },
+      {
+        "id": 125,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/pause/v9/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2837,
+        "blockedByShields": false
+      },
+      {
+        "id": 126,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/play/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2837,
+        "blockedByShields": false
+      },
+      {
+        "id": 127,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/play/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2837,
+        "blockedByShields": false
+      },
+      {
+        "id": 128,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/share/v12/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2838,
+        "blockedByShields": false
+      },
+      {
+        "id": 129,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/share/v12/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2838,
+        "blockedByShields": false
+      },
+      {
+        "id": 130,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/text_bubble/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2844,
+        "blockedByShields": false
+      },
+      {
+        "id": 131,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/text_bubble/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2844,
+        "blockedByShields": false
+      },
+      {
+        "id": 132,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/thumb_down/v25/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2845,
+        "blockedByShields": false
+      },
+      {
+        "id": 133,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/thumb_down/v25/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2845,
+        "blockedByShields": false
+      },
+      {
+        "id": 134,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/volume_max/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2845,
+        "blockedByShields": false
+      },
+      {
+        "id": 135,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/volume_max/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2846,
+        "blockedByShields": false
+      },
+      {
+        "id": 136,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/volume_mute/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2846,
+        "blockedByShields": false
+      },
+      {
+        "id": 137,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/volume_mute/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2846,
+        "blockedByShields": false
+      },
+      {
+        "id": 138,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_outline/waveform/v1/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2847,
+        "blockedByShields": false
+      },
+      {
+        "id": 139,
+        "url": "https://www.youtube.com/s/_/ytmainappweb/_/js/k=ytmainappweb.kevlar_base.en_US.TfGgm6-Cpog.es5.O/am=AAAAAAIAQABADA/d=1/exm=De8mUc,QlbBce,kevlar_base_module,kevlar_base_sync_mod_chunk,kevlar_main_module/ed=1/br=1/rs=AGKMywG2Ikjwmw5nM4fh46jL2JM0KoXxsA/m=yTIahe",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2847,
+        "blockedByShields": false
+      },
+      {
+        "id": 140,
+        "url": "https://www.gstatic.com/cv/js/sender/v1/cast_sender.js",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2850,
+        "blockedByShields": false
+      },
+      {
+        "id": 141,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3610,
+        "blockedByShields": false
+      },
+      {
+        "id": 142,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3617,
+        "blockedByShields": false
+      },
+      {
+        "id": 143,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3621,
+        "blockedByShields": false
+      },
+      {
+        "id": 144,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3624,
+        "blockedByShields": false
+      },
+      {
+        "id": 145,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3630,
+        "blockedByShields": false
+      },
+      {
+        "id": 146,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3639,
+        "blockedByShields": false
+      },
+      {
+        "id": 147,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3643,
+        "blockedByShields": false
+      },
+      {
+        "id": 148,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3647,
+        "blockedByShields": false
+      },
+      {
+        "id": 149,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3651,
+        "blockedByShields": false
+      },
+      {
+        "id": 150,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3658,
+        "blockedByShields": false
+      },
+      {
+        "id": 151,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3665,
+        "blockedByShields": false
+      },
+      {
+        "id": 152,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3670,
+        "blockedByShields": false
+      },
+      {
+        "id": 153,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3676,
+        "blockedByShields": false
+      },
+      {
+        "id": 154,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3680,
+        "blockedByShields": false
+      },
+      {
+        "id": 155,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3685,
+        "blockedByShields": false
+      },
+      {
+        "id": 156,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3694,
+        "blockedByShields": false
+      },
+      {
+        "id": 157,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3704,
+        "blockedByShields": false
+      },
+      {
+        "id": 158,
+        "url": "https://encrypted-tbn1.gstatic.com/images?q=",
+        "domain": "encrypted-tbn1.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3719,
+        "blockedByShields": false
+      },
+      {
+        "id": 159,
+        "url": "https://encrypted-tbn1.gstatic.com/images?q=",
+        "domain": "encrypted-tbn1.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3720,
+        "blockedByShields": false
+      },
+      {
+        "id": 160,
+        "url": "https://encrypted-tbn1.gstatic.com/images?q=",
+        "domain": "encrypted-tbn1.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3720,
+        "blockedByShields": false
+      },
+      {
+        "id": 161,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3724,
+        "blockedByShields": false
+      },
+      {
+        "id": 162,
+        "url": "https://encrypted-tbn3.gstatic.com/images?q=",
+        "domain": "encrypted-tbn3.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3742,
+        "blockedByShields": false
+      },
+      {
+        "id": 163,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3744,
+        "blockedByShields": false
+      },
+      {
+        "id": 164,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3754,
+        "blockedByShields": false
+      },
+      {
+        "id": 165,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3764,
+        "blockedByShields": false
+      },
+      {
+        "id": 166,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3768,
+        "blockedByShields": false
+      },
+      {
+        "id": 167,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/info_circle/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3798,
+        "blockedByShields": false
+      },
+      {
+        "id": 168,
+        "url": "https://www.youtube.com/youtubei/v1/log_event",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3826,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "static.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 82,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 10,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "script"
+        ]
+      },
+      {
+        "domain": "rr5---sn-q4flrnee.googlevideo.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          403
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "accounts.google.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302,
+          403
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "script"
+        ]
+      },
+      {
+        "domain": "encrypted-tbn1.gstatic.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "i.ytimg.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "encrypted-tbn3.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 30,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          206,
+          204
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "media",
+          "fetch",
+          "image",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "suggestqueries-clients6.youtube.com",
+        "requests": 22,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "youtube.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "GPS",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "YSC",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "VISITOR_INFO1_LIVE",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "VISITOR_PRIVACY_METADATA",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "PREF",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__Secure-YNID",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__Secure-ROLLOUT_TOKEN",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "yt-remote-connected-devices",
+        "valueBytes": 65
+      },
+      {
+        "area": "localStorage",
+        "key": "ytidb::LAST_RESULT_ENTRY_KEY",
+        "valueBytes": 86
+      },
+      {
+        "area": "localStorage",
+        "key": "V06b9b17a||::yt-player::yt-player-lv",
+        "valueBytes": 38
+      },
+      {
+        "area": "localStorage",
+        "key": "yt-remote-device-id",
+        "valueBytes": 99
+      },
+      {
+        "area": "localStorage",
+        "key": "yt-icons-last-purged",
+        "valueBytes": 13
+      },
+      {
+        "area": "sessionStorage",
+        "key": "yt-remote-session-name",
+        "valueBytes": 43
+      },
+      {
+        "area": "sessionStorage",
+        "key": "yt-remote-fast-check-period",
+        "valueBytes": 49
+      },
+      {
+        "area": "sessionStorage",
+        "key": "yt-remote-session-app",
+        "valueBytes": 51
+      },
+      {
+        "area": "sessionStorage",
+        "key": "yt-remote-cast-installed",
+        "valueBytes": 41
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.google.com"
+          ],
+          "totalListenerCalls": 6
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "touchmove",
+            "touchstart",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.google.com"
+          ],
+          "totalListenerCalls": 18
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL"
+          ],
+          "getParameterCalls": 1,
+          "readPixelsCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "YouTube",
+      "status": 200,
+      "durationMs": 6380,
+      "firstPartyDomain": "www.youtube.com",
+      "totalRequests": 151,
+      "thirdPartyRequests": 100,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 6,
+      "cookies": 7,
+      "thirdPartyCookies": 0,
+      "storageEntries": 9,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 4
+    },
+    "conditions": {
+      "requestedUrl": "https://www.youtube.com/",
+      "finalUrl": "https://www.youtube.com/",
+      "scannedAt": "2026-06-22T19:31:56.079Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.youtube.com/",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 39,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/web-animations-next-lite.min.vflset/web-animations-next-lite.min.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 354,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/webcomponents-all-noPatch.vflset/webcomponents-all-noPatch.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 357,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/fetch-polyfill.vflset/fetch-polyfill.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 357,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/intersection-observer.min.vflset/intersection-observer.min.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 357,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/scheduler.vflset/scheduler.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 358,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/www-i18n-constants-en_US.vflset/www-i18n-constants.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 358,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/spf.vflset/spf.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 359,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.youtube.com/s/desktop/61baa440/jsbin/network.vflset/network.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 359,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://fonts.googleapis.com/css2?family=&family=&display=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 359,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.youtube.com/s/desktop/61baa440/cssbin/www-main-desktop-home-page-skeleton.css",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 359,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.youtube.com/s/desktop/61baa440/cssbin/www-onepick.css",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 360,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.youtube.com/s/_/ytmainappweb/_/ss/k=ytmainappweb.kevlar_base.jOOmlw6Naxs.L.W.O/am=AAAAAEAAQgBgCA/d=0/br=1/rs=AGKMywE-VP4Y-qrQETjEsKukUhYUs8UUWA",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 360,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://i.ytimg.com/generate_204",
+        "domain": "i.ytimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 420,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://accounts.google.com/ServiceLogin?service=&uilel=&passive=&continue=&hl=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 512,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.youtube.com/s/_/ytmainappweb/_/js/k=ytmainappweb.kevlar_base.en_US.TfGgm6-Cpog.es5.O/am=AAAAAEAAQABACA/d=1/br=1/rs=AGKMywFVLegISFhN1ilnTG5OZ4gGhwKdqQ/m=kevlar_base_module,kevlar_main_module,kevlar_base_sync_mod_chunk",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 513,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.youtube.com/s/desktop/61baa440/cssbin/www-main-desktop-watch-page-skeleton.css",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 515,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 520,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://accounts.google.com/InteractiveLogin?continue=&hl=&passive=&service=&uilel=&dsh=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 573,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://accounts.google.com/v3/signin/identifier?continue=&dsh=&hl=&passive=&service=&uilel=&flowName=&flowEntry=&ifkv=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 403,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 622,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.youtube.com/s/search/audio/failure.mp3",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1787,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.youtube.com/s/search/audio/no_input.mp3",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1788,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.youtube.com/s/search/audio/open.mp3",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1794,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.youtube.com/s/search/audio/success.mp3",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1794,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.google.com/js/th/2AyzTUNRml2rUslMj2WKEDbfgeaYNdJn3II-6S2lybo.js",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1800,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_150x54dp.png",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1821,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.youtube.com/youtubei/v1/guide",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1992,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://fonts.googleapis.com/css?family=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2039,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://fonts.googleapis.com/css?family=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2040,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.youtube.com/youtubei/v1/feedback",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2053,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.youtube.com/api/jnn/v1/GenerateIT",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2235,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://youtube.com/",
+        "domain": "youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2237,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/search/v15/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2466,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.youtube.com/s/player/1cf32b49/player_ias.vflset/en_US/base.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2572,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.youtube.com/s/player/1cf32b49/www-player.css",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2572,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/menu/v1/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2573,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_fill/yt-logo-updated/v3/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2576,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_outline/refresh/v1/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2588,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/chevron_down/v9/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2592,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/mic/v14/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2592,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/person_circle/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2595,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/overflow_vertical/v13/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2595,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/home/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2596,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/shorts/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2596,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/subscriptions/v12/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2597,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/history/v1/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2599,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/bag/v7/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2599,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/audio/v14/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2599,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/clapperboard/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2600,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/chevron_up/v9/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2600,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_fill/youtube_round/v2/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2601,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_fill/unplugged_logo/v2/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2601,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_fill/youtube_music/v2/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2602,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_fill/youtube_kids_round/v2/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2603,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/flag/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2604,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://www.youtube.com/s/_/ytmainappweb/_/js/k=ytmainappweb.kevlar_base.en_US.TfGgm6-Cpog.es5.O/am=AAAAAEAAQABACA/d=1/exm=kevlar_base_module,kevlar_base_sync_mod_chunk,kevlar_main_module/ed=1/br=1/rs=AGKMywFVLegISFhN1ilnTG5OZ4gGhwKdqQ/m=QlbBce,De8mUc",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2693,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/x/v11/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2702,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/location_pin/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2703,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/add_circle/v6/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2703,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/add_circle/v6/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2705,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/alert_bubble/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2706,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/audio/v14/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2707,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/bag/v7/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2708,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/bell/v11/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2709,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/bell/v11/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2710,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/clapperboard/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2711,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/clock/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2720,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/clock/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2720,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/copy/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2725,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_fill/creator_studio_red_logo/v2/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2726,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/download/v11/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2726,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/fashion/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2727,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/fashion/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2727,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/flag/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2728,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/gaming/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2728,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/gaming/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2728,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/gear/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2729,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/gear/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2729,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/help_circle/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2732,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/home/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2732,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/lightbulb/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2733,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/lightbulb/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2733,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/live/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2733,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/mic/v14/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2734,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/news/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2734,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/news/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2735,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_fill/offline_no_content/v1/192px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2735,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/overflow_horizontal/v6/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2736,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/play_square_stack/v1/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2736,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/play_square_stack/v1/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2736,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/playlist/v5/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2736,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/podcast/v6/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2739,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/podcast/v6/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2740,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/search/v15/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2740,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/subscriptions/v12/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2741,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/thumb_up/v24/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2741,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/thumb_up/v24/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2742,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/trash_can/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2743,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/trash_can/v10/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2744,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/trending/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2744,
+        "blockedByShields": false
+      },
+      {
+        "id": 104,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/trending/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2745,
+        "blockedByShields": false
+      },
+      {
+        "id": 105,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/trophy/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2745,
+        "blockedByShields": false
+      },
+      {
+        "id": 106,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/trophy/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2746,
+        "blockedByShields": false
+      },
+      {
+        "id": 107,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/video/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2746,
+        "blockedByShields": false
+      },
+      {
+        "id": 108,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/video/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2747,
+        "blockedByShields": false
+      },
+      {
+        "id": 109,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/video_camera_add/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2748,
+        "blockedByShields": false
+      },
+      {
+        "id": 110,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/youtube_shorts/v11/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2749,
+        "blockedByShields": false
+      },
+      {
+        "id": 111,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/youtube_shorts/v11/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2749,
+        "blockedByShields": false
+      },
+      {
+        "id": 112,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/arrow_down/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2749,
+        "blockedByShields": false
+      },
+      {
+        "id": 113,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/arrow_up/v3/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2749,
+        "blockedByShields": false
+      },
+      {
+        "id": 114,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/pause/v9/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2750,
+        "blockedByShields": false
+      },
+      {
+        "id": 115,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/play/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2750,
+        "blockedByShields": false
+      },
+      {
+        "id": 116,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/play/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2750,
+        "blockedByShields": false
+      },
+      {
+        "id": 117,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/share/v12/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2750,
+        "blockedByShields": false
+      },
+      {
+        "id": 118,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/share/v12/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2754,
+        "blockedByShields": false
+      },
+      {
+        "id": 119,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/text_bubble/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2754,
+        "blockedByShields": false
+      },
+      {
+        "id": 120,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/text_bubble/v4/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2758,
+        "blockedByShields": false
+      },
+      {
+        "id": 121,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/thumb_down/v25/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2758,
+        "blockedByShields": false
+      },
+      {
+        "id": 122,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/thumb_down/v25/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2759,
+        "blockedByShields": false
+      },
+      {
+        "id": 123,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/volume_max/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2759,
+        "blockedByShields": false
+      },
+      {
+        "id": 124,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/volume_max/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2760,
+        "blockedByShields": false
+      },
+      {
+        "id": 125,
+        "url": "https://fonts.gstatic.com/s/i/youtube_fill_experimental/volume_mute/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2760,
+        "blockedByShields": false
+      },
+      {
+        "id": 126,
+        "url": "https://fonts.gstatic.com/s/i/youtube_outline_experimental/volume_mute/v2/24px.svg",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2760,
+        "blockedByShields": false
+      },
+      {
+        "id": 127,
+        "url": "https://www.gstatic.com/youtube/img/icons/web/youtube_outline/waveform/v1/24px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2761,
+        "blockedByShields": false
+      },
+      {
+        "id": 128,
+        "url": "https://www.youtube.com/s/_/ytmainappweb/_/js/k=ytmainappweb.kevlar_base.en_US.TfGgm6-Cpog.es5.O/am=AAAAAEAAQABACA/d=1/exm=De8mUc,QlbBce,kevlar_base_module,kevlar_base_sync_mod_chunk,kevlar_main_module/ed=1/br=1/rs=AGKMywFVLegISFhN1ilnTG5OZ4gGhwKdqQ/m=yTIahe",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2902,
+        "blockedByShields": false
+      },
+      {
+        "id": 129,
+        "url": "https://www.youtube.com/s/player/1cf32b49/player_ias.vflset/en_US/offline.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3022,
+        "blockedByShields": false
+      },
+      {
+        "id": 130,
+        "url": "https://www.youtube.com/s/player/1cf32b49/player_ias.vflset/en_US/remote.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3023,
+        "blockedByShields": false
+      },
+      {
+        "id": 131,
+        "url": "https://www.youtube.com/s/player/1cf32b49/player_ias.vflset/en_US/miniplayer.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3024,
+        "blockedByShields": false
+      },
+      {
+        "id": 133,
+        "url": "https://www.gstatic.com/cv/js/sender/v1/cast_sender.js",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3069,
+        "blockedByShields": false
+      },
+      {
+        "id": 134,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3720,
+        "blockedByShields": false
+      },
+      {
+        "id": 135,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3728,
+        "blockedByShields": false
+      },
+      {
+        "id": 136,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3732,
+        "blockedByShields": false
+      },
+      {
+        "id": 137,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3735,
+        "blockedByShields": false
+      },
+      {
+        "id": 138,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3740,
+        "blockedByShields": false
+      },
+      {
+        "id": 139,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3747,
+        "blockedByShields": false
+      },
+      {
+        "id": 140,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3751,
+        "blockedByShields": false
+      },
+      {
+        "id": 141,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3765,
+        "blockedByShields": false
+      },
+      {
+        "id": 142,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3771,
+        "blockedByShields": false
+      },
+      {
+        "id": 143,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3775,
+        "blockedByShields": false
+      },
+      {
+        "id": 144,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3780,
+        "blockedByShields": false
+      },
+      {
+        "id": 145,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3788,
+        "blockedByShields": false
+      },
+      {
+        "id": 146,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3790,
+        "blockedByShields": false
+      },
+      {
+        "id": 147,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3795,
+        "blockedByShields": false
+      },
+      {
+        "id": 148,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3801,
+        "blockedByShields": false
+      },
+      {
+        "id": 149,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3804,
+        "blockedByShields": false
+      },
+      {
+        "id": 150,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3810,
+        "blockedByShields": false
+      },
+      {
+        "id": 151,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3813,
+        "blockedByShields": false
+      },
+      {
+        "id": 152,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3822,
+        "blockedByShields": false
+      },
+      {
+        "id": 153,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3836,
+        "blockedByShields": false
+      },
+      {
+        "id": 154,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3848,
+        "blockedByShields": false
+      },
+      {
+        "id": 155,
+        "url": "https://suggestqueries-clients6.youtube.com/complete/search",
+        "domain": "suggestqueries-clients6.youtube.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3862,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 81,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 10,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "script"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "accounts.google.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302,
+          403
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "i.ytimg.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 28,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          206
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "media",
+          "fetch",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "suggestqueries-clients6.youtube.com",
+        "requests": 22,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "youtube.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "GPS",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "YSC",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "VISITOR_INFO1_LIVE",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "VISITOR_PRIVACY_METADATA",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "PREF",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__Secure-YNID",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__Secure-ROLLOUT_TOKEN",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "V197a12db||::yt-player::yt-player-lv",
+        "valueBytes": 38
+      },
+      {
+        "area": "localStorage",
+        "key": "yt-remote-connected-devices",
+        "valueBytes": 65
+      },
+      {
+        "area": "localStorage",
+        "key": "ytidb::LAST_RESULT_ENTRY_KEY",
+        "valueBytes": 86
+      },
+      {
+        "area": "localStorage",
+        "key": "yt-remote-device-id",
+        "valueBytes": 99
+      },
+      {
+        "area": "localStorage",
+        "key": "yt-icons-last-purged",
+        "valueBytes": 13
+      },
+      {
+        "area": "sessionStorage",
+        "key": "yt-remote-session-name",
+        "valueBytes": 43
+      },
+      {
+        "area": "sessionStorage",
+        "key": "yt-remote-fast-check-period",
+        "valueBytes": 49
+      },
+      {
+        "area": "sessionStorage",
+        "key": "yt-remote-session-app",
+        "valueBytes": 51
+      },
+      {
+        "area": "sessionStorage",
+        "key": "yt-remote-cast-installed",
+        "valueBytes": 41
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.google.com"
+          ],
+          "totalListenerCalls": 6
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "touchmove",
+            "touchstart",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.google.com"
+          ],
+          "totalListenerCalls": 18
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL"
+          ],
+          "getParameterCalls": 1,
+          "readPixelsCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 168,
+      "after": 151,
+      "delta": -17
+    },
+    "thirdPartyRequests": {
+      "before": 115,
+      "after": 100,
+      "delta": -15
+    },
+    "knownTrackerRequests": {
+      "before": 3,
+      "after": 0,
+      "delta": -3
+    },
+    "thirdPartyDomains": {
+      "before": 11,
+      "after": 6,
+      "delta": -5
+    },
+    "cookies": {
+      "before": 7,
+      "after": 7,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 9,
+      "after": 9,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "rr5---sn-q4flrnee.googlevideo.com",
+        "requests": 6,
+        "tracker": null
+      },
+      {
+        "domain": "encrypted-tbn1.gstatic.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "encrypted-tbn3.gstatic.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "static.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 3,
+        "domains": 2
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "V197a12db||::yt-player::yt-player-lv"
+      }
+    ],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "V06b9b17a||::yt-player::yt-player-lv"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 5,
+      "after": 4,
+      "delta": -1
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+  ],
+  "share": {
+    "id": "20260622-9bbd46596048da097b81751ac5da7ef7",
+    "path": "/reports/20260622-9bbd46596048da097b81751ac5da7ef7/",
+    "jsonPath": "/reports/20260622-9bbd46596048da097b81751ac5da7ef7.json"
+  }
+}
