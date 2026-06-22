@@ -97,6 +97,14 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
     const before = report.diff.thirdPartyRequests.before;
     const after = report.diff.thirdPartyRequests.after;
     const reductionPct = before > 0 ? Math.round(((before - after) / before) * 100) : 0;
+    // GPC "on" can load as many — or even more — off-site requests than "off",
+    // so phrase the residual instead of emitting "down just -12%".
+    const changePhrase =
+      reductionPct > 0
+        ? `down just ${reductionPct}%`
+        : reductionPct < 0
+          ? `${Math.abs(reductionPct)}% more than without it`
+          : "with no measurable drop";
 
     if (trackingEntities.length > 0 && after > 0 && reductionPct < 25) {
       return finish(
@@ -106,7 +114,7 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
           trackingEntities.length,
           "tracking company",
           "tracking companies"
-        )}: ${plural(after, "third-party request")}, down just ${reductionPct}%.${extraNote}`
+        )}: ${plural(after, "third-party request")}, ${changePhrase}.${extraNote}`
       );
     }
     if (reductionPct >= 50) {

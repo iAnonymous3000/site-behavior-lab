@@ -2763,7 +2763,11 @@ function buildFindings(report: ScanReport, result: ScanResult, corpus: CorpusSta
     });
   }
 
-  return findings.slice(0, 8);
+  // Emit every finding. The conditionals above bound this to at most ~9 cards,
+  // all of them meaningful; a fixed cap here silently dropped the last-pushed
+  // card (the fingerprinting finding) on Node Shields-comparison reports that
+  // also surfaced a session-recording or input-monitoring signal.
+  return findings;
 }
 
 function requestProvenanceHighlights(result: ScanResult): string[] {

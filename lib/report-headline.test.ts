@@ -99,6 +99,27 @@ test("flags a GPC comparison that barely changed as an alarm", () => {
   assert.match(headline.subhead, /do not sell or share/);
 });
 
+test("phrases a GPC comparison that loaded more as 'more', not a negative percent", () => {
+  const baseline = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [makeTrackerDomain("ads.example", 100, "AdCo", "advertising")],
+    thirdPartyRequests: 100,
+    thirdPartyDomains: 10
+  });
+  const variant = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [makeTrackerDomain("ads.example", 110, "AdCo", "advertising")],
+    thirdPartyRequests: 110,
+    thirdPartyDomains: 10
+  });
+
+  const headline = buildReportHeadline(createGpcComparisonReport(baseline, variant));
+  assert.equal(headline.tone, "alarm");
+  assert.match(headline.subhead, /10% more than without it/);
+  assert.doesNotMatch(headline.subhead, /down just/);
+  assert.doesNotMatch(headline.subhead, /-\d/);
+});
+
 test("credits a GPC comparison that pulled back as calm", () => {
   const baseline = makeResult({
     firstPartyDomain: "respectful.example",
