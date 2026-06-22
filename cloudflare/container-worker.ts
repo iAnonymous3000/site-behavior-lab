@@ -93,6 +93,18 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
+    // This origin is the scan API + report-page backend, not a front door. Send
+    // anyone landing on its root to the public site so they never hit the
+    // container's own scan form (which has no Turnstile site key for this host
+    // and so cannot scan). /api/*, /reports/:id, /_next/* and the rest still
+    // serve from the container, so shared report links keep working.
+    if (request.method === "GET" && url.pathname === "/") {
+      const frontDoor = frontDoorOrigin(env);
+      if (frontDoor) {
+        return Response.redirect(frontDoor, 302);
+      }
+    }
+
     // Health: the container's Node app has no Turnstile concept and cannot see
     // the front Worker's open-access/Turnstile config, so overlay the edge gate's
     // own view onto its response — otherwise the UI never shows the Turnstile
@@ -130,6 +142,19 @@ function forwardToContainer(request: Request, env: Env): Promise<Response> {
   // coherent (a client polls /api/scans/:id on the same instance). Shard on a
   // key here once a single instance is not enough.
   return getContainer(env.SCANNER).fetch(request);
+}
+
+/** Public front-door origin to redirect the backend root to, from the configured allow-list origin. */
+function frontDoorOrigin(env: Env): string | null {
+  const origin = env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN?.trim();
+  if (!origin || origin === "*") return null;
+  try {
+    const url = new URL(origin);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+    return `${url.origin}/`;
+  } catch {
+    return null;
+  }
 }
 
 /** Overlay the front Worker's gate decision (auth / open access / Turnstile) onto the container health. */
