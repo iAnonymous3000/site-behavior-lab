@@ -21,6 +21,13 @@ export type ScanRuntimeCapabilities = {
   gpcComparison?: boolean;
   shieldsComparison?: boolean;
   savedReports?: boolean;
+  /**
+   * The scan API origin serves human-viewable `/reports/:id` HTML pages (it runs
+   * the full Node app), so a freshly scanned report has a shareable permalink
+   * there. False/absent for an API-only producer (e.g. the Browser Run Worker
+   * exposes `/api/reports/:id` JSON only), where a fresh report is unshareable.
+   */
+  savedReportPages?: boolean;
 };
 
 export type ScanRuntimeHealth = {
@@ -76,7 +83,7 @@ function isScanRuntimeStatus(value: unknown): value is ScanRuntimeStatus {
 
 function isCapabilities(value: unknown): value is ScanRuntimeCapabilities {
   if (!isRecord(value)) return false;
-  return (["singleScan", "gpcComparison", "shieldsComparison", "savedReports"] as const).every(
+  return (["singleScan", "gpcComparison", "shieldsComparison", "savedReports", "savedReportPages"] as const).every(
     (key) => value[key] === undefined || typeof value[key] === "boolean"
   );
 }

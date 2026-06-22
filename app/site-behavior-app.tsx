@@ -277,6 +277,10 @@ export function SiteBehaviorApp({
   const gpcComparisonEnabled = !STATIC_EXPORT || scannerHealth?.capabilities?.gpcComparison === true;
   const shieldsComparisonEnabled = !STATIC_EXPORT || scannerHealth?.capabilities?.shieldsComparison === true;
   const openAccessScanner = OPEN_ACCESS_SCANNER || scannerHealth?.openAccess === true;
+  // A live-scanned report only has a shareable permalink when the scan API serves
+  // its own report pages (the full Node app / container). The JSON-only Browser
+  // Run Worker does not, so its reports stay download-only (no broken Share link).
+  const liveApiServesReportPages = scannerHealth?.capabilities?.savedReportPages === true;
   const scannerRequiresAccessKey =
     LIVE_SCAN_ENABLED && !openAccessScanner && (!STATIC_LIVE_SCAN_ENABLED || scannerHealth?.authenticated === true);
   const scannerUnavailable = LIVE_SCAN_ENABLED && Boolean(scannerHealthError);
@@ -706,8 +710,14 @@ export function SiteBehaviorApp({
           {result && primaryResult && (
             <section className="report-grid">
               <div className="report-main">
-                <ReportHeader report={result} result={primaryResult} onDownload={downloadReport} onDownloadCsv={downloadCsv} />
-                <HeadlineBanner report={result} />
+                <ReportHeader
+                  report={result}
+                  result={primaryResult}
+                  onDownload={downloadReport}
+                  onDownloadCsv={downloadCsv}
+                  liveApiServesReportPages={liveApiServesReportPages}
+                />
+                <HeadlineBanner report={result} liveApiServesReportPages={liveApiServesReportPages} />
                 <FindingsBoard report={result} result={primaryResult} />
                 <CausalityGraph result={primaryResult} />
                 {isComparisonReport(result) && <ComparisonPanel report={result} />}
@@ -1022,10 +1032,13 @@ function reportDomain(result: ScanReport): string {
   return primaryScanResult(result).summary.firstPartyDomain;
 }
 
-function reportSharePath(result: ScanReport): string | null {
+function reportSharePath(result: ScanReport, liveApiServesReportPages: boolean): string | null {
   const share = result.share;
   if (!share?.id) return null;
-  const runtime = clientReportRuntime();
+  // The scan API only yields a shareable permalink when it serves its own report
+  // pages (the full Node app / container). The JSON-only Browser Run Worker does
+  // not, so `locateReport` then withholds the link rather than 404 it.
+  const runtime: ReportRuntime = { ...clientReportRuntime(), liveApiServesReportPages };
   // A report whose JSON lives behind the scan API (`/api/reports/:id`) was just
   // produced by a running Node/container scanner; on a live-API static build it
   // is only servable from that API's own origin, so resolve it there. Committed
@@ -1942,14 +1955,16 @@ function ReportHeader({
   report,
   result,
   onDownload,
-  onDownloadCsv
+  onDownloadCsv,
+  liveApiServesReportPages
 }: {
   report: ScanReport;
   result: ScanResult;
   onDownload: () => void;
   onDownloadCsv: () => void;
+  liveApiServesReportPages: boolean;
 }) {
-  const sharePath = reportSharePath(report);
+  const sharePath = reportSharePath(report, liveApiServesReportPages);
   const finalUrl = safeHttpUrl(result.conditions.finalUrl);
   const title = isComparisonReport(report) ? report.title || result.summary.pageTitle : result.summary.pageTitle;
   return (
@@ -2510,7 +2525,7 @@ function TurnstileWidget({
   return <div className="turnstile-widget" ref={containerRef} />;
 }
 
-function HeadlineBanner({ report }: { report: ScanReport }) {
+function HeadlineBanner({ report, liveApiServesReportPages }: { report: ScanReport; liveApiServesReportPages: boolean }) {
   const headline = useMemo(() => buildReportHeadline(report), [report]);
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
@@ -2519,9 +2534,9 @@ function HeadlineBanner({ report }: { report: ScanReport }) {
     if (typeof window === "undefined") return;
 
     // Reuse the same permalink rule as the main Share button so "Post on X" /
-    // "Copy post" never hand out a static /reports/:id link for a report that
-    // only lives behind the live scan API (which the static page cannot load).
-    const sharePath = reportSharePath(report);
+    // "Copy post" never hand out a link the report's origin cannot render (a
+    // JSON-only scan API has no report page); fall back to the current location.
+    const sharePath = reportSharePath(report, liveApiServesReportPages);
     if (sharePath) {
       try {
         setShareLink(new URL(sharePath, window.location.origin).toString());
@@ -2531,7 +2546,7 @@ function HeadlineBanner({ report }: { report: ScanReport }) {
       }
     }
     setShareLink(window.location.href);
-  }, [report]);
+  }, [report, liveApiServesReportPages]);
 
   const postText = shareLink ? `${headline.shareText} ${shareLink}` : headline.shareText;
   const xHref = `https://twitter.com/intent/tweet?${new URLSearchParams({

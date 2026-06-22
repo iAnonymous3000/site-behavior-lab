@@ -34,12 +34,13 @@ test("locateReport serves committed static reports from the static file with a p
   });
 });
 
-test("locateReport shares a live-API report from the scan API origin", () => {
+test("locateReport shares a live-API report from a scan API origin that serves report pages", () => {
   const locator = locateReport(VALID_ID, {
     staticExport: true,
     liveApiBacked: true,
     basePath: "",
-    scanApiBase: "https://scan.sitebehavior.org"
+    scanApiBase: "https://scan.sitebehavior.org",
+    liveApiServesReportPages: true
   });
   assert.equal(locator.backend, "live-api");
   // A fresh report only lives behind the scan API, which serves its own page.
@@ -52,9 +53,25 @@ test("locateReport tolerates a trailing slash on the scan API origin", () => {
     staticExport: true,
     liveApiBacked: true,
     basePath: "",
-    scanApiBase: "https://scan.sitebehavior.org/"
+    scanApiBase: "https://scan.sitebehavior.org/",
+    liveApiServesReportPages: true
   });
   assert.equal(locator.pagePath, `https://scan.sitebehavior.org/reports/${VALID_ID}`);
+});
+
+test("locateReport withholds a permalink when the scan API is JSON-only (no report pages)", () => {
+  // The Browser Run Worker serves /api/reports/:id but no /reports/:id page, so
+  // a fresh report has no shareable permalink there — only the JSON endpoint.
+  const locator = locateReport(VALID_ID, {
+    staticExport: true,
+    liveApiBacked: true,
+    basePath: "",
+    scanApiBase: "https://site-behavior-lab-api.example.workers.dev",
+    liveApiServesReportPages: false
+  });
+  assert.equal(locator.backend, "live-api-unshareable");
+  assert.equal(locator.pagePath, null);
+  assert.equal(locator.dataUrl, `https://site-behavior-lab-api.example.workers.dev/api/reports/${VALID_ID}`);
 });
 
 test("locateReport withholds a permalink when a live-API build has no scan API origin", () => {

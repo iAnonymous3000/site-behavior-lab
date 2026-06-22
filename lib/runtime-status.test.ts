@@ -62,7 +62,8 @@ test("runtimeStatus reports ok status when production controls are configured", 
     singleScan: true,
     gpcComparison: true,
     shieldsComparison: true,
-    savedReports: true
+    savedReports: true,
+    savedReportPages: true
   });
   assert.deepEqual(status.warnings, []);
 });

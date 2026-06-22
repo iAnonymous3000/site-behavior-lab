@@ -164,7 +164,10 @@ function workerHealth(env: Env) {
       singleScan: ready && capability.singleScan,
       gpcComparison: ready && capability.gpcComparison,
       shieldsComparison: capability.shieldsComparison,
-      savedReports: Boolean(env.REPORTS || env.REPORTS_KV)
+      savedReports: Boolean(env.REPORTS || env.REPORTS_KV),
+      // API-only: this Worker exposes /api/reports/:id JSON but no /reports/:id
+      // page, so a freshly scanned report has no shareable permalink here.
+      savedReportPages: false
     },
     security: {
       dnsRebindingGuard: "doh-preflight-only",

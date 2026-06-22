@@ -24,11 +24,12 @@ export type ReportBackend =
   | "node-api"
   // Served by the static export: prerendered page plus committed `:id.json`.
   | "static-file"
-  // Static export fronting a live scan API: the fresh report lives behind that
-  // API, which runs the full Node app, so its own origin serves a working
-  // report page + JSON. The permalink points at the scan API origin.
+  // Static export fronting a live scan API that serves its own report pages (it
+  // runs the full Node app), so the permalink points at the scan API origin.
   | "live-api"
-  // Same case, but no scan API origin is known, so no permalink can be offered.
+  // Static export fronting a live scan API, but no permalink can be offered:
+  // either no scan API origin is known, or that API is JSON-only (e.g. the
+  // Browser Run Worker) and has no `/reports/:id` page to link to.
   | "live-api-unshareable";
 
 export type ReportRuntime = {
@@ -44,6 +45,13 @@ export type ReportRuntime = {
    * origin, which serves its own report page, so its permalink lives there.
    */
   scanApiBase?: string;
+  /**
+   * Whether the live scan API serves human-viewable `/reports/:id` pages (the
+   * full Node app / container does; the API-only Browser Run Worker does not).
+   * Sourced from the scan API's health `capabilities.savedReportPages`. When
+   * false, a fresh live-API report has no permalink to share.
+   */
+  liveApiServesReportPages?: boolean;
 };
 
 export type ReportLocator = {
@@ -116,11 +124,12 @@ export function locateReport(id: string, runtime: ReportRuntime): ReportLocator 
   }
 
   if (runtime.liveApiBacked) {
-    // A freshly scanned report only lives behind the scan API. That API runs the
-    // full Node app, so its own origin serves a working report page + JSON —
-    // share that, not a static path the Pages site never pre-rendered for this id.
+    // A freshly scanned report only lives behind the scan API. Share a permalink
+    // there only when that API serves its own report pages (the full Node app /
+    // container). An API-only producer like the Browser Run Worker has no
+    // `/reports/:id` page, so linking there 404s — withhold the permalink.
     const apiBase = trimTrailingSlash(runtime.scanApiBase ?? "");
-    if (apiBase) {
+    if (apiBase && runtime.liveApiServesReportPages) {
       return {
         id,
         backend: "live-api",
@@ -128,8 +137,13 @@ export function locateReport(id: string, runtime: ReportRuntime): ReportLocator 
         dataUrl: `${apiBase}${reportApiPath(id)}`
       };
     }
-    // No scan API origin known: never advertise a static link the page cannot load.
-    return { id, backend: "live-api-unshareable", pagePath: null, dataUrl: staticPath(`${reportPagePath(id)}.json`, runtime.basePath) };
+    // No servable report page: never advertise a link the origin cannot render.
+    return {
+      id,
+      backend: "live-api-unshareable",
+      pagePath: null,
+      dataUrl: apiBase ? `${apiBase}${reportApiPath(id)}` : staticPath(`${reportPagePath(id)}.json`, runtime.basePath)
+    };
   }
 
   return {

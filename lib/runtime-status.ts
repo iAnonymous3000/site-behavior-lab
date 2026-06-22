@@ -72,7 +72,10 @@ export async function runtimeStatus(
       // only when the engine actually loaded so the static UI's toggle reflects
       // real capability instead of enabling a degraded mode.
       shieldsComparison: capability.shieldsComparison && adblock.active,
-      savedReports: true
+      savedReports: true,
+      // The full Next app serves /reports/:id pages, so live-scanned reports have
+      // a shareable permalink on this origin.
+      savedReportPages: true
     },
     warnings
   });
