@@ -5,11 +5,12 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Public origin baked into the build so shared live-scan report links unfurl with
-# their Open Graph / X card. Set this to the scanner's own public origin (e.g.
-# https://scan.sitebehavior.org) at build time; NEXT_PUBLIC_ vars are inlined by
-# `next build`, so a runtime env cannot change it. Empty default = no card image
-# (links still render the report).
-ARG NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=""
+# their Open Graph / X card. NEXT_PUBLIC_ vars are inlined by `next build`, so a
+# runtime env cannot change it — and Cloudflare Workers Builds builds this image
+# without passing a --build-arg, so the default below is what ships. Defaults to
+# this deployment's scanner origin; override with --build-arg for a self-host, or
+# set "" to omit the card image (links still render the report).
+ARG NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL="https://scan.sitebehavior.org"
 ENV NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=${NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL}
 
 COPY package.json package-lock.json ./
