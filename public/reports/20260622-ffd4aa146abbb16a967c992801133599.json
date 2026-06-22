@@ -1,0 +1,4904 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.citi.com/",
+  "scannedAt": "2026-06-22T19:21:06.147Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Online Banking, Mortgages, Personal Loans, Investing | Citi.com",
+      "status": 200,
+      "durationMs": 11929,
+      "firstPartyDomain": "www.citi.com",
+      "totalRequests": 142,
+      "thirdPartyRequests": 67,
+      "knownTrackerRequests": 14,
+      "thirdPartyDomains": 21,
+      "cookies": 48,
+      "thirdPartyCookies": 5,
+      "storageEntries": 42,
+      "fingerprintEvents": 205,
+      "shieldsBlockedRequests": 65
+    },
+    "conditions": {
+      "requestedUrl": "https://www.citi.com/",
+      "finalUrl": "https://www.citi.com/",
+      "scannedAt": "2026-06-22T19:20:54.206Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.citi.com/",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 35,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.citi.com/public/03f837e3f6a1555bf6f96086ea852669dd0011213c3f",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 281,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.citi.com/cbol-hp-static-assets/assets/js/banner.min.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.citi.com/cbol-hp-static-assets/assets/img/Citi-futuristic-angles-bg-compressed.jpg",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cds-assets/fonts/interstate/Interstate-LightItalic.woff2",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 282,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cds-assets/fonts/interstate/Interstate-Regular.woff2",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 284,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cds-assets/fonts/interstate/Interstate-Bold.woff2",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 284,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cds-assets/fonts/interstate/Interstate-Light.woff2",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 284,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.citi.com/cbol-hp-static-assets/styles-U44OS7HE.css",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 285,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.citi.com/cbol-hp-static-assets/chunk-JQX4HUPC.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 288,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.citi.com/cbol-hp-static-assets/chunk-HAIQRZLB.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 289,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.citi.com/cbol-hp-static-assets/chunk-YCMSK2JK.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 289,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.citi.com/cbol-hp-static-assets/polyfills-KFGV2ZA5.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 289,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.citi.com/cbol-hp-static-assets/main-UB5CG57P.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 289,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.citi.com/hMsFdWfv/eu9/daw/L529zN1sSb/wY1mhtiiaXX9XS/MVcCElotIwc/cigYBQ/l1H18B",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 290,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.citi.com/cbol-hp-static-assets/assets/js/fp.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 366,
+        "blockedByShields": true
+      },
+      {
+        "id": 17,
+        "url": "https://www.citi.com/cbol-hp-static-assets/scripts-2OWJ7VNV.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 367,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://idsync.rlcdn.com/463166.gif?partner_uid=",
+        "domain": "idsync.rlcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 367,
+        "blockedByShields": true
+      },
+      {
+        "id": 19,
+        "url": "https://www.citi.com/hMsFdWfv/eu9/daw/L529zN1sSb/wY1mhtiiaXX9XS/MVcCElotIwc/cigYBQ/l1H18B",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 565,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://api.rlcdn.com/api/identity?pid=&rt=",
+        "domain": "api.rlcdn.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 569,
+        "blockedByShields": true
+      },
+      {
+        "id": 21,
+        "url": "https://p11.techlab-cdn.com/e/65319_1825202430.js",
+        "domain": "p11.techlab-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 621,
+        "blockedByShields": true
+      },
+      {
+        "id": 22,
+        "url": "https://p11.techlab-cdn.com/e/65257_1825232097.js",
+        "domain": "p11.techlab-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 622,
+        "blockedByShields": true
+      },
+      {
+        "id": 23,
+        "url": "https://p11.techlab-cdn.com/e/64885_1825202523.js",
+        "domain": "p11.techlab-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 622,
+        "blockedByShields": true
+      },
+      {
+        "id": 24,
+        "url": "https://p11.techlab-cdn.com/e/65226_747628217.js",
+        "domain": "p11.techlab-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 622,
+        "blockedByShields": true
+      },
+      {
+        "id": 25,
+        "url": "https://www.citi.com/cbol-hp-static-assets/chunk-4KFMN2WY.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 833,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.citi.com/cbol-hp-static-assets/assets/js/fp-clientlib-v5.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 835,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://aemapi.citi.com/graphql/execute.json/global-nav/get-content%3Bpath=/content/dam/cfs/uspb/global-nav/en/web/brandingmap/brandingmap",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 857,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://content22.online.citi.com/8i0fdpd24wjbuirv.js",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 858,
+        "blockedByShields": true
+      },
+      {
+        "id": 29,
+        "url": "https://nexus.ensighten.com/citi/na_prod/Bootstrap.js",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 886,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cbol-core-assets/cedric/cedric_2.53.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 887,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://aemapi.citi.com/graphql/execute.json/global-nav/get-content%3Bpath=/content/dam/cfs/uspb/global-nav/en/web/fdiceligibility/fdiceligibility",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1000,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.citi.com/CBOL/IA/Angular/assets/Citi_Icon_Sprite_Nav_v3.svg",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1000,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.citi.com/gcgapi/prod/public/v1/config",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1024,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://aemapi.citi.com/graphql/execute.json/global-nav/get-gn-header-banner%3Bpath=/content/dam/cfs/uspb/global-nav/en/web/header/header-banner/header-banner-cont",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1032,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://aemapi.citi.com/graphql/execute.json/global-nav/get-gn-header-prenav%3Bpath=/content/dam/cfs/uspb/global-nav/en/web/header/prenavigation/prenavigation",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1042,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://aemapi.citi.com/content/dam/cfs/mobile/assets/CBOL/IA/Angular/assets/citiredesign.svg",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1046,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://aemapi.citi.com/content/dam/cfs/mobile/assets/CBOL/IA/Angular/assets/Citi_Icon_Sprite_Banner_v2.svg",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1049,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://aemapi.citi.com/content/dam/cfs/mobile/assets/CBOL/IA/Angular/assets/Citi_Icon_Sprite_Nav_v3.svg",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1050,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://aemapi.citi.com/content/dam/cfs/mobile/assets/CBOL/IA/Angular/assets/109-smallbguide.svg",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1050,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.citi.com/gcgapi/prod/api/v1/marketing/offers/banner",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1315,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://dpm.demdex.net/id?d_visid_ver=&d_fieldgroup=&d_rtbd=&d_ver=&d_orgid=&d_nsid=&ts=",
+        "domain": "dpm.demdex.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1423,
+        "blockedByShields": true
+      },
+      {
+        "id": 42,
+        "url": "https://nexus.ensighten.com/citi/na_prod/serverComponent.php?namespace=&staticJsPath=&ClientID=&PageID=",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1426,
+        "blockedByShields": true
+      },
+      {
+        "id": 43,
+        "url": "https://contents2.00110.citi.com/v4/2e5UUuYU8c8YTS",
+        "domain": "contents2.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1431,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://content22.online.citi.com/MmPVIBSxD2YX7ZiL",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1457,
+        "blockedByShields": true
+      },
+      {
+        "id": 45,
+        "url": "https://data.privacy.ensighten.com/privacy/v1/b/b.rnc?n=&c=&i=&p=&s=&d=",
+        "domain": "data.privacy.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1459,
+        "blockedByShields": true
+      },
+      {
+        "id": 46,
+        "url": "https://content22.online.citi.com/pPMPWFPgEXLY6T2E",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1460,
+        "blockedByShields": true
+      },
+      {
+        "id": 47,
+        "url": "https://content22.online.citi.com/8_QxtZgG35iDE5F-",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1508,
+        "blockedByShields": true
+      },
+      {
+        "id": 48,
+        "url": "https://citi.demdex.net/dest5.html?d_nsid=",
+        "domain": "citi.demdex.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1514,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://nexus.ensighten.com/citi/na_prod/code/6b10947d66332c08929fb682641e9b08.js?conditionId0=",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1541,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://nexus.ensighten.com/citi/na_prod/code/a0e05524d9296c8a60b1d034397bc4cd.js?conditionId0=",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1544,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://nexus.ensighten.com/citi/na_prod/code/76c8f300b307547cdd87d4586ae4c1a3.js?conditionId0=",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1544,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://nexus.ensighten.com/citi/na_prod/code/89d8649099fce45a8bc3063ec2da0e83.js?conditionId0=",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1545,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://nexus.ensighten.com/citi/na_prod/code/76648509e2c4c866384c95f76b186c8e.js?conditionId0=",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1545,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://nexus.ensighten.com/citi/na_prod/code/0bff4c3910675624a5a44e601de6108f.js?conditionId0=",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1546,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://nexus.ensighten.com/citi/na_prod/code/2c49a47b4120baa6b4831e51add2fe90.js?conditionId0=",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1546,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://contents2.00110.citi.com/v4/apJyDI6XD0BWhPr9Ma3",
+        "domain": "contents2.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1624,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://1.a79ab95c1589a13f8a4cab612bc71f9f7.com/scripts/prod/crossdomain.html",
+        "domain": "1.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1682,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://1.b406929acabac9b095f124c81bdfcf57f.com/scripts/prod/crossdomain.html",
+        "domain": "1.b406929acabac9b095f124c81bdfcf57f.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1687,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://1.c81358859121583b7adf2ace89cb39f44.com/scripts/prod/crossdomain.html",
+        "domain": "1.c81358859121583b7adf2ace89cb39f44.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1695,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://contents3.00110.citi.com/api/v1/cr.png",
+        "domain": "contents3.00110.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2051,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://1.a79ab95c1589a13f8a4cab612bc71f9f7.com/scripts/prod/crossdomain2.12.0.5273.b96c35cc.min.js",
+        "domain": "1.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2119,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://1.b406929acabac9b095f124c81bdfcf57f.com/scripts/prod/crossdomain2.12.0.5273.b96c35cc.min.js",
+        "domain": "1.b406929acabac9b095f124c81bdfcf57f.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2122,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://1.c81358859121583b7adf2ace89cb39f44.com/scripts/prod/crossdomain2.12.0.5273.b96c35cc.min.js",
+        "domain": "1.c81358859121583b7adf2ace89cb39f44.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2129,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://www.citi.com/gcgapi/prod/public/v1/prelogin/digital/reporting/userInterface/errorLogging",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2147,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cds-assets/svgs/icons/2021/051-information.svg",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2151,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cds-assets/svgs/icons/2021/044-close.svg",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2182,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cds-assets/svgs/icons/2021/115-visibility-on.svg",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2217,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://aemapi.citi.com/content/dam/cfs/uspb/usmkt/cbol-homepage/en/banners/images/HP_17721_H2_EDD_BAU.png",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2219,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://content22.online.citi.com/fp/clear.png",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2265,
+        "blockedByShields": true
+      },
+      {
+        "id": 70,
+        "url": "https://content22.online.citi.com/iyrSQw4LdJCzyfKz",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2266,
+        "blockedByShields": true
+      },
+      {
+        "id": 71,
+        "url": "https://content22.online.citi.com/sfzdPrLsHgrs3W87",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2268,
+        "blockedByShields": true
+      },
+      {
+        "id": 72,
+        "url": "https://content22.online.citi.com/iyrSQw4LdJCzyfKz",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2272,
+        "blockedByShields": true
+      },
+      {
+        "id": 73,
+        "url": "https://content22.online.citi.com/LFfFTo8FZbe3n1SO",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2273,
+        "blockedByShields": true
+      },
+      {
+        "id": 74,
+        "url": "https://h.online-metrix.net/2UO2AUhQbL24TXZH?29a8908f7926fbe2=",
+        "domain": "h.online-metrix.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2274,
+        "blockedByShields": true
+      },
+      {
+        "id": 75,
+        "url": "https://content22.online.citi.com/q3vjOKMg72RGL-bZ",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2287,
+        "blockedByShields": true
+      },
+      {
+        "id": 76,
+        "url": "https://h64.online-metrix.net/SM_PSUOuOCqwjlok?91cc01ffa33bd54c=",
+        "domain": "h64.online-metrix.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2292,
+        "blockedByShields": true
+      },
+      {
+        "id": 77,
+        "url": "https://89oebq5kzprkreuqbshte7jg2nan6zn63d7ts6jm4f4c4c9640c87d51sac.d.aa.online-metrix.net/ch54cLBx0iLN7axC?77edd0cdafd5eeb0=",
+        "domain": "89oebq5kzprkreuqbshte7jg2nan6zn63d7ts6jm4f4c4c9640c87d51sac.d.aa.online-metrix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2292,
+        "blockedByShields": true
+      },
+      {
+        "id": 78,
+        "url": "https://contents3.00110.citi.com/api/v1/cr.png",
+        "domain": "contents3.00110.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2309,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://aemapi.citi.com/content/dam/cfs/uspb/usmkt/cbol-homepage/en/banners/images/PIL_HP22_Module_3-UP.jpg",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2431,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://aemapi.citi.com/content/dam/cfs/uspb/usmkt/cbol-homepage/en/banners/images/HP_7591_Module_3UP.jpg",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2432,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://aemapi.citi.com/content/dam/cfs/uspb/usmkt/cbol-homepage/en/banners/images/HP_15859_Globe_Family_3UP_Module.jpg",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2433,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://www.citi.com/hMsFdWfv/eu9/daw/L529zN1sSb/wY1mhtiiaXX9XS/MVcCElotIwc/cigYBQ/l1H18B",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2447,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://contents2.00110.citi.com/v4/b6EYSthT6tYFYR0PYh0C",
+        "domain": "contents2.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2704,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://content22.online.citi.com/ak9Ju43A7gH9MZC_",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2855,
+        "blockedByShields": true
+      },
+      {
+        "id": 85,
+        "url": "https://content22.online.citi.com/ZvA-BJnF70v6uqLp",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2856,
+        "blockedByShields": true
+      },
+      {
+        "id": 86,
+        "url": "https://cdn.gbqofs.com/citi-na-prod/p/detector-dom.min.js",
+        "domain": "cdn.gbqofs.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2871,
+        "blockedByShields": true
+      },
+      {
+        "id": 87,
+        "url": "https://zn3vi8kkuds0jjrfc-citifeedback.siteintercept.qualtrics.com/SIE/?Q_ZID=",
+        "domain": "zn3vi8kkuds0jjrfc-citifeedback.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2884,
+        "blockedByShields": true
+      },
+      {
+        "id": 88,
+        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2903,
+        "blockedByShields": true
+      },
+      {
+        "id": 89,
+        "url": "https://content22.online.citi.com/kFJg7fZpwll_nLou",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2937,
+        "blockedByShields": true
+      },
+      {
+        "id": 90,
+        "url": "https://content22.online.citi.com/iyrSQw4LdJCzyfKz",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2941,
+        "blockedByShields": true
+      },
+      {
+        "id": 91,
+        "url": "https://content22.online.citi.com/kFJg7fZpwll_nLou",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2941,
+        "blockedByShields": true
+      },
+      {
+        "id": 92,
+        "url": "https://dpm.demdex.net/id?d_visid_ver=&d_fieldgroup=&d_rtbd=&d_ver=&d_orgid=&d_nsid=&d_mid=&d_blob=&d_cid_ic=&d_cid_ic=&ts=",
+        "domain": "dpm.demdex.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2975,
+        "blockedByShields": true
+      },
+      {
+        "id": 93,
+        "url": "https://content22.online.citi.com/WR_yxpeAOmPv4pCH",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3000,
+        "blockedByShields": true
+      },
+      {
+        "id": 94,
+        "url": "https://citicorpcreditservic.tt.omtrdc.net/rest/v1/delivery?client=&sessionId=&version=",
+        "domain": "citicorpcreditservic.tt.omtrdc.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3012,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://online.citi.com/CBOL/taggingTransformation/config.js",
+        "domain": "online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3026,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://www.citi.com/hMsFdWfv/eu9/daw/L529zN1sSb/wY1mhtiiaXX9XS/MVcCElotIwc/cigYBQ/l1H18B",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3037,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://cdn.gbqofs.com/citi-na-prod/p/config.js",
+        "domain": "cdn.gbqofs.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3076,
+        "blockedByShields": true
+      },
+      {
+        "id": 98,
+        "url": "https://siteintercept.qualtrics.com/dxjsmodule/881.d239a4f9da069111bd06.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3085,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://siteintercept.qualtrics.com/dxjsmodule/941.a09c5b36bb369f224ce3.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3085,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://ad.doubleclick.net/activity;src=6260004;type=citih0;cat=citih00;rcb=18;qty=1;cost=1;ord=4510272081583.645;npa=0;auiddc=2135254014.1782156057;pscdl=noapi;frm=0;_tu=IAAC;gtm=45fe66h0v9180781895za200zd9180781895xec;gcd=13l3l3l3l1l1;dma=0;dc_fmt=3;tag_exp=115938466~115938468~119027224~119392696~119392704~119456239~119456247;epver=2;dc_random=1782156057_oN_oBWxjUHqoUVP20Ug7opPo5F1ItxsXkg;~oref=https%3A%2F%2Fwww.citi.com%2F",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3145,
+        "blockedByShields": true
+      },
+      {
+        "id": 101,
+        "url": "https://ad.doubleclick.net/ccm/s/collect?auid=&gtm=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3169,
+        "blockedByShields": true
+      },
+      {
+        "id": 102,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3169,
+        "blockedByShields": true
+      },
+      {
+        "id": 103,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3170,
+        "blockedByShields": true
+      },
+      {
+        "id": 104,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3171,
+        "blockedByShields": true
+      },
+      {
+        "id": 105,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3171,
+        "blockedByShields": true
+      },
+      {
+        "id": 106,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3171,
+        "blockedByShields": true
+      },
+      {
+        "id": 107,
+        "url": "https://cdn.gbqofs.com/citi-na-prod/detector/detector-bootstrap.min.js",
+        "domain": "cdn.gbqofs.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3209,
+        "blockedByShields": true
+      },
+      {
+        "id": 108,
+        "url": "https://siteintercept.qualtrics.com/WRSiteInterceptEngine/Targeting.php?Q_ZoneID=&Q_CLIENTVERSION=&Q_CLIENTTYPE=",
+        "domain": "siteintercept.qualtrics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3218,
+        "blockedByShields": true
+      },
+      {
+        "id": 109,
+        "url": "https://cdn.gbqofs.com/citi-na-prod/detector/detector-lazy.min.js",
+        "domain": "cdn.gbqofs.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3374,
+        "blockedByShields": true
+      },
+      {
+        "id": 110,
+        "url": "https://siteintercept.qualtrics.com/dxjsmodule/CoreModule.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3406,
+        "blockedByShields": false
+      },
+      {
+        "id": 111,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&_tu=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3462,
+        "blockedByShields": true
+      },
+      {
+        "id": 112,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&_tu=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3516,
+        "blockedByShields": true
+      },
+      {
+        "id": 113,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&_tu=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3563,
+        "blockedByShields": true
+      },
+      {
+        "id": 114,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&_tu=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3611,
+        "blockedByShields": true
+      },
+      {
+        "id": 115,
+        "url": "https://content22.online.citi.com/iyrSQw4LdJCzyfKz",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3629,
+        "blockedByShields": true
+      },
+      {
+        "id": 116,
+        "url": "https://cdn.gbqofs.com/citi-na-prod/detector/detector-bootstrap.min.js",
+        "domain": "cdn.gbqofs.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3657,
+        "blockedByShields": true
+      },
+      {
+        "id": 117,
+        "url": "https://contents2.00110.citi.com/v4/wne05M3PhWN3Ak",
+        "domain": "contents2.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3675,
+        "blockedByShields": false
+      },
+      {
+        "id": 118,
+        "url": "https://siteintercept.qualtrics.com/dxjsmodule/147.1bd41725cb680c56bdbc.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3719,
+        "blockedByShields": false
+      },
+      {
+        "id": 119,
+        "url": "https://siteintercept.qualtrics.com/dxjsmodule/308.5b6f220b63d2a0e69fe1.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3719,
+        "blockedByShields": false
+      },
+      {
+        "id": 120,
+        "url": "https://siteintercept.qualtrics.com/dxjsmodule/FeedbackButtonModule.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3720,
+        "blockedByShields": false
+      },
+      {
+        "id": 121,
+        "url": "https://siteintercept.qualtrics.com/WRSiteInterceptEngine/Asset.php?Module=&Version=&Q_ORIGIN=&Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BrandTier=&Q_ARCACHEVERSION=&Q_BRANDDC=",
+        "domain": "siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3721,
+        "blockedByShields": true
+      },
+      {
+        "id": 122,
+        "url": "https://siteintercept.qualtrics.com/WRSiteInterceptEngine/Asset.php?Module=&Version=&Q_InterceptID=&Q_ORIGIN=&Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BrandTier=&Q_ARCACHEVERSION=&Q_BRANDDC=",
+        "domain": "siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3721,
+        "blockedByShields": true
+      },
+      {
+        "id": 123,
+        "url": "https://cdn.gbqofs.com/citi-na-prod/detector/detector-lazy.min.js",
+        "domain": "cdn.gbqofs.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3748,
+        "blockedByShields": true
+      },
+      {
+        "id": 124,
+        "url": "https://siteintercept.qualtrics.com/WRSiteInterceptEngine/?Q_Impress=&Q_CID=&Q_SIID=&Q_ASID=&Q_CLIENTVERSION=&Q_CLIENTTYPE=&r=",
+        "domain": "siteintercept.qualtrics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3801,
+        "blockedByShields": true
+      },
+      {
+        "id": 125,
+        "url": "https://h.online-metrix.net/w42L2vwjjUQKOWdv?f02d3ada4265a48c=&jf=",
+        "domain": "h.online-metrix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3815,
+        "blockedByShields": true
+      },
+      {
+        "id": 126,
+        "url": "https://prod.report.nacustomerexperience.citi.com/glassbox/reporting/798b2f12-9162-4a94-91ee-805d883ca266/cls_report",
+        "domain": "prod.report.nacustomerexperience.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3831,
+        "blockedByShields": true
+      },
+      {
+        "id": 127,
+        "url": "https://data.privacy.ensighten.com/privacy/v1/b/b.rnc?n=&c=&i=&p=&s=&d=",
+        "domain": "data.privacy.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3912,
+        "blockedByShields": true
+      },
+      {
+        "id": 128,
+        "url": "https://data.privacy.ensighten.com/privacy/v1/b/b.rnc?n=&c=&i=&p=&s=&d=",
+        "domain": "data.privacy.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3912,
+        "blockedByShields": true
+      },
+      {
+        "id": 129,
+        "url": "https://data.privacy.ensighten.com/privacy/v1/b/b.rnc?n=&c=&i=&p=&s=&d=",
+        "domain": "data.privacy.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3913,
+        "blockedByShields": true
+      },
+      {
+        "id": 130,
+        "url": "https://contents1.00110.citi.com/api/v1/sendLogs",
+        "domain": "contents1.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4101,
+        "blockedByShields": false
+      },
+      {
+        "id": 131,
+        "url": "https://contents2.00110.citi.com/v4/jTWo82h9qD3",
+        "domain": "contents2.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4599,
+        "blockedByShields": false
+      },
+      {
+        "id": 132,
+        "url": "https://data.privacy.ensighten.com/privacy/v1/b/b.rnc?n=&c=&i=&p=&s=&d=",
+        "domain": "data.privacy.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6413,
+        "blockedByShields": true
+      },
+      {
+        "id": 133,
+        "url": "https://contents2.00110.citi.com/v4/lLoxXgMfm3wksXTFsq",
+        "domain": "contents2.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6598,
+        "blockedByShields": false
+      },
+      {
+        "id": 134,
+        "url": "https://nexus.ensighten.com/error/e.gif?msg=&lnn=&fn=&cid=&client=&publishPath=&rid=&did=&errorName=",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8204,
+        "blockedByShields": true
+      },
+      {
+        "id": 135,
+        "url": "https://mboxedge34.tt.omtrdc.net/rest/v1/delivery?client=&sessionId=&version=",
+        "domain": "mboxedge34.tt.omtrdc.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8266,
+        "blockedByShields": false
+      },
+      {
+        "id": 136,
+        "url": "https://data.privacy.ensighten.com/privacy/v1/b/b.rnc?n=&c=&i=&p=&s=&d=",
+        "domain": "data.privacy.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8914,
+        "blockedByShields": true
+      },
+      {
+        "id": 137,
+        "url": "https://www.citi.com/hMsFdWfv/eu9/daw/L529zN1sSb/wY1mhtiiaXX9XS/MVcCElotIwc/cigYBQ/l1H18B",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9313,
+        "blockedByShields": false
+      },
+      {
+        "id": 138,
+        "url": "https://www.citi.com/hMsFdWfv/eu9/daw/L529zN1sSb/wY1mhtiiaXX9XS/MVcCElotIwc/cigYBQ/l1H18B",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9419,
+        "blockedByShields": false
+      },
+      {
+        "id": 139,
+        "url": "https://content22.online.citi.com/kFJg7fZpwll_nLou",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9425,
+        "blockedByShields": true
+      },
+      {
+        "id": 140,
+        "url": "https://content22.online.citi.com/kFJg7fZpwll_nLou",
+        "domain": "content22.online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9427,
+        "blockedByShields": true
+      },
+      {
+        "id": 141,
+        "url": "https://contents2.00110.citi.com/v4/SYia1GDLKkIOiDo",
+        "domain": "contents2.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 10600,
+        "blockedByShields": false
+      },
+      {
+        "id": 142,
+        "url": "https://data.privacy.ensighten.com/privacy/v1/b/b.rnc?n=&c=&i=&p=&s=&d=",
+        "domain": "data.privacy.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11414,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "dpm.demdex.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "idsync.rlcdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "api.rlcdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "citi.demdex.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "citicorpcreditservic.tt.omtrdc.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "mboxedge34.tt.omtrdc.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "nexus.ensighten.com",
+        "requests": 10,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "siteintercept.qualtrics.com",
+        "requests": 10,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "data.privacy.ensighten.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.gbqofs.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "p11.techlab-cdn.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "1.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "1.b406929acabac9b095f124c81bdfcf57f.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "1.c81358859121583b7adf2ace89cb39f44.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "h.online-metrix.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "h64.online-metrix.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "89oebq5kzprkreuqbshte7jg2nan6zn63d7ts6jm4f4c4c9640c87d51sac.d.aa.online-metrix.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "zn3vi8kkuds0jjrfc-citifeedback.siteintercept.qualtrics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.citi.com",
+        "requests": 32,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          201
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "image",
+          "font",
+          "stylesheet",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "content22.online.citi.com",
+        "requests": 19,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "image",
+          "xhr",
+          "document"
+        ]
+      },
+      {
+        "domain": "aemapi.citi.com",
+        "requests": 12,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "contents2.00110.citi.com",
+        "requests": 7,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "contents3.00110.citi.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "online.citi.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "prod.report.nacustomerexperience.citi.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "contents1.00110.citi.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "citicorpcreditservic!mboxSession",
+        "domain": ".citicorpcreditservic.tt.omtrdc.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "citicorpcreditservic!mboxPC",
+        "domain": ".citicorpcreditservic.tt.omtrdc.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "demdex",
+        "domain": ".demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "citicorpcreditservic!mboxSession",
+        "domain": ".tt.omtrdc.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "citicorpcreditservic!mboxPC",
+        "domain": ".tt.omtrdc.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "bm_sz",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "experience",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "CUUID",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AKMTLTSID",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "CB_popsplit",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tenantId",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tmx_sessionid",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "bcsid",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "DBSkelLoad",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "bmuid",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "cdContextId",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "CITI_ENSIGHTEN_PRIVACY_Advertising-Targeting_Cookies",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CITI_ENSIGHTEN_PRIVACY_Performance-Analytics_Cookies",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CITI_ENSIGHTEN_PRIVACY_Essential-Functional_Cookies",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CITI_ENSIGHTEN_PRIVACY_GPC",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CITI_ENSIGHTEN_PRIVACY_BANNER_LOADED",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CITI_ENSIGHTEN_PRIVACY_BANNER_VIEWED",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AMCVS_61834D9B5228A7430A490D45%40AdobeOrg",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "CITI_SITE",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "cdSNum",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "citi_authorization",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "at_check",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AMCV_61834D9B5228A7430A490D45%40AdobeOrg",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "mboxEdgeCluster",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cls_v",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cls_s",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "rto",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "s_nr",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "gpv_pn",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "s_cc",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "mbox",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CB_AOSDMPRF",
+        "domain": ".www.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "thx_guid",
+        "domain": "content22.online.citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tmx_guid",
+        "domain": "content22.online.citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cls_cfgver",
+        "domain": "prod.report.nacustomerexperience.citi.com",
+        "path": "/glassbox/reporting/798b2f12-9162-4a94-91ee-805d883ca266",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_cls_v",
+        "domain": "prod.report.nacustomerexperience.citi.com",
+        "path": "/glassbox/reporting/798b2f12-9162-4a94-91ee-805d883ca266",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_cls_s",
+        "domain": "prod.report.nacustomerexperience.citi.com",
+        "path": "/glassbox/reporting/798b2f12-9162-4a94-91ee-805d883ca266",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "rto",
+        "domain": "prod.report.nacustomerexperience.citi.com",
+        "path": "/glassbox/reporting/798b2f12-9162-4a94-91ee-805d883ca266",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "ROUTEID",
+        "domain": "prod.report.nacustomerexperience.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "isCdsEnabledForSplash",
+        "domain": "www.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "precacheBAU",
+        "domain": "www.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "detectedFonts_2.1.5",
+        "valueBytes": 194
+      },
+      {
+        "area": "localStorage",
+        "key": "tgt:tlm:lower",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "QSI_ActionSetHistory",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "gb.performanceRecord.bychance.prev_th",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "cdSrvrState",
+        "valueBytes": 566
+      },
+      {
+        "area": "localStorage",
+        "key": "gb.performanceRecord.bychance.enabled",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "cdContextId",
+        "valueBytes": 9
+      },
+      {
+        "area": "localStorage",
+        "key": "gb_unbound.cls_v_expr",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "tgt:tlm:upper",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "tgt:tlm:0",
+        "valueBytes": 361
+      },
+      {
+        "area": "localStorage",
+        "key": "5718FABB002E",
+        "valueBytes": 94
+      },
+      {
+        "area": "localStorage",
+        "key": "ak_ax",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls",
+        "valueBytes": 277
+      },
+      {
+        "area": "localStorage",
+        "key": "cdAgentId",
+        "valueBytes": 46
+      },
+      {
+        "area": "localStorage",
+        "key": "ed73f20edbf2b73",
+        "valueBytes": 46
+      },
+      {
+        "area": "localStorage",
+        "key": "tgt:tlm:2",
+        "valueBytes": 63
+      },
+      {
+        "area": "localStorage",
+        "key": "gb.sid",
+        "valueBytes": 38
+      },
+      {
+        "area": "localStorage",
+        "key": "Q_INTER",
+        "valueBytes": 37
+      },
+      {
+        "area": "localStorage",
+        "key": "TNT-CurrentPage",
+        "valueBytes": 21
+      },
+      {
+        "area": "localStorage",
+        "key": "cdTabList",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "gb.cors_ready",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "CITI_ENSIGHTEN_PRIVACY_TLD-www.citi.com",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "ak_a",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "cdSNum",
+        "valueBytes": 106
+      },
+      {
+        "area": "localStorage",
+        "key": "tgt:tlm:1",
+        "valueBytes": 336
+      },
+      {
+        "area": "localStorage",
+        "key": "ed73f20edbf2b74",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "bmuid",
+        "valueBytes": 60
+      },
+      {
+        "area": "sessionStorage",
+        "key": "contextConfiguration",
+        "valueBytes": 29
+      },
+      {
+        "area": "sessionStorage",
+        "key": "QSI_ActionSetHistory",
+        "valueBytes": 29
+      },
+      {
+        "area": "sessionStorage",
+        "key": "returnURL",
+        "valueBytes": 7
+      },
+      {
+        "area": "sessionStorage",
+        "key": "isMarketingBrandingOrDefault",
+        "valueBytes": 5
+      },
+      {
+        "area": "sessionStorage",
+        "key": "resetSessionConfig",
+        "valueBytes": 29
+      },
+      {
+        "area": "sessionStorage",
+        "key": "gb.psn",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "gb.btabid",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "TAB_ID",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "QSI_HistorySession",
+        "valueBytes": 43
+      },
+      {
+        "area": "sessionStorage",
+        "key": "isPageViewDone",
+        "valueBytes": 7
+      },
+      {
+        "area": "sessionStorage",
+        "key": "status",
+        "valueBytes": 8
+      },
+      {
+        "area": "sessionStorage",
+        "key": "pe.acxiom.jUSCBOL_Loginpage_Uncookied.offers",
+        "valueBytes": 2477
+      },
+      {
+        "area": "sessionStorage",
+        "key": "cdTabData",
+        "valueBytes": 71
+      },
+      {
+        "area": "sessionStorage",
+        "key": "adobeLaunchConfig",
+        "valueBytes": 392
+      },
+      {
+        "area": "sessionStorage",
+        "key": "PIM-SESSION-ID",
+        "valueBytes": 16
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 6,
+        "evidence": {
+          "readApis": [
+            "canvas.getImageData",
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 300,
+          "maxCanvasHeight": 285,
+          "maxDistinctTextCharacters": 25,
+          "maxTextWriteCalls": 6
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 2,
+        "evidence": {
+          "readApis": [
+            "webgl2.readPixels"
+          ],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+            "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl2.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 19,
+          "readPixelsCalls": 5
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 2,
+        "evidence": {
+          "constructorCalls": 2,
+          "createDataChannelCalls": 4,
+          "createOfferCalls": 4,
+          "setLocalDescriptionCalls": 4
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 163,
+          "maxDistinctFonts": 163,
+          "maxDistinctTextSamples": 1,
+          "maxTextLength": 36
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 163
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 7
+      },
+      {
+        "api": "canvas.getImageData",
+        "count": 5
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 5
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 5
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 4
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 3
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 2
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "The page did not reach network idle before the scan window ended.",
+      "Blocked one or more requests that resolved to local or private network addresses at connection time.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Online Banking, Mortgages, Personal Loans, Investing | Citi.com",
+      "status": 200,
+      "durationMs": 11831,
+      "firstPartyDomain": "www.citi.com",
+      "totalRequests": 61,
+      "thirdPartyRequests": 7,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 4,
+      "cookies": 26,
+      "thirdPartyCookies": 0,
+      "storageEntries": 22,
+      "fingerprintEvents": 17,
+      "shieldsBlockedRequests": 18
+    },
+    "conditions": {
+      "requestedUrl": "https://www.citi.com/",
+      "finalUrl": "https://www.citi.com/",
+      "scannedAt": "2026-06-22T19:21:06.147Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.citi.com/",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 38,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.citi.com/public/03f837e3f6a1555bf6f96086ea852669dd0011213c3f",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 303,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.citi.com/cbol-hp-static-assets/assets/js/banner.min.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 304,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.citi.com/cbol-hp-static-assets/assets/img/Citi-futuristic-angles-bg-compressed.jpg",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 305,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cds-assets/fonts/interstate/Interstate-LightItalic.woff2",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 306,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cds-assets/fonts/interstate/Interstate-Regular.woff2",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 306,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cds-assets/fonts/interstate/Interstate-Bold.woff2",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 307,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cds-assets/fonts/interstate/Interstate-Light.woff2",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 309,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.citi.com/cbol-hp-static-assets/styles-U44OS7HE.css",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 309,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.citi.com/cbol-hp-static-assets/chunk-JQX4HUPC.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 313,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.citi.com/cbol-hp-static-assets/chunk-HAIQRZLB.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 313,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.citi.com/cbol-hp-static-assets/chunk-YCMSK2JK.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 313,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.citi.com/cbol-hp-static-assets/polyfills-KFGV2ZA5.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 314,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.citi.com/cbol-hp-static-assets/main-UB5CG57P.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 314,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.citi.com/hMsFdWfv/eu9/daw/L529zN1sSb/wY1mhtiiaXX9XS/MVcCElotIwc/cigYBQ/l1H18B",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 314,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.citi.com/cbol-hp-static-assets/scripts-2OWJ7VNV.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 345,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.citi.com/hMsFdWfv/eu9/daw/L529zN1sSb/wY1mhtiiaXX9XS/MVcCElotIwc/cigYBQ/l1H18B",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 570,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.citi.com/cbol-hp-static-assets/chunk-4KFMN2WY.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 791,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.citi.com/cbol-hp-static-assets/assets/js/fp-clientlib-v5.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 794,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://aemapi.citi.com/graphql/execute.json/global-nav/get-content%3Bpath=/content/dam/cfs/uspb/global-nav/en/web/brandingmap/brandingmap",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 814,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://nexus.ensighten.com/citi/na_prod/Bootstrap.js",
+        "domain": "nexus.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 846,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cbol-core-assets/cedric/cedric_2.53.js",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 847,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://aemapi.citi.com/graphql/execute.json/global-nav/get-content%3Bpath=/content/dam/cfs/uspb/global-nav/en/web/fdiceligibility/fdiceligibility",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 965,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.citi.com/CBOL/IA/Angular/assets/Citi_Icon_Sprite_Nav_v3.svg",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 966,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.citi.com/gcgapi/prod/public/v1/config",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 991,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://aemapi.citi.com/graphql/execute.json/global-nav/get-gn-header-banner%3Bpath=/content/dam/cfs/uspb/global-nav/en/web/header/header-banner/header-banner-cont",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1002,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://aemapi.citi.com/graphql/execute.json/global-nav/get-gn-header-prenav%3Bpath=/content/dam/cfs/uspb/global-nav/en/web/header/prenavigation/prenavigation",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1007,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://aemapi.citi.com/content/dam/cfs/mobile/assets/CBOL/IA/Angular/assets/citiredesign.svg",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1008,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://aemapi.citi.com/content/dam/cfs/mobile/assets/CBOL/IA/Angular/assets/Citi_Icon_Sprite_Banner_v2.svg",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1009,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://aemapi.citi.com/content/dam/cfs/mobile/assets/CBOL/IA/Angular/assets/Citi_Icon_Sprite_Nav_v3.svg",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1011,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://aemapi.citi.com/content/dam/cfs/mobile/assets/CBOL/IA/Angular/assets/109-smallbguide.svg",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1012,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://contents2.00110.citi.com/v4/GcEsm1AjrKBk",
+        "domain": "contents2.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1344,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://www.citi.com/gcgapi/prod/api/v1/marketing/offers/banner",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1355,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://contents2.00110.citi.com/v4/8aEaNpkiomU",
+        "domain": "contents2.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1594,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://1.a79ab95c1589a13f8a4cab612bc71f9f7.com/scripts/prod/crossdomain.html",
+        "domain": "1.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1643,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://1.b406929acabac9b095f124c81bdfcf57f.com/scripts/prod/crossdomain.html",
+        "domain": "1.b406929acabac9b095f124c81bdfcf57f.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1650,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://1.c81358859121583b7adf2ace89cb39f44.com/scripts/prod/crossdomain.html",
+        "domain": "1.c81358859121583b7adf2ace89cb39f44.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1655,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://contents3.00110.citi.com/api/v1/cr.png",
+        "domain": "contents3.00110.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2003,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://1.a79ab95c1589a13f8a4cab612bc71f9f7.com/scripts/prod/crossdomain2.12.0.5273.b96c35cc.min.js",
+        "domain": "1.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2031,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://1.b406929acabac9b095f124c81bdfcf57f.com/scripts/prod/crossdomain2.12.0.5273.b96c35cc.min.js",
+        "domain": "1.b406929acabac9b095f124c81bdfcf57f.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2039,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://1.c81358859121583b7adf2ace89cb39f44.com/scripts/prod/crossdomain2.12.0.5273.b96c35cc.min.js",
+        "domain": "1.c81358859121583b7adf2ace89cb39f44.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2046,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://www.citi.com/gcgapi/prod/public/v1/prelogin/digital/reporting/userInterface/errorLogging",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2072,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cds-assets/svgs/icons/2021/051-information.svg",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2075,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cds-assets/svgs/icons/2021/044-close.svg",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2108,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://www.citi.com/cbol-hp-static-assets/cds-assets/svgs/icons/2021/115-visibility-on.svg",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2148,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://aemapi.citi.com/content/dam/cfs/uspb/usmkt/cbol-homepage/en/banners/images/12824_Hero_HP24_CostcoC_App_STD_Fave.png",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2149,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://contents3.00110.citi.com/api/v1/cr.png",
+        "domain": "contents3.00110.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2172,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://www.citi.com/hMsFdWfv/eu9/daw/L529zN1sSb/wY1mhtiiaXX9XS/MVcCElotIwc/cigYBQ/l1H18B",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2229,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://aemapi.citi.com/content/dam/cfs/uspb/usmkt/cbol-homepage/en/banners/images/HP_17586_Module_3UP_DP.jpg",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2247,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://aemapi.citi.com/content/dam/cfs/uspb/usmkt/cbol-homepage/en/banners/images/HP_18285_3UP_Module.jpg",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2248,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://aemapi.citi.com/content/dam/cfs/uspb/usmkt/cbol-homepage/en/banners/images/HP_17722_3-up_EDD-BAU.jpg",
+        "domain": "aemapi.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2249,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://www.citi.com/hMsFdWfv/eu9/daw/L529zN1sSb/wY1mhtiiaXX9XS/MVcCElotIwc/cigYBQ/l1H18B",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2306,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://contents2.00110.citi.com/v4/4C2DMrQ5e63SSD",
+        "domain": "contents2.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2570,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://online.citi.com/CBOL/taggingTransformation/config.js",
+        "domain": "online.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2950,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://contents2.00110.citi.com/v4/9Ju5MpZYJffOANcPIr3",
+        "domain": "contents2.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3566,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://contents1.00110.citi.com/api/v1/sendLogs",
+        "domain": "contents1.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4065,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://contents2.00110.citi.com/v4/HzA9iO8IXsb6wicfma",
+        "domain": "contents2.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4565,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://contents2.00110.citi.com/v4/fshKKr6CoFquGJD",
+        "domain": "contents2.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6565,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://www.citi.com/hMsFdWfv/eu9/daw/L529zN1sSb/wY1mhtiiaXX9XS/MVcCElotIwc/cigYBQ/l1H18B",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9228,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://www.citi.com/hMsFdWfv/eu9/daw/L529zN1sSb/wY1mhtiiaXX9XS/MVcCElotIwc/cigYBQ/l1H18B",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9324,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://contents2.00110.citi.com/v4/NdFvJm7q4z9",
+        "domain": "contents2.00110.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 10569,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "1.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "1.b406929acabac9b095f124c81bdfcf57f.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "1.c81358859121583b7adf2ace89cb39f44.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "nexus.ensighten.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.citi.com",
+        "requests": 31,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          201
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "image",
+          "font",
+          "stylesheet",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "aemapi.citi.com",
+        "requests": 12,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "contents2.00110.citi.com",
+        "requests": 7,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "contents3.00110.citi.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "online.citi.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "contents1.00110.citi.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "bm_sz",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "experience",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "CUUID",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AKMTLTSID",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "CB_popsplit",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tenantId",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tmx_sessionid",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "bcsid",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "DBSkelLoad",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "bmuid",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CITI_ENSIGHTEN_PRIVACY_Advertising-Targeting_Cookies",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CITI_ENSIGHTEN_PRIVACY_Performance-Analytics_Cookies",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CITI_ENSIGHTEN_PRIVACY_Essential-Functional_Cookies",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CITI_ENSIGHTEN_PRIVACY_GPC",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CITI_ENSIGHTEN_PRIVACY_BANNER_LOADED",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CITI_ENSIGHTEN_PRIVACY_BANNER_VIEWED",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "cdContextId",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AMCVS_61834D9B5228A7430A490D45%40AdobeOrg",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AMCV_61834D9B5228A7430A490D45%40AdobeOrg",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CITI_SITE",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "cdSNum",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "citi_authorization",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CB_AOSDMPRF",
+        "domain": ".www.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "isCdsEnabledForSplash",
+        "domain": "www.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "precacheBAU",
+        "domain": "www.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "detectedFonts_2.1.5",
+        "valueBytes": 194
+      },
+      {
+        "area": "localStorage",
+        "key": "cdSrvrState",
+        "valueBytes": 566
+      },
+      {
+        "area": "localStorage",
+        "key": "cdTabList",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "cdContextId",
+        "valueBytes": 9
+      },
+      {
+        "area": "localStorage",
+        "key": "CITI_ENSIGHTEN_PRIVACY_TLD-www.citi.com",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "ak_a",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "cdSNum",
+        "valueBytes": 106
+      },
+      {
+        "area": "localStorage",
+        "key": "ak_ax",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "ed73f20edbf2b74",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "cdAgentId",
+        "valueBytes": 46
+      },
+      {
+        "area": "localStorage",
+        "key": "bmuid",
+        "valueBytes": 60
+      },
+      {
+        "area": "sessionStorage",
+        "key": "contextConfiguration",
+        "valueBytes": 29
+      },
+      {
+        "area": "sessionStorage",
+        "key": "returnURL",
+        "valueBytes": 7
+      },
+      {
+        "area": "sessionStorage",
+        "key": "isMarketingBrandingOrDefault",
+        "valueBytes": 5
+      },
+      {
+        "area": "sessionStorage",
+        "key": "resetSessionConfig",
+        "valueBytes": 29
+      },
+      {
+        "area": "sessionStorage",
+        "key": "status",
+        "valueBytes": 8
+      },
+      {
+        "area": "sessionStorage",
+        "key": "pe.acxiom.jUSCBOL_Loginpage_Uncookied.offers",
+        "valueBytes": 2477
+      },
+      {
+        "area": "sessionStorage",
+        "key": "TAB_ID",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "cdTabData",
+        "valueBytes": 71
+      },
+      {
+        "area": "sessionStorage",
+        "key": "adobeLaunchConfig",
+        "valueBytes": 392
+      },
+      {
+        "area": "sessionStorage",
+        "key": "PIM-SESSION-ID",
+        "valueBytes": 16
+      },
+      {
+        "area": "sessionStorage",
+        "key": "isPageViewDone",
+        "valueBytes": 7
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+            "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl2.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 10,
+          "readPixelsCalls": 0
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 1,
+          "createDataChannelCalls": 2,
+          "createOfferCalls": 2,
+          "setLocalDescriptionCalls": 2
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 4
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 2
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "The page did not reach network idle before the scan window ended.",
+      "Blocked one or more requests that resolved to local or private network addresses at connection time.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 142,
+      "after": 61,
+      "delta": -81
+    },
+    "thirdPartyRequests": {
+      "before": 67,
+      "after": 7,
+      "delta": -60
+    },
+    "knownTrackerRequests": {
+      "before": 14,
+      "after": 0,
+      "delta": -14
+    },
+    "thirdPartyDomains": {
+      "before": 21,
+      "after": 4,
+      "delta": -17
+    },
+    "cookies": {
+      "before": 48,
+      "after": 26,
+      "delta": -22
+    },
+    "thirdPartyCookies": {
+      "before": 5,
+      "after": 0,
+      "delta": -5
+    },
+    "storageEntries": {
+      "before": 42,
+      "after": 22,
+      "delta": -20
+    },
+    "fingerprintEvents": {
+      "before": 205,
+      "after": 17,
+      "delta": -188
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "content22.online.citi.com",
+        "requests": 19,
+        "tracker": null
+      },
+      {
+        "domain": "siteintercept.qualtrics.com",
+        "requests": 10,
+        "tracker": null
+      },
+      {
+        "domain": "data.privacy.ensighten.com",
+        "requests": 7,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.gbqofs.com",
+        "requests": 6,
+        "tracker": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 5,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "p11.techlab-cdn.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "dpm.demdex.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "h.online-metrix.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "89oebq5kzprkreuqbshte7jg2nan6zn63d7ts6jm4f4c4c9640c87d51sac.d.aa.online-metrix.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "api.rlcdn.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "citi.demdex.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "citicorpcreditservic.tt.omtrdc.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "h64.online-metrix.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "idsync.rlcdn.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "mboxedge34.tt.omtrdc.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "prod.report.nacustomerexperience.citi.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "zn3vi8kkuds0jjrfc-citifeedback.siteintercept.qualtrics.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 7,
+        "domains": 2
+      },
+      {
+        "entity": "Adobe",
+        "requests": 5,
+        "domains": 4
+      },
+      {
+        "entity": "LiveRamp",
+        "requests": 2,
+        "domains": 2
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "citicorpcreditservic!mboxPC",
+        "domain": ".citicorpcreditservic.tt.omtrdc.net",
+        "thirdParty": true
+      },
+      {
+        "name": "citicorpcreditservic!mboxSession",
+        "domain": ".citicorpcreditservic.tt.omtrdc.net",
+        "thirdParty": true
+      },
+      {
+        "name": "demdex",
+        "domain": ".demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "citicorpcreditservic!mboxPC",
+        "domain": ".tt.omtrdc.net",
+        "thirdParty": true
+      },
+      {
+        "name": "citicorpcreditservic!mboxSession",
+        "domain": ".tt.omtrdc.net",
+        "thirdParty": true
+      },
+      {
+        "name": "_cls_s",
+        "domain": ".citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_cls_v",
+        "domain": ".citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "at_check",
+        "domain": ".citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "gpv_pn",
+        "domain": ".citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "mbox",
+        "domain": ".citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "mboxEdgeCluster",
+        "domain": ".citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "rto",
+        "domain": ".citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "s_cc",
+        "domain": ".citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "s_nr",
+        "domain": ".citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "thx_guid",
+        "domain": "content22.online.citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "tmx_guid",
+        "domain": "content22.online.citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_cls_cfgver",
+        "domain": "prod.report.nacustomerexperience.citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_cls_s",
+        "domain": "prod.report.nacustomerexperience.citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_cls_v",
+        "domain": "prod.report.nacustomerexperience.citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "ROUTEID",
+        "domain": "prod.report.nacustomerexperience.citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "rto",
+        "domain": "prod.report.nacustomerexperience.citi.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls"
+      },
+      {
+        "area": "localStorage",
+        "key": "5718FABB002E"
+      },
+      {
+        "area": "localStorage",
+        "key": "ed73f20edbf2b73"
+      },
+      {
+        "area": "localStorage",
+        "key": "gb_unbound.cls_v_expr"
+      },
+      {
+        "area": "localStorage",
+        "key": "gb.cors_ready"
+      },
+      {
+        "area": "localStorage",
+        "key": "gb.performanceRecord.bychance.enabled"
+      },
+      {
+        "area": "localStorage",
+        "key": "gb.performanceRecord.bychance.prev_th"
+      },
+      {
+        "area": "localStorage",
+        "key": "gb.sid"
+      },
+      {
+        "area": "localStorage",
+        "key": "Q_INTER"
+      },
+      {
+        "area": "localStorage",
+        "key": "QSI_ActionSetHistory"
+      },
+      {
+        "area": "localStorage",
+        "key": "tgt:tlm:0"
+      },
+      {
+        "area": "localStorage",
+        "key": "tgt:tlm:1"
+      },
+      {
+        "area": "localStorage",
+        "key": "tgt:tlm:2"
+      },
+      {
+        "area": "localStorage",
+        "key": "tgt:tlm:lower"
+      },
+      {
+        "area": "localStorage",
+        "key": "tgt:tlm:upper"
+      },
+      {
+        "area": "localStorage",
+        "key": "TNT-CurrentPage"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "gb.btabid"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "gb.psn"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "QSI_ActionSetHistory"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "QSI_HistorySession"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 6
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 65,
+      "after": 18,
+      "delta": -47
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: The page did not reach network idle before the scan window ended.",
+    "Shields off: Blocked one or more requests that resolved to local or private network addresses at connection time.",
+    "Shields off: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: The page did not reach network idle before the scan window ended.",
+    "Shields on: Blocked one or more requests that resolved to local or private network addresses at connection time.",
+    "Shields on: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+  ],
+  "share": {
+    "id": "20260622-ffd4aa146abbb16a967c992801133599",
+    "path": "/reports/20260622-ffd4aa146abbb16a967c992801133599/",
+    "jsonPath": "/reports/20260622-ffd4aa146abbb16a967c992801133599.json"
+  }
+}

@@ -1,0 +1,5812 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.theguardian.com/",
+  "scannedAt": "2026-06-22T19:27:43.162Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Latest news, sport and opinion from the Guardian",
+      "status": 200,
+      "durationMs": 4394,
+      "firstPartyDomain": "www.theguardian.com",
+      "totalRequests": 195,
+      "thirdPartyRequests": 165,
+      "knownTrackerRequests": 28,
+      "thirdPartyDomains": 37,
+      "cookies": 23,
+      "thirdPartyCookies": 6,
+      "storageEntries": 23,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 69
+    },
+    "conditions": {
+      "requestedUrl": "https://www.theguardian.com/",
+      "finalUrl": "https://www.theguardian.com/us",
+      "scannedAt": "2026-06-22T19:27:38.755Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.theguardian.com/",
+        "domain": "www.theguardian.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 33,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.theguardian.com/us",
+        "domain": "www.theguardian.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 91,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://assets.guim.co.uk/polyfill.io/v3/polyfill.min.js?rum=&features=&flags=&callback=&unknown=&cacheClear=",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 234,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://assets.guim.co.uk/assets/frameworks.client.web.43c344cdcf55a381da73.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 234,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-headline/noalts-not-hinted/GHGuardianHeadline-Bold.woff2",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 234,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-textegyptian/noalts-not-hinted/GuardianTextEgyptian-Regular.woff2",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 235,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://assets.guim.co.uk/assets/frameworks.client.web.43c344cdcf55a381da73.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 235,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://assets.guim.co.uk/assets/index.client.web.874a5767e76e31f5a0b8.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 235,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://assets.guim.co.uk/polyfill.io/v3/polyfill.min.js?rum=&features=&flags=&callback=&unknown=&cacheClear=",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 263,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://assets.guim.co.uk/commercial/d666613e3ada32e90aa0/graun.standalone.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 264,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://assets.guim.co.uk/static/frontend/css/print.css",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 264,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://assets.guim.co.uk/assets/index.client.web.874a5767e76e31f5a0b8.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 264,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://assets.guim.co.uk/commercial/d666613e3ada32e90aa0/graun.standalone.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 264,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://i.guim.co.uk/img/media/71c0e4fc7d085f64315c78148ee9fa4da02e8f3a/159_0_1500_1201/master/1500.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 276,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://i.guim.co.uk/img/media/4d7a49a9fbae174d247b3e637174c59ec141baea/0_0_5000_4000/master/5000.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 277,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://i.guim.co.uk/img/media/a04c8509f04c9b0d3976535862740086d868cda4/101_111_1347_1347/master/1347.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 277,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://i.guim.co.uk/img/media/23dda3965d43fc23dab32bcd201ee791391f3c89/0_159_2696_2156/master/2696.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://i.guim.co.uk/img/uploads/2025/05/21/Steven_Greenhouse.png?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://i.guim.co.uk/img/media/d4a7222f101c89215280421440329044e44ccd57/0_383_2415_1932/master/2415.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://i.guim.co.uk/img/media/0e8efa238f086dc465ec2e95160a2280df3a2827/532_0_5320_4256/master/5320.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://i.guim.co.uk/img/media/338f0b546dffae93169d62e4e6a398109d461a22/342_0_4906_3926/master/4906.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://i.guim.co.uk/img/media/7c0025fa869528cb2792896bf55203d14d2a137f/0_456_3516_2811/master/3516.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://i.guim.co.uk/img/media/085cf62eeb09a44e25544ca9feb2fc5b6d03c910/652_0_6882_5504/master/6882.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://i.guim.co.uk/img/media/f7c9b04042de222a1867957566c2faac6a1a2b65/1231_358_1643_1314/master/1643.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://i.guim.co.uk/img/media/a219d36d764c5164ea25cbbf4dab2fac8aa071e8/334_0_3571_2856/master/3571.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://i.guim.co.uk/img/media/e234a6284335cbb2e444765d719f7fb2e0102b90/241_0_2500_2000/master/2500.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://i.guim.co.uk/img/media/2b0965b85299264cd92733124dcc4d06bee7fd0c/967_673_2940_2351/master/2940.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://i.guim.co.uk/img/media/1d715497446687f1ed1150a28cf56a7311a785a6/51_0_1179_943/master/1179.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://i.guim.co.uk/img/uploads/2023/08/03/Soccer-v7_TREAT.png?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 278,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://i.guim.co.uk/img/uploads/2025/05/21/Steven_Greenhouse.png?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 279,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://i.guim.co.uk/img/uploads/2026/06/19/Val%C3%A9rie_Hayer.png?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 279,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://i.guim.co.uk/img/uploads/2019/06/26/John_Harris_Next_Gen.png?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 279,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://i.guim.co.uk/img/media/81fa43c5d6ce2b397830713cf44e7d6282bf1d77/317_0_1350_1080/1350.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 294,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Regular.woff2",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 451,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Bold.woff2",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 451,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-headline/noalts-not-hinted/GHGuardianHeadline-Medium.woff2",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 452,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://i.guim.co.uk/img/media/fb53aab41494c6252e821c07707e5eece707a5f5/833_0_5000_4000/master/5000.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 457,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://i.guim.co.uk/img/media/514f071d15369bb6668493b1bb0d7609b4582b73/291_0_3401_2720/master/3401.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 457,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://i.guim.co.uk/img/media/0932f5a813d9c72913e21836b541d743074f5246/636_0_6360_5088/master/6360.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 458,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://i.guim.co.uk/img/media/6ad13ec6bdd0b4b1c57b629daf2e0687073d3686/293_0_3527_2820/master/3527.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 458,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://i.guim.co.uk/img/media/b3b9d17b2be0db1b4ede666b188fd7e28495a10f/0_6_3900_3119/master/3900.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 458,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://i.guim.co.uk/img/media/71e88c0296930ca8bd0d83196d29c0d94fa33835/395_0_3090_2473/master/3090.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 459,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://i.guim.co.uk/img/media/5c83754137a12ef648fac0ec50df0a808c1e8139/64_0_2847_2278/master/2847.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 459,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://i.guim.co.uk/img/media/e3ca23187fd744be345c78f53457258a68591af6/398_0_3980_3184/master/3980.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 460,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://i.guim.co.uk/img/media/3cbd283f450f0cd31edec5e32d338ee61daab935/741_978_3351_2682/master/3351.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 460,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://i.guim.co.uk/img/media/226314de59bad78ee800ec5b8ab72a570fa617cc/708_0_6829_5464/master/6829.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 460,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://i.guim.co.uk/img/media/d60dc347f1d0a5c3e79eadc4d771a12a34184f9d/0_0_2855_2284/master/2855.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 461,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://i.guim.co.uk/img/media/4d7a49a9fbae174d247b3e637174c59ec141baea/0_0_5000_4000/master/5000.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 461,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://assets.guim.co.uk/assets/5863.client.web.f8d7a57a15a43d143aaf.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 519,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://assets.guim.co.uk/assets/5993.client.web.783b8a5b8a0ecd74a5b7.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 522,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://assets.guim.co.uk/assets/5100.client.web.58c143343a5b964e04d6.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 522,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://assets.guim.co.uk/assets/7034.client.web.41fb678e62f2598aa5d2.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 523,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://assets.guim.co.uk/assets/Metrics-island.client.web.2634e56955d45d48bae9.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 523,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://assets.guim.co.uk/assets/SetABTests-island.client.web.575b4bdaa62ed0e3448e.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 523,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://assets.guim.co.uk/assets/SetAdTargeting-island.client.web.0d7fe9df2a70fc38e4ef.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 523,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://assets.guim.co.uk/assets/2890.client.web.965dffbab9b37eedfc8a.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 523,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://assets.guim.co.uk/assets/9883.client.web.fbee0595a17fe790b7e9.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 524,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://assets.guim.co.uk/assets/1609.client.web.91997200d1941374dece.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 524,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://assets.guim.co.uk/assets/2867.client.web.344c9929e11e011819e1.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 524,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://assets.guim.co.uk/assets/TopBar-island.client.web.4356653a4b5a047d16fb.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 524,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://assets.guim.co.uk/assets/1864.client.web.49bb76a2920a5c43e1f4.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 525,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://assets.guim.co.uk/assets/1492.client.web.9ea2ead0fc806754c7d3.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 525,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://assets.guim.co.uk/assets/1899.client.web.d3890c77f9d87cce44fb.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 525,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://assets.guim.co.uk/assets/Titlepiece-island.client.web.6e4763a397a7077cf827.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 526,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://ophan.theguardian.com/img/1",
+        "domain": "ophan.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 526,
+        "blockedByShields": true
+      },
+      {
+        "id": 66,
+        "url": "https://ophan.theguardian.com/img/2",
+        "domain": "ophan.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 526,
+        "blockedByShields": true
+      },
+      {
+        "id": 67,
+        "url": "https://ophan.theguardian.com/img/2",
+        "domain": "ophan.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 526,
+        "blockedByShields": true
+      },
+      {
+        "id": 68,
+        "url": "https://sourcepoint.theguardian.com/unified/wrapperMessagingWithoutDetection.js",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 528,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://ophan.theguardian.com/img/2",
+        "domain": "ophan.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 617,
+        "blockedByShields": true
+      },
+      {
+        "id": 70,
+        "url": "https://assets.guim.co.uk/assets/1503.client.web.cff0752bfa6bf64f2c0b.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 632,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://assets.guim.co.uk/assets/SlideshowCarousel-island.client.web.07436d459c88bc9a339f.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 633,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://assets.guim.co.uk/assets/3394.client.web.3c8fdb9864372437960e.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 633,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://assets.guim.co.uk/assets/9625.client.web.a5bf1bd1e689b8a17381.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 633,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://assets.guim.co.uk/assets/3419.client.web.879410452dc1f60aa410.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 634,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://assets.guim.co.uk/assets/5905.client.web.da089644565fa8f9ebfc.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 634,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://assets.guim.co.uk/assets/7638.client.web.244ce9b4ad540e22b009.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 634,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://assets.guim.co.uk/assets/5384.client.web.b3e0e38507bb58f7425b.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 634,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://assets.guim.co.uk/assets/4923.client.web.22c50da8fee4d16faf68.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 635,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://assets.guim.co.uk/assets/6728.client.web.cc1948bc101b1d418664.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 635,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://assets.guim.co.uk/assets/ScrollableHighlights-island.client.web.eaa878a31fff75140e7a.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 635,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://assets.guim.co.uk/assets/6768.client.web.0735efb2fd224c936cf9.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 636,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://assets.guim.co.uk/assets/DirectoryPageNav-island.client.web.7731375b8d68068c5d1a.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 636,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://ophan.theguardian.com/img/2",
+        "domain": "ophan.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 636,
+        "blockedByShields": true
+      },
+      {
+        "id": 84,
+        "url": "https://sourcepoint.theguardian.com/unified/4.40.1/usnat.f12613136193900e32e2.bundle.js",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 646,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://sourcepoint.theguardian.com/wrapper/v2/meta-data",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 646,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://sourcepoint.theguardian.com/wrapper/v2/messages",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 696,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://sourcepoint.theguardian.com/wrapper/v2/meta-data",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 743,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://sourcepoint.theguardian.com/wrapper/v2/pv-data",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 744,
+        "blockedByShields": true
+      },
+      {
+        "id": 89,
+        "url": "https://ophan.theguardian.com/img/2",
+        "domain": "ophan.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 745,
+        "blockedByShields": true
+      },
+      {
+        "id": 90,
+        "url": "https://assets.guim.co.uk/assets/4501.client.web.ae17c42ee373d0271f91.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 746,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://ophan.theguardian.com/img/2",
+        "domain": "ophan.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 747,
+        "blockedByShields": true
+      },
+      {
+        "id": 92,
+        "url": "https://contributions.guardianapis.com/header",
+        "domain": "contributions.guardianapis.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 748,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://assets.guim.co.uk/commercial/b907b76c569ba57fd97f/graun.395.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 753,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://assets.guim.co.uk/commercial/c89e47254875553420fa/graun.599.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 753,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://assets.guim.co.uk/commercial/a8628f38abf16fa722eb/graun.120.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 754,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://assets.guim.co.uk/commercial/e25495d0625efdc4c3f3/graun.661.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 754,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://assets.guim.co.uk/commercial/a34e77c4e6845270408c/graun.899.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 755,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://assets.guim.co.uk/commercial/c556b5b72fe2ac89b075/graun.consented-advertising.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 756,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://ophan.theguardian.com/img/2",
+        "domain": "ophan.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 756,
+        "blockedByShields": true
+      },
+      {
+        "id": 100,
+        "url": "https://sourcepoint.theguardian.com/us_pm/index.html",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 757,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://www3.doubleclick.net/",
+        "domain": "www3.doubleclick.net",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 301,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 760,
+        "blockedByShields": true
+      },
+      {
+        "id": 102,
+        "url": "https://www.theguardian.com/",
+        "domain": "www.theguardian.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 760,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://cdn.privacy-mgmt.com/wrapper/v2/meta-data?accountId=&env=&metadata=&propertyId=",
+        "domain": "cdn.privacy-mgmt.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 762,
+        "blockedByShields": false
+      },
+      {
+        "id": 104,
+        "url": "https://sourcepoint.theguardian.com/PrivacyManagerUS.b9d1f.css",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 801,
+        "blockedByShields": false
+      },
+      {
+        "id": 105,
+        "url": "https://sourcepoint.theguardian.com/polyfills.01516.js",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 803,
+        "blockedByShields": false
+      },
+      {
+        "id": 106,
+        "url": "https://sourcepoint.theguardian.com/PrivacyManagerUS.89867.js",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 803,
+        "blockedByShields": false
+      },
+      {
+        "id": 107,
+        "url": "https://www.theguardian.com/us",
+        "domain": "www.theguardian.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 805,
+        "blockedByShields": false
+      },
+      {
+        "id": 108,
+        "url": "https://cdn.confiant-integrations.net/7oDgiTsq88US4rrBG0_Nxpafkrg/gpt_and_prebid/config.js",
+        "domain": "cdn.confiant-integrations.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 848,
+        "blockedByShields": true
+      },
+      {
+        "id": 109,
+        "url": "https://securepubads.g.doubleclick.net/tag/js/gpt.js",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 849,
+        "blockedByShields": true
+      },
+      {
+        "id": 110,
+        "url": "https://sourcepoint.theguardian.com/mms/v2/message",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 869,
+        "blockedByShields": false
+      },
+      {
+        "id": 111,
+        "url": "https://marketingplatform.google.com/about/enterprise/",
+        "domain": "marketingplatform.google.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 869,
+        "blockedByShields": false
+      },
+      {
+        "id": 112,
+        "url": "https://assets.guim.co.uk/assets/AlreadyVisited-island.client.web.c2612107fb4b7951196a.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 872,
+        "blockedByShields": false
+      },
+      {
+        "id": 113,
+        "url": "https://assets.guim.co.uk/assets/AdmiralScript-island.client.web.c890f4d0f6cc8240a90d.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 874,
+        "blockedByShields": false
+      },
+      {
+        "id": 114,
+        "url": "https://assets.guim.co.uk/assets/FocusStyles-island.client.web.a1d081e2a888750e252e.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 875,
+        "blockedByShields": false
+      },
+      {
+        "id": 115,
+        "url": "https://assets.guim.co.uk/assets/ShowHideContainers-island.client.web.05de911f22bde109ceb0.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 875,
+        "blockedByShields": false
+      },
+      {
+        "id": 116,
+        "url": "https://assets.guim.co.uk/assets/BrazeMessaging-island.client.web.c9167eb65b1881527741.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 876,
+        "blockedByShields": false
+      },
+      {
+        "id": 117,
+        "url": "https://assets.guim.co.uk/assets/ReaderRevenueDev-island.client.web.0535919c73f306367c8e.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 876,
+        "blockedByShields": false
+      },
+      {
+        "id": 118,
+        "url": "https://assets.guim.co.uk/assets/GoogleOneTap-island.client.web.8688621d130eb77cb211.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 877,
+        "blockedByShields": false
+      },
+      {
+        "id": 119,
+        "url": "https://assets.guim.co.uk/assets/EditionSwitcherBanner-island.client.web.d086a29d7c6c5bb997e8.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 878,
+        "blockedByShields": false
+      },
+      {
+        "id": 120,
+        "url": "https://assets.guim.co.uk/assets/3141.client.web.ac54800689b432f5534c.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 878,
+        "blockedByShields": false
+      },
+      {
+        "id": 121,
+        "url": "https://assets.guim.co.uk/assets/103.client.web.1f56b7a61a4598c26689.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 878,
+        "blockedByShields": false
+      },
+      {
+        "id": 122,
+        "url": "https://assets.guim.co.uk/assets/8977.client.web.f36b0d00c8328f171cae.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 878,
+        "blockedByShields": false
+      },
+      {
+        "id": 123,
+        "url": "https://assets.guim.co.uk/assets/StickyBottomBanner-island.client.web.4bd1620660ed7d03af59.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 879,
+        "blockedByShields": false
+      },
+      {
+        "id": 124,
+        "url": "https://cdn.privacy-mgmt.com/usnat/vendor-list/categories?siteId=&consentLanguage=",
+        "domain": "cdn.privacy-mgmt.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 899,
+        "blockedByShields": false
+      },
+      {
+        "id": 125,
+        "url": "https://assets.guim.co.uk/polyfill.io/v3/polyfill.min.js?rum=&features=&flags=&callback=&unknown=&cacheClear=",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 908,
+        "blockedByShields": false
+      },
+      {
+        "id": 126,
+        "url": "https://assets.guim.co.uk/assets/frameworks.client.web.43c344cdcf55a381da73.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 912,
+        "blockedByShields": false
+      },
+      {
+        "id": 127,
+        "url": "https://assets.guim.co.uk/assets/index.client.web.874a5767e76e31f5a0b8.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 912,
+        "blockedByShields": false
+      },
+      {
+        "id": 128,
+        "url": "https://assets.guim.co.uk/commercial/d666613e3ada32e90aa0/graun.standalone.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 913,
+        "blockedByShields": false
+      },
+      {
+        "id": 129,
+        "url": "https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202606160101/pubads_impl.js",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 953,
+        "blockedByShields": true
+      },
+      {
+        "id": 130,
+        "url": "https://cdn.privacy-mgmt.com/usnat/consent/7417/default-consent",
+        "domain": "cdn.privacy-mgmt.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 954,
+        "blockedByShields": false
+      },
+      {
+        "id": 131,
+        "url": "https://ophan.theguardian.com/img/2",
+        "domain": "ophan.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 957,
+        "blockedByShields": true
+      },
+      {
+        "id": 132,
+        "url": "https://contributions.guardianapis.com/banner",
+        "domain": "contributions.guardianapis.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 998,
+        "blockedByShields": false
+      },
+      {
+        "id": 133,
+        "url": "https://interactive.guim.co.uk/fonts/guss-webfonts/GuardianTextSansWeb/GuardianTextSansWeb-Regular.woff2",
+        "domain": "interactive.guim.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1008,
+        "blockedByShields": false
+      },
+      {
+        "id": 134,
+        "url": "https://cdn.confiant-integrations.net/gptprebidnative/202606101730/wrap.js",
+        "domain": "cdn.confiant-integrations.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1038,
+        "blockedByShields": true
+      },
+      {
+        "id": 135,
+        "url": "https://cm.g.doubleclick.net/partnerpixels?rdp=&gpp=&gpp_sid=&url=",
+        "domain": "cm.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1137,
+        "blockedByShields": true
+      },
+      {
+        "id": 136,
+        "url": "https://ads.pubmatic.com/AdServer/js/google-esp.js",
+        "domain": "ads.pubmatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "pubmatic.com",
+          "entity": "PubMatic",
+          "category": "advertising / supply-side platform",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1143,
+        "blockedByShields": true
+      },
+      {
+        "id": 137,
+        "url": "https://dmp.im-apps.net/secure-signal/provider.js",
+        "domain": "dmp.im-apps.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1144,
+        "blockedByShields": true
+      },
+      {
+        "id": 138,
+        "url": "https://oa.openxcdn.net/esp.js",
+        "domain": "oa.openxcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1144,
+        "blockedByShields": true
+      },
+      {
+        "id": 139,
+        "url": "https://tags.crwdcntrl.net/lt/c/16589/sync.min.js",
+        "domain": "tags.crwdcntrl.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "crwdcntrl.net",
+          "entity": "Lotame",
+          "category": "advertising / data management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1144,
+        "blockedByShields": true
+      },
+      {
+        "id": 140,
+        "url": "https://cdn.id5-sync.com/api/1.0/esp.js",
+        "domain": "cdn.id5-sync.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1144,
+        "blockedByShields": true
+      },
+      {
+        "id": 141,
+        "url": "https://invstatic101.creativecdn.com/encrypted-signals/encrypted-tag-g.js",
+        "domain": "invstatic101.creativecdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1144,
+        "blockedByShields": true
+      },
+      {
+        "id": 142,
+        "url": "https://connectid.analytics.yahoo.com/connectId-gpt.js",
+        "domain": "connectid.analytics.yahoo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1144,
+        "blockedByShields": true
+      },
+      {
+        "id": 143,
+        "url": "https://cdn.mgaru.dev/static/myGaruStandalone.js",
+        "domain": "cdn.mgaru.dev",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1144,
+        "blockedByShields": true
+      },
+      {
+        "id": 144,
+        "url": "https://static.criteo.net/js/ld/publishertag.ids.js",
+        "domain": "static.criteo.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.net",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1146,
+        "blockedByShields": true
+      },
+      {
+        "id": 145,
+        "url": "https://assets.guim.co.uk/assets/2376.client.web.e835b357867deac715b9.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1154,
+        "blockedByShields": false
+      },
+      {
+        "id": 146,
+        "url": "https://assets.guim.co.uk/assets/4406.client.web.c6affdf7d76dd96faaba.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1155,
+        "blockedByShields": false
+      },
+      {
+        "id": 147,
+        "url": "https://assets.guim.co.uk/assets/4897.client.web.b9dd21ea5deaf8b6d03e.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1156,
+        "blockedByShields": false
+      },
+      {
+        "id": 148,
+        "url": "https://ophan.theguardian.com/img/2",
+        "domain": "ophan.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1268,
+        "blockedByShields": true
+      },
+      {
+        "id": 149,
+        "url": "https://securepubads.g.doubleclick.net/pagead/managed/dict/m202606180101/gpt",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1273,
+        "blockedByShields": true
+      },
+      {
+        "id": 150,
+        "url": "https://oajs.openx.net/esp?url=&rid=",
+        "domain": "oajs.openx.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1352,
+        "blockedByShields": true
+      },
+      {
+        "id": 151,
+        "url": "https://sync6.im-apps.net/9001/pid?ref=&page=",
+        "domain": "sync6.im-apps.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1356,
+        "blockedByShields": true
+      },
+      {
+        "id": 152,
+        "url": "https://ups.analytics.yahoo.com/ups/58813/fed?gpp=&gpp_sid=&v=&url=",
+        "domain": "ups.analytics.yahoo.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1359,
+        "blockedByShields": true
+      },
+      {
+        "id": 153,
+        "url": "https://bcp.crwdcntrl.net/6/map?xcid=",
+        "domain": "bcp.crwdcntrl.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "crwdcntrl.net",
+          "entity": "Lotame",
+          "category": "advertising / data management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1364,
+        "blockedByShields": true
+      },
+      {
+        "id": 154,
+        "url": "https://id5-sync.com/api/esp/increment?counter=",
+        "domain": "id5-sync.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1373,
+        "blockedByShields": true
+      },
+      {
+        "id": 155,
+        "url": "https://ophan.theguardian.com/img/2",
+        "domain": "ophan.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1461,
+        "blockedByShields": true
+      },
+      {
+        "id": 156,
+        "url": "https://ophan.theguardian.com/img/2",
+        "domain": "ophan.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1462,
+        "blockedByShields": true
+      },
+      {
+        "id": 157,
+        "url": "https://ophan.theguardian.com/img/2",
+        "domain": "ophan.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1481,
+        "blockedByShields": true
+      },
+      {
+        "id": 158,
+        "url": "https://oajs.openx.net/esp?url=&rid=&cc=",
+        "domain": "oajs.openx.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1559,
+        "blockedByShields": true
+      },
+      {
+        "id": 159,
+        "url": "https://google-bidout-d.openx.net/w/1.0/pd?plm=",
+        "domain": "google-bidout-d.openx.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1585,
+        "blockedByShields": true
+      },
+      {
+        "id": 160,
+        "url": "https://ophan.theguardian.com/img/2",
+        "domain": "ophan.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1667,
+        "blockedByShields": true
+      },
+      {
+        "id": 161,
+        "url": "https://ep1.adtrafficquality.google/getconfig/sodar?sv=&tid=&tv=&st=&sjk=",
+        "domain": "ep1.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2142,
+        "blockedByShields": true
+      },
+      {
+        "id": 162,
+        "url": "https://securepubads.g.doubleclick.net/gampad/ads?pvsid=&correlator=&eid=&output=&gdfp_req=&vrg=&ptt=&impl=&rdp=&gpp=&gpp_sid=&iu_parts=&enc_prev_ius=&prev_iu_szs=&fluid=&ifi=&didk=&dids=&adfs=&sfv=&fsbs=&sc=&cookie_enabled=&abxe=&dt=&lmt=&adxs=&adys=&biw=&bih=&scr_x=&scr_y=&btvi=&ucis=&oid=&u_his=&u_h=&u_w=&u_ah=&u_aw=&u_cd=&u_sd=&dmc=&bc=&nvt=&uach=&url=&vis=&psz=&msz=&fws=&ohw=&a3p=&dlt=&idt=&prev_scp=&cust_params=&adks=&frm=&eoidce=",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2143,
+        "blockedByShields": true
+      },
+      {
+        "id": 163,
+        "url": "https://efcf798276f79dbdcb9e6e4df385c375.safeframe.googlesyndication.com/safeframe/1-0-45/html/container.html",
+        "domain": "efcf798276f79dbdcb9e6e4df385c375.safeframe.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2145,
+        "blockedByShields": false
+      },
+      {
+        "id": 164,
+        "url": "https://pagead2.googlesyndication.com/pagead/ping?e=",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2151,
+        "blockedByShields": true
+      },
+      {
+        "id": 165,
+        "url": "https://ep2.adtrafficquality.google/sodar/sodar2.js",
+        "domain": "ep2.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2201,
+        "blockedByShields": true
+      },
+      {
+        "id": 166,
+        "url": "https://ep2.adtrafficquality.google/sodar/sodar2/254/runner.html",
+        "domain": "ep2.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2243,
+        "blockedByShields": true
+      },
+      {
+        "id": 167,
+        "url": "https://www.google.com/recaptcha/api2/aframe",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2244,
+        "blockedByShields": false
+      },
+      {
+        "id": 168,
+        "url": "https://securepubads.g.doubleclick.net/pcs/view?xai=&sai=&sig=&uach_m=&adurl=",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2319,
+        "blockedByShields": true
+      },
+      {
+        "id": 169,
+        "url": "https://tpc.googlesyndication.com/pagead/js/r20260617/r20110914/abg_lite.js",
+        "domain": "tpc.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2321,
+        "blockedByShields": true
+      },
+      {
+        "id": 170,
+        "url": "https://tpc.googlesyndication.com/pagead/js/r20260617/r20110914/client/window_focus.js",
+        "domain": "tpc.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2321,
+        "blockedByShields": true
+      },
+      {
+        "id": 171,
+        "url": "https://pagead2.googlesyndication.com/pagead/managed/js/activeview/current/ufs_web_display.js",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2321,
+        "blockedByShields": true
+      },
+      {
+        "id": 172,
+        "url": "https://tpc.googlesyndication.com/simgad/2248199277283485589",
+        "domain": "tpc.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2322,
+        "blockedByShields": true
+      },
+      {
+        "id": 173,
+        "url": "https://pagead2.googlesyndication.com/bg/PV73TIxxCQoWHmIzBW3bASFwYrAzeQPJ3wbIO0hzqT8.js",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2350,
+        "blockedByShields": true
+      },
+      {
+        "id": 174,
+        "url": "https://pagead2.googlesyndication.com/pagead/sodar?id=&v=&li=&jk=&rc=",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2352,
+        "blockedByShields": true
+      },
+      {
+        "id": 175,
+        "url": "https://pagead2.googlesyndication.com/pagead/gen_204?id=&type=",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2442,
+        "blockedByShields": true
+      },
+      {
+        "id": 176,
+        "url": "https://pagead2.googlesyndication.com/pagead/gen_204?id=&type=&name=",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2443,
+        "blockedByShields": true
+      },
+      {
+        "id": 177,
+        "url": "https://pixel.adsafeprotected.com/jload?anId=&campId=&pubId=&chanId=&placementId=&pubCreative=&pubOrder=&custom=&custom2=&custom3=&custom4=&custom5=&adsafe_par=&impId=",
+        "domain": "pixel.adsafeprotected.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2447,
+        "blockedByShields": true
+      },
+      {
+        "id": 178,
+        "url": "https://securepubads.g.doubleclick.net/pcs/view?xai=&sai=&sig=&uach_m=&dett=&adurl=",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2448,
+        "blockedByShields": true
+      },
+      {
+        "id": 179,
+        "url": "https://pagead2.googlesyndication.com/pagead/gen_204?id=&type=&proto=",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2454,
+        "blockedByShields": true
+      },
+      {
+        "id": 180,
+        "url": "https://gum.criteo.com/syncframe?origin=&topUrl=&gpp=&gpp_sid=",
+        "domain": "gum.criteo.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2461,
+        "blockedByShields": true
+      },
+      {
+        "id": 181,
+        "url": "https://ep2.adtrafficquality.google/generate_204?uTC5Rg=",
+        "domain": "ep2.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2510,
+        "blockedByShields": true
+      },
+      {
+        "id": 182,
+        "url": "https://jsconfig.adsafeprotected.com/jsconfig/jload/10249?cbName=&anId=&campId=&pubId=&chanId=&placementId=&pubCreative=&pubOrder=&custom=&custom2=&custom3=&custom4=&custom5=&adsafe_par=&impId=",
+        "domain": "jsconfig.adsafeprotected.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2595,
+        "blockedByShields": true
+      },
+      {
+        "id": 183,
+        "url": "https://static.adsafeprotected.com/sca.17.6.4.js",
+        "domain": "static.adsafeprotected.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2700,
+        "blockedByShields": true
+      },
+      {
+        "id": 184,
+        "url": "https://jsconfig.adsafeprotected.com/mon?cbName=&anId=&campId=&pubId=&chanId=&placementId=&pubCreative=&pubOrder=&custom=&custom2=&custom3=&custom4=&custom5=&adsafe_par=&impId=&adsafe_url=&adsafe_type=&adsafe_jsinfo=",
+        "domain": "jsconfig.adsafeprotected.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2701,
+        "blockedByShields": true
+      },
+      {
+        "id": 185,
+        "url": "https://dt.adsafeprotected.com/dt?anId=&asId=&tv=&br=",
+        "domain": "dt.adsafeprotected.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2706,
+        "blockedByShields": true
+      },
+      {
+        "id": 186,
+        "url": "https://dt.adsafeprotected.com/dt?anId=&asId=&tv=&br=",
+        "domain": "dt.adsafeprotected.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2711,
+        "blockedByShields": true
+      },
+      {
+        "id": 187,
+        "url": "https://ep1.adtrafficquality.google/pagead/sodar?id=&v=&t=&li=&jk=&bg=",
+        "domain": "ep1.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3045,
+        "blockedByShields": true
+      },
+      {
+        "id": 188,
+        "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/fonts/fontawesome-webfont.woff",
+        "domain": "cdnjs.cloudflare.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3116,
+        "blockedByShields": false
+      },
+      {
+        "id": 189,
+        "url": "https://dt.adsafeprotected.com/dt?anId=&asId=&tv=",
+        "domain": "dt.adsafeprotected.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3126,
+        "blockedByShields": true
+      },
+      {
+        "id": 190,
+        "url": "https://www.theguardian.com/commercial/non-refreshable-line-items.json",
+        "domain": "www.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3338,
+        "blockedByShields": false
+      },
+      {
+        "id": 191,
+        "url": "https://pagead2.googlesyndication.com/pcs/activeview?xai=&sig=&id=&mcvt=&p=&tm=&tu=&mtos=&tos=&v=&bin=&avms=&bs=&mc=&vu=&app=&itpl=&adk=&rs=&la=&cr=&uach=&vs=&r=&co=&rst=&rpt=&isd=&lsd=&met=&wmsd=&pbe=&fle=&vae=&spb=&sfl=&ffslot=&reach=&io2=",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3453,
+        "blockedByShields": true
+      },
+      {
+        "id": 192,
+        "url": "https://dt.adsafeprotected.com/dt?anId=&asId=&tv=&br=",
+        "domain": "dt.adsafeprotected.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3708,
+        "blockedByShields": true
+      },
+      {
+        "id": 193,
+        "url": "https://dt.adsafeprotected.com/dt?anId=&asId=&tv=&br=",
+        "domain": "dt.adsafeprotected.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3709,
+        "blockedByShields": true
+      },
+      {
+        "id": 194,
+        "url": "https://dt.adsafeprotected.com/dt?anId=&asId=&tv=&br=",
+        "domain": "dt.adsafeprotected.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3710,
+        "blockedByShields": true
+      },
+      {
+        "id": 195,
+        "url": "https://dt.adsafeprotected.com/dt?anId=&asId=&tv=&br=",
+        "domain": "dt.adsafeprotected.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3710,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "pagead2.googlesyndication.com",
+        "requests": 8,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204,
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "securepubads.g.doubleclick.net",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "other",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "tpc.googlesyndication.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "oajs.openx.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www3.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          301
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cm.g.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "ads.pubmatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "pubmatic.com",
+          "entity": "PubMatic",
+          "category": "advertising / supply-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "tags.crwdcntrl.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "crwdcntrl.net",
+          "entity": "Lotame",
+          "category": "advertising / data management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "static.criteo.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.net",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "bcp.crwdcntrl.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "crwdcntrl.net",
+          "entity": "Lotame",
+          "category": "advertising / data management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "google-bidout-d.openx.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "efcf798276f79dbdcb9e6e4df385c375.safeframe.googlesyndication.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "gum.criteo.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "assets.guim.co.uk",
+        "requests": 69,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "other",
+          "font",
+          "script",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "i.guim.co.uk",
+        "requests": 32,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "dt.adsafeprotected.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.privacy-mgmt.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "ep2.adtrafficquality.google",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "contributions.guardianapis.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cdn.confiant-integrations.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ep1.adtrafficquality.google",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "jsconfig.adsafeprotected.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "marketingplatform.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "interactive.guim.co.uk",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "dmp.im-apps.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "oa.openxcdn.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.id5-sync.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "invstatic101.creativecdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "connectid.analytics.yahoo.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.mgaru.dev",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "sync6.im-apps.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "ups.analytics.yahoo.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "id5-sync.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "pixel.adsafeprotected.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "static.adsafeprotected.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdnjs.cloudflare.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "ophan.theguardian.com",
+        "requests": 14,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "sourcepoint.theguardian.com",
+        "requests": 11,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch",
+          "document",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "www.theguardian.com",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "uid",
+        "domain": ".criteo.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "_cc_id",
+        "domain": ".crwdcntrl.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "imid_secure",
+        "domain": ".im-apps.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "imid_created_secure",
+        "domain": ".im-apps.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "i",
+        "domain": ".openx.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "GU_mvt_id",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "usnatUUID",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bwid",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bwid_withoutSameSiteForIncompatibleClients",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "lotame_domain_check",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_pubcid",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "connectId",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cc_id",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "panoramaId_expiry",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "panoramaId",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "panoramaIdType",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__gads",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__gpi",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__eoi",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "gu_client_ab_tests",
+        "domain": "www.theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "gu_v2_mvt_id",
+        "domain": "www.theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "GU_geo_country",
+        "domain": "www.theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "gu.adManagerGroup",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-esp.pubmatic.com",
+        "valueBytes": 75
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-crwdcntrl.net",
+        "valueBytes": 98
+      },
+      {
+        "area": "localStorage",
+        "key": "panoramaId_expiry",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "panoramaId",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "panoramaIdType",
+        "valueBytes": 10
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-id5-sync.com",
+        "valueBytes": 71
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-esp.criteo.com",
+        "valueBytes": 73
+      },
+      {
+        "area": "localStorage",
+        "key": "_cc_id",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "_sp_user_consent_7417",
+        "valueBytes": 804
+      },
+      {
+        "area": "localStorage",
+        "key": "connectId",
+        "valueBytes": 68
+      },
+      {
+        "area": "localStorage",
+        "key": "_pubcid",
+        "valueBytes": 36
+      },
+      {
+        "area": "localStorage",
+        "key": "_sp_non_keyed_local_state",
+        "valueBytes": 52
+      },
+      {
+        "area": "localStorage",
+        "key": "_im_uid.9001",
+        "valueBytes": 18
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-intimatemerger.com",
+        "valueBytes": 57
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-yahoo.com",
+        "valueBytes": 68
+      },
+      {
+        "area": "localStorage",
+        "key": "_sp_local_state",
+        "valueBytes": 161
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-openx",
+        "valueBytes": 70
+      },
+      {
+        "area": "localStorage",
+        "key": "_cc_id_update_ts",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-mygaruID",
+        "valueBytes": 67
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-rtbhouse",
+        "valueBytes": 67
+      },
+      {
+        "area": "localStorage",
+        "key": "_im_uid_mt.9001",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "rtbhouse-esp",
+        "valueBytes": 36
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 2,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointerup",
+            "scroll",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "documentElement",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://assets.guim.co.uk",
+            "https://cdn.confiant-integrations.net",
+            "https://pagead2.googlesyndication.com",
+            "https://pixel.adsafeprotected.com",
+            "https://securepubads.g.doubleclick.net",
+            "https://tpc.googlesyndication.com"
+          ],
+          "totalListenerCalls": 64
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://assets.guim.co.uk",
+            "https://securepubads.g.doubleclick.net"
+          ],
+          "totalListenerCalls": 13
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Latest news, sport and opinion from the Guardian",
+      "status": 200,
+      "durationMs": 1971,
+      "firstPartyDomain": "www.theguardian.com",
+      "totalRequests": 121,
+      "thirdPartyRequests": 107,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 5,
+      "cookies": 4,
+      "thirdPartyCookies": 0,
+      "storageEntries": 3,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 18
+    },
+    "conditions": {
+      "requestedUrl": "https://www.theguardian.com/",
+      "finalUrl": "https://www.theguardian.com/us",
+      "scannedAt": "2026-06-22T19:27:43.162Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.theguardian.com/",
+        "domain": "www.theguardian.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 38,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.theguardian.com/us",
+        "domain": "www.theguardian.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 96,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://assets.guim.co.uk/polyfill.io/v3/polyfill.min.js?rum=&features=&flags=&callback=&unknown=&cacheClear=",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 179,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://assets.guim.co.uk/assets/frameworks.client.web.43c344cdcf55a381da73.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 179,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-headline/noalts-not-hinted/GHGuardianHeadline-Bold.woff2",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 180,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-textegyptian/noalts-not-hinted/GuardianTextEgyptian-Regular.woff2",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 180,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://assets.guim.co.uk/assets/frameworks.client.web.43c344cdcf55a381da73.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 180,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://assets.guim.co.uk/assets/index.client.web.874a5767e76e31f5a0b8.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 180,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://assets.guim.co.uk/polyfill.io/v3/polyfill.min.js?rum=&features=&flags=&callback=&unknown=&cacheClear=",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 204,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://assets.guim.co.uk/commercial/d666613e3ada32e90aa0/graun.standalone.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 204,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://assets.guim.co.uk/static/frontend/css/print.css",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 205,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://assets.guim.co.uk/assets/index.client.web.874a5767e76e31f5a0b8.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 206,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://assets.guim.co.uk/commercial/d666613e3ada32e90aa0/graun.standalone.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 206,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://i.guim.co.uk/img/media/71c0e4fc7d085f64315c78148ee9fa4da02e8f3a/159_0_1500_1201/master/1500.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 224,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://i.guim.co.uk/img/media/4d7a49a9fbae174d247b3e637174c59ec141baea/0_0_5000_4000/master/5000.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 224,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://i.guim.co.uk/img/media/a04c8509f04c9b0d3976535862740086d868cda4/101_111_1347_1347/master/1347.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 224,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://i.guim.co.uk/img/media/23dda3965d43fc23dab32bcd201ee791391f3c89/0_159_2696_2156/master/2696.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 224,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://i.guim.co.uk/img/uploads/2025/05/21/Steven_Greenhouse.png?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 225,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://i.guim.co.uk/img/media/d4a7222f101c89215280421440329044e44ccd57/0_383_2415_1932/master/2415.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 225,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://i.guim.co.uk/img/media/0e8efa238f086dc465ec2e95160a2280df3a2827/532_0_5320_4256/master/5320.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 225,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://i.guim.co.uk/img/media/338f0b546dffae93169d62e4e6a398109d461a22/342_0_4906_3926/master/4906.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 225,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://i.guim.co.uk/img/media/7c0025fa869528cb2792896bf55203d14d2a137f/0_456_3516_2811/master/3516.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 225,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://i.guim.co.uk/img/media/085cf62eeb09a44e25544ca9feb2fc5b6d03c910/652_0_6882_5504/master/6882.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 226,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://i.guim.co.uk/img/media/f7c9b04042de222a1867957566c2faac6a1a2b65/1231_358_1643_1314/master/1643.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 226,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://i.guim.co.uk/img/media/a219d36d764c5164ea25cbbf4dab2fac8aa071e8/334_0_3571_2856/master/3571.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 226,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://i.guim.co.uk/img/media/e234a6284335cbb2e444765d719f7fb2e0102b90/241_0_2500_2000/master/2500.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 226,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://i.guim.co.uk/img/media/2b0965b85299264cd92733124dcc4d06bee7fd0c/967_673_2940_2351/master/2940.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 226,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://i.guim.co.uk/img/media/1d715497446687f1ed1150a28cf56a7311a785a6/51_0_1179_943/master/1179.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 226,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://i.guim.co.uk/img/uploads/2023/08/03/Soccer-v7_TREAT.png?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 233,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://i.guim.co.uk/img/uploads/2025/05/21/Steven_Greenhouse.png?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 233,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://i.guim.co.uk/img/uploads/2026/06/19/Val%C3%A9rie_Hayer.png?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 243,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://i.guim.co.uk/img/uploads/2019/06/26/John_Harris_Next_Gen.png?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 244,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Regular.woff2",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 315,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Bold.woff2",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 317,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-headline/noalts-not-hinted/GHGuardianHeadline-Medium.woff2",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 317,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://i.guim.co.uk/img/media/fb53aab41494c6252e821c07707e5eece707a5f5/833_0_5000_4000/master/5000.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 318,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://i.guim.co.uk/img/media/514f071d15369bb6668493b1bb0d7609b4582b73/291_0_3401_2720/master/3401.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 318,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://i.guim.co.uk/img/media/0932f5a813d9c72913e21836b541d743074f5246/636_0_6360_5088/master/6360.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 319,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://i.guim.co.uk/img/media/6ad13ec6bdd0b4b1c57b629daf2e0687073d3686/293_0_3527_2820/master/3527.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 319,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://i.guim.co.uk/img/media/b3b9d17b2be0db1b4ede666b188fd7e28495a10f/0_6_3900_3119/master/3900.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 320,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://i.guim.co.uk/img/media/71e88c0296930ca8bd0d83196d29c0d94fa33835/395_0_3090_2473/master/3090.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 320,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://i.guim.co.uk/img/media/5c83754137a12ef648fac0ec50df0a808c1e8139/64_0_2847_2278/master/2847.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 325,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://i.guim.co.uk/img/media/e3ca23187fd744be345c78f53457258a68591af6/398_0_3980_3184/master/3980.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 332,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://i.guim.co.uk/img/media/3cbd283f450f0cd31edec5e32d338ee61daab935/741_978_3351_2682/master/3351.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 333,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://i.guim.co.uk/img/media/226314de59bad78ee800ec5b8ab72a570fa617cc/708_0_6829_5464/master/6829.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 333,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://i.guim.co.uk/img/media/d60dc347f1d0a5c3e79eadc4d771a12a34184f9d/0_0_2855_2284/master/2855.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 333,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://i.guim.co.uk/img/media/4d7a49a9fbae174d247b3e637174c59ec141baea/0_0_5000_4000/master/5000.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 334,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://i.guim.co.uk/img/media/81fa43c5d6ce2b397830713cf44e7d6282bf1d77/317_0_1350_1080/1350.jpg?width=&dpr=&s=&crop=",
+        "domain": "i.guim.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 340,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://assets.guim.co.uk/assets/5863.client.web.f8d7a57a15a43d143aaf.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 450,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://assets.guim.co.uk/assets/5993.client.web.783b8a5b8a0ecd74a5b7.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 452,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://assets.guim.co.uk/assets/5100.client.web.58c143343a5b964e04d6.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 452,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://assets.guim.co.uk/assets/7034.client.web.41fb678e62f2598aa5d2.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 452,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://assets.guim.co.uk/assets/Metrics-island.client.web.2634e56955d45d48bae9.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 453,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://assets.guim.co.uk/assets/SetABTests-island.client.web.575b4bdaa62ed0e3448e.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 453,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://assets.guim.co.uk/assets/SetAdTargeting-island.client.web.0d7fe9df2a70fc38e4ef.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 453,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://assets.guim.co.uk/assets/2890.client.web.965dffbab9b37eedfc8a.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 453,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://assets.guim.co.uk/assets/9883.client.web.fbee0595a17fe790b7e9.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 454,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://assets.guim.co.uk/assets/1609.client.web.91997200d1941374dece.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 454,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://assets.guim.co.uk/assets/2867.client.web.344c9929e11e011819e1.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 454,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://assets.guim.co.uk/assets/TopBar-island.client.web.4356653a4b5a047d16fb.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 454,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://assets.guim.co.uk/assets/1864.client.web.49bb76a2920a5c43e1f4.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 455,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://assets.guim.co.uk/assets/1492.client.web.9ea2ead0fc806754c7d3.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 455,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://assets.guim.co.uk/assets/1899.client.web.d3890c77f9d87cce44fb.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 455,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://assets.guim.co.uk/assets/Titlepiece-island.client.web.6e4763a397a7077cf827.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 458,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://sourcepoint.theguardian.com/unified/wrapperMessagingWithoutDetection.js",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 460,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://assets.guim.co.uk/assets/6768.client.web.0735efb2fd224c936cf9.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 556,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://assets.guim.co.uk/assets/DirectoryPageNav-island.client.web.7731375b8d68068c5d1a.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 556,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://assets.guim.co.uk/assets/1503.client.web.cff0752bfa6bf64f2c0b.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 556,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://assets.guim.co.uk/assets/SlideshowCarousel-island.client.web.07436d459c88bc9a339f.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 557,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://assets.guim.co.uk/assets/3394.client.web.3c8fdb9864372437960e.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 557,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://assets.guim.co.uk/assets/9625.client.web.a5bf1bd1e689b8a17381.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 558,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://assets.guim.co.uk/assets/3419.client.web.879410452dc1f60aa410.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 559,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://assets.guim.co.uk/assets/5905.client.web.da089644565fa8f9ebfc.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 559,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://assets.guim.co.uk/assets/7638.client.web.244ce9b4ad540e22b009.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 563,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://assets.guim.co.uk/assets/5384.client.web.b3e0e38507bb58f7425b.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 563,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://assets.guim.co.uk/assets/4923.client.web.22c50da8fee4d16faf68.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 563,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://assets.guim.co.uk/assets/6728.client.web.cc1948bc101b1d418664.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 564,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://assets.guim.co.uk/assets/ScrollableHighlights-island.client.web.eaa878a31fff75140e7a.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 564,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://sourcepoint.theguardian.com/unified/4.40.1/usnat.f12613136193900e32e2.bundle.js",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 580,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://sourcepoint.theguardian.com/wrapper/v2/meta-data",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 581,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://assets.guim.co.uk/assets/4501.client.web.ae17c42ee373d0271f91.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 596,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://sourcepoint.theguardian.com/wrapper/v2/messages",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 633,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://sourcepoint.theguardian.com/wrapper/v2/meta-data",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 677,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://contributions.guardianapis.com/header",
+        "domain": "contributions.guardianapis.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 681,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://assets.guim.co.uk/commercial/b907b76c569ba57fd97f/graun.395.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 683,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://assets.guim.co.uk/commercial/c89e47254875553420fa/graun.599.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 683,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://assets.guim.co.uk/commercial/a8628f38abf16fa722eb/graun.120.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 683,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://assets.guim.co.uk/commercial/e25495d0625efdc4c3f3/graun.661.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 684,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://assets.guim.co.uk/commercial/a34e77c4e6845270408c/graun.899.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 685,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://assets.guim.co.uk/commercial/c556b5b72fe2ac89b075/graun.consented-advertising.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 685,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://sourcepoint.theguardian.com/us_pm/index.html",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 693,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://www.theguardian.com/",
+        "domain": "www.theguardian.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 698,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://cdn.privacy-mgmt.com/wrapper/v2/meta-data?accountId=&env=&metadata=&propertyId=",
+        "domain": "cdn.privacy-mgmt.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 703,
+        "blockedByShields": false
+      },
+      {
+        "id": 104,
+        "url": "https://sourcepoint.theguardian.com/PrivacyManagerUS.b9d1f.css",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 723,
+        "blockedByShields": false
+      },
+      {
+        "id": 105,
+        "url": "https://sourcepoint.theguardian.com/polyfills.01516.js",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 727,
+        "blockedByShields": false
+      },
+      {
+        "id": 106,
+        "url": "https://sourcepoint.theguardian.com/PrivacyManagerUS.89867.js",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 728,
+        "blockedByShields": false
+      },
+      {
+        "id": 107,
+        "url": "https://www.theguardian.com/us",
+        "domain": "www.theguardian.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 729,
+        "blockedByShields": false
+      },
+      {
+        "id": 108,
+        "url": "https://sourcepoint.theguardian.com/mms/v2/message",
+        "domain": "sourcepoint.theguardian.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 780,
+        "blockedByShields": false
+      },
+      {
+        "id": 109,
+        "url": "https://assets.guim.co.uk/polyfill.io/v3/polyfill.min.js?rum=&features=&flags=&callback=&unknown=&cacheClear=",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 781,
+        "blockedByShields": false
+      },
+      {
+        "id": 110,
+        "url": "https://assets.guim.co.uk/assets/frameworks.client.web.43c344cdcf55a381da73.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 783,
+        "blockedByShields": false
+      },
+      {
+        "id": 111,
+        "url": "https://assets.guim.co.uk/assets/index.client.web.874a5767e76e31f5a0b8.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 783,
+        "blockedByShields": false
+      },
+      {
+        "id": 112,
+        "url": "https://assets.guim.co.uk/commercial/d666613e3ada32e90aa0/graun.standalone.commercial.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 783,
+        "blockedByShields": false
+      },
+      {
+        "id": 115,
+        "url": "https://assets.guim.co.uk/assets/AlreadyVisited-island.client.web.c2612107fb4b7951196a.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 808,
+        "blockedByShields": false
+      },
+      {
+        "id": 116,
+        "url": "https://assets.guim.co.uk/assets/AdmiralScript-island.client.web.c890f4d0f6cc8240a90d.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 809,
+        "blockedByShields": false
+      },
+      {
+        "id": 117,
+        "url": "https://assets.guim.co.uk/assets/FocusStyles-island.client.web.a1d081e2a888750e252e.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 811,
+        "blockedByShields": false
+      },
+      {
+        "id": 118,
+        "url": "https://assets.guim.co.uk/assets/ShowHideContainers-island.client.web.05de911f22bde109ceb0.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 812,
+        "blockedByShields": false
+      },
+      {
+        "id": 119,
+        "url": "https://assets.guim.co.uk/assets/BrazeMessaging-island.client.web.c9167eb65b1881527741.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 813,
+        "blockedByShields": false
+      },
+      {
+        "id": 120,
+        "url": "https://assets.guim.co.uk/assets/ReaderRevenueDev-island.client.web.0535919c73f306367c8e.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 814,
+        "blockedByShields": false
+      },
+      {
+        "id": 121,
+        "url": "https://assets.guim.co.uk/assets/GoogleOneTap-island.client.web.8688621d130eb77cb211.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 815,
+        "blockedByShields": false
+      },
+      {
+        "id": 122,
+        "url": "https://assets.guim.co.uk/assets/EditionSwitcherBanner-island.client.web.d086a29d7c6c5bb997e8.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 816,
+        "blockedByShields": false
+      },
+      {
+        "id": 123,
+        "url": "https://assets.guim.co.uk/assets/3141.client.web.ac54800689b432f5534c.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 817,
+        "blockedByShields": false
+      },
+      {
+        "id": 124,
+        "url": "https://assets.guim.co.uk/assets/103.client.web.1f56b7a61a4598c26689.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 817,
+        "blockedByShields": false
+      },
+      {
+        "id": 125,
+        "url": "https://assets.guim.co.uk/assets/8977.client.web.f36b0d00c8328f171cae.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 817,
+        "blockedByShields": false
+      },
+      {
+        "id": 126,
+        "url": "https://assets.guim.co.uk/assets/StickyBottomBanner-island.client.web.4bd1620660ed7d03af59.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 817,
+        "blockedByShields": false
+      },
+      {
+        "id": 127,
+        "url": "https://cdn.privacy-mgmt.com/usnat/vendor-list/categories?siteId=&consentLanguage=",
+        "domain": "cdn.privacy-mgmt.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 834,
+        "blockedByShields": false
+      },
+      {
+        "id": 129,
+        "url": "https://cdn.privacy-mgmt.com/usnat/consent/7417/default-consent",
+        "domain": "cdn.privacy-mgmt.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 868,
+        "blockedByShields": false
+      },
+      {
+        "id": 132,
+        "url": "https://contributions.guardianapis.com/banner",
+        "domain": "contributions.guardianapis.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 877,
+        "blockedByShields": false
+      },
+      {
+        "id": 133,
+        "url": "https://interactive.guim.co.uk/fonts/guss-webfonts/GuardianTextSansWeb/GuardianTextSansWeb-Regular.woff2",
+        "domain": "interactive.guim.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 895,
+        "blockedByShields": false
+      },
+      {
+        "id": 135,
+        "url": "https://assets.guim.co.uk/assets/2376.client.web.e835b357867deac715b9.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1095,
+        "blockedByShields": false
+      },
+      {
+        "id": 136,
+        "url": "https://assets.guim.co.uk/assets/4406.client.web.c6affdf7d76dd96faaba.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1095,
+        "blockedByShields": false
+      },
+      {
+        "id": 137,
+        "url": "https://assets.guim.co.uk/assets/4897.client.web.b9dd21ea5deaf8b6d03e.js",
+        "domain": "assets.guim.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1096,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "assets.guim.co.uk",
+        "requests": 69,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "other",
+          "font",
+          "script",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "i.guim.co.uk",
+        "requests": 32,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.privacy-mgmt.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "contributions.guardianapis.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "interactive.guim.co.uk",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "sourcepoint.theguardian.com",
+        "requests": 10,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch",
+          "document",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "www.theguardian.com",
+        "requests": 4,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "GU_mvt_id",
+        "domain": ".theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "gu_client_ab_tests",
+        "domain": "www.theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "gu_v2_mvt_id",
+        "domain": "www.theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "GU_geo_country",
+        "domain": "www.theguardian.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "_sp_non_keyed_local_state",
+        "valueBytes": 52
+      },
+      {
+        "area": "localStorage",
+        "key": "_sp_user_consent_7417",
+        "valueBytes": 770
+      },
+      {
+        "area": "localStorage",
+        "key": "_sp_local_state",
+        "valueBytes": 161
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://assets.guim.co.uk"
+          ],
+          "totalListenerCalls": 12
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "scroll",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "document",
+            "documentElement",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://assets.guim.co.uk"
+          ],
+          "totalListenerCalls": 36
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 195,
+      "after": 121,
+      "delta": -74
+    },
+    "thirdPartyRequests": {
+      "before": 165,
+      "after": 107,
+      "delta": -58
+    },
+    "knownTrackerRequests": {
+      "before": 28,
+      "after": 0,
+      "delta": -28
+    },
+    "thirdPartyDomains": {
+      "before": 37,
+      "after": 5,
+      "delta": -32
+    },
+    "cookies": {
+      "before": 23,
+      "after": 4,
+      "delta": -19
+    },
+    "thirdPartyCookies": {
+      "before": 6,
+      "after": 0,
+      "delta": -6
+    },
+    "storageEntries": {
+      "before": 23,
+      "after": 3,
+      "delta": -20
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "ophan.theguardian.com",
+        "requests": 14,
+        "tracker": null
+      },
+      {
+        "domain": "pagead2.googlesyndication.com",
+        "requests": 8,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "dt.adsafeprotected.com",
+        "requests": 7,
+        "tracker": null
+      },
+      {
+        "domain": "securepubads.g.doubleclick.net",
+        "requests": 6,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ep2.adtrafficquality.google",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "tpc.googlesyndication.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cdn.confiant-integrations.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "ep1.adtrafficquality.google",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "jsconfig.adsafeprotected.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "oajs.openx.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ads.pubmatic.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "pubmatic.com",
+          "entity": "PubMatic",
+          "category": "advertising / supply-side platform",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "bcp.crwdcntrl.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "crwdcntrl.net",
+          "entity": "Lotame",
+          "category": "advertising / data management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cdn.id5-sync.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.mgaru.dev",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "cdnjs.cloudflare.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "cm.g.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "connectid.analytics.yahoo.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "dmp.im-apps.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "efcf798276f79dbdcb9e6e4df385c375.safeframe.googlesyndication.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "google-bidout-d.openx.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "gum.criteo.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "id5-sync.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "invstatic101.creativecdn.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "marketingplatform.google.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "oa.openxcdn.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "pixel.adsafeprotected.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "static.adsafeprotected.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "static.criteo.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "criteo.net",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "sync6.im-apps.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "tags.crwdcntrl.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "crwdcntrl.net",
+          "entity": "Lotame",
+          "category": "advertising / data management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ups.analytics.yahoo.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "www3.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 20,
+        "domains": 6
+      },
+      {
+        "entity": "OpenX",
+        "requests": 3,
+        "domains": 2
+      },
+      {
+        "entity": "Criteo",
+        "requests": 2,
+        "domains": 2
+      },
+      {
+        "entity": "Lotame",
+        "requests": 2,
+        "domains": 2
+      },
+      {
+        "entity": "PubMatic",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "uid",
+        "domain": ".criteo.com",
+        "thirdParty": true
+      },
+      {
+        "name": "_cc_id",
+        "domain": ".crwdcntrl.net",
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "imid_created_secure",
+        "domain": ".im-apps.net",
+        "thirdParty": true
+      },
+      {
+        "name": "imid_secure",
+        "domain": ".im-apps.net",
+        "thirdParty": true
+      },
+      {
+        "name": "i",
+        "domain": ".openx.net",
+        "thirdParty": true
+      },
+      {
+        "name": "__eoi",
+        "domain": ".theguardian.com",
+        "thirdParty": false
+      },
+      {
+        "name": "__gads",
+        "domain": ".theguardian.com",
+        "thirdParty": false
+      },
+      {
+        "name": "__gpi",
+        "domain": ".theguardian.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_cc_id",
+        "domain": ".theguardian.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_pubcid",
+        "domain": ".theguardian.com",
+        "thirdParty": false
+      },
+      {
+        "name": "bwid",
+        "domain": ".theguardian.com",
+        "thirdParty": false
+      },
+      {
+        "name": "bwid_withoutSameSiteForIncompatibleClients",
+        "domain": ".theguardian.com",
+        "thirdParty": false
+      },
+      {
+        "name": "connectId",
+        "domain": ".theguardian.com",
+        "thirdParty": false
+      },
+      {
+        "name": "lotame_domain_check",
+        "domain": ".theguardian.com",
+        "thirdParty": false
+      },
+      {
+        "name": "panoramaId",
+        "domain": ".theguardian.com",
+        "thirdParty": false
+      },
+      {
+        "name": "panoramaId_expiry",
+        "domain": ".theguardian.com",
+        "thirdParty": false
+      },
+      {
+        "name": "panoramaIdType",
+        "domain": ".theguardian.com",
+        "thirdParty": false
+      },
+      {
+        "name": "usnatUUID",
+        "domain": ".theguardian.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "_cc_id"
+      },
+      {
+        "area": "localStorage",
+        "key": "_cc_id_update_ts"
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-crwdcntrl.net"
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-esp.criteo.com"
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-esp.pubmatic.com"
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-id5-sync.com"
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-intimatemerger.com"
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-mygaruID"
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-openx"
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-rtbhouse"
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-yahoo.com"
+      },
+      {
+        "area": "localStorage",
+        "key": "_im_uid_mt.9001"
+      },
+      {
+        "area": "localStorage",
+        "key": "_im_uid.9001"
+      },
+      {
+        "area": "localStorage",
+        "key": "_pubcid"
+      },
+      {
+        "area": "localStorage",
+        "key": "connectId"
+      },
+      {
+        "area": "localStorage",
+        "key": "gu.adManagerGroup"
+      },
+      {
+        "area": "localStorage",
+        "key": "panoramaId"
+      },
+      {
+        "area": "localStorage",
+        "key": "panoramaId_expiry"
+      },
+      {
+        "area": "localStorage",
+        "key": "panoramaIdType"
+      },
+      {
+        "area": "localStorage",
+        "key": "rtbhouse-esp"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 69,
+      "after": 18,
+      "delta": -51
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260622-11ef3f0537f858efdcf01d9eed6dfb4e",
+    "path": "/reports/20260622-11ef3f0537f858efdcf01d9eed6dfb4e/",
+    "jsonPath": "/reports/20260622-11ef3f0537f858efdcf01d9eed6dfb4e.json"
+  }
+}
