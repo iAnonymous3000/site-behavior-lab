@@ -55,6 +55,8 @@ The project is open source under the [AGPL-3.0-or-later](LICENSE) so anyone can 
 
 Use Site Behavior Lab for transparency research, journalism, compliance review, debugging your own sites, or inspecting public websites where that activity is allowed. Do not use it for attacking, brute-forcing, crawling at abusive rates, bypassing access controls, or scanning systems you do not own or do not have permission to test.
 
+The visit is passive except for one bounded **active input probe**: the Node/Playwright scanner types a synthetic, non-PII test value into up to a handful of *visible* form fields to test for keystroke/input capture. It **never submits the form, never presses Enter, and never enters real data**, the typed value is synthetic and is not stored, and every report discloses how many fields were typed into. The probe's own requests still pass through the scanner's SSRF/public-address guard. Operators running an open deployment should be aware their scanner performs this bounded interaction on scanned sites at a visitor's request.
+
 Operators of public deployments are still responsible for abuse prevention and local legal compliance. For security-sensitive reports, follow [SECURITY.md](SECURITY.md).
 
 ## Data Attribution
