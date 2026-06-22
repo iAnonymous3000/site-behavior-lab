@@ -6,6 +6,7 @@ import {
   constantTimeEqual,
   enforcePublicScanRateLimit,
   publicClientHash,
+  publicScanGateStatus,
   publicScanRateLimit,
   scanAccessTokenMatches,
   scanTokenCost,
@@ -106,6 +107,26 @@ test("publicClientHash is stable per IP and varies across IPs", async () => {
   assert.equal(a1, a2);
   assert.notEqual(a1, b);
   assert.match(a1, /^[a-f0-9]{64}$/);
+});
+
+test("publicScanGateStatus reflects the edge gate's admission rules", () => {
+  // Open public scanner with Turnstile: the field the UI reads to show the widget.
+  assert.deepEqual(
+    publicScanGateStatus({ allowUnauthenticated: "1", turnstileSecret: "secret" }),
+    { authenticated: false, openAccess: true, turnstile: true }
+  );
+  // Open but no Turnstile secret configured.
+  assert.deepEqual(
+    publicScanGateStatus({ allowUnauthenticated: "1" }),
+    { authenticated: false, openAccess: true, turnstile: false }
+  );
+  // A configured token forces gated mode: open access and Turnstile are off.
+  assert.deepEqual(
+    publicScanGateStatus({ accessToken: "t", allowUnauthenticated: "1", turnstileSecret: "secret" }),
+    { authenticated: true, openAccess: false, turnstile: false }
+  );
+  // Neither token nor explicit open access: refused (not open, not authenticated).
+  assert.deepEqual(publicScanGateStatus({}), { authenticated: false, openAccess: false, turnstile: false });
 });
 
 test("publicScanRateLimit parses overrides and falls back", () => {

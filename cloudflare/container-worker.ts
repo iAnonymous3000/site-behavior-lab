@@ -20,6 +20,7 @@ import {
   assertTurnstileToken,
   enforcePublicScanRateLimit,
   publicClientHash,
+  publicScanGateStatus,
   publicScanRateLimit,
   scanAccessTokenMatches,
   scanTokenCost
@@ -79,6 +80,9 @@ export class ScannerContainer extends Container<Env> {
     // token (defense in depth): managed containers have no external egress
     // firewall, so the in-app connect-time proxy is the only SSRF backstop.
     SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN: this.env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN ?? "",
+    // Forwarded so the container's /api/health treats open access as intentional
+    // (no "token not configured" degradation) instead of looking misconfigured.
+    SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS: this.env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS ?? "",
     SITE_BEHAVIOR_LAB_R2_ENDPOINT: this.env.SITE_BEHAVIOR_LAB_R2_ENDPOINT ?? "",
     SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID: this.env.SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID ?? "",
     SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY: this.env.SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY ?? ""
@@ -88,9 +92,18 @@ export class ScannerContainer extends Container<Env> {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+
+    // Health: the container's Node app has no Turnstile concept and cannot see
+    // the front Worker's open-access/Turnstile config, so overlay the edge gate's
+    // own view onto its response — otherwise the UI never shows the Turnstile
+    // widget the gate then requires, and every public scan 400s.
+    if (request.method === "GET" && url.pathname === "/api/health") {
+      return patchHealthResponse(await forwardToContainer(request, env), env);
+    }
+
     const isScan = request.method === "POST" && url.pathname === "/api/scan";
 
-    // Health, report reads, and CORS preflight forward straight to the container.
+    // Report reads and CORS preflight forward straight to the container.
     if (!isScan) {
       return forwardToContainer(request, env);
     }
@@ -117,6 +130,45 @@ function forwardToContainer(request: Request, env: Env): Promise<Response> {
   // coherent (a client polls /api/scans/:id on the same instance). Shard on a
   // key here once a single instance is not enough.
   return getContainer(env.SCANNER).fetch(request);
+}
+
+/** Overlay the front Worker's gate decision (auth / open access / Turnstile) onto the container health. */
+async function patchHealthResponse(response: Response, env: Env): Promise<Response> {
+  const text = await response.text();
+  let body = text;
+
+  try {
+    const health = JSON.parse(text) as Record<string, unknown>;
+    if (health && typeof health === "object") {
+      const gate = publicScanGateStatus({
+        accessToken: env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN,
+        allowUnauthenticated: env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS,
+        turnstileSecret: env.TURNSTILE_SECRET_KEY
+      });
+      health.authenticated = gate.authenticated;
+      health.openAccess = gate.openAccess;
+      health.turnstile = gate.turnstile;
+      health.limits = {
+        ...(typeof health.limits === "object" && health.limits ? health.limits : {}),
+        publicScanRateLimitPerMinute: publicScanRateLimit(
+          env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE,
+          DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE
+        ),
+        publicScanRateLimitPerDay: publicScanRateLimit(
+          env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY,
+          DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY
+        )
+      };
+      body = JSON.stringify(health);
+    }
+  } catch {
+    // Non-JSON health (e.g. an error page) passes through untouched.
+  }
+
+  // Preserve the container's headers (CORS, content-type); drop the now-stale length.
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+  return new Response(body, { status: response.status, headers });
 }
 
 /**

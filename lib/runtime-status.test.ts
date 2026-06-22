@@ -5,11 +5,13 @@ import { runtimeStatus } from "./runtime-status";
 const SCAN_ACCESS_TOKEN_ENV = "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN";
 const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
 const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
+const ALLOW_UNAUTHENTICATED_SCANS_ENV = "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS";
 
 afterEach(() => {
   delete process.env[SCAN_ACCESS_TOKEN_ENV];
   delete process.env[REPORT_STORE_DIR_ENV];
   delete process.env[SCANNER_EGRESS_ENV];
+  delete process.env[ALLOW_UNAUTHENTICATED_SCANS_ENV];
 });
 
 test("runtimeStatus reports degraded status for open local defaults", async () => {
@@ -62,6 +64,21 @@ test("runtimeStatus reports ok status when production controls are configured", 
     shieldsComparison: true,
     savedReports: true
   });
+  assert.deepEqual(status.warnings, []);
+});
+
+test("runtimeStatus treats explicit open access as intentional, not a degradation", async () => {
+  process.env[ALLOW_UNAUTHENTICATED_SCANS_ENV] = "1";
+  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
+  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+
+  const status = await runtimeStatus(loadedAdblock);
+
+  assert.equal(status.status, "ok");
+  assert.equal(status.openAccess, true);
+  assert.equal(status.authenticated, false);
+  // The "public visitors can start scans" notice is suppressed when open access
+  // is explicit, so the public scanner reads as "Live", not "Limited".
   assert.deepEqual(status.warnings, []);
 });
 

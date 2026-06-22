@@ -88,11 +88,19 @@ function publicReportStoreStatus(): PublicReportStoreStatus {
   };
 }
 
+function unauthenticatedScansAllowed(): boolean {
+  return process.env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS === "1";
+}
+
 function productionWarnings(): string[] {
   const warnings: string[] = [];
   const reportStore = reportStoreStatus();
 
-  if (!scanAccessTokenConfigured()) {
+  // No token means anyone can scan. That is a warning when it looks accidental,
+  // but an explicit `ALLOW_UNAUTHENTICATED_SCANS=1` is a deliberate open posture
+  // (e.g. the public Containers scanner, gated by Turnstile + rate limiting at
+  // the edge), so it should not degrade health.
+  if (!scanAccessTokenConfigured() && !unauthenticatedScansAllowed()) {
     warnings.push("SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN is not configured; public visitors can start scans.");
   }
 

@@ -44,6 +44,32 @@ export function scanTokenCost(payload: { compareGpc?: boolean; compareShields?: 
   return payload.compareGpc || payload.compareShields ? 2 : 1;
 }
 
+export type PublicScanGateStatus = {
+  authenticated: boolean;
+  openAccess: boolean;
+  turnstile: boolean;
+};
+
+/**
+ * The gate's own view of how it admits scans, for `/api/health`. A front Worker
+ * is the edge enforcement point, so it — not the upstream Node app, which has no
+ * Turnstile concept — is the source of truth for these fields. Mirrors exactly
+ * when the gate requires a token, allows open access, and enforces Turnstile.
+ */
+export function publicScanGateStatus(config: {
+  accessToken?: string;
+  allowUnauthenticated?: string;
+  turnstileSecret?: string;
+}): PublicScanGateStatus {
+  const token = config.accessToken?.trim();
+  const openAccess = !token && config.allowUnauthenticated === "1";
+  return {
+    authenticated: Boolean(token),
+    openAccess,
+    turnstile: openAccess && Boolean(config.turnstileSecret?.trim())
+  };
+}
+
 /**
  * Whether the request carries the configured access token. Returns false when no
  * token is supplied or it does not match; callers decide the failure response.
