@@ -12,23 +12,21 @@
     // Browser CORS allow-list for the scan API, forwarded into the container by
     // container-worker.ts. Pin it to the Pages origin that calls this scanner;
     // use "*" for an intentionally open scanner (the scan API uses no cookies).
-    "SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN": "https://sitebehavior.org"
+    "SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN": "https://sitebehavior.org",
 
-    // --- Opening the scanner to the public (see docs/go-live-public-scanner.md) ---
-    // Gated by default: set the SCAN_ACCESS_TOKEN secret and only token-bearing
-    // callers can scan. To open it to public visitors instead, leave the token
-    // unset and uncomment the line below; container-worker.ts then enforces
-    // Turnstile (when the TURNSTILE_SECRET_KEY secret is set) plus the KV rate
-    // limit before any request reaches the container's browser.
-    // , "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS": "1"
-    // , "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE": "6"
-    // , "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY": "120"
+    // Public scanner (see docs/go-live-public-scanner.md): open to unauthenticated
+    // visitors. container-worker.ts enforces Turnstile (the TURNSTILE_SECRET_KEY
+    // secret) plus the KV rate limit below before any request reaches the
+    // container's browser. The scanner stays GATED until the
+    // SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN secret is removed — these vars are inert
+    // while that token is set.
+    "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS": "1",
+    "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE": "6",
+    "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY": "120"
   },
 
-  // Required only for public (unauthenticated) scans: the KV namespace that backs
-  // per-client rate limiting. Create it, then uncomment with the returned id:
-  //   npx wrangler kv namespace create site-behavior-lab-scanner-rate-limits
-  // "kv_namespaces": [{ "binding": "RATE_LIMITS_KV", "id": "<kv-namespace-id>" }],
+  // Per-client rate-limit store for public scans (RATE_LIMITS_KV binding).
+  "kv_namespaces": [{ "binding": "RATE_LIMITS_KV", "id": "56a535b602cb44e29ad0178f54cc6897" }],
 
   "containers": [
     {
