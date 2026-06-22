@@ -24,7 +24,10 @@ import {
   sentinelEncodings,
   type CapturedRequest
 } from "./keystroke-exfiltration";
-import { isThirdParty } from "./domain-utils";
+import { isThirdParty, partyKey } from "./domain-utils";
+import { resolveCnameCloaks, type CnameChainResolver } from "./cname-uncloaking";
+import type { CnameCloak, NetworkRequestRecord } from "./types";
+import { promises as dnsPromises } from "node:dns";
 import { PublicScanError } from "./public-errors";
 import { assertPublicHttpUrl, normalizeUrl } from "./url-safety";
 import { redactUrlForReport, safeParseUrl } from "./report-url";
@@ -80,6 +83,12 @@ const KEYSTROKE_PROBE_MIN_BUDGET_MS = 4_000;
 const KEYSTROKE_EXFIL_WAIT_MS = 2_500;
 const FILLABLE_FIELD_SELECTOR =
   "input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=reset]):not([type=file]):not([type=range]):not([type=color]):not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), [contenteditable=true], [contenteditable='']";
+// CNAME-uncloaking: how many first-party subdomains to resolve, the budget to
+// bother, and the per-lookup / chain bounds so DNS can never stall the scan.
+const MAX_CNAME_LOOKUPS = 10;
+const CNAME_PROBE_MIN_BUDGET_MS = 3_000;
+const CNAME_LOOKUP_TIMEOUT_MS = 1_500;
+const CNAME_MAX_HOPS = 3;
 
 let sharedBrowser: Browser | null = null;
 let browserLaunchPromise: Promise<Browser> | null = null;
@@ -89,6 +98,8 @@ export type ScanSiteOptions = {
   shieldsBlockingEnabled?: boolean;
   resolvePublicHost?: ResolvePublicHost;
   verifyPublicUrl?: (url: URL) => Promise<void>;
+  /** Override CNAME-chain resolution (defaults to node:dns); injected in tests. */
+  resolveCnameChain?: CnameChainResolver;
 };
 
 export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOptions = {}): Promise<ScanResult> {
@@ -240,6 +251,18 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       ...record,
       blockedByShields: adblockEngine ? adblockEngine.check(request.url(), finalUrl, mapRequestType(record.resourceType)) : undefined
     }));
+
+    // Un-hide CNAME-cloaked trackers: first-party subdomains that are DNS aliases
+    // for a known tracker. Best-effort and bounded — DNS can never stall the scan.
+    const cnameCloaks = await resolveCnameCloaksForScan(publicRequests, finalParsed.hostname, started, options);
+    if (cnameCloaks.length > 0) {
+      warnings.add(
+        `Resolved ${
+          cnameCloaks.length === 1 ? "1 first-party subdomain" : `${cnameCloaks.length} first-party subdomains`
+        } that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.`
+      );
+    }
+
     const scannerEgress = scannerEgressDescription();
     const adblockMeta = adblockEngine ? adblockListMeta() : null;
     const conditions = buildScanConditions({
@@ -278,6 +301,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       storage,
       fingerprintDetections,
       fingerprintEvents: fingerprintObservations.events,
+      cnameCloaks,
       screenshot,
       warnings: warnings.list,
       shieldsBlockedRequests: adblockEngine
@@ -542,4 +566,50 @@ function scanTimeoutError(): PublicScanError {
 
 function scannerEgressDescription(): string {
   return process.env[SCANNER_EGRESS_ENV]?.trim() || "this scanner instance";
+}
+
+async function resolveCnameCloaksForScan(
+  requests: NetworkRequestRecord[],
+  firstPartyHostname: string,
+  started: number,
+  options: ScanSiteOptions
+): Promise<CnameCloak[]> {
+  if (MAX_SCAN_DURATION_MS - (Date.now() - started) < CNAME_PROBE_MIN_BUDGET_MS) return [];
+  try {
+    return await resolveCnameCloaks(requests, firstPartyHostname, {
+      registrableDomain: partyKey,
+      matchTracker: findTrackerMatch,
+      resolveCnameChain: options.resolveCnameChain ?? resolveCnameChainViaDns,
+      maxHosts: MAX_CNAME_LOOKUPS
+    });
+  } catch {
+    return [];
+  }
+}
+
+/** Follow a hostname's CNAME chain via DNS, bounded by hops and a per-lookup timeout. */
+async function resolveCnameChainViaDns(host: string): Promise<string[]> {
+  const chain: string[] = [];
+  let current = host;
+  for (let hop = 0; hop < CNAME_MAX_HOPS; hop += 1) {
+    let records: string[];
+    try {
+      records = await withDnsTimeout(dnsPromises.resolveCname(current));
+    } catch {
+      break; // No CNAME (reached the A record), NXDOMAIN, or timeout.
+    }
+    const next = records[0];
+    if (!next) break;
+    chain.push(next);
+    current = next;
+  }
+  return chain;
+}
+
+function withDnsTimeout(operation: Promise<string[]>): Promise<string[]> {
+  let timer: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<string[]>((_, reject) => {
+    timer = setTimeout(() => reject(new Error("dns-lookup-timeout")), CNAME_LOOKUP_TIMEOUT_MS);
+  });
+  return Promise.race([operation, timeout]).finally(() => clearTimeout(timer));
 }

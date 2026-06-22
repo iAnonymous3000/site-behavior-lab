@@ -1,4 +1,6 @@
-import type { NetworkRequestRecord, TrackerMatch } from "./types";
+import type { CnameCloak, NetworkRequestRecord, TrackerMatch } from "./types";
+
+export type { CnameCloak } from "./types";
 
 /**
  * CNAME-cloaking un-hiding.
@@ -18,15 +20,6 @@ import type { NetworkRequestRecord, TrackerMatch } from "./types";
  * matchers; this file stays free of Node/DNS APIs so it is unit-testable and
  * neutral across runtimes (see `runtime-boundaries.test.ts`).
  */
-
-export type CnameCloak = {
-  /** The first-party-looking hostname the page contacted. */
-  host: string;
-  /** The off-organization hostname it actually resolves to (the cloaking vendor). */
-  cname: string;
-  /** The tracking service the cloaked target matched. */
-  tracker: TrackerMatch;
-};
 
 export type CnameCloakDeps = {
   /** Registrable (eTLD+1) domain for a hostname, e.g. tldts `getDomain`. */
@@ -82,6 +75,40 @@ export function classifyCnameCloak(
   }
 
   return null;
+}
+
+export type CnameChainResolver = (host: string) => Promise<string[]>;
+
+/**
+ * Resolve the first-party subdomains the page contacted and return those that are
+ * actually CNAME-cloaked trackers. The DNS resolver is injected (the scanner
+ * supplies `node:dns`; tests a fixture map) so this stays unit-testable. Bounded
+ * by `maxHosts`; a resolution failure for one host is skipped, never thrown.
+ */
+export async function resolveCnameCloaks(
+  requests: NetworkRequestRecord[],
+  firstPartyDomain: string,
+  deps: CnameCloakDeps & { resolveCnameChain: CnameChainResolver; maxHosts?: number }
+): Promise<CnameCloak[]> {
+  const candidates = cnameCloakCandidates(requests, firstPartyDomain, deps).slice(0, deps.maxHosts ?? 12);
+  const cloaks: CnameCloak[] = [];
+  const seen = new Set<string>();
+
+  for (const host of candidates) {
+    let chain: string[];
+    try {
+      chain = await deps.resolveCnameChain(host);
+    } catch {
+      continue;
+    }
+    const cloak = classifyCnameCloak(host, chain, firstPartyDomain, deps);
+    if (cloak && !seen.has(cloak.host)) {
+      seen.add(cloak.host);
+      cloaks.push(cloak);
+    }
+  }
+
+  return cloaks;
 }
 
 function normalizeHost(host: string): string {

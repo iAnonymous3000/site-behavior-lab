@@ -31,6 +31,8 @@ function isSingleScanResult(value: unknown): value is ScanResult {
     Array.isArray(value.fingerprintEvents) &&
     (value.fingerprintDetections === undefined ||
       (Array.isArray(value.fingerprintDetections) && value.fingerprintDetections.every(isFingerprintDetectionSummary))) &&
+    (value.cnameCloaks === undefined ||
+      (Array.isArray(value.cnameCloaks) && value.cnameCloaks.every(isCnameCloak))) &&
     (value.screenshot === null || typeof value.screenshot === "string") &&
     Array.isArray(value.warnings) &&
     (value.share === undefined || isReportShare(value.share))
@@ -61,6 +63,18 @@ function isComparisonScanReport(value: unknown): value is ComparisonScanResult {
 
 function isComparisonRunLabels(value: unknown): boolean {
   return isRecord(value) && typeof value.baseline === "string" && typeof value.variant === "string";
+}
+
+function isCnameCloak(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    typeof value.host === "string" &&
+    typeof value.cname === "string" &&
+    isRecord(value.tracker) &&
+    typeof value.tracker.domain === "string" &&
+    typeof value.tracker.entity === "string" &&
+    typeof value.tracker.category === "string"
+  );
 }
 
 function isReportShare(value: unknown): value is ReportShare {

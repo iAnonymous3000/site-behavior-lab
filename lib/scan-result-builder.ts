@@ -2,6 +2,7 @@ import { summarizeDomains } from "./domain-utils";
 import { trackerCatalogMetadata } from "./tracker-catalog";
 import { SCAN_REPORT_SCHEMA_VERSION } from "./types";
 import type {
+  CnameCloak,
   ConsentMode,
   CookieRecord,
   FingerprintDetectionSummary,
@@ -24,6 +25,7 @@ export type BuildScanResultInput = {
   storage: StorageRecord[];
   fingerprintDetections?: FingerprintDetectionSummary[];
   fingerprintEvents: FingerprintEventSummary[];
+  cnameCloaks?: CnameCloak[];
   screenshot: string | null;
   warnings: string[];
   shieldsBlockedRequests?: number;
@@ -220,7 +222,7 @@ export function buildScanResult(input: BuildScanResultInput): ScanResult {
     summary.shieldsBlockedRequests = input.shieldsBlockedRequests;
   }
 
-  return {
+  const result: ScanResult = {
     ok: true,
     schemaVersion: SCAN_REPORT_SCHEMA_VERSION,
     reportType: "single",
@@ -235,4 +237,11 @@ export function buildScanResult(input: BuildScanResultInput): ScanResult {
     screenshot: input.screenshot,
     warnings: input.warnings
   };
+
+  // Only attach when there is something to report, so clean visits stay clean.
+  if (input.cnameCloaks && input.cnameCloaks.length > 0) {
+    result.cnameCloaks = input.cnameCloaks;
+  }
+
+  return result;
 }

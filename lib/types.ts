@@ -28,6 +28,17 @@ export type TrackerMatch = {
   cookiePrevalence?: number;
 };
 
+/**
+ * A CNAME-cloaked tracker: a first-party-looking subdomain the page contacted
+ * (`host`) that is a DNS CNAME alias for a third-party tracking service
+ * (`tracker`, reached via `cname`), which request-URL matching alone misses.
+ */
+export type CnameCloak = {
+  host: string;
+  cname: string;
+  tracker: TrackerMatch;
+};
+
 export type NetworkRequestRecord = {
   id: number;
   url: string;
@@ -269,6 +280,7 @@ export type ScanResult = {
   storage: StorageRecord[];
   fingerprintEvents: FingerprintEventSummary[];
   fingerprintDetections?: FingerprintDetectionSummary[];
+  cnameCloaks?: CnameCloak[];
   screenshot: string | null;
   warnings: string[];
   share?: ReportShare;

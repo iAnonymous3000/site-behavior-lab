@@ -226,6 +226,27 @@ test("keystroke leak severity scales with encoding obfuscation", () => {
   assert.match(obfuscatedCard.title, /What you type was sent to/);
 });
 
+test("surfaces CNAME-cloaked trackers as their own finding, and omits it when there are none", () => {
+  const base = makeResult({ thirdPartyDomains: 2, thirdPartyRequests: 4 });
+  assert.equal(buildFindings(base, base, null).some((finding) => finding.id === "cname-cloaking"), false);
+
+  const cloaked: ScanResult = {
+    ...base,
+    cnameCloaks: [
+      {
+        host: "metrics.shop.example",
+        cname: "shop.eulerian.net",
+        tracker: { domain: "eulerian.net", entity: "Eulerian", category: "advertising", confidence: "curated" }
+      }
+    ]
+  };
+  const card = byId(buildFindings(cloaked, cloaked, null), "cname-cloaking");
+  assert.equal(card.level, "warn");
+  assert.match(card.title, /1 tracker hidden behind a first-party subdomain/);
+  assert.match(card.lead, /Eulerian/);
+  assert.match(card.evidence, /metrics\.shop\.example → shop\.eulerian\.net/);
+});
+
 function makeKeystrokeDetection(encodings: string[]): FingerprintDetectionSummary {
   return {
     kind: "keystroke-exfiltration",

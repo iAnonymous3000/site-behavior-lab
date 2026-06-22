@@ -167,6 +167,26 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
     });
   }
 
+  const cnameCloaks = result.cnameCloaks ?? [];
+  if (cnameCloaks.length > 0) {
+    const vendors = humanList(Array.from(new Set(cnameCloaks.map((cloak) => cloak.tracker.entity))));
+    findings.push({
+      id: "cname-cloaking",
+      icon: "radar",
+      level: "warn",
+      title: `${plural(cnameCloaks.length, "tracker")} hidden behind a first-party subdomain`,
+      lead: `${humanList(cnameCloaks.map((cloak) => cloak.host))} look like part of ${
+        result.summary.firstPartyDomain
+      }, but DNS shows ${cnameCloaks.length === 1 ? "it is" : "they are"} actually ${vendors} (CNAME cloaking).`,
+      detail:
+        "CNAME cloaking disguises a third-party tracker as a first-party subdomain, so it slips past request-URL matching (this scanner's default, and Blacklight's) and many third-party-cookie protections. Found by following each first-party subdomain's DNS CNAME chain to a known tracking service.",
+      evidence: humanList(
+        cnameCloaks.map((cloak) => `${cloak.host} → ${cloak.cname} (${cloak.tracker.entity})`),
+        4
+      )
+    });
+  }
+
   findings.push({
     id: "third-party-services",
     icon: "globe",
