@@ -22,7 +22,9 @@ export type TrackerMatch = {
   domain: string;
   entity: string;
   category: string;
-  confidence: "curated";
+  // "curated": named entry in the hand-curated catalog. "shields-list": matched
+  // only by the Brave Shields ad-block engine (broader coverage, no curated name).
+  confidence: "curated" | "shields-list";
   prevalence?: number;
   fingerprinting?: number;
   cookiePrevalence?: number;

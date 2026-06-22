@@ -26,7 +26,7 @@ import {
 } from "./keystroke-exfiltration";
 import { isThirdParty, partyKey } from "./domain-utils";
 import { resolveCnameCloaks, type CnameChainResolver } from "./cname-uncloaking";
-import type { CnameCloak, NetworkRequestRecord } from "./types";
+import type { CnameCloak, NetworkRequestRecord, TrackerMatch } from "./types";
 import { promises as dnsPromises } from "node:dns";
 import { PublicScanError } from "./public-errors";
 import { assertPublicHttpUrl, normalizeUrl } from "./url-safety";
@@ -253,8 +253,25 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     }));
 
     // Un-hide CNAME-cloaked trackers: first-party subdomains that are DNS aliases
-    // for a known tracker. Best-effort and bounded — DNS can never stall the scan.
-    const cnameCloaks = await resolveCnameCloaksForScan(publicRequests, finalParsed.hostname, started, options);
+    // for a known tracker. The oracle is the curated catalog (named) first, then
+    // the broader Brave Shields engine (which carries the CNAME-cloak vendors the
+    // small catalog lacks). Best-effort and bounded — DNS can never stall the scan.
+    const matchCnameTracker = (host: string): TrackerMatch | null => {
+      const named = findTrackerMatch(host);
+      if (named) return named;
+      if (adblockEngine && adblockEngine.check(`https://${host}/`, finalUrl, mapRequestType("other"))) {
+        const registrable = partyKey(host);
+        return { domain: registrable, entity: registrable, category: "tracking (Brave Shields list)", confidence: "shields-list" };
+      }
+      return null;
+    };
+    const cnameCloaks = await resolveCnameCloaksForScan(
+      publicRequests,
+      finalParsed.hostname,
+      started,
+      options,
+      matchCnameTracker
+    );
     if (cnameCloaks.length > 0) {
       warnings.add(
         `Resolved ${
@@ -572,13 +589,14 @@ async function resolveCnameCloaksForScan(
   requests: NetworkRequestRecord[],
   firstPartyHostname: string,
   started: number,
-  options: ScanSiteOptions
+  options: ScanSiteOptions,
+  matchTracker: (host: string) => TrackerMatch | null
 ): Promise<CnameCloak[]> {
   if (MAX_SCAN_DURATION_MS - (Date.now() - started) < CNAME_PROBE_MIN_BUDGET_MS) return [];
   try {
     return await resolveCnameCloaks(requests, firstPartyHostname, {
       registrableDomain: partyKey,
-      matchTracker: findTrackerMatch,
+      matchTracker,
       resolveCnameChain: options.resolveCnameChain ?? resolveCnameChainViaDns,
       maxHosts: MAX_CNAME_LOOKUPS
     });
