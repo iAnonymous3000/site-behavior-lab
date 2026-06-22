@@ -1,5 +1,12 @@
 # Go live: opening the public Shields scanner
 
+> **Status: LIVE (2026-06-22).** This go-live is complete. sitebehavior.org's
+> live scanner is the full Containers scanner at `scan.sitebehavior.org`, open to
+> the public behind Turnstile + per-client rate limiting, with shareable report
+> permalinks. This document is now both the runbook and the record of how it was
+> done; the remaining hardening item is the optional WAF rate-limit rule (Step B
+> below) as a ceiling above the in-app KV limiter.
+
 This runbook takes the full Node/Playwright scanner (the path that runs **live
 Brave Shields**, tried-vs-blocked) from operator-gated to a **public** front door
 on [sitebehavior.org](https://sitebehavior.org), behind Cloudflare Turnstile and
