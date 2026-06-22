@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { buildReportHeadline } from "@/lib/report-headline";
+import { serializeJsonLd } from "@/lib/jsonld-script";
 import { buildReportDataset } from "@/lib/report-jsonld";
 import { readReportForId } from "@/lib/report-source";
 import { siteBaseUrl, siteOrigin } from "@/lib/site-url";
@@ -58,7 +59,7 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
   return (
     <>
       {dataset && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(dataset) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(dataset) }} />
       )}
       <SavedReportClient id={id} />
     </>
