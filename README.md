@@ -5,7 +5,7 @@
 
 **See what a site does, not just what it says.**
 
-Site Behavior Lab runs controlled Chromium visits and reports observable site behavior: network requests, third-party domains, curated service labels, cookies, storage keys, screenshot evidence, scan conditions, high-entropy browser API calls, behavioral fingerprinting heuristics, and third-party session/input-monitoring listener signals seen by lightweight instrumentation.
+Site Behavior Lab runs controlled Chromium visits and reports observable site behavior: network requests, third-party domains, curated service labels, cookies, storage keys, screenshot evidence, scan conditions, high-entropy browser API calls, behavioral fingerprinting heuristics, third-party session/input-monitoring listener signals, an active keystroke/input-capture probe, DNS-based CNAME-uncloaking of disguised trackers, and consent-banner (pre-consent tracking) detection.
 
 > **Deployment status.** The public site at [https://sitebehavior.org](https://sitebehavior.org) is the static **Cloudflare Pages** front door. Its **live scanner is the full Node/Playwright scanner — including live Brave Shields (the tried-vs-blocked diff)** — deployed on **Cloudflare Containers** at `scan.sitebehavior.org` with R2-backed report storage, **open to the public behind Cloudflare Turnstile and per-client rate limiting** (the front-Worker gate in [cloudflare/container-worker.ts](cloudflare/container-worker.ts); go-live sequence in [docs/go-live-public-scanner.md](docs/go-live-public-scanner.md), container build in [docs/deploy-cloudflare-containers.md](docs/deploy-cloudflare-containers.md)). Shared report links resolve to that scanner origin, which also redirects its own root back to the front door. The lighter **Browser Run Worker** remains available as a GPC/trackers-only alternative. Shields evidence is also generated operator/CI-side and published into the static evidence corpus. See [docs/deployment-topology.md](docs/deployment-topology.md) for the decision record.
 
@@ -47,6 +47,8 @@ The project is open source under the [AGPL-3.0-or-later](LICENSE) so anyone can 
   - local/session storage keys with values redacted
   - canvas, canvas-font, WebGL, audio, WebRTC, third-party session-recording, and input-monitoring signals
   - active keystroke/input-exfiltration check: a synthetic sentinel is typed into form fields (never submitted) and flagged if it is sent to a third party, in plain, base64, hex, or hashed form
+  - CNAME-uncloaked trackers: first-party subdomains whose DNS CNAME chain resolves to a known tracking service, which request-URL matching alone would miss
+  - consent-banner (CMP) detection that surfaces tracking companies that loaded before any consent was given
   - screenshot
   - methodology disclosure
   - sanitized JSON export and request-log CSV export
