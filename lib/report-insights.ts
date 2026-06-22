@@ -1,3 +1,4 @@
+import { humanList, plural } from "./text-format";
 import type { FingerprintDetectionSummary, ScanResult } from "./types";
 
 /**
@@ -9,9 +10,10 @@ import type { FingerprintDetectionSummary, ScanResult } from "./types";
  * (`app/site-behavior-app.tsx`) and the plain-language headline layer
  * (`lib/report-headline.ts`), which previously kept hand-synced copies.
  *
- * It is intentionally dependency-free (types only) so it can run in the React
- * client, in server-side `generateMetadata`, and inside the `next/og` image
- * route without pulling in browser- or Node-only code.
+ * It is intentionally dependency-light (types plus the pure `text-format`
+ * helpers) so it can run in the React client, in server-side
+ * `generateMetadata`, and inside the `next/og` image route without pulling in
+ * browser- or Node-only code.
  */
 
 /** Recognizable platforms that make the strongest plain-language headline. */
@@ -86,4 +88,75 @@ function isTrackingCategory(category: string): boolean {
   const lower = category.toLowerCase();
   if (TRACKING_CATEGORY_HINTS.some((hint) => lower.includes(hint))) return true;
   return !OPERATIONAL_CATEGORY_HINTS.some((hint) => lower.includes(hint));
+}
+
+/** All fingerprint/behavioral detections on a scan (safe on legacy reports without the field). */
+export function fingerprintDetections(result: ScanResult): FingerprintDetectionSummary[] {
+  return result.fingerprintDetections ?? [];
+}
+
+/** The single detection of a given kind, narrowed to its evidence shape, if present. */
+export function fingerprintDetection<K extends FingerprintDetectionSummary["kind"]>(
+  result: ScanResult,
+  kind: K
+): Extract<FingerprintDetectionSummary, { kind: K }> | undefined {
+  return fingerprintDetections(result).find((detection) => detection.kind === kind) as
+    | Extract<FingerprintDetectionSummary, { kind: K }>
+    | undefined;
+}
+
+/** Total instrumented detection occurrences (summed across kinds). */
+export function fingerprintDetectionCount(result: ScanResult): number {
+  return fingerprintDetections(result).reduce((total, detection) => total + detection.count, 0);
+}
+
+/** Short human label for a behavioral fingerprinting detection. */
+export function detectionLabel(detection: FingerprintDetectionSummary): string {
+  if (detection.kind === "canvas-fingerprinting") return "Canvas fingerprinting heuristic";
+  if (detection.kind === "canvas-font-fingerprinting") return "Canvas font probing heuristic";
+  if (detection.kind === "webgl-fingerprinting") return "WebGL entropy-read heuristic";
+  if (detection.kind === "audio-fingerprinting") return "Offline audio rendering heuristic";
+  if (detection.kind === "webrtc-fingerprinting") return "WebRTC peer-connection probing";
+  if (detection.kind === "session-recording") return "Session-recording listener coverage";
+  return "Input-monitoring listener coverage";
+}
+
+/** One-line evidence summary for a behavioral fingerprinting detection. */
+export function detectionEvidence(detection: FingerprintDetectionSummary): string {
+  if (detection.kind === "canvas-fingerprinting") {
+    return `${plural(detection.count, "canvas", "canvases")} matched; reads: ${humanList(detection.evidence.readApis)}`;
+  }
+
+  if (detection.kind === "canvas-font-fingerprinting") {
+    return `${plural(detection.evidence.measureTextCalls, "measureText call")} across up to ${plural(
+      detection.evidence.maxDistinctFonts,
+      "font"
+    )}; measured text contents are not stored`;
+  }
+
+  if (detection.kind === "webgl-fingerprinting") {
+    const parameters = detection.evidence.parameters.length > 0 ? `; parameters: ${humanList(detection.evidence.parameters)}` : "";
+    return `${plural(detection.evidence.getParameterCalls, "parameter read")} and ${plural(
+      detection.evidence.readPixelsCalls,
+      "pixel readback"
+    )}${parameters}`;
+  }
+
+  if (detection.kind === "audio-fingerprinting") {
+    return `${plural(detection.evidence.offlineRenderCalls, "offline render")} with ${humanList(detection.evidence.apis)}`;
+  }
+
+  if (detection.kind === "webrtc-fingerprinting") {
+    return `${plural(detection.evidence.constructorCalls, "peer connection")} with ${plural(
+      detection.evidence.createDataChannelCalls,
+      "data channel"
+    )}, ${plural(detection.evidence.createOfferCalls, "offer")}, and ${plural(
+      detection.evidence.setLocalDescriptionCalls,
+      "local description"
+    )}`;
+  }
+
+  return `${plural(detection.evidence.totalListenerCalls, "third-party listener")} from ${humanList(
+    detection.evidence.thirdPartyOrigins
+  )} across ${humanList(detection.evidence.eventTypes)} on ${humanList(detection.evidence.listenerTargets)}`;
 }

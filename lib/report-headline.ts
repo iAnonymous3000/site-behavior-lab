@@ -4,6 +4,7 @@ import {
   isOperationalEntity,
   trackerEntitySummaries
 } from "./report-insights";
+import { plural } from "./text-format";
 import type {
   ComparisonScanResult,
   FingerprintDetectionSummary,
@@ -259,10 +260,6 @@ function friendlyDomain(result: ScanResult): string {
 
 function n(value: number): string {
   return value.toLocaleString("en-US");
-}
-
-function plural(count: number, singular: string, pluralForm = `${singular}s`): string {
-  return `${n(count)} ${count === 1 ? singular : pluralForm}`;
 }
 
 function joinNames(items: string[], limit = 3): string {
