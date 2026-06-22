@@ -2920,12 +2920,20 @@ details[open] > summary .disclosure-chevron {
   }
 
   .report-actions {
+    flex-wrap: wrap;
     width: 100%;
   }
 
   .report-actions button,
   .report-actions a {
-    flex: 1;
+    /* `auto` basis (not 0) lets the row wrap instead of overflowing when the
+       Share/copy/CSV/JSON buttons no longer fit on one line. */
+    flex: 1 1 auto;
+  }
+
+  /* The copy button is icon-only; keep it from stretching to a full button width. */
+  .report-actions .ghost-button {
+    flex: 0 0 auto;
   }
 
   .static-gallery-heading {
