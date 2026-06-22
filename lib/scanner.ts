@@ -81,6 +81,10 @@ export const MAX_SCAN_DURATION_MS = 45_000;
 const MAX_PROBE_FIELDS = 8;
 const KEYSTROKE_PROBE_MIN_BUDGET_MS = 4_000;
 const KEYSTROKE_EXFIL_WAIT_MS = 2_500;
+// Batch-on-unload flush: budget needed to navigate away (firing pagehide so
+// recorders that buffer keystrokes transmit via sendBeacon) and watch for it.
+const KEYSTROKE_UNLOAD_MIN_BUDGET_MS = 1_500;
+const KEYSTROKE_UNLOAD_WAIT_MS = 700;
 const FILLABLE_FIELD_SELECTOR =
   "input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=reset]):not([type=file]):not([type=range]):not([type=color]):not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), [contenteditable=true], [contenteditable='']";
 // CNAME-uncloaking: how many first-party subdomains to resolve, the budget to
@@ -509,6 +513,10 @@ async function probeKeystrokeExfiltration(
     if (typed.count === 0) return null;
     const waitMs = Math.min(KEYSTROKE_EXFIL_WAIT_MS, MAX_SCAN_DURATION_MS - (Date.now() - started) - 250);
     if (waitMs > 0) await page.waitForTimeout(waitMs);
+    // Flush batch-on-unload senders: many recorders buffer keystrokes and only
+    // transmit via sendBeacon on pagehide. Best-effort and isolated, so a failure
+    // here never discards the real-time captures above.
+    await flushUnloadBeacons(page, started).catch(() => undefined);
   } catch {
     return null;
   } finally {
@@ -525,6 +533,19 @@ async function probeKeystrokeExfiltration(
     fieldsTyped: typed.count,
     fieldTypes: typed.types
   });
+}
+
+/**
+ * Navigate to about:blank so the page fires pagehide/unload, prompting session
+ * recorders that buffer keystrokes to flush them via sendBeacon — which the
+ * probe's request listener then captures. Runs only after all page-dependent
+ * report data is already collected; bounded by the remaining scan budget.
+ */
+async function flushUnloadBeacons(page: Page, started: number): Promise<void> {
+  if (MAX_SCAN_DURATION_MS - (Date.now() - started) < KEYSTROKE_UNLOAD_MIN_BUDGET_MS) return;
+  await page.goto("about:blank", { waitUntil: "commit", timeout: 2_000 });
+  const remaining = MAX_SCAN_DURATION_MS - (Date.now() - started) - 100;
+  if (remaining > 0) await page.waitForTimeout(Math.min(KEYSTROKE_UNLOAD_WAIT_MS, remaining));
 }
 
 async function typeSentinelIntoFields(page: Page, sentinel: string): Promise<{ count: number; types: string[] }> {
