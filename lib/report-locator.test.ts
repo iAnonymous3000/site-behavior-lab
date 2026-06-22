@@ -34,7 +34,30 @@ test("locateReport serves committed static reports from the static file with a p
   });
 });
 
-test("locateReport withholds a permalink when a static export is backed by a live API", () => {
+test("locateReport shares a live-API report from the scan API origin", () => {
+  const locator = locateReport(VALID_ID, {
+    staticExport: true,
+    liveApiBacked: true,
+    basePath: "",
+    scanApiBase: "https://scan.sitebehavior.org"
+  });
+  assert.equal(locator.backend, "live-api");
+  // A fresh report only lives behind the scan API, which serves its own page.
+  assert.equal(locator.pagePath, `https://scan.sitebehavior.org/reports/${VALID_ID}`);
+  assert.equal(locator.dataUrl, `https://scan.sitebehavior.org/api/reports/${VALID_ID}`);
+});
+
+test("locateReport tolerates a trailing slash on the scan API origin", () => {
+  const locator = locateReport(VALID_ID, {
+    staticExport: true,
+    liveApiBacked: true,
+    basePath: "",
+    scanApiBase: "https://scan.sitebehavior.org/"
+  });
+  assert.equal(locator.pagePath, `https://scan.sitebehavior.org/reports/${VALID_ID}`);
+});
+
+test("locateReport withholds a permalink when a live-API build has no scan API origin", () => {
   const locator = locateReport(VALID_ID, { staticExport: true, liveApiBacked: true, basePath: "" });
   assert.equal(locator.backend, "live-api-unshareable");
   assert.equal(locator.pagePath, null);

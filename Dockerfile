@@ -4,6 +4,14 @@ FROM mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble AS build
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Public origin baked into the build so shared live-scan report links unfurl with
+# their Open Graph / X card. Set this to the scanner's own public origin (e.g.
+# https://scan.sitebehavior.org) at build time; NEXT_PUBLIC_ vars are inlined by
+# `next build`, so a runtime env cannot change it. Empty default = no card image
+# (links still render the report).
+ARG NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=""
+ENV NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=${NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL}
+
 COPY package.json package-lock.json ./
 RUN npm ci && npx playwright install chromium
 

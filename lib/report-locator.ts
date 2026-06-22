@@ -24,8 +24,11 @@ export type ReportBackend =
   | "node-api"
   // Served by the static export: prerendered page plus committed `:id.json`.
   | "static-file"
-  // Static export fronting a live scan API: a fresh report only lives behind the
-  // API, so the static site has no permalink it can load for it.
+  // Static export fronting a live scan API: the fresh report lives behind that
+  // API, which runs the full Node app, so its own origin serves a working
+  // report page + JSON. The permalink points at the scan API origin.
+  | "live-api"
+  // Same case, but no scan API origin is known, so no permalink can be offered.
   | "live-api-unshareable";
 
 export type ReportRuntime = {
@@ -35,6 +38,12 @@ export type ReportRuntime = {
   liveApiBacked: boolean;
   /** Optional project base path applied to static asset URLs. */
   basePath: string;
+  /**
+   * Absolute origin of the live scan API (scheme + host, no trailing slash),
+   * when `liveApiBacked`. A freshly scanned report only exists behind this
+   * origin, which serves its own report page, so its permalink lives there.
+   */
+  scanApiBase?: string;
 };
 
 export type ReportLocator = {
@@ -106,21 +115,33 @@ export function locateReport(id: string, runtime: ReportRuntime): ReportLocator 
     };
   }
 
-  // Static export: the JSON is always fetched from the committed static file.
-  const dataUrl = staticPath(`${reportPagePath(id)}.json`, runtime.basePath);
-
   if (runtime.liveApiBacked) {
-    // The report may only exist behind the live API, which the static page
-    // cannot load, so there is no permalink safe to advertise for it.
-    return { id, backend: "live-api-unshareable", pagePath: null, dataUrl };
+    // A freshly scanned report only lives behind the scan API. That API runs the
+    // full Node app, so its own origin serves a working report page + JSON —
+    // share that, not a static path the Pages site never pre-rendered for this id.
+    const apiBase = trimTrailingSlash(runtime.scanApiBase ?? "");
+    if (apiBase) {
+      return {
+        id,
+        backend: "live-api",
+        pagePath: `${apiBase}${reportPagePath(id)}`,
+        dataUrl: `${apiBase}${reportApiPath(id)}`
+      };
+    }
+    // No scan API origin known: never advertise a static link the page cannot load.
+    return { id, backend: "live-api-unshareable", pagePath: null, dataUrl: staticPath(`${reportPagePath(id)}.json`, runtime.basePath) };
   }
 
   return {
     id,
     backend: "static-file",
     pagePath: staticPath(`${reportPagePath(id)}/`, runtime.basePath),
-    dataUrl
+    dataUrl: staticPath(`${reportPagePath(id)}.json`, runtime.basePath)
   };
+}
+
+function trimTrailingSlash(value: string): string {
+  return value.replace(/\/+$/, "");
 }
 
 function staticPath(pathname: string, basePath: string): string {

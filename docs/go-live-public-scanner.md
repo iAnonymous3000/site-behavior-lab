@@ -104,6 +104,33 @@ The front Worker chooses one of three postures from its config:
    SCAN_BASE_URL=https://<scanner-origin> npm run test:smoke:scanner
    ```
 
+## Sharing live-scan results
+
+A freshly scanned report is stored in R2 and served by the scanner's own Node
+app, so its permalink lives on the **scan API origin**, not the static Pages
+site (which only pre-renders the committed corpus). With the public site pointed
+at the scanner, the report's Share button and "Post on X" / "Copy post" actions
+resolve to:
+
+```
+https://scan.sitebehavior.org/reports/<id>
+```
+
+That link renders the full report (request log, findings, Shields diff) for
+anyone, backed by R2. Downloading the JSON/CSV still works as an offline,
+re-uploadable copy.
+
+For the link to **unfurl with its Open Graph / X card** (headline + key counts),
+the scanner image must be built with the public origin baked in, because
+`NEXT_PUBLIC_*` values are inlined by `next build`:
+
+- In the Worker's **Build** settings (Workers Builds), add a build variable /
+  Docker build arg `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://scan.sitebehavior.org`,
+  then trigger a rebuild.
+
+Without it, shared links still render the report; they just won't show a card
+image.
+
 ## Roll back
 
 Either set the `SCAN_ACCESS_TOKEN` secret again, or remove

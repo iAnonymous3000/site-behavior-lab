@@ -1023,9 +1023,19 @@ function reportDomain(result: ScanReport): string {
 }
 
 function reportSharePath(result: ScanReport): string | null {
-  const id = result.share?.id;
-  if (!id) return null;
-  return locateReport(id, clientReportRuntime()).pagePath;
+  const share = result.share;
+  if (!share?.id) return null;
+  const runtime = clientReportRuntime();
+  // A report whose JSON lives behind the scan API (`/api/reports/:id`) was just
+  // produced by a running Node/container scanner; on a live-API static build it
+  // is only servable from that API's own origin, so resolve it there. Committed
+  // reports instead carry the static-file convention (`/reports/:id.json`) and
+  // are served by the page that is already rendering them.
+  const apiBacked = share.jsonPath.startsWith("/api/");
+  if (runtime.staticExport && runtime.liveApiBacked && apiBacked) {
+    return locateReport(share.id, runtime).pagePath;
+  }
+  return committedReportLocation(share.id, runtime).pagePath;
 }
 
 // Runtime context for resolving report locations from the browser build flags.
@@ -1033,7 +1043,10 @@ export function clientReportRuntime(): ReportRuntime {
   return {
     staticExport: STATIC_EXPORT,
     liveApiBacked: STATIC_LIVE_SCAN_ENABLED,
-    basePath: STATIC_BASE_PATH
+    basePath: STATIC_BASE_PATH,
+    // A live-scanned report lives on the scan API's own origin, which serves a
+    // working report page, so share permalinks resolve there.
+    scanApiBase: LIVE_SCAN_API_BASE
   };
 }
 
