@@ -188,6 +188,29 @@ test("share text combines the headline, top stats, and the reproducibility tagli
   assert.match(headline.shareText, /Open-source and reproducible:/);
 });
 
+test("confirmed keystroke exfiltration leads the headline with alarm", () => {
+  const result = makeResult({
+    firstPartyDomain: "shop.example",
+    domains: [makeTrackerDomain("google-analytics.com", 4, "Google", "analytics")],
+    thirdPartyRequests: 4,
+    thirdPartyDomains: 1,
+    fingerprintDetections: [
+      {
+        kind: "keystroke-exfiltration",
+        heuristic: "input-sentinel-exfiltration-v1",
+        count: 1,
+        evidence: { recipients: ["collect.tracker.example"], encodings: ["base64"], fieldsTyped: 1, fieldTypes: ["email"] }
+      }
+    ]
+  });
+
+  const headline = buildReportHeadline(result);
+  // Confirmed input capture outranks the named-platform (Google) story.
+  assert.equal(headline.tone, "alarm");
+  assert.match(headline.headline, /shop\.example sent what you type to 1 third party\./);
+  assert.match(headline.subhead, /collect\.tracker\.example/);
+});
+
 type ResultOverrides = {
   firstPartyDomain?: string;
   domains?: DomainSummary[];

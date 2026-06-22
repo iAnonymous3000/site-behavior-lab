@@ -7,14 +7,23 @@ import {
   type Page,
   type Request
 } from "playwright";
+import { randomBytes } from "node:crypto";
 import { findTrackerMatch } from "./tracker-catalog";
 import { adblockListMeta, getAdblockEngine, mapRequestType } from "./adblock-engine";
 import type {
   CookieRecord,
+  KeystrokeExfiltrationDetectionSummary,
   ScanRequestPayload,
   ScanResult,
   StorageRecord
 } from "./types";
+import {
+  buildKeystrokeExfiltrationDetection,
+  createSentinel,
+  findSentinelLeaks,
+  sentinelEncodings,
+  type CapturedRequest
+} from "./keystroke-exfiltration";
 import { isThirdParty } from "./domain-utils";
 import { PublicScanError } from "./public-errors";
 import { assertPublicHttpUrl, normalizeUrl } from "./url-safety";
@@ -64,6 +73,13 @@ const NAVIGATION_TIMEOUT_MS = 30_000;
 const NETWORK_IDLE_TIMEOUT_MS = 8_000;
 const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
 export const MAX_SCAN_DURATION_MS = 45_000;
+// Active keystroke-exfiltration probe: how many fields to type into, the minimum
+// time budget needed to bother, and how long to watch for the sentinel leaving.
+const MAX_PROBE_FIELDS = 8;
+const KEYSTROKE_PROBE_MIN_BUDGET_MS = 4_000;
+const KEYSTROKE_EXFIL_WAIT_MS = 2_500;
+const FILLABLE_FIELD_SELECTOR =
+  "input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=reset]):not([type=file]):not([type=range]):not([type=color]):not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), [contenteditable=true], [contenteditable='']";
 
 let sharedBrowser: Browser | null = null;
 let browserLaunchPromise: Promise<Browser> | null = null;
@@ -209,6 +225,17 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       warnings.add("Blocked one or more requests that resolved to local or private network addresses at connection time.");
     }
 
+    // Active input-capture probe: type a synthetic sentinel into form fields and
+    // watch for it leaving to a third party. Best-effort and fully bounded — it
+    // never throws into the scan and is skipped when the time budget is tight.
+    const keystrokeDetection = await withScanTimeout(
+      probeKeystrokeExfiltration(page, finalParsed.hostname, started, warnings),
+      started
+    ).catch(() => null);
+    const fingerprintDetections = keystrokeDetection
+      ? [...fingerprintObservations.detections, keystrokeDetection]
+      : fingerprintObservations.detections;
+
     const publicRequests = networkRecorder.publicRecords(finalParsed.hostname, (record, request) => ({
       ...record,
       blockedByShields: adblockEngine ? adblockEngine.check(request.url(), finalUrl, mapRequestType(record.resourceType)) : undefined
@@ -249,7 +276,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       requests: publicRequests,
       cookies,
       storage,
-      fingerprintDetections: fingerprintObservations.detections,
+      fingerprintDetections,
       fingerprintEvents: fingerprintObservations.events,
       screenshot,
       warnings: warnings.list,
@@ -398,6 +425,99 @@ async function collectStorage(page: Page): Promise<StorageRecord[]> {
 
 async function collectFingerprintObservations(page: Page) {
   return collectFingerprintObservationsFromFrames(page.frames());
+}
+
+/**
+ * Type a unique synthetic sentinel into the page's form fields (never
+ * submitting), then watch the network for that value leaving to a third party —
+ * direct evidence of keystroke/input capture. Best-effort: bounded by the scan
+ * budget, swallows its own errors, and returns null when nothing leaked or there
+ * was no time to probe. The form is never submitted and typed values are
+ * synthetic, so this performs no real action on the site.
+ */
+async function probeKeystrokeExfiltration(
+  page: Page,
+  firstPartyHostname: string,
+  started: number,
+  warnings: ScanWarningCollector
+): Promise<KeystrokeExfiltrationDetectionSummary | null> {
+  if (MAX_SCAN_DURATION_MS - (Date.now() - started) < KEYSTROKE_PROBE_MIN_BUDGET_MS) return null;
+
+  const sentinel = createSentinel(randomBytes(6).toString("hex"));
+  const captured: CapturedRequest[] = [];
+  const onRequest = (request: Request) => {
+    try {
+      const url = request.url();
+      const hostname = safeParseUrl(url)?.hostname;
+      if (!hostname) return;
+      captured.push({
+        domain: hostname,
+        thirdParty: isThirdParty(firstPartyHostname, hostname),
+        url,
+        body: request.postData()
+      });
+    } catch {
+      /* ignore a malformed request */
+    }
+  };
+
+  page.on("request", onRequest);
+  let typed: { count: number; types: string[] };
+  try {
+    typed = await typeSentinelIntoFields(page, sentinel);
+    if (typed.count === 0) return null;
+    const waitMs = Math.min(KEYSTROKE_EXFIL_WAIT_MS, MAX_SCAN_DURATION_MS - (Date.now() - started) - 250);
+    if (waitMs > 0) await page.waitForTimeout(waitMs);
+  } catch {
+    return null;
+  } finally {
+    page.off("request", onRequest);
+  }
+
+  warnings.add(
+    `This scan typed a synthetic test value into ${
+      typed.count === 1 ? "1 form field" : `${typed.count} form fields`
+    } (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.`
+  );
+
+  return buildKeystrokeExfiltrationDetection(findSentinelLeaks(sentinelEncodings(sentinel), captured), {
+    fieldsTyped: typed.count,
+    fieldTypes: typed.types
+  });
+}
+
+async function typeSentinelIntoFields(page: Page, sentinel: string): Promise<{ count: number; types: string[] }> {
+  const handles = await page.$$(FILLABLE_FIELD_SELECTOR);
+  const types: string[] = [];
+  let count = 0;
+
+  for (const handle of handles) {
+    if (count >= MAX_PROBE_FIELDS) {
+      await handle.dispose().catch(() => undefined);
+      continue;
+    }
+    try {
+      if (!(await handle.isVisible())) continue;
+      const fieldType = await handle.evaluate((element) => {
+        const node = element as HTMLElement;
+        if (node.tagName === "TEXTAREA") return "textarea";
+        if (node.isContentEditable) return "contenteditable";
+        return (node.getAttribute("type") || "text").toLowerCase();
+      });
+      await handle.focus();
+      await page.keyboard.type(sentinel, { delay: 1 });
+      // Some recorders only transmit on blur; never press Enter, which could submit.
+      await handle.evaluate((element) => (element as HTMLElement).blur());
+      types.push(fieldType);
+      count += 1;
+    } catch {
+      /* skip fields that cannot be focused or typed into */
+    } finally {
+      await handle.dispose().catch(() => undefined);
+    }
+  }
+
+  return { count, types };
 }
 
 function isTimeoutError(error: unknown): boolean {

@@ -118,7 +118,8 @@ export function detectionLabel(detection: FingerprintDetectionSummary): string {
   if (detection.kind === "audio-fingerprinting") return "Offline audio rendering heuristic";
   if (detection.kind === "webrtc-fingerprinting") return "WebRTC peer-connection probing";
   if (detection.kind === "session-recording") return "Session-recording listener coverage";
-  return "Input-monitoring listener coverage";
+  if (detection.kind === "input-monitoring") return "Input-monitoring listener coverage";
+  return "Keystroke / input exfiltration";
 }
 
 /** One-line evidence summary for a behavioral fingerprinting detection. */
@@ -154,6 +155,12 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
       detection.evidence.setLocalDescriptionCalls,
       "local description"
     )}`;
+  }
+
+  if (detection.kind === "keystroke-exfiltration") {
+    return `typed value reached ${humanList(detection.evidence.recipients)} as ${humanList(
+      detection.evidence.encodings
+    )}, from ${plural(detection.evidence.fieldsTyped, "field")}`;
   }
 
   return `${plural(detection.evidence.totalListenerCalls, "third-party listener")} from ${humanList(

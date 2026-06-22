@@ -174,6 +174,28 @@ export type InputMonitoringDetectionSummary = {
   };
 };
 
+/**
+ * Active keystroke/input exfiltration: the scanner typed a unique synthetic
+ * sentinel into form fields (never submitting), then observed that value leave
+ * to a third party in a network request. Unlike the listener-coverage heuristics
+ * above, this is direct evidence that typed input was captured and transmitted.
+ */
+export type KeystrokeExfiltrationDetectionSummary = {
+  kind: "keystroke-exfiltration";
+  heuristic: "input-sentinel-exfiltration-v1";
+  count: number;
+  evidence: {
+    /** Third-party domains the sentinel was sent to. */
+    recipients: string[];
+    /** Encodings the sentinel appeared in (plain, base64, hex, sha256, ...). */
+    encodings: string[];
+    /** How many form fields the probe typed into. */
+    fieldsTyped: number;
+    /** The input types probed (text, email, password, search, ...). */
+    fieldTypes: string[];
+  };
+};
+
 export type FingerprintDetectionSummary =
   | CanvasFingerprintDetectionSummary
   | CanvasFontFingerprintDetectionSummary
@@ -181,7 +203,8 @@ export type FingerprintDetectionSummary =
   | AudioFingerprintDetectionSummary
   | WebrtcFingerprintDetectionSummary
   | SessionRecordingDetectionSummary
-  | InputMonitoringDetectionSummary;
+  | InputMonitoringDetectionSummary
+  | KeystrokeExfiltrationDetectionSummary;
 
 export type ScanConditions = {
   requestedUrl: string;

@@ -16,6 +16,7 @@ import {
   FlaskConical,
   Github,
   Globe2,
+  Keyboard,
   Loader2,
   Monitor,
   Moon,
@@ -1883,7 +1884,8 @@ const SCAN_CHECKS: { icon: typeof Eye; label: string; question: string }[] = [
   { icon: Network, label: "Named platforms", question: "Did data go to Google, Meta, TikTok, or X?" },
   { icon: Radar, label: "Google Analytics remarketing", question: "Is Google Analytics also feeding ad-remarketing audiences?" },
   { icon: Fingerprint, label: "Fingerprint-like API calls", question: "Calls to canvas, WebGL, or audio APIs used for device recognition?" },
-  { icon: Eye, label: "Session-replay vendors", question: "Known session-recording tools present on the page?" }
+  { icon: Eye, label: "Session-replay vendors", question: "Known session-recording tools present on the page?" },
+  { icon: Keyboard, label: "Keystroke capture", question: "Is what you type into a form sent to a third party?" }
 ];
 
 function LoadingState({ mode }: { mode: "single" | "gpc" | "shields" | "opening" }) {
@@ -1945,7 +1947,8 @@ function LoadingState({ mode }: { mode: "single" | "gpc" | "shields" | "opening"
         })}
       </ul>
       <p className="scan-checks-note">
-        Keystroke logging is not checked: it would need interaction this passive visit does not perform.
+        Keystroke capture is tested by typing a synthetic value into the page&rsquo;s form fields (never submitting) and
+        watching for it to be sent off-site. It covers fields on the loaded page, not flows behind login or extra steps.
       </p>
     </section>
   );
@@ -2640,6 +2643,7 @@ const FINDING_ICONS: Record<FindingIconKey, typeof Eye> = {
   radar: Radar,
   cookie: Cookie,
   eye: Eye,
+  keyboard: Keyboard,
   fingerprint: Fingerprint,
   "shield-check": ShieldCheck,
   check: CheckCircle2,

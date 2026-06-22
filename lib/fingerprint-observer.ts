@@ -945,6 +945,13 @@ function cloneFingerprintDetection(detection: FingerprintDetectionSummary): Fing
     };
   }
 
+  // The in-page observer never emits keystroke-exfiltration (it is network-side,
+  // built in the scanner), but the union now includes it, so clone it verbatim
+  // to keep the listener-coverage fallback narrowed.
+  if (detection.kind === "keystroke-exfiltration") {
+    return { ...detection, evidence: { ...detection.evidence } };
+  }
+
   return {
     ...detection,
     evidence: {

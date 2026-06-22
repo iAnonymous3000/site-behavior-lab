@@ -189,6 +189,29 @@ test("a Shields comparison keeps the fingerprinting card alongside session-recor
   assert.equal(ids[1], "shields-comparison");
 });
 
+test("confirmed keystroke exfiltration surfaces a loud finding and drives the bottom line", () => {
+  const result = makeResult({
+    fingerprintDetections: [
+      {
+        kind: "keystroke-exfiltration",
+        heuristic: "input-sentinel-exfiltration-v1",
+        count: 1,
+        evidence: { recipients: ["collect.example"], encodings: ["base64", "plain"], fieldsTyped: 2, fieldTypes: ["email", "password"] }
+      }
+    ]
+  });
+
+  const findings = buildFindings(result, result, null);
+  const card = byId(findings, "keystroke-exfiltration");
+  assert.equal(card.level, "loud");
+  assert.equal(card.icon, "keyboard");
+  assert.match(card.title, /What you type was sent to 1 third party/);
+  assert.match(card.lead, /collect\.example/);
+  // A loud signal forces the bottom line loud, and bottom line still leads.
+  assert.equal(findings[0].id, "bottom-line");
+  assert.equal(byId(findings, "bottom-line").level, "loud");
+});
+
 function makeCorpus(sampleSize: number): CorpusStats {
   return {
     version: 1,

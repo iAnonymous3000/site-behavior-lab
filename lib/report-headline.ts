@@ -1,5 +1,6 @@
 import {
   HEADLINE_PLATFORMS,
+  fingerprintDetection,
   highEntropyDetections,
   isOperationalEntity,
   trackerEntitySummaries
@@ -93,6 +94,23 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
       shareText: buildShareText(headline, resolvedStats)
     };
   };
+
+  // Confirmed input capture is the loudest possible signal — it leads over every
+  // other story, including the comparison framing.
+  const keystrokeExfil = fingerprintDetection(result, "keystroke-exfiltration");
+  if (keystrokeExfil) {
+    return finish(
+      "alarm",
+      `${domain} sent what you type to ${plural(
+        keystrokeExfil.evidence.recipients.length,
+        "third party",
+        "third parties"
+      )}.`,
+      `A unique value typed into a form on ${domain} turned up in requests to ${joinNames(
+        keystrokeExfil.evidence.recipients
+      )} — and the form was never submitted. A real visitor's keystrokes could be captured the same way.`
+    );
+  }
 
   if (isComparison(report) && report.comparisonType === "gpc") {
     const before = report.diff.thirdPartyRequests.before;

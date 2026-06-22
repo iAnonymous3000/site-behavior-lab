@@ -17,6 +17,7 @@ const PROJECT_ROOT = process.cwd();
 const NODE_ONLY_MODULES = new Set([
   "lib/access-control.ts",
   "lib/adblock-engine.ts",
+  "lib/keystroke-exfiltration.ts",
   "lib/public-scan-proxy.ts",
   "lib/report-store.ts",
   "lib/runtime-status.ts",

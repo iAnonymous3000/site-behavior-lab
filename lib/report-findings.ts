@@ -36,6 +36,7 @@ export type FindingIconKey =
   | "radar"
   | "cookie"
   | "eye"
+  | "keyboard"
   | "fingerprint"
   | "shield-check"
   | "check"
@@ -136,6 +137,24 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
   const googleAnalyticsPresent = result.domains.some((domain) => GOOGLE_ANALYTICS_HOST.test(domain.domain));
   const gaRemarketingOn =
     googleAnalyticsPresent && result.domains.some((domain) => DOUBLECLICK_REMARKETING_HOST.test(domain.domain));
+
+  const keystrokeDetection = fingerprintDetection(result, "keystroke-exfiltration");
+  if (keystrokeDetection) {
+    findings.push({
+      id: "keystroke-exfiltration",
+      icon: "keyboard",
+      level: "loud",
+      title: `What you type was sent to ${plural(keystrokeDetection.evidence.recipients.length, "third party", "third parties")}`,
+      lead: `When the scanner typed a unique test value into ${plural(
+        keystrokeDetection.evidence.fieldsTyped,
+        "form field"
+      )}, that value turned up in requests to ${humanList(keystrokeDetection.evidence.recipients)} — without the form ever being submitted.`,
+      detail: `This is direct evidence of input capture, not just a script that could read input: a third party received the typed value (as ${humanList(
+        keystrokeDetection.evidence.encodings
+      )}). A real visitor's keystrokes could be captured the same way. The scanner types only synthetic values and never submits the form.`,
+      evidence: `Test value reached ${humanList(keystrokeDetection.evidence.recipients)} via ${humanList(keystrokeDetection.evidence.encodings)}.`
+    });
+  }
 
   findings.push({
     id: "third-party-services",

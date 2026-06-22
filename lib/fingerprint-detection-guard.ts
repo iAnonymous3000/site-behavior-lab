@@ -24,7 +24,25 @@ export function isFingerprintDetectionSummary(value: unknown): value is Fingerpr
   if (value.kind === "webrtc-fingerprinting") return isWebrtcFingerprintDetectionSummary(value);
   if (value.kind === "session-recording") return isListenerCoverageDetectionSummary(value, "interaction-listener-coverage-v1");
   if (value.kind === "input-monitoring") return isListenerCoverageDetectionSummary(value, "input-listener-coverage-v1");
+  if (value.kind === "keystroke-exfiltration") return isKeystrokeExfiltrationDetectionSummary(value);
   return false;
+}
+
+function isKeystrokeExfiltrationDetectionSummary(value: Record<string, unknown>): boolean {
+  return (
+    value.heuristic === "input-sentinel-exfiltration-v1" &&
+    isFinitePositiveNumber(value.count) &&
+    isRecord(value.evidence) &&
+    isNonEmptyStringArray(value.evidence.recipients) &&
+    isNonEmptyStringArray(value.evidence.encodings) &&
+    isFiniteNonNegativeNumber(value.evidence.fieldsTyped) &&
+    Array.isArray(value.evidence.fieldTypes) &&
+    value.evidence.fieldTypes.every((fieldType) => typeof fieldType === "string")
+  );
+}
+
+function isNonEmptyStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === "string");
 }
 
 function isCanvasFingerprintDetectionSummary(value: Record<string, unknown>): boolean {
