@@ -22,6 +22,7 @@ import {
   fingerprintDetection,
   highEntropyDetections as highEntropyFingerprintDetections,
   isOperationalEntity,
+  keystrokeLeakObfuscated,
   trackerEntitySummaries
 } from "./report-insights";
 import { humanList, plural } from "./text-format";
@@ -140,19 +141,29 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
 
   const keystrokeDetection = fingerprintDetection(result, "keystroke-exfiltration");
   if (keystrokeDetection) {
+    const recipients = humanList(keystrokeDetection.evidence.recipients);
+    const recipientCount = plural(keystrokeDetection.evidence.recipients.length, "third party", "third parties");
+    const fields = plural(keystrokeDetection.evidence.fieldsTyped, "form field");
+    // Plain-text leaks read as functional type-ahead/autocomplete; transformed
+    // (base64/hex/hashed) ones are more consistent with deliberate capture, so
+    // only those earn the loud alarm.
+    const obfuscated = keystrokeLeakObfuscated(keystrokeDetection.evidence.encodings);
     findings.push({
       id: "keystroke-exfiltration",
       icon: "keyboard",
-      level: "loud",
-      title: `What you type was sent to ${plural(keystrokeDetection.evidence.recipients.length, "third party", "third parties")}`,
-      lead: `When the scanner typed a unique test value into ${plural(
-        keystrokeDetection.evidence.fieldsTyped,
-        "form field"
-      )}, that value turned up in requests to ${humanList(keystrokeDetection.evidence.recipients)} — without the form ever being submitted.`,
-      detail: `This is direct evidence of input capture, not just a script that could read input: a third party received the typed value (as ${humanList(
-        keystrokeDetection.evidence.encodings
-      )}). A real visitor's keystrokes could be captured the same way. The scanner types only synthetic values and never submits the form.`,
-      evidence: `Test value reached ${humanList(keystrokeDetection.evidence.recipients)} via ${humanList(keystrokeDetection.evidence.encodings)}.`
+      level: obfuscated ? "loud" : "warn",
+      title: obfuscated
+        ? `What you type was sent to ${recipientCount}`
+        : `Your typing is sent to ${recipientCount} as you go`,
+      lead: obfuscated
+        ? `When the scanner typed a unique test value into ${fields}, that value reached ${recipients} — transformed (${humanList(keystrokeDetection.evidence.encodings)}) and without the form ever being submitted.`
+        : `When the scanner typed a unique test value into ${fields}, that value was sent in plain text to ${recipients} as it was typed, without the form being submitted — typically search type-ahead or autocomplete handled by a third party.`,
+      detail: obfuscated
+        ? `The typed value was transformed (${humanList(
+            keystrokeDetection.evidence.encodings
+          )}) before being sent, which is more consistent with deliberate input capture than a visible API call. A real visitor's keystrokes could be captured the same way. The scanner types only synthetic values and never submits the form.`
+        : `The value was sent in plain text, consistent with a functional type-ahead or autocomplete (a search or location lookup) handled by a third party — still worth knowing your keystrokes leave to ${recipients}, but not on its own evidence of covert capture. The scanner types only synthetic values and never submits the form.`,
+      evidence: `Test value reached ${recipients} via ${humanList(keystrokeDetection.evidence.encodings)}.`
     });
   }
 

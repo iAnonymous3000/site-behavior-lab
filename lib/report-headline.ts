@@ -3,6 +3,7 @@ import {
   fingerprintDetection,
   highEntropyDetections,
   isOperationalEntity,
+  keystrokeLeakObfuscated,
   trackerEntitySummaries
 } from "./report-insights";
 import { plural } from "./text-format";
@@ -95,21 +96,25 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
     };
   };
 
-  // Confirmed input capture is the loudest possible signal — it leads over every
-  // other story, including the comparison framing.
+  // Confirmed input capture leads over every other story, including the
+  // comparison framing. A transformed (base64/hex/hashed) leak is consistent
+  // with covert capture and gets the alarm; a plain-text leak reads as a
+  // functional third-party type-ahead/autocomplete and gets a calmer warn.
   const keystrokeExfil = fingerprintDetection(result, "keystroke-exfiltration");
   if (keystrokeExfil) {
-    return finish(
-      "alarm",
-      `${domain} sent what you type to ${plural(
-        keystrokeExfil.evidence.recipients.length,
-        "third party",
-        "third parties"
-      )}.`,
-      `A unique value typed into a form on ${domain} turned up in requests to ${joinNames(
-        keystrokeExfil.evidence.recipients
-      )} — and the form was never submitted. A real visitor's keystrokes could be captured the same way.`
-    );
+    const recipientCount = plural(keystrokeExfil.evidence.recipients.length, "third party", "third parties");
+    const recipients = joinNames(keystrokeExfil.evidence.recipients);
+    return keystrokeLeakObfuscated(keystrokeExfil.evidence.encodings)
+      ? finish(
+          "alarm",
+          `${domain} sent what you type to ${recipientCount}.`,
+          `A unique value typed into a form on ${domain} reached ${recipients}, transformed and without the form being submitted. A real visitor's keystrokes could be captured the same way.`
+        )
+      : finish(
+          "warn",
+          `${domain} sends what you type to ${recipientCount} as you type.`,
+          `A unique value typed into a form on ${domain} was sent in plain text to ${recipients} as it was typed — typically search or autocomplete handled by a third party, not necessarily covert capture, but your keystrokes still leave the site.`
+        );
   }
 
   if (isComparison(report) && report.comparisonType === "gpc") {

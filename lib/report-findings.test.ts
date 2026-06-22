@@ -212,6 +212,29 @@ test("confirmed keystroke exfiltration surfaces a loud finding and drives the bo
   assert.equal(byId(findings, "bottom-line").level, "loud");
 });
 
+test("keystroke leak severity scales with encoding obfuscation", () => {
+  // Plain-text leak = functional type-ahead/autocomplete → calmer "warn".
+  const plain = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["plain"])] });
+  const plainCard = byId(buildFindings(plain, plain, null), "keystroke-exfiltration");
+  assert.equal(plainCard.level, "warn");
+  assert.match(plainCard.title, /Your typing is sent to/);
+
+  // Transformed (base64/hex/hashed) leak = consistent with covert capture → "loud".
+  const obfuscated = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["base64"])] });
+  const obfuscatedCard = byId(buildFindings(obfuscated, obfuscated, null), "keystroke-exfiltration");
+  assert.equal(obfuscatedCard.level, "loud");
+  assert.match(obfuscatedCard.title, /What you type was sent to/);
+});
+
+function makeKeystrokeDetection(encodings: string[]): FingerprintDetectionSummary {
+  return {
+    kind: "keystroke-exfiltration",
+    heuristic: "input-sentinel-exfiltration-v1",
+    count: 1,
+    evidence: { recipients: ["geocode.arcgis.com"], encodings, fieldsTyped: 2, fieldTypes: ["search"] }
+  };
+}
+
 function makeCorpus(sampleSize: number): CorpusStats {
   return {
     version: 1,

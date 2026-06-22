@@ -167,3 +167,14 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
     detection.evidence.thirdPartyOrigins
   )} across ${humanList(detection.evidence.eventTypes)} on ${humanList(detection.evidence.listenerTargets)}`;
 }
+
+/**
+ * Whether a keystroke-exfiltration leak is "obfuscated" (the typed value was
+ * transformed — base64/hex/hashed — before being sent), which is more
+ * consistent with deliberate input capture. A plain-text leak is consistent
+ * with a functional type-ahead/autocomplete sent to a third-party API, so it
+ * carries a calmer severity. Drives both the finding level and the headline tone.
+ */
+export function keystrokeLeakObfuscated(encodings: string[]): boolean {
+  return encodings.some((encoding) => encoding !== "plain");
+}

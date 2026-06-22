@@ -211,6 +211,27 @@ test("confirmed keystroke exfiltration leads the headline with alarm", () => {
   assert.match(headline.subhead, /collect\.tracker\.example/);
 });
 
+test("a plain-text keystroke leak reads as a calmer third-party type-ahead, not an alarm", () => {
+  // The real weather.gov case: typing in the location search reaches Esri's
+  // geocoder in plain text — functional autocomplete, not covert capture.
+  const result = makeResult({
+    firstPartyDomain: "weather.gov",
+    fingerprintDetections: [
+      {
+        kind: "keystroke-exfiltration",
+        heuristic: "input-sentinel-exfiltration-v1",
+        count: 1,
+        evidence: { recipients: ["geocode.arcgis.com"], encodings: ["plain"], fieldsTyped: 2, fieldTypes: ["search"] }
+      }
+    ]
+  });
+
+  const headline = buildReportHeadline(result);
+  assert.equal(headline.tone, "warn");
+  assert.match(headline.headline, /weather\.gov sends what you type to 1 third party as you type\./);
+  assert.match(headline.subhead, /geocode\.arcgis\.com/);
+});
+
 type ResultOverrides = {
   firstPartyDomain?: string;
   domains?: DomainSummary[];
