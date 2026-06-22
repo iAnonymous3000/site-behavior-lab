@@ -247,6 +247,34 @@ test("surfaces CNAME-cloaked trackers as their own finding, and omits it when th
   assert.match(card.evidence, /metrics\.shop\.example → shop\.eulerian\.net/);
 });
 
+test("surfaces pre-consent tracking when a consent-management platform is present", () => {
+  const cmpDomain: DomainSummary = {
+    domain: "cdn.cookielaw.org",
+    requests: 2,
+    thirdParty: true,
+    tracker: null,
+    statuses: [200],
+    resourceTypes: ["script"]
+  };
+  const withCmp = makeResult({
+    domains: [cmpDomain, makeTrackerDomain("google-analytics.com", 5, "Google", "analytics")],
+    thirdPartyRequests: 7,
+    thirdPartyDomains: 2
+  });
+  const card = byId(buildFindings(withCmp, withCmp, null), "consent-banner");
+  assert.equal(card.level, "warn");
+  assert.match(card.title, /trackers had already loaded/);
+  assert.match(card.lead, /OneTrust/);
+  assert.match(card.detail, /GDPR\/ePrivacy/);
+
+  const noCmp = makeResult({
+    domains: [makeTrackerDomain("google-analytics.com", 5, "Google", "analytics")],
+    thirdPartyRequests: 5,
+    thirdPartyDomains: 1
+  });
+  assert.equal(buildFindings(noCmp, noCmp, null).some((finding) => finding.id === "consent-banner"), false);
+});
+
 function makeKeystrokeDetection(encodings: string[]): FingerprintDetectionSummary {
   return {
     kind: "keystroke-exfiltration",

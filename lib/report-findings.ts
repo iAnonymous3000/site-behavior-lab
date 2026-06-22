@@ -14,6 +14,7 @@
  * drift.
  */
 
+import { detectConsentPlatform } from "./consent-banner";
 import { corpusBenchmark, corpusIsUsable, type CorpusStats } from "./corpus-stats";
 import {
   HEADLINE_PLATFORMS,
@@ -184,6 +185,29 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
         cnameCloaks.map((cloak) => `${cloak.host} → ${cloak.cname} (${cloak.tracker.entity})`),
         4
       )
+    });
+  }
+
+  const consentPlatform = detectConsentPlatform(result.domains);
+  if (consentPlatform) {
+    const preConsentTrackers = trackingEntities.length;
+    findings.push({
+      id: "consent-banner",
+      icon: "cookie",
+      level: preConsentTrackers > 0 ? "warn" : "info",
+      title:
+        preConsentTrackers > 0 ? "A consent banner was shown, but trackers had already loaded" : "A consent banner was shown",
+      lead:
+        preConsentTrackers > 0
+          ? `${result.summary.firstPartyDomain} displayed a cookie/consent banner (${consentPlatform.name}), yet ${plural(
+              preConsentTrackers,
+              "tracking company",
+              "tracking companies"
+            )} already loaded before any consent was given.`
+          : `${result.summary.firstPartyDomain} displayed a cookie/consent banner (${consentPlatform.name}); no catalogued tracking company loaded before consent in this visit.`,
+      detail:
+        'The scanner never clicks the banner, so this is the pre-consent state: loading trackers before the visitor accepts is often not permitted under GDPR/ePrivacy, and more trackers can load after "Accept" that this report does not capture. Tracker counts here are a lower bound for users who consent.',
+      evidence: `Consent platform detected via ${consentPlatform.domain}.`
     });
   }
 
