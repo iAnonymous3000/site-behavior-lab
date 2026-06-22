@@ -42,6 +42,16 @@ import {
   assertEdgePublicHttpUrlShape,
   EdgeUrlSafetyError
 } from "../lib/edge-url-safety";
+import {
+  DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY,
+  DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE,
+  assertTurnstileToken,
+  constantTimeEqual,
+  enforcePublicScanRateLimit,
+  publicClientHash,
+  publicScanRateLimit,
+  scanTokenCost
+} from "../lib/edge-scan-gate";
 
 type Env = {
   BROWSER: BrowserWorker;
@@ -79,7 +89,6 @@ type WorkerRoute =
   | { kind: "not-found" };
 
 const REPORT_BUCKET_PREFIX = "reports";
-const RATE_LIMIT_BUCKET_PREFIX = "rate-limits";
 const MAX_BODY_BYTES = 4_096;
 const MAX_SCAN_DURATION_MS = 45_000;
 const MAX_COMPARISON_DURATION_MS = 90_000;
@@ -88,8 +97,6 @@ const NETWORK_IDLE_TIMEOUT_MS = 8_000;
 const DESKTOP_VIEWPORT = { width: 1440, height: 980 };
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
 const REPORT_ID_PATTERN = /^\d{8}-[a-f0-9]{32}$/;
-const DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE = 6;
-const DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY = 120;
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -212,7 +219,7 @@ async function runWorkerScanRoute(request: Request, env: Env): Promise<Response>
   await verifyTurnstile(request, env, incomingPayload);
 
   const normalized = normalizeScanRequest(incomingPayload);
-  await assertPublicScanRateLimit(request, env, scanCost(normalized));
+  await assertPublicScanRateLimit(request, env, scanTokenCost({ compareGpc: normalized.compareGpc }));
   const report = await runWorkerScan(normalized, env);
   const saved = await saveReport(report, env);
   return jsonResponse(saved, request, env);
@@ -258,10 +265,6 @@ function normalizeScanRequest(payload: IncomingScanPayload): NormalizedScanReque
     },
     compareGpc: payload.compareGpc === true
   };
-}
-
-function scanCost(request: NormalizedScanRequest): 1 | 2 {
-  return request.compareGpc ? 2 : 1;
 }
 
 async function runWorkerScan(request: NormalizedScanRequest, env: Env): Promise<ScanReport> {
@@ -605,43 +608,15 @@ async function assertScanAccess(request: Request, env: Env): Promise<void> {
   }
 }
 
-// Compare two secrets without leaking length or content through timing: both
-// sides are hashed to fixed-length SHA-256 hex first, then diffed byte by byte.
-async function constantTimeEqual(candidate: string, expected: string): Promise<boolean> {
-  const [candidateHash, expectedHash] = await Promise.all([sha256Hex(candidate), sha256Hex(expected)]);
-  let mismatch = 0;
-  for (let index = 0; index < candidateHash.length; index += 1) {
-    mismatch |= candidateHash.charCodeAt(index) ^ expectedHash.charCodeAt(index);
-  }
-  return mismatch === 0;
-}
-
 async function verifyTurnstile(request: Request, env: Env, payload: IncomingScanPayload): Promise<void> {
   if (openAccessEnabled(env)) return;
 
   const secret = env.TURNSTILE_SECRET_KEY?.trim();
   if (!secret) return;
 
-  const token = typeof payload.turnstileToken === "string" ? payload.turnstileToken : request.headers.get("cf-turnstile-response") || "";
-  if (!token) {
-    throw new HttpError("Turnstile verification is required.", 400);
-  }
-
-  const body = new URLSearchParams();
-  body.set("secret", secret);
-  body.set("response", token);
-  const remoteIp = request.headers.get("cf-connecting-ip");
-  if (remoteIp) body.set("remoteip", remoteIp);
-
-  const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-    method: "POST",
-    body
-  });
-  const result = await response.json<{ success?: boolean }>().catch(() => ({ success: false }));
-
-  if (!result.success) {
-    throw new HttpError("Turnstile verification failed.", 403);
-  }
+  const token =
+    typeof payload.turnstileToken === "string" ? payload.turnstileToken : request.headers.get("cf-turnstile-response") || "";
+  await assertTurnstileToken({ secret, token, remoteIp: request.headers.get("cf-connecting-ip") });
 }
 
 function openAccessEnabled(env: Env): boolean {
@@ -664,94 +639,21 @@ async function assertPublicScanRateLimit(request: Request, env: Env, cost: 1 | 2
     throw new HttpError("Public scan rate limiting requires the REPORTS_KV binding.", 503);
   }
 
-  const clientHash = await publicClientHash(request);
-  const now = Date.now();
-  await chargeRateLimitWindow({
-    kv,
-    key: rateLimitKey("minute", Math.floor(now / 60_000), clientHash),
+  await enforcePublicScanRateLimit({
+    store: kv,
+    clientHash: await publicClientHash(request.headers),
     cost,
-    limit: publicScanRateLimitPerMinute(env),
-    ttlSeconds: 120,
-    retryAfterSeconds: secondsUntilNextWindow(now, 60_000)
+    perMinute: publicScanRateLimitPerMinute(env),
+    perDay: publicScanRateLimitPerDay(env)
   });
-  await chargeRateLimitWindow({
-    kv,
-    key: rateLimitKey("day", Math.floor(now / 86_400_000), clientHash),
-    cost,
-    limit: publicScanRateLimitPerDay(env),
-    ttlSeconds: 172_800,
-    retryAfterSeconds: secondsUntilNextWindow(now, 86_400_000)
-  });
-}
-
-async function chargeRateLimitWindow({
-  kv,
-  key,
-  cost,
-  limit,
-  ttlSeconds,
-  retryAfterSeconds
-}: {
-  kv: KVNamespace;
-  key: string;
-  cost: 1 | 2;
-  limit: number;
-  ttlSeconds: number;
-  retryAfterSeconds: number;
-}): Promise<void> {
-  const currentValue = await kv.get(key);
-  const current = currentValue ? Number.parseInt(currentValue, 10) : 0;
-  const next = (Number.isFinite(current) ? current : 0) + cost;
-  if (next > limit) {
-    throw new HttpError(`Too many public scans. Try again in about ${formatRetryAfter(retryAfterSeconds)}.`, 429);
-  }
-
-  await kv.put(key, String(next), { expirationTtl: ttlSeconds });
 }
 
 function publicScanRateLimitPerMinute(env: Env): number {
-  return positiveInteger(env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE, DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE);
+  return publicScanRateLimit(env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE, DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE);
 }
 
 function publicScanRateLimitPerDay(env: Env): number {
-  return positiveInteger(env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY, DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY);
-}
-
-function positiveInteger(value: string | undefined, fallback: number): number {
-  const parsed = Number.parseInt(value || "", 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
-}
-
-function secondsUntilNextWindow(nowMs: number, windowMs: number): number {
-  return Math.max(1, Math.ceil((windowMs - (nowMs % windowMs)) / 1000));
-}
-
-function formatRetryAfter(seconds: number): string {
-  if (seconds < 90) return `${seconds} seconds`;
-  const minutes = Math.ceil(seconds / 60);
-  if (minutes < 90) return `${minutes} minutes`;
-  return `${Math.ceil(minutes / 60)} hours`;
-}
-
-async function publicClientHash(request: Request): Promise<string> {
-  const key =
-    request.headers.get("cf-connecting-ip")?.trim() ||
-    request.headers.get("x-real-ip")?.trim() ||
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    "unknown";
-  return sha256Hex(key);
-}
-
-function rateLimitKey(windowName: "minute" | "day", windowId: number, clientHash: string): string {
-  return `${RATE_LIMIT_BUCKET_PREFIX}/public-scan/${windowName}/${windowId}/${clientHash}`;
-}
-
-async function sha256Hex(value: string): Promise<string> {
-  const bytes = new TextEncoder().encode(value);
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return Array.from(new Uint8Array(digest))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
+  return publicScanRateLimit(env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY, DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY);
 }
 
 function normalizePublicUrl(input: string): URL {
