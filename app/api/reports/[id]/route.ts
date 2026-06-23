@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readScanReport } from "@/lib/report-store";
+import { readReportForId } from "@/lib/report-source";
 import { toPublicError } from "@/lib/public-errors";
 import { assertReportReadRateLimit, clientKeyFromRequest } from "@/lib/scan-limits";
 import { corsPreflight, withScanCors } from "../../cors";
@@ -19,7 +19,12 @@ async function handleReportRead(request: Request, context: { params: Promise<{ i
   try {
     assertReportReadRateLimit(clientKeyFromRequest(request));
     const { id } = await context.params;
-    const report = await readScanReport(id);
+    // Resolve through the unified accessor (committed public/reports first, then
+    // the runtime share store) so the report body matches the page's
+    // server-rendered title/JSON-LD. Reading only the share store here left
+    // committed-report permalinks 404ing in the Node app even though their
+    // metadata resolved.
+    const report = await readReportForId(id);
 
     if (!report) {
       return NextResponse.json({ ok: false, error: "Report not found." }, { status: 404 });

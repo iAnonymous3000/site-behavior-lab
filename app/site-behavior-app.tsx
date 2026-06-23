@@ -876,7 +876,7 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
               <span className="corpus-hero-cat-label">{category.label}</span>
             </div>
           ))}
-          <span className="corpus-hero-cat-note">median trackers per site, by category</span>
+          <span className="corpus-hero-cat-note">median catalogued tracker requests per site, by category</span>
         </div>
       )}
       <div className="corpus-hero-actions">
