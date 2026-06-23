@@ -1053,6 +1053,21 @@ function reportSharePath(result: ScanReport, liveApiServesReportPages: boolean):
   return committedReportLocation(share.id, runtime).pagePath;
 }
 
+/**
+ * Resolve a report permalink to an absolute URL fit for the clipboard or a
+ * social post. Node and committed-static reports yield origin-relative paths
+ * (e.g. `/reports/:id`) that navigate fine in an anchor but are useless once
+ * pasted elsewhere; a live-API report already carries an absolute origin and is
+ * left unchanged. Must run in the browser — it reads `window.location`.
+ */
+function absoluteShareUrl(sharePath: string): string {
+  try {
+    return new URL(sharePath, window.location.origin).toString();
+  } catch {
+    return sharePath;
+  }
+}
+
 // Runtime context for resolving report locations from the browser build flags.
 export function clientReportRuntime(): ReportRuntime {
   return {
@@ -1938,6 +1953,13 @@ function ReportHeader({
   liveApiServesReportPages: boolean;
 }) {
   const sharePath = reportSharePath(report, liveApiServesReportPages);
+  // The anchor keeps the origin-relative path (it navigates fine and stays
+  // valid during static prerender), but the clipboard needs a complete URL, so
+  // resolve it to absolute on the client once mounted.
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  useEffect(() => {
+    setShareUrl(sharePath ? absoluteShareUrl(sharePath) : null);
+  }, [sharePath]);
   const finalUrl = safeHttpUrl(result.conditions.finalUrl);
   const title = isComparisonReport(report) ? report.title || result.summary.pageTitle : result.summary.pageTitle;
   return (
@@ -1961,7 +1983,7 @@ function ReportHeader({
               <ExternalLink size={17} aria-hidden="true" />
               Share
             </a>
-            <CopyButton value={sharePath} label="share link" />
+            <CopyButton value={shareUrl ?? sharePath} label="share link" />
           </>
         )}
         <button className="secondary-button" type="button" onClick={onDownloadCsv} title="Download the request log as CSV">
@@ -2507,18 +2529,12 @@ function HeadlineBanner({ report, liveApiServesReportPages }: { report: ScanRepo
     if (typeof window === "undefined") return;
 
     // Reuse the same permalink rule as the main Share button so "Post on X" /
-    // "Copy post" never hand out a link the report's origin cannot render (a
-    // JSON-only scan API has no report page); fall back to the current location.
+    // "Copy post" never hand out a link the report's origin cannot render. When
+    // there is no shareable permalink (a JSON-only scan API has no report page),
+    // post the headline with no URL rather than the current app page, which is
+    // not this report.
     const sharePath = reportSharePath(report, liveApiServesReportPages);
-    if (sharePath) {
-      try {
-        setShareLink(new URL(sharePath, window.location.origin).toString());
-        return;
-      } catch {
-        /* fall through to current location */
-      }
-    }
-    setShareLink(window.location.href);
+    setShareLink(sharePath ? absoluteShareUrl(sharePath) : "");
   }, [report, liveApiServesReportPages]);
 
   const postText = shareLink ? `${headline.shareText} ${shareLink}` : headline.shareText;
