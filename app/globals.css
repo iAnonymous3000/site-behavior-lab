@@ -2867,6 +2867,22 @@ details[open] > summary .disclosure-chevron {
     padding: 16px 14px 48px;
   }
 
+  /* Comfortable touch targets on small screens: the options toggle was only as
+     tall as its 13px label, and the icon button sat under the ~44px touch
+     minimum. */
+  .options-disclosure > summary {
+    min-height: 44px;
+  }
+
+  .icon-button {
+    height: 44px;
+    width: 44px;
+  }
+
+  .example-chip {
+    padding-block: 10px;
+  }
+
   .topbar {
     align-items: flex-start;
     flex-direction: column;
