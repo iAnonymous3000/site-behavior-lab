@@ -33,6 +33,7 @@ import {
 import type { FormEvent, ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createTemporalComparisonReport } from "@/lib/compare-reports";
+import { requestLogToCsv } from "@/lib/csv-export";
 import { isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
 import { domainsMatch, isFeaturedSiteConfig, type FeaturedSite, type FeaturedSiteConfig } from "@/lib/featured-sites";
 import { buildReportHeadline, displayScanResult, type ReportHeadline } from "@/lib/report-headline";
@@ -1121,37 +1122,6 @@ function isStaticReportManifestEntry(value: unknown): value is StaticReportManif
     typeof metrics.totalRequests === "number" &&
     typeof metrics.thirdPartyRequests === "number"
   );
-}
-
-function requestLogToCsv(requests: NetworkRequestRecord[]): string {
-  const header = [
-    "id",
-    "domain",
-    "method",
-    "resource_type",
-    "status",
-    "third_party",
-    "tracker_entity",
-    "tracker_category",
-    "url"
-  ];
-  const rows = requests.map((request) => [
-    request.id,
-    request.domain,
-    request.method,
-    request.resourceType,
-    request.status ?? "",
-    request.thirdParty ? "yes" : "no",
-    request.tracker?.entity ?? "",
-    request.tracker?.category ?? "",
-    request.url
-  ]);
-  return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n").concat("\r\n");
-}
-
-function csvCell(value: string | number): string {
-  const text = String(value);
-  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
 function exportableReport(result: ScanReport): unknown {
