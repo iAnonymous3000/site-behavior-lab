@@ -914,7 +914,16 @@ function scannerStatusText(health: ScannerHealth | null, error: string | null): 
     typeof minuteLimit === "number" && typeof dayLimit === "number"
       ? ` Rate-limited to ${minuteLimit} scan tokens/min and ${dayLimit}/day per client.`
       : " Rate-limited per client.";
-  const comparison = health.capabilities?.gpcComparison ? " GPC comparison is available." : "";
+  const comparisons = [
+    health.capabilities?.gpcComparison ? "GPC" : null,
+    health.capabilities?.shieldsComparison ? "Brave Shields" : null
+  ].filter((label): label is string => label !== null);
+  const comparison =
+    comparisons.length === 2
+      ? ` ${comparisons[0]} and ${comparisons[1]} comparisons are available.`
+      : comparisons.length === 1
+        ? ` ${comparisons[0]} comparison is available.`
+        : "";
   const adblock =
     health.checks?.adblock?.active === false ? " Brave Shields classification is unavailable on this scanner." : "";
 

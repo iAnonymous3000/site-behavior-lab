@@ -24,6 +24,20 @@ function fail(message) {
   throw new Error(message);
 }
 
+// The same health signal the UI uses to enable the Shields toggle. Fetched
+// server-side (no CORS), so it reflects the scanner regardless of the browser's
+// allow-list; treat an unreachable scanner as "no Shields".
+async function scannerAdvertisesShields(apiBase) {
+  try {
+    const response = await fetch(`${apiBase.replace(/\/+$/, "")}/api/health`, { cache: "no-store" });
+    if (!response.ok) return false;
+    const health = await response.json();
+    return health?.capabilities?.shieldsComparison === true;
+  } catch {
+    return false;
+  }
+}
+
 async function main() {
   const manifest = await readManifest();
   const server = createStaticServer();
@@ -50,8 +64,18 @@ async function main() {
       if (!(await page.locator(".segmented-control button", { hasText: "GPC diff" }).isEnabled())) {
         fail("production Cloudflare scanner should enable GPC comparison");
       }
-      if (await page.locator(".segmented-control button", { hasText: "Shields" }).isEnabled()) {
-        fail("Cloudflare scanner should leave Shields comparison disabled until block simulation is available");
+      // Shields comparison is enabled only when the scanner advertises it: the full
+      // Node/Containers scanner does, the legacy Browser Run Worker does not. Track
+      // the live capability instead of assuming a topology. (This branch already
+      // requires the scanner's CORS to allow this origin — otherwise the browser's
+      // health fetch fails and the "Live" assertion above never passes.)
+      const shieldsExpected = await scannerAdvertisesShields(liveScanApiBase);
+      const shieldsEnabled = await page.locator(".segmented-control button", { hasText: "Shields" }).isEnabled();
+      if (shieldsExpected && !shieldsEnabled) {
+        fail("scanner advertises shieldsComparison but the Shields button is disabled");
+      }
+      if (!shieldsExpected && shieldsEnabled) {
+        fail("scanner does not advertise shieldsComparison but the Shields button is enabled");
       }
       const accessFields = await page.getByLabel("Scanner access key").count();
       if (openAccessScanner && accessFields !== 0) {

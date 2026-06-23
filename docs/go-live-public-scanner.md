@@ -105,11 +105,19 @@ The front Worker chooses one of three postures from its config:
    confirm a report renders with the live Shields (tried-vs-blocked) diff.
 3. Confirm a request **without** a Turnstile token is rejected (`400`), and that
    exceeding the per-minute limit returns `429`.
-4. Re-run the smoke test against the public origin (no token):
+4. Re-run the automated smoke test. An **open** origin that enforces Turnstile
+   cannot be smoked unattended (Turnstile is built to block exactly that, and the
+   script has no token to send), so point it at a deployment with an access token
+   configured and pass `SMOKE_SCAN_ACCESS_TOKEN` — a matching token is checked
+   before Turnstile and bypasses it:
 
    ```bash
-   SCAN_BASE_URL=https://<scanner-origin> npm run test:smoke:scanner
+   SCAN_BASE_URL=https://<scanner-origin> \
+   SMOKE_SCAN_ACCESS_TOKEN=<token> npm run test:smoke:scanner
    ```
+
+   For the open public origin, step 2's manual Turnstile scan is the end-to-end
+   check; step 3 already confirms the unattended (no-token) request is rejected.
 
 ## Sharing live-scan results
 

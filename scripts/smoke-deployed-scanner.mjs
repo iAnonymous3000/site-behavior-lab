@@ -12,6 +12,14 @@
 //   [SMOKE_SHIELDS_URL=https://example.com] \
 //   npm run test:smoke:scanner
 //
+// Turnstile note: an OPEN scanner that enforces Turnstile cannot be smoked
+// automatically — Turnstile exists to block exactly this kind of unattended
+// request, and the script has no token to submit. Run this against a deployment
+// configured with an access token and pass SMOKE_SCAN_ACCESS_TOKEN: a matching
+// token is checked *before* Turnstile (see gateScanRequest in container-worker.ts),
+// so it bypasses the challenge. Validate the open public origin's Turnstile path
+// by hand instead (complete the challenge in a browser).
+//
 // It verifies the things that distinguish a finished live scanner from the
 // static corpus: health advertises live Shields, a real scan completes and is
 // stored without a screenshot, a Shields comparison actually runs the ad-block
@@ -78,7 +86,15 @@ async function resolveReport(submission, label) {
   const { payload } = submission;
   if (isReport(payload)) return payload;
   if (isAsyncSubmission(payload)) return pollJob(payload.statusPath, label);
-  fail(`${label}: scan was not accepted (${payload && payload.error ? payload.error : JSON.stringify(payload)})`);
+  const errorText = payload && typeof payload.error === "string" ? payload.error : "";
+  if (/turnstile/i.test(errorText)) {
+    fail(
+      `${label}: this scanner enforces Turnstile, which blocks automated scans. ` +
+        "Smoke a deployment that has an access token configured and pass SMOKE_SCAN_ACCESS_TOKEN " +
+        "(a valid token bypasses Turnstile); an open Turnstile-gated public origin cannot be smoked automatically."
+    );
+  }
+  fail(`${label}: scan was not accepted (${errorText || JSON.stringify(payload)})`);
 }
 
 async function pollJob(statusPath, label) {
