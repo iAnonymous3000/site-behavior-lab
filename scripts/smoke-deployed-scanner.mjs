@@ -105,6 +105,15 @@ async function fetchSavedReport(jsonPath) {
   return readJson(response, jsonPath);
 }
 
+// Fetch the human-shareable HTML report page (the thing the Share button links
+// to). JSON readback alone does not prove a deployment can render this page.
+async function fetchReportPage(pagePath) {
+  const url = /^https?:\/\//i.test(pagePath) ? pagePath : `${baseUrl}${pagePath}`;
+  const response = await fetch(url, { headers: authHeaders(), cache: "no-store" });
+  const contentType = response.headers.get("content-type") || "";
+  return { ok: response.ok, status: response.status, contentType, body: await response.text() };
+}
+
 async function checkHealth() {
   const response = await fetch(`${baseUrl}/api/health`, { headers: authHeaders(), cache: "no-store" });
   const health = await readJson(response, "/api/health");
@@ -115,6 +124,9 @@ async function checkHealth() {
     fail("health does not advertise live Shields — this is the Browser Run worker, not the full Node scanner");
   }
   if (!capabilities.savedReports) fail("health does not advertise durable savedReports (bind R2)");
+  if (!capabilities.savedReportPages) {
+    fail("health does not advertise savedReportPages — this origin cannot serve human-shareable /reports/:id pages");
+  }
   if (!health.checks?.adblock?.active) fail("Brave ad-block engine is not active on this deployment");
   pass(`health advertises live Shields (storage: ${health.storage || health.checks?.reportStore?.kind || "unknown"})`);
 }
@@ -138,6 +150,14 @@ async function checkSingleScan() {
   if (!saved.ok || saved.share?.id !== report.share.id) fail("saved report endpoint did not return the scan");
   if (saved.screenshot !== null && saved.screenshot !== undefined) fail("saved report retained an inline screenshot");
   pass("single scan completes, is stored durably, and is screenshot-stripped");
+
+  // The share permalink is only useful if the HTML page renders, not just the JSON.
+  if (!report.share?.path?.startsWith("/reports/")) fail("single scan did not return a shareable report page path");
+  const page = await fetchReportPage(report.share.path);
+  if (!page.ok) fail(`shareable report page ${report.share.path} returned ${page.status}`);
+  if (!page.contentType.includes("text/html")) fail(`shareable report page returned non-HTML content (${page.contentType})`);
+  if (!page.body.includes(report.share.id)) fail("shareable report page did not render the scanned report");
+  pass("shareable report page renders the saved report as HTML");
 }
 
 async function checkShieldsComparison() {

@@ -24,7 +24,7 @@ The project is open source under the [AGPL-3.0-or-later](LICENSE) so anyone can 
 - Basic server-side guardrails: request body limit, per-client scan and report-read rate limits, scan concurrency cap, scan duration cap, per-scan request cap, and shared Chromium reuse.
 - Optional scan access key enforcement for public or gated deployments.
 - Report URLs omit credentials and fragments. First-party URLs omit query strings; third-party request logs preserve query parameter names with values redacted.
-- Immutable local report links and JSON endpoints under `/reports/:id` and `/api/reports/:id`.
+- Content-addressed report links and JSON endpoints under `/reports/:id` and `/api/reports/:id`. Runtime-saved reports are retained for a configurable window (7 days / 500 reports by default, then pruned); reports committed under `public/reports/` are permanent.
 - Runtime health/readiness metadata under `/api/health`.
 - Static export (deployed on Cloudflare Pages) for the report viewer, generated report gallery, saved-report comparisons, and committed report JSON under `public/reports/`.
 - Plain-language headline at the top of every report, plus per-report Open Graph / X (`summary_large_image`) share cards and link metadata generated from that headline, so a shared report link unfurls with the site name, the lead finding, and key counts in both the Node app and the static export.

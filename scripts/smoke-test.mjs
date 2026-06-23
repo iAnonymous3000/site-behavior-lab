@@ -200,6 +200,26 @@ async function uiChecks() {
     if (!shareHref || !shareHref.startsWith("/reports/")) {
       fail("share permalink was not rendered");
     }
+
+    // The anchor navigates with a relative path, but the copy button must write a
+    // complete, pasteable URL — guard against regressing to the relative path.
+    await page.evaluate(() => {
+      window.__copiedShareLink = null;
+      navigator.clipboard.writeText = (text) => {
+        window.__copiedShareLink = text;
+        return Promise.resolve();
+      };
+    });
+    await page.getByRole("button", { name: "Copy share link" }).click();
+    const copiedShareLink = await page.evaluate(() => window.__copiedShareLink);
+    if (!copiedShareLink || !/^https?:\/\/.+\/reports\//.test(copiedShareLink)) {
+      fail(`copy share link wrote a non-absolute URL: ${copiedShareLink}`);
+    }
+    if (!copiedShareLink.endsWith(shareHref)) {
+      fail("copied share link does not resolve to the share permalink");
+    }
+    pass("copy share link writes an absolute report URL");
+
     await page.goto(`${baseUrl}${shareHref}`, { waitUntil: "networkidle" });
     await waitForReportOrError(page, 30_000);
     await expectText(page.locator(".report-header"), "GPC off/on comparison");
