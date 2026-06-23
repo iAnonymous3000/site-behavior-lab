@@ -13,6 +13,16 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ARG NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL="https://scan.sitebehavior.org"
 ENV NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=${NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL}
 
+# Public Turnstile site key, inlined into the client bundle the container also
+# serves. The scanner enforces Turnstile, so without this the scan form on the
+# container origin — including on shared /reports/:id pages — shows a "no site
+# key" error and cannot scan. As with SITE_URL, NEXT_PUBLIC_ vars are inlined at
+# build time and Workers Builds passes no --build-arg, so this default is what
+# ships. Turnstile *site* keys are public (rendered to every visitor); only the
+# secret key is server-side. Self-hosts on another domain override with their own.
+ARG NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY="0x4AAAAAADo4etedrrGyi43a"
+ENV NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY}
+
 COPY package.json package-lock.json ./
 RUN npm ci && npx playwright install chromium
 

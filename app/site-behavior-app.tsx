@@ -30,7 +30,7 @@ import {
   Sun,
   Upload
 } from "lucide-react";
-import type { FormEvent, ReactNode } from "react";
+import type { FormEvent, MouseEvent, ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createTemporalComparisonReport } from "@/lib/compare-reports";
 import { requestLogToCsv } from "@/lib/csv-export";
@@ -1962,6 +1962,34 @@ function ReportHeader({
   }, [sharePath]);
   const finalUrl = safeHttpUrl(result.conditions.finalUrl);
   const title = isComparisonReport(report) ? report.title || result.summary.pageTitle : result.summary.pageTitle;
+
+  const [shareCopied, setShareCopied] = useState(false);
+  async function handleShare(event: MouseEvent<HTMLAnchorElement>) {
+    const url = shareUrl ?? sharePath;
+    if (!url) return;
+    // Prefer the platform's native share sheet where it exists (mobile, Safari).
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+      event.preventDefault();
+      try {
+        await navigator.share({ title: title || result.summary.firstPartyDomain, url });
+      } catch {
+        /* the user dismissed the share sheet */
+      }
+      return;
+    }
+    // No native share: when the permalink is the page already open, navigating
+    // does nothing, so copy the link instead — the button must always act.
+    if (typeof window !== "undefined" && url === window.location.href) {
+      event.preventDefault();
+      try {
+        await navigator.clipboard.writeText(url);
+        setShareCopied(true);
+        window.setTimeout(() => setShareCopied(false), 1500);
+      } catch {
+        /* clipboard unavailable */
+      }
+    }
+  }
   return (
     <section className="report-header">
       <div>
@@ -1979,9 +2007,9 @@ function ReportHeader({
       <div className="report-actions">
         {sharePath && (
           <>
-            <a className="secondary-button" href={sharePath}>
+            <a className="secondary-button" href={sharePath} onClick={handleShare}>
               <ExternalLink size={17} aria-hidden="true" />
-              Share
+              {shareCopied ? "Link copied" : "Share"}
             </a>
             <CopyButton value={shareUrl ?? sharePath} label="share link" />
           </>
