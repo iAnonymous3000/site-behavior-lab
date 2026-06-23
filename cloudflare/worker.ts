@@ -17,7 +17,7 @@ import { scanCorsHeaders } from "../lib/cors";
 import { scanTokenFromHeaders } from "../lib/scan-token";
 import { asScanRuntimeHealth } from "../lib/scan-runtime-health";
 import { collectFingerprintObservationsFromFrames, fingerprintObserverInitScript } from "../lib/fingerprint-observer";
-import { safeParseUrl } from "../lib/report-url";
+import { redactUrlForReport, safeParseUrl } from "../lib/report-url";
 import {
   collectStorageEntries,
   MAX_RECORDED_REQUESTS,
@@ -158,7 +158,7 @@ function workerHealth(env: Env) {
     authenticated: Boolean(env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?.trim()) && !openAccessEnabled(env),
     openAccessRequested: openAccessRequested(env),
     openAccess: openAccessEnabled(env),
-    turnstile: Boolean(env.TURNSTILE_SECRET_KEY?.trim()) && !openAccessEnabled(env),
+    turnstile: Boolean(env.TURNSTILE_SECRET_KEY?.trim()),
     ...(ready ? {} : { error: issues[0], configIssues: issues }),
     capabilities: {
       singleScan: ready && capability.singleScan,
@@ -441,8 +441,11 @@ async function scanWithBrowserSession(
     const publicRequests = networkRecorder.publicRecords(finalParsed.hostname);
     const conditions = buildScanConditions({
       profile: "cloudflare-browser-run",
-      requestedUrl: targetUrl.toString(),
-      finalUrl,
+      // Strip query strings/credentials before persistence so shared reports and the
+      // static corpus never retain sensitive values, matching the Node scanner
+      // (lib/scanner.ts). `finalUrl` (raw) is still used above for hostname matching.
+      requestedUrl: redactUrlForReport(targetUrl.toString()),
+      finalUrl: redactUrlForReport(finalUrl),
       scannedAt: new Date(scanStarted).toISOString(),
       chromiumVersion: browser.version(),
       userAgent: await withWorkerScanTimeout(page.evaluate(() => navigator.userAgent), deadlineStarted, maxDurationMs).catch(() => ""),
@@ -612,8 +615,10 @@ async function assertScanAccess(request: Request, env: Env): Promise<void> {
 }
 
 async function verifyTurnstile(request: Request, env: Env, payload: IncomingScanPayload): Promise<void> {
-  if (openAccessEnabled(env)) return;
-
+  // Turnstile and the access-token gate are independent controls: open access only
+  // waives the access token, it must not also waive a configured human-verification
+  // challenge. Enforce Turnstile whenever a secret is set, in open or gated mode,
+  // matching the container Worker (cloudflare/container-worker.ts).
   const secret = env.TURNSTILE_SECRET_KEY?.trim();
   if (!secret) return;
 
