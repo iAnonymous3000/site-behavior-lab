@@ -220,6 +220,14 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       warnings.add("The page did not reach network idle before the scan window ended.");
     });
 
+    // A non-2xx top-level response does not reject goto, so the scan otherwise
+    // completes and an error/block page reads as a low-tracker (falsely "private")
+    // result. Surface it as a warning, and the headline/findings reframe it.
+    const responseStatus = response?.status() ?? null;
+    if (responseStatus !== null && responseStatus >= 400) {
+      warnings.add(`The page returned HTTP ${responseStatus}; this report reflects an error or block page, not a normal load.`);
+    }
+
     const pageTitle = await withScanTimeout(page.title(), started).catch((error) => {
       if (isScanBudgetError(error)) throw error;
       return "";
@@ -313,7 +321,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
 
     return buildScanResult({
       pageTitle,
-      status: response?.status() ?? null,
+      status: responseStatus,
       durationMs: Date.now() - started,
       firstPartyDomain: finalParsed.hostname,
       conditions,

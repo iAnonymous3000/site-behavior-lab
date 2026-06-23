@@ -232,6 +232,34 @@ test("a plain-text keystroke leak reads as a calmer third-party type-ahead, not 
   assert.match(headline.subhead, /geocode\.arcgis\.com/);
 });
 
+test("an HTTP error load is framed as a failed load, not as relatively private", () => {
+  const result = makeResult({ firstPartyDomain: "blocked.example", status: 403, totalRequests: 1 });
+
+  const headline = buildReportHeadline(result);
+  assert.equal(headline.tone, "info");
+  assert.match(headline.headline, /blocked\.example returned an error, so there was little to scan\./);
+  assert.match(headline.subhead, /HTTP 403/);
+  assert.doesNotMatch(headline.headline, /relatively private/);
+  assert.equal(headline.stats[0]?.value, "403");
+});
+
+test("a server-error load with zero requests does not read as private", () => {
+  const result = makeResult({ firstPartyDomain: "down.example", status: 503, totalRequests: 0 });
+
+  const headline = buildReportHeadline(result);
+  assert.equal(headline.tone, "info");
+  assert.match(headline.subhead, /HTTP 503/);
+  assert.doesNotMatch(headline.headline, /relatively private/);
+});
+
+test("a null status (e.g. PageGraph import) is not treated as a failed load", () => {
+  const result = makeResult({ firstPartyDomain: "quiet.example", status: null });
+
+  const headline = buildReportHeadline(result);
+  assert.equal(headline.tone, "calm");
+  assert.match(headline.headline, /quiet\.example kept this visit relatively private\./);
+});
+
 type ResultOverrides = {
   firstPartyDomain?: string;
   domains?: DomainSummary[];
@@ -241,6 +269,7 @@ type ResultOverrides = {
   thirdPartyCookies?: number;
   fingerprintEvents?: number;
   fingerprintDetections?: FingerprintDetectionSummary[];
+  status?: number | null;
 };
 
 function makeTrackerDomain(domain: string, requests: number, entity: string, category: string): DomainSummary {
@@ -280,7 +309,7 @@ function makeResult(overrides: ResultOverrides = {}): ScanResult {
     reportType: "single",
     summary: {
       pageTitle: "",
-      status: 200,
+      status: overrides.status === undefined ? 200 : overrides.status,
       durationMs: 1,
       firstPartyDomain: overrides.firstPartyDomain ?? "example.com",
       totalRequests: overrides.totalRequests ?? thirdPartyRequests + 5,

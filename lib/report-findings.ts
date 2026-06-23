@@ -24,6 +24,7 @@ import {
   highEntropyDetections as highEntropyFingerprintDetections,
   isOperationalEntity,
   keystrokeLeakObfuscated,
+  scanLoadFailureStatus,
   trackerEntitySummaries
 } from "./report-insights";
 import { humanList, plural } from "./text-format";
@@ -417,6 +418,24 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
       }A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference, not a measured blocking rate.`,
       evidence: `${removedCookies.toLocaleString("en-US")} fewer third-party cookies and ${removedFingerprintEvents.toLocaleString("en-US")} fewer fingerprint-like calls with Shields on.`
     });
+  }
+
+  // A failed/blocked load (HTTP >= 400) produces low counts that are an artifact
+  // of the page not loading, not a privacy result. Lead with that so the bottom
+  // line never reads an error page as "few review signals".
+  const loadFailureStatus = scanLoadFailureStatus(result);
+  if (loadFailureStatus !== null) {
+    findings.unshift({
+      id: "bottom-line",
+      icon: "alert",
+      level: "info",
+      title: `Bottom line: ${result.summary.firstPartyDomain} did not load (HTTP ${loadFailureStatus})`,
+      lead: `The page responded with HTTP ${loadFailureStatus}, so this report reflects an error or block page, not the site itself.`,
+      detail:
+        "Low tracker, cookie, and fingerprinting counts here mean the page did not load — not that the site is private. Re-scan when the site is reachable; the request log and methodology below still show exactly what was observed.",
+      evidence: `${plural(result.summary.totalRequests, "request")} observed before or with the error response.`
+    });
+    return findings;
   }
 
   const overallLevel = strongestLevel(findings.map((finding) => finding.level));

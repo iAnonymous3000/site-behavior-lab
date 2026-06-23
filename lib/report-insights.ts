@@ -84,6 +84,23 @@ export function highEntropyDetections(result: ScanResult): FingerprintDetectionS
   return (result.fingerprintDetections ?? []).filter((detection) => HIGH_ENTROPY_FINGERPRINT_KINDS.has(detection.kind));
 }
 
+/**
+ * The HTTP status when the page's top-level navigation returned an error (>= 400),
+ * otherwise null. A network-level failure (DNS, refused, timeout) already aborts
+ * the scan with an error, but an HTTP error or bot-block page (403/404/500/503)
+ * resolves normally — so the scan completes with few or no third-party requests.
+ * Those low counts are an artifact of the failed load, not a privacy result, so
+ * the headline and findings must not read them as "relatively private".
+ *
+ * `null` status (e.g. PageGraph/external imports that never carry one) is treated
+ * as "unknown", not a failure, to avoid mislabeling reports that legitimately
+ * lack a status.
+ */
+export function scanLoadFailureStatus(result: ScanResult): number | null {
+  const status = result.summary.status;
+  return typeof status === "number" && status >= 400 ? status : null;
+}
+
 function isTrackingCategory(category: string): boolean {
   const lower = category.toLowerCase();
   if (TRACKING_CATEGORY_HINTS.some((hint) => lower.includes(hint))) return true;

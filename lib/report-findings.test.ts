@@ -48,6 +48,19 @@ test("leads with the bottom line and never caps the cards it emits", () => {
   }
 });
 
+test("an HTTP error load gets a failed-load bottom line, not a low-signal one", () => {
+  const result = makeResult({ firstPartyDomain: "blocked.example", status: 403, totalRequests: 1 });
+
+  const findings = buildFindings(result, result, null);
+
+  const bottomLine = findings[0];
+  assert.equal(bottomLine.id, "bottom-line");
+  assert.equal(bottomLine.icon, "alert");
+  assert.match(bottomLine.title, /blocked\.example did not load \(HTTP 403\)/);
+  assert.match(bottomLine.lead, /HTTP 403/);
+  assert.doesNotMatch(bottomLine.title, /few review signals/);
+});
+
 test("names major platforms and escalates the third-party card", () => {
   const result = makeResult({
     firstPartyDomain: "news.example",
@@ -330,6 +343,7 @@ type ResultOverrides = {
   thirdPartyCookies?: number;
   fingerprintEvents?: number;
   fingerprintDetections?: FingerprintDetectionSummary[];
+  status?: number | null;
 };
 
 function makeResult(overrides: ResultOverrides = {}): ScanResult {
@@ -343,7 +357,7 @@ function makeResult(overrides: ResultOverrides = {}): ScanResult {
     reportType: "single",
     summary: {
       pageTitle: "",
-      status: 200,
+      status: overrides.status === undefined ? 200 : overrides.status,
       durationMs: 1,
       firstPartyDomain: overrides.firstPartyDomain ?? "example.com",
       totalRequests: overrides.totalRequests ?? thirdPartyRequests + 5,

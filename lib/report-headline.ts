@@ -4,6 +4,7 @@ import {
   highEntropyDetections,
   isOperationalEntity,
   keystrokeLeakObfuscated,
+  scanLoadFailureStatus,
   trackerEntitySummaries
 } from "./report-insights";
 import { plural } from "./text-format";
@@ -95,6 +96,20 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
       shareText: buildShareText(headline, resolvedStats)
     };
   };
+
+  // A page that answered with an HTTP error or block status (403/404/500/503…)
+  // did not really load, so its low tracker/cookie/fingerprint counts are an
+  // artifact of the failed load — not a privacy result. Lead with that instead
+  // of letting it fall through to "kept this visit relatively private".
+  const loadFailureStatus = scanLoadFailureStatus(result);
+  if (loadFailureStatus !== null) {
+    return finish(
+      "info",
+      `${domain} returned an error, so there was little to scan.`,
+      `The page responded with HTTP ${loadFailureStatus} — an error or block page, not the real site. The low tracker, cookie, and fingerprinting counts mean the page did not load, not that ${domain} is private. Re-scan when it is reachable.`,
+      [{ label: "HTTP status", value: n(loadFailureStatus), emphasis: true }]
+    );
+  }
 
   // Confirmed input capture leads over every other story, including the
   // comparison framing. A transformed (base64/hex/hashed) leak is consistent
