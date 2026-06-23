@@ -105,6 +105,12 @@ export function getScanJobStatus(id: string): ScanJobStatusResponse | null {
   };
 
   if (record.status === "succeeded" && record.report) {
+    // Intentional: the in-memory report keeps its screenshot here. `/api/scans/:id`
+    // is the transient immediate-result channel for the caller who submitted the
+    // scan (the client renders this screenshot directly), gated behind a 128-bit
+    // bearer job id that expires with the in-process record. The shareable
+    // permalink path (`/api/reports/:id`) is the one that strips screenshots; keep
+    // status paths out of share/permalink flows so the two policies stay distinct.
     response.report = record.report;
   }
   if ((record.status === "failed" || record.status === "expired" || record.status === "cancelled") && record.error) {
