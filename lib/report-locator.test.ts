@@ -61,7 +61,7 @@ test("locateReport tolerates a trailing slash on the scan API origin", () => {
 
 test("locateReport withholds a permalink when the scan API is JSON-only (no report pages)", () => {
   // The Browser Run Worker serves /api/reports/:id but no /reports/:id page, so
-  // a fresh report has no shareable permalink there — only the JSON endpoint.
+  // a fresh report has no shareable permalink there, only the JSON endpoint.
   const locator = locateReport(VALID_ID, {
     staticExport: true,
     liveApiBacked: true,

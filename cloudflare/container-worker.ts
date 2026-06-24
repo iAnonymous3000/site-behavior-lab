@@ -1,5 +1,5 @@
 // Front Worker for the Cloudflare Containers deployment of the full Node/Playwright
-// scanner — the path that runs *live* Brave Shields (tried-vs-blocked). It runs the
+// scanner, the path that runs *live* Brave Shields (tried-vs-blocked). It runs the
 // repo Dockerfile as a Cloudflare Container and forwards requests to it.
 //
 // This Worker is the edge enforcement point: before a scan reaches the container's
@@ -107,7 +107,7 @@ export default {
 
     // Health: the container's Node app has no Turnstile concept and cannot see
     // the front Worker's open-access/Turnstile config, so overlay the edge gate's
-    // own view onto its response — otherwise the UI never shows the Turnstile
+    // own view onto its response, otherwise the UI never shows the Turnstile
     // widget the gate then requires, and every public scan 400s.
     if (request.method === "GET" && url.pathname === "/api/health") {
       return patchHealthResponse(await forwardToContainer(request, env), env);

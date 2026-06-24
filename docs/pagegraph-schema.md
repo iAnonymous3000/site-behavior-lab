@@ -14,7 +14,7 @@ against PageGraph as it actually emits, not against a hand-guessed shape.
 ## How a real PageGraph graph is shaped
 
 - It is GraphML. Every `<node>`/`<edge>` carries its kind in a **`<data>` whose
-  key resolves to `attr.name="node type"` or `attr.name="edge type"`** — two
+  key resolves to `attr.name="node type"` or `attr.name="edge type"`**, two
   distinct keys, not one shared `type`.
 - **Nodes are actors/actees** (a script, an HTML element, a fetched resource, a
   storage area, a Web API). **Edges are actions** (this script started this
@@ -32,7 +32,7 @@ against PageGraph as it actually emits, not against a hand-guessed shape.
 `headers`, `size`, `key`, `event listener id`, `attr name`, `is style`,
 `timestamp`.
 
-Note: `method` is the **Web API / JS-builtin name** on those nodes — it is **not**
+Note: `method` is the **Web API / JS-builtin name** on those nodes, it is **not**
 an HTTP verb. PageGraph does not record GET/POST on request edges (see caveats).
 
 ## Node types (26)
@@ -45,16 +45,16 @@ an HTTP verb. PageGraph does not record GET/POST on request edges (see caveats).
 | `text node` | `text?`, `node id`, `is deleted` |
 | `DOM root` | `url?`, `tag name`, `node id`, `is deleted` |
 | `frame owner` | `tag name`, `node id`, `is deleted` |
-| `parser` | — |
+| `parser` |, |
 | `web API` | `method` (API name) |
 | `JS builtin` | `method` (builtin name) |
-| `local storage` / `session storage` / `cookie jar` / `storage` | — |
+| `local storage` / `session storage` / `cookie jar` / `storage` |, |
 | `remote frame` | `frame id` |
 | `binding` / `binding event` | `binding`, `binding type` / `binding event` |
 | `ad filter` | `rule` |
-| `tracker filter` / `fingerprinting filter` | — |
-| `Brave Shields`, `ads shield`, `trackers shield`, `javascript shield`, `fingerprinting shield`, `fingerprintingV2 shield` | — |
-| `extensions` | — |
+| `tracker filter` / `fingerprinting filter` |, |
+| `Brave Shields`, `ads shield`, `trackers shield`, `javascript shield`, `fingerprinting shield`, `fingerprintingV2 shield` |, |
+| `extensions` |, |
 
 ## Edge types (31)
 
@@ -94,7 +94,7 @@ For each `resource` node reached by a `request start` edge, let `actor` be the
 | `initiatorUrl` / `initiatorDomain` | `actor.url` when `actor` is a `script`; absent for an `HTML element` (describe by `tag name`) |
 | `scriptId` | if `actor` is `script` → its `script id`; if `actor` is an `HTML element` → walk the incoming `create node`/`insert node` edge to its source `script` node |
 | `scriptUrl` / `scriptDomain` | that script node's `url` |
-| `injectedById` | source of the `execute` (or `execute from attribute`) edge whose target is the attributed script node — i.e. the script/parser that caused it to run |
+| `injectedById` | source of the `execute` (or `execute from attribute`) edge whose target is the attributed script node, i.e. the script/parser that caused it to run |
 | `injectedByUrl` / `injectedByDomain` | that injecting node's `url`; mark first-party/document when the source is `parser`/`DOM root` |
 
 The injector chain is the payoff: `resource ← request start ← actor (element or
@@ -104,7 +104,7 @@ which fetched tracker Z".
 
 Status/type pairing: pair `request start` and `request complete`/`request error`
 by `request id`. `resource type` and final `status` come from the completion
-edge. Storage and fingerprint events carry their own provenance too — the
+edge. Storage and fingerprint events carry their own provenance too, the
 `storage set` / `js call` edge's source script attributes who set the key or
 called the Web API.
 
@@ -128,7 +128,7 @@ close:
    That walk is unimplemented and untested.
 5. **No injector chain (biggest gap).** There are no `execute`/`create node`
    edges in the fixture, so `injectedById`/`injectedByUrl`/`injectedByDomain`
-   can never populate from real data — the whole reason provenance was added.
+   can never populate from real data, the whole reason provenance was added.
 6. **HTTP method is invented.** The fixture sets `method=GET/POST`; PageGraph has
    no HTTP verb on request edges. Map `request type` → `resourceType`; leave
    `NetworkRequestRecord.method` defaulted/absent for PageGraph-sourced reports.
@@ -144,7 +144,7 @@ close:
 When dropping a real export per the handoff contract
 (`lib/__fixtures__/pagegraph/`), pick a tracker-heavy site whose graph contains
 at least one **dynamically injected third-party script that then fetches a
-tracker** — that single path exercises `request start` → `resource`,
+tracker**, that single path exercises `request start` → `resource`,
 `create node`/`execute` for the script, and the `execute` injector hop, which is
 what proves `initiatorId` / `scriptId` / `injectedById` and the script/injector
 domains all populate. Record the PageGraph/Brave version in the sidecar

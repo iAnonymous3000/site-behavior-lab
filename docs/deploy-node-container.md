@@ -1,7 +1,7 @@
 # Deploying the Node Container Behind Cloudflare (Option B)
 
 > **Status (2026-06-21):** the chosen Cloudflare-native path for live Shields is
-> Cloudflare Containers — see [deploy-cloudflare-containers.md](deploy-cloudflare-containers.md),
+> Cloudflare Containers, see [deploy-cloudflare-containers.md](deploy-cloudflare-containers.md),
 > which runs this same Dockerfile on Workers Paid + Containers with R2 storage. This page is
 > the generic, host-agnostic runbook (any Docker host behind Cloudflare); both require **paid
 > compute**. The free launch still uses neither: it is the **Cloudflare Pages corpus**
@@ -11,7 +11,7 @@ The runbook for the recommended public topology from
 [deployment-topology.md](deployment-topology.md): the **Node/Playwright scanner
 runs as a container** (it pins to a public IP at connect time, so it closes the
 DNS-rebinding window), and **Cloudflare sits in front** for CDN, WAF, Turnstile,
-and—when you outgrow a single node—R2.
+and, when you outgrow a single node, R2.
 
 ```
 visitor ─▶ Cloudflare (WAF + rate rules + Turnstile + cache)
@@ -26,13 +26,13 @@ visitor ─▶ Cloudflare (WAF + rate rules + Turnstile + cache)
         durable report store  (persistent volume, or Cloudflare R2)
 ```
 
-**Chosen path — B1, single origin.** The container serves *everything* from one
+**Chosen path, B1, single origin.** The container serves *everything* from one
 origin: the scan UI (`/`), the API (`/api/*`), and report permalinks
-(`/reports/:id`). Visitors hit the Cloudflare-proxied container directly — there is
-no separate site and **no cross-origin (CORS) surface to configure**. Steps 1–4 and
+(`/reports/:id`). Visitors hit the Cloudflare-proxied container directly, there is
+no separate site and **no cross-origin (CORS) surface to configure**. Steps 1-4 and
 6 are the B1 launch path. **Optional (B2):** add a separate static Cloudflare Pages site
 as a cached marketing/gallery door whose scan form posts here via
-`NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE` — that variant is step 5.
+`NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE`, that variant is step 5.
 
 **Recommended launch sequence.** Stand the container up **private/operator-only**
 first (token-gated, no public inbound), publish an operator-run **report corpus**
@@ -63,12 +63,12 @@ Start from [.env.example](../.env.example). For a public-but-safe deployment:
 | Variable | Set to | Why |
 |---|---|---|
 | `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | a strong secret **or** leave unset | Unset = open scanner; rely on edge Turnstile + WAF (step 3). Set = gated. |
-| `SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND` | `filesystem` or `r2` | `filesystem` needs a persistent volume (below). `r2` stores reports in Cloudflare R2 so share links survive **redeploys and host replacement** — the durable, multi-node-ready option. |
+| `SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND` | `filesystem` or `r2` | `filesystem` needs a persistent volume (below). `r2` stores reports in Cloudflare R2 so share links survive **redeploys and host replacement**, the durable, multi-node-ready option. |
 | `SITE_BEHAVIOR_LAB_REPORT_STORE_DIR` | `/var/lib/site-behavior-lab/reports` | Filesystem backend only. Must be a **persistent volume** or shared reports vanish on restart. |
 | `SITE_BEHAVIOR_LAB_R2_*` | bucket, endpoint, key id, secret, prefix | Required when `REPORT_STORE_BACKEND=r2`. Use an R2 API token scoped to the bucket (Object Read & Write). See [.env.example](../.env.example). |
 | `SITE_BEHAVIOR_LAB_SCANNER_EGRESS` | a region/network label | Shown in report methodology and JSON export. |
 | `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | `1` | **Only** once Cloudflare fronts the origin and you block direct origin access (step 3). Without a trusted proxy this lets clients spoof their rate-limit identity. |
-| `SITE_BEHAVIOR_LAB_ASYNC_SCANS` | `0` (or `1`) | `1` returns `202 + jobId` so long scans do not hold the HTTP connection. Still single-process/in-memory—fine for one node. |
+| `SITE_BEHAVIOR_LAB_ASYNC_SCANS` | `0` (or `1`) | `1` returns `202 + jobId` so long scans do not hold the HTTP connection. Still single-process/in-memory, fine for one node. |
 
 `/api/health` reports `degraded` until the token, store dir, and egress label are
 all set; drive it from your load balancer and alert on `degraded`.
@@ -82,7 +82,7 @@ all set; drive it from your load balancer and alert on `degraded`.
    **Cloudflare Tunnel** (`cloudflared`) so it has **no public inbound**, or restrict
    the host firewall to Cloudflare's IP ranges. Do this **before** setting
    `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1`.
-3. Add **WAF rate-limiting rules** on `POST /api/scan` — this is the atomic abuse
+3. Add **WAF rate-limiting rules** on `POST /api/scan`, this is the atomic abuse
    control the topology decision relies on (it replaces the Worker's best-effort
    KV counters). A GPC/Shields comparison is two visits, so budget accordingly.
 4. Optional: enable **Turnstile** at the edge (or keep the in-app token). For an
@@ -105,7 +105,7 @@ guard cannot reach `169.254.169.254` even if an egress rule is misconfigured.
 
 ## 5. Optional: separate static Pages front door (two-origin / B2)
 
-**Skip this for B1 — the container already serves the UI at its own origin.** Do
+**Skip this for B1, the container already serves the UI at its own origin.** Do
 this only to add a separate cached Pages marketing/gallery door. Build the Pages
 artifact pointing at the container origin:
 
@@ -135,7 +135,7 @@ npm run build:pages
   every `/api` response. Leave `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` as `*` for an open
   scanner, or set it to your Pages origin (e.g. `https://sitebehavior.org`) to restrict
   which sites may invoke the scanner from a browser. Serving the UI from the **same**
-  origin as the container avoids CORS entirely — the Node app already renders the
+  origin as the container avoids CORS entirely, the Node app already renders the
   full UI, so the separate Pages front door is optional.
 
 ## 6. Verify

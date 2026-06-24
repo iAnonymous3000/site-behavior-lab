@@ -8,7 +8,7 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "Directory of scanned sites",
   description:
-    "Browse Site Behavior Lab reports: what popular sites actually loaded during a controlled visit — trackers, cookies, and fingerprinting, as reproducible evidence.",
+    "Browse Site Behavior Lab reports: what popular sites actually loaded during a controlled visit: trackers, cookies, and fingerprinting, as reproducible evidence.",
   alternates: { canonical: "/directory/" }
 };
 
@@ -45,7 +45,7 @@ export default async function DirectoryPage() {
             <p className="eyebrow">By category</p>
             <h2 id="rollup-title">What different kinds of sites load</h2>
             <p>
-              Median per site in each category — what sites tried to load during a controlled visit, before any
+              Median per site in each category: what sites tried to load during a controlled visit, before any
               blocking. Heaviest first.
             </p>
           </div>
@@ -102,7 +102,7 @@ export default async function DirectoryPage() {
           )}
           <p className="rollup-note">
             Medians from one controlled visit per site, using the curated service catalog (a lower bound). A 0 means no{" "}
-            <em>catalogued third-party</em> trackers were seen — large platforms like Google, YouTube, and X serve much of
+            <em>catalogued third-party</em> trackers were seen. Large platforms like Google, YouTube, and X serve much of
             their own tracking first-party, which is not counted as third-party here. &ldquo;Brave would block&rdquo; is the
             median third-party requests Brave&rsquo;s default Shields would remove, from a block simulation.
           </p>

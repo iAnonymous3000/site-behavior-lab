@@ -6,7 +6,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Public origin baked into the build so shared live-scan report links unfurl with
 # their Open Graph / X card. NEXT_PUBLIC_ vars are inlined by `next build`, so a
-# runtime env cannot change it — and Cloudflare Workers Builds builds this image
+# runtime env cannot change it, and Cloudflare Workers Builds builds this image
 # without passing a --build-arg, so the default below is what ships. Defaults to
 # this deployment's scanner origin; override with --build-arg for a self-host, or
 # set "" to omit the card image (links still render the report).
@@ -15,7 +15,7 @@ ENV NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=${NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_
 
 # Public Turnstile site key, inlined into the client bundle the container also
 # serves. The scanner enforces Turnstile, so without this the scan form on the
-# container origin — including on shared /reports/:id pages — shows a "no site
+# container origin (including on shared /reports/:id pages) shows a "no site
 # key" error and cannot scan. As with SITE_URL, NEXT_PUBLIC_ vars are inlined at
 # build time and Workers Builds passes no --build-arg, so this default is what
 # ships. Turnstile *site* keys are public (rendered to every visitor); only the

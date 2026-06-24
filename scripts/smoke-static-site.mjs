@@ -67,7 +67,7 @@ async function main() {
       // Shields comparison is enabled only when the scanner advertises it: the full
       // Node/Containers scanner does, the legacy Browser Run Worker does not. Track
       // the live capability instead of assuming a topology. (This branch already
-      // requires the scanner's CORS to allow this origin — otherwise the browser's
+      // requires the scanner's CORS to allow this origin, otherwise the browser's
       // health fetch fails and the "Live" assertion above never passes.)
       const shieldsExpected = await scannerAdvertisesShields(liveScanApiBase);
       const shieldsEnabled = await page.locator(".segmented-control button", { hasText: "Shields" }).isEnabled();

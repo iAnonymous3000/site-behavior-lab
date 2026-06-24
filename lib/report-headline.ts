@@ -99,14 +99,14 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
 
   // A page that answered with an HTTP error or block status (403/404/500/503…)
   // did not really load, so its low tracker/cookie/fingerprint counts are an
-  // artifact of the failed load — not a privacy result. Lead with that instead
+  // artifact of the failed load, not a privacy result. Lead with that instead
   // of letting it fall through to "kept this visit relatively private".
   const loadFailureStatus = scanLoadFailureStatus(result);
   if (loadFailureStatus !== null) {
     return finish(
       "info",
       `${domain} returned an error, so there was little to scan.`,
-      `The page responded with HTTP ${loadFailureStatus} — an error or block page, not the real site. The low tracker, cookie, and fingerprinting counts mean the page did not load, not that ${domain} is private. Re-scan when it is reachable.`,
+      `The page responded with HTTP ${loadFailureStatus}, an error or block page, not the real site. The low tracker, cookie, and fingerprinting counts mean the page did not load, not that ${domain} is private. Re-scan when it is reachable.`,
       [{ label: "HTTP status", value: n(loadFailureStatus), emphasis: true }]
     );
   }
@@ -128,7 +128,7 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
       : finish(
           "warn",
           `${domain} sends what you type to ${recipientCount} as you type.`,
-          `A unique value typed into a form on ${domain} was sent in plain text to ${recipients} as it was typed — typically search or autocomplete handled by a third party, not necessarily covert capture, but your keystrokes still leave the site.`
+          `A unique value typed into a form on ${domain} was sent in plain text to ${recipients} as it was typed, typically search or autocomplete handled by a third party, not necessarily covert capture, but your keystrokes still leave the site.`
         );
   }
 
@@ -136,7 +136,7 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
     const before = report.diff.thirdPartyRequests.before;
     const after = report.diff.thirdPartyRequests.after;
     const reductionPct = before > 0 ? Math.round(((before - after) / before) * 100) : 0;
-    // GPC "on" can load as many — or even more — off-site requests than "off",
+    // GPC "on" can load as many (or even more) off-site requests than "off",
     // so phrase the residual instead of emitting "down just -12%".
     const changePhrase =
       reductionPct > 0

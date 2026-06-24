@@ -1,8 +1,8 @@
 /**
  * Shared abuse-control mechanisms for the edge scanners.
  *
- * Both Cloudflare front Workers — the Browser Run worker (`cloudflare/worker.ts`)
- * and the Containers front Worker (`cloudflare/container-worker.ts`) — need the
+ * Both Cloudflare front Workers, the Browser Run worker (`cloudflare/worker.ts`)
+ * and the Containers front Worker (`cloudflare/container-worker.ts`), need the
  * same primitives to make a public scan endpoint safe: a constant-time access
  * token check, Cloudflare Turnstile verification, and best-effort KV-backed
  * per-client rate limiting. This module is the single definition of those
@@ -10,7 +10,7 @@
  *
  * Each Worker still composes its *own policy* (when to require a token, whether
  * open access is allowed, which DNS-rebinding caveats apply) on top of these
- * primitives — the policies genuinely differ between Browser Run (no IP pinning)
+ * primitives, the policies genuinely differ between Browser Run (no IP pinning)
  * and the Node container (connect-time DNS pinning).
  *
  * It is typed against Web-standard `Headers`/`fetch` and a minimal structural
@@ -52,8 +52,8 @@ export type PublicScanGateStatus = {
 
 /**
  * The gate's own view of how it admits scans, for `/api/health`. A front Worker
- * is the edge enforcement point, so it — not the upstream Node app, which has no
- * Turnstile concept — is the source of truth for these fields. Mirrors exactly
+ * is the edge enforcement point, so it, not the upstream Node app, which has no
+ * Turnstile concept, is the source of truth for these fields. Mirrors exactly
  * when the gate requires a token, allows open access, and enforces Turnstile.
  */
 export function publicScanGateStatus(config: {

@@ -3,7 +3,7 @@
  *
  * Pure aggregation over one data point per scanned site (already deduped and
  * categorized by the caller), so it stays unit-testable and free of fs/Next deps.
- * Metrics describe the baseline (off / unprotected) run — what the site tried —
+ * Metrics describe the baseline (off / unprotected) run (what the site tried),
  * matching the rest of the report surface; `shieldsBlocked` is the third-party
  * requests a Shields comparison removed, when one exists for that site.
  */

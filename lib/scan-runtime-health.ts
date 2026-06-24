@@ -5,7 +5,7 @@
  * (different internals, warnings, and limits), but both must present this common
  * shape so the browser client can read capability/readiness signals uniformly.
  * `asScanRuntimeHealth` enforces conformance at compile time on each producer
- * (it is an identity function — no runtime effect), and `isScanRuntimeHealth`
+ * (it is an identity function, no runtime effect), and `isScanRuntimeHealth`
  * validates a fetched payload before the client trusts it.
  *
  * Neutral by construction (no Node/Worker/browser APIs) so every runtime can

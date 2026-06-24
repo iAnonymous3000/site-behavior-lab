@@ -213,7 +213,7 @@ test("confirmed keystroke exfiltration leads the headline with alarm", () => {
 
 test("a plain-text keystroke leak reads as a calmer third-party type-ahead, not an alarm", () => {
   // The real weather.gov case: typing in the location search reaches Esri's
-  // geocoder in plain text — functional autocomplete, not covert capture.
+  // geocoder in plain text, functional autocomplete, not covert capture.
   const result = makeResult({
     firstPartyDomain: "weather.gov",
     fingerprintDetections: [

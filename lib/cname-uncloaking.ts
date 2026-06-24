@@ -12,7 +12,7 @@ export type { CnameCloak } from "./types";
  *
  * This module is the pure decision layer: given the first-party subdomains the
  * page contacted and their resolved CNAME chains, it decides which ones are
- * actually cloaked trackers — reusing the existing tracker catalog / Brave
+ * actually cloaked trackers, reusing the existing tracker catalog / Brave
  * ad-block engine as the "is this a tracking service" oracle, so it needs no new
  * curated list and does not flag plain CDN/infra CNAMEs (those aren't trackers).
  *

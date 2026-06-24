@@ -88,7 +88,7 @@ export function highEntropyDetections(result: ScanResult): FingerprintDetectionS
  * The HTTP status when the page's top-level navigation returned an error (>= 400),
  * otherwise null. A network-level failure (DNS, refused, timeout) already aborts
  * the scan with an error, but an HTTP error or bot-block page (403/404/500/503)
- * resolves normally — so the scan completes with few or no third-party requests.
+ * resolves normally, so the scan completes with few or no third-party requests.
  * Those low counts are an artifact of the failed load, not a privacy result, so
  * the headline and findings must not read them as "relatively private".
  *
@@ -187,7 +187,7 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
 
 /**
  * Whether a keystroke-exfiltration leak is "obfuscated" (the typed value was
- * transformed — base64/hex/hashed — before being sent), which is more
+ * transformed (base64/hex/hashed) before being sent), which is more
  * consistent with deliberate input capture. A plain-text leak is consistent
  * with a functional type-ahead/autocomplete sent to a third-party API, so it
  * carries a calmer severity. Drives both the finding level and the headline tone.

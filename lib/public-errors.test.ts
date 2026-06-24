@@ -14,7 +14,7 @@ test("public-facing errors share one status-carrying base class", () => {
 });
 
 test("toPublicError scrubs unexpected errors to a generic message and logs them server-side", () => {
-  // A non-public error can carry internal detail — hostnames, private IPs, file
+  // A non-public error can carry internal detail, hostnames, private IPs, file
   // paths, stack frames. The client response must never echo it; the operator log
   // must still receive the original. This pins the no-leak guarantee for the
   // public scanner so a future refactor of toPublicError cannot silently expose

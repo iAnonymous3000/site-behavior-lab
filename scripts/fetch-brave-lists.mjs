@@ -1,6 +1,6 @@
 // Fetches the constituent filter lists that make up Brave's default ad-block
 // component (from Brave's own list catalog) and vendors a pinned, gzipped
-// snapshot for the WASM adblock engine. Brave-owned supply chain only — no
+// snapshot for the WASM adblock engine. Brave-owned supply chain only, no
 // competitor dataset. Refresh with: npm run lists:brave
 import { mkdir, writeFile } from "node:fs/promises";
 import { gzipSync } from "node:zlib";
@@ -49,7 +49,7 @@ async function main() {
 
   const fetchedAt = new Date().toISOString();
   const header =
-    `! Brave default ad-block filters — pinned snapshot\n` +
+    `! Brave default ad-block filters, pinned snapshot\n` +
     `! Fetched ${fetchedAt} from ${fetched.length}/${urls.length} sources in Brave's catalog\n` +
     `! Catalog: ${CATALOG_URL}\n`;
   const combined = `${header}${parts.join("\n")}\n`;
@@ -63,7 +63,7 @@ async function main() {
   );
 
   console.log(
-    `\nWrote lib/adblock-wasm/brave-default-filters.txt.gz — ${(gz.length / 1024).toFixed(0)} KB gz / ${(combined.length / 1024 / 1024).toFixed(1)} MB raw, from ${fetched.length} sources.`
+    `\nWrote lib/adblock-wasm/brave-default-filters.txt.gz, ${(gz.length / 1024).toFixed(0)} KB gz / ${(combined.length / 1024 / 1024).toFixed(1)} MB raw, from ${fetched.length} sources.`
   );
 }
 

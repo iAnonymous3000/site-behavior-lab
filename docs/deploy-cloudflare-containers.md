@@ -1,7 +1,7 @@
 # Deploying the Node Scanner on Cloudflare Containers (live Shields)
 
-The Cloudflare-native way to run the full **Node/Playwright scanner** — and therefore
-**live, on-demand Shields tried-vs-blocked** scanning — without leaving your Cloudflare
+The Cloudflare-native way to run the full **Node/Playwright scanner**, and therefore
+**live, on-demand Shields tried-vs-blocked** scanning, without leaving your Cloudflare
 account. It runs the existing [Dockerfile](../Dockerfile) as a Cloudflare Container,
 fronted by a Worker, with your existing Cloudflare Pages site as the UI/gallery front door.
 
@@ -11,7 +11,7 @@ fronted by a Worker, with your existing Cloudflare Pages site as the UI/gallery 
 
 ## Does it fit? (verified against Cloudflare docs, 2026-06)
 
-Chromium needs ~2 GB RAM, and the Playwright base image is ~2–3 GB, and **a container
+Chromium needs ~2 GB RAM, and the Playwright base image is ~2-3 GB, and **a container
 image cannot exceed its instance's disk**. So the small instance types do **not** work:
 
 | instance_type | RAM | disk (= max image size) | usable here? |
@@ -20,7 +20,7 @@ image cannot exceed its instance's disk**. So the small instance types do **not*
 | `basic` | 1 GiB | 4 GB | no (RAM too low for Chromium) |
 | **`standard-1`** | 4 GiB | 8 GB | minimum |
 | **`standard-2`** | 6 GiB | 12 GB | **recommended** |
-| `standard-3/4` | 8–12 GiB | 16–20 GB | for high concurrency |
+| `standard-3/4` | 8-12 GiB | 16-20 GB | for high concurrency |
 
 ## Architecture
 
@@ -34,7 +34,7 @@ visitor ─▶ Cloudflare Pages (sitebehavior.org)         ← UI, gallery, comm
           /api/scan  /api/scans/:id  /api/reports/:id  /api/health
           per-scan connect-time SSRF proxy ─▶ public internet only
                  ▼
-        Cloudflare R2  (durable report store — see "Report storage" below)
+        Cloudflare R2  (durable report store, see "Report storage" below)
 ```
 
 ## 1. Enable Workers Paid
@@ -95,14 +95,14 @@ live Worker is untouched):
 }
 ```
 
-> **Verify these against current Cloudflare docs** — the `@cloudflare/containers` routing
+> **Verify these against current Cloudflare docs**, the `@cloudflare/containers` routing
 > helper (`getContainer`), the Durable Object migration shape (`new_sqlite_classes`), and
 > how container env/secrets are passed are the version-sensitive lines. The reliable way to
 > get correct, current boilerplate is to scaffold once with
 > `npm create cloudflare@latest -- --template=cloudflare/templates/containers-template`
 > and copy this project's `class_name`/`image`/`instance_type` into it.
 
-## 3. Report storage — use R2, not the container disk
+## 3. Report storage, use R2, not the container disk
 
 Container disk is **ephemeral** (it does not survive instance recycling), so the
 filesystem report store would lose share links. Use the existing R2 backend instead:
@@ -144,7 +144,7 @@ image **on Cloudflare instead**, connect the repo under the scanner Worker's
 leave the build command empty, and trigger a build. Cloudflare builds and stores the image
 server-side, so nothing is uploaded from your machine. Worker secrets set beforehand are
 preserved across Workers Builds deploys. Ignore the dashboard hint to rename `wrangler.jsonc`
-— this Worker deploys from `wrangler.container.jsonc`, while `wrangler.jsonc` belongs to the
+,  this Worker deploys from `wrangler.container.jsonc`, while `wrangler.jsonc` belongs to the
 separate Browser Run GPC worker.
 
 ## 5. Point the existing Pages site at it
@@ -155,14 +155,14 @@ In the Cloudflare **Pages** project (sitebehavior.org) production env, set and r
 NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE = https://scan.sitebehavior.org
 ```
 
-No code change — the UI reads `/api/health` and lights up the **Shields** and GPC toggles.
+No code change, the UI reads `/api/health` and lights up the **Shields** and GPC toggles.
 The scanner's browser CORS allow-list is preconfigured to `https://sitebehavior.org` via
 the `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` var in `wrangler.container.jsonc` (the front Worker
 forwards it into the container); edit that var if your Pages origin differs, or set it to
 `*` for an open scanner. For an open scanner also add `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_OPEN_ACCESS=1`
 to the Pages build; for Turnstile add `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY=<site-key>`.
 
-## 6. Security: the SSRF backstop is weaker here — launch operator-gated
+## 6. Security: the SSRF backstop is weaker here, launch operator-gated
 
 The Node scanner's safety = the in-app **connect-time proxy** (resolves, validates, and
 pins to a public IP) **plus** an external egress firewall as defense-in-depth. On managed
@@ -199,4 +199,4 @@ curl -s https://scan.sitebehavior.org/api/health | jq '.capabilities'
 
 Workers Paid is $5/mo; container compute is metered while an instance is running
 (`sleepAfter` lets it scale to zero between scans). R2 has a free tier that comfortably
-covers a report corpus. Realistic low-traffic total: roughly $5–15/mo.
+covers a report corpus. Realistic low-traffic total: roughly $5-15/mo.

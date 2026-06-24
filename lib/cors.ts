@@ -26,10 +26,10 @@ const CORS_ALLOWED_REQUEST_HEADERS = [
  * Denials must NOT emit the literal string `"null"`: a browser request from an
  * opaque origin (sandboxed document, `data:`/`blob:` URL, `file:` page) sends
  * `Origin: null`, and echoing `Access-Control-Allow-Origin: null` would let that
- * opaque origin read the response — bypassing the configured single-origin
+ * opaque origin read the response, bypassing the configured single-origin
  * allowlist. Omitting the header instead fails the CORS check closed.
  *
- * The scan API uses no cookies, so `*` is a safe default for a public scanner —
+ * The scan API uses no cookies, so `*` is a safe default for a public scanner;
  * operators tighten it via the configured origin when they want to restrict which
  * sites may call the scanner from a browser.
  */

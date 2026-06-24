@@ -10,7 +10,7 @@ const SCRIPT_UNSAFE = new Set<number>([0x3c, 0x3e, 0x26, 0x2028, 0x2029]);
  * a string containing `</script>` would close the script element and a following
  * `<script>` would execute. Report JSON-LD includes fields derived from the
  * scanned site (for example the requested URL), so rewrite the unsafe code points
- * to their `\uXXXX` form — still valid JSON, but never able to close the tag.
+ * to their `\uXXXX` form, still valid JSON, but never able to close the tag.
  */
 export function serializeJsonLd(data: unknown): string {
   const json = JSON.stringify(data);

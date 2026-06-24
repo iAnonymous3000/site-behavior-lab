@@ -10,7 +10,7 @@
  *
  * Unlike the listener-coverage heuristics (which only observe that a script
  * *could* read input), a hit here is direct evidence the typed value was
- * captured and transmitted — the test Blacklight performs, extended to match
+ * captured and transmitted, the test Blacklight performs, extended to match
  * common encodings, not just the raw value.
  *
  * Node-only: uses `node:crypto` / `Buffer` to compute the sentinel encodings.

@@ -152,7 +152,7 @@ function botBlockReason(report) {
     return `landing page title "${title}" matches a bot-block/challenge page`;
   }
   if (totalRequests <= 1) {
-    return `only ${totalRequests} network request(s) observed — navigation likely failed or was blocked`;
+    return `only ${totalRequests} network request(s) observed, navigation likely failed or was blocked`;
   }
   return null;
 }

@@ -8,7 +8,7 @@ import type { FingerprintDetectionSummary } from "./types";
  * (`lib/report-validation.ts`). Both previously kept near-identical copies that
  * had drifted in strictness; this is the one strict definition.
  *
- * Strict by design — every numeric field must be finite (not just `typeof
+ * Strict by design, every numeric field must be finite (not just `typeof
  * "number"`, which accepts `NaN`/`Infinity`), and listener-coverage origins must
  * be `http(s)` URLs. The in-page observer only ever emits finite counts and
  * `http(s)` script origins, so the strict checks accept every genuine detection

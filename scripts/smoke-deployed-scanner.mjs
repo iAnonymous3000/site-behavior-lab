@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Production smoke test for a DEPLOYED full Node/Playwright scanner — the
+// Production smoke test for a DEPLOYED full Node/Playwright scanner, the
 // Cloudflare Containers path (docs/deploy-cloudflare-containers.md) or any
 // always-on Node deployment. It is API-only (no browser), so it runs anywhere,
 // and it tolerates async scan mode (the container sets SITE_BEHAVIOR_LAB_ASYNC_SCANS=1,
@@ -13,7 +13,7 @@
 //   npm run test:smoke:scanner
 //
 // Turnstile note: an OPEN scanner that enforces Turnstile cannot be smoked
-// automatically — Turnstile exists to block exactly this kind of unattended
+// automatically, Turnstile exists to block exactly this kind of unattended
 // request, and the script has no token to submit. Run this against a deployment
 // configured with an access token and pass SMOKE_SCAN_ACCESS_TOKEN: a matching
 // token is checked *before* Turnstile (see gateScanRequest in container-worker.ts),
@@ -137,11 +137,11 @@ async function checkHealth() {
   const capabilities = health.capabilities || {};
   if (!capabilities.singleScan) fail("health does not advertise singleScan");
   if (!capabilities.shieldsComparison) {
-    fail("health does not advertise live Shields — this is the Browser Run worker, not the full Node scanner");
+    fail("health does not advertise live Shields, this is the Browser Run worker, not the full Node scanner");
   }
   if (!capabilities.savedReports) fail("health does not advertise durable savedReports (bind R2)");
   if (!capabilities.savedReportPages) {
-    fail("health does not advertise savedReportPages — this origin cannot serve human-shareable /reports/:id pages");
+    fail("health does not advertise savedReportPages, this origin cannot serve human-shareable /reports/:id pages");
   }
   if (!health.checks?.adblock?.active) fail("Brave ad-block engine is not active on this deployment");
   pass(`health advertises live Shields (storage: ${health.storage || health.checks?.reportStore?.kind || "unknown"})`);
@@ -199,7 +199,7 @@ async function checkShieldsComparison() {
 
 async function checkSsrfRefusal() {
   // A link-local literal (cloud metadata range) must never be scannable. Refusal
-  // can arrive at submit (URL-shape check) or as a failed job — both are a pass.
+  // can arrive at submit (URL-shape check) or as a failed job, both are a pass.
   const submission = await submitScan({
     url: "http://169.254.169.254/",
     device: "desktop",
@@ -219,7 +219,7 @@ async function checkSsrfRefusal() {
         pass("link-local SSRF target refused by the scan job");
         return;
       }
-      if (data.status === "succeeded") fail("link-local SSRF target was scanned successfully — guard failed");
+      if (data.status === "succeeded") fail("link-local SSRF target was scanned successfully, guard failed");
       await sleep(POLL_INTERVAL_MS);
     }
     fail("SSRF job neither failed nor completed within the poll window");

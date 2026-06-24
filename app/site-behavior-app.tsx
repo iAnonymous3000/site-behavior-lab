@@ -872,7 +872,7 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
   return (
     <section className="corpus-hero" aria-labelledby="corpus-hero-title">
       <p className="eyebrow">Transparency index</p>
-      <h2 id="corpus-hero-title">What websites actually load — measured, not claimed.</h2>
+      <h2 id="corpus-hero-title">What websites actually load: measured, not claimed.</h2>
       <p className="corpus-hero-lead">
         We open {plural(highlights.siteCount, "real site")} in a controlled browser and record every request, cookie, and
         tracker, then run each through <strong>Brave&rsquo;s own ad-block engine</strong> (the open-source{" "}
@@ -973,7 +973,7 @@ function friendlyError(message: string): string {
   // Only genuine address-validation messages map to the "valid web address"
   // hint. The generic "Scan failed. Check the target URL" fallback also mentions
   // "url", so matching on "url"/"http" alone mislabels real load failures as bad
-  // input — exactly the bug behind banks like fidelity.com appearing invalid.
+  // input, exactly the bug behind banks like fidelity.com appearing invalid.
   if (
     lower.includes("valid public url") ||
     lower.includes("enter a public url") ||
@@ -1096,7 +1096,7 @@ function reportSharePath(result: ScanReport, liveApiServesReportPages: boolean):
  * social post. Node and committed-static reports yield origin-relative paths
  * (e.g. `/reports/:id`) that navigate fine in an anchor but are useless once
  * pasted elsewhere; a live-API report already carries an absolute origin and is
- * left unchanged. Must run in the browser — it reads `window.location`.
+ * left unchanged. Must run in the browser, it reads `window.location`.
  */
 function absoluteShareUrl(sharePath: string): string {
   try {
@@ -2035,7 +2035,7 @@ function ReportHeader({
       return;
     }
     // No native share: when the permalink is the page already open, navigating
-    // does nothing, so copy the link instead — the button must always act.
+    // does nothing, so copy the link instead, the button must always act.
     if (typeof window !== "undefined" && url === window.location.href) {
       event.preventDefault();
       try {

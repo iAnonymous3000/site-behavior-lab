@@ -49,7 +49,7 @@ async function main() {
   const failures = [];
 
   for (const [index, site] of sites.entries()) {
-    console.log(`\n[${index + 1}/${sites.length}] ${site.label} — ${site.url}`);
+    console.log(`\n[${index + 1}/${sites.length}] ${site.label}, ${site.url}`);
     try {
       await runOneScan(site, { compareGpc, compareShields, device });
       succeeded += 1;

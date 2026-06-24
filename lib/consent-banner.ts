@@ -8,7 +8,7 @@
  * "Accept" that this report does not capture. This module just names the CMP
  * from the request log; the finding layer turns that into the pre-consent story.
  *
- * Pure (types only) so it runs anywhere. The list is curated and unambiguous —
+ * Pure (types only) so it runs anywhere. The list is curated and unambiguous:
  * each host is a dedicated consent platform, not a dual-use analytics domain.
  */
 

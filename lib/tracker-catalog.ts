@@ -19,7 +19,7 @@ type IndexedCatalogEntry = {
 /*
  * Hand-curated tracker/service seed catalog.
  *
- * Hand-curated, in-repo list of high-prevalence third-party services — no
+ * Hand-curated, in-repo list of high-prevalence third-party services, no
  * third-party (competitor) dataset and no NonCommercial license. Brave
  * ad-block lists are used separately for Shields would-block signals, not
  * for these service/entity labels.

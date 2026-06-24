@@ -18,7 +18,7 @@
     // visitors. container-worker.ts enforces Turnstile (the TURNSTILE_SECRET_KEY
     // secret) plus the KV rate limit below before any request reaches the
     // container's browser. The scanner stays GATED until the
-    // SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN secret is removed — these vars are inert
+    // SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN secret is removed, these vars are inert
     // while that token is set.
     "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS": "1",
     "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE": "6",

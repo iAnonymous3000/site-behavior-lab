@@ -127,7 +127,7 @@ export function locateReport(id: string, runtime: ReportRuntime): ReportLocator 
     // A freshly scanned report only lives behind the scan API. Share a permalink
     // there only when that API serves its own report pages (the full Node app /
     // container). An API-only producer like the Browser Run Worker has no
-    // `/reports/:id` page, so linking there 404s — withhold the permalink.
+    // `/reports/:id` page, so linking there 404s, withhold the permalink.
     const apiBase = trimTrailingSlash(runtime.scanApiBase ?? "");
     if (apiBase && runtime.liveApiServesReportPages) {
       return {

@@ -10,7 +10,7 @@ import type { ComparisonType } from "./types";
 
 /**
  * Server-only: loads the committed report corpus and derives the index-level views
- * shared by the directory page and the homepage hero — per-report entries, the
+ * shared by the directory page and the homepage hero, per-report entries, the
  * per-category rollups, the heaviest sites, and the distinct-site count. Metrics
  * use the baseline (off / unprotected) run; one data point per site.
  *

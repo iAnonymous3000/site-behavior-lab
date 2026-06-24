@@ -262,7 +262,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     }
 
     // Active input-capture probe: type a synthetic sentinel into form fields and
-    // watch for it leaving to a third party. Best-effort and fully bounded — it
+    // watch for it leaving to a third party. Best-effort and fully bounded, it
     // never throws into the scan and is skipped when the time budget is tight.
     const keystrokeDetection = await withScanTimeout(
       probeKeystrokeExfiltration(page, finalParsed.hostname, started, warnings),
@@ -280,7 +280,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     // Un-hide CNAME-cloaked trackers: first-party subdomains that are DNS aliases
     // for a known tracker. The oracle is the curated catalog (named) first, then
     // the broader Brave Shields engine (which carries the CNAME-cloak vendors the
-    // small catalog lacks). Best-effort and bounded — DNS can never stall the scan.
+    // small catalog lacks). Best-effort and bounded, DNS can never stall the scan.
     const matchCnameTracker = (host: string): TrackerMatch | null => {
       const named = findTrackerMatch(host);
       if (named) return named;
@@ -495,7 +495,7 @@ async function collectFingerprintObservations(page: Page) {
 
 /**
  * Type a unique synthetic sentinel into the page's form fields (never
- * submitting), then watch the network for that value leaving to a third party —
+ * submitting), then watch the network for that value leaving to a third party:
  * direct evidence of keystroke/input capture. Best-effort: bounded by the scan
  * budget, swallows its own errors, and returns null when nothing leaked or there
  * was no time to probe. The form is never submitted and typed values are
@@ -558,7 +558,7 @@ async function probeKeystrokeExfiltration(
 
 /**
  * Navigate to about:blank so the page fires pagehide/unload, prompting session
- * recorders that buffer keystrokes to flush them via sendBeacon — which the
+ * recorders that buffer keystrokes to flush them via sendBeacon, which the
  * probe's request listener then captures. Runs only after all page-dependent
  * report data is already collected; bounded by the remaining scan budget.
  */

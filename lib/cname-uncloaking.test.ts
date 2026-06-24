@@ -18,7 +18,7 @@ test("cnameCloakCandidates picks first-party subdomains only, deduped, no apex o
     makeRequest("metrics.shop.example", false),
     makeRequest("metrics.shop.example", false), // duplicate
     makeRequest("www.shop.example", false),
-    makeRequest("shop.example", false), // apex — cannot be cloaked
+    makeRequest("shop.example", false), // apex, cannot be cloaked
     makeRequest("google-analytics.com", true) // third party
   ];
 

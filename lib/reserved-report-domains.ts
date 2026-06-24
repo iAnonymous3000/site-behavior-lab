@@ -4,8 +4,8 @@ const RESERVED_REPORT_DOMAINS = new Set(reservedReportDomains.map((domain) => do
 
 /**
  * Reserved/test domains (the example.* family, localhost) are kept out of every
- * public discovery surface — the gallery manifest, `/directory/`, and
- * `sitemap.xml` — so a test fixture can never read as real evidence. Permalink
+ * public discovery surface, the gallery manifest, `/directory/`, and
+ * `sitemap.xml`, so a test fixture can never read as real evidence. Permalink
  * pages are not generated for them either, simply because no reserved-domain
  * report is committed under `public/reports/`.
  *

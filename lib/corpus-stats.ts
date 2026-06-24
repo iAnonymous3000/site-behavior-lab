@@ -61,7 +61,7 @@ export function corpusIsUsable(corpus: CorpusStats | null): corpus is CorpusStat
 /**
  * Map a metric value to a severity level + plain-language label using corpus
  * percentiles. Returns `null` when the corpus is missing, too small, or lacks a
- * distribution for the metric — callers should then use their fixed-threshold
+ * distribution for the metric, callers should then use their fixed-threshold
  * fallback.
  */
 export function corpusBenchmark(

@@ -3,7 +3,7 @@
 /**
  * Computes percentile distributions of key behavior metrics across the committed
  * report corpus and writes public/corpus-stats.json. The findings board uses this
- * to rank a site against measured percentiles instead of fixed thresholds — but
+ * to rank a site against measured percentiles instead of fixed thresholds, but
  * only once the corpus is large enough (see CORPUS_MIN_SAMPLE in lib/corpus-stats).
  *
  * One data point per distinct real site (most recent scan wins) so repeated scans
@@ -38,8 +38,8 @@ async function main() {
     // Use the baseline (the plain "off" state) of any comparison so the corpus
     // distribution stays comparable to a normal single scan. The "on" variant is a
     // protected state (Shields/GPC enabled) that no default scan is in, so ranking
-    // ordinary scans against it — especially Shields-on, which blocks most third
-    // parties — would misrank nearly every site.
+    // ordinary scans against it, especially Shields-on, which blocks most third
+    // parties, would misrank nearly every site.
     const result = report.reportType === "comparison" ? report.baseline : report;
     if (!isRecord(result) || !isRecord(result.summary) || !isRecord(result.conditions)) continue;
 

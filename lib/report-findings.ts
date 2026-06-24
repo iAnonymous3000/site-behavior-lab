@@ -7,8 +7,8 @@
  * percentiles when available (see `corpus-stats.ts`) and falling back to fixed
  * reference thresholds otherwise.
  *
- * It is intentionally React-free — `icon` is a semantic key the UI maps to a
- * component — so the methodology can be unit-tested directly and reused outside
+ * It is intentionally React-free, `icon` is a semantic key the UI maps to a
+ * component, so the methodology can be unit-tested directly and reused outside
  * the client bundle. The tracker/fingerprint classification it relies on lives
  * in `report-insights.ts`, shared with the headline layer so the three cannot
  * drift.
@@ -158,13 +158,13 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
         ? `What you type was sent to ${recipientCount}`
         : `Your typing is sent to ${recipientCount} as you go`,
       lead: obfuscated
-        ? `When the scanner typed a unique test value into ${fields}, that value reached ${recipients} — transformed (${humanList(keystrokeDetection.evidence.encodings)}) and without the form ever being submitted.`
-        : `When the scanner typed a unique test value into ${fields}, that value was sent in plain text to ${recipients} as it was typed, without the form being submitted — typically search type-ahead or autocomplete handled by a third party.`,
+        ? `When the scanner typed a unique test value into ${fields}, that value reached ${recipients}, transformed (${humanList(keystrokeDetection.evidence.encodings)}) and without the form ever being submitted.`
+        : `When the scanner typed a unique test value into ${fields}, that value was sent in plain text to ${recipients} as it was typed, without the form being submitted, typically search type-ahead or autocomplete handled by a third party.`,
       detail: obfuscated
         ? `The typed value was transformed (${humanList(
             keystrokeDetection.evidence.encodings
           )}) before being sent, which is more consistent with deliberate input capture than a visible API call. A real visitor's keystrokes could be captured the same way. The scanner types only synthetic values and never submits the form.`
-        : `The value was sent in plain text, consistent with a functional type-ahead or autocomplete (a search or location lookup) handled by a third party — still worth knowing your keystrokes leave to ${recipients}, but not on its own evidence of covert capture. The scanner types only synthetic values and never submits the form.`,
+        : `The value was sent in plain text, consistent with a functional type-ahead or autocomplete (a search or location lookup) handled by a third party. Still worth knowing your keystrokes leave to ${recipients}, but not on its own evidence of covert capture. The scanner types only synthetic values and never submits the form.`,
       evidence: `Test value reached ${recipients} via ${humanList(keystrokeDetection.evidence.encodings)}.`
     });
   }
@@ -292,7 +292,7 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
         ? "Google Analytics present, no remarketing signal"
         : "No Google Analytics observed",
     lead: gaRemarketingOn
-      ? "Google Analytics fired a sync to stats.g.doubleclick.net — the request Blacklight treats as the marker that advertising and remarketing features are on."
+      ? "Google Analytics fired a sync to stats.g.doubleclick.net, the request Blacklight treats as the marker that advertising and remarketing features are on."
       : googleAnalyticsPresent
         ? "Google Analytics was observed, but no DoubleClick remarketing sync appeared in this visit."
         : "This visit did not contact Google Analytics.",
@@ -432,7 +432,7 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
       title: `Bottom line: ${result.summary.firstPartyDomain} did not load (HTTP ${loadFailureStatus})`,
       lead: `The page responded with HTTP ${loadFailureStatus}, so this report reflects an error or block page, not the site itself.`,
       detail:
-        "Low tracker, cookie, and fingerprinting counts here mean the page did not load — not that the site is private. Re-scan when the site is reachable; the request log and methodology below still show exactly what was observed.",
+        "Low tracker, cookie, and fingerprinting counts here mean the page did not load, not that the site is private. Re-scan when the site is reachable; the request log and methodology below still show exactly what was observed.",
       evidence: `${plural(result.summary.totalRequests, "request")} observed before or with the error response.`
     });
     return findings;
@@ -449,7 +449,7 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
         ? "The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls."
         : "The scan observed signals a non-expert should not have to decode from raw request tables.",
     detail: corpusIsUsable(corpus)
-      ? `The cards below translate the evidence into plain language. Where a measured distribution exists, severity ranks this visit against percentiles from the ${corpus.sampleSize.toLocaleString("en-US")} sites scanned so far — a curated set of popular, mostly commercial sites, not a random sample of the web — and otherwise uses fixed reference thresholds. The request log, domain table, and methodology remain below for verification.`
+      ? `The cards below translate the evidence into plain language. Where a measured distribution exists, severity ranks this visit against percentiles from the ${corpus.sampleSize.toLocaleString("en-US")} sites scanned so far (a curated set of popular, mostly commercial sites, not a random sample of the web) and otherwise uses fixed reference thresholds. The request log, domain table, and methodology remain below for verification.`
       : "The cards below translate the evidence into plain language; severity reflects fixed reference thresholds, not measured population percentiles. The request log, domain table, and methodology remain below for verification.",
     evidence: `${plural(result.summary.totalRequests, "request")} observed in one controlled visit.`
   });
@@ -470,7 +470,7 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
           : "No requests matched Brave's default ad-block and tracking lists in this visit.",
       detail:
         blocked > 0
-          ? "Computed with Brave's own ad-block engine and default filter lists — network requests only, so no cosmetic or CNAME-based blocking — which reflects Brave's real blocking, not just the named-service catalog. The rest loaded normally."
+          ? "Computed with Brave's own ad-block engine and default filter lists (network requests only, so no cosmetic or CNAME-based blocking) which reflects Brave's real blocking, not just the named-service catalog. The rest loaded normally."
           : "The page's requests did not match Brave's default lists in this visit.",
       evidence: `${plural(result.summary.knownTrackerRequests, "named-service request")} of them are also in the curated catalog.`
     });

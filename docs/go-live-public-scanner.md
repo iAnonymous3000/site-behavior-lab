@@ -35,7 +35,7 @@ The front Worker chooses one of three postures from its config:
 |---|---|---|
 | **Gated** (default) | `SCAN_ACCESS_TOKEN` secret set | Only callers with the token can scan. |
 | **Public** | no token + `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1` | Anyone can scan; Turnstile (if `TURNSTILE_SECRET_KEY` set) **and** the KV rate limit are enforced. |
-| **Refused** | no token + not opened | `/api/scan` returns `503` — an unconfigured scanner is never silently world-open. |
+| **Refused** | no token + not opened | `/api/scan` returns `503`, an unconfigured scanner is never silently world-open. |
 
 ## Pre-flight
 
@@ -68,7 +68,7 @@ The front Worker chooses one of three postures from its config:
 3. **Set the open-access vars** in `wrangler.container.jsonc` (uncomment
    `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1` and the optional per-minute /
    per-day limits). Make sure **no** `SCAN_ACCESS_TOKEN` secret is set on this
-   Worker — a token forces the gated posture.
+   Worker, a token forces the gated posture.
 
 4. **Set the Turnstile secret** so the gate verifies tokens:
 
@@ -108,7 +108,7 @@ The front Worker chooses one of three postures from its config:
 4. Re-run the automated smoke test. An **open** origin that enforces Turnstile
    cannot be smoked unattended (Turnstile is built to block exactly that, and the
    script has no token to send), so point it at a deployment with an access token
-   configured and pass `SMOKE_SCAN_ACCESS_TOKEN` — a matching token is checked
+   configured and pass `SMOKE_SCAN_ACCESS_TOKEN`, a matching token is checked
    before Turnstile and bypasses it:
 
    ```bash
