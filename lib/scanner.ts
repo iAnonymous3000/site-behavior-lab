@@ -212,7 +212,16 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         if (isTimeoutError(error)) {
           throw new PublicScanError("The page did not load before the scan timeout.", 504);
         }
-        throw error;
+        // Navigation failures (TLS/HTTP2 errors, connection resets, sites that
+        // refuse automated browsers) would otherwise be scrubbed to the opaque
+        // "Scan failed. Check the target URL" 500, which reads as an invalid-URL
+        // error. Surface them as an honest load failure while keeping the raw
+        // error in the operator log (and out of the client response).
+        console.error("Scan navigation failed", error);
+        throw new PublicScanError(
+          "The page could not be loaded. The site may be down, unreachable, or blocking automated visits.",
+          502
+        );
       });
 
     await withScanTimeout(page.waitForLoadState("networkidle", { timeout: scanTimeout(started, NETWORK_IDLE_TIMEOUT_MS) }), started).catch((error) => {

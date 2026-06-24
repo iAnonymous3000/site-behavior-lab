@@ -382,7 +382,9 @@ export function SiteBehaviorApp({
       setError("Enter a public URL to scan, for example https://example.com.");
       return;
     }
-    void runScan(trimmed);
+    const normalized = normalizeScanUrl(trimmed);
+    setForm((current) => ({ ...current, url: normalized }));
+    void runScan(normalized);
   }
 
   function useExample(url: string) {
@@ -942,6 +944,14 @@ function friendlyError(message: string): string {
   if (lower.includes("private") || lower.includes("localhost") || lower.includes("internal") || lower.includes("not a public")) {
     return "That address can't be scanned. The scanner only visits public web pages, not localhost, private networks, or internal hosts.";
   }
+  if (
+    lower.includes("could not be loaded") ||
+    lower.includes("could not be resolved") ||
+    lower.includes("blocking automated") ||
+    lower.includes("unreachable")
+  ) {
+    return "The scanner couldn't load that page. The site may be down, unreachable, or actively blocking automated visits. Try again, or try a different page.";
+  }
   if (lower.includes("rate") || lower.includes("too many") || lower.includes("slow down")) {
     return "Too many scans in a short window. Wait a moment and try again.";
   }
@@ -951,7 +961,17 @@ function friendlyError(message: string): string {
     }
     return "This scanner requires a valid access key. Add it under Options, or contact whoever runs this instance.";
   }
-  if (lower.includes("url") || lower.includes("http")) {
+  // Only genuine address-validation messages map to the "valid web address"
+  // hint. The generic "Scan failed. Check the target URL" fallback also mentions
+  // "url", so matching on "url"/"http" alone mislabels real load failures as bad
+  // input — exactly the bug behind banks like fidelity.com appearing invalid.
+  if (
+    lower.includes("valid public url") ||
+    lower.includes("enter a public url") ||
+    lower.includes("only http and https") ||
+    lower.includes("credentials in url") ||
+    lower.includes("invalid url")
+  ) {
     return "That doesn't look like a valid web address. Use a full URL such as https://example.com.";
   }
   return message;
@@ -1087,6 +1107,15 @@ export function clientReportRuntime(): ReportRuntime {
     // working report page, so share permalinks resolve there.
     scanApiBase: LIVE_SCAN_API_BASE
   };
+}
+
+function normalizeScanUrl(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  // Accept bare domains (e.g. "fidelity.com") by assuming https://. If the user
+  // already typed any scheme, leave it untouched and let the scanner validate it.
+  if (/^[a-zA-Z][a-zA-Z\d+.-]*:\/\//.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
 }
 
 function normalizeApiBase(value: string): string {
