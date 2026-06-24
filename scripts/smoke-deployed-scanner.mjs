@@ -208,7 +208,23 @@ async function checkSsrfRefusal() {
   });
   const { payload } = submission;
   if (payload && payload.ok === false) {
-    pass(`link-local SSRF target refused at submit (${payload.error || "rejected"})`);
+    const reason = typeof payload.error === "string" ? payload.error : "";
+    // A gate rejection (Turnstile / auth / rate limit) stops the request BEFORE it
+    // reaches the URL-safety guard, so it proves nothing about SSRF protection.
+    // Treat it as inconclusive, never a pass — this is the trap that let a
+    // Turnstile "refusal" masquerade as SSRF coverage.
+    if (/turnstile|unauthorized|access token|not configured for public|rate limit|too many/i.test(reason)) {
+      fail(
+        `SSRF check inconclusive: a gate stopped the request before the URL-safety guard (${reason || "rejected"}). ` +
+          "Run with SMOKE_SCAN_ACCESS_TOKEN against a token-gated deployment so the scan reaches the guard."
+      );
+    }
+    // Require the refusal to actually name an unsafe-address reason from the URL
+    // guard, so an unrelated 4xx cannot be mistaken for SSRF coverage.
+    if (!/private network|public address|verified as public|not be resolved|loopback|link-local|reserved/i.test(reason)) {
+      fail(`link-local target refused, but not by the URL-safety guard (${reason || "no reason given"})`);
+    }
+    pass(`link-local SSRF target refused by the URL-safety guard (${reason})`);
     return;
   }
   if (isAsyncSubmission(payload)) {

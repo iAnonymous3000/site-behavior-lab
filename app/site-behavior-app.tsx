@@ -524,6 +524,12 @@ export function SiteBehaviorApp({
         </p>
       )}
 
+      {awaitingTurnstile && (
+        <p className="scanner-status-note">
+          Finishing a quick browser check above. Scan turns on once it passes; reload the page if it does not complete.
+        </p>
+      )}
+
       <details className="options-disclosure" open={STATIC_LIVE_SCAN_ENABLED}>
         <summary>
           <SlidersHorizontal size={15} aria-hidden="true" />
