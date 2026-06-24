@@ -22,8 +22,8 @@ export default function PrivacyPage() {
         <h1>How your scans are handled</h1>
         <p>
           Site Behavior Lab inspects how a website behaves, so it would be a poor tool if it were careless with your
-          own data. A URL can itself be sensitive &mdash; query strings often carry tracking ids, tokens, or email
-          addresses &mdash; so here is exactly what happens to the address you type, in plain terms.
+          own data. A URL can itself be sensitive (query strings often carry tracking ids, tokens, or email
+          addresses), so here is exactly what happens to the address you type, in plain terms.
         </p>
         <p className="legal-back">
           <Link href="/">&larr; Back to Site Behavior Lab</Link>
@@ -35,7 +35,7 @@ export default function PrivacyPage() {
         <p>Submitting a scan sends the following to the scanner:</p>
         <ul>
           <li>
-            <strong>The address &mdash; reduced to origin and path first.</strong> Before the request leaves your
+            <strong>The address: reduced to origin and path first.</strong> Before the request leaves your
             browser, the query string (everything after <code>?</code>) and fragment (after <code>#</code>) are
             stripped. <code>example.com/account?user=you&amp;token=abc</code> becomes{" "}
             <code>example.com/account</code>. The page in the box is updated so you can see exactly what will be
@@ -67,7 +67,7 @@ export default function PrivacyPage() {
         <ul>
           <li>
             Each scan is saved as a shareable report so its permalink works. The address stored in the report is{" "}
-            <strong>origin and path only</strong> &mdash; query strings, URL credentials, and fragments are removed
+            <strong>origin and path only</strong>. Query strings, URL credentials, and fragments are removed
             before anything is written or shared.
           </li>
           <li>
@@ -82,7 +82,7 @@ export default function PrivacyPage() {
         <h2>Rate limiting and abuse prevention</h2>
         <p>
           To keep the public scanner available, requests are rate-limited per client. Your IP address is used
-          transiently for that limit and for the Turnstile bot check &mdash; it is not attached to stored reports and
+          transiently for that limit and for the Turnstile bot check. It is not attached to stored reports and
           is not used to profile or track you across visits.
         </p>
       </section>
@@ -96,7 +96,7 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong>The site you scan</strong> receives the automated visit and may log it like any other request,
-            but it receives the scanner&rsquo;s request &mdash; not your browser session or IP.
+            but it receives the scanner&rsquo;s request, not your browser session or IP.
           </li>
         </ul>
       </section>
