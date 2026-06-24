@@ -215,9 +215,13 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         // Navigation failures (TLS/HTTP2 errors, connection resets, sites that
         // refuse automated browsers) would otherwise be scrubbed to the opaque
         // "Scan failed. Check the target URL" 500, which reads as an invalid-URL
-        // error. Surface them as an honest load failure while keeping the raw
-        // error in the operator log (and out of the client response).
-        console.error("Scan navigation failed", error);
+        // error. Surface them as an honest load failure. Log a redacted target
+        // plus the failure reason only -- the raw Playwright message embeds the
+        // full URL (query string included), which must never reach the logs.
+        console.error("Scan navigation failed", {
+          target: redactUrlForReport(targetUrl.toString()),
+          reason: navigationFailureReason(error)
+        });
         throw new PublicScanError(
           "The page could not be loaded. The site may be down, unreachable, or blocking automated visits.",
           502
@@ -601,6 +605,14 @@ async function typeSentinelIntoFields(page: Page, sentinel: string): Promise<{ c
 
 function isTimeoutError(error: unknown): boolean {
   return error instanceof Error && error.message.toLowerCase().includes("timeout");
+}
+
+// A navigation failure reason safe for operator logs: the Chromium net error
+// code if present, otherwise a generic label. Never the raw message, which
+// embeds the full target URL (query string and all).
+function navigationFailureReason(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.match(/net::[A-Z0-9_]+/)?.[0] ?? "navigation failed";
 }
 
 function isScanBudgetError(error: unknown): boolean {
