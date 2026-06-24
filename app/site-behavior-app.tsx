@@ -181,6 +181,9 @@ export function SiteBehaviorApp({
   const [turnstileToken, setTurnstileToken] = useState("");
   // Bumped after every scan attempt to force a fresh single-use Turnstile token.
   const [turnstileResetNonce, setTurnstileResetNonce] = useState(0);
+  // Set when a submit stripped a query string/fragment from the typed URL, so
+  // the user understands why the address in the box changed.
+  const [urlNotice, setUrlNotice] = useState("");
 
   useEffect(() => {
     if (!LIVE_SCAN_ENABLED) return;
@@ -384,6 +387,11 @@ export function SiteBehaviorApp({
     }
     const normalized = normalizeScanUrl(trimmed);
     setForm((current) => ({ ...current, url: normalized }));
+    setUrlNotice(
+      /[?#]/.test(trimmed)
+        ? "Removed the query string and fragment from the URL for privacy before scanning."
+        : ""
+    );
     void runScan(normalized);
   }
 
@@ -486,7 +494,10 @@ export function SiteBehaviorApp({
           autoComplete="url"
           spellCheck={false}
           value={form.url}
-          onChange={(event) => setForm((current) => ({ ...current, url: event.target.value }))}
+          onChange={(event) => {
+            setUrlNotice("");
+            setForm((current) => ({ ...current, url: event.target.value }));
+          }}
           placeholder="https://example.com"
         />
         <button className={`primary-button${loading ? " is-loading" : ""}`} type="submit" disabled={loading || scanBlocked}>
@@ -494,6 +505,10 @@ export function SiteBehaviorApp({
           {isComparisonMode(form) ? "Compare" : "Scan"}
         </button>
       </div>
+
+      {urlNotice && (
+        <p className="scanner-status-note url-privacy-note">{urlNotice}</p>
+      )}
 
       {STATIC_LIVE_SCAN_ENABLED && (
         <p className="scanner-status-note">
@@ -823,7 +838,12 @@ export function SiteBehaviorApp({
         </div>
 
         <footer className="app-footer">
-          <span>Site Behavior Lab: open-source web transparency tooling.</span>
+          <span>
+            Site Behavior Lab: open-source web transparency tooling.{" "}
+            <a className="footer-link" href={staticAssetPath("/privacy/")}>
+              Privacy
+            </a>
+          </span>
           <span>One automated visit. Reproducible for this configuration, not a universal claim.</span>
         </footer>
       </main>
@@ -1113,9 +1133,19 @@ function normalizeScanUrl(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return "";
   // Accept bare domains (e.g. "fidelity.com") by assuming https://. If the user
-  // already typed any scheme, leave it untouched and let the scanner validate it.
-  if (/^[a-zA-Z][a-zA-Z\d+.-]*:\/\//.test(trimmed)) return trimmed;
-  return `https://${trimmed}`;
+  // already typed any scheme, keep it and let the scanner validate it.
+  const withScheme = /^[a-zA-Z][a-zA-Z\d+.-]*:\/\//.test(trimmed) ? trimmed : `https://${trimmed}`;
+  // Drop the query string and fragment before the URL ever leaves the browser.
+  // Those carry the most PII (tracking ids, tokens, emails); the scan reports a
+  // page by origin + path anyway. The path is kept so specific pages still scan.
+  try {
+    const parsed = new URL(withScheme);
+    parsed.search = "";
+    parsed.hash = "";
+    return parsed.toString();
+  } catch {
+    return withScheme;
+  }
 }
 
 function normalizeApiBase(value: string): string {

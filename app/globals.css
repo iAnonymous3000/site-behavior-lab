@@ -533,6 +533,10 @@ a {
   color: var(--danger, #c0392b);
 }
 
+.url-privacy-note {
+  color: var(--accent-strong);
+}
+
 .scanner-status-note-error code {
   font-size: 11px;
   word-break: break-all;
@@ -1848,6 +1852,80 @@ a {
   text-decoration: underline;
 }
 
+/* ---- Legal / prose pages (privacy) ---- */
+.legal-page {
+  margin: 0 auto;
+  max-width: 760px;
+  padding: 48px 24px 80px;
+}
+
+.legal-header {
+  margin-bottom: 8px;
+}
+
+.legal-header h1 {
+  font-size: clamp(26px, 4vw, 36px);
+  letter-spacing: -0.02em;
+  margin: 4px 0 12px;
+}
+
+.legal-header p {
+  color: var(--text-muted);
+  margin: 0 0 12px;
+}
+
+.legal-back a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.legal-back a:hover {
+  text-decoration: underline;
+}
+
+.legal-section {
+  border-top: 1px solid var(--border);
+  margin-top: 28px;
+  padding-top: 24px;
+}
+
+.legal-section h2 {
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+}
+
+.legal-section p,
+.legal-section li {
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.legal-section p {
+  margin: 0 0 12px;
+}
+
+.legal-section ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.legal-section strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.legal-section code {
+  background: var(--surface-2);
+  border-radius: 4px;
+  font-size: 0.9em;
+  padding: 1px 5px;
+  word-break: break-word;
+}
+
 .directory-list {
   display: grid;
   gap: 12px;
@@ -2676,6 +2754,11 @@ td .mono {
 
 .app-footer a:hover {
   color: var(--accent-strong);
+}
+
+.footer-link {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* ---- Animations ---- */
