@@ -12,6 +12,8 @@ import type {
   FingerprintDetectionSummary,
   FingerprintingChange,
   NetworkRequestRecord,
+  PixelEventChange,
+  PixelEventSummary,
   ProvenanceChange,
   ScanResult,
   StorageKeyChange,
@@ -137,6 +139,14 @@ export function compareScanResults(before: ScanResult, after: ScanResult): Compa
   );
   if (shieldsBlockedRequests) diff.shieldsBlockedRequests = shieldsBlockedRequests;
 
+  // Pixel-level detail behind the entity diff: when Shields blocks facebook.com,
+  // "Meta" already drops out of removedEntities, but this also names the pixel
+  // and the events that stopped firing (e.g. Meta Pixel: PageView, Purchase).
+  const addedPixelEvents = pixelEventChanges(before.pixelEvents, after.pixelEvents);
+  const removedPixelEvents = pixelEventChanges(after.pixelEvents, before.pixelEvents);
+  if (addedPixelEvents.length > 0) diff.addedPixelEvents = addedPixelEvents;
+  if (removedPixelEvents.length > 0) diff.removedPixelEvents = removedPixelEvents;
+
   return diff;
 }
 
@@ -234,6 +244,24 @@ function fingerprintingChanges(
     .filter((detection) => !beforeKinds.has(detection.kind))
     .map((detection) => ({ kind: detection.kind, heuristic: detection.heuristic, count: detection.count }))
     .sort((a, b) => b.count - a.count || a.kind.localeCompare(b.kind))
+    .slice(0, MAX_DIFF_LIST);
+}
+
+function pixelEventChanges(
+  before: PixelEventSummary[] | undefined,
+  after: PixelEventSummary[] | undefined
+): PixelEventChange[] {
+  const beforePlatforms = new Set((before ?? []).map((pixel) => pixel.platform));
+
+  return (after ?? [])
+    .filter((pixel) => !beforePlatforms.has(pixel.platform))
+    .map((pixel) => ({
+      platform: pixel.platform,
+      product: pixel.product,
+      events: pixel.events,
+      advancedMatching: pixel.advancedMatching
+    }))
+    .sort((a, b) => a.platform.localeCompare(b.platform))
     .slice(0, MAX_DIFF_LIST);
 }
 

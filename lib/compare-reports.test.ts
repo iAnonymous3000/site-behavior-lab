@@ -12,6 +12,7 @@ import {
   type DomainSummary,
   type FingerprintDetectionSummary,
   type NetworkRequestRecord,
+  type PixelEventSummary,
   type ScanResult,
   type StorageRecord
 } from "./types";
@@ -87,6 +88,30 @@ test("compareScanResults includes a shields-blocked delta only when measured", (
   const before = makeScanResult([], { shieldsBlockedRequests: 0 });
   const after = makeScanResult([], { shieldsBlockedRequests: 7 });
   assert.deepEqual(compareScanResults(before, after).shieldsBlockedRequests, { before: 0, after: 7, delta: 7 });
+});
+
+test("compareScanResults surfaces pixel events Shields blocked, only when changed", () => {
+  const metaPixel: PixelEventSummary = {
+    platform: "Meta",
+    product: "Meta Pixel",
+    events: ["PageView", "Purchase"],
+    advancedMatching: ["email"],
+    requests: 2
+  };
+
+  // Shields off fires the Meta pixel; Shields on blocks it entirely.
+  const off = makeScanResult([], { pixelEvents: [metaPixel] });
+  const on = makeScanResult([]);
+  const blocked = compareScanResults(off, on);
+  assert.equal(blocked.addedPixelEvents, undefined);
+  assert.deepEqual(blocked.removedPixelEvents, [
+    { platform: "Meta", product: "Meta Pixel", events: ["PageView", "Purchase"], advancedMatching: ["email"] }
+  ]);
+
+  // No pixel change across runs leaves both lists absent.
+  const stable = compareScanResults(off, makeScanResult([], { pixelEvents: [metaPixel] }));
+  assert.equal(stable.addedPixelEvents, undefined);
+  assert.equal(stable.removedPixelEvents, undefined);
 });
 
 test("createComparisonReport supports non-GPC comparison labels", () => {
@@ -219,6 +244,7 @@ type ScanResultExtras = {
   cookies?: CookieRecord[];
   storage?: StorageRecord[];
   fingerprintDetections?: FingerprintDetectionSummary[];
+  pixelEvents?: PixelEventSummary[];
   shieldsBlockedRequests?: number;
 };
 
@@ -280,6 +306,7 @@ function makeScanResult(domains: DomainSummary[], extras: ScanResultExtras = {})
     storage,
     fingerprintEvents: [],
     fingerprintDetections: extras.fingerprintDetections ?? [],
+    ...(extras.pixelEvents ? { pixelEvents: extras.pixelEvents } : {}),
     screenshot: null,
     warnings: []
   };

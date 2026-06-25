@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { provenanceChangeText } from "@/lib/report-findings";
+import { pixelFieldLabel } from "@/lib/report-insights";
 import { plural } from "@/lib/text-format";
 import type {
   ComparisonMetricDelta,
@@ -11,6 +12,7 @@ import type {
   DomainChange,
   EntityChange,
   FingerprintingChange,
+  PixelEventChange,
   ProvenanceChange,
   StorageKeyChange
 } from "@/lib/types";
@@ -23,6 +25,8 @@ function ComparisonPanel({ report }: { report: ComparisonScanResult }) {
   const removedStorageKeys = report.diff.removedStorageKeys ?? [];
   const addedFingerprinting = report.diff.addedFingerprinting ?? [];
   const removedFingerprinting = report.diff.removedFingerprinting ?? [];
+  const addedPixelEvents = report.diff.addedPixelEvents ?? [];
+  const removedPixelEvents = report.diff.removedPixelEvents ?? [];
   const addedProvenance = report.diff.addedProvenance ?? [];
   const removedProvenance = report.diff.removedProvenance ?? [];
   const metrics = [
@@ -73,6 +77,12 @@ function ComparisonPanel({ report }: { report: ComparisonScanResult }) {
           <>
             <FingerprintingChangeList title={`Fingerprinting only with ${labels.variant}`} changes={addedFingerprinting} tone="added" />
             <FingerprintingChangeList title={`Fingerprinting only with ${labels.baseline}`} changes={removedFingerprinting} tone="removed" />
+          </>
+        )}
+        {(addedPixelEvents.length > 0 || removedPixelEvents.length > 0) && (
+          <>
+            <PixelEventChangeList title={`Ad pixels only with ${labels.variant}`} changes={addedPixelEvents} tone="added" />
+            <PixelEventChangeList title={`Ad pixels only with ${labels.baseline}`} changes={removedPixelEvents} tone="removed" />
           </>
         )}
         {(addedProvenance.length > 0 || removedProvenance.length > 0) && (
@@ -265,6 +275,32 @@ function fingerprintingKindLabel(kind: FingerprintingChange["kind"]): string {
     default:
       return kind;
   }
+}
+
+function PixelEventChangeList({ title, changes, tone }: { title: string; changes: PixelEventChange[]; tone: "added" | "removed" }) {
+  return (
+    <DiffList
+      title={title}
+      emptyText="No advertising-pixel changes observed."
+      items={changes}
+      renderItem={(change) => {
+        const events = change.events.length > 0 ? change.events.join(", ") : "no named event";
+        const identifiers =
+          change.advancedMatching.length > 0 ? ` · identifiers: ${change.advancedMatching.map(pixelFieldLabel).join(", ")}` : "";
+        return (
+          <div className={`change-row change-${tone}`} key={change.platform}>
+            <span>
+              <strong>{change.product}</strong>
+              <small>
+                {events}
+                {identifiers}
+              </small>
+            </span>
+          </div>
+        );
+      }}
+    />
+  );
 }
 
 function ProvenanceChangeList({ title, changes, tone }: { title: string; changes: ProvenanceChange[]; tone: "added" | "removed" }) {

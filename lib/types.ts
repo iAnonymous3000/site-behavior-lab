@@ -362,6 +362,13 @@ export type FingerprintingChange = {
   count: number;
 };
 
+export type PixelEventChange = {
+  platform: string;
+  product: string;
+  events: string[];
+  advancedMatching: PixelMatchField[];
+};
+
 export type ComparisonDiff = {
   totalRequests: ComparisonMetricDelta;
   thirdPartyRequests: ComparisonMetricDelta;
@@ -382,6 +389,8 @@ export type ComparisonDiff = {
   removedStorageKeys: StorageKeyChange[];
   addedFingerprinting: FingerprintingChange[];
   removedFingerprinting: FingerprintingChange[];
+  addedPixelEvents?: PixelEventChange[];
+  removedPixelEvents?: PixelEventChange[];
   addedProvenance: ProvenanceChange[];
   removedProvenance: ProvenanceChange[];
 };

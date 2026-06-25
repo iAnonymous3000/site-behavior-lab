@@ -6,6 +6,7 @@ import {
   SCAN_REPORT_SCHEMA_VERSION,
   type DomainSummary,
   type FingerprintDetectionSummary,
+  type PixelEventSummary,
   type ScanResult
 } from "./types";
 
@@ -232,6 +233,37 @@ test("a plain-text keystroke leak reads as a calmer third-party type-ahead, not 
   assert.match(headline.subhead, /geocode\.arcgis\.com/);
 });
 
+test("a pixel that attached personal identifiers leads over the named-platform story", () => {
+  const result = makeResult({
+    firstPartyDomain: "shop.example",
+    domains: [makeTrackerDomain("facebook.net", 4, "Meta", "social / advertising pixel")],
+    thirdPartyRequests: 4,
+    thirdPartyDomains: 1,
+    pixelEvents: [
+      { platform: "Meta", product: "Meta Pixel", events: ["Purchase"], advancedMatching: ["email", "phone"], requests: 2 }
+    ]
+  });
+
+  const headline = buildReportHeadline(result);
+  assert.equal(headline.tone, "warn");
+  assert.match(headline.headline, /shop\.example sent personal identifiers to Meta Pixel\./);
+  assert.match(headline.subhead, /hashed personal identifiers \(email and phone\)/);
+});
+
+test("an event-only pixel does not trigger the identifier headline", () => {
+  const result = makeResult({
+    firstPartyDomain: "shop.example",
+    domains: [makeTrackerDomain("facebook.net", 4, "Meta", "social / advertising pixel")],
+    thirdPartyRequests: 4,
+    thirdPartyDomains: 1,
+    pixelEvents: [{ platform: "Meta", product: "Meta Pixel", events: ["PageView"], advancedMatching: [], requests: 1 }]
+  });
+
+  const headline = buildReportHeadline(result);
+  // No advanced matching, so it falls through to the named-platform line.
+  assert.match(headline.headline, /shop\.example told Meta you were here\./);
+});
+
 test("an HTTP error load is framed as a failed load, not as relatively private", () => {
   const result = makeResult({ firstPartyDomain: "blocked.example", status: 403, totalRequests: 1 });
 
@@ -269,6 +301,7 @@ type ResultOverrides = {
   thirdPartyCookies?: number;
   fingerprintEvents?: number;
   fingerprintDetections?: FingerprintDetectionSummary[];
+  pixelEvents?: PixelEventSummary[];
   status?: number | null;
 };
 
@@ -345,6 +378,7 @@ function makeResult(overrides: ResultOverrides = {}): ScanResult {
     storage: [],
     fingerprintEvents: [],
     fingerprintDetections: overrides.fingerprintDetections ?? [],
+    ...(overrides.pixelEvents ? { pixelEvents: overrides.pixelEvents } : {}),
     screenshot: null,
     warnings: []
   };

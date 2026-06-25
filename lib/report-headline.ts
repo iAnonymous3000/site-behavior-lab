@@ -4,6 +4,7 @@ import {
   highEntropyDetections,
   isOperationalEntity,
   keystrokeLeakObfuscated,
+  pixelFieldLabel,
   scanLoadFailureStatus,
   trackerEntitySummaries
 } from "./report-insights";
@@ -130,6 +131,23 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
           `${domain} sends what you type to ${recipientCount} as you type.`,
           `A unique value typed into a form on ${domain} was sent in plain text to ${recipients} as it was typed, typically search or autocomplete handled by a third party, not necessarily covert capture, but your keystrokes still leave the site.`
         );
+  }
+
+  // An ad pixel that attached hashed personal identifiers (advanced matching)
+  // ties this visit to a known person, a stronger story than mere presence, so
+  // it outranks the platform/comparison framings below. Event-only pixels carry
+  // no identifier and fall through to the named-platform line.
+  const pixelsWithMatching = (result.pixelEvents ?? []).filter((pixel) => pixel.advancedMatching.length > 0);
+  if (pixelsWithMatching.length > 0) {
+    const products = joinNames(pixelsWithMatching.map((pixel) => pixel.product));
+    const fields = joinNames(
+      Array.from(new Set(pixelsWithMatching.flatMap((pixel) => pixel.advancedMatching))).map(pixelFieldLabel)
+    );
+    return finish(
+      "warn",
+      `${domain} sent personal identifiers to ${products}.`,
+      `An advertising pixel on ${domain} attached hashed personal identifiers (${fields}) to the events it reported, which lets the platform tie this visit to a known person.${extraNote}`
+    );
   }
 
   if (isComparison(report) && report.comparisonType === "gpc") {
