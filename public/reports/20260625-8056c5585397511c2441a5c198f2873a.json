@@ -1,0 +1,1886 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.irs.gov/",
+  "scannedAt": "2026-06-25T18:48:39.903Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Internal Revenue Service | An official website of the United States government",
+      "status": 200,
+      "durationMs": 5548,
+      "firstPartyDomain": "www.irs.gov",
+      "totalRequests": 62,
+      "thirdPartyRequests": 23,
+      "knownTrackerRequests": 10,
+      "thirdPartyDomains": 7,
+      "cookies": 6,
+      "thirdPartyCookies": 0,
+      "storageEntries": 5,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 17
+    },
+    "conditions": {
+      "requestedUrl": "https://www.irs.gov/",
+      "finalUrl": "https://www.irs.gov/",
+      "scannedAt": "2026-06-25T18:48:34.351Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.irs.gov/",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 33,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.irs.gov/pub/css/css_fCX52JgsOBkfDzBDIvwCxpM_PMhuGZ73L0hF_7cOqtw.css",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 145,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.irs.gov/pub/css/css_T0W7b5U05-_iehyFvLRKKtlfdoFMMyLf8I2U-FU7ctY.css",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 146,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.irs.gov/pub/css/css_EbWGjClhsStXbsvwOq9iT6yGxHCg86ApUzr4bYwsoHk.css",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 147,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.irs.gov/pub/js/js_QTnUie3RM8GAqHmE9XdtT9AW-58ERrF_ClQgZ8ehuwI.js",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 147,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.irs.gov/modules/contrib/google_tag/js/gtag.js",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 148,
+        "blockedByShields": true
+      },
+      {
+        "id": 7,
+        "url": "https://www.irs.gov/modules/contrib/google_tag/js/gtm.js",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 148,
+        "blockedByShields": true
+      },
+      {
+        "id": 8,
+        "url": "https://www.irs.gov/themes/custom/pup_base/images/us_flag_small.png",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 148,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.irs.gov/themes/custom/pup_base/images/icon-dot-gov.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 149,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.irs.gov/themes/custom/pup_base/images/icon-https.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 212,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.irs.gov/themes/custom/pup_base/images/lock.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 213,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.irs.gov/themes/custom/pup_base/IRS-Logo.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 245,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.irs.gov/static_assets/js/libs/jquery.min.js",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 246,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.irs.gov/pub/js/js_HTB-DhdmmOflKVt5llYwKHjZt3EM0Zm8uSOVxeDKaMw.js",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 246,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.irs.gov/pub/js/js_Lh_9XUtDx9yUem8KmW4YoUomsnJrbO6KrkWU1RClqIk.js",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 246,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.irs.gov/themes/custom/pup_irs/images/logo-print.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 246,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.irs.gov/pub/image/freedom-250-logo.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 247,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.irs.gov/pub/image/circle-xmark.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 247,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.irs.gov/pub/image/circle-xmark-1.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 248,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.irs.gov/pub/image/hp-parents-baby.jpg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 248,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.irs.gov/pub/image/obba-7.jpg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 249,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.irs.gov/pub/image/hp-card-fy2027-objectives-report-to-congress.jpg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 249,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.irs.gov/pub/image/vita-recruit-hpsize.jpg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 249,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.irs.gov/pub/image/scamhomepage.jpg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 250,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.irs.gov/pub/image/flood-disaster-homepage.jpg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 250,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://static.addtoany.com/menu/page.js",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 250,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.irs.gov/pub/css/css_juMqqhZegJupGBzrmBqja3vIEefawLIZPVtHLZofWkA.css",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 250,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 252,
+        "blockedByShields": true
+      },
+      {
+        "id": 29,
+        "url": "https://www.irs.gov/themes/custom/pup_base/images/expand_more.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 285,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.irs.gov/themes/custom/pup_base/images/magnifying-glass.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 286,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.irs.gov/themes/custom/pup_irs/images/circle-check.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 286,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.irs.gov/themes/custom/pup_irs/images/icons/credit-card.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 286,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.irs.gov/themes/custom/pup_irs/images/icons/folder-open.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 286,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.irs.gov/themes/custom/pup_irs/images/icons/briefcase.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 287,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.irs.gov/themes/custom/pup_irs/images/icons/clock.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 287,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.irs.gov/themes/custom/pup_irs/images/icons/file-pen.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 287,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.irs.gov/themes/custom/pup_base/fonts/source-sans-pro/fonts/sourcesans3-regular.woff2",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 288,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.irs.gov/themes/custom/pup_base/fonts/source-sans-pro/fonts/sourcesans3-bold.woff2",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 289,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.irs.gov/themes/custom/pup_base/fonts/fontawesome-webfont.woff2",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 289,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.irs.gov/pub/image/woman-on-laptop.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 289,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://static.addtoany.com/menu/sm.25.html",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 421,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://static.addtoany.com/menu/modules/core.bycdb5qo.js",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 484,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.irs.gov/libraries/accesible-slick-carousel/ajax-loader.gif",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 485,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 561,
+        "blockedByShields": true
+      },
+      {
+        "id": 45,
+        "url": "https://resources.digital-cloud-gov.medallia.com/wdcgov/20103/onsite/embed.js",
+        "domain": "resources.digital-cloud-gov.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 562,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=",
+        "domain": "dap.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 562,
+        "blockedByShields": true
+      },
+      {
+        "id": 47,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dr=&sid=&sct=&seg=&dl=&dt=&en=&_fv=&_nsi=&_ss=&ep.page_entityId=&ep.page_entityLangcode=&ep.page_primaryCategory=&ep.page_canonical=&ep.page_entityVid=&ep.page_fragment=&ep.gtm_tag=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 731,
+        "blockedByShields": true
+      },
+      {
+        "id": 48,
+        "url": "https://dap.digitalgov.gov/web-vitals/dist/web-vitals.attribution.iife.js",
+        "domain": "dap.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 750,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 751,
+        "blockedByShields": true
+      },
+      {
+        "id": 50,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 751,
+        "blockedByShields": true
+      },
+      {
+        "id": 51,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_fv=&_ss=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 947,
+        "blockedByShields": true
+      },
+      {
+        "id": 52,
+        "url": "https://resources.digital-cloud-gov.medallia.com/wdcgov/20103/onsite/generic1781552508589.js",
+        "domain": "resources.digital-cloud-gov.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 981,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://resources.digital-cloud-gov.medallia.com/wdcgov/20103/onsite/onsiteData1781552508182.json",
+        "domain": "resources.digital-cloud-gov.medallia.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1055,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://analytics-fe.digital-cloud-gov.medallia.com/api/web/events",
+        "domain": "analytics-fe.digital-cloud-gov.medallia.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1150,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&_tu=&en=&_et=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4710,
+        "blockedByShields": true
+      },
+      {
+        "id": 56,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4713,
+        "blockedByShields": true
+      },
+      {
+        "id": 57,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4713,
+        "blockedByShields": true
+      },
+      {
+        "id": 58,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4714,
+        "blockedByShields": true
+      },
+      {
+        "id": 59,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4715,
+        "blockedByShields": true
+      },
+      {
+        "id": 60,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4715,
+        "blockedByShields": true
+      },
+      {
+        "id": 61,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&_tu=&en=&_et=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4715,
+        "blockedByShields": true
+      },
+      {
+        "id": 62,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4716,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "static.addtoany.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "resources.digital-cloud-gov.medallia.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "dap.digitalgov.gov",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics-fe.digital-cloud-gov.medallia.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.irs.gov",
+        "requests": 39,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "akaalb_DMAF_ALB_PROD",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_sz",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_ZY6FM95CS5",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_CSLL4ZEK4L",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "kampyleUserSessionsCount",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleSessionPageCounter",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyle_userid",
+        "valueBytes": 39
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleUserPercentile",
+        "valueBytes": 17
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleUserSession",
+        "valueBytes": 13
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "mousedown",
+            "touchstart",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://dap.digitalgov.gov",
+            "https://static.addtoany.com",
+            "https://www.googletagmanager.com"
+          ],
+          "totalListenerCalls": 16
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Internal Revenue Service | An official website of the United States government",
+      "status": 200,
+      "durationMs": 4526,
+      "firstPartyDomain": "www.irs.gov",
+      "totalRequests": 40,
+      "thirdPartyRequests": 3,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 3,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://www.irs.gov/",
+      "finalUrl": "https://www.irs.gov/",
+      "scannedAt": "2026-06-25T18:48:39.903Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.irs.gov/",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 34,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.irs.gov/pub/css/css_fCX52JgsOBkfDzBDIvwCxpM_PMhuGZ73L0hF_7cOqtw.css",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 139,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.irs.gov/pub/css/css_T0W7b5U05-_iehyFvLRKKtlfdoFMMyLf8I2U-FU7ctY.css",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 139,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.irs.gov/pub/css/css_EbWGjClhsStXbsvwOq9iT6yGxHCg86ApUzr4bYwsoHk.css",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 140,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.irs.gov/pub/js/js_QTnUie3RM8GAqHmE9XdtT9AW-58ERrF_ClQgZ8ehuwI.js",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 140,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.irs.gov/themes/custom/pup_base/images/us_flag_small.png",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 140,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.irs.gov/themes/custom/pup_base/images/icon-dot-gov.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 141,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.irs.gov/themes/custom/pup_base/images/icon-https.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 253,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.irs.gov/themes/custom/pup_base/images/lock.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 254,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.irs.gov/themes/custom/pup_base/IRS-Logo.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 257,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.irs.gov/static_assets/js/libs/jquery.min.js",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 258,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.irs.gov/pub/js/js_HTB-DhdmmOflKVt5llYwKHjZt3EM0Zm8uSOVxeDKaMw.js",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 259,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.irs.gov/pub/js/js_Lh_9XUtDx9yUem8KmW4YoUomsnJrbO6KrkWU1RClqIk.js",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 260,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.irs.gov/themes/custom/pup_irs/images/logo-print.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 260,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.irs.gov/pub/image/freedom-250-logo.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 260,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.irs.gov/pub/image/circle-xmark.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 261,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.irs.gov/pub/image/circle-xmark-1.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 261,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.irs.gov/pub/image/hp-parents-baby.jpg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 261,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.irs.gov/pub/image/obba-7.jpg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 263,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.irs.gov/pub/image/hp-card-fy2027-objectives-report-to-congress.jpg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 263,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.irs.gov/pub/image/vita-recruit-hpsize.jpg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 264,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.irs.gov/pub/image/scamhomepage.jpg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 264,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.irs.gov/pub/image/flood-disaster-homepage.jpg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 264,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://static.addtoany.com/menu/page.js",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 265,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.irs.gov/pub/css/css_juMqqhZegJupGBzrmBqja3vIEefawLIZPVtHLZofWkA.css",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 265,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.irs.gov/themes/custom/pup_base/images/expand_more.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 297,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.irs.gov/themes/custom/pup_base/images/magnifying-glass.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 297,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.irs.gov/themes/custom/pup_irs/images/circle-check.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 298,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.irs.gov/themes/custom/pup_irs/images/icons/credit-card.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 298,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.irs.gov/themes/custom/pup_irs/images/icons/folder-open.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 300,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.irs.gov/themes/custom/pup_irs/images/icons/briefcase.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 300,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.irs.gov/themes/custom/pup_irs/images/icons/clock.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 301,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.irs.gov/themes/custom/pup_irs/images/icons/file-pen.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 301,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.irs.gov/themes/custom/pup_base/fonts/source-sans-pro/fonts/sourcesans3-regular.woff2",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 301,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.irs.gov/themes/custom/pup_base/fonts/source-sans-pro/fonts/sourcesans3-bold.woff2",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 302,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.irs.gov/themes/custom/pup_base/fonts/fontawesome-webfont.woff2",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 302,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.irs.gov/pub/image/woman-on-laptop.svg",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 302,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://static.addtoany.com/menu/sm.25.html",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 437,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://static.addtoany.com/menu/modules/core.bycdb5qo.js",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 496,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.irs.gov/libraries/accesible-slick-carousel/ajax-loader.gif",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 497,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "static.addtoany.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "www.irs.gov",
+        "requests": 37,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "akaalb_DMAF_ALB_PROD",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_sz",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 62,
+      "after": 40,
+      "delta": -22
+    },
+    "thirdPartyRequests": {
+      "before": 23,
+      "after": 3,
+      "delta": -20
+    },
+    "knownTrackerRequests": {
+      "before": 10,
+      "after": 0,
+      "delta": -10
+    },
+    "thirdPartyDomains": {
+      "before": 7,
+      "after": 1,
+      "delta": -6
+    },
+    "cookies": {
+      "before": 6,
+      "after": 3,
+      "delta": -3
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 5,
+      "after": 0,
+      "delta": -5
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 6,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "resources.digital-cloud-gov.medallia.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "dap.digitalgov.gov",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "analytics-fe.digital-cloud-gov.medallia.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 10,
+        "domains": 2
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_ga",
+        "domain": ".irs.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_CSLL4ZEK4L",
+        "domain": ".irs.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_ZY6FM95CS5",
+        "domain": ".irs.gov",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "kampyle_userid"
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleSessionPageCounter"
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleUserPercentile"
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleUserSession"
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleUserSessionsCount"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 17,
+      "after": 2,
+      "delta": -15
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+  ],
+  "share": {
+    "id": "20260625-8056c5585397511c2441a5c198f2873a",
+    "path": "/reports/20260625-8056c5585397511c2441a5c198f2873a/",
+    "jsonPath": "/reports/20260625-8056c5585397511c2441a5c198f2873a.json"
+  }
+}

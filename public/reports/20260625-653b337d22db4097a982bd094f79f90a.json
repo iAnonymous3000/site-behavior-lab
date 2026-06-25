@@ -1,0 +1,4174 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.duolingo.com/",
+  "scannedAt": "2026-06-25T18:38:05.348Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Duolingo - The world’s most popular way to learn",
+      "status": 200,
+      "durationMs": 9260,
+      "firstPartyDomain": "www.duolingo.com",
+      "totalRequests": 140,
+      "thirdPartyRequests": 124,
+      "knownTrackerRequests": 4,
+      "thirdPartyDomains": 11,
+      "cookies": 14,
+      "thirdPartyCookies": 1,
+      "storageEntries": 3,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 18
+    },
+    "conditions": {
+      "requestedUrl": "https://www.duolingo.com/",
+      "finalUrl": "https://www.duolingo.com/",
+      "scannedAt": "2026-06-25T18:37:56.080Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.duolingo.com/",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 32,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://cdn.cookielaw.org/scripttemplates/otSDKStub.js",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 346,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/manifest-2ac3ee2b.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 346,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/9951-1ae9d7a9.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 347,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/app-cf8d2293.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 347,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://cdn.cookielaw.org/consent/55a7f100-001e-4085-87ec-1a6d522f7d67/55a7f100-001e-4085-87ec-1a6d522f7d67.json",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 484,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/features-91ec4487.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 489,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/8553-a0eeda7a.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 489,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/polyfills-4de5bd64.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 490,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/9819-b6aaae14.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 490,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/strings/en-e62e1c86.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 490,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/9951-b0cdd266.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 491,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/app-660a49d3.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 491,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.recaptcha.net/recaptcha/enterprise.js?render=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 491,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f2331bbfd902cdf8971c4d3184a44283.woff2",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 496,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/3bbe299f41d8289a47d91773fee0cb6a.woff2",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 496,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location",
+        "domain": "geolocation.onetrust.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 596,
+        "blockedByShields": true
+      },
+      {
+        "id": 18,
+        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/recaptcha__en.js",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 613,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/1118-605e4df6.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 983,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/1118-c366c462.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 985,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/2231-ee667168.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 985,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/2231-10476736.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 986,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/8186-605e4df6.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 986,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/8186-e313db8d.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 986,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/4800-10f90769.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 988,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/4800-307e38a3.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 988,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 993,
+        "blockedByShields": true
+      },
+      {
+        "id": 28,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/68d22534874c554b0c9ebabea379fc60.woff2",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 993,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/50bda50231c0bce1584e982cebfe8f33.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 993,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/aea5aff1143a9410b81448245ad7c839.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 993,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/71b01cd301b53ec9879f2d06eb85f5db.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 994,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/82f26795696242931a7b905b4918eb1e.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 994,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/e97b1cde32a58c629a0193eea36ddaab.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 995,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/17db14133432ce4e82a799e760bd3e0e.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 996,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/4a9f9204e7e5c1d3ed3b79b7b7af8568.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 996,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/c16e90b93e35750c893be4b58720cef2.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 997,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/c02b5f75d9ec48815e6a964f641a9fe2.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 997,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/904f242fe2ab5477e3b97928d3e1cb89.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 997,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/2c6db87220e7de95124c1a2882afd64f.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 998,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/d69c05e332d40f318009fefd85bfcd43.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 998,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/76f61a943cfc8aa61dd79aea33db7a62.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 998,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/98fa4e2fa26d365936333da24aba7e36.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 999,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/9b9c41cb3a201cad24a2f18f90f4d564.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 999,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/5314-33cb86aa.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 999,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/6706-5a0ff698.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1000,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/9078-363c7813.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1000,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/4265-03a131ad.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1001,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/9071-d035f2e5.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1001,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/938-41a16a7a.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1001,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/3284-f4471c38.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1002,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/7459-1decc858.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1002,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/7459-92b3a7b5.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1002,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://accounts.google.com/gsi/client",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1003,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://zombie.duolingo.com/0/web.json",
+        "domain": "zombie.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1003,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://www.duolingo.com/2023-05-23/tracking-status",
+        "domain": "www.duolingo.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1003,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://www.duolingo.com/2023-05-23/config",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1004,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://excess.duolingo.com/batch",
+        "domain": "excess.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1004,
+        "blockedByShields": true
+      },
+      {
+        "id": 58,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/f92d5f2f7d56636846861c458c0d0b6c.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1004,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/bbe17e16aa4a106032d8e3521eaed13e.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1004,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/59a90a2cedd48b751a8fd22014768fd7.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1005,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/482fda142ee4abd728ebf4ccce5d3307.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1005,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/c71db846ffab7e0a74bc6971e34ad82e.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1005,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/635a09df9323279d39934a991edd4510.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1006,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/27d253ae1272917fc9f4a79459aacd53.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1006,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/395c8a6ee9783610b578b02fda405e85.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1006,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/c8bad7c09aaf7bc29ddddc50808adb54.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1007,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/de945d789e249dcd74333a6996472ef8.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1007,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/edea4fa18ff3e7d8c0282de3f102aaed.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1014,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/9ab6930a263c981b57f9d578ac97cae7.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1015,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/828bf0fea457d3beaaab3d6c0bfcc975.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1015,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f773f1b240623072e48843ecdf90d756.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1015,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/6af84a7cb8e99ea8a567c2b9c55b9926.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1016,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/8db373482261397a3159d3f370eed2f3.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1016,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/6de7e4731b2a82a6458268e1a3d67ce4.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1017,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/b4d0e4f6451f504e1441eb93efdbea5e.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1017,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/ef0bfb96037b127473bd7bcbfde1a6ed.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1017,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/09eba3135efe8fe93a4662dba813b921.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1018,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f818f545a703ddaa046ca8786e781742.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1018,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/73837fa39dbf1bcc4c95a17a58ed0ffb.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1018,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/8cb302b44c183c1a8ec3b90caf90d922.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1019,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/2ed8d0a73eab3c9cba0290e2b459684a.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1019,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/2880099b038848abbfd11104097953ad.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1019,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/312e21f793c555787d01a45e20ee8191.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1020,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/339c0413e542f19b234971d7740447e7.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1020,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/ec5835ac9f465ff3dad4b1b8725d4314.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1021,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f7cee6cc09270371b097129faf792c2a.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1021,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/90b37d97edc66e830dc2286279548f67.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1021,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/bbc8ad0cfe2596d5193376ebdc3e969c.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1022,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f095084e6ec400e631d62c3d95fefaa2.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1022,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/357e13bb10cf86fc06552d563957e2e6.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1022,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/eadd7804652170c33814a89482f1f353.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1022,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f578430c9b7ab617c107893afbb501c0.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1023,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/335311988405b4354e1b6ae9037c02db.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1023,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/76d654213a8282b0ebc25b4f535ee003.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1023,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/bc80a9518cd6d5af6ae14e8b22b8a1f4.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1023,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/7c6e12bc57527843082f7f5bb77c9862.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1024,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/2b077d42185bc45d4896ed55f15c4fea.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1024,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/55bad151fa6a8d9e2376fc9697c671c8.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1024,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/9905aa3a86fcb9e351b0b3bfaf04d8b9.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1025,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/112e1531d0ac198a9424bd1b0a7166e6.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1025,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/23ab11cb1e1a9aff54facdf57833373d.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1025,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/08ec8d0260c55c054e1b97bcbc96ea0f.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1026,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/833a22b2834050d139f266a29899bb00.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1026,
+        "blockedByShields": false
+      },
+      {
+        "id": 104,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/9d3c2c99dd19996319a372f79b2ed3c1.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1026,
+        "blockedByShields": false
+      },
+      {
+        "id": 105,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/229d5f88cc9df2eb0b68f39466500911.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1026,
+        "blockedByShields": false
+      },
+      {
+        "id": 106,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/22fce01f6df43e0472d7585afad9a43a.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1027,
+        "blockedByShields": false
+      },
+      {
+        "id": 107,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/3a733db6d6873e1a915f70cf72554ce3.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1027,
+        "blockedByShields": false
+      },
+      {
+        "id": 108,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/a50e95b2b4e8c91d610b9c7318389c1e.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1027,
+        "blockedByShields": false
+      },
+      {
+        "id": 109,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/9f63957bf97d10730813cbb715a0baa0.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1027,
+        "blockedByShields": false
+      },
+      {
+        "id": 110,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/268877aef1bcca8a53f24b746483346c.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1038,
+        "blockedByShields": false
+      },
+      {
+        "id": 111,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/890eb76de9a395b182c1c28322721405.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1039,
+        "blockedByShields": false
+      },
+      {
+        "id": 112,
+        "url": "https://excess.duolingo.com/batch",
+        "domain": "excess.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1039,
+        "blockedByShields": true
+      },
+      {
+        "id": 113,
+        "url": "https://excess.duolingo.com/batch",
+        "domain": "excess.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1040,
+        "blockedByShields": true
+      },
+      {
+        "id": 114,
+        "url": "https://www.duolingo.com/api/1/courses/list",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1040,
+        "blockedByShields": false
+      },
+      {
+        "id": 115,
+        "url": "https://excess.duolingo.com/batch",
+        "domain": "excess.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1040,
+        "blockedByShields": true
+      },
+      {
+        "id": 116,
+        "url": "https://excess.duolingo.com/batch",
+        "domain": "excess.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1040,
+        "blockedByShields": true
+      },
+      {
+        "id": 117,
+        "url": "https://excess.duolingo.com/batch",
+        "domain": "excess.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1040,
+        "blockedByShields": true
+      },
+      {
+        "id": 118,
+        "url": "https://excess.duolingo.com/batch",
+        "domain": "excess.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1040,
+        "blockedByShields": true
+      },
+      {
+        "id": 119,
+        "url": "https://www.duolingo.com/users/undefined/streak-goal-current",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1040,
+        "blockedByShields": false
+      },
+      {
+        "id": 120,
+        "url": "https://www.duolingo.com/users/undefined/streak-goal-next-options",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1041,
+        "blockedByShields": false
+      },
+      {
+        "id": 121,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/c6eae48dd48246c89e415b89f9e55282.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1041,
+        "blockedByShields": false
+      },
+      {
+        "id": 122,
+        "url": "https://cdn.cookielaw.org/scripttemplates/202404.1.0/otBannerSdk.js",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1042,
+        "blockedByShields": true
+      },
+      {
+        "id": 123,
+        "url": "https://www.recaptcha.net/recaptcha/enterprise/anchor?ar=&k=&co=&hl=&v=&size=&anchor-ms=&execute-ms=&cb=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1141,
+        "blockedByShields": false
+      },
+      {
+        "id": 124,
+        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/styles__ltr.css",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1436,
+        "blockedByShields": false
+      },
+      {
+        "id": 125,
+        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/recaptcha__en.js",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1437,
+        "blockedByShields": false
+      },
+      {
+        "id": 126,
+        "url": "https://excess.duolingo.com/batch",
+        "domain": "excess.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1577,
+        "blockedByShields": true
+      },
+      {
+        "id": 127,
+        "url": "https://www.recaptcha.net/recaptcha/enterprise/webworker.js?hl=&v=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1709,
+        "blockedByShields": false
+      },
+      {
+        "id": 128,
+        "url": "https://www.gstatic.com/recaptcha/api2/logo_48.png",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1719,
+        "blockedByShields": false
+      },
+      {
+        "id": 129,
+        "url": "https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1720,
+        "blockedByShields": false
+      },
+      {
+        "id": 130,
+        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/recaptcha__en.js",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1762,
+        "blockedByShields": false
+      },
+      {
+        "id": 131,
+        "url": "https://cdn.cookielaw.org/consent/55a7f100-001e-4085-87ec-1a6d522f7d67/018f30d2-10c8-771e-8439-98a6c95838b2/en.json",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1983,
+        "blockedByShields": false
+      },
+      {
+        "id": 132,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2069,
+        "blockedByShields": true
+      },
+      {
+        "id": 133,
+        "url": "https://cdn.cookielaw.org/scripttemplates/202404.1.0/assets/otCommonStyles.css",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2096,
+        "blockedByShields": false
+      },
+      {
+        "id": 134,
+        "url": "https://excess.duolingo.com/batch",
+        "domain": "excess.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2226,
+        "blockedByShields": true
+      },
+      {
+        "id": 135,
+        "url": "https://ad.doubleclick.net/ccm/s/collect?auid=&gtm=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2366,
+        "blockedByShields": true
+      },
+      {
+        "id": 136,
+        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/728842606/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2367,
+        "blockedByShields": true
+      },
+      {
+        "id": 137,
+        "url": "https://www.google.com/rmkt/collect/728842606/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&gcp=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2367,
+        "blockedByShields": true
+      },
+      {
+        "id": 138,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2367,
+        "blockedByShields": true
+      },
+      {
+        "id": 139,
+        "url": "https://www.google.com/pagead/1p-user-list/728842606/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2452,
+        "blockedByShields": true
+      },
+      {
+        "id": 140,
+        "url": "https://accounts.google.com/gsi/style",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2491,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "requests": 100,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "font",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "image",
+          "other"
+        ]
+      },
+      {
+        "domain": "www.recaptcha.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "accounts.google.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "geolocation.onetrust.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "excess.duolingo.com",
+        "requests": 9,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.duolingo.com",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          404
+        ],
+        "resourceTypes": [
+          "document",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "zombie.duolingo.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          404
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "logged_out_uuid",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "lang",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tsl",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "lu",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "initial_referrer",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "lr",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "lp",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "wuuid",
+        "domain": "www.duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALB",
+        "domain": "www.duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALBCORS",
+        "domain": "www.duolingo.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "g_state",
+        "domain": "www.duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls",
+        "valueBytes": 277
+      },
+      {
+        "area": "localStorage",
+        "key": "duo.loggedOutExperiments",
+        "valueBytes": 79
+      },
+      {
+        "area": "localStorage",
+        "key": "duo.state",
+        "valueBytes": 2554
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://d35aaqx5ub95lt.cloudfront.net",
+            "https://www.googletagmanager.com",
+            "https://www.gstatic.com"
+          ],
+          "totalListenerCalls": 34
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "documentElement",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.cookielaw.org",
+            "https://d35aaqx5ub95lt.cloudfront.net",
+            "https://www.googletagmanager.com",
+            "https://www.gstatic.com"
+          ],
+          "totalListenerCalls": 88
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "The page did not reach network idle before the scan window ended."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Duolingo - The world’s most popular way to learn",
+      "status": 200,
+      "durationMs": 9118,
+      "firstPartyDomain": "www.duolingo.com",
+      "totalRequests": 120,
+      "thirdPartyRequests": 113,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 6,
+      "cookies": 11,
+      "thirdPartyCookies": 0,
+      "storageEntries": 2,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 27
+    },
+    "conditions": {
+      "requestedUrl": "https://www.duolingo.com/",
+      "finalUrl": "https://www.duolingo.com/",
+      "scannedAt": "2026-06-25T18:38:05.348Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.duolingo.com/",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 38,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://cdn.cookielaw.org/scripttemplates/otSDKStub.js",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 308,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/manifest-2ac3ee2b.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 308,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/9951-1ae9d7a9.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 309,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/app-cf8d2293.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 309,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/features-91ec4487.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 397,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/8553-a0eeda7a.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 406,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://cdn.cookielaw.org/consent/55a7f100-001e-4085-87ec-1a6d522f7d67/55a7f100-001e-4085-87ec-1a6d522f7d67.json",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 410,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/polyfills-4de5bd64.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 414,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/9819-b6aaae14.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 414,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/strings/en-e62e1c86.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 415,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/9951-b0cdd266.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 415,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/app-660a49d3.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 416,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.recaptcha.net/recaptcha/enterprise.js?render=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 416,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f2331bbfd902cdf8971c4d3184a44283.woff2",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 419,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/3bbe299f41d8289a47d91773fee0cb6a.woff2",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 420,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/recaptcha__en.js",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 504,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/1118-605e4df6.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 896,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/1118-c366c462.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 897,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/2231-ee667168.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 898,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/2231-10476736.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 898,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/8186-605e4df6.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 899,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/8186-e313db8d.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 899,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/4800-10f90769.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 899,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/4800-307e38a3.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 900,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/68d22534874c554b0c9ebabea379fc60.woff2",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 900,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/50bda50231c0bce1584e982cebfe8f33.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 900,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/aea5aff1143a9410b81448245ad7c839.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 901,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/71b01cd301b53ec9879f2d06eb85f5db.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 901,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/82f26795696242931a7b905b4918eb1e.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 901,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/e97b1cde32a58c629a0193eea36ddaab.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 904,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/17db14133432ce4e82a799e760bd3e0e.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 905,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/4a9f9204e7e5c1d3ed3b79b7b7af8568.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 905,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/c16e90b93e35750c893be4b58720cef2.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 906,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/c02b5f75d9ec48815e6a964f641a9fe2.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 906,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/904f242fe2ab5477e3b97928d3e1cb89.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 906,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/2c6db87220e7de95124c1a2882afd64f.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 907,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/d69c05e332d40f318009fefd85bfcd43.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 907,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/76f61a943cfc8aa61dd79aea33db7a62.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 908,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/98fa4e2fa26d365936333da24aba7e36.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 917,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/9b9c41cb3a201cad24a2f18f90f4d564.json",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 917,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/5314-33cb86aa.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 918,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/6706-5a0ff698.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 918,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/9078-363c7813.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 919,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/4265-03a131ad.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 919,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/9071-d035f2e5.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 920,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/938-41a16a7a.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 920,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/3284-f4471c38.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 920,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/7459-1decc858.css",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 921,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/7459-92b3a7b5.js",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 921,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://accounts.google.com/gsi/client",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 922,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://zombie.duolingo.com/0/web.json",
+        "domain": "zombie.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 922,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://www.duolingo.com/2023-05-23/tracking-status",
+        "domain": "www.duolingo.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 922,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://www.duolingo.com/2023-05-23/config",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 922,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/f92d5f2f7d56636846861c458c0d0b6c.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 923,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/bbe17e16aa4a106032d8e3521eaed13e.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 923,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/59a90a2cedd48b751a8fd22014768fd7.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 924,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/482fda142ee4abd728ebf4ccce5d3307.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 924,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/c71db846ffab7e0a74bc6971e34ad82e.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 925,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/635a09df9323279d39934a991edd4510.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 925,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/27d253ae1272917fc9f4a79459aacd53.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 926,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/395c8a6ee9783610b578b02fda405e85.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 926,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/c8bad7c09aaf7bc29ddddc50808adb54.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 927,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/de945d789e249dcd74333a6996472ef8.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 927,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/edea4fa18ff3e7d8c0282de3f102aaed.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 927,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/9ab6930a263c981b57f9d578ac97cae7.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 928,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/828bf0fea457d3beaaab3d6c0bfcc975.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 928,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f773f1b240623072e48843ecdf90d756.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 928,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/6af84a7cb8e99ea8a567c2b9c55b9926.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 929,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/8db373482261397a3159d3f370eed2f3.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 929,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/6de7e4731b2a82a6458268e1a3d67ce4.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 930,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/b4d0e4f6451f504e1441eb93efdbea5e.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 930,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/ef0bfb96037b127473bd7bcbfde1a6ed.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 931,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/09eba3135efe8fe93a4662dba813b921.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 931,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f818f545a703ddaa046ca8786e781742.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 932,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/73837fa39dbf1bcc4c95a17a58ed0ffb.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 934,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/8cb302b44c183c1a8ec3b90caf90d922.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 935,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/2ed8d0a73eab3c9cba0290e2b459684a.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 935,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/2880099b038848abbfd11104097953ad.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 936,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/312e21f793c555787d01a45e20ee8191.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 936,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/339c0413e542f19b234971d7740447e7.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 937,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/ec5835ac9f465ff3dad4b1b8725d4314.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 937,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f7cee6cc09270371b097129faf792c2a.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 937,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/90b37d97edc66e830dc2286279548f67.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 938,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/bbc8ad0cfe2596d5193376ebdc3e969c.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 938,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f095084e6ec400e631d62c3d95fefaa2.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 939,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/357e13bb10cf86fc06552d563957e2e6.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 939,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/eadd7804652170c33814a89482f1f353.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 939,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f578430c9b7ab617c107893afbb501c0.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 940,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/335311988405b4354e1b6ae9037c02db.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 940,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/76d654213a8282b0ebc25b4f535ee003.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 941,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/bc80a9518cd6d5af6ae14e8b22b8a1f4.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 960,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/7c6e12bc57527843082f7f5bb77c9862.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 960,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/2b077d42185bc45d4896ed55f15c4fea.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 961,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/55bad151fa6a8d9e2376fc9697c671c8.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 961,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/9905aa3a86fcb9e351b0b3bfaf04d8b9.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 962,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/112e1531d0ac198a9424bd1b0a7166e6.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 962,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/23ab11cb1e1a9aff54facdf57833373d.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 963,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/08ec8d0260c55c054e1b97bcbc96ea0f.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 963,
+        "blockedByShields": false
+      },
+      {
+        "id": 104,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/833a22b2834050d139f266a29899bb00.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 963,
+        "blockedByShields": false
+      },
+      {
+        "id": 105,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/9d3c2c99dd19996319a372f79b2ed3c1.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 964,
+        "blockedByShields": false
+      },
+      {
+        "id": 106,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/229d5f88cc9df2eb0b68f39466500911.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 964,
+        "blockedByShields": false
+      },
+      {
+        "id": 107,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/22fce01f6df43e0472d7585afad9a43a.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 965,
+        "blockedByShields": false
+      },
+      {
+        "id": 108,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/3a733db6d6873e1a915f70cf72554ce3.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 965,
+        "blockedByShields": false
+      },
+      {
+        "id": 109,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/a50e95b2b4e8c91d610b9c7318389c1e.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 965,
+        "blockedByShields": false
+      },
+      {
+        "id": 110,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/9f63957bf97d10730813cbb715a0baa0.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 966,
+        "blockedByShields": false
+      },
+      {
+        "id": 111,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/268877aef1bcca8a53f24b746483346c.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 966,
+        "blockedByShields": false
+      },
+      {
+        "id": 112,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/890eb76de9a395b182c1c28322721405.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 967,
+        "blockedByShields": false
+      },
+      {
+        "id": 115,
+        "url": "https://www.duolingo.com/api/1/courses/list",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 968,
+        "blockedByShields": false
+      },
+      {
+        "id": 120,
+        "url": "https://www.duolingo.com/users/undefined/streak-goal-current",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 969,
+        "blockedByShields": false
+      },
+      {
+        "id": 121,
+        "url": "https://www.duolingo.com/users/undefined/streak-goal-next-options",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 970,
+        "blockedByShields": false
+      },
+      {
+        "id": 122,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/c6eae48dd48246c89e415b89f9e55282.svg",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 971,
+        "blockedByShields": false
+      },
+      {
+        "id": 123,
+        "url": "https://www.recaptcha.net/recaptcha/enterprise/anchor?ar=&k=&co=&hl=&v=&size=&anchor-ms=&execute-ms=&cb=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1069,
+        "blockedByShields": false
+      },
+      {
+        "id": 124,
+        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/styles__ltr.css",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1331,
+        "blockedByShields": false
+      },
+      {
+        "id": 125,
+        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/recaptcha__en.js",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1332,
+        "blockedByShields": false
+      },
+      {
+        "id": 127,
+        "url": "https://www.recaptcha.net/recaptcha/enterprise/webworker.js?hl=&v=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1599,
+        "blockedByShields": false
+      },
+      {
+        "id": 128,
+        "url": "https://www.gstatic.com/recaptcha/api2/logo_48.png",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1610,
+        "blockedByShields": false
+      },
+      {
+        "id": 129,
+        "url": "https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1610,
+        "blockedByShields": false
+      },
+      {
+        "id": 130,
+        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/recaptcha__en.js",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1652,
+        "blockedByShields": false
+      },
+      {
+        "id": 131,
+        "url": "https://accounts.google.com/gsi/style",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1883,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "requests": 100,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "font",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "image",
+          "other"
+        ]
+      },
+      {
+        "domain": "www.recaptcha.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "accounts.google.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "www.duolingo.com",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          404
+        ],
+        "resourceTypes": [
+          "document",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "zombie.duolingo.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          404
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "logged_out_uuid",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "lang",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tsl",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "lu",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "initial_referrer",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "lr",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "lp",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "wuuid",
+        "domain": "www.duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALB",
+        "domain": "www.duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALBCORS",
+        "domain": "www.duolingo.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "g_state",
+        "domain": "www.duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "duo.loggedOutExperiments",
+        "valueBytes": 76
+      },
+      {
+        "area": "localStorage",
+        "key": "duo.state",
+        "valueBytes": 2554
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://d35aaqx5ub95lt.cloudfront.net",
+            "https://www.gstatic.com"
+          ],
+          "totalListenerCalls": 33
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://d35aaqx5ub95lt.cloudfront.net",
+            "https://www.gstatic.com"
+          ],
+          "totalListenerCalls": 84
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "The page did not reach network idle before the scan window ended."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 140,
+      "after": 120,
+      "delta": -20
+    },
+    "thirdPartyRequests": {
+      "before": 124,
+      "after": 113,
+      "delta": -11
+    },
+    "knownTrackerRequests": {
+      "before": 4,
+      "after": 0,
+      "delta": -4
+    },
+    "thirdPartyDomains": {
+      "before": 11,
+      "after": 6,
+      "delta": -5
+    },
+    "cookies": {
+      "before": 14,
+      "after": 11,
+      "delta": -3
+    },
+    "thirdPartyCookies": {
+      "before": 1,
+      "after": 0,
+      "delta": -1
+    },
+    "storageEntries": {
+      "before": 3,
+      "after": 2,
+      "delta": -1
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "excess.duolingo.com",
+        "requests": 9,
+        "tracker": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "geolocation.onetrust.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 4,
+        "domains": 3
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".duolingo.com",
+        "thirdParty": false
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".duolingo.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 18,
+      "after": 27,
+      "delta": 9
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: The page did not reach network idle before the scan window ended.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: The page did not reach network idle before the scan window ended."
+  ],
+  "share": {
+    "id": "20260625-653b337d22db4097a982bd094f79f90a",
+    "path": "/reports/20260625-653b337d22db4097a982bd094f79f90a/",
+    "jsonPath": "/reports/20260625-653b337d22db4097a982bd094f79f90a.json"
+  }
+}
