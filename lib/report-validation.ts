@@ -33,6 +33,8 @@ function isSingleScanResult(value: unknown): value is ScanResult {
       (Array.isArray(value.fingerprintDetections) && value.fingerprintDetections.every(isFingerprintDetectionSummary))) &&
     (value.cnameCloaks === undefined ||
       (Array.isArray(value.cnameCloaks) && value.cnameCloaks.every(isCnameCloak))) &&
+    (value.pixelEvents === undefined ||
+      (Array.isArray(value.pixelEvents) && value.pixelEvents.every(isPixelEventSummary))) &&
     (value.screenshot === null || typeof value.screenshot === "string") &&
     Array.isArray(value.warnings) &&
     (value.share === undefined || isReportShare(value.share))
@@ -74,6 +76,21 @@ function isCnameCloak(value: unknown): boolean {
     typeof value.tracker.domain === "string" &&
     typeof value.tracker.entity === "string" &&
     typeof value.tracker.category === "string"
+  );
+}
+
+const PIXEL_MATCH_FIELDS = new Set(["email", "phone", "name", "address", "date_of_birth", "gender", "external_id"]);
+
+function isPixelEventSummary(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    typeof value.platform === "string" &&
+    typeof value.product === "string" &&
+    typeof value.requests === "number" &&
+    Array.isArray(value.events) &&
+    value.events.every((event) => typeof event === "string") &&
+    Array.isArray(value.advancedMatching) &&
+    value.advancedMatching.every((field) => typeof field === "string" && PIXEL_MATCH_FIELDS.has(field))
   );
 }
 

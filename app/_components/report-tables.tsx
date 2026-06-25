@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar } from "lucide-react";
 import { requestProvenanceSearchText, requestProvenanceSummary } from "@/lib/report-findings";
-import { detectionEvidence, detectionLabel, fingerprintDetections } from "@/lib/report-insights";
+import { detectionEvidence, detectionLabel, fingerprintDetections, pixelFieldLabel } from "@/lib/report-insights";
 import type { CookieRecord, DomainSummary, NetworkRequestRecord, ScanResult } from "@/lib/types";
 
 function Warnings({ warnings }: { warnings: string[] }) {
@@ -348,4 +348,35 @@ function FingerprintList({ result }: { result: ScanResult }) {
   );
 }
 
-export { CookieList, DomainTable, FingerprintList, RequestTable, StorageList, TopThirdParties, Warnings };
+function PixelEventsList({ result }: { result: ScanResult }) {
+  const pixels = result.pixelEvents ?? [];
+  if (pixels.length === 0) {
+    return <p className="muted">No advertising-pixel events were decoded in this visit.</p>;
+  }
+
+  return (
+    <div className="compact-list">
+      {pixels.map((pixel) => {
+        const events = pixel.events.length > 0 ? pixel.events.join(", ") : "no named event";
+        const identifiers =
+          pixel.advancedMatching.length > 0
+            ? ` · identifiers: ${pixel.advancedMatching.map(pixelFieldLabel).join(", ")}`
+            : "";
+        return (
+          <div key={pixel.platform}>
+            <Radar className={pixel.advancedMatching.length > 0 ? "ico-warn" : "ico-neutral"} size={14} aria-hidden="true" />
+            <span>
+              {pixel.product}
+              <small>
+                {events}
+                {identifiers} · {pixel.requests} {pixel.requests === 1 ? "request" : "requests"}
+              </small>
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export { CookieList, DomainTable, FingerprintList, PixelEventsList, RequestTable, StorageList, TopThirdParties, Warnings };

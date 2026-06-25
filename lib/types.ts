@@ -41,6 +41,35 @@ export type CnameCloak = {
   tracker: TrackerMatch;
 };
 
+/**
+ * A personal-data category an advertising pixel attached to its events
+ * ("advanced matching" in Meta's terms). Detected by parameter-key presence
+ * only: the scanner never reads, decodes, or stores the (usually hashed) value.
+ */
+export type PixelMatchField = "email" | "phone" | "name" | "address" | "date_of_birth" | "gender" | "external_id";
+
+/**
+ * Pixel-level event analysis for one advertising platform observed in a visit.
+ *
+ * Goes beyond catalogue presence ("a Meta pixel loaded") to the events the pixel
+ * actually fired (PageView, Purchase, ...) and whether it carried personal
+ * identifiers. Event names are site configuration, not visitor PII, so they are
+ * stored verbatim; identifier categories are stored as field labels only, never
+ * values.
+ */
+export type PixelEventSummary = {
+  /** Catalogue entity name (e.g. "Meta"), aligned with HEADLINE_PLATFORMS. */
+  platform: string;
+  /** Human-facing pixel product name (e.g. "Meta Pixel"). */
+  product: string;
+  /** Event names observed (configuration signals, never visitor PII). */
+  events: string[];
+  /** Personal-data categories attached, detected by key presence only. */
+  advancedMatching: PixelMatchField[];
+  /** Pixel requests observed for this platform in this visit. */
+  requests: number;
+};
+
 export type NetworkRequestRecord = {
   id: number;
   url: string;
@@ -283,6 +312,7 @@ export type ScanResult = {
   fingerprintEvents: FingerprintEventSummary[];
   fingerprintDetections?: FingerprintDetectionSummary[];
   cnameCloaks?: CnameCloak[];
+  pixelEvents?: PixelEventSummary[];
   screenshot: string | null;
   warnings: string[];
   share?: ReportShare;

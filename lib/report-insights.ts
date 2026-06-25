@@ -1,5 +1,5 @@
 import { humanList, plural } from "./text-format";
-import type { FingerprintDetectionSummary, ScanResult } from "./types";
+import type { FingerprintDetectionSummary, PixelEventSummary, PixelMatchField, ScanResult } from "./types";
 
 /**
  * Shared tracker/fingerprint classification derived from a {@link ScanResult}.
@@ -194,4 +194,32 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
  */
 export function keystrokeLeakObfuscated(encodings: string[]): boolean {
   return encodings.some((encoding) => encoding !== "plain");
+}
+
+const PIXEL_FIELD_LABELS: Record<PixelMatchField, string> = {
+  email: "email",
+  phone: "phone",
+  name: "name",
+  address: "postal address",
+  date_of_birth: "date of birth",
+  gender: "gender",
+  external_id: "external ID"
+};
+
+/** Human label for an advanced-matching identifier category. */
+export function pixelFieldLabel(field: PixelMatchField): string {
+  return PIXEL_FIELD_LABELS[field] ?? field;
+}
+
+/** Pixel-level events observed (safe on legacy reports without the field). */
+export function pixelEventSummaries(result: ScanResult): PixelEventSummary[] {
+  return result.pixelEvents ?? [];
+}
+
+/** One-line evidence summary for a platform's decoded pixel activity. */
+export function pixelEventEvidence(pixel: PixelEventSummary): string {
+  const events = pixel.events.length > 0 ? humanList(pixel.events, 5) : "no named event";
+  const identifiers =
+    pixel.advancedMatching.length > 0 ? `; identifiers ${humanList(pixel.advancedMatching.map(pixelFieldLabel))}` : "";
+  return `${pixel.product}: ${events}${identifiers} (${plural(pixel.requests, "request")})`;
 }

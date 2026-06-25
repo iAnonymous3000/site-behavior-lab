@@ -8,6 +8,7 @@ import type {
   FingerprintDetectionSummary,
   FingerprintEventSummary,
   NetworkRequestRecord,
+  PixelEventSummary,
   ScanAutomation,
   ScanConditions,
   ScanResult,
@@ -26,6 +27,7 @@ export type BuildScanResultInput = {
   fingerprintDetections?: FingerprintDetectionSummary[];
   fingerprintEvents: FingerprintEventSummary[];
   cnameCloaks?: CnameCloak[];
+  pixelEvents?: PixelEventSummary[];
   screenshot: string | null;
   warnings: string[];
   shieldsBlockedRequests?: number;
@@ -241,6 +243,9 @@ export function buildScanResult(input: BuildScanResultInput): ScanResult {
   // Only attach when there is something to report, so clean visits stay clean.
   if (input.cnameCloaks && input.cnameCloaks.length > 0) {
     result.cnameCloaks = input.cnameCloaks;
+  }
+  if (input.pixelEvents && input.pixelEvents.length > 0) {
+    result.pixelEvents = input.pixelEvents;
   }
 
   return result;

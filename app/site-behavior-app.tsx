@@ -38,6 +38,7 @@ import {
   CookieList,
   DomainTable,
   FingerprintList,
+  PixelEventsList,
   RequestTable,
   StorageList,
   TopThirdParties,
@@ -754,6 +755,13 @@ export function SiteBehaviorApp({
                   <h2>Top Third Parties</h2>
                   <TopThirdParties domains={primaryResult.domains} />
                 </section>
+
+                {primaryResult.pixelEvents && primaryResult.pixelEvents.length > 0 && (
+                  <section className="side-card">
+                    <h2>Advertising Pixels</h2>
+                    <PixelEventsList result={primaryResult} />
+                  </section>
+                )}
 
                 <section className="side-card">
                   <h2>Cookies</h2>

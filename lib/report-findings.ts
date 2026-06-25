@@ -24,6 +24,9 @@ import {
   highEntropyDetections as highEntropyFingerprintDetections,
   isOperationalEntity,
   keystrokeLeakObfuscated,
+  pixelEventEvidence,
+  pixelEventSummaries,
+  pixelFieldLabel,
   scanLoadFailureStatus,
   trackerEntitySummaries
 } from "./report-insights";
@@ -260,6 +263,32 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
         ? `${plural(headlineRequests, "request")} to these platforms.`
         : `${plural(result.summary.thirdPartyDomains, "third-party domain")} seen overall.`
   });
+
+  const pixelEvents = pixelEventSummaries(result);
+  if (pixelEvents.length > 0) {
+    const pixelsWithMatching = pixelEvents.filter((pixel) => pixel.advancedMatching.length > 0);
+    const matchingFields = Array.from(new Set(pixelsWithMatching.flatMap((pixel) => pixel.advancedMatching))).map(pixelFieldLabel);
+    findings.push({
+      id: "pixel-events",
+      icon: "radar",
+      level: pixelsWithMatching.length > 0 ? "warn" : "info",
+      title:
+        pixelsWithMatching.length > 0
+          ? "Advertising pixels attached personal identifiers"
+          : "Advertising pixels reported specific events",
+      lead:
+        pixelsWithMatching.length > 0
+          ? `${humanList(pixelsWithMatching.map((pixel) => pixel.product))} sent hashed personal identifiers (${humanList(
+              matchingFields
+            )}) alongside the events fired in this visit.`
+          : `${humanList(pixelEvents.map((pixel) => pixel.product))} reported specific named events, not just their presence, during this visit.`,
+      detail:
+        pixelsWithMatching.length > 0
+          ? "Beyond detecting that a pixel is present, this reads each pixel request's event type and whether it carries advanced-matching parameters that identify you, typically a hashed email or phone, which let the platform tie this visit to a known person. The scanner records only which identifier fields were present, never their values."
+          : "This reads each pixel request's event type (such as PageView, ViewContent, or Purchase), not just that the pixel loaded. No advanced-matching identifier fields were observed in this passive visit; interaction-gated events could still carry them for real users.",
+      evidence: humanList(pixelEvents.map(pixelEventEvidence), 4)
+    });
+  }
 
   if (result.conditions.automation === "brave-pagegraph") {
     findings.push({

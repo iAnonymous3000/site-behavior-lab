@@ -24,6 +24,7 @@ import {
   sentinelEncodings,
   type CapturedRequest
 } from "./keystroke-exfiltration";
+import { summarizePixelEvents, type PixelEventInput } from "./pixel-events";
 import { isThirdParty, partyKey } from "./domain-utils";
 import { resolveCnameCloaks, type CnameChainResolver } from "./cname-uncloaking";
 import type { CnameCloak, NetworkRequestRecord, TrackerMatch } from "./types";
@@ -272,10 +273,20 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       ? [...fingerprintObservations.detections, keystrokeDetection]
       : fingerprintObservations.detections;
 
-    const publicRequests = networkRecorder.publicRecords(finalParsed.hostname, (record, request) => ({
-      ...record,
-      blockedByShields: adblockEngine ? adblockEngine.check(request.url(), finalUrl, mapRequestType(record.resourceType)) : undefined
-    }));
+    // Decode pixel-level events from the raw (pre-redaction) request and POST
+    // body while it is still available here; the public record's URL is scrubbed.
+    // Event names are kept; identifier values are detected by key presence only.
+    const pixelEventInputs: PixelEventInput[] = [];
+    const publicRequests = networkRecorder.publicRecords(finalParsed.hostname, (record, request) => {
+      if (record.thirdParty) {
+        pixelEventInputs.push({ url: request.url(), method: record.method, postData: safeRequestPostData(request) });
+      }
+      return {
+        ...record,
+        blockedByShields: adblockEngine ? adblockEngine.check(request.url(), finalUrl, mapRequestType(record.resourceType)) : undefined
+      };
+    });
+    const pixelEvents = summarizePixelEvents(pixelEventInputs);
 
     // Un-hide CNAME-cloaked trackers: first-party subdomains that are DNS aliases
     // for a known tracker. The oracle is the curated catalog (named) first, then
@@ -344,6 +355,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       fingerprintDetections,
       fingerprintEvents: fingerprintObservations.events,
       cnameCloaks,
+      pixelEvents,
       screenshot,
       warnings: warnings.list,
       shieldsBlockedRequests: adblockEngine
@@ -601,6 +613,16 @@ async function typeSentinelIntoFields(page: Page, sentinel: string): Promise<{ c
   }
 
   return { count, types };
+}
+
+// Playwright exposes the POST body synchronously, but reading it can throw for
+// some request types; pixel decoding treats an unreadable body as "no body".
+function safeRequestPostData(request: Request): string | null {
+  try {
+    return request.postData();
+  } catch {
+    return null;
+  }
 }
 
 function isTimeoutError(error: unknown): boolean {
