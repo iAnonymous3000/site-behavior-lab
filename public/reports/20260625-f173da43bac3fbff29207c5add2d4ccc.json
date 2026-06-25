@@ -1,0 +1,1671 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.google.com/",
+  "scannedAt": "2026-06-25T20:27:13.901Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Google",
+      "status": 200,
+      "durationMs": 4686,
+      "firstPartyDomain": "www.google.com",
+      "totalRequests": 55,
+      "thirdPartyRequests": 2,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 4,
+      "thirdPartyCookies": 0,
+      "storageEntries": 4,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 11
+    },
+    "conditions": {
+      "requestedUrl": "https://www.google.com/",
+      "finalUrl": "https://www.google.com/",
+      "scannedAt": "2026-06-25T20:27:09.211Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.google.com/",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 30,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.google.com/xjs/_/ss/k=xjs.hd.V5eXiO4BJhU.L.W.O/am=AAAEEAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAAEAUAAAQAAAAAAABAAAAANYgAAAQAAAAAACA8AACAAQAAAAAAAAAQAAAAAABAAABAAAAAAAAAAAACAAAAAAAAAAAIAAAAAABAAEAABQAAAKAAAAAAAAAQAAAAAAAAAACAgAAAAAAAAAAAAAAAAQAAAAAAAAyAMAAIAAAAABAGAAAAAAAAAAAAAAAAAAAAAAAQJAACACBgAAAAAAAIAAAAAAAIACCEIAAIUAABAAAAAAAACwAAAAAAAAAAAgAAAAAAAIAAQBAIAQQAAAAQAAAAAoAAgACAgAAAI2gAABIVAgCA6AAAAICAAAAAAAgAAAAAAAAAAAAAIgAAAAAAAAABAGAIBAIAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUA/d=1/ed=1/rs=ACT90oHKkpwf6OXiJL6-l31dXuuKHP9n4w/m=cdos,cr,hsm,jsa,mb4ZUb,cEt90b,SNUn3,qddgKe,sTsDMc,dtl0hd,eHDfl,YV5bee,d,csi",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 173,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAAAAACCAAAAAAAAAAAAAAAwgAAAAAAAAAAAAAAAAAAAgEBAAABAAAAAAAAAAAACAAgAABAAAAAAAAAAMABAAEAABQAAwCAAAAAAAAAAAAAAAAAAAAAAiAAAAABAAADwBwCAAAAAAAAAAAAJAAAAAAAAAAAAFgAAoAAAAAACIAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAEAAAAUAAAAABAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAEABAIAAACAAAAAAAAAAAAAAAAAA6AAAAACAAAAAAAAAAAAAAAAAAAAAAgAAAQEAAAAAAAAIBAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kUBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=1/ed=1/dg=4/rs=ACT90oE0x3VXQ3U-VRNhwNFqK6oMqQ-mcQ/ee=ALeJib:B8gLwd;AfeaP:TkrAjf;BMxAGc:E5bFse;BgS6mb:fidj5d;BjwMce:cXX2Wb;CIZTGb:Kqhykb;CxXAWb:YyRLvc;DQEued:Fevhcf;DULqB:RKfG5c;Dkk6ge:JZmW9e;DpcR3d:zL72xf;Du7NI:C6zLgf;EABSZ:MXZt9d;ESrPQc:mNTJvc;EVNhjf:pw70Gc;EjXHpb:pSHqh;EmZ2Bf:zr1jrb;EnlcNd:WeHg4;F54IAe:ZgsFh;F9mqte:UoRcbe;FSxmUe:fiZR8b;Fkukfc:i8H2c;Fmv9Nc:O1Tzwc;G0KhTb:LIaoZ;GEkGdd:e1RzQd;GleZL:J1A7Od;HMDDWe:G8QUdb;HtPxrd:Gx8jAb;IBADCc:RYquRb;IoGlCf:b5lhvb;JXJSm:ii1RGf;JXS8fb:Qj0suc;JqSq7d:y9ePhe;JsbNhc:Xd8iUd;K5nYTd:ZDZcre;KA3P2:C3JnCe;KDb6nb:fE9n2;KOxcK:OZqGte;KQzWid:ZMKkN;KdIHef:BWtNj;KpRAue:Tia57b;LBgRLc:SdcwHb,XVMNvd;LBn8Cf:bJ9L0c;LEikZe:byfTOb,lsjVmc;LXA8b:q7OdKd;LsNahb:ucGLNb;MNkAde:KMCd1d;NJ1rfe:qTnoBf;NPKaK:SdcwHb;NSEoX:lazG7b;NjIwef:YVgi7d;Np8Qkd:Dpx6qc;Nyt6ic:jn2sGd;OIfWUb:qfOYcd;OgagBe:cNTe0;OiqE2c:TFpEK;OoK5v:Sp69O;OohIYe:mpEAQb;Pjplud:PoEs9b;PpTLXd:pJYjx;Q1Ow7b:x5CSu;QE20Be:gIltO;QFOGlf:PQ2Aoe;QGR0gd:Mlhmy;QYLF2b:pAQYUd;Qw8Feb:jpavUe;R4IIIb:QWfeKf;R9Ulx:CR7Ufe;RCF5Sd:X1kBmd;SLtqO:Kh1xYe;SMDL4c:fTfGO;SNUn3:ZwDk9d,xD8Kp;SNk4Je:wWMhg;ScI3Yc:e7Hzgb,e7Hzgb;ShpF6e:N0pvGc;Snahre:mGCtob;SwCqAd:fXbCZc;SzQQ3e:dNhofb;TIUVQd:lWTJwd;TroZ1d:vVVzjb;U96pRd:FsR04;UBKJZ:LGDJGb;UDrY1c:N0F29d,W50NVd,eps46d,wciyUe;UVmjEd:EesRsb;UVzb9c:IvPZ6d;UYRIEb:HzTAQc;UyG7Kb:wQd0G;V2HTTe:RolTY;VGRfx:VFqbr;VMuEm:pL7sBc;VN6jIc:ddQyuf;VOcgDe:YquhTb;VhA7bd:vAmQFf;VsAqSb:PGf2Re;W9QSQe:ynCWwc;WDGyFe:jcVOxd;WXtNeb:QU9BMd;Wfmdue:g3MJlb;Wl55ib:vgbiKb;Y3c5sd:FGbfLe;YIZmRd:A1yn5d;YV5bee:IvPZ6d;YnHUBf:sNsSob;ZSH6tc:QAvyLe;ZWEUA:afR4Cf;ZlOOMb:P0I0Ec;a56pNe:JEfCwb;aAJE9c:WHW6Ef;aCJ9tf:qKftvc;aVZq3e:EMeVIb;aZ61od:arTwJ;aci7y:Z5Tr6c;bDXwRe:UsyOtc;bUIkwb:WMwEHe;bcPXSc:gSZLJb;cEt90b:ws9Tlc;cFTWae:gT8qnd;dIoSBb:ZgGg9b;dLlj2:Qqt3Gf;dXdZV:a7QTqd;dowIGb:ebZ3mb,ebZ3mb;dtl0hd:lLQWFe;eBAeSb:Ck63tb;eBZ5Nd:audvde;eHDfl:ofjVkb;eJKchc:ATg1be;eO3lse:UefOmb;euOXY:OZjbQ;g8nkx:U4MzKc;gaub4:TN6bMe;gtVSi:ekUOYd;h3MYod:ws9Tlc;hK67qb:QWEO5b;hVic1b:Kqhykb;heHB1:sFczq;hjRo6e:F62sG;hlqGX:FWz1ic;hsLsYc:Vl118;hwoVHd:zw4U8c;iFQyKf:QIhFr;jJj2G:kF2o2b;k1O0rf:pnOULd;k2Qxcb:XY51pe;kbAm9d:MkHyGd;lOO0Vd:OTA3Ae;lbfkyf:MqGdUd;liAz7d:kF2o2b;mWzs9c:fz5ukf;nBZnZe:CvErjb;nJw4Gd:dPFZH;nrDcw:SuEoDe;oGtAuc:sOXFj;oSUNyd:fTfGO,fTfGO;oUlnpc:RagDlc;oiBhre:OuMkRd;okUaUd:wItadb;pKJiXd:VCenhc;pNsl2d:j9Yuyc;pXdRYb:JKoKVe;pj82le:ww04Df;qGV2uc:HHi04c;qQEoOc:KUM7Z,d7YSfd;qZx2Fc:j0xrE;qaS3gd:yiLg6e;qafBPd:sgY6Zb;qavrXe:I0C9u;qddgKe:d7YSfd,x4FYXe;rdexKf:FEkKD;rmWaj:PMS6Sd;ropkZ:hjoqoe;sTsDMc:JksfDf;sZmdvc:rdGEfc;tH4IIe:Ymry6;teSRSb:BMLai;tosKvd:ZCqP3;trZL0b:qY8PFe;uuQkY:u2V3ud;vEYCNb:FaqsVd;vRlMvf:Iw9Xo;vfVwPd:lcrkwe;w3bZCb:ZPGaIb;w4rSdf:XKiZ9;w9w86d:XwhUEb,dt4g2b,gKD90c,lWVZVe;wQlYve:aLUfP;wR5FRb:O1Gjze,TtcOte;wV5Pjc:L8KGxe;x9N9ie:KH4Qof;xBbsrc:NEW1Qc;xpaRob:AVqZ9b;ysNiMc:CpIBjd;yxTchf:KUM7Z;z97YGf:oug9te;zaIgPb:Sl0pxd/m=cdos,cr,hsm,jsa,mb4ZUb,cEt90b,SNUn3,qddgKe,sTsDMc,dtl0hd,eHDfl,YV5bee,d,csi",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 175,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.google.com/logos/doodles/2026/world-cup-2026-united-states-match-day-625-6753651837111112-law.gif",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 175,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.gstatic.com/og/_/js/k=og.asy.en_US.VGaP3jYi96I.2019.O/rt=j/m=_ac,_awd,ada,lldp,qads,abld/exm=/d=1/ed=1/rs=AA2YrTubwlXFpkccNORkgnvC19QtaEqZ5Q",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 190,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.google.com/async/hpba",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 204,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.gstatic.com/og/_/ss/k=og.asy.rmDKsWSOTEE.L.W.O/m=ll_tdm,adcgm3,ll_fw,abld/excm=/d=1/ed=1/ct=zgms/rs=AA2YrTvVbU6kFYShmb37FXVbeSuk0QBnfQ",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 219,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.google.com/gen_204",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 220,
+        "blockedByShields": true
+      },
+      {
+        "id": 9,
+        "url": "https://www.google.com/gen_204",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 370,
+        "blockedByShields": true
+      },
+      {
+        "id": 10,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/ck=xjs.hd.V5eXiO4BJhU.L.W.O/am=AAAEEAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAAEAUAAAQAAAQQAABAAACCNYgAAAQAAAAAACA8gACAAQAAAAAAAAAQAAAAgEBAAABAAAAAAAAAAAACAAgAABAAAAAIAAAAMABAAEAABQAAwKAAAAAAAAAQAAAAAAAAAACAiAAAAABAAADwBwCAAQAAAAAAAAyJMAAIAAAAABAGFgAAoAAAAAACIAAAAAAAAAAQJAACACBgAIAAAAAIAAAAAAAIACCEIAAIUAABAABAAAAACwAAAAAAAAAAAgAAAAABAIAAQBAIAQQAAAAQAEABAoAAgCCAgAAAI2gAABIVAgCA6AAAAICAAAAAAAgAAAAAAAAAAAAAIgAAAQEAAAABAGAIBAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kUBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=0/dg=0/ujg=1/rs=ACT90oFoksoK3pNkFG06Kuu8Cc9_R-NpmQ/m=sy134,sy135,Qj0suc,JXS8fb,sy123,QKZgZd,sy137,sy140,sy13z,sy13p,sy13y,sy13r,sy13u,sy131,sy13q,sy132,sy13t,sy13n,sydc,sydd,syd7,sy10u,sy10z,sy13j,sydq,syc3,sy13e,sygj,sy13l,sy13w,sy10t,sy10s,sy10r,sy108,sy107,syzz,sy102,sy10w,sygw,sygv,sygu,sy10v,sy10b,sy10a,sy109,syzw,syzy,sy13m,sydo,sy13i,sy13h,sy13g,sy13f,sy13d,sy13c,sy13b,sy10c,syp5,Wct42,UEShwc,sy1yk,sy14c,YHnUBc,U9EYge,sy11s,loL8vb,sy11v,sy11u,sy10y,sy110,sy111,sy10x,sy106,sy10f,sy10q,sy10h,sy10m,sy10i,sy10e,sy10d,syzt,syyn,syym,sy100,ms4mZb,sy8t,sy8s,syhh,syhg,syhd,syhe,syhc,syhs,syhp,syho,syhn,syhk,syhb,syd5,sydb,sybu,sybw,sycg,sycf,syc8,syce,sycd,syc1,sycb,sycc,syd8,syd0,sycu,syck,sycl,syct,sycs,syca,sycy,sycj,sycv,syc4,syc5,syc6,syc2,sycm,syc7,sydg,sybx,sybt,sybq,sybh,sybk,sybs,sybl,sybn,sybr,syc0,sycw,syh3,syha,syh8,syh7,syh6,sy9b,sy97,sy9a,syh5,syfe,syh9,syh4,syh2,sygz,sygx,sy9f,uxMpU,sygo,sydl,sydk,syd2,syd1,sydn,sydi,sybz,sycr,sydj,sydr,sy9y,sy9v,sy9u,sy9t,sy9s,sy9r,Mlhmy,QGR0gd,PoEs9b,Pjplud,OTA3Ae,sy9o,sy9j,A1yn5d,YIZmRd,sy92,sy90,sy8z,sy8x,sy8w,byfTOb,lsjVmc,LEikZe,sy8u,kWgXee,ovKuLd,sgY6Zb,qafBPd,ebZ3mb,dowIGb,sy2pq,sy69j,sy4kg",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 387,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/ck=xjs.hd.V5eXiO4BJhU.L.W.O/am=AAAEEAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAAEAUAAAQAAAQQAABAAACCNYgAAAQAAAAAACA8gACAAQAAAAAAAAAQAAAAgEBAAABAAAAAAAAAAAACAAgAABAAAAAIAAAAMABAAEAABQAAwKAAAAAAAAAQAAAAAAAAAACAiAAAAABAAADwBwCAAQAAAAAAAAyJMAAIAAAAABAGFgAAoAAAAAACIAAAAAAAAAAQJAACACBgAIAAAAAIAAAAAAAIACCEIAAIUAABAABAAAAACwAAAAAAAAAAAgAAAAABAIAAQBAIAQQAAAAQAEABAoAAgCCAgAAAI2gAABIVAgCA6AAAAICAAAAAAAgAAAAAAAAAAAAAIgAAAQEAAAABAGAIBAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kUBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=0/dg=0/ujg=1/rs=ACT90oFoksoK3pNkFG06Kuu8Cc9_R-NpmQ/m=sy3kl,HFecgf,sy24i,nqQ5fe,sy22a,sy229,sy228,Ix7YEd,sy4km,sy4kl,sy4kk,sy4kj,sy4ki,sy4kh,FZSjO,sy3nq,dp6JMc,sy191,sy19i,sy1n5,sy1fi,sy192,sy198,sy199,sy195,sy19c,sy19b,sy19a,sy19e,sy69r,sy4sa,sy1fj,HK6Tmb,sy69t,sy52b,Jlf2lc,syxa,B2qlPe,sy144,NzU6V,sy14m,WlNQGd,syzs,syzq,syzp,DPreE,sy14o,sy14n,nabPbb,abd,sy482,TDFkye",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 388,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.google.com/xjs/_/js/md=2/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAAAAACCAAAAAAAAAAAAAAAwgAAAAAAAAAAAAAAAAAAAgEBAAABAAAAAAAAAAAACAAgAABAAAAAAAAAAMABAAEAABQAAwCAAAAAAAAAAAAAAAAAAAAAAiAAAAABAAADwBwCAAAAAAAAAAAAJAAAAAAAAAAAAFgAAoAAAAAACIAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAEAAAAUAAAAABAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAEABAIAAACAAAAAAAAAAAAAAAAAA6AAAAACAAAAAAAAAAAAAAAAAAAAAAgAAAQEAAAAAAAAIBAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kUBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/rs=ACT90oE0x3VXQ3U-VRNhwNFqK6oMqQ-mcQ",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 389,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.google.com/client_204",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 389,
+        "blockedByShields": true
+      },
+      {
+        "id": 14,
+        "url": "https://www.google.com/gen_204",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 391,
+        "blockedByShields": true
+      },
+      {
+        "id": 15,
+        "url": "https://www.google.com/gen_204",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 463,
+        "blockedByShields": true
+      },
+      {
+        "id": 16,
+        "url": "https://www.google.com/gen_204",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 464,
+        "blockedByShields": true
+      },
+      {
+        "id": 17,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 466,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.google.com/async/hpba",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 467,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAAAAACCAAAAAAAAAAAAAAAwgAAAAAAAAAAAAAAAAAAAgEAAAABAAAAAAAAAAAACAAgAABAAAAAAAAAAMABAAEAAAQAAwAAAAAAAAAAAAAAAAAAAAAAAiAAAAABAAADwBwCAAAAAAAAAAAAJAAAAAAAAAAAAFgAAoAAAAAACIAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAEAAAAUAAAAABAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAEABAIAAACAAAAAAAAAAAAAAAAAA6AAAAACAAAAAAAAAAAAAAAAAAAAAAgAAAQEAAAAAAAAABAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kEBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=0/dg=0/rs=ACT90oH7lIXn9jRD0nNpyF8uaz8LMXFLkw/m=sy2e0,ifl",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 475,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.google.com/wizrpcui/_/WizRpcUi/data/batchexecute",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 481,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://ogads-pa.clients6.google.com/$rpc/google.internal.onegoogle.asyncdata.v1.AsyncDataService/GetAsyncData",
+        "domain": "ogads-pa.clients6.google.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 514,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.google.com/xjs/_/ss/k=xjs.hd.V5eXiO4BJhU.L.W.O/am=AAAEEAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAAEAUAAAQAAAAAAABAAAAANYgAAAQAAAAAACA8AACAAQAAAAAAAAAQAAAAAABAAABAAAAAAAAAAAACAAAAAAAAAAAIAAAAAABAAEAABQAAAKAAAAAAAAAQAAAAAAAAAACAgAAAAAAAAAAAAAAAAQAAAAAAAAyAMAAIAAAAABAGAAAAAAAAAAAAAAAAAAAAAAAQJAACACBgAAAAAAAIAAAAAAAIACCEIAAIUAABAAAAAAAACwAAAAAAAAAAAgAAAAAAAIAAQBAIAQQAAAAQAAAAAoAAgACAgAAAI2gAABIVAgCA6AAAAICAAAAAAAgAAAAAAAAAAAAAIgAAAAAAAAABAGAIBAIAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUA/d=0/rs=ACT90oHKkpwf6OXiJL6-l31dXuuKHP9n4w/m=sypf,syrc,sypz,syns,sy14a",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 521,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAAAAACCAAAAAAAAAAAAAAAwgAAAAAAAAAAAAAAAAAAAgEAAAABAAAAAAAAAAAACAAgAABAAAAAAAAAAMABAAEAAAQAAwAAAAAAAAAAAAAAAAAAAAAAAiAAAAABAAADwBwCAAAAAAAAAAAAJAAAAAAAAAAAAFgAAoAAAAAACIAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAEAAAAUAAAAABAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAEABAIAAACAAAAAAAAAAAAAAAAAA6AAAAACAAAAAAAAAAAAAAAAAAAAAAgAAAQEAAAAAAAAABAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kEBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=0/dg=0/rs=ACT90oH7lIXn9jRD0nNpyF8uaz8LMXFLkw/m=sy15p,sy15s,sy15q,sy15o,sy15j,sy15i,sy14x,sy14t,sy15k,sy14r,syfa,sy14s,SMquOb,sy22d,sy177,sy15z,syff,d5EhJe,sy22o,fCxEDd,sy22n,sy22m,sy22l,sy19u,sy1om,sy19s,sy19r,sy19q,sy162,sy15x,sy163,sy156,sy155,sy164,sy146,T1HOxc,LFk59d,sy22j,sy22i,sy22g,sy22h,sy22f,sypf,zx30Y,sy22q,sy22p,sy14v,syya,Wo3n8,ZgGg9b,dIoSBb,sy29r,sy2a0,sy2gz,sy2gy,b6knsb,sy2gv,sy2gu,syy4,sy26e,syrc,sypz,syns,sy14a,sy29z,sy23f,sy148,syfu,sye3,sye1,syap,sye5,JKoKVe,pXdRYb,sy3jj,syaq,syan,sy9d,O1Gjze,TtcOte,wR5FRb,kQvlef,syfs,syfp,syfl,syfk,sycx,syfj,sydw,syfi,syfh,syfg,syfd,syfb,syf9,syf7,sybj,syb7,syba,syb8,sybi,sybf,syb4,syax,syav,syf8,syf6,syf4,syds,syf3,syf2,syer,syf0,syeh,sye8,sye9,syez,sycq,syep,syey,syec,syed,syew,syeb,syev,sydt,sydu,syee,sye6,syeo,syet,syen,syes,syem,syel,syea,syej,syei,syeg,syef,syeq,sye7,sye0,sydv,syau,sy8o,zbML3c,gskBEc,sy21i,s980lf,sy4s9,hmxkV,sy16b,sy169,zGLm3b,sy46w,sy46v,sy46u,sy2ag,sy1oq,sy1or,DhPYme,sy475,sy3q6,sy3q4,syhu,sy3qb,sy3q5,sy3qd,sy3q1,sy474,KHourd,sy48b,syyt,oQfbDd,sy1ol,sy252,sy253,sy250,akFige,sy48e,sy25i,sy25g,sy256,sy1re,sy1e2,sy1e1,syyl,syyj,syyk,syyi,sy1v3,sy1v4,sy1r4,sy1r3,syys,sy25h,qmjr3",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 524,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.google.com/gen_204",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 528,
+        "blockedByShields": true
+      },
+      {
+        "id": 25,
+        "url": "https://www.google.com/xjs/_/ss/k=xjs.hd.V5eXiO4BJhU.L.W.O/am=AAAEEAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAAEAUAAAQAAAAAAABAAAAANYgAAAQAAAAAACA8AACAAQAAAAAAAAAQAAAAAABAAABAAAAAAAAAAAACAAAAAAAAAAAIAAAAAABAAEAABQAAAKAAAAAAAAAQAAAAAAAAAACAgAAAAAAAAAAAAAAAAQAAAAAAAAyAMAAIAAAAABAGAAAAAAAAAAAAAAAAAAAAAAAQJAACACBgAAAAAAAIAAAAAAAIACCEIAAIUAABAAAAAAAACwAAAAAAAAAAAgAAAAAAAIAAQBAIAQQAAAAQAAAAAoAAgACAgAAAI2gAABIVAgCA6AAAAICAAAAAAAgAAAAAAAAAAAAAIgAAAAAAAAABAGAIBAIAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUA/d=0/rs=ACT90oHKkpwf6OXiJL6-l31dXuuKHP9n4w/m=y05UD,PPhKqf,vECdaf,sy1eu,sy19p,sy1es,sy1e0,sy1et,sy1dz,syo4,syq2,sy21x,sy1gg,sy1ge,sy1gd,sy1dw,sy1dv,sy1dy,sy19l,sy1db,sy1df,epYOx",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 604,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAAAAACCAAAAAAAAAAAAAAAwgAAAAAAAAAAAAAAAAAAAgEAAAABAAAAAAAAAAAACAAgAABAAAAAAAAAAMABAAEAAAQAAwAAAAAAAAAAAAAAAAAAAAAAAiAAAAABAAADwBwCAAAAAAAAAAAAJAAAAAAAAAAAAFgAAoAAAAAACIAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAEAAAAUAAAAABAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAEABAIAAACAAAAAAAAAAAAAAAAAA6AAAAACAAAAAAAAAAAAAAAAAAAAAAgAAAQEAAAAAAAAABAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kEBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=0/dg=0/rs=ACT90oH7lIXn9jRD0nNpyF8uaz8LMXFLkw/m=qTnoBf,sya7,sOXFj,oGtAuc,NJ1rfe,syag,q0xTif,y05UD,PPhKqf,vECdaf,sy1eu,sy19p,sy1es,sy1bo,sy1e5,sy1e0,sy1et,sy1dz,syo4,syq2,sy21x,sy1v7,sy1f4,sy1bv,sy19n,sy17y,sy1f3,sy1ey,sy1ez,sy1eb,sy1e6,sy1f5,sy1ea,sy21y,sy1zt,sy1zu,sy1gg,sy1gh,sy1ge,sy1gd,sy1gf,sy1dw,sy1e7,sy1dv,sy1e4,sy1dy,sy1cf,sy1e9,sy19l,sy1db,sy1dd,sy1df,sy1dg,epYOx",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 606,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.google.com/gen_204",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 607,
+        "blockedByShields": true
+      },
+      {
+        "id": 28,
+        "url": "https://www.google.com/client_204",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 607,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.google.com/gen_204",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 614,
+        "blockedByShields": true
+      },
+      {
+        "id": 30,
+        "url": "https://www.google.com/xjs/_/ss/k=xjs.hd.V5eXiO4BJhU.L.W.O/am=AAAEEAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAAEAUAAAQAAAAAAABAAAAANYgAAAQAAAAAACA8AACAAQAAAAAAAAAQAAAAAABAAABAAAAAAAAAAAACAAAAAAAAAAAIAAAAAABAAEAABQAAAKAAAAAAAAAQAAAAAAAAAACAgAAAAAAAAAAAAAAAAQAAAAAAAAyAMAAIAAAAABAGAAAAAAAAAAAAAAAAAAAAAAAQJAACACBgAAAAAAAIAAAAAAAIACCEIAAIUAABAAAAAAAACwAAAAAAAAAAAgAAAAAAAIAAQBAIAQQAAAAQAAAAAoAAgACAgAAAI2gAABIVAgCA6AAAAICAAAAAAAgAAAAAAAAAAAAAIgAAAAAAAAABAGAIBAIAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUA/d=0/rs=ACT90oHKkpwf6OXiJL6-l31dXuuKHP9n4w/m=sym7,sypa,syov,sykm,syk9,syk6,syk5,syjn,syjm,syi6,syp2",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 621,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAAAAACCAAAAAAAAAAAAAAAwgAAAAAAAAAAAAAAAAAAAgEAAAABAAAAAAAAAAAACAAgAABAAAAAAAAAAMABAAEAAAQAAwAAAAAAAAAAAAAAAAAAAAAAAiAAAAABAAADwBwCAAAAAAAAAAAAJAAAAAAAAAAAAFgAAoAAAAAACIAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAEAAAAUAAAAABAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAEABAIAAACAAAAAAAAAAAAAAAAAA6AAAAACAAAAAAAAAAAAAAAAAAAAAAgAAAQEAAAAAAAAABAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kEBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=0/dg=0/rs=ACT90oH7lIXn9jRD0nNpyF8uaz8LMXFLkw/m=sy244,P10Owf,sy15v,gSZvdb,sy14k,sy14i,sym7,sypa,CnSW2d,sy14e,sy14b,sy14d,nRwWne,sy14h,fXO0xe,sy126,sy125,n7qy6d,sy129,HPGtmd,sy12z,syov,sykm,syk9,syk6,syk5,syjn,syjm,syi6,syp2,uLYJpc",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 622,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAAAAACCAAAAAAAAAAAAAAAwgAAAAAAAAAAAAAAAAAAAgEAAAABAAAAAAAAAAAACAAgAABAAAAAAAAAAMABAAEAAAQAAwAAAAAAAAAAAAAAAAAAAAAAAiAAAAABAAADwBwCAAAAAAAAAAAAJAAAAAAAAAAAAFgAAoAAAAAACIAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAEAAAAUAAAAABAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAEABAIAAACAAAAAAAAAAAAAAAAAA6AAAAACAAAAAAAAAAAAAAAAAAAAAAgAAAQEAAAAAAAAABAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kEBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=0/dg=0/rs=ACT90oH7lIXn9jRD0nNpyF8uaz8LMXFLkw/m=lOO0Vd,sy9p,P6sQOc",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 633,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1268,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.google.com/gen_204",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1269,
+        "blockedByShields": true
+      },
+      {
+        "id": 35,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1275,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1280,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1285,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1290,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1297,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1303,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1308,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1314,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1319,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1324,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1329,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1340,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1353,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1365,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1372,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1383,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1393,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1401,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1406,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://www.google.com/complete/search",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1412,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://play.google.com/log",
+        "domain": "play.google.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1505,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.gstatic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 51,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "xhr",
+          "ping",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "ogads-pa.clients6.google.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "play.google.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "AEC",
+        "domain": ".google.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__Secure-BUCKET",
+        "domain": ".google.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__Secure-STRP",
+        "domain": ".google.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "NID",
+        "domain": ".google.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "sb_wiz.zpc.gws-wiz.",
+        "valueBytes": 3131
+      },
+      {
+        "area": "sessionStorage",
+        "key": "hsb;;1782419229242",
+        "valueBytes": 23
+      },
+      {
+        "area": "sessionStorage",
+        "key": "hsb;;1782419229241",
+        "valueBytes": 148
+      },
+      {
+        "area": "sessionStorage",
+        "key": "_c;;i",
+        "valueBytes": 24
+      }
+    ],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Google",
+      "status": 200,
+      "durationMs": 4665,
+      "firstPartyDomain": "www.google.com",
+      "totalRequests": 44,
+      "thirdPartyRequests": 2,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 4,
+      "thirdPartyCookies": 0,
+      "storageEntries": 4,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 12
+    },
+    "conditions": {
+      "requestedUrl": "https://www.google.com/",
+      "finalUrl": "https://www.google.com/",
+      "scannedAt": "2026-06-25T20:27:13.901Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.google.com/",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 33,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.google.com/xjs/_/ss/k=xjs.hd.V5eXiO4BJhU.L.W.O/am=AAAEEAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAAEAUAAAQAAAAAAABAAAAANYgAAAQAAAAAACA8AACAAQAAAAAAAAAQAAAAAABAAABAAAAAAAAAAAACAAAAAAAAAAAIAAAAAABAAEAABQAAAKAAAAAAAAAQAAAAAAAAAACAgAAAAAAAAAAAAAAAAQAAAAAAAAyAMAAIAAAAABAGAAAAAAAAAAAAAAAAAAAAAAAQJAACACBgAAAAAAAIAAAAAAAIACCEIAAIUAABAAAAAAAACwAAAAAAAAAAAgAAAAAAAIAAQBAIAQQAAAAQAAAAAoAAgACAgAAAI2gAABIVAgCA6AAAAICAAAAAAAgAAAAAAAAAAAAAIgAAAAAAAAABCGAIBAIAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUA/d=1/ed=1/rs=ACT90oFtxj1goWSrEEOLqnTlRJkWktuwiw/m=cdos,cr,hsm,jsa,mb4ZUb,cEt90b,SNUn3,qddgKe,sTsDMc,dtl0hd,eHDfl,YV5bee,d,csi",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 201,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAAAAACCAAAAAAAAAAAAAAAwgAAAAAAAAAAAAAAAAAAAgEBAAABAAAAAAAAAAAACAAgAABAAAAAAAAAAMABAAEAABQAAwCAAAAAAAAAAAAAAAAAAAAAAiAAAAABAAADwBwCAAAAAAAAAAAAJAAAAAAAAAAAAFgAAoAAAAAACIAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAEAAAAUAAAAABAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAEABAIAAACAAAAAAAAAAAAAAAAAA6AAAAACAAAAAAAAAAAAAAAAAAAAAAgAAAQEAAAAAAAAIBAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kUBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=1/ed=1/dg=4/rs=ACT90oE0x3VXQ3U-VRNhwNFqK6oMqQ-mcQ/ee=ALeJib:B8gLwd;AfeaP:TkrAjf;BMxAGc:E5bFse;BgS6mb:fidj5d;BjwMce:cXX2Wb;CIZTGb:Kqhykb;CxXAWb:YyRLvc;DQEued:Fevhcf;DULqB:RKfG5c;Dkk6ge:JZmW9e;DpcR3d:zL72xf;Du7NI:C6zLgf;EABSZ:MXZt9d;ESrPQc:mNTJvc;EVNhjf:pw70Gc;EjXHpb:pSHqh;EmZ2Bf:zr1jrb;EnlcNd:WeHg4;F54IAe:ZgsFh;F9mqte:UoRcbe;FSxmUe:fiZR8b;Fkukfc:i8H2c;Fmv9Nc:O1Tzwc;G0KhTb:LIaoZ;GEkGdd:e1RzQd;GleZL:J1A7Od;HMDDWe:G8QUdb;HtPxrd:Gx8jAb;IBADCc:RYquRb;IoGlCf:b5lhvb;JXJSm:ii1RGf;JXS8fb:Qj0suc;JqSq7d:y9ePhe;JsbNhc:Xd8iUd;K5nYTd:ZDZcre;KA3P2:C3JnCe;KDb6nb:fE9n2;KOxcK:OZqGte;KQzWid:ZMKkN;KdIHef:BWtNj;KpRAue:Tia57b;LBgRLc:SdcwHb,XVMNvd;LBn8Cf:bJ9L0c;LEikZe:byfTOb,lsjVmc;LXA8b:q7OdKd;LsNahb:ucGLNb;MNkAde:KMCd1d;NJ1rfe:qTnoBf;NPKaK:SdcwHb;NSEoX:lazG7b;NjIwef:YVgi7d;Np8Qkd:Dpx6qc;Nyt6ic:jn2sGd;OIfWUb:qfOYcd;OgagBe:cNTe0;OiqE2c:TFpEK;OoK5v:Sp69O;OohIYe:mpEAQb;Pjplud:PoEs9b;PpTLXd:pJYjx;Q1Ow7b:x5CSu;QE20Be:gIltO;QFOGlf:PQ2Aoe;QGR0gd:Mlhmy;QYLF2b:pAQYUd;Qw8Feb:jpavUe;R4IIIb:QWfeKf;R9Ulx:CR7Ufe;RCF5Sd:X1kBmd;SLtqO:Kh1xYe;SMDL4c:fTfGO;SNUn3:ZwDk9d,xD8Kp;SNk4Je:wWMhg;ScI3Yc:e7Hzgb,e7Hzgb;ShpF6e:N0pvGc;Snahre:mGCtob;SwCqAd:fXbCZc;SzQQ3e:dNhofb;TIUVQd:lWTJwd;TroZ1d:vVVzjb;U96pRd:FsR04;UBKJZ:LGDJGb;UDrY1c:N0F29d,W50NVd,eps46d,wciyUe;UVmjEd:EesRsb;UVzb9c:IvPZ6d;UYRIEb:HzTAQc;UyG7Kb:wQd0G;V2HTTe:RolTY;VGRfx:VFqbr;VMuEm:pL7sBc;VN6jIc:ddQyuf;VOcgDe:YquhTb;VhA7bd:vAmQFf;VsAqSb:PGf2Re;W9QSQe:ynCWwc;WDGyFe:jcVOxd;WXtNeb:QU9BMd;Wfmdue:g3MJlb;Wl55ib:vgbiKb;Y3c5sd:FGbfLe;YIZmRd:A1yn5d;YV5bee:IvPZ6d;YnHUBf:sNsSob;ZSH6tc:QAvyLe;ZWEUA:afR4Cf;ZlOOMb:P0I0Ec;a56pNe:JEfCwb;aAJE9c:WHW6Ef;aCJ9tf:qKftvc;aVZq3e:EMeVIb;aZ61od:arTwJ;aci7y:Z5Tr6c;bDXwRe:UsyOtc;bUIkwb:WMwEHe;bcPXSc:gSZLJb;cEt90b:ws9Tlc;cFTWae:gT8qnd;dIoSBb:ZgGg9b;dLlj2:Qqt3Gf;dXdZV:a7QTqd;dowIGb:ebZ3mb,ebZ3mb;dtl0hd:lLQWFe;eBAeSb:Ck63tb;eBZ5Nd:audvde;eHDfl:ofjVkb;eJKchc:ATg1be;eO3lse:UefOmb;euOXY:OZjbQ;g8nkx:U4MzKc;gaub4:TN6bMe;gtVSi:ekUOYd;h3MYod:ws9Tlc;hK67qb:QWEO5b;hVic1b:Kqhykb;heHB1:sFczq;hjRo6e:F62sG;hlqGX:FWz1ic;hsLsYc:Vl118;hwoVHd:zw4U8c;iFQyKf:QIhFr;jJj2G:kF2o2b;k1O0rf:pnOULd;k2Qxcb:XY51pe;kbAm9d:MkHyGd;lOO0Vd:OTA3Ae;lbfkyf:MqGdUd;liAz7d:kF2o2b;mWzs9c:fz5ukf;nBZnZe:CvErjb;nJw4Gd:dPFZH;nrDcw:SuEoDe;oGtAuc:sOXFj;oSUNyd:fTfGO,fTfGO;oUlnpc:RagDlc;oiBhre:OuMkRd;okUaUd:wItadb;pKJiXd:VCenhc;pNsl2d:j9Yuyc;pXdRYb:JKoKVe;pj82le:ww04Df;qGV2uc:HHi04c;qQEoOc:KUM7Z,d7YSfd;qZx2Fc:j0xrE;qaS3gd:yiLg6e;qafBPd:sgY6Zb;qavrXe:I0C9u;qddgKe:d7YSfd,x4FYXe;rdexKf:FEkKD;rmWaj:PMS6Sd;ropkZ:hjoqoe;sTsDMc:JksfDf;sZmdvc:rdGEfc;tH4IIe:Ymry6;teSRSb:BMLai;tosKvd:ZCqP3;trZL0b:qY8PFe;uuQkY:u2V3ud;vEYCNb:FaqsVd;vRlMvf:Iw9Xo;vfVwPd:lcrkwe;w3bZCb:ZPGaIb;w4rSdf:XKiZ9;w9w86d:XwhUEb,dt4g2b,gKD90c,lWVZVe;wQlYve:aLUfP;wR5FRb:O1Gjze,TtcOte;wV5Pjc:L8KGxe;x9N9ie:KH4Qof;xBbsrc:NEW1Qc;xpaRob:AVqZ9b;ysNiMc:CpIBjd;yxTchf:KUM7Z;z97YGf:oug9te;zaIgPb:Sl0pxd/m=cdos,cr,hsm,jsa,mb4ZUb,cEt90b,SNUn3,qddgKe,sTsDMc,dtl0hd,eHDfl,YV5bee,d,csi",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 202,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.google.com/logos/doodles/2026/world-cup-2026-united-states-match-day-625-6753651837111112-law.gif",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 204,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.gstatic.com/og/_/js/k=og.asy.en_US.VGaP3jYi96I.2019.O/rt=j/m=_ac,_awd,ada,lldp,qads,abld/exm=/d=1/ed=1/rs=AA2YrTubwlXFpkccNORkgnvC19QtaEqZ5Q",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 213,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.google.com/async/hpba",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 231,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.gstatic.com/og/_/ss/k=og.asy.rmDKsWSOTEE.L.W.O/m=ll_tdm,adcgm3,ll_fw,abld/excm=/d=1/ed=1/ct=zgms/rs=AA2YrTvVbU6kFYShmb37FXVbeSuk0QBnfQ",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 242,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/ck=xjs.hd.V5eXiO4BJhU.L.W.O/am=AAAEEAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAAEAUAAAQAAAQQAABAAACCNYgAAAQAAAAAACA8gACAAQAAAAAAAAAQAAAAgEBAAABAAAAAAAAAAAACAAgAABAAAAAIAAAAMABAAEAABQAAwKAAAAAAAAAQAAAAAAAAAACAiAAAAABAAADwBwCAAQAAAAAAAAyJMAAIAAAAABAGFgAAoAAAAAACIAAAAAAAAAAQJAACACBgAIAAAAAIAAAAAAAIACCEIAAIUAABAABAAAAACwAAAAAAAAAAAgAAAAABAIAAQBAIAQQAAAAQAEABAoAAgCCAgAAAI2gAABIVAgCA6AAAAICAAAAAAAgAAAAAAAAAAAAAIgAAAQEAAAABCGAIBAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kUBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=0/dg=0/ujg=1/rs=ACT90oEgTdRs3wtZPRW11hkZbFdohvOLdg/m=sy134,sy135,Qj0suc,JXS8fb,sy123,QKZgZd,sy137,sy140,sy13z,sy13p,sy13y,sy13r,sy13u,sy131,sy13q,sy132,sy13t,sy13n,sydc,sydd,syd7,sy10u,sy10z,sy13j,sydq,syc3,sy13e,sygj,sy13l,sy13w,sy10t,sy10s,sy10r,sy108,sy107,syzz,sy102,sy10w,sygw,sygv,sygu,sy10v,sy10b,sy10a,sy109,syzw,syzy,sy13m,sydo,sy13i,sy13h,sy13g,sy13f,sy13d,sy13c,sy13b,sy10c,syp5,Wct42,UEShwc,sy1yk,sy14c,YHnUBc,U9EYge,sy11s,loL8vb,sy11v,sy11u,sy10y,sy110,sy111,sy10x,sy106,sy10f,sy10q,sy10h,sy10m,sy10i,sy10e,sy10d,syzt,syyn,syym,sy100,ms4mZb,sy8t,sy8s,syhh,syhg,syhd,syhe,syhc,syhs,syhp,syho,syhn,syhk,syhb,syd5,sydb,sybu,sybw,sycg,sycf,syc8,syce,sycd,syc1,sycb,sycc,syd8,syd0,sycu,syck,sycl,syct,sycs,syca,sycy,sycj,sycv,syc4,syc5,syc6,syc2,sycm,syc7,sydg,sybx,sybt,sybq,sybh,sybk,sybs,sybl,sybn,sybr,syc0,sycw,syh3,syha,syh8,syh7,syh6,sy9b,sy97,sy9a,syh5,syfe,syh9,syh4,syh2,sygz,sygx,sy9f,uxMpU,sygo,sydl,sydk,syd2,syd1,sydn,sydi,sybz,sycr,sydj,sydr,sy9y,sy9v,sy9u,sy9t,sy9s,sy9r,Mlhmy,QGR0gd,PoEs9b,Pjplud,OTA3Ae,sy9o,sy9j,A1yn5d,YIZmRd,sy92,sy90,sy8z,sy8x,sy8w,byfTOb,lsjVmc,LEikZe,sy8u,kWgXee,ovKuLd,sgY6Zb,qafBPd,ebZ3mb,dowIGb,sy2pq,sy69j,sy4kg",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 409,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/ck=xjs.hd.V5eXiO4BJhU.L.W.O/am=AAAEEAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAAEAUAAAQAAAQQAABAAACCNYgAAAQAAAAAACA8gACAAQAAAAAAAAAQAAAAgEBAAABAAAAAAAAAAAACAAgAABAAAAAIAAAAMABAAEAABQAAwKAAAAAAAAAQAAAAAAAAAACAiAAAAABAAADwBwCAAQAAAAAAAAyJMAAIAAAAABAGFgAAoAAAAAACIAAAAAAAAAAQJAACACBgAIAAAAAIAAAAAAAIACCEIAAIUAABAABAAAAACwAAAAAAAAAAAgAAAAABAIAAQBAIAQQAAAAQAEABAoAAgCCAgAAAI2gAABIVAgCA6AAAAICAAAAAAAgAAAAAAAAAAAAAIgAAAQEAAAABCGAIBAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kUBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=0/dg=0/ujg=1/rs=ACT90oEgTdRs3wtZPRW11hkZbFdohvOLdg/m=sy3kl,HFecgf,sy24i,nqQ5fe,sy22a,sy229,sy228,Ix7YEd,sy4km,sy4kl,sy4kk,sy4kj,sy4ki,sy4kh,FZSjO,sy3nq,dp6JMc,sy191,sy19i,sy1n5,sy1fi,sy192,sy198,sy199,sy195,sy19c,sy19b,sy19a,sy19e,sy69r,sy4sa,sy1fj,HK6Tmb,sy69t,sy52b,Jlf2lc,syxa,B2qlPe,sy144,NzU6V,sy14m,WlNQGd,syzs,syzq,syzp,DPreE,sy14o,sy14n,nabPbb,abd,sy482,TDFkye",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 410,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.google.com/xjs/_/js/md=2/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAAAAACCAAAAAAAAAAAAAAAwgAAAAAAAAAAAAAAAAAAAgEBAAABAAAAAAAAAAAACAAgAABAAAAAAAAAAMABAAEAABQAAwCAAAAAAAAAAAAAAAAAAAAAAiAAAAABAAADwBwCAAAAAAAAAAAAJAAAAAAAAAAAAFgAAoAAAAAACIAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAEAAAAUAAAAABAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAEABAIAAACAAAAAAAAAAAAAAAAAA6AAAAACAAAAAAAAAAAAAAAAAAAAAAgAAAQEAAAAAAAAIBAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kUBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/rs=ACT90oE0x3VXQ3U-VRNhwNFqK6oMqQ-mcQ",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 411,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 487,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.google.com/async/hpba",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 487,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAAAAACCAAAAAAAAAAAAAAAwgAAAAAAAAAAAAAAAAAAAgEAAAABAAAAAAAAAAAACAAgAABAAAAAAAAAAMABAAEAAAQAAwAAAAAAAAAAAAAAAAAAAAAAAiAAAAABAAADwBwCAAAAAAAAAAAAJAAAAAAAAAAAAFgAAoAAAAAACIAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAEAAAAUAAAAABAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAEABAIAAACAAAAAAAAAAAAAAAAAA6AAAAACAAAAAAAAAAAAAAAAAAAAAAgAAAQEAAAAAAAAABAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kEBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=0/dg=0/rs=ACT90oH7lIXn9jRD0nNpyF8uaz8LMXFLkw/m=sy2e0,ifl",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 494,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.google.com/wizrpcui/_/WizRpcUi/data/batchexecute",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 501,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://ogads-pa.clients6.google.com/$rpc/google.internal.onegoogle.asyncdata.v1.AsyncDataService/GetAsyncData",
+        "domain": "ogads-pa.clients6.google.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 533,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.google.com/xjs/_/ss/k=xjs.hd.V5eXiO4BJhU.L.W.O/am=AAAEEAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAAEAUAAAQAAAAAAABAAAAANYgAAAQAAAAAACA8AACAAQAAAAAAAAAQAAAAAABAAABAAAAAAAAAAAACAAAAAAAAAAAIAAAAAABAAEAABQAAAKAAAAAAAAAQAAAAAAAAAACAgAAAAAAAAAAAAAAAAQAAAAAAAAyAMAAIAAAAABAGAAAAAAAAAAAAAAAAAAAAAAAQJAACACBgAAAAAAAIAAAAAAAIACCEIAAIUAABAAAAAAAACwAAAAAAAAAAAgAAAAAAAIAAQBAIAQQAAAAQAAAAAoAAgACAgAAAI2gAABIVAgCA6AAAAICAAAAAAAgAAAAAAAAAAAAAIgAAAAAAAAABCGAIBAIAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUA/d=0/rs=ACT90oFtxj1goWSrEEOLqnTlRJkWktuwiw/m=sypf,syrc,sypz,syns,sy14a",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 539,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAAAAACCAAAAAAAAAAAAAAAwgAAAAAAAAAAAAAAAAAAAgEAAAABAAAAAAAAAAAACAAgAABAAAAAAAAAAMABAAEAAAQAAwAAAAAAAAAAAAAAAAAAAAAAAiAAAAABAAADwBwCAAAAAAAAAAAAJAAAAAAAAAAAAFgAAoAAAAAACIAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAEAAAAUAAAAABAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAEABAIAAACAAAAAAAAAAAAAAAAAA6AAAAACAAAAAAAAAAAAAAAAAAAAAAgAAAQEAAAAAAAAABAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kEBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=0/dg=0/rs=ACT90oH7lIXn9jRD0nNpyF8uaz8LMXFLkw/m=sy15p,sy15s,sy15q,sy15o,sy15j,sy15i,sy14x,sy14t,sy15k,sy14r,syfa,sy14s,SMquOb,sy22d,sy177,sy15z,syff,d5EhJe,sy22o,fCxEDd,sy22n,sy22m,sy22l,sy19u,sy1om,sy19s,sy19r,sy19q,sy162,sy15x,sy163,sy156,sy155,sy164,sy146,T1HOxc,LFk59d,sy22j,sy22i,sy22g,sy22h,sy22f,sypf,zx30Y,sy22q,sy22p,sy14v,syya,Wo3n8,ZgGg9b,dIoSBb,sy29r,sy2a0,sy2gz,sy2gy,b6knsb,sy2gv,sy2gu,syy4,sy26e,syrc,sypz,syns,sy14a,sy29z,sy23f,sy148,syfu,sye3,sye1,syap,sye5,JKoKVe,pXdRYb,sy3jj,syaq,syan,sy9d,O1Gjze,TtcOte,wR5FRb,kQvlef,syfs,syfp,syfl,syfk,sycx,syfj,sydw,syfi,syfh,syfg,syfd,syfb,syf9,syf7,sybj,syb7,syba,syb8,sybi,sybf,syb4,syax,syav,syf8,syf6,syf4,syds,syf3,syf2,syer,syf0,syeh,sye8,sye9,syez,sycq,syep,syey,syec,syed,syew,syeb,syev,sydt,sydu,syee,sye6,syeo,syet,syen,syes,syem,syel,syea,syej,syei,syeg,syef,syeq,sye7,sye0,sydv,syau,sy8o,zbML3c,gskBEc,sy21i,s980lf,sy4s9,hmxkV,sy16b,sy169,zGLm3b,sy46w,sy46v,sy46u,sy2ag,sy1oq,sy1or,DhPYme,sy475,sy3q6,sy3q4,syhu,sy3qb,sy3q5,sy3qd,sy3q1,sy474,KHourd,sy48b,syyt,oQfbDd,sy1ol,sy252,sy253,sy250,akFige,sy48e,sy25i,sy25g,sy256,sy1re,sy1e2,sy1e1,syyl,syyj,syyk,syyi,sy1v3,sy1v4,sy1r4,sy1r3,syys,sy25h,qmjr3",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 541,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.google.com/xjs/_/ss/k=xjs.hd.V5eXiO4BJhU.L.W.O/am=AAAEEAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAAEAUAAAQAAAAAAABAAAAANYgAAAQAAAAAACA8AACAAQAAAAAAAAAQAAAAAABAAABAAAAAAAAAAAACAAAAAAAAAAAIAAAAAABAAEAABQAAAKAAAAAAAAAQAAAAAAAAAACAgAAAAAAAAAAAAAAAAQAAAAAAAAyAMAAIAAAAABAGAAAAAAAAAAAAAAAAAAAAAAAQJAACACBgAAAAAAAIAAAAAAAIACCEIAAIUAABAAAAAAAACwAAAAAAAAAAAgAAAAAAAIAAQBAIAQQAAAAQAAAAAoAAgACAgAAAI2gAABIVAgCA6AAAAICAAAAAAAgAAAAAAAAAAAAAIgAAAAAAAAABCGAIBAIAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUA/d=0/rs=ACT90oFtxj1goWSrEEOLqnTlRJkWktuwiw/m=y05UD,PPhKqf,vECdaf,sy1eu,sy19p,sy1es,sy1e0,sy1et,sy1dz,syo4,syq2,sy21x,sy1gg,sy1ge,sy1gd,sy1dw,sy1dv,sy1dy,sy19l,sy1db,sy1df,epYOx",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 620,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAAAAACCAAAAAAAAAAAAAAAwgAAAAAAAAAAAAAAAAAAAgEAAAABAAAAAAAAAAAACAAgAABAAAAAAAAAAMABAAEAAAQAAwAAAAAAAAAAAAAAAAAAAAAAAiAAAAABAAADwBwCAAAAAAAAAAAAJAAAAAAAAAAAAFgAAoAAAAAACIAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAEAAAAUAAAAABAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAEABAIAAACAAAAAAAAAAAAAAAAAA6AAAAACAAAAAAAAAAAAAAAAAAAAAAgAAAQEAAAAAAAAABAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kEBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=0/dg=0/rs=ACT90oH7lIXn9jRD0nNpyF8uaz8LMXFLkw/m=qTnoBf,sya7,sOXFj,oGtAuc,NJ1rfe,syag,q0xTif,y05UD,PPhKqf,vECdaf,sy1eu,sy19p,sy1es,sy1bo,sy1e5,sy1e0,sy1et,sy1dz,syo4,syq2,sy21x,sy1v7,sy1f4,sy1bv,sy19n,sy17y,sy1f3,sy1ey,sy1ez,sy1eb,sy1e6,sy1f5,sy1ea,sy21y,sy1zt,sy1zu,sy1gg,sy1gh,sy1ge,sy1gd,sy1gf,sy1dw,sy1e7,sy1dv,sy1e4,sy1dy,sy1cf,sy1e9,sy19l,sy1db,sy1dd,sy1df,sy1dg,epYOx",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 622,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.google.com/client_204",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 625,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.google.com/xjs/_/ss/k=xjs.hd.V5eXiO4BJhU.L.W.O/am=AAAEEAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAAEAUAAAQAAAAAAABAAAAANYgAAAQAAAAAACA8AACAAQAAAAAAAAAQAAAAAABAAABAAAAAAAAAAAACAAAAAAAAAAAIAAAAAABAAEAABQAAAKAAAAAAAAAQAAAAAAAAAACAgAAAAAAAAAAAAAAAAQAAAAAAAAyAMAAIAAAAABAGAAAAAAAAAAAAAAAAAAAAAAAQJAACACBgAAAAAAAIAAAAAAAIACCEIAAIUAABAAAAAAAACwAAAAAAAAAAAgAAAAAAAIAAQBAIAQQAAAAQAAAAAoAAgACAgAAAI2gAABIVAgCA6AAAAICAAAAAAAgAAAAAAAAAAAAAIgAAAAAAAAABCGAIBAIAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUA/d=0/rs=ACT90oFtxj1goWSrEEOLqnTlRJkWktuwiw/m=sym7,sypa,syov,sykm,syk9,syk6,syk5,syjn,syjm,syi6,syp2",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 640,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAAAAACCAAAAAAAAAAAAAAAwgAAAAAAAAAAAAAAAAAAAgEAAAABAAAAAAAAAAAACAAgAABAAAAAAAAAAMABAAEAAAQAAwAAAAAAAAAAAAAAAAAAAAAAAiAAAAABAAADwBwCAAAAAAAAAAAAJAAAAAAAAAAAAFgAAoAAAAAACIAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAEAAAAUAAAAABAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAEABAIAAACAAAAAAAAAAAAAAAAAA6AAAAACAAAAAAAAAAAAAAAAAAAAAAgAAAQEAAAAAAAAABAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kEBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=0/dg=0/rs=ACT90oH7lIXn9jRD0nNpyF8uaz8LMXFLkw/m=sy244,P10Owf,sy15v,gSZvdb,sy14k,sy14i,sym7,sypa,CnSW2d,sy14e,sy14b,sy14d,nRwWne,sy14h,fXO0xe,sy126,sy125,n7qy6d,sy129,HPGtmd,sy12z,syov,sykm,syk9,syk6,syk5,syjn,syjm,syi6,syp2,uLYJpc",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 640,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.google.com/xjs/_/js/k=xjs.hd.en.HPhl9Qs4mgk.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQAAAAAACCAAAAAAAAAAAAAAAwgAAAAAAAAAAAAAAAAAAAgEAAAABAAAAAAAAAAAACAAgAABAAAAAAAAAAMABAAEAAAQAAwAAAAAAAAAAAAAAAAAAAAAAAiAAAAABAAADwBwCAAAAAAAAAAAAJAAAAAAAAAAAAFgAAoAAAAAACIAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAEAAAAUAAAAABAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAEABAIAAACAAAAAAAAAAAAAAAAAA6AAAAACAAAAAAAAAAAAAAAAAAAAAAgAAAQEAAAAAAAAABAIACAAAAAAdAIEHGFJTAAAAAAAAAAAAAAAAAAAAAAAAAAEUwC4kEBAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAgNBTAAAAAAAAiwE/d=0/dg=0/rs=ACT90oH7lIXn9jRD0nNpyF8uaz8LMXFLkw/m=lOO0Vd,sy9p,P6sQOc",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 652,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1279,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1287,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1292,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1298,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1303,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1309,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1314,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1319,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1325,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1330,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1335,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1341,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1345,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1350,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1355,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1361,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1366,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1371,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1377,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1382,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://www.google.com/complete/s",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1387,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.gstatic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 41,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "ogads-pa.clients6.google.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "AEC",
+        "domain": ".google.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__Secure-BUCKET",
+        "domain": ".google.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__Secure-STRP",
+        "domain": ".google.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "NID",
+        "domain": ".google.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "sb_wiz.zpc.gws-wiz.",
+        "valueBytes": 3049
+      },
+      {
+        "area": "sessionStorage",
+        "key": "_c;;i",
+        "valueBytes": 24
+      },
+      {
+        "area": "sessionStorage",
+        "key": "hsb;;1782419233935",
+        "valueBytes": 23
+      },
+      {
+        "area": "sessionStorage",
+        "key": "hsb;;1782419233934",
+        "valueBytes": 148
+      }
+    ],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 55,
+      "after": 44,
+      "delta": -11
+    },
+    "thirdPartyRequests": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 4,
+      "after": 4,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 4,
+      "after": 4,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "play.google.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [
+      {
+        "area": "sessionStorage",
+        "key": "hsb;;1782419233934"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "hsb;;1782419233935"
+      }
+    ],
+    "removedStorageKeys": [
+      {
+        "area": "sessionStorage",
+        "key": "hsb;;1782419229241"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "hsb;;1782419229242"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 11,
+      "after": 12,
+      "delta": 1
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+  ],
+  "share": {
+    "id": "20260625-f173da43bac3fbff29207c5add2d4ccc",
+    "path": "/reports/20260625-f173da43bac3fbff29207c5add2d4ccc/",
+    "jsonPath": "/reports/20260625-f173da43bac3fbff29207c5add2d4ccc.json"
+  }
+}

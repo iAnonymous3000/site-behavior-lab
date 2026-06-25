@@ -1,0 +1,2185 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.linkedin.com/",
+  "scannedAt": "2026-06-25T20:28:29.456Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "LinkedIn: Log In or Sign Up",
+      "status": 200,
+      "durationMs": 8323,
+      "firstPartyDomain": "www.linkedin.com",
+      "totalRequests": 51,
+      "thirdPartyRequests": 37,
+      "knownTrackerRequests": 25,
+      "thirdPartyDomains": 10,
+      "cookies": 10,
+      "thirdPartyCookies": 3,
+      "storageEntries": 0,
+      "fingerprintEvents": 28,
+      "shieldsBlockedRequests": 15
+    },
+    "conditions": {
+      "requestedUrl": "https://www.linkedin.com/",
+      "finalUrl": "https://www.linkedin.com/",
+      "scannedAt": "2026-06-25T20:28:21.126Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.linkedin.com/",
+        "domain": "www.linkedin.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 43,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://static.licdn.com/aero-v1/sc/h/9syw5us4krfdn7zj309783uua",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 211,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://static.licdn.com/aero-v1/sc/h/dxf91zhqd2z6b0bwg85ktm5s4",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 211,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://static.licdn.com/aero-v1/sc/h/5nqyeanbh1glamxx7yixqn8ft",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 213,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://static.licdn.com/aero-v1/sc/h/dtrv9swzghlxpyzfyk2gsgbur",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 213,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://static.licdn.com/aero-v1/sc/h/29rdkxlvag0d3cpj96fiilbju",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 384,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://static.licdn.com/aero-v1/sc/h/fx69lqty609xpf6l4xb6bs3a",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 385,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://static.licdn.com/aero-v1/sc/h/51t74mlo1ty7vakn3a80a9jcp",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 386,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://static.licdn.com/aero-v1/sc/h/9syw5us4krfdn7zj309783uua",
+        "domain": "static.licdn.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 510,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://static.licdn.com/aero-v1/sc/h/dxf91zhqd2z6b0bwg85ktm5s4",
+        "domain": "static.licdn.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 510,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://static.licdn.com/aero-v1/sc/h/5nqyeanbh1glamxx7yixqn8ft",
+        "domain": "static.licdn.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 510,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://static.licdn.com/aero-v1/sc/h/dtrv9swzghlxpyzfyk2gsgbur",
+        "domain": "static.licdn.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 512,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.linkedin.com/litms/api/metadata/user",
+        "domain": "www.linkedin.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 513,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://platform.linkedin.com/litms/utag/homepage-guest-frontend/utag.js",
+        "domain": "platform.linkedin.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 513,
+        "blockedByShields": true
+      },
+      {
+        "id": 15,
+        "url": "https://static.licdn.com/aero-v1/sc/h/ddi43qwelxeqjxdd45pe3fvs1",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 513,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://static.licdn.com/aero-v1/sc/h/ddi43qwelxeqjxdd45pe3fvs1",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 514,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://static.licdn.com/aero-v1/sc/h/4zqr0f9jf98vi2nkijyc3bex2",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 514,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://static.licdn.com/aero-v1/sc/h/8fkga714vy9b2wk5auqo5reeb",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 514,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://static.licdn.com/aero-v1/sc/h/5ofmdgombsj3cqmfn03qb7h60",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 515,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://static.licdn.com/aero-v1/sc/h/7kb6sn3tm4cx918cx9a5jlb0",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 515,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://static.licdn.com/aero-v1/sc/h/8wykgzgbqy0t3fnkgborvz54u",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 516,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://static.licdn.com/aero-v1/sc/h/92eb1xekc34eklevj0io6x4ki",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 516,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://static.licdn.com/aero-v1/sc/h/29h8hsjuomfp50lam5ipnc3uh",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 517,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://static.licdn.com/aero-v1/sc/h/4chtt12k98xwnba1nimld2oyg",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 517,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://static.licdn.com/aero-v1/sc/h/c4cba545dp8erex8bfiynf35e",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 517,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.linkedin.com/homepage-guest/api/ingraphs/gauge",
+        "domain": "www.linkedin.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 518,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://li.protechts.net/index.html?ts=&r_id=&app_id=&uc=&d_id=",
+        "domain": "li.protechts.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 522,
+        "blockedByShields": true
+      },
+      {
+        "id": 29,
+        "url": "https://static.licdn.com/aero-v1/sc/h/29rdkxlvag0d3cpj96fiilbju",
+        "domain": "static.licdn.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 522,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://static.licdn.com/aero-v1/sc/h/fx69lqty609xpf6l4xb6bs3a",
+        "domain": "static.licdn.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 522,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://static.licdn.com/aero-v1/sc/h/51t74mlo1ty7vakn3a80a9jcp",
+        "domain": "static.licdn.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 523,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://accounts.google.com/gsi/button?logo_alignment=&shape=&size=&text=&theme=&type=&width=&client_id=&iframe_id=&as=&hl=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 543,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://accounts.google.com/gsi/status?client_id=&as=&has_opted_out_fedcm=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 553,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://client.protechts.net/PXdOjV695v/main.min.js",
+        "domain": "client.protechts.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 589,
+        "blockedByShields": true
+      },
+      {
+        "id": 35,
+        "url": "https://www.linkedin.com/litms/api/events/tms-load",
+        "domain": "www.linkedin.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 594,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://tzm.protechts.net/ns?c=",
+        "domain": "tzm.protechts.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 656,
+        "blockedByShields": true
+      },
+      {
+        "id": 37,
+        "url": "https://collector-pxdojv695v.protechts.net/api/v2/msft",
+        "domain": "collector-pxdojv695v.protechts.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 666,
+        "blockedByShields": true
+      },
+      {
+        "id": 38,
+        "url": "https://www.linkedin.com/li/track",
+        "domain": "www.linkedin.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 674,
+        "blockedByShields": true
+      },
+      {
+        "id": 39,
+        "url": "https://www.linkedin.com/homepage-guest/api/ingraphs/counter",
+        "domain": "www.linkedin.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 429,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 751,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.linkedin.com/li/track",
+        "domain": "www.linkedin.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 803,
+        "blockedByShields": true
+      },
+      {
+        "id": 41,
+        "url": "https://fonts.gstatic.com/s/googlesans/v62/4UaRrENHsxJlGDuGo1OIlJfC6l_24rlCK1Yo_Iq2vgCI.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 862,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://crcldu.com/bd/sync.html?v=",
+        "domain": "crcldu.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 918,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.linkedin.com/li/track",
+        "domain": "www.linkedin.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 951,
+        "blockedByShields": true
+      },
+      {
+        "id": 44,
+        "url": "https://crcldu.com/bd/auditor.js?v=",
+        "domain": "crcldu.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 985,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://fst-ec.perimeterx.net/?id=",
+        "domain": "fst-ec.perimeterx.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1177,
+        "blockedByShields": true
+      },
+      {
+        "id": 46,
+        "url": "https://ift.px-cloud.net/ns?v=&j=",
+        "domain": "ift.px-cloud.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1178,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://www.linkedin.com/platform-telemetry/li/apfcDf",
+        "domain": "www.linkedin.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1201,
+        "blockedByShields": true
+      },
+      {
+        "id": 48,
+        "url": "https://collector-pxdojv695v.protechts.net/api/v2/msft",
+        "domain": "collector-pxdojv695v.protechts.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1629,
+        "blockedByShields": true
+      },
+      {
+        "id": 49,
+        "url": "https://www.linkedin.com/li/track",
+        "domain": "www.linkedin.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2441,
+        "blockedByShields": true
+      },
+      {
+        "id": 50,
+        "url": "https://www.linkedin.com/li/track",
+        "domain": "www.linkedin.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2672,
+        "blockedByShields": true
+      },
+      {
+        "id": 51,
+        "url": "https://www.linkedin.com/li/track",
+        "domain": "www.linkedin.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4440,
+        "blockedByShields": true
+      },
+      {
+        "id": 52,
+        "url": "https://www.linkedin.com/li/track",
+        "domain": "www.linkedin.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6440,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "static.licdn.com",
+        "requests": 25,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "accounts.google.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "collector-pxdojv695v.protechts.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "crcldu.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "li.protechts.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "client.protechts.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "tzm.protechts.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "fst-ec.perimeterx.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "ift.px-cloud.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.linkedin.com",
+        "requests": 13,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          429
+        ],
+        "resourceTypes": [
+          "document",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "platform.linkedin.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "_pxvid",
+        "domain": ".protechts.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "_px3",
+        "domain": ".protechts.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "pxcts",
+        "domain": ".protechts.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "lang",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "bcookie",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "li_gp",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "lidc",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "JSESSIONID",
+        "domain": ".www.linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "bscookie",
+        "domain": ".www.linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 2,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 2000,
+          "maxCanvasHeight": 200,
+          "maxDistinctTextCharacters": 29,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 2,
+        "evidence": {
+          "eventTypes": [
+            "keydown",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://client.protechts.net",
+            "https://static.licdn.com"
+          ],
+          "totalListenerCalls": 18
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 2,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointerup",
+            "scroll",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://client.protechts.net",
+            "https://static.licdn.com"
+          ],
+          "totalListenerCalls": 72
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 56,
+          "readPixelsCalls": 0
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 2,
+          "createDataChannelCalls": 4,
+          "createOfferCalls": 4,
+          "setLocalDescriptionCalls": 4
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.toDataURL",
+        "count": 4
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 4
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 4
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 2
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Blocked a request that could not be verified as public: https://ponf.linkedin.com/pixel/tracking.png",
+      "The page did not reach network idle before the scan window ended."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "LinkedIn: Log In or Sign Up",
+      "status": 200,
+      "durationMs": 1771,
+      "firstPartyDomain": "www.linkedin.com",
+      "totalRequests": 32,
+      "thirdPartyRequests": 28,
+      "knownTrackerRequests": 25,
+      "thirdPartyDomains": 3,
+      "cookies": 7,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 28,
+      "shieldsBlockedRequests": 9
+    },
+    "conditions": {
+      "requestedUrl": "https://www.linkedin.com/",
+      "finalUrl": "https://www.linkedin.com/",
+      "scannedAt": "2026-06-25T20:28:29.456Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.linkedin.com/",
+        "domain": "www.linkedin.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 34,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://static.licdn.com/aero-v1/sc/h/9syw5us4krfdn7zj309783uua",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 192,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://static.licdn.com/aero-v1/sc/h/dxf91zhqd2z6b0bwg85ktm5s4",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 192,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://static.licdn.com/aero-v1/sc/h/5nqyeanbh1glamxx7yixqn8ft",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 195,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://static.licdn.com/aero-v1/sc/h/dtrv9swzghlxpyzfyk2gsgbur",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 196,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://static.licdn.com/aero-v1/sc/h/29rdkxlvag0d3cpj96fiilbju",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 370,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://static.licdn.com/aero-v1/sc/h/fx69lqty609xpf6l4xb6bs3a",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 370,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://static.licdn.com/aero-v1/sc/h/51t74mlo1ty7vakn3a80a9jcp",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 371,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://static.licdn.com/aero-v1/sc/h/9syw5us4krfdn7zj309783uua",
+        "domain": "static.licdn.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 490,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://static.licdn.com/aero-v1/sc/h/dxf91zhqd2z6b0bwg85ktm5s4",
+        "domain": "static.licdn.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 490,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://static.licdn.com/aero-v1/sc/h/5nqyeanbh1glamxx7yixqn8ft",
+        "domain": "static.licdn.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 491,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://static.licdn.com/aero-v1/sc/h/dtrv9swzghlxpyzfyk2gsgbur",
+        "domain": "static.licdn.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 491,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.linkedin.com/litms/api/metadata/user",
+        "domain": "www.linkedin.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 493,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://static.licdn.com/aero-v1/sc/h/ddi43qwelxeqjxdd45pe3fvs1",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 494,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://static.licdn.com/aero-v1/sc/h/ddi43qwelxeqjxdd45pe3fvs1",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 495,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://static.licdn.com/aero-v1/sc/h/4zqr0f9jf98vi2nkijyc3bex2",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 495,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://static.licdn.com/aero-v1/sc/h/8fkga714vy9b2wk5auqo5reeb",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 496,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://static.licdn.com/aero-v1/sc/h/5ofmdgombsj3cqmfn03qb7h60",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 496,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://static.licdn.com/aero-v1/sc/h/7kb6sn3tm4cx918cx9a5jlb0",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 497,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://static.licdn.com/aero-v1/sc/h/8wykgzgbqy0t3fnkgborvz54u",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 497,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://static.licdn.com/aero-v1/sc/h/92eb1xekc34eklevj0io6x4ki",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 498,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://static.licdn.com/aero-v1/sc/h/29h8hsjuomfp50lam5ipnc3uh",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 498,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://static.licdn.com/aero-v1/sc/h/4chtt12k98xwnba1nimld2oyg",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 499,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://static.licdn.com/aero-v1/sc/h/c4cba545dp8erex8bfiynf35e",
+        "domain": "static.licdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 500,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.linkedin.com/homepage-guest/api/ingraphs/gauge",
+        "domain": "www.linkedin.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 501,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://static.licdn.com/aero-v1/sc/h/29rdkxlvag0d3cpj96fiilbju",
+        "domain": "static.licdn.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 507,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://static.licdn.com/aero-v1/sc/h/fx69lqty609xpf6l4xb6bs3a",
+        "domain": "static.licdn.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 507,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://static.licdn.com/aero-v1/sc/h/51t74mlo1ty7vakn3a80a9jcp",
+        "domain": "static.licdn.com",
+        "method": "HEAD",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 508,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://accounts.google.com/gsi/button?logo_alignment=&shape=&size=&text=&theme=&type=&width=&client_id=&iframe_id=&as=&hl=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 524,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://accounts.google.com/gsi/status?client_id=&as=&has_opted_out_fedcm=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 527,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.linkedin.com/homepage-guest/api/ingraphs/counter",
+        "domain": "www.linkedin.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 716,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://fonts.gstatic.com/s/googlesans/v62/4UaRrENHsxJlGDuGo1OIlJfC6l_24rlCK1Yo_Iq2vgCI.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 785,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "static.licdn.com",
+        "requests": 25,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "accounts.google.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "www.linkedin.com",
+        "requests": 4,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "xhr",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "lang",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "bcookie",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "li_gp",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "lidc",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "JSESSIONID",
+        "domain": ".www.linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "bscookie",
+        "domain": ".www.linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 2,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 2000,
+          "maxCanvasHeight": 200,
+          "maxDistinctTextCharacters": 29,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "body",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://static.licdn.com"
+          ],
+          "totalListenerCalls": 14
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "scroll",
+            "touchmove",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://static.licdn.com"
+          ],
+          "totalListenerCalls": 44
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 56,
+          "readPixelsCalls": 0
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 2,
+          "createDataChannelCalls": 4,
+          "createOfferCalls": 4,
+          "setLocalDescriptionCalls": 4
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.toDataURL",
+        "count": 4
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 4
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 4
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 2
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Blocked a request that could not be verified as public: https://ponf.linkedin.com/pixel/tracking.png"
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 51,
+      "after": 32,
+      "delta": -19
+    },
+    "thirdPartyRequests": {
+      "before": 37,
+      "after": 28,
+      "delta": -9
+    },
+    "knownTrackerRequests": {
+      "before": 25,
+      "after": 25,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 10,
+      "after": 3,
+      "delta": -7
+    },
+    "cookies": {
+      "before": 10,
+      "after": 7,
+      "delta": -3
+    },
+    "thirdPartyCookies": {
+      "before": 3,
+      "after": 0,
+      "delta": -3
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 28,
+      "after": 28,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "collector-pxdojv695v.protechts.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "crcldu.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "client.protechts.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "fst-ec.perimeterx.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "ift.px-cloud.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "li.protechts.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "platform.linkedin.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "tzm.protechts.net",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_px3",
+        "domain": ".protechts.net",
+        "thirdParty": true
+      },
+      {
+        "name": "_pxvid",
+        "domain": ".protechts.net",
+        "thirdParty": true
+      },
+      {
+        "name": "pxcts",
+        "domain": ".protechts.net",
+        "thirdParty": true
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 15,
+      "after": 9,
+      "delta": -6
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: Blocked a request that could not be verified as public: https://ponf.linkedin.com/pixel/tracking.png",
+    "Shields off: The page did not reach network idle before the scan window ended.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: Blocked a request that could not be verified as public: https://ponf.linkedin.com/pixel/tracking.png"
+  ],
+  "share": {
+    "id": "20260625-4f7c18bfae448fd0c7186515ff7b6ba9",
+    "path": "/reports/20260625-4f7c18bfae448fd0c7186515ff7b6ba9/",
+    "jsonPath": "/reports/20260625-4f7c18bfae448fd0c7186515ff7b6ba9.json"
+  }
+}

@@ -1,0 +1,5911 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.capitalone.com/",
+  "scannedAt": "2026-06-25T20:14:41.835Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Capital One | Credit Cards, Checking, Savings & Auto Loans",
+      "status": 200,
+      "durationMs": 6922,
+      "firstPartyDomain": "www.capitalone.com",
+      "totalRequests": 188,
+      "thirdPartyRequests": 26,
+      "knownTrackerRequests": 19,
+      "thirdPartyDomains": 9,
+      "cookies": 34,
+      "thirdPartyCookies": 2,
+      "storageEntries": 12,
+      "fingerprintEvents": 121,
+      "shieldsBlockedRequests": 31
+    },
+    "conditions": {
+      "requestedUrl": "https://www.capitalone.com/",
+      "finalUrl": "https://www.capitalone.com/",
+      "scannedAt": "2026-06-25T20:14:34.908Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.capitalone.com/",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 32,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://verified.capitalone.com/assets/enterprise/js/cp_common.js",
+        "domain": "verified.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 74,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.capitalone.com/assets/enterprise/fonts/Optimist_W_XLt.woff2",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 74,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.capitalone.com/assets/enterprise/fonts/Optimist_W_Lt.woff2",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 75,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.capitalone.com/assets/enterprise/fonts/Optimist_W_SBd.woff2",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 75,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.capitalone.com/assets/enterprise/fonts/Optimist_W_Rg.woff2",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 78,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.capitalone.com/assets/shell/manifest.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 78,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.capitalone.com/assets/shell/homepage/scripts/homepage-es2015.c3ef207aff6e85ce.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 78,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.capitalone.com/assets/shell/homepage/scripts/runtime.bcc23ad59a8809fa.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 79,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.capitalone.com/assets/shell/adobe/visitorAPI.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 79,
+        "blockedByShields": true
+      },
+      {
+        "id": 11,
+        "url": "https://www.capitalone.com/assets/shell/adobe/at.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 80,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.capitalone.com/assets/shell/styles.95cb92a3bd9eb899.css",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 80,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.capitalone.com/assets/shell/grv-shr-lib-styles.eb934bedbacfaa77.css",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 80,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.capitalone.com/assets/shell/grv-tw-lib-styles.ad1de8c88c5e84c1.css",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 81,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/photos/hero/card/12_16_ehp-pa-cardgrid-desktop/rdesktop.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 81,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.capitalone.com/assets/shell/runtime.bfa098acdd4bb3b7.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 81,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.capitalone.com/assets/shell/polyfills.c0460ace709f9491.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 83,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.capitalone.com/assets/shell/main.eb3c5834f5ce4f0a.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 83,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.capitalone.com/assets/enterprise/deviceType/c1SiteVars.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://bfp.capitalone.com/browserFingerPrintv1.min.js",
+        "domain": "bfp.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 164,
+        "blockedByShields": true
+      },
+      {
+        "id": 21,
+        "url": "https://verified.capitalone.com/auth/assets/js/jsencrypt.js",
+        "domain": "verified.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 269,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.capitalone.com/assets/enterprise/js/tags/bfp-ah-min.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 339,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://ecm.capitalone.com/WCM/homepage/icons/information-filled.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 340,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.capitalone.com/assets/shell/hammerjs.f7ebe833eb39395e.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 371,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://onetms.capitalone.com/ot/ot.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 372,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.capitalone.com/assets/shell/7885.876ca46c030bdb9e.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 453,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.capitalone.com/assets/shell/common.6f6543822ecbcda2.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 454,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.capitalone.com/assets/shell/1412.13b7016d6d009fdd.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 454,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.capitalone.com/assets/shell/3484.678eebec5fdb1e78.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 455,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.capitalone.com/assets/shell/5916.39f61aec4a2ff37b.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 455,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.capitalone.com/assets/shell/1693.7dbf1b1945809f7d.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 456,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.capitalone.com/assets/shell/3487.d3f292269bbaed34.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 459,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.capitalone.com/assets/shell/6359.9ea57a8b15cbc289.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 459,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.capitalone.com/assets/shell/3998.ead7fdb89db5e7e5.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 460,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.capitalone.com/assets/shell/6388.c09d9d128b10dbf4.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 460,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.capitalone.com/assets/shell/9333.2f10e727b8ade169.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 461,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.capitalone.com/assets/shell/8007.466e2aa23b5bba47.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 467,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.capitalone.com/assets/shell/4378.1bbeefa93e78a5dc.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 467,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.capitalone.com/assets/shell/7593.98e775972f991345.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 467,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.capitalone.com/assets/shell/3345.a3861b6e81fc6c4d.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 468,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 502,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://onetms.capitalone.com/potomac/2.18.2/sp.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 818,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.413.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 819,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://onetms.capitalone.com/ot/nid",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 819,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.209.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 830,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.218.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 831,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.270.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 831,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.323.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 831,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.223.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 832,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.429.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 832,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://www.capitalone.com/assets/shell/homepage/scripts/486.93f5c02cf131ecf4.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 982,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.capitalone.com/assets/shell/homepage/scripts/565.4d7a91e0aa708c95.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 983,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://www.capitalone.com/assets/shell/page_models/homepage/resourceapi/root.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1113,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://js-agent.newrelic.com/nr-spa-1.278.3.min.js",
+        "domain": "js-agent.newrelic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1152,
+        "blockedByShields": true
+      },
+      {
+        "id": 55,
+        "url": "https://www.capitalone.com/assets/shell/nav_models/navigation/navigation/universal-navigation-copyright.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1181,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://www.capitalone.com/assets/shell/nav_models/navigation/navigation/universal-navigation-search.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1183,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://www.capitalone.com/assets/shell/nav_models/navigation/navigation/universal-navigation-footer.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1183,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://www.capitalone.com/assets/shell/nav_models/navigation/navigation/universal-navigation-header.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1185,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://www.capitalone.com/assets/shell/nav_models/navigation/navigation/universal-navigation-search.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1186,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://www.capitalone.com/assets/shell/7105.b55bc3edb4533b09.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1186,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://www.capitalone.com/assets/shell/5050.d85f063234c38ca0.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1187,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://www.capitalone.com/assets/shell/1171.d8fa5dc03053a6ef.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1187,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://www.capitalone.com/assets/shell/9833.787df555d4f87501.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1188,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://www.capitalone.com/assets/shell/6556.ee6cdf34b75f14bc.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1192,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://www.capitalone.com/assets/shell/237.37b70359c5b73f5e.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1193,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://www.capitalone.com/assets/shell/6111.99c376fd3616431d.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1193,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://www.capitalone.com/assets/shell/9371.304c9049679fee2c.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1194,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://www.capitalone.com/assets/shell/3764.048b90cbe467c948.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1194,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://www.capitalone.com/assets/shell/8151.9a724ae0a03b976a.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1195,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://www.capitalone.com/assets/shell/6986.c9416b4c22c146d5.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1195,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://www.capitalone.com/assets/shell/1293.6a6e2fdd19c845f3.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1195,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://bam.nr-data.net/1/c344d59e90?a=&sa=&v=&t=&ct=&rst=&ck=&s=&ref=&ptid=&af=&be=&fe=&dc=&fsh=&perf=&fp=&fcp=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1241,
+        "blockedByShields": true
+      },
+      {
+        "id": 73,
+        "url": "https://www.capitalone.com/assets/shell/4452.ddf1996cbc18cb7c.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1258,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://www.capitalone.com/assets/shell/3089.f8b836e5b4f6115c.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1259,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://www.capitalone.com/assets/shell/3053.845ad08350686bd2.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1260,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://www.capitalone.com/assets/shell/nav_models/navigation/navigation/universal-navigation-header.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1657,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/photos/hero/card/12_16_ehp-pa-cardgrid-desktop/rdesktop.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1658,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://ecm.capitalone.com/WCM/homepage/icons/grv-handshake.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1659,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://ecm.capitalone.com/WCM/homepage/icons/grv-credit-line-increase.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1661,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://ecm.capitalone.com/WCM/homepage/icons/grv-benefits.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1661,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://www.capitalone.com/assets/shell/images/icons/ui-lined-user.svg",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1662,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://ecm.capitalone.com/WCM/homepage/icons/information-lined.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1662,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/cards/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1665,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/piggy-bank/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1665,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/car-keys/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1666,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/checkered-component/2024/digital-205-topic-selector-12-12/tab-1-e4.c-item-1-desktop.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1666,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/checkered-component/2024/digital-205-topic-selector-12-12/tab-1-e4.c-item-2-desktop.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1666,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://www.capitalone.com/assets/shell/page_models/small-business/resourceapi/homepage.json",
+        "domain": "www.capitalone.com",
+        "method": "HEAD",
+        "resourceType": "xhr",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1673,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/interactive-features/2025/digital-228-topic-selector-7-17/tab-1-t3.a-item-1-desktop.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1674,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-1-e1.b-item-1-all-viewports/rmobile.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1674,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://www.capitalone.com/assets/shell/page_models/local/resourceapi/root.json",
+        "domain": "www.capitalone.com",
+        "method": "HEAD",
+        "resourceType": "xhr",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1675,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://ecm.capitalone.com/WCM/homepage/photos/checkered-component/summer-26-enterprise-home-e1.b-card/rmobile.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1675,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-1-e1.b-item-3-all-viewports/rmobile.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1676,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/ipad-approved/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1676,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/coin-jar/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1677,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/handshake/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1677,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/showcase/2024/digital-205-topic-selector-12-12/tab-2-e10.b-item-6.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1677,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/showcase/2024/digital-205-topic-selector-12-12/tab-2-e10.b-item-1.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1681,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/showcase/2024/digital-205-topic-selector-12-12/tab-2-e10.b-item-2.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1681,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://www.capitalone.com/assets/shell/images/icons/grv-button-icon-2.svg",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1682,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://www.capitalone.com/assets/shell/images/icons/grv-button-icon.svg",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1682,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/checkered-component/2024/digital-205-topic-selector-12-12/tab-2-e4.d-item-1.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1683,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://www.capitalone.com/assets/shell/page_models/creditwise/resourceapi/root.json",
+        "domain": "www.capitalone.com",
+        "method": "HEAD",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1683,
+        "blockedByShields": false
+      },
+      {
+        "id": 104,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/checkered-component/2024/digital-205-topic-selector-12-12/tab-2-e4.d-item-2.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1683,
+        "blockedByShields": false
+      },
+      {
+        "id": 105,
+        "url": "https://www.capitalone.com/assets/shell/page_models/local/resourceapi/money-and-life.json",
+        "domain": "www.capitalone.com",
+        "method": "HEAD",
+        "resourceType": "xhr",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1687,
+        "blockedByShields": false
+      },
+      {
+        "id": 106,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-2-e1.b-item-1-all-viewports/rmobile.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1687,
+        "blockedByShields": false
+      },
+      {
+        "id": 107,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-2-e1.b-item-2-all-viewports/rmobile.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1690,
+        "blockedByShields": false
+      },
+      {
+        "id": 108,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-2-e1.b-item-3-all-viewports/rmobile.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1691,
+        "blockedByShields": false
+      },
+      {
+        "id": 109,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/ehp_illustration_test-x2-p1_card_pre_approval/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1692,
+        "blockedByShields": false
+      },
+      {
+        "id": 110,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/coffee-cup/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1693,
+        "blockedByShields": false
+      },
+      {
+        "id": 111,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/airplane/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1693,
+        "blockedByShields": false
+      },
+      {
+        "id": 112,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/checkered-component/2024/digital-205-topic-selector-12-12/couple-on-scooter.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1702,
+        "blockedByShields": false
+      },
+      {
+        "id": 113,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/checkered-component/2024/digital-205-topic-selector-12-12/spark-and-venture-cards.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1703,
+        "blockedByShields": false
+      },
+      {
+        "id": 114,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-3-e1.b-item-1-all-viewports/rmobile.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1703,
+        "blockedByShields": false
+      },
+      {
+        "id": 115,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-3-e1.b-item-2-all-viewports/rmobile.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1704,
+        "blockedByShields": false
+      },
+      {
+        "id": 116,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-3-e1.b-item-3-all-viewports/rmobile.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1704,
+        "blockedByShields": false
+      },
+      {
+        "id": 117,
+        "url": "https://www.capitalone.com/assets/shell/images/icons/ui-lined-lock.svg",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1705,
+        "blockedByShields": false
+      },
+      {
+        "id": 118,
+        "url": "https://dpm.demdex.net/id?d_visid_ver=&d_fieldgroup=&d_rtbd=&d_ver=&d_verify=&d_orgid=&d_nsid=&ts=",
+        "domain": "dpm.demdex.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1709,
+        "blockedByShields": true
+      },
+      {
+        "id": 119,
+        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1709,
+        "blockedByShields": true
+      },
+      {
+        "id": 120,
+        "url": "https://capitalone-resources.digital-cloud.medallia.com/wdcus/115384/onsite/embed.js",
+        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1709,
+        "blockedByShields": false
+      },
+      {
+        "id": 121,
+        "url": "https://potomac-clickstream.capitalone.com/com.snowplowanalytics.snowplow/tp2",
+        "domain": "potomac-clickstream.capitalone.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1710,
+        "blockedByShields": true
+      },
+      {
+        "id": 122,
+        "url": "https://ecm.capitalone.com/WCM/homepage/illustrations/medallia-feedback-icon.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1710,
+        "blockedByShields": false
+      },
+      {
+        "id": 123,
+        "url": "https://bam.nr-data.net/browser/blobs?browser_monitoring_key=&type=&app_id=&protocol_version=&timestamp=&attributes=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1723,
+        "blockedByShields": true
+      },
+      {
+        "id": 124,
+        "url": "https://capitalone-resources.digital-cloud.medallia.com/wdcus/115384/onsite/generic1781688702156.js",
+        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1822,
+        "blockedByShields": false
+      },
+      {
+        "id": 125,
+        "url": "https://www.capitalone.com/assets/shell/nav_models/navigation/navigation/universal-navigation-footer.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1966,
+        "blockedByShields": false
+      },
+      {
+        "id": 126,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/card/credit-building.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1967,
+        "blockedByShields": false
+      },
+      {
+        "id": 127,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/card/cash-back-rewards.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1967,
+        "blockedByShields": false
+      },
+      {
+        "id": 128,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/card/travel-rewards.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1971,
+        "blockedByShields": false
+      },
+      {
+        "id": 129,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/card/student-rewards.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1972,
+        "blockedByShields": false
+      },
+      {
+        "id": 130,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/card/business-rewards.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1972,
+        "blockedByShields": false
+      },
+      {
+        "id": 131,
+        "url": "https://ecm.capitalone.com/WCM/navigation/imagesets/marketing-tiles/credit-card/credit-wise-wide-lt-gray-f4.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1972,
+        "blockedByShields": false
+      },
+      {
+        "id": 132,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/bank/360-performance-savings.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1973,
+        "blockedByShields": false
+      },
+      {
+        "id": 133,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/bank/360-cds.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1974,
+        "blockedByShields": false
+      },
+      {
+        "id": 134,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/bank/kids-saving.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1974,
+        "blockedByShields": false
+      },
+      {
+        "id": 135,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/bank/360-checking.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1975,
+        "blockedByShields": false
+      },
+      {
+        "id": 136,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/bank/money-teen-checking.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1977,
+        "blockedByShields": false
+      },
+      {
+        "id": 137,
+        "url": "https://ecm.capitalone.com/WCM/navigation/imagesets/marketing-tiles/checking-savings/360c-unav-bank-aug-2025.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1977,
+        "blockedByShields": false
+      },
+      {
+        "id": 138,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/auto/shop-car.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1978,
+        "blockedByShields": false
+      },
+      {
+        "id": 139,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/auto/pre-qualify-auto-loan.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1978,
+        "blockedByShields": false
+      },
+      {
+        "id": 140,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/auto/auto-nov-2025-.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1979,
+        "blockedByShields": false
+      },
+      {
+        "id": 141,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/auto/refinance-car.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1979,
+        "blockedByShields": false
+      },
+      {
+        "id": 142,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/auto/pre-qualify-refinance.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1980,
+        "blockedByShields": false
+      },
+      {
+        "id": 143,
+        "url": "https://ecm.capitalone.com/WCM/navigation/imagesets/marketing-tiles/auto/auto-menu-marketing-tile.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1980,
+        "blockedByShields": false
+      },
+      {
+        "id": 144,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/compare-business-cards.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1987,
+        "blockedByShields": false
+      },
+      {
+        "id": 145,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/travel-rewards.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1988,
+        "blockedByShields": false
+      },
+      {
+        "id": 146,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/cash-back.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1989,
+        "blockedByShields": false
+      },
+      {
+        "id": 147,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/business-checking.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1989,
+        "blockedByShields": false
+      },
+      {
+        "id": 148,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/treasury-management.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1989,
+        "blockedByShields": false
+      },
+      {
+        "id": 149,
+        "url": "https://ecm.capitalone.com/WCM/homepage/photos/vxb-marketing-tile-june-2026.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1990,
+        "blockedByShields": false
+      },
+      {
+        "id": 150,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/bank-with-us.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1990,
+        "blockedByShields": false
+      },
+      {
+        "id": 151,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/commercial-insights.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1990,
+        "blockedByShields": false
+      },
+      {
+        "id": 152,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/financial-lending.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1990,
+        "blockedByShields": false
+      },
+      {
+        "id": 153,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/c1-capital-markets.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1991,
+        "blockedByShields": false
+      },
+      {
+        "id": 154,
+        "url": "https://ecm.capitalone.com/WCM/navigation/imagesets/marketing-tiles/commercial/commercial-tile.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1991,
+        "blockedByShields": false
+      },
+      {
+        "id": 155,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/benefits/shopping.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1991,
+        "blockedByShields": false
+      },
+      {
+        "id": 156,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/benefits/cafes.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1991,
+        "blockedByShields": false
+      },
+      {
+        "id": 157,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/benefits/learn-grow.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1991,
+        "blockedByShields": false
+      },
+      {
+        "id": 158,
+        "url": "https://ecm.capitalone.com/WCM/navigation/imagesets/marketing-tiles/laptop.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1992,
+        "blockedByShields": false
+      },
+      {
+        "id": 159,
+        "url": "https://dpm.demdex.net/id/rd?d_visid_ver=&d_fieldgroup=&d_rtbd=&d_ver=&d_verify=&d_orgid=&d_nsid=&ts=",
+        "domain": "dpm.demdex.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1996,
+        "blockedByShields": true
+      },
+      {
+        "id": 160,
+        "url": "https://capitalone-resources.digital-cloud.medallia.com/wdcus/115384/onsite/onsiteData1782397817575.json",
+        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2009,
+        "blockedByShields": false
+      },
+      {
+        "id": 161,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/privacyoptions.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2043,
+        "blockedByShields": false
+      },
+      {
+        "id": 162,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/equalhousing_desktoptablet_logo.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2047,
+        "blockedByShields": false
+      },
+      {
+        "id": 163,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/fdic-alt.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2105,
+        "blockedByShields": false
+      },
+      {
+        "id": 164,
+        "url": "https://capitalone-resources.digital-cloud.medallia.com/wdcus/115384/forms/8987/formDataV2_1781686750938_en.json",
+        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2132,
+        "blockedByShields": false
+      },
+      {
+        "id": 165,
+        "url": "https://capitalone-resources.digital-cloud.medallia.com/wdcus/115384/forms/26297/formDataV2_1781684843475_en.json",
+        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2132,
+        "blockedByShields": false
+      },
+      {
+        "id": 166,
+        "url": "https://capitaloneservices.demdex.net/dest5.html?d_nsid=",
+        "domain": "capitaloneservices.demdex.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2145,
+        "blockedByShields": false
+      },
+      {
+        "id": 167,
+        "url": "https://smetrics.capitalone.com/id",
+        "domain": "smetrics.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2155,
+        "blockedByShields": true
+      },
+      {
+        "id": 168,
+        "url": "https://cm.everesttech.net/cm/dd?d_uuid=",
+        "domain": "cm.everesttech.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2155,
+        "blockedByShields": true
+      },
+      {
+        "id": 169,
+        "url": "https://dpm.demdex.net/ibs:dpid=411&dpuuid=aj2MLQAAAMX9gAMs",
+        "domain": "dpm.demdex.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2257,
+        "blockedByShields": true
+      },
+      {
+        "id": 170,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dt=&dl=&sid=&sct=&seg=&en=&_fv=&_nsi=&_ss=&_ee=&ep.lob_identifier=&ep.global_visitor_id=&ep.event_name=&ep.page_name=&ep.page_url=&ep.global_privacy_control=&ep.onetag_client_id=&ep.user_agent_string=&ep.platform=&ep.onetag_session_id=&ep.timestamp=&ep.client_timestamp=&ep.user_timezone_offset=&ep.cms_and_site_version=&ep.page_language=&ep.page_level_1=&ep.page_level_2=&ep.line_of_business=&ep.sub_line_of_business=&ep.responsive_breakpoint=&ep.ab_testing_platform=&ep.onetag_event_id=&ep.app_id=&ep.potomac_standard=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2307,
+        "blockedByShields": true
+      },
+      {
+        "id": 171,
+        "url": "https://bam.nr-data.net/events/1/c344d59e90?a=&sa=&v=&t=&ct=&rst=&ck=&s=&ref=&ptid=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2325,
+        "blockedByShields": true
+      },
+      {
+        "id": 172,
+        "url": "https://smetrics.capitalone.com/b/ss/caponeglobal/1/JS-2.20.0/s87603568254611",
+        "domain": "smetrics.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2387,
+        "blockedByShields": true
+      },
+      {
+        "id": 173,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dt=&dl=&sid=&sct=&seg=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3157,
+        "blockedByShields": true
+      },
+      {
+        "id": 174,
+        "url": "https://potomac-clickstream.capitalone.com/com.snowplowanalytics.snowplow/tp2",
+        "domain": "potomac-clickstream.capitalone.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3158,
+        "blockedByShields": true
+      },
+      {
+        "id": 175,
+        "url": "https://smetrics.capitalone.com/b/ss/caponeglobal/1/JS-2.20.0/s84672581126313",
+        "domain": "smetrics.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3159,
+        "blockedByShields": true
+      },
+      {
+        "id": 176,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dt=&dl=&sid=&sct=&seg=&en=&_c=&_ee=&ep.lob_identifier=&ep.global_visitor_id=&ep.event_name=&ep.page_name=&ep.page_url=&ep.global_privacy_control=&ep.adobe_visitor_id=&ep.onetag_client_id=&ep.user_agent_string=&ep.platform=&ep.onetag_session_id=&ep.timestamp=&ep.client_timestamp=&ep.user_timezone_offset=&ep.page_language=&ep.ab_testing_platform=&ep.ui_interaction_action=&ep.onetag_event_id=&ep.ui_interaction_element_name=&ep.ui_interaction_element_type=&ep.full_clickstream_path=&ep.app_id=&ep.potomac_standard=&ep.onetag_ga_cookie=&ep.custom_link_name=&_et=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3345,
+        "blockedByShields": true
+      },
+      {
+        "id": 177,
+        "url": "https://potomac-clickstream.capitalone.com/com.snowplowanalytics.snowplow/tp2",
+        "domain": "potomac-clickstream.capitalone.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3347,
+        "blockedByShields": true
+      },
+      {
+        "id": 178,
+        "url": "https://smetrics.capitalone.com/b/ss/caponeglobal/1/JS-2.20.0/s82996647662822",
+        "domain": "smetrics.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3347,
+        "blockedByShields": true
+      },
+      {
+        "id": 179,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dt=&dl=&sid=&sct=&seg=&en=&_c=&_ee=&ep.lob_identifier=&ep.global_visitor_id=&ep.event_name=&ep.page_name=&ep.page_url=&ep.global_privacy_control=&ep.adobe_visitor_id=&ep.onetag_client_id=&ep.user_agent_string=&ep.platform=&ep.onetag_session_id=&ep.timestamp=&ep.client_timestamp=&ep.user_timezone_offset=&ep.page_language=&ep.ab_testing_platform=&ep.ui_interaction_action=&ep.onetag_event_id=&ep.ui_interaction_element_name=&ep.ui_interaction_element_type=&ep.ui_interaction_value=&ep.app_id=&ep.potomac_standard=&ep.onetag_ga_cookie=&ep.custom_link_name=&_et=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6025,
+        "blockedByShields": true
+      },
+      {
+        "id": 180,
+        "url": "https://potomac-clickstream.capitalone.com/com.snowplowanalytics.snowplow/tp2",
+        "domain": "potomac-clickstream.capitalone.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6027,
+        "blockedByShields": true
+      },
+      {
+        "id": 181,
+        "url": "https://smetrics.capitalone.com/b/ss/caponeglobal/1/JS-2.20.0/s87532786281306",
+        "domain": "smetrics.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6028,
+        "blockedByShields": true
+      },
+      {
+        "id": 182,
+        "url": "https://bam.nr-data.net/events/1/c344d59e90?a=&sa=&v=&t=&ct=&rst=&ck=&s=&ref=&ptid=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6039,
+        "blockedByShields": true
+      },
+      {
+        "id": 183,
+        "url": "https://bam.nr-data.net/jserrors/1/c344d59e90?a=&sa=&v=&t=&ct=&rst=&ck=&s=&ref=&ptid=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6040,
+        "blockedByShields": true
+      },
+      {
+        "id": 184,
+        "url": "https://bam.nr-data.net/jserrors/1/c344d59e90?a=&sa=&v=&t=&ct=&rst=&ck=&s=&ref=&ptid=&pve=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6041,
+        "blockedByShields": true
+      },
+      {
+        "id": 185,
+        "url": "https://bam.nr-data.net/events/1/c344d59e90?a=&sa=&v=&t=&ct=&rst=&ck=&s=&ref=&ptid=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6042,
+        "blockedByShields": true
+      },
+      {
+        "id": 186,
+        "url": "https://bam.nr-data.net/browser/blobs?browser_monitoring_key=&type=&app_id=&protocol_version=&timestamp=&attributes=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6044,
+        "blockedByShields": true
+      },
+      {
+        "id": 187,
+        "url": "https://bam.nr-data.net/ins/1/c344d59e90?a=&sa=&v=&t=&ct=&rst=&ck=&s=&ref=&ptid=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6045,
+        "blockedByShields": true
+      },
+      {
+        "id": 188,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&gdid=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dt=&dl=&sid=&sct=&seg=&en=&_c=&_ee=&ep.lob_identifier=&ep.global_visitor_id=&ep.event_name=&ep.page_name=&ep.page_url=&ep.global_privacy_control=&ep.adobe_visitor_id=&ep.onetag_client_id=&ep.user_agent_string=&ep.platform=&ep.onetag_session_id=&ep.timestamp=&ep.client_timestamp=&ep.user_timezone_offset=&ep.page_language=&ep.ab_testing_platform=&ep.ui_interaction_action=&ep.onetag_event_id=&ep.ui_interaction_element_name=&ep.ui_interaction_element_type=&ep.ui_interaction_value=&ep.app_id=&ep.potomac_standard=&ep.onetag_ga_cookie=&ep.custom_link_name=&_et=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6045,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "bam.nr-data.net",
+        "requests": 9,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "ping"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "dpm.demdex.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "js-agent.newrelic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "capitaloneservices.demdex.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cm.everesttech.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "ecm.capitalone.com",
+        "requests": 72,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.capitalone.com",
+        "requests": 67,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          404
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "other",
+          "script",
+          "stylesheet",
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "onetms.capitalone.com",
+        "requests": 11,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "smetrics.capitalone.com",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "potomac-clickstream.capitalone.com",
+        "requests": 4,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "ping"
+        ]
+      },
+      {
+        "domain": "verified.capitalone.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "bfp.capitalone.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "demdex",
+        "domain": ".demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "dpm",
+        "domain": ".dpm.demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "TLTUID",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "TLTSID",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ot_id",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ot_ses",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ot",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ot_nid",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "SIC_signin",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "ISSO_CNTRY_CODE",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "locale_pref",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "SIC_RM",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "utag_main",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_sp_ses.73e1",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_sp_id.73e1",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AMCVS_317906C354252E890A4C98BC%40AdobeOrg",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_QM8K5J3858",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "s_ecid",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AMCV_317906C354252E890A4C98BC%40AdobeOrg",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "gpv_p4",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "s_nr",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "s_vncm",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "s_ivc",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "s_cc",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALB",
+        "domain": "potomac-clickstream.capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALBCORS",
+        "domain": "potomac-clickstream.capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "capone",
+        "domain": "potomac-clickstream.capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "BNES_capone",
+        "domain": "potomac-clickstream.capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kampyle_userid",
+        "domain": "www.capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kampyleUserSession",
+        "domain": "www.capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kampyleUserSessionsCount",
+        "domain": "www.capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kampyleUserPercentile",
+        "domain": "www.capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kampyleSessionPageCounter",
+        "domain": "www.capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "snowplowOutQueue_sp_ot_oneTag_post2.expires",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyle_userid",
+        "valueBytes": 39
+      },
+      {
+        "area": "localStorage",
+        "key": "NRBA_SESSION",
+        "valueBytes": 246
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleUserPercentile",
+        "valueBytes": 17
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleUserSessionsCount",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "enterprise.page_view_history",
+        "valueBytes": 106
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleSessionPageCounter",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "l_FTzyeq12rr",
+        "valueBytes": 23
+      },
+      {
+        "area": "localStorage",
+        "key": "snowplowOutQueue_sp_ot_oneTag_post2",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "FTzyeq12rr",
+        "valueBytes": 88
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleUserSession",
+        "valueBytes": 13
+      },
+      {
+        "area": "sessionStorage",
+        "key": "spBeaconPreflight_sp_ot_oneTag",
+        "valueBytes": 4
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 300,
+          "maxCanvasHeight": 150,
+          "maxDistinctTextCharacters": 15,
+          "maxTextWriteCalls": 1
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 91,
+          "maxDistinctFonts": 91,
+          "maxDistinctTextSamples": 1,
+          "maxTextLength": 6
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "input",
+            "keydown",
+            "keypress",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document"
+          ],
+          "thirdPartyOrigins": [
+            "https://verified.capitalone.com"
+          ],
+          "totalListenerCalls": 4
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "document"
+          ],
+          "thirdPartyOrigins": [
+            "https://verified.capitalone.com"
+          ],
+          "totalListenerCalls": 11
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "webgl2.readPixels"
+          ],
+          "parameters": [],
+          "getParameterCalls": 0,
+          "readPixelsCalls": 1
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 1,
+          "createDataChannelCalls": 2,
+          "createOfferCalls": 2,
+          "setLocalDescriptionCalls": 2
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 91
+      },
+      {
+        "api": "canvas.getImageData",
+        "count": 17
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 5
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 2
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Resolved 1 first-party subdomain that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss."
+    ],
+    "cnameCloaks": [
+      {
+        "host": "smetrics.capitalone.com",
+        "cname": "capitalone.com.ssl.d1.sc.omtrdc.net",
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      }
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Capital One | Credit Cards, Checking, Savings & Auto Loans",
+      "status": 200,
+      "durationMs": 6703,
+      "firstPartyDomain": "www.capitalone.com",
+      "totalRequests": 156,
+      "thirdPartyRequests": 5,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 25,
+      "thirdPartyCookies": 0,
+      "storageEntries": 10,
+      "fingerprintEvents": 121,
+      "shieldsBlockedRequests": 17
+    },
+    "conditions": {
+      "requestedUrl": "https://www.capitalone.com/",
+      "finalUrl": "https://www.capitalone.com/",
+      "scannedAt": "2026-06-25T20:14:41.835Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.capitalone.com/",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 36,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://verified.capitalone.com/assets/enterprise/js/cp_common.js",
+        "domain": "verified.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 76,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.capitalone.com/assets/enterprise/fonts/Optimist_W_XLt.woff2",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 77,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.capitalone.com/assets/enterprise/fonts/Optimist_W_Lt.woff2",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 78,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.capitalone.com/assets/enterprise/fonts/Optimist_W_SBd.woff2",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 79,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.capitalone.com/assets/enterprise/fonts/Optimist_W_Rg.woff2",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 79,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.capitalone.com/assets/shell/manifest.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 80,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.capitalone.com/assets/shell/homepage/scripts/homepage-es2015.c3ef207aff6e85ce.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 80,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.capitalone.com/assets/shell/homepage/scripts/runtime.bcc23ad59a8809fa.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 81,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.capitalone.com/assets/shell/adobe/at.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 83,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.capitalone.com/assets/shell/styles.95cb92a3bd9eb899.css",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 84,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.capitalone.com/assets/shell/grv-shr-lib-styles.eb934bedbacfaa77.css",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 85,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.capitalone.com/assets/shell/grv-tw-lib-styles.ad1de8c88c5e84c1.css",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 85,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/photos/hero/card/12_16_ehp-pa-cardgrid-desktop/rdesktop.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 86,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.capitalone.com/assets/shell/runtime.bfa098acdd4bb3b7.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 87,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.capitalone.com/assets/shell/polyfills.c0460ace709f9491.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 87,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.capitalone.com/assets/shell/main.eb3c5834f5ce4f0a.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 88,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.capitalone.com/assets/enterprise/deviceType/c1SiteVars.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 120,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://verified.capitalone.com/auth/assets/js/jsencrypt.js",
+        "domain": "verified.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 163,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.capitalone.com/assets/enterprise/js/tags/bfp-ah-min.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 180,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://ecm.capitalone.com/WCM/homepage/icons/information-filled.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 223,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.capitalone.com/assets/shell/hammerjs.f7ebe833eb39395e.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 240,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://onetms.capitalone.com/ot/ot.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 438,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.capitalone.com/assets/shell/7885.876ca46c030bdb9e.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 504,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.capitalone.com/assets/shell/common.6f6543822ecbcda2.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 505,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.capitalone.com/assets/shell/1412.13b7016d6d009fdd.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 505,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.capitalone.com/assets/shell/3484.678eebec5fdb1e78.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 506,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.capitalone.com/assets/shell/5916.39f61aec4a2ff37b.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 506,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.capitalone.com/assets/shell/1693.7dbf1b1945809f7d.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 507,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.capitalone.com/assets/shell/3487.d3f292269bbaed34.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 508,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.capitalone.com/assets/shell/6359.9ea57a8b15cbc289.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 511,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.capitalone.com/assets/shell/3998.ead7fdb89db5e7e5.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 512,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.capitalone.com/assets/shell/6388.c09d9d128b10dbf4.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 512,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.capitalone.com/assets/shell/9333.2f10e727b8ade169.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 512,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.capitalone.com/assets/shell/8007.466e2aa23b5bba47.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 513,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.capitalone.com/assets/shell/4378.1bbeefa93e78a5dc.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 513,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.capitalone.com/assets/shell/7593.98e775972f991345.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 514,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.capitalone.com/assets/shell/3345.a3861b6e81fc6c4d.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 514,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 540,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://onetms.capitalone.com/potomac/2.18.2/sp.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 862,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.413.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 863,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://onetms.capitalone.com/ot/nid",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 864,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.209.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 953,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.218.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 954,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.270.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 954,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.323.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 955,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.223.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 956,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://onetms.capitalone.com/utag/capitalone/sequoia/prod/utag.429.js",
+        "domain": "onetms.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 956,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://www.capitalone.com/assets/shell/homepage/scripts/486.93f5c02cf131ecf4.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 995,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.capitalone.com/assets/shell/homepage/scripts/565.4d7a91e0aa708c95.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 996,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://www.capitalone.com/assets/shell/page_models/homepage/resourceapi/root.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1166,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://www.capitalone.com/assets/shell/nav_models/navigation/navigation/universal-navigation-copyright.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1233,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://www.capitalone.com/assets/shell/nav_models/navigation/navigation/universal-navigation-search.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1235,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://www.capitalone.com/assets/shell/nav_models/navigation/navigation/universal-navigation-footer.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1236,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://www.capitalone.com/assets/shell/nav_models/navigation/navigation/universal-navigation-header.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1236,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://www.capitalone.com/assets/shell/nav_models/navigation/navigation/universal-navigation-search.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1239,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://www.capitalone.com/assets/shell/7105.b55bc3edb4533b09.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1239,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://www.capitalone.com/assets/shell/5050.d85f063234c38ca0.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1239,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://www.capitalone.com/assets/shell/1171.d8fa5dc03053a6ef.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1240,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://www.capitalone.com/assets/shell/9833.787df555d4f87501.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1240,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://www.capitalone.com/assets/shell/6556.ee6cdf34b75f14bc.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1241,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://www.capitalone.com/assets/shell/237.37b70359c5b73f5e.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1241,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://www.capitalone.com/assets/shell/6111.99c376fd3616431d.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1241,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://www.capitalone.com/assets/shell/9371.304c9049679fee2c.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1241,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://www.capitalone.com/assets/shell/3764.048b90cbe467c948.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1242,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://www.capitalone.com/assets/shell/8151.9a724ae0a03b976a.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1242,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://www.capitalone.com/assets/shell/6986.c9416b4c22c146d5.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1243,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://www.capitalone.com/assets/shell/1293.6a6e2fdd19c845f3.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1248,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://www.capitalone.com/assets/shell/4452.ddf1996cbc18cb7c.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1311,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://www.capitalone.com/assets/shell/3089.f8b836e5b4f6115c.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1312,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://www.capitalone.com/assets/shell/3053.845ad08350686bd2.js",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1312,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://www.capitalone.com/assets/shell/nav_models/navigation/navigation/universal-navigation-header.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1693,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/photos/hero/card/12_16_ehp-pa-cardgrid-desktop/rdesktop.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1695,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://ecm.capitalone.com/WCM/homepage/icons/grv-handshake.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1695,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://ecm.capitalone.com/WCM/homepage/icons/grv-credit-line-increase.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1698,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://ecm.capitalone.com/WCM/homepage/icons/grv-benefits.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1699,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://www.capitalone.com/assets/shell/images/icons/ui-lined-user.svg",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1699,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://ecm.capitalone.com/WCM/homepage/icons/information-lined.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1700,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/cards/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1700,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/piggy-bank/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1701,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/car-keys/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1701,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/checkered-component/2024/digital-205-topic-selector-12-12/tab-1-e4.c-item-1-desktop.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1704,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/checkered-component/2024/digital-205-topic-selector-12-12/tab-1-e4.c-item-2-desktop.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1705,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://www.capitalone.com/assets/shell/page_models/small-business/resourceapi/homepage.json",
+        "domain": "www.capitalone.com",
+        "method": "HEAD",
+        "resourceType": "xhr",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1705,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/interactive-features/2025/digital-228-topic-selector-7-17/tab-1-t3.a-item-1-desktop.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1706,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-1-e1.b-item-1-all-viewports/rmobile.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1706,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://www.capitalone.com/assets/shell/page_models/local/resourceapi/root.json",
+        "domain": "www.capitalone.com",
+        "method": "HEAD",
+        "resourceType": "xhr",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1709,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://ecm.capitalone.com/WCM/homepage/photos/checkered-component/summer-26-enterprise-home-e1.b-card/rmobile.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1710,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-1-e1.b-item-3-all-viewports/rmobile.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1711,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/ipad-approved/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1711,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/coin-jar/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1712,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/handshake/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1712,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/showcase/2024/digital-205-topic-selector-12-12/tab-2-e10.b-item-6.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1716,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/showcase/2024/digital-205-topic-selector-12-12/tab-2-e10.b-item-1.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1716,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/showcase/2024/digital-205-topic-selector-12-12/tab-2-e10.b-item-2.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1717,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://www.capitalone.com/assets/shell/images/icons/grv-button-icon-2.svg",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1718,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://www.capitalone.com/assets/shell/images/icons/grv-button-icon.svg",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1718,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/checkered-component/2024/digital-205-topic-selector-12-12/tab-2-e4.d-item-1.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1719,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://www.capitalone.com/assets/shell/page_models/creditwise/resourceapi/root.json",
+        "domain": "www.capitalone.com",
+        "method": "HEAD",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1719,
+        "blockedByShields": false
+      },
+      {
+        "id": 104,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/checkered-component/2024/digital-205-topic-selector-12-12/tab-2-e4.d-item-2.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1723,
+        "blockedByShields": false
+      },
+      {
+        "id": 105,
+        "url": "https://www.capitalone.com/assets/shell/page_models/local/resourceapi/money-and-life.json",
+        "domain": "www.capitalone.com",
+        "method": "HEAD",
+        "resourceType": "xhr",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1723,
+        "blockedByShields": false
+      },
+      {
+        "id": 106,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-2-e1.b-item-1-all-viewports/rmobile.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1724,
+        "blockedByShields": false
+      },
+      {
+        "id": 107,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-2-e1.b-item-2-all-viewports/rmobile.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1725,
+        "blockedByShields": false
+      },
+      {
+        "id": 108,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-2-e1.b-item-3-all-viewports/rmobile.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1725,
+        "blockedByShields": false
+      },
+      {
+        "id": 109,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/ehp_illustration_test-x2-p1_card_pre_approval/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1726,
+        "blockedByShields": false
+      },
+      {
+        "id": 110,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/coffee-cup/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1726,
+        "blockedByShields": false
+      },
+      {
+        "id": 111,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/illustrations/airplane/rdesktop.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1727,
+        "blockedByShields": false
+      },
+      {
+        "id": 112,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/checkered-component/2024/digital-205-topic-selector-12-12/couple-on-scooter.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1729,
+        "blockedByShields": false
+      },
+      {
+        "id": 113,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/checkered-component/2024/digital-205-topic-selector-12-12/spark-and-venture-cards.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1730,
+        "blockedByShields": false
+      },
+      {
+        "id": 114,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-3-e1.b-item-1-all-viewports/rmobile.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1730,
+        "blockedByShields": false
+      },
+      {
+        "id": 115,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-3-e1.b-item-2-all-viewports/rmobile.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1731,
+        "blockedByShields": false
+      },
+      {
+        "id": 116,
+        "url": "https://ecm.capitalone.com/WCM/homepage/testing/card-set/2024/digital-205-topic-selector-12-12/tab-3-e1.b-item-3-all-viewports/rmobile.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1731,
+        "blockedByShields": false
+      },
+      {
+        "id": 117,
+        "url": "https://www.capitalone.com/assets/shell/images/icons/ui-lined-lock.svg",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1734,
+        "blockedByShields": false
+      },
+      {
+        "id": 120,
+        "url": "https://capitalone-resources.digital-cloud.medallia.com/wdcus/115384/onsite/embed.js",
+        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1739,
+        "blockedByShields": false
+      },
+      {
+        "id": 122,
+        "url": "https://ecm.capitalone.com/WCM/homepage/illustrations/medallia-feedback-icon.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1742,
+        "blockedByShields": false
+      },
+      {
+        "id": 126,
+        "url": "https://capitalone-resources.digital-cloud.medallia.com/wdcus/115384/onsite/generic1781688702156.js",
+        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1896,
+        "blockedByShields": false
+      },
+      {
+        "id": 127,
+        "url": "https://www.capitalone.com/assets/shell/nav_models/navigation/navigation/universal-navigation-footer.json",
+        "domain": "www.capitalone.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2026,
+        "blockedByShields": false
+      },
+      {
+        "id": 128,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/card/credit-building.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2027,
+        "blockedByShields": false
+      },
+      {
+        "id": 129,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/card/cash-back-rewards.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2028,
+        "blockedByShields": false
+      },
+      {
+        "id": 130,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/card/travel-rewards.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2028,
+        "blockedByShields": false
+      },
+      {
+        "id": 131,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/card/student-rewards.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2033,
+        "blockedByShields": false
+      },
+      {
+        "id": 132,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/card/business-rewards.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2033,
+        "blockedByShields": false
+      },
+      {
+        "id": 133,
+        "url": "https://ecm.capitalone.com/WCM/navigation/imagesets/marketing-tiles/credit-card/credit-wise-wide-lt-gray-f4.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2034,
+        "blockedByShields": false
+      },
+      {
+        "id": 134,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/bank/360-performance-savings.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2034,
+        "blockedByShields": false
+      },
+      {
+        "id": 135,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/bank/360-cds.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2035,
+        "blockedByShields": false
+      },
+      {
+        "id": 136,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/bank/kids-saving.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2035,
+        "blockedByShields": false
+      },
+      {
+        "id": 137,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/bank/360-checking.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2036,
+        "blockedByShields": false
+      },
+      {
+        "id": 138,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/bank/money-teen-checking.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2036,
+        "blockedByShields": false
+      },
+      {
+        "id": 139,
+        "url": "https://ecm.capitalone.com/WCM/navigation/imagesets/marketing-tiles/checking-savings/360c-unav-bank-aug-2025.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2037,
+        "blockedByShields": false
+      },
+      {
+        "id": 140,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/auto/shop-car.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2037,
+        "blockedByShields": false
+      },
+      {
+        "id": 141,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/auto/pre-qualify-auto-loan.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2038,
+        "blockedByShields": false
+      },
+      {
+        "id": 142,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/auto/auto-nov-2025-.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2038,
+        "blockedByShields": false
+      },
+      {
+        "id": 143,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/auto/refinance-car.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2039,
+        "blockedByShields": false
+      },
+      {
+        "id": 144,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/auto/pre-qualify-refinance.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2039,
+        "blockedByShields": false
+      },
+      {
+        "id": 145,
+        "url": "https://ecm.capitalone.com/WCM/navigation/imagesets/marketing-tiles/auto/auto-menu-marketing-tile.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2040,
+        "blockedByShields": false
+      },
+      {
+        "id": 146,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/compare-business-cards.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2040,
+        "blockedByShields": false
+      },
+      {
+        "id": 147,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/travel-rewards.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2041,
+        "blockedByShields": false
+      },
+      {
+        "id": 148,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/cash-back.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2041,
+        "blockedByShields": false
+      },
+      {
+        "id": 149,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/business-checking.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2042,
+        "blockedByShields": false
+      },
+      {
+        "id": 150,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/treasury-management.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2042,
+        "blockedByShields": false
+      },
+      {
+        "id": 151,
+        "url": "https://ecm.capitalone.com/WCM/homepage/photos/vxb-marketing-tile-june-2026.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2043,
+        "blockedByShields": false
+      },
+      {
+        "id": 152,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/bank-with-us.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2043,
+        "blockedByShields": false
+      },
+      {
+        "id": 153,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/commercial-insights.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2044,
+        "blockedByShields": false
+      },
+      {
+        "id": 154,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/financial-lending.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2045,
+        "blockedByShields": false
+      },
+      {
+        "id": 155,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/commercial/c1-capital-markets.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2045,
+        "blockedByShields": false
+      },
+      {
+        "id": 156,
+        "url": "https://ecm.capitalone.com/WCM/navigation/imagesets/marketing-tiles/commercial/commercial-tile.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2046,
+        "blockedByShields": false
+      },
+      {
+        "id": 157,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/benefits/shopping.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2046,
+        "blockedByShields": false
+      },
+      {
+        "id": 158,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/benefits/cafes.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2047,
+        "blockedByShields": false
+      },
+      {
+        "id": 159,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/icons/benefits/learn-grow.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2051,
+        "blockedByShields": false
+      },
+      {
+        "id": 160,
+        "url": "https://ecm.capitalone.com/WCM/navigation/imagesets/marketing-tiles/laptop.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2054,
+        "blockedByShields": false
+      },
+      {
+        "id": 162,
+        "url": "https://capitalone-resources.digital-cloud.medallia.com/wdcus/115384/onsite/onsiteData1782397817575.json",
+        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2068,
+        "blockedByShields": false
+      },
+      {
+        "id": 163,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/privacyoptions.svg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2103,
+        "blockedByShields": false
+      },
+      {
+        "id": 164,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/equalhousing_desktoptablet_logo.jpg",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2104,
+        "blockedByShields": false
+      },
+      {
+        "id": 166,
+        "url": "https://ecm.capitalone.com/WCM/navigation/assets/fdic-alt.png",
+        "domain": "ecm.capitalone.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2167,
+        "blockedByShields": false
+      },
+      {
+        "id": 167,
+        "url": "https://capitalone-resources.digital-cloud.medallia.com/wdcus/115384/forms/8987/formDataV2_1781686750938_en.json",
+        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2196,
+        "blockedByShields": false
+      },
+      {
+        "id": 168,
+        "url": "https://capitalone-resources.digital-cloud.medallia.com/wdcus/115384/forms/26297/formDataV2_1781684843475_en.json",
+        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2197,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "ecm.capitalone.com",
+        "requests": 72,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.capitalone.com",
+        "requests": 66,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          404
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "other",
+          "script",
+          "stylesheet",
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "onetms.capitalone.com",
+        "requests": 11,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "verified.capitalone.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "TLTUID",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "TLTSID",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ot_id",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ot_ses",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ot",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ot_nid",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "SIC_signin",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "ISSO_CNTRY_CODE",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "locale_pref",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "SIC_RM",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "utag_main",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_sp_ses.73e1",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_sp_id.73e1",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AMCVS_317906C354252E890A4C98BC%40AdobeOrg",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AMCV_317906C354252E890A4C98BC%40AdobeOrg",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "gpv_p4",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "s_nr",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "s_vncm",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "s_ivc",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "s_cc",
+        "domain": ".capitalone.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "kampyle_userid",
+        "domain": "www.capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kampyleUserSession",
+        "domain": "www.capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kampyleUserSessionsCount",
+        "domain": "www.capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kampyleUserPercentile",
+        "domain": "www.capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "kampyleSessionPageCounter",
+        "domain": "www.capitalone.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "snowplowOutQueue_sp_ot_oneTag_post2.expires",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyle_userid",
+        "valueBytes": 39
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleUserPercentile",
+        "valueBytes": 18
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleUserSessionsCount",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "enterprise.page_view_history",
+        "valueBytes": 106
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleSessionPageCounter",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "l_FTzyeq12rr",
+        "valueBytes": 23
+      },
+      {
+        "area": "localStorage",
+        "key": "snowplowOutQueue_sp_ot_oneTag_post2",
+        "valueBytes": 3093
+      },
+      {
+        "area": "localStorage",
+        "key": "FTzyeq12rr",
+        "valueBytes": 88
+      },
+      {
+        "area": "localStorage",
+        "key": "kampyleUserSession",
+        "valueBytes": 13
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 300,
+          "maxCanvasHeight": 150,
+          "maxDistinctTextCharacters": 15,
+          "maxTextWriteCalls": 1
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 91,
+          "maxDistinctFonts": 91,
+          "maxDistinctTextSamples": 1,
+          "maxTextLength": 6
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "input",
+            "keydown",
+            "keypress",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document"
+          ],
+          "thirdPartyOrigins": [
+            "https://verified.capitalone.com"
+          ],
+          "totalListenerCalls": 4
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "document"
+          ],
+          "thirdPartyOrigins": [
+            "https://verified.capitalone.com"
+          ],
+          "totalListenerCalls": 11
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "webgl2.readPixels"
+          ],
+          "parameters": [],
+          "getParameterCalls": 0,
+          "readPixelsCalls": 1
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 1,
+          "createDataChannelCalls": 2,
+          "createOfferCalls": 2,
+          "setLocalDescriptionCalls": 2
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 91
+      },
+      {
+        "api": "canvas.getImageData",
+        "count": 17
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 5
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 2
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 188,
+      "after": 156,
+      "delta": -32
+    },
+    "thirdPartyRequests": {
+      "before": 26,
+      "after": 5,
+      "delta": -21
+    },
+    "knownTrackerRequests": {
+      "before": 19,
+      "after": 0,
+      "delta": -19
+    },
+    "thirdPartyDomains": {
+      "before": 9,
+      "after": 1,
+      "delta": -8
+    },
+    "cookies": {
+      "before": 34,
+      "after": 25,
+      "delta": -9
+    },
+    "thirdPartyCookies": {
+      "before": 2,
+      "after": 0,
+      "delta": -2
+    },
+    "storageEntries": {
+      "before": 12,
+      "after": 10,
+      "delta": -2
+    },
+    "fingerprintEvents": {
+      "before": 121,
+      "after": 121,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "bam.nr-data.net",
+        "requests": 9,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "smetrics.capitalone.com",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "potomac-clickstream.capitalone.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "dpm.demdex.net",
+        "requests": 3,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "bfp.capitalone.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "capitaloneservices.demdex.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cm.everesttech.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "js-agent.newrelic.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "New Relic",
+        "requests": 10,
+        "domains": 2
+      },
+      {
+        "entity": "Google",
+        "requests": 5,
+        "domains": 2
+      },
+      {
+        "entity": "Adobe",
+        "requests": 4,
+        "domains": 2
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "demdex",
+        "domain": ".demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "dpm",
+        "domain": ".dpm.demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "_ga",
+        "domain": ".capitalone.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_QM8K5J3858",
+        "domain": ".capitalone.com",
+        "thirdParty": false
+      },
+      {
+        "name": "s_ecid",
+        "domain": ".capitalone.com",
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALB",
+        "domain": "potomac-clickstream.capitalone.com",
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALBCORS",
+        "domain": "potomac-clickstream.capitalone.com",
+        "thirdParty": false
+      },
+      {
+        "name": "BNES_capone",
+        "domain": "potomac-clickstream.capitalone.com",
+        "thirdParty": false
+      },
+      {
+        "name": "capone",
+        "domain": "potomac-clickstream.capitalone.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "NRBA_SESSION"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "spBeaconPreflight_sp_ot_oneTag"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 31,
+      "after": 17,
+      "delta": -14
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields off: Resolved 1 first-party subdomain that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+  ],
+  "share": {
+    "id": "20260625-28adfab8a3cbd996023906f34147e0ee",
+    "path": "/reports/20260625-28adfab8a3cbd996023906f34147e0ee/",
+    "jsonPath": "/reports/20260625-28adfab8a3cbd996023906f34147e0ee.json"
+  }
+}

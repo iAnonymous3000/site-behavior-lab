@@ -1,0 +1,1352 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.facebook.com/",
+  "scannedAt": "2026-06-25T20:28:38.989Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Facebook",
+      "status": 200,
+      "durationMs": 6116,
+      "firstPartyDomain": "www.facebook.com",
+      "totalRequests": 30,
+      "thirdPartyRequests": 24,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 2,
+      "cookies": 4,
+      "thirdPartyCookies": 0,
+      "storageEntries": 4,
+      "fingerprintEvents": 80,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://www.facebook.com/",
+      "finalUrl": "https://www.facebook.com/",
+      "scannedAt": "2026-06-25T20:28:32.869Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.facebook.com/",
+        "domain": "www.facebook.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 32,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.facebook.com/ajax/qm/",
+        "domain": "www.facebook.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 517,
+        "blockedByShields": true
+      },
+      {
+        "id": 3,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v5/yd/l/0,cross/PhhRZFDuG14jp058pMzFwc7TF2-QXH5TPT9DWDYPz6DhfgQe914iiBfvP3p6y_S61oONMKn3YhINqU49pVNahkCkvx2I9b7Pb8K.css",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 517,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/ye/r/949Iq5tt9Te.webp",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 873,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/yl/r/9AJbVCy4-G1.woff2",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1165,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/yQ/r/-pkMfchyeAZ.woff2",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1165,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yo/r/46yzCmYzaYV.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1171,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iFbc4/yK/l/en_US-j/vshVEKkbzqMty3gLfT06fKiQoHxnpPlvfZjZTrK66z3uv_kkAv_-wGQgXdYivvCwsHHKy1uKLQ_0jLSF6kN-2GoifAozIMNFBkkw1JtOGoHMq0nyQSP3ZLAfTSaG95Bq8Njvu4yAsukPWHDsVjQqltBeBhusk2amyJhKMh2otzgdunJl3g9q4pR78qL69VqNNp4Gm1BHl-lElGzTH4Lah-t55E7mOl6Gkjq0OVeavkZc4HIHnCJZCcc2ZP1Mq8wypiAW_bfk-AMUuK2ufRhAdmh5DEndjkC1LYw5WWi7IP1HIUYBqZ4h.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1172,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iDgM4/y6/l/en_US-j/TlzT_Xvn_-X.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1172,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iq9_4/yi/l/en_US-j/PMCocw5q7qC.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1174,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iT5u4/yd/l/en_US-j/1NxcX1aFH25zNZ0KNn4OLVcwB9vL3hif182Yz_4vfOJLPy3k8641OfSldlUDUZRIYNbjRmu7gYjQjwu7xUJ2DlyU72OqDwSuA8Ya7eSNpDNxgKVIPNHOqVL969f5OOy-5gC2PjeDhbrr4tShlOg4ZYKX0hePZ2GqKu-kUqm8HXN6FrYZ.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1174,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iJVq4/yV/l/en_US-j/esPUxsztnYb.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1175,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4imgg4/yr/l/en_US-j/V15tj8h63LNXV_vKBEegn763T-omr2qwML2OjEpNOBjYRtKQGwG0ihEa-9ML_Y_MRXHBlvxuIMFsRSR_169Kn2AO-Qx8lcabVTDOwgx-s7CoHnI3XLoYQF64vO2zT06LS1ity9KFzyFGG8nQWShO2h-PYdOQEKEXaGJ8DwBsqEPHSH1YTvtL32s_6TN5GUvR7zmf91oXroJ7K59X9C3AwQd1t3qNKef6G-hKocd89O_LiCUWDnXRwDHCkV8R1onn-JtdZ7PJrsOfCedTPWKCFM-z_0Q2ncNh9-DZBIN8jKeHWrECl3_n5Wu6jBGHRQaSS1OrajkDar.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1175,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iEcX4/yS/l/en_US-j/a1iNlMZVVXf.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1176,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iTlQ4/ys/l/en_US-j/FjLNO88zqBV.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1176,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4idc84/yh/l/en_US-j/n3fv_woqAUp.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1177,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4ieWN4/yo/l/en_US-j/Orwtrw1xWvwVjqPiyLSYqxaByKEikRSYFx2Dfz-7-832YCPfv43i0iwrruBGGEYFdGhwCEsLVMyJV6uBpr9kvHpcAdF4Q4yS3Q5yLIhLjdtTF59V3TtN2HhP51QCeCZRMWgwI6-NhAsCA5LxvyfVWAYRn5Q5XLynIoHzskHM2TrHr72z775NzKCi2Sch9boWyHYdnzATCB6ghfjDQ.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1177,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v5/yx/l/0,cross/620JJuQ_0MPg8T_6-Yirbb.css",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1178,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4idBq4/yB/l/en_US-j/HRKZ_ubfyeh.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1593,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yl/r/Vyih8rPt4ed.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1594,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4ih0s4/yG/l/en_US-j/udK7u-WCA2q.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1595,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yv/r/0mN7_sUzXN1.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1595,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iYTg4/y1/l/en_US-j/HUaA501E3P0.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1595,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yU/r/DcrX2w7W64E.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1596,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.facebook.com/ajax/bz",
+        "domain": "www.facebook.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1632,
+        "blockedByShields": true
+      },
+      {
+        "id": 26,
+        "url": "https://www.instagram.com/accounts/xuserid/",
+        "domain": "www.instagram.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1633,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/yB/r/83zWJdc6PJI.webp",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1699,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.facebook.com/ajax/bz",
+        "domain": "www.facebook.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1813,
+        "blockedByShields": true
+      },
+      {
+        "id": 29,
+        "url": "https://www.facebook.com/ajax/bz",
+        "domain": "www.facebook.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2610,
+        "blockedByShields": true
+      },
+      {
+        "id": 30,
+        "url": "https://www.facebook.com/ajax/bz",
+        "domain": "www.facebook.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3593,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "static.xx.fbcdn.net",
+        "requests": 23,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "font",
+          "script"
+        ]
+      },
+      {
+        "domain": "www.instagram.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.facebook.com",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "ping",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "datr",
+        "domain": ".facebook.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "fr",
+        "domain": ".facebook.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "sb",
+        "domain": ".facebook.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "wd",
+        "domain": ".facebook.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "signal_flush_timestamp",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "Session",
+        "valueBytes": 20
+      },
+      {
+        "area": "localStorage",
+        "key": "hb_timestamp",
+        "valueBytes": 13
+      },
+      {
+        "area": "sessionStorage",
+        "key": "TabId",
+        "valueBytes": 6
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 74,
+          "maxDistinctFonts": 74,
+          "maxDistinctTextSamples": 1,
+          "maxTextLength": 13
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "documentElement",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://static.xx.fbcdn.net"
+          ],
+          "totalListenerCalls": 21
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "document",
+            "documentElement",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://static.xx.fbcdn.net"
+          ],
+          "totalListenerCalls": 62
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "webgl.readPixels"
+          ],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 24,
+          "readPixelsCalls": 1
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 74
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      },
+      {
+        "api": "webgl.readPixels",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Facebook",
+      "status": 200,
+      "durationMs": 6118,
+      "firstPartyDomain": "www.facebook.com",
+      "totalRequests": 28,
+      "thirdPartyRequests": 24,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 2,
+      "cookies": 4,
+      "thirdPartyCookies": 0,
+      "storageEntries": 4,
+      "fingerprintEvents": 80,
+      "shieldsBlockedRequests": 4
+    },
+    "conditions": {
+      "requestedUrl": "https://www.facebook.com/",
+      "finalUrl": "https://www.facebook.com/",
+      "scannedAt": "2026-06-25T20:28:38.989Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.facebook.com/",
+        "domain": "www.facebook.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 35,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v5/yd/l/0,cross/PhhRZFDuG14jp058pMzFwc7TF2-QXH5TPT9DWDYPz6DhfgQe914iiBfvP3p6y_S61oONMKn3YhINqU49pVNahkCkvx2I9b7Pb8K.css",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 563,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/ye/r/949Iq5tt9Te.webp",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1077,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/yl/r/9AJbVCy4-G1.woff2",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1203,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/yQ/r/-pkMfchyeAZ.woff2",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1203,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yU/r/d9uXmcyM4jX.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1209,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iFbc4/yI/l/en_US-j/rD2WLTSYGYXty3gLfT06fK0XrwQwMkKg2ZjZTrK66z3uv_kkAv_-wGQgXdYivvCwsHHKy1uKLQ_0jLSF6kN-2GoifAozIMNFBkkw1JtOGoHMq0nyQSP3ZLAfTSaG95Bq8Njvu4yAsukPWHDsVjQqltBeBhC8lbkhBm8OTh2otzgdunJl3g9q4pR78qL69VqNNp4Gm1BHl-lElGzTH4Lah-t55E7mOl6Gkjq0OVeavkZc4HIHnCJZCcc2ZP1Mq8wypiAW_bfkF94AKekI-DNAdmh5DEndjkC1LYw5WWi7IP1HIUYBqZ4h.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1213,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iDgM4/yS/l/en_US-j/GaGXF2mmi8l.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1213,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iq9_4/yQ/l/en_US-j/2RMVHsENuYn.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1214,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iT5u4/yc/l/en_US-j/1NxcX1aFH25Bz0TonERp4QcwB9vL3hif182Yz_4vfOJLPy3k8641OfSldlUDUZRIYNbjRmu7gYjQjwu7xUJ2DlyU72OqDwSuA8Ya7eSNpDNxgKVIPNHOqVL969f5OOy-5gC2PjeDhbrr4tS_uK3aPyME2rePZ2GqKu-kUqm8HXN6FrYZ.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1214,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iJVq4/yV/l/en_US-j/esPUxsztnYb.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1215,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4imgg4/yd/l/en_US-j/V15tj8h63LNXV_vKBEegn763T-omr2qwML2OjEpNOBjYRtKQGwG0ihEa-9ML_Y_MRXHBlvxuIMFsRSR_169Kn2AO-Qx8lcabVTDOwgx-s7CoHnI3XLoYQF64vO2zT06LS1ity9KFzyFGG8nQWShO2h-PYdZEoStQUE_H7OQEKEXaGJ8DTvtL32s_6TN5GUvR7zmf91oXroJ7K59X9C3AwQd1t3qNKef6G-hKocd89O_LiCUWDnXRwDHCkV8R1onn-JtdZ7PJrsOfCedTPWKCFM-z_0Q2ncNh9-DZBIN8jKeHWrECl3_n5Wu6jBGHRQaSS1OrajkDar.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1215,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iEcX4/yw/l/en_US-j/wp6bVCDS4IO.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1215,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iTlQ4/yP/l/en_US-j/ogo_HAI1I2S.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1216,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4idc84/yT/l/en_US-j/ThHfxn6Zrl-.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1216,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4ieWN4/y0/l/en_US-j/n5HPHhoxPjL94uoLaIOEBOv5cf_JOx8H5XK0WXZNEbmxrWrs-JytsZSrruBGGEYFdGLxuD_lF_NqS6uBpr9kvHpcAdF4Q4yS3Q5yLIhLjdtTF59V3TtN2HhP51QCeCZRMWgwI6-NhAsCA5LxvyfVWAYRn5Q5XLynIoHzskHM2TrHr72z775NzKCi2Sch9boWyHYdnzATCB6ghfjDQ.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1216,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v5/yx/l/0,cross/620JJuQ_0MPg8T_6-Yirbb.css",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1216,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4idBq4/yB/l/en_US-j/HRKZ_ubfyeh.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1667,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yl/r/Vyih8rPt4ed.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1668,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4ih0s4/yB/l/en_US-j/8GVpKM8SCFd.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1669,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yv/r/0mN7_sUzXN1.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1669,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iYTg4/yu/l/en_US-j/PxlPwJUyCD_.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1669,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yU/r/DcrX2w7W64E.js",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1670,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.instagram.com/accounts/xuserid/",
+        "domain": "www.instagram.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1706,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://static.xx.fbcdn.net/rsrc.php/yb/r/HpEiFYDux5j.webp",
+        "domain": "static.xx.fbcdn.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1767,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.facebook.com/nw/",
+        "domain": "www.facebook.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1896,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.facebook.com/nw/",
+        "domain": "www.facebook.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2670,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.facebook.com/nw/",
+        "domain": "www.facebook.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3664,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "static.xx.fbcdn.net",
+        "requests": 23,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "font",
+          "script"
+        ]
+      },
+      {
+        "domain": "www.instagram.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.facebook.com",
+        "requests": 4,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "datr",
+        "domain": ".facebook.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "fr",
+        "domain": ".facebook.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "sb",
+        "domain": ".facebook.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "wd",
+        "domain": ".facebook.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "signal_flush_timestamp",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "Session",
+        "valueBytes": 20
+      },
+      {
+        "area": "localStorage",
+        "key": "hb_timestamp",
+        "valueBytes": 13
+      },
+      {
+        "area": "sessionStorage",
+        "key": "TabId",
+        "valueBytes": 6
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 74,
+          "maxDistinctFonts": 74,
+          "maxDistinctTextSamples": 1,
+          "maxTextLength": 13
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "documentElement",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://static.xx.fbcdn.net"
+          ],
+          "totalListenerCalls": 22
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "document",
+            "documentElement",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://static.xx.fbcdn.net"
+          ],
+          "totalListenerCalls": 63
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "webgl.readPixels"
+          ],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 24,
+          "readPixelsCalls": 1
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 74
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      },
+      {
+        "api": "webgl.readPixels",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 30,
+      "after": 28,
+      "delta": -2
+    },
+    "thirdPartyRequests": {
+      "before": 24,
+      "after": 24,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 4,
+      "after": 4,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 4,
+      "after": 4,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 80,
+      "after": 80,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 5,
+      "after": 4,
+      "delta": -1
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+  ],
+  "share": {
+    "id": "20260625-cbd321851540c86d7a2fbb02b5e60b7f",
+    "path": "/reports/20260625-cbd321851540c86d7a2fbb02b5e60b7f/",
+    "jsonPath": "/reports/20260625-cbd321851540c86d7a2fbb02b5e60b7f.json"
+  }
+}

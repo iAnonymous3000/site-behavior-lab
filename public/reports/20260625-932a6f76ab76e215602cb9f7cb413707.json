@@ -1,0 +1,4294 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.creditkarma.com/",
+  "scannedAt": "2026-06-25T20:13:42.465Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Credit scores and much more - Intuit Credit Karma",
+      "status": 200,
+      "durationMs": 10787,
+      "firstPartyDomain": "www.creditkarma.com",
+      "totalRequests": 129,
+      "thirdPartyRequests": 119,
+      "knownTrackerRequests": 34,
+      "thirdPartyDomains": 28,
+      "cookies": 30,
+      "thirdPartyCookies": 10,
+      "storageEntries": 5,
+      "fingerprintEvents": 8,
+      "shieldsBlockedRequests": 52
+    },
+    "conditions": {
+      "requestedUrl": "https://www.creditkarma.com/",
+      "finalUrl": "https://www.creditkarma.com/",
+      "scannedAt": "2026-06-25T20:13:31.666Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.creditkarma.com/",
+        "domain": "www.creditkarma.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 33,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/Credit@2x.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2283,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/cards@2x.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2285,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/css/82616a88e06bd528.css",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2285,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/css/5eb913f4685e2b19.css",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2286,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/css/9b7e6cafcde7259b.css",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2286,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/web-observability-utils/2.6.12/newRelicWrapper.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2287,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/galaxy-css/7.2.0/galaxy.min.css",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2287,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/galaxy-css/6.0.0-alpha.340b178/fonts/National2Web-Regular.woff2",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2288,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/galaxy-css/6.0.0-alpha.340b178/fonts/National2Web-Medium.woff2",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2288,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/galaxy-css/6.0.0-alpha.340b178/fonts/National2Web-Bold.woff2",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2288,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/Intuit.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2288,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/TurboTax.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2288,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/CreditKarma.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2356,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/Quickbooks.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2357,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/Mailchimp.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2357,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/webpack-2c49757c16229371.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2360,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/bf6a786c-d8431bb9b5eb02d4.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2360,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/831-c2a5be8b8f77fa81.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2361,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/main-app-19008b29240840c7.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2361,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/817-9fc3ece50f982b04.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2361,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/app/loading-a1cfdc92c84308a4.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2362,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/app/global-error-16a6638685e85413.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2362,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/e37a0b60-db16c8a16f1ede03.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2370,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/972-26b5d251dbbc7bfb.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2371,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/596-e144e86a664d21f3.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2371,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/app/%5B%5B...slug%5D%5D/page-20cedd429b9e83d7.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2372,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.creditkarma.com/qwOWi6LNPB/wB4kdCpqIr/5zJEStz4wtkGfNYf9k/ITULbHd7Rgg/QVY3ESo/jbmIB",
+        "domain": "www.creditkarma.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2372,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.creditkarma.com/qwOWi6LNPB/wB4kdCpqIr/S6JEOY/OnFqa3d7Rgg/GV8hBn1/5VgRZ",
+        "domain": "www.creditkarma.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2373,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/loans@2x.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2374,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/home@2x.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2374,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/auto@2x.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2375,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/insurance@2x.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2375,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/money@2x.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2376,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/lock.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2376,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/shield.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2376,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/app/layout-54c1ed7c90d31f79.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2377,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/app/error-2689a79cf0c7675e.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2377,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/tealium-iframe/0.40.0/loader.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2377,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/cfwk_raw-tracker-web/2.16.2/index.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2377,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://js-agent.newrelic.com/nr-spa-1.248.0.min.js",
+        "domain": "js-agent.newrelic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2378,
+        "blockedByShields": true
+      },
+      {
+        "id": 42,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/grayscale/Intuit.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2378,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/grayscale/TurboTax.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2378,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/grayscale/CreditKarma.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2379,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/grayscale/QuickBooks.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2379,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/grayscale/Mailchimp.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2380,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/navi/CK-trademark.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2381,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/navi/IC-logo.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2381,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.creditkarma.com/qwOWi6LNPB/wB4kdCpqIr/5zJEOY/OnFqa3d7Rgg/bwVxa2Q/uGiYq",
+        "domain": "www.creditkarma.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2382,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/Full_Hero_Desktop@2x.png?auto=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2389,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/Spending_Simp_Desktop@2x.png?auto=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2389,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/Card_Offer_Desktop@2x.png?auto=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2390,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/Product_Desktop@2x.png?auto=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2390,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/Breanne_Desktop@2x.png?auto=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2391,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/intuit-cornerstone-logos/reversed/Intuit.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2391,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/intuit-cornerstone-logos/reversed/TurboTax.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2392,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/intuit-cornerstone-logos/reversed/CreditKarma.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2397,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/intuit-cornerstone-logos/reversed/Quickbooks.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2398,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/intuit-cornerstone-logos/reversed/Mailchimp.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2398,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/footer/Facebook.png?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2399,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/footer/Instagram.png?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2399,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/footer/Twitter.png?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2400,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/footer/YouTube.png?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2400,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/footer/TikTok.png?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2400,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/footer/Pinterest.png?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2403,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/footer/ck-footer-desktop-code.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2404,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://ck-assets.imgix.net/assets/1.54.5/footer/digicert.png",
+        "domain": "ck-assets.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2405,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://creditkarma-cms.imgix.net/wp-content/uploads/2026/04/fheo125-1.gif",
+        "domain": "creditkarma-cms.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2406,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://www.creditkarma.com/qwOWi6LNPB/wB4kdCpqIr/5zJEStz4wtkGfNYf9k/ITULbHd7Rgg/QVY3ESo/jbmIB",
+        "domain": "www.creditkarma.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2645,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/cfwk_raw-tracker-web/2.16.2/697.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2687,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/cfwk_raw-tracker-web/2.16.2/327.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2688,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://bam.nr-data.net/1/248e088a40?a=&sa=&v=&t=&rst=&ck=&s=&ref=&af=&be=&fe=&dc=&fsh=&perf=&fp=&fcp=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2803,
+        "blockedByShields": true
+      },
+      {
+        "id": 73,
+        "url": "https://tags.creditkarma.com/",
+        "domain": "tags.creditkarma.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2888,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://bam.nr-data.net/events/1/248e088a40?a=&sa=&v=&t=&rst=&ck=&s=&ref=",
+        "domain": "bam.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2929,
+        "blockedByShields": true
+      },
+      {
+        "id": 75,
+        "url": "https://tags.creditkarma.com/bundle.js",
+        "domain": "tags.creditkarma.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3077,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3084,
+        "blockedByShields": true
+      },
+      {
+        "id": 77,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3262,
+        "blockedByShields": true
+      },
+      {
+        "id": 78,
+        "url": "https://cdn.taboola.com/libtrc/unip/1022710/tfa.js",
+        "domain": "cdn.taboola.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3263,
+        "blockedByShields": true
+      },
+      {
+        "id": 79,
+        "url": "https://s.pinimg.com/ct/core.js",
+        "domain": "s.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3263,
+        "blockedByShields": true
+      },
+      {
+        "id": 80,
+        "url": "https://dynamic.criteo.com/js/ld/ld.js?a=",
+        "domain": "dynamic.criteo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3264,
+        "blockedByShields": true
+      },
+      {
+        "id": 81,
+        "url": "https://ob.youstarsbuilding.com/i/19fbebbd38ef59b00614e91404cb6822.js",
+        "domain": "ob.youstarsbuilding.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3264,
+        "blockedByShields": true
+      },
+      {
+        "id": 82,
+        "url": "https://s.pinimg.com/ct/lib/main.0cb4b510.js",
+        "domain": "s.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3317,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://trc.taboola.com/1022710/trc/3/json?tim=&data=&pubit=",
+        "domain": "trc.taboola.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3368,
+        "blockedByShields": true
+      },
+      {
+        "id": 84,
+        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/857192775/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&ref=&top=&rcb=&frm=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3467,
+        "blockedByShields": true
+      },
+      {
+        "id": 85,
+        "url": "https://www.google.com/rmkt/collect/857192775/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&ref=&top=&rcb=&frm=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&gcp=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3468,
+        "blockedByShields": true
+      },
+      {
+        "id": 86,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&en=&dl=&dr=&top=&scrsrc=&rnd=&navt=&npa=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3468,
+        "blockedByShields": true
+      },
+      {
+        "id": 87,
+        "url": "https://obs.youstarsbuilding.com/ct?id=&url=&sf=&tpi=&ch=&uvid=&tsf=&tsfmi=&tsfu=&cb=&hl=&op=&ag=&rand=&fs=&fst=&np=&nv=&ref=&ss=&nc=&at=&di=&dep=&pre=&sdd=&cri=&pto=&ver=&gac=&mei=&ap=&fe=&duid=&suid=&tuid=&sid=&fbc=&gtm=&it=&fbcl=&gacl=&gacsd=&rtic=&rtict=&bgc=&spa=&urid=&ab=&sck=&io=&ao=&aol=",
+        "domain": "obs.youstarsbuilding.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3501,
+        "blockedByShields": true
+      },
+      {
+        "id": 88,
+        "url": "https://ct.pinterest.com/user/?tid=&pd=&cb=&dep=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3519,
+        "blockedByShields": true
+      },
+      {
+        "id": 89,
+        "url": "https://www.google.com/pagead/1p-user-list/857192775/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&ref=&top=&rcb=&frm=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3540,
+        "blockedByShields": true
+      },
+      {
+        "id": 90,
+        "url": "https://csp.intuit.com/v2/r/678f2539115be6ae440834d04b5a352b50d60d99",
+        "domain": "csp.intuit.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3613,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://cdn.id5-sync.com/api/1.0/id5-api.js",
+        "domain": "cdn.id5-sync.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3710,
+        "blockedByShields": true
+      },
+      {
+        "id": 92,
+        "url": "https://gum.criteo.com/syncframe?topUrl=&origin=",
+        "domain": "gum.criteo.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3715,
+        "blockedByShields": true
+      },
+      {
+        "id": 93,
+        "url": "https://bat.bing.com/bat.js",
+        "domain": "bat.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3842,
+        "blockedByShields": true
+      },
+      {
+        "id": 94,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3843,
+        "blockedByShields": true
+      },
+      {
+        "id": 95,
+        "url": "https://www.googleadservices.com/pagead/conversion/986970455/?label=&guid=&script=",
+        "domain": "www.googleadservices.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3844,
+        "blockedByShields": true
+      },
+      {
+        "id": 96,
+        "url": "https://obs.youstarsbuilding.com/tracker/tc_imp.gif?e=&cri=&ts=&cb=",
+        "domain": "obs.youstarsbuilding.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3844,
+        "blockedByShields": true
+      },
+      {
+        "id": 97,
+        "url": "https://obs.youstarsbuilding.com/dc/1",
+        "domain": "obs.youstarsbuilding.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3851,
+        "blockedByShields": true
+      },
+      {
+        "id": 98,
+        "url": "https://bat.bing.com/p/action/175030312.js",
+        "domain": "bat.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3892,
+        "blockedByShields": true
+      },
+      {
+        "id": 99,
+        "url": "https://bat.bing.com/action/0?ti=&Ver=&mid=&bo=&sid=&vid=&vids=&msclkid=&pi=&lg=&sw=&sh=&sc=&nwd=&p=&r=&lt=&evt=&ifm=&sv=&cdb=&rn=",
+        "domain": "bat.bing.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3926,
+        "blockedByShields": true
+      },
+      {
+        "id": 100,
+        "url": "https://bat.bing.com/action/0?ti=&Ver=&mid=&bo=&sid=&vid=&vids=&msclkid=&ec=&el=&ev=&ea=&en=&p=&sw=&sh=&sc=&nwd=&evt=&ifm=&cdb=&rn=",
+        "domain": "bat.bing.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3927,
+        "blockedByShields": true
+      },
+      {
+        "id": 101,
+        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/986970455/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&ref=&top=&rcb=&frm=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4007,
+        "blockedByShields": true
+      },
+      {
+        "id": 102,
+        "url": "https://www.google.com/rmkt/collect/986970455/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&ref=&top=&rcb=&frm=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&gcp=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4009,
+        "blockedByShields": true
+      },
+      {
+        "id": 103,
+        "url": "https://www.googleadservices.com/pagead/conversion/986970455/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&ref=&top=&rcb=&label=&capi=&gtm_ee=&frm=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&ec_mode=&gcl_ctr=&data=&category=&em=&emd=&rfmt=&ept=",
+        "domain": "www.googleadservices.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4010,
+        "blockedByShields": true
+      },
+      {
+        "id": 104,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&en=&dl=&dr=&top=&scrsrc=&rnd=&navt=&npa=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4010,
+        "blockedByShields": true
+      },
+      {
+        "id": 105,
+        "url": "https://www.google.com/pagead/1p-user-list/986970455/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&ref=&top=&rcb=&frm=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4047,
+        "blockedByShields": true
+      },
+      {
+        "id": 106,
+        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/986970455/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&ref=&top=&rcb=&label=&capi=&gtm_ee=&frm=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&ec_mode=&gcl_ctr=&data=&category=&em=&emd=&ept=&ct_cookie_present=&crd=&cerd=&fsk=&pscrd=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4120,
+        "blockedByShields": true
+      },
+      {
+        "id": 107,
+        "url": "https://www.google.com/pagead/1p-conversion/986970455/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&ref=&top=&rcb=&label=&capi=&gtm_ee=&frm=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&ec_mode=&gcl_ctr=&data=&category=&em=&emd=&ept=&ct_cookie_present=&crd=&cerd=&fsk=&pscrd=&is_vtc=&cid=&random=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4203,
+        "blockedByShields": true
+      },
+      {
+        "id": 108,
+        "url": "https://js-agent.newrelic.com/nr-spa-1210.min.js",
+        "domain": "js-agent.newrelic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4306,
+        "blockedByShields": true
+      },
+      {
+        "id": 109,
+        "url": "https://analytics.tiktok.com/i18n/pixel/events.js?sdkid=&lib=",
+        "domain": "analytics.tiktok.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4318,
+        "blockedByShields": true
+      },
+      {
+        "id": 110,
+        "url": "https://www.googletagmanager.com/gtag/destination?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4318,
+        "blockedByShields": true
+      },
+      {
+        "id": 111,
+        "url": "https://id5-sync.com/gm/v3",
+        "domain": "id5-sync.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4325,
+        "blockedByShields": true
+      },
+      {
+        "id": 112,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4328,
+        "blockedByShields": true
+      },
+      {
+        "id": 113,
+        "url": "https://bam-cell.nr-data.net/1/248e088a40?a=&sa=&v=&t=&rst=&ck=&ref=&be=&fe=&dc=&af=&perf=&jsonp=",
+        "domain": "bam-cell.nr-data.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4334,
+        "blockedByShields": true
+      },
+      {
+        "id": 114,
+        "url": "https://analytics.google.com/g/collect?v=&tid=&gtm=&_p=&_gaz=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&gaf=&_s=&tag_exp=&dr=&sid=&sct=&seg=&dl=&dt=&en=&_fv=&_nsi=&_ss=&ep.auth_status=&ep.is_cms=&ep.state=&up.=&tfd=",
+        "domain": "analytics.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4495,
+        "blockedByShields": true
+      },
+      {
+        "id": 115,
+        "url": "https://stats.g.doubleclick.net/g/collect?v=&tid=&cid=&gtm=&rcb=&aip=&dma=&gcd=&npa=&frm=&tag_exp=",
+        "domain": "stats.g.doubleclick.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4496,
+        "blockedByShields": true
+      },
+      {
+        "id": 116,
+        "url": "https://www.googletagmanager.com/td?id=&v=&t=&pid=&gtm=&seq=&exp=&dl=&tdp=&frm=&rtg=&slo=&hlo=&lst=&pcid=&bt=&ct=&jsp=&z=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4497,
+        "blockedByShields": true
+      },
+      {
+        "id": 117,
+        "url": "https://analytics.tiktok.com/i18n/pixel/static/main.MWQxZjE3MjdmMQ.js",
+        "domain": "analytics.tiktok.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4545,
+        "blockedByShields": true
+      },
+      {
+        "id": 118,
+        "url": "https://analytics.tiktok.com/i18n/pixel/static/identify_b8133453.js",
+        "domain": "analytics.tiktok.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4632,
+        "blockedByShields": true
+      },
+      {
+        "id": 119,
+        "url": "https://analytics.tiktok.com/api/v2/pixel",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4636,
+        "blockedByShields": true
+      },
+      {
+        "id": 120,
+        "url": "https://analytics.tiktok.com/api/v2/pixel",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4637,
+        "blockedByShields": true
+      },
+      {
+        "id": 121,
+        "url": "https://sponge.creditkarma.com/events/ck/web",
+        "domain": "sponge.creditkarma.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4781,
+        "blockedByShields": false
+      },
+      {
+        "id": 122,
+        "url": "https://sponge.creditkarma.com/events",
+        "domain": "sponge.creditkarma.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4784,
+        "blockedByShields": false
+      },
+      {
+        "id": 123,
+        "url": "https://obs.youstarsbuilding.com/mon",
+        "domain": "obs.youstarsbuilding.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4834,
+        "blockedByShields": true
+      },
+      {
+        "id": 124,
+        "url": "https://obs.youstarsbuilding.com/mon",
+        "domain": "obs.youstarsbuilding.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4889,
+        "blockedByShields": true
+      },
+      {
+        "id": 125,
+        "url": "https://www.creditkarma.com/qwOWi6LNPB/wB4kdCpqIr/5zJEStz4wtkGfNYf9k/ITULbHd7Rgg/QVY3ESo/jbmIB",
+        "domain": "www.creditkarma.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 5629,
+        "blockedByShields": false
+      },
+      {
+        "id": 126,
+        "url": "https://obs.youstarsbuilding.com/mon",
+        "domain": "obs.youstarsbuilding.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6892,
+        "blockedByShields": true
+      },
+      {
+        "id": 127,
+        "url": "https://trc-events.taboola.com/1022710/log/3/unip?en=&tos=&scd=&ssd=&est=&ver=&isls=&src=&invt=&msa=&rv=&tim=&vi=&ri=&sd=&ui=&ref=&cv=&item-url=&ler=&it=",
+        "domain": "trc-events.taboola.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8004,
+        "blockedByShields": true
+      },
+      {
+        "id": 128,
+        "url": "https://sslwidget.criteo.com/event?a=&v=&csp-nonce=&p0=&p1=&sc=&tld=&dy=&fu=&pu=&ceid=",
+        "domain": "sslwidget.criteo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8712,
+        "blockedByShields": true
+      },
+      {
+        "id": 129,
+        "url": "https://obs.youstarsbuilding.com/mon",
+        "domain": "obs.youstarsbuilding.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8894,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "analytics.tiktok.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "ping"
+        ]
+      },
+      {
+        "domain": "bat.bing.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "js-agent.newrelic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "bam.nr-data.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.googleadservices.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.taboola.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "dynamic.criteo.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "trc.taboola.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ct.pinterest.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "gum.criteo.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "bam-cell.nr-data.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "stats.g.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "trc-events.taboola.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "sslwidget.criteo.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "requests": 49,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script",
+          "font",
+          "image"
+        ]
+      },
+      {
+        "domain": "ck-content.imgix.net",
+        "requests": 14,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "obs.youstarsbuilding.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "image",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "s.pinimg.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ck-assets.imgix.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "creditkarma-cms.imgix.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "ob.youstarsbuilding.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "csp.intuit.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "other"
+        ]
+      },
+      {
+        "domain": "cdn.id5-sync.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "id5-sync.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.creditkarma.com",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          201
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "tags.creditkarma.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "sponge.creditkarma.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "MR",
+        "domain": ".bat.bing.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "MUID",
+        "domain": ".bing.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "uid",
+        "domain": ".criteo.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "JSESSIONID",
+        "domain": ".nr-data.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "taboola_session_id",
+        "domain": ".taboola.com",
+        "path": "/creditkarma-creditcards-sc/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "t_gid",
+        "domain": ".taboola.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "t_pt_gid",
+        "domain": ".taboola.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "_ttp",
+        "domain": ".tiktok.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "cg_uuid",
+        "domain": "obs.youstarsbuilding.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "CKTRKID",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "FID",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CKTRACEID",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CK_AV",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_sz",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cq_duid",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cq_suid",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_cq_session",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cq_s",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_uetsid",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_uetvid",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_0VHWHRFT7Z",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_tt_enable_cookie",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ttp",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ttcsid_CCN274RC77U1F3L1EDIG",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ttcsid",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ck_web",
+        "domain": ".www.creditkarma.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "NRBA_SESSION",
+        "valueBytes": 226
+      },
+      {
+        "area": "localStorage",
+        "key": "JUDGEMENT_EVENTS_CUSTOM-events/ck/web",
+        "valueBytes": 39
+      },
+      {
+        "area": "localStorage",
+        "key": "JUDGEMENT_EVENTS",
+        "valueBytes": 39
+      },
+      {
+        "area": "sessionStorage",
+        "key": "userTraceId",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "debugSequenceId",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 2,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+            "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl2.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 12,
+          "readPixelsCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 3
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 3
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "The page did not reach network idle before the scan window ended."
+    ],
+    "pixelEvents": [
+      {
+        "platform": "TikTok",
+        "product": "TikTok Pixel",
+        "events": [
+          "LandingPageView",
+          "Pageview"
+        ],
+        "advancedMatching": [],
+        "requests": 2
+      }
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Credit scores and much more - Intuit Credit Karma",
+      "status": 200,
+      "durationMs": 5371,
+      "firstPartyDomain": "www.creditkarma.com",
+      "totalRequests": 73,
+      "thirdPartyRequests": 66,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 5,
+      "cookies": 7,
+      "thirdPartyCookies": 0,
+      "storageEntries": 4,
+      "fingerprintEvents": 6,
+      "shieldsBlockedRequests": 4
+    },
+    "conditions": {
+      "requestedUrl": "https://www.creditkarma.com/",
+      "finalUrl": "https://www.creditkarma.com/",
+      "scannedAt": "2026-06-25T20:13:42.465Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.creditkarma.com/",
+        "domain": "www.creditkarma.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 34,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/Credit@2x.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3286,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/cards@2x.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3286,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/css/82616a88e06bd528.css",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3286,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/css/5eb913f4685e2b19.css",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3287,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/css/9b7e6cafcde7259b.css",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3287,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/web-observability-utils/2.6.12/newRelicWrapper.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3289,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/galaxy-css/7.2.0/galaxy.min.css",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3290,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/galaxy-css/6.0.0-alpha.340b178/fonts/National2Web-Regular.woff2",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3291,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/galaxy-css/6.0.0-alpha.340b178/fonts/National2Web-Medium.woff2",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3291,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/galaxy-css/6.0.0-alpha.340b178/fonts/National2Web-Bold.woff2",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3291,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/Intuit.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3291,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/TurboTax.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3291,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/CreditKarma.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3331,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/Quickbooks.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3334,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/Mailchimp.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3354,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.creditkarma.com/qwOWi6LNPB/wB4kdCpqIr/5zJEStz4wtkGfNYf9k/ITULbHd7Rgg/QVY3ESo/jbmIB",
+        "domain": "www.creditkarma.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3356,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.creditkarma.com/qwOWi6LNPB/wB4kdCpqIr/S6JEOY/OnFqa3d7Rgg/GV8hBn1/5VgRZ",
+        "domain": "www.creditkarma.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3357,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/loans@2x.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3365,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/home@2x.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3366,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/auto@2x.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3366,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/insurance@2x.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3367,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/webpack-2c49757c16229371.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3368,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/bf6a786c-d8431bb9b5eb02d4.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3368,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/831-c2a5be8b8f77fa81.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3369,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/main-app-19008b29240840c7.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3369,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/817-9fc3ece50f982b04.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3370,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/app/loading-a1cfdc92c84308a4.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3371,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/app/global-error-16a6638685e85413.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3371,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/e37a0b60-db16c8a16f1ede03.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3372,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/972-26b5d251dbbc7bfb.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3374,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/596-e144e86a664d21f3.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3374,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/app/%5B%5B...slug%5D%5D/page-20cedd429b9e83d7.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3375,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/app/layout-54c1ed7c90d31f79.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3376,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/homepage/3.3.3/_next/static/chunks/app/error-2689a79cf0c7675e.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3376,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/tealium-iframe/0.40.0/loader.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3377,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/money@2x.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3377,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/lock.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3377,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/shield.png?auto=&dpr=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3378,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/cfwk_raw-tracker-web/2.16.2/index.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3378,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/grayscale/Intuit.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3379,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/grayscale/TurboTax.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3380,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/grayscale/CreditKarma.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3380,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/grayscale/QuickBooks.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3380,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/intuit-cornerstone-logos/grayscale/Mailchimp.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3381,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/navi/CK-trademark.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3381,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.151.100/navi/IC-logo.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3382,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.creditkarma.com/qwOWi6LNPB/wB4kdCpqIr/5zJEOY/OnFqa3d7Rgg/bwVxa2Q/uGiYq",
+        "domain": "www.creditkarma.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3384,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/Full_Hero_Desktop@2x.png?auto=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3394,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/Spending_Simp_Desktop@2x.png?auto=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3401,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/Card_Offer_Desktop@2x.png?auto=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3403,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/Product_Desktop@2x.png?auto=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3404,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://ck-content.imgix.net/res/content/bundles/homepage/3.3.3/assets/kycco/Breanne_Desktop@2x.png?auto=",
+        "domain": "ck-content.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3405,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/intuit-cornerstone-logos/reversed/Intuit.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3406,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/intuit-cornerstone-logos/reversed/TurboTax.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3407,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/intuit-cornerstone-logos/reversed/CreditKarma.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3411,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/intuit-cornerstone-logos/reversed/Quickbooks.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3411,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/intuit-cornerstone-logos/reversed/Mailchimp.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3412,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/footer/Facebook.png?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3413,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/footer/Instagram.png?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3414,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/footer/Twitter.png?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3415,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/footer/YouTube.png?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3416,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/footer/TikTok.png?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3421,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/footer/Pinterest.png?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3422,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/assets/1.152.1/footer/ck-footer-desktop-code.svg?auto=&dpr=",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3423,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://ck-assets.imgix.net/assets/1.54.5/footer/digicert.png",
+        "domain": "ck-assets.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3423,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://creditkarma-cms.imgix.net/wp-content/uploads/2026/04/fheo125-1.gif",
+        "domain": "creditkarma-cms.imgix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3424,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://www.creditkarma.com/qwOWi6LNPB/wB4kdCpqIr/5zJEStz4wtkGfNYf9k/ITULbHd7Rgg/QVY3ESo/jbmIB",
+        "domain": "www.creditkarma.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3603,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/cfwk_raw-tracker-web/2.16.2/697.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3691,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://creditkarmacdn-a.akamaihd.net/res/content/bundles/cfwk_raw-tracker-web/2.16.2/327.js",
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3692,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://tags.creditkarma.com/",
+        "domain": "tags.creditkarma.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3917,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://tags.creditkarma.com/bundle.js",
+        "domain": "tags.creditkarma.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4072,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://csp.intuit.com/v2/r/678f2539115be6ae440834d04b5a352b50d60d99",
+        "domain": "csp.intuit.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4567,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "creditkarmacdn-a.akamaihd.net",
+        "requests": 49,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script",
+          "font",
+          "image"
+        ]
+      },
+      {
+        "domain": "ck-content.imgix.net",
+        "requests": 14,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "ck-assets.imgix.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "creditkarma-cms.imgix.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "csp.intuit.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "other"
+        ]
+      },
+      {
+        "domain": "www.creditkarma.com",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          201
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "tags.creditkarma.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "CKTRKID",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "FID",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CKTRACEID",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "CK_AV",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "bm_sz",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".creditkarma.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ck_web",
+        "domain": ".www.creditkarma.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "JUDGEMENT_EVENTS_CUSTOM-events/ck/web",
+        "valueBytes": 4988
+      },
+      {
+        "area": "localStorage",
+        "key": "JUDGEMENT_EVENTS",
+        "valueBytes": 1193
+      },
+      {
+        "area": "sessionStorage",
+        "key": "userTraceId",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "debugSequenceId",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+            "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl2.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 6,
+          "readPixelsCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 129,
+      "after": 73,
+      "delta": -56
+    },
+    "thirdPartyRequests": {
+      "before": 119,
+      "after": 66,
+      "delta": -53
+    },
+    "knownTrackerRequests": {
+      "before": 34,
+      "after": 0,
+      "delta": -34
+    },
+    "thirdPartyDomains": {
+      "before": 28,
+      "after": 5,
+      "delta": -23
+    },
+    "cookies": {
+      "before": 30,
+      "after": 7,
+      "delta": -23
+    },
+    "thirdPartyCookies": {
+      "before": 10,
+      "after": 0,
+      "delta": -10
+    },
+    "storageEntries": {
+      "before": 5,
+      "after": 4,
+      "delta": -1
+    },
+    "fingerprintEvents": {
+      "before": 8,
+      "after": 6,
+      "delta": -2
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "obs.youstarsbuilding.com",
+        "requests": 7,
+        "tracker": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 7,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 6,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics.tiktok.com",
+        "requests": 5,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "bat.bing.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 3,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "bam.nr-data.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "js-agent.newrelic.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "s.pinimg.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "sponge.creditkarma.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "www.googleadservices.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "bam-cell.nr-data.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cdn.id5-sync.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.taboola.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ct.pinterest.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "dynamic.criteo.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "gum.criteo.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "id5-sync.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "ob.youstarsbuilding.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "sslwidget.criteo.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "stats.g.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "trc-events.taboola.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "trc.taboola.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 13,
+        "domains": 5
+      },
+      {
+        "entity": "New Relic",
+        "requests": 5,
+        "domains": 3
+      },
+      {
+        "entity": "TikTok",
+        "requests": 5,
+        "domains": 1
+      },
+      {
+        "entity": "Microsoft",
+        "requests": 4,
+        "domains": 1
+      },
+      {
+        "entity": "Criteo",
+        "requests": 3,
+        "domains": 3
+      },
+      {
+        "entity": "Taboola",
+        "requests": 3,
+        "domains": 3
+      },
+      {
+        "entity": "Pinterest",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "MR",
+        "domain": ".bat.bing.com",
+        "thirdParty": true
+      },
+      {
+        "name": "MUID",
+        "domain": ".bing.com",
+        "thirdParty": true
+      },
+      {
+        "name": "uid",
+        "domain": ".criteo.com",
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "JSESSIONID",
+        "domain": ".nr-data.net",
+        "thirdParty": true
+      },
+      {
+        "name": "t_gid",
+        "domain": ".taboola.com",
+        "thirdParty": true
+      },
+      {
+        "name": "t_pt_gid",
+        "domain": ".taboola.com",
+        "thirdParty": true
+      },
+      {
+        "name": "taboola_session_id",
+        "domain": ".taboola.com",
+        "thirdParty": true
+      },
+      {
+        "name": "_ttp",
+        "domain": ".tiktok.com",
+        "thirdParty": true
+      },
+      {
+        "name": "cg_uuid",
+        "domain": "obs.youstarsbuilding.com",
+        "thirdParty": true
+      },
+      {
+        "name": "_cq_duid",
+        "domain": ".creditkarma.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_cq_s",
+        "domain": ".creditkarma.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_cq_session",
+        "domain": ".creditkarma.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_cq_suid",
+        "domain": ".creditkarma.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".creditkarma.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_0VHWHRFT7Z",
+        "domain": ".creditkarma.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".creditkarma.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_tt_enable_cookie",
+        "domain": ".creditkarma.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_ttp",
+        "domain": ".creditkarma.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_uetsid",
+        "domain": ".creditkarma.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_uetvid",
+        "domain": ".creditkarma.com",
+        "thirdParty": false
+      },
+      {
+        "name": "ttcsid",
+        "domain": ".creditkarma.com",
+        "thirdParty": false
+      },
+      {
+        "name": "ttcsid_CCN274RC77U1F3L1EDIG",
+        "domain": ".creditkarma.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "NRBA_SESSION"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 52,
+      "after": 4,
+      "delta": -48
+    },
+    "removedPixelEvents": [
+      {
+        "platform": "TikTok",
+        "product": "TikTok Pixel",
+        "events": [
+          "LandingPageView",
+          "Pageview"
+        ],
+        "advancedMatching": []
+      }
+    ]
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: The page did not reach network idle before the scan window ended.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260625-932a6f76ab76e215602cb9f7cb413707",
+    "path": "/reports/20260625-932a6f76ab76e215602cb9f7cb413707/",
+    "jsonPath": "/reports/20260625-932a6f76ab76e215602cb9f7cb413707.json"
+  }
+}

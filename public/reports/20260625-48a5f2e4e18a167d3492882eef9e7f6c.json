@@ -1,0 +1,2652 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.psychologytoday.com/",
+  "scannedAt": "2026-06-25T20:17:49.596Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Psychology Today: Health, Help, Happiness + Find a Therapist",
+      "status": 200,
+      "durationMs": 5328,
+      "firstPartyDomain": "www.psychologytoday.com",
+      "totalRequests": 93,
+      "thirdPartyRequests": 20,
+      "knownTrackerRequests": 8,
+      "thirdPartyDomains": 8,
+      "cookies": 1,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 10
+    },
+    "conditions": {
+      "requestedUrl": "https://www.psychologytoday.com/",
+      "finalUrl": "https://www.psychologytoday.com/us",
+      "scannedAt": "2026-06-25T20:17:44.262Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.psychologytoday.com/",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 31,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "http://www.psychologytoday.com/us",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 307,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 331,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.psychologytoday.com/us",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 332,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/crop_4_3_1140x437/public/2026-06/flowersshutterstockai_2736822043.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 604,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/cover_story_small/public/2026-06/flowersshutterstockai_2736822043.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 606,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://cdn2.psychologytoday.com/themes/custom/pt/fonts/proxima-nova/proxima-nova-regular.woff2",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 606,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://cdn2.psychologytoday.com/themes/custom/pt/fonts/proxima-nova/proxima-nova-semibold.woff2",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 606,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://cdn2.psychologytoday.com/themes/custom/pt/fonts/proxima-nova/proxima-nova-bold.woff2",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 606,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://cdn2.psychologytoday.com/assets/css/css_BQVa1DaU4uCrl5xvpgt_VMr_zYqFcLSHNetqbTJcSDM.css",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 606,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://cdn2.psychologytoday.com/assets/css/css_uWoaypIVq6-VFUtjMgR1W3Z0Mhz4pgRM0E5E0LyYpps.css",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 606,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://securepubads.g.doubleclick.net/tag/js/gpt.js",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 606,
+        "blockedByShields": true
+      },
+      {
+        "id": 12,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 606,
+        "blockedByShields": true
+      },
+      {
+        "id": 13,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/crop_4_3_1140x437/public/2026-06/alone_aleshyn_andrei_shutterstock_226997164.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 607,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://cdn2.psychologytoday.com/assets/js/js_p3ggnLTW_lYmTasS2DzzZV-fpAo3KB_9UVJZDYyiaMA.js",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 607,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://cdn2.psychologytoday.com/assets/js/js_TaK25oNNJhVkqlP8dZfTL6CB31s6oq2IRrwa9rNK0SA.js",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 607,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://cdn2.psychologytoday.com/modules/custom/pt_td/js/search-suggestions.min.js",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 607,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://cdn2.psychologytoday.com/modules/custom/pt_ad/js/gpt-process.js",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 608,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/logos/logo-psychology-today-blue.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 698,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-globe-dark.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 699,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-search-dark.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 699,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/actions/reveal-arrow-popover-selector.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 700,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-search-fat.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 711,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/actions/pagination-arrow-next.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 712,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-reviewed-by.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 713,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/actions/back-arrow-dark.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 714,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-home.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 714,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-user-search.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 715,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-right-chevron-dark.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 715,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-hand-holding-heart.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 716,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-contacts.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 716,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-circle-check.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 716,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-check-circle.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 718,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/buddha1aishutterstock_2801720165.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 718,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/pexels-yankrukov-7792831.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 719,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/infertility-and-hope.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 719,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/joshgmit-ai-generated-8262920.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 719,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/klimt.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 720,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/milada-vigerova-glixpkrohms-unsplash.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 729,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/field_blog_entry_images/2026-06/pexels-zeal-creative-studios-58866141-33551393.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 729,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/pexels-cottonbro-7225785.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 730,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/istockphoto-1395582300-612x612.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 730,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/priscilla-du-preez-apa843frizi-unsplash.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 731,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/field_blog_entry_images/2026-06/improved-performance-people.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 731,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/192365008_m.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 732,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/peopleinlove.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 732,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/pexels-n-voitkevich-6120398.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 733,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/profile_teaser/public/2023-04/LMa1.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 733,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/profile_teaser/public/field_user_blogger_photo/screen_shot_2020-11-20_at_7.56.10_am.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 733,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/profile_teaser/public/2026-06/delia_petrescu.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 734,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/profile_teaser/public/Joseph-M-Pierre.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 734,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://cdn2.psychologytoday.com/assets/default_images/counseling.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 735,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/magazine_1133x1500/public/magazine/2026-04/2026-05.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 735,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/magazine_384x504/public/magazine/2026-04/2026-05.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 736,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://cdn2.psychologytoday.com/assets/self-tests-menu%402x.png",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 736,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://www.psychologytoday.com/us/blog-entry/api/most-popular-block",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 742,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202606220101/pubads_impl.js",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 822,
+        "blockedByShields": true
+      },
+      {
+        "id": 57,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 876,
+        "blockedByShields": true
+      },
+      {
+        "id": 58,
+        "url": "https://cdn-cookieyes.com/client_data/c0c1e4e763a14272b6fe1f82/script.js",
+        "domain": "cdn-cookieyes.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 885,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_75x75/public/teaser_image/blog_entry/2026-06/getty-images-js6qubnn6us-unsplash.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 977,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_75x75/public/teaser_image/blog_entry/2026-06/old_couple_-_4.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 978,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_75x75/public/teaser_image/blog_entry/2026-06/fluid_intelligence.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 979,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_75x75/public/teaser_image/blog_entry/2026-02/austin-distel-60caCHdOqH0-unsplash.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 979,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_75x75/public/teaser_image/blog_entry/2026-06/pexels-karola-g-6660771.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 980,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_75x75/public/teaser_image/blog_entry/2026-06/ylanite_nietjuhart-love-9347917_1280.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 980,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://log.cookieyes.com/api/v1/log",
+        "domain": "log.cookieyes.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 991,
+        "blockedByShields": true
+      },
+      {
+        "id": 66,
+        "url": "https://cdn-cookieyes.com/client_data/c0c1e4e763a14272b6fe1f82/banner.js",
+        "domain": "cdn-cookieyes.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 992,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://cdn-cookieyes.com/common/iab-gvl-v3.json",
+        "domain": "cdn-cookieyes.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1069,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://securepubads.g.doubleclick.net/pagead/managed/dict/m202606180101/gpt",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1071,
+        "blockedByShields": true
+      },
+      {
+        "id": 69,
+        "url": "https://cdn-cookieyes.com/client_data/c0c1e4e763a14272b6fe1f82/uQ8e2I8d.json",
+        "domain": "cdn-cookieyes.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1152,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://directory.cookieyes.com/api/v1/ip",
+        "domain": "directory.cookieyes.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1171,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://cdn-cookieyes.com/client_data/c0c1e4e763a14272b6fe1f82/config/tAWCl6kE.json",
+        "domain": "cdn-cookieyes.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1210,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://cdn-cookieyes.com/client_data/c0c1e4e763a14272b6fe1f82/translations/b6rSTUfN.json",
+        "domain": "cdn-cookieyes.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1228,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://cdn-cookieyes.com/client_data/c0c1e4e763a14272b6fe1f82/audit-table/8iIKC8Ep.json",
+        "domain": "cdn-cookieyes.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1244,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://cdn-cookieyes.com/assets/images/close.svg",
+        "domain": "cdn-cookieyes.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1269,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://cdn-cookieyes.com/assets/images/poweredbtcky.svg",
+        "domain": "cdn-cookieyes.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1269,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcs=&gcd=&npa=&dma_cps=&dma=&tcfd=&gdid=&_eu=&are=&cid=&frm=&ir=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&gaf=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&_tu=&en=&_fv=&_nsi=&_ss=&ep.debug_mode=&ep.content_group=&ep.page_type=&ep.country_code=&ep.profile_id=&ep.property=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1288,
+        "blockedByShields": true
+      },
+      {
+        "id": 77,
+        "url": "https://pagead2.googlesyndication.com/pagead/ping?e=",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1969,
+        "blockedByShields": true
+      },
+      {
+        "id": 78,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/stephansigg-discussion-10317229_1280.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2038,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/chatgpt_hybrid_fomo.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2040,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/greyerbaby-boy-995435.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2040,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/moosephotospexels-37994.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2041,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/tanya-prodaan-yqsuxgovgec-unsplash.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2041,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/oliverdohrnpexels.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2041,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/pexels-scott-lord-564881271-20209006.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2042,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/field_blog_entry_images/2026-06/shutterstock_250167421-2.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2043,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/anna_shevets_pexels-shvetsa-4672239.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2043,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/field_blog_entry_images/2026-06/ptblogphotobridge_0.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2044,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://www.psychologytoday.com/intl/search/suggestions",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2212,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://www.psychologytoday.com/intl/search/suggestions",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2288,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://www.psychologytoday.com/us/therapists/suggestions",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2320,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://www.psychologytoday.com/us/therapists/suggestions",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2437,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcs=&gcd=&npa=&dma_cps=&dma=&tcfd=&gdid=&_eu=&are=&cid=&frm=&ir=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&gaf=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&_tu=&en=&ep.debug_mode=&ep.content_group=&ep.page_type=&ep.country_code=&ep.profile_id=&ep.property=&_et=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 4600,
+        "blockedByShields": true
+      },
+      {
+        "id": 93,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcs=&gcd=&npa=&dma_cps=&dma=&tcfd=&gdid=&_eu=&are=&cid=&frm=&ir=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&gaf=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&_tu=&en=&ep.debug_mode=&ep.content_group=&ep.page_type=&ep.country_code=&ep.profile_id=&ep.property=&_et=&tfd=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4601,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "securepubads.g.doubleclick.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "other"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "pagead2.googlesyndication.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cdn-cookieyes.com",
+        "requests": 9,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "log.cookieyes.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "directory.cookieyes.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cdn2.psychologytoday.com",
+        "requests": 65,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "font",
+          "stylesheet",
+          "script"
+        ]
+      },
+      {
+        "domain": "www.psychologytoday.com",
+        "requests": 8,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302,
+          307,
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "cookieyes-consent",
+        "domain": ".www.psychologytoday.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document",
+            "input",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn-cookieyes.com",
+            "https://cdn2.psychologytoday.com",
+            "https://www.googletagmanager.com"
+          ],
+          "totalListenerCalls": 17
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "scroll",
+            "touchstart",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "input",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn-cookieyes.com",
+            "https://cdn2.psychologytoday.com",
+            "https://www.googletagmanager.com"
+          ],
+          "totalListenerCalls": 68
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Psychology Today: Health, Help, Happiness + Find a Therapist",
+      "status": 200,
+      "durationMs": 5054,
+      "firstPartyDomain": "www.psychologytoday.com",
+      "totalRequests": 73,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 1,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://www.psychologytoday.com/",
+      "finalUrl": "https://www.psychologytoday.com/us",
+      "scannedAt": "2026-06-25T20:17:49.596Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.psychologytoday.com/",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 36,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "http://www.psychologytoday.com/us",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 307,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 339,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.psychologytoday.com/us",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 340,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/crop_4_3_1140x437/public/2026-06/flowersshutterstockai_2736822043.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 672,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/cover_story_small/public/2026-06/flowersshutterstockai_2736822043.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 673,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://cdn2.psychologytoday.com/themes/custom/pt/fonts/proxima-nova/proxima-nova-regular.woff2",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 673,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://cdn2.psychologytoday.com/themes/custom/pt/fonts/proxima-nova/proxima-nova-semibold.woff2",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 674,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://cdn2.psychologytoday.com/themes/custom/pt/fonts/proxima-nova/proxima-nova-bold.woff2",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 674,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://cdn2.psychologytoday.com/assets/css/css_BQVa1DaU4uCrl5xvpgt_VMr_zYqFcLSHNetqbTJcSDM.css",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 674,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://cdn2.psychologytoday.com/assets/css/css_uWoaypIVq6-VFUtjMgR1W3Z0Mhz4pgRM0E5E0LyYpps.css",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 675,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/crop_4_3_1140x437/public/2026-06/alone_aleshyn_andrei_shutterstock_226997164.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 675,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://cdn2.psychologytoday.com/assets/js/js_p3ggnLTW_lYmTasS2DzzZV-fpAo3KB_9UVJZDYyiaMA.js",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 675,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://cdn2.psychologytoday.com/assets/js/js_TaK25oNNJhVkqlP8dZfTL6CB31s6oq2IRrwa9rNK0SA.js",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 676,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://cdn2.psychologytoday.com/modules/custom/pt_td/js/search-suggestions.min.js",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 676,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://cdn2.psychologytoday.com/modules/custom/pt_ad/js/gpt-process.js",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 676,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/logos/logo-psychology-today-blue.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 756,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-globe-dark.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 758,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-search-dark.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 758,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/actions/reveal-arrow-popover-selector.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 759,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-search-fat.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 759,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/actions/pagination-arrow-next.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 760,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-reviewed-by.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 763,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/actions/back-arrow-dark.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 763,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-home.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 763,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-user-search.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 764,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-right-chevron-dark.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 764,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-hand-holding-heart.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 765,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-contacts.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 765,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-circle-check.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 765,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://cdn2.psychologytoday.com/theme-assets/icons/icon-check-circle.svg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 766,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/buddha1aishutterstock_2801720165.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 766,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/pexels-yankrukov-7792831.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 767,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/infertility-and-hope.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 767,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/joshgmit-ai-generated-8262920.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 768,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/klimt.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 768,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/milada-vigerova-glixpkrohms-unsplash.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 769,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/field_blog_entry_images/2026-06/pexels-zeal-creative-studios-58866141-33551393.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 769,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/pexels-cottonbro-7225785.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 770,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/istockphoto-1395582300-612x612.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 774,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/priscilla-du-preez-apa843frizi-unsplash.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 778,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/field_blog_entry_images/2026-06/improved-performance-people.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 779,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/192365008_m.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 779,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/peopleinlove.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 779,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/pexels-n-voitkevich-6120398.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 780,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/profile_teaser/public/2023-04/LMa1.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 780,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/profile_teaser/public/field_user_blogger_photo/screen_shot_2020-11-20_at_7.56.10_am.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 781,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/profile_teaser/public/2026-06/delia_petrescu.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 781,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/profile_teaser/public/Joseph-M-Pierre.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 782,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://cdn2.psychologytoday.com/assets/default_images/counseling.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 782,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/magazine_1133x1500/public/magazine/2026-04/2026-05.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 782,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/magazine_384x504/public/magazine/2026-04/2026-05.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 786,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://cdn2.psychologytoday.com/assets/self-tests-menu%402x.png",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 786,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://www.psychologytoday.com/us/blog-entry/api/most-popular-block",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 796,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_75x75/public/teaser_image/blog_entry/2026-06/getty-images-js6qubnn6us-unsplash.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 905,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_75x75/public/teaser_image/blog_entry/2026-06/old_couple_-_4.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 906,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_75x75/public/teaser_image/blog_entry/2026-06/fluid_intelligence.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 906,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_75x75/public/teaser_image/blog_entry/2026-02/austin-distel-60caCHdOqH0-unsplash.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 906,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_75x75/public/teaser_image/blog_entry/2026-06/pexels-karola-g-6660771.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 907,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_75x75/public/teaser_image/blog_entry/2026-06/ylanite_nietjuhart-love-9347917_1280.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 908,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/stephansigg-discussion-10317229_1280.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1737,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/chatgpt_hybrid_fomo.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1737,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/greyerbaby-boy-995435.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1740,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/moosephotospexels-37994.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1740,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/tanya-prodaan-yqsuxgovgec-unsplash.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1741,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/oliverdohrnpexels.png.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1741,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/pexels-scott-lord-564881271-20209006.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1742,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/field_blog_entry_images/2026-06/shutterstock_250167421-2.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1742,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/teaser_image/blog_entry/2026-06/anna_shevets_pexels-shvetsa-4672239.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1743,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://cdn2.psychologytoday.com/assets/styles/manual_crop_1_1_288x288/public/field_blog_entry_images/2026-06/ptblogphotobridge_0.jpg",
+        "domain": "cdn2.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1743,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://www.psychologytoday.com/intl/search/suggestions",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1925,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://www.psychologytoday.com/intl/search/suggestions",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2006,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://www.psychologytoday.com/us/therapists/suggestions",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2033,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://www.psychologytoday.com/us/therapists/suggestions",
+        "domain": "www.psychologytoday.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2145,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "cdn2.psychologytoday.com",
+        "requests": 65,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "font",
+          "stylesheet",
+          "script"
+        ]
+      },
+      {
+        "domain": "www.psychologytoday.com",
+        "requests": 8,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302,
+          307,
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "preferred_language",
+        "domain": "www.psychologytoday.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown"
+          ],
+          "listenerTargets": [
+            "input",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn2.psychologytoday.com"
+          ],
+          "totalListenerCalls": 14
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "scroll",
+            "touchstart"
+          ],
+          "listenerTargets": [
+            "document",
+            "input",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn2.psychologytoday.com"
+          ],
+          "totalListenerCalls": 58
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 93,
+      "after": 73,
+      "delta": -20
+    },
+    "thirdPartyRequests": {
+      "before": 20,
+      "after": 0,
+      "delta": -20
+    },
+    "knownTrackerRequests": {
+      "before": 8,
+      "after": 0,
+      "delta": -8
+    },
+    "thirdPartyDomains": {
+      "before": 8,
+      "after": 0,
+      "delta": -8
+    },
+    "cookies": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "cdn-cookieyes.com",
+        "requests": 9,
+        "tracker": null
+      },
+      {
+        "domain": "securepubads.g.doubleclick.net",
+        "requests": 3,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "directory.cookieyes.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "log.cookieyes.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "pagead2.googlesyndication.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 8,
+        "domains": 4
+      }
+    ],
+    "addedCookies": [
+      {
+        "name": "preferred_language",
+        "domain": "www.psychologytoday.com",
+        "thirdParty": false
+      }
+    ],
+    "removedCookies": [
+      {
+        "name": "cookieyes-consent",
+        "domain": ".www.psychologytoday.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 10,
+      "after": 2,
+      "delta": -8
+    }
+  },
+  "warnings": [
+    "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+  ],
+  "share": {
+    "id": "20260625-48a5f2e4e18a167d3492882eef9e7f6c",
+    "path": "/reports/20260625-48a5f2e4e18a167d3492882eef9e7f6c/",
+    "jsonPath": "/reports/20260625-48a5f2e4e18a167d3492882eef9e7f6c.json"
+  }
+}
