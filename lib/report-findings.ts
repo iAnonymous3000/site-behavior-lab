@@ -23,7 +23,7 @@ import {
   fingerprintDetection,
   highEntropyDetections as highEntropyFingerprintDetections,
   isOperationalEntity,
-  keystrokeLeakObfuscated,
+  keystrokeLeakHashed,
   pixelEventEvidence,
   pixelEventSummaries,
   pixelFieldLabel,
@@ -149,25 +149,29 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
     const recipients = humanList(keystrokeDetection.evidence.recipients);
     const recipientCount = plural(keystrokeDetection.evidence.recipients.length, "third party", "third parties");
     const fields = plural(keystrokeDetection.evidence.fieldsTyped, "form field");
-    // Plain-text leaks read as functional type-ahead/autocomplete; transformed
-    // (base64/hex/hashed) ones are more consistent with deliberate capture, so
-    // only those earn the loud alarm.
-    const obfuscated = keystrokeLeakObfuscated(keystrokeDetection.evidence.encodings);
+    // A one-way HASH of the typed value (md5/sha1/sha256) cannot drive a
+    // functional type-ahead, so it is the distinctive sign of deliberate
+    // identity capture and earns the loud alarm. Plain text or a reversible
+    // encoding (base64/hex) reads as a third-party search/autocomplete and stays
+    // a calmer warn, though the keystrokes still leave the site.
+    const hashed = keystrokeLeakHashed(keystrokeDetection.evidence.encodings);
     findings.push({
       id: "keystroke-exfiltration",
       icon: "keyboard",
-      level: obfuscated ? "loud" : "warn",
-      title: obfuscated
-        ? `What you type was sent to ${recipientCount}`
+      level: hashed ? "loud" : "warn",
+      title: hashed
+        ? `What you type was sent to ${recipientCount} as a hash`
         : `Your typing is sent to ${recipientCount} as you go`,
-      lead: obfuscated
-        ? `When the scanner typed a unique test value into ${fields}, that value reached ${recipients}, transformed (${humanList(keystrokeDetection.evidence.encodings)}) and without the form ever being submitted.`
-        : `When the scanner typed a unique test value into ${fields}, that value was sent in plain text to ${recipients} as it was typed, without the form being submitted, typically search type-ahead or autocomplete handled by a third party.`,
-      detail: obfuscated
-        ? `The typed value was transformed (${humanList(
+      lead: hashed
+        ? `When the scanner typed a unique test value into ${fields}, that value reached ${recipients} as a one-way hash (${humanList(keystrokeDetection.evidence.encodings)}) and without the form ever being submitted.`
+        : `When the scanner typed a unique test value into ${fields}, that value was sent to ${recipients} as it was typed (${humanList(keystrokeDetection.evidence.encodings)}), without the form ever being submitted, typically search type-ahead or autocomplete handled by a third party.`,
+      detail: hashed
+        ? `The typed value was hashed (${humanList(
             keystrokeDetection.evidence.encodings
-          )}) before being sent, which is more consistent with deliberate input capture than a visible API call. A real visitor's keystrokes could be captured the same way. The scanner types only synthetic values and never submits the form.`
-        : `The value was sent in plain text, consistent with a functional type-ahead or autocomplete (a search or location lookup) handled by a third party. Still worth knowing your keystrokes leave to ${recipients}, but not on its own evidence of covert capture. The scanner types only synthetic values and never submits the form.`,
+          )}) before being sent. A hash cannot drive a functional type-ahead, so this is the pattern used to match you to a known identity, not a visible API call. A real visitor's keystrokes could be captured the same way. The scanner types only synthetic values and never submits the form.`
+        : `The value was sent in a recoverable form (${humanList(
+            keystrokeDetection.evidence.encodings
+          )}), consistent with a functional type-ahead or autocomplete (a search or location lookup) handled by a third party. Still worth knowing your keystrokes leave to ${recipients}, but not on its own evidence of covert capture. The scanner types only synthetic values and never submits the form.`,
       evidence: `Test value reached ${recipients} via ${humanList(keystrokeDetection.evidence.encodings)}.`
     });
   }

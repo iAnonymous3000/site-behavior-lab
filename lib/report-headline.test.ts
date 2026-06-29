@@ -189,7 +189,7 @@ test("share text combines the headline, top stats, and the reproducibility tagli
   assert.match(headline.shareText, /Open-source and reproducible:/);
 });
 
-test("confirmed keystroke exfiltration leads the headline with alarm", () => {
+test("a hashed keystroke leak leads the headline with alarm", () => {
   const result = makeResult({
     firstPartyDomain: "shop.example",
     domains: [makeTrackerDomain("google-analytics.com", 4, "Google", "analytics")],
@@ -200,7 +200,8 @@ test("confirmed keystroke exfiltration leads the headline with alarm", () => {
         kind: "keystroke-exfiltration",
         heuristic: "input-sentinel-exfiltration-v1",
         count: 1,
-        evidence: { recipients: ["collect.tracker.example"], encodings: ["base64"], fieldsTyped: 1, fieldTypes: ["email"] }
+        // A one-way hash (not a reversible base64/hex) is the deliberate-capture signal.
+        evidence: { recipients: ["collect.tracker.example"], encodings: ["sha256"], fieldsTyped: 1, fieldTypes: ["email"] }
       }
     ]
   });
@@ -208,8 +209,28 @@ test("confirmed keystroke exfiltration leads the headline with alarm", () => {
   const headline = buildReportHeadline(result);
   // Confirmed input capture outranks the named-platform (Google) story.
   assert.equal(headline.tone, "alarm");
-  assert.match(headline.headline, /shop\.example sent what you type to 1 third party\./);
+  assert.match(headline.headline, /shop\.example sent a hashed copy of what you type to 1 third party\./);
   assert.match(headline.subhead, /collect\.tracker\.example/);
+});
+
+test("a reversible (base64) keystroke leak stays a warn, not an alarm", () => {
+  // base64/hex are common transport encodings in legitimate APIs, so a reversible
+  // leak reads as a third-party type-ahead, not covert capture.
+  const result = makeResult({
+    firstPartyDomain: "shop.example",
+    fingerprintDetections: [
+      {
+        kind: "keystroke-exfiltration",
+        heuristic: "input-sentinel-exfiltration-v1",
+        count: 1,
+        evidence: { recipients: ["collect.tracker.example"], encodings: ["base64"], fieldsTyped: 1, fieldTypes: ["search"] }
+      }
+    ]
+  });
+
+  const headline = buildReportHeadline(result);
+  assert.equal(headline.tone, "warn");
+  assert.match(headline.headline, /shop\.example sends what you type to 1 third party as you type\./);
 });
 
 test("a plain-text keystroke leak reads as a calmer third-party type-ahead, not an alarm", () => {

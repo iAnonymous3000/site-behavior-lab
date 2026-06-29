@@ -3,7 +3,7 @@ import {
   fingerprintDetection,
   highEntropyDetections,
   isOperationalEntity,
-  keystrokeLeakObfuscated,
+  keystrokeLeakHashed,
   pixelFieldLabel,
   scanLoadFailureStatus,
   trackerEntitySummaries
@@ -113,23 +113,25 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
   }
 
   // Confirmed input capture leads over every other story, including the
-  // comparison framing. A transformed (base64/hex/hashed) leak is consistent
-  // with covert capture and gets the alarm; a plain-text leak reads as a
-  // functional third-party type-ahead/autocomplete and gets a calmer warn.
+  // comparison framing. A one-way HASH of the typed value (md5/sha1/sha256)
+  // cannot drive a functional type-ahead, so it is the distinctive sign of
+  // deliberate identity capture and gets the alarm. Plain text or a reversible
+  // encoding (base64/hex) reads as a third-party search/autocomplete and gets a
+  // calmer warn, though the keystrokes still leave the site.
   const keystrokeExfil = fingerprintDetection(result, "keystroke-exfiltration");
   if (keystrokeExfil) {
     const recipientCount = plural(keystrokeExfil.evidence.recipients.length, "third party", "third parties");
     const recipients = joinNames(keystrokeExfil.evidence.recipients);
-    return keystrokeLeakObfuscated(keystrokeExfil.evidence.encodings)
+    return keystrokeLeakHashed(keystrokeExfil.evidence.encodings)
       ? finish(
           "alarm",
-          `${domain} sent what you type to ${recipientCount}.`,
-          `A unique value typed into a form on ${domain} reached ${recipients}, transformed and without the form being submitted. A real visitor's keystrokes could be captured the same way.`
+          `${domain} sent a hashed copy of what you type to ${recipientCount}.`,
+          `A unique value typed into a form on ${domain} reached ${recipients} as a one-way hash, without the form being submitted, the pattern used to match you to a known identity. A real visitor's keystrokes could be captured the same way.`
         )
       : finish(
           "warn",
           `${domain} sends what you type to ${recipientCount} as you type.`,
-          `A unique value typed into a form on ${domain} was sent in plain text to ${recipients} as it was typed, typically search or autocomplete handled by a third party, not necessarily covert capture, but your keystrokes still leave the site.`
+          `A unique value typed into a form on ${domain} was sent to ${recipients} as it was typed, without the form being submitted, typically search or autocomplete handled by a third party, not necessarily covert capture, but your keystrokes still leave the site.`
         );
   }
 

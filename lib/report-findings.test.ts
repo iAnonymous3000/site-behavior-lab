@@ -209,7 +209,7 @@ test("confirmed keystroke exfiltration surfaces a loud finding and drives the bo
         kind: "keystroke-exfiltration",
         heuristic: "input-sentinel-exfiltration-v1",
         count: 1,
-        evidence: { recipients: ["collect.example"], encodings: ["base64", "plain"], fieldsTyped: 2, fieldTypes: ["email", "password"] }
+        evidence: { recipients: ["collect.example"], encodings: ["sha256", "plain"], fieldsTyped: 2, fieldTypes: ["email", "password"] }
       }
     ]
   });
@@ -225,18 +225,24 @@ test("confirmed keystroke exfiltration surfaces a loud finding and drives the bo
   assert.equal(byId(findings, "bottom-line").level, "loud");
 });
 
-test("keystroke leak severity scales with encoding obfuscation", () => {
+test("keystroke leak severity escalates on one-way hashing, not reversible encodings", () => {
   // Plain-text leak = functional type-ahead/autocomplete → calmer "warn".
   const plain = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["plain"])] });
   const plainCard = byId(buildFindings(plain, plain, null), "keystroke-exfiltration");
   assert.equal(plainCard.level, "warn");
   assert.match(plainCard.title, /Your typing is sent to/);
 
-  // Transformed (base64/hex/hashed) leak = consistent with covert capture → "loud".
-  const obfuscated = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["base64"])] });
-  const obfuscatedCard = byId(buildFindings(obfuscated, obfuscated, null), "keystroke-exfiltration");
-  assert.equal(obfuscatedCard.level, "loud");
-  assert.match(obfuscatedCard.title, /What you type was sent to/);
+  // Reversible base64/hex is common in legitimate APIs, so it stays "warn", not an alarm.
+  const reversible = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["base64"])] });
+  const reversibleCard = byId(buildFindings(reversible, reversible, null), "keystroke-exfiltration");
+  assert.equal(reversibleCard.level, "warn");
+  assert.match(reversibleCard.title, /Your typing is sent to/);
+
+  // A one-way hash cannot drive a type-ahead, so it reads as deliberate capture → "loud".
+  const hashed = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["sha256"])] });
+  const hashedCard = byId(buildFindings(hashed, hashed, null), "keystroke-exfiltration");
+  assert.equal(hashedCard.level, "loud");
+  assert.match(hashedCard.title, /What you type was sent to/);
 });
 
 test("surfaces CNAME-cloaked trackers as their own finding, and omits it when there are none", () => {

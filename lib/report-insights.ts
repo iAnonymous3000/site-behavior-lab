@@ -185,15 +185,21 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
   )} across ${humanList(detection.evidence.eventTypes)} on ${humanList(detection.evidence.listenerTargets)}`;
 }
 
+const HASHED_KEYSTROKE_ENCODINGS = new Set(["md5", "sha1", "sha256"]);
+
 /**
- * Whether a keystroke-exfiltration leak is "obfuscated" (the typed value was
- * transformed (base64/hex/hashed) before being sent), which is more
- * consistent with deliberate input capture. A plain-text leak is consistent
- * with a functional type-ahead/autocomplete sent to a third-party API, so it
- * carries a calmer severity. Drives both the finding level and the headline tone.
+ * Whether a keystroke-exfiltration leak appeared as a one-way HASH
+ * (md5/sha1/sha256) rather than only plain text or a reversible transport
+ * encoding (base64/hex/base64url). A hash cannot drive a functional type-ahead
+ * (the recipient cannot recover the typed value), so it is the distinctive
+ * signal of deliberate identity capture and earns the loud alarm. Plain text
+ * and reversible encodings stay a calmer severity: they are consistent with a
+ * third-party search/autocomplete, even though the keystrokes still leave the
+ * site. Reversible base64/hex are common in legitimate APIs, so treating them
+ * as covert capture would over-claim. Drives the finding level and headline tone.
  */
-export function keystrokeLeakObfuscated(encodings: string[]): boolean {
-  return encodings.some((encoding) => encoding !== "plain");
+export function keystrokeLeakHashed(encodings: string[]): boolean {
+  return encodings.some((encoding) => HASHED_KEYSTROKE_ENCODINGS.has(encoding));
 }
 
 const PIXEL_FIELD_LABELS: Record<PixelMatchField, string> = {
