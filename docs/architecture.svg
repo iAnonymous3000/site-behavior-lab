@@ -1,0 +1,89 @@
+<svg width="680" viewBox="0 0 680 612" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>Site Behavior Lab architecture</title>
+<desc>A visitor loads the static Cloudflare Pages UI and submits a scan to the Front Worker, which enforces Turnstile and rate limits, then forwards to the Node and Playwright container scanner. The scanner reaches the target site only over public HTTP or HTTPS on standard ports, through an SSRF egress proxy that pins a public IP at connect time. It records detections including trackers, Brave Shields block simulation, fingerprinting, a keystroke probe, CNAME uncloaking, and pre-consent tracking, then writes durable saved reports to R2. Browser Run Worker, CI scans, and PageGraph imports produce the same report schema.</desc>
+<style>
+  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .th { font-size: 13px; font-weight: 600; fill: #1e293b; }
+  .ts { font-size: 11px; fill: #475569; }
+  .c-blue rect, rect.c-blue { fill: #e8eefc; stroke: #4f6bed; stroke-width: 1.5; }
+  .c-gray rect, rect.c-gray { fill: #f1f5f9; stroke: #94a3b8; stroke-width: 1.5; }
+  rect.box { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.5; }
+  .leader { stroke: #cbd5e1; stroke-width: 1.3; stroke-dasharray: 4 3; fill: none; }
+</style>
+<defs>
+<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M0,0 L10,5 L0,10" fill="none" stroke="#94a3b8" stroke-width="1.6"/>
+</marker>
+</defs>
+
+<rect x="0" y="0" width="680" height="612" fill="#ffffff"/>
+
+<rect class="c-blue" x="48" y="16" width="14" height="12" rx="3"/>
+<text class="ts" x="68" y="26">Site Behavior Lab components</text>
+<rect class="c-gray" x="262" y="16" width="14" height="12" rx="3"/>
+<text class="ts" x="282" y="26">external / inputs</text>
+
+<g class="c-gray"><rect x="48" y="40" width="240" height="48" rx="8"/>
+<text class="th" x="168" y="60" text-anchor="middle">Visitor browser</text>
+<text class="ts" x="168" y="76" text-anchor="middle">pastes any public URL</text></g>
+
+<g class="c-blue"><rect x="48" y="120" width="240" height="52" rx="8"/>
+<text class="th" x="168" y="141" text-anchor="middle">Cloudflare Pages</text>
+<text class="ts" x="168" y="157" text-anchor="middle">static UI, gallery, reports</text></g>
+
+<g class="c-blue"><rect x="48" y="204" width="240" height="52" rx="8"/>
+<text class="th" x="168" y="225" text-anchor="middle">Front Worker</text>
+<text class="ts" x="168" y="241" text-anchor="middle">Turnstile, rate limit</text></g>
+
+<g class="c-blue"><rect x="48" y="288" width="240" height="56" rx="8"/>
+<text class="th" x="168" y="310" text-anchor="middle">Container scanner</text>
+<text class="ts" x="168" y="326" text-anchor="middle">Node, Playwright Chromium</text></g>
+
+<g class="c-blue"><rect x="48" y="440" width="240" height="52" rx="8"/>
+<text class="th" x="168" y="461" text-anchor="middle">R2 report store</text>
+<text class="ts" x="168" y="477" text-anchor="middle">durable saved reports</text></g>
+
+<g class="c-gray"><rect x="410" y="120" width="230" height="48" rx="8"/>
+<text class="th" x="525" y="140" text-anchor="middle">Target website</text>
+<text class="ts" x="525" y="156" text-anchor="middle">public internet</text></g>
+
+<g class="c-blue"><rect x="410" y="288" width="230" height="56" rx="8"/>
+<text class="th" x="525" y="310" text-anchor="middle">SSRF egress proxy</text>
+<text class="ts" x="525" y="326" text-anchor="middle">pins public IP at connect</text></g>
+
+<rect class="box" x="410" y="392" width="230" height="142" rx="8"/>
+<text class="th" x="426" y="416">each scan records</text>
+<text class="ts" x="426" y="440">trackers + Shields block sim</text>
+<text class="ts" x="426" y="460">canvas / WebGL / audio probes</text>
+<text class="ts" x="426" y="480">keystroke-capture probe</text>
+<text class="ts" x="426" y="500">CNAME uncloaking via DNS</text>
+<text class="ts" x="426" y="520">pre-consent tracking</text>
+
+<text class="ts" x="48" y="528">other producers, same report schema</text>
+<g class="c-blue"><rect x="48" y="548" width="180" height="48" rx="8"/>
+<text class="th" x="138" y="568" text-anchor="middle">Browser Run Worker</text>
+<text class="ts" x="138" y="584" text-anchor="middle">GPC, trackers, lite</text></g>
+<g class="c-gray"><rect x="248" y="548" width="180" height="48" rx="8"/>
+<text class="th" x="338" y="568" text-anchor="middle">CI scan (Actions)</text>
+<text class="ts" x="338" y="584" text-anchor="middle">manual / dispatch, commits</text></g>
+<g class="c-gray"><rect x="448" y="548" width="192" height="48" rx="8"/>
+<text class="th" x="544" y="568" text-anchor="middle">PageGraph import</text>
+<text class="ts" x="544" y="584" text-anchor="middle">.graphml to report</text></g>
+
+<line x1="168" y1="88" x2="168" y2="118" stroke="#94a3b8" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<text class="ts" x="176" y="108">loads UI</text>
+<line x1="168" y1="172" x2="168" y2="202" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#ah)"/>
+<text class="ts" x="176" y="192">scan request</text>
+<line x1="168" y1="256" x2="168" y2="286" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#ah)"/>
+<text class="ts" x="176" y="276">verified call</text>
+<line x1="168" y1="344" x2="168" y2="438" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#ah)"/>
+<text class="ts" x="176" y="398">ScanReport</text>
+
+<line x1="288" y1="316" x2="408" y2="316" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#ah)"/>
+<text class="ts" x="300" y="309">each request</text>
+<line x1="525" y1="286" x2="525" y2="170" stroke="#94a3b8" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<text class="ts" x="517" y="224" text-anchor="end">public HTTP(S),</text>
+<text class="ts" x="517" y="238" text-anchor="end">standard ports only</text>
+
+<line class="leader" x1="262" y1="344" x2="410" y2="430"/>
+</svg>

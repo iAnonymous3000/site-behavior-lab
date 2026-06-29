@@ -24,7 +24,7 @@ The project is open source under the [AGPL-3.0-or-later](LICENSE) so anyone can 
 - Basic server-side guardrails: request body limit, per-client scan and report-read rate limits, scan concurrency cap, scan duration cap, per-scan request cap, and shared Chromium reuse.
 - Optional scan access key enforcement for public or gated deployments.
 - Report URLs omit credentials and fragments. First-party URLs omit query strings; third-party request logs preserve query parameter names with values redacted.
-- Content-addressed report links and JSON endpoints under `/reports/:id` and `/api/reports/:id`. Runtime-saved reports are retained for a configurable window (7 days / 500 reports by default, then pruned); reports committed under `public/reports/` are permanent.
+- Stable report permalinks (date-prefixed random IDs) and JSON endpoints under `/reports/:id` and `/api/reports/:id`. Runtime-saved reports are retained for a configurable window (7 days / 500 reports by default, then pruned); reports committed under `public/reports/` are permanent.
 - Runtime health/readiness metadata under `/api/health`.
 - Static export (deployed on Cloudflare Pages) for the report viewer, generated report gallery, saved-report comparisons, and committed report JSON under `public/reports/`.
 - Plain-language headline at the top of every report, plus per-report Open Graph / X (`summary_large_image`) share cards and link metadata generated from that headline, so a shared report link unfurls with the site name, the lead finding, and key counts in both the Node app and the static export.
@@ -106,6 +106,12 @@ Open `http://127.0.0.1:3000`.
 | `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL` | unset | Canonical public origin (scheme and host only, for example `https://sitebehavior.org`) used as the metadata base so report social cards (Open Graph / X) resolve to absolute image URLs, and as the canonical origin for `robots.txt`, `sitemap.xml`, and JSON-LD URLs. Any GitHub Pages project-page subpath is applied automatically via the base path, so do not include it here. Set this for any public deployment; without it, card image URLs fall back to `http://localhost:3000` and will not unfurl. Do not put secrets in this value. |
 
 Copy `.env.example` for a production-oriented starting point.
+
+## Architecture
+
+![Site Behavior Lab architecture: a visitor loads the static Cloudflare Pages UI and submits a scan to the Front Worker (Turnstile and rate limits), which forwards to the Node and Playwright container scanner. The scanner reaches the target site only over public HTTP(S) on standard ports through an SSRF egress proxy that pins a public IP at connect time, records its detections, and writes durable saved reports to R2. The Browser Run Worker, CI scans, and PageGraph imports produce the same report schema.](docs/architecture.svg)
+
+The Cloudflare Pages site is the static front door; live scans run on the Node/Playwright container behind a Turnstile/rate-limit Worker, reach the public web only through a connect-time SSRF proxy, and persist to R2. The lighter Browser Run Worker, CI scans, and PageGraph imports all produce the same `ScanReport` schema. See [docs/deployment-topology.md](docs/deployment-topology.md) for the decision record.
 
 ## Production Deployment
 
