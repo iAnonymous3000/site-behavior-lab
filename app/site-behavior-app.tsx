@@ -2439,10 +2439,14 @@ function MetricGrid({ result }: { result: ScanResult }) {
 }
 
 function TrafficViz({ result }: { result: ScanResult }) {
+  // Clamp so the three segments always partition the total exactly, even in the
+  // edge case of scanning a tracker's own domain (where a first-party request can
+  // match the catalog and knownTrackerRequests can exceed thirdPartyRequests).
   const total = result.summary.totalRequests;
-  const tracker = result.summary.knownTrackerRequests;
-  const third = Math.max(result.summary.thirdPartyRequests - tracker, 0);
-  const first = Math.max(total - result.summary.thirdPartyRequests, 0);
+  const thirdParty = Math.min(result.summary.thirdPartyRequests, total);
+  const tracker = Math.min(result.summary.knownTrackerRequests, thirdParty);
+  const third = thirdParty - tracker;
+  const first = total - thirdParty;
 
   const pct = (n: number) => (total > 0 ? `${Math.round((n / total) * 10000) / 100}%` : "0%");
 

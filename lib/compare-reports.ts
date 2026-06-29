@@ -247,22 +247,36 @@ function fingerprintingChanges(
     .slice(0, MAX_DIFF_LIST);
 }
 
+/**
+ * Pixel activity in `candidate` that the matching `baseline` platform did not
+ * have. A platform absent from `baseline` yields its whole event/identifier list
+ * (the common Shields case: blocking facebook.com drops Meta entirely); a
+ * platform present in both yields only the events and identifiers that changed,
+ * so partial blocking and temporal event changes are not lost.
+ */
 function pixelEventChanges(
-  before: PixelEventSummary[] | undefined,
-  after: PixelEventSummary[] | undefined
+  baseline: PixelEventSummary[] | undefined,
+  candidate: PixelEventSummary[] | undefined
 ): PixelEventChange[] {
-  const beforePlatforms = new Set((before ?? []).map((pixel) => pixel.platform));
+  const baselineByPlatform = new Map((baseline ?? []).map((pixel) => [pixel.platform, pixel]));
 
-  return (after ?? [])
-    .filter((pixel) => !beforePlatforms.has(pixel.platform))
-    .map((pixel) => ({
-      platform: pixel.platform,
-      product: pixel.product,
-      events: pixel.events,
-      advancedMatching: pixel.advancedMatching
-    }))
-    .sort((a, b) => a.platform.localeCompare(b.platform))
-    .slice(0, MAX_DIFF_LIST);
+  const changes: PixelEventChange[] = [];
+  for (const pixel of candidate ?? []) {
+    const prior = baselineByPlatform.get(pixel.platform);
+    const events = onlyIn(pixel.events, prior?.events);
+    const advancedMatching = onlyIn(pixel.advancedMatching, prior?.advancedMatching);
+    if (!prior || events.length > 0 || advancedMatching.length > 0) {
+      changes.push({ platform: pixel.platform, product: pixel.product, events, advancedMatching });
+    }
+  }
+
+  return changes.sort((a, b) => a.platform.localeCompare(b.platform)).slice(0, MAX_DIFF_LIST);
+}
+
+function onlyIn<T>(values: T[], exclude: T[] | undefined): T[] {
+  if (!exclude || exclude.length === 0) return [...values];
+  const excluded = new Set(exclude);
+  return values.filter((value) => !excluded.has(value));
 }
 
 function entityRequestMap(domains: DomainSummary[]): Map<string, { requests: number; domains: number }> {

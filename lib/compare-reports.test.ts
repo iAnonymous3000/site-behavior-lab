@@ -114,6 +114,32 @@ test("compareScanResults surfaces pixel events Shields blocked, only when change
   assert.equal(stable.removedPixelEvents, undefined);
 });
 
+test("compareScanResults diffs pixel activity per event/identifier when the platform persists", () => {
+  // Same platform in both runs, but the "after" run added a Purchase event and an
+  // email identifier. A platform-presence diff would miss this; the event-level
+  // diff surfaces only what changed.
+  const before: PixelEventSummary = {
+    platform: "Meta",
+    product: "Meta Pixel",
+    events: ["PageView"],
+    advancedMatching: [],
+    requests: 1
+  };
+  const after: PixelEventSummary = {
+    platform: "Meta",
+    product: "Meta Pixel",
+    events: ["PageView", "Purchase"],
+    advancedMatching: ["email"],
+    requests: 2
+  };
+
+  const diff = compareScanResults(makeScanResult([], { pixelEvents: [before] }), makeScanResult([], { pixelEvents: [after] }));
+  assert.deepEqual(diff.addedPixelEvents, [
+    { platform: "Meta", product: "Meta Pixel", events: ["Purchase"], advancedMatching: ["email"] }
+  ]);
+  assert.equal(diff.removedPixelEvents, undefined);
+});
+
 test("createComparisonReport supports non-GPC comparison labels", () => {
   const baseline = makeScanResult([makeDomain("blocked.example", 2, "BlockedCo")]);
   const variant = makeScanResult([]);
