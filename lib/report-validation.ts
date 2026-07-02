@@ -35,7 +35,9 @@ function isSingleScanResult(value: unknown): value is ScanResult {
       (Array.isArray(value.cnameCloaks) && value.cnameCloaks.every(isCnameCloak))) &&
     (value.pixelEvents === undefined ||
       (Array.isArray(value.pixelEvents) && value.pixelEvents.every(isPixelEventSummary))) &&
-    (value.screenshot === null || typeof value.screenshot === "string") &&
+    // `undefined` is accepted because the UI's JSON export drops the screenshot
+    // key entirely; those files must re-open in the report viewer.
+    (value.screenshot === undefined || value.screenshot === null || typeof value.screenshot === "string") &&
     Array.isArray(value.warnings) &&
     (value.share === undefined || isReportShare(value.share))
   );

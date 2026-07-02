@@ -1,4 +1,4 @@
-import { buildReportHeadline } from "./report-headline";
+import { buildReportHeadline, displayScanResult } from "./report-headline";
 import type { ScanReport } from "./types";
 
 /**
@@ -9,7 +9,10 @@ import type { ScanReport } from "./types";
  * name/description match the page title, social card, and on-page headline.
  */
 export function buildReportDataset(report: ScanReport, options: { url: string; jsonUrl?: string }): Record<string, unknown> {
-  const result = report.reportType === "comparison" ? report.variant : report;
+  // Measure the same run the page, headline, and manifest lead with (the
+  // baseline for GPC/Shields comparisons), so the structured data's numbers
+  // match the description instead of quoting the protected variant run.
+  const result = displayScanResult(report);
   const headline = buildReportHeadline(report);
   const summary = result.summary;
   const requestedUrl = report.reportType === "comparison" ? report.requestedUrl : result.conditions.requestedUrl;

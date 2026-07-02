@@ -45,6 +45,20 @@ test("report validation rejects reports without a current schema version", () =>
   assert.equal(isScanReport(report), false);
 });
 
+test("report validation accepts a report without a screenshot key (UI JSON export shape)", () => {
+  const report = makeScanResult({
+    url: "https://example.com/",
+    device: "desktop",
+    gpcEnabled: true,
+    consentMode: "observe"
+  }) as Partial<ScanResult>;
+  delete report.screenshot;
+
+  // The UI's JSON export omits the screenshot key entirely; round-tripping the
+  // exported file back through the report viewer must keep working.
+  assert.equal(isScanReport(JSON.parse(JSON.stringify(report))), true);
+});
+
 test("report validation rejects malformed fingerprint detections", () => {
   const report = makeScanResult({
     url: "https://example.com/",
