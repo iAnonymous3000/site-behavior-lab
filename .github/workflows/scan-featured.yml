@@ -54,6 +54,14 @@ on:
   repository_dispatch:
     types:
       - site-behavior-featured-scan
+  schedule:
+    # Weekly corpus refresh (Mondays 05:23 UTC). Scheduled runs use the input
+    # defaults: Shields comparisons over the featured catalog, committed to the
+    # default branch, which publishes via the Pages build. Each site's newest
+    # generations are exempt from age pruning (scripts/prune-static-reports.mjs),
+    # so the refresh feeds the directory's "changed since last scan" view instead
+    # of replacing the corpus.
+    - cron: "23 5 * * 1"
 
 permissions:
   contents: write

@@ -6,6 +6,7 @@ import { buildReportHeadline, displayScanResult, type HeadlineTone } from "./rep
 import { readReportForId } from "./report-source";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { listStaticReportIds } from "./static-report-files";
+import { computeSinceLastScan, type SinceLastScan } from "./temporal-deltas";
 import type { ComparisonType } from "./types";
 
 /**
@@ -32,6 +33,8 @@ export type DirectoryEntry = {
   scannedAt: string;
   reportType: "single" | "comparison";
   comparisonType?: ComparisonType;
+  /** Set on a site's newest report when an earlier report of the same kind exists. */
+  sinceLastScan?: SinceLastScan;
 };
 
 export type CorpusOverview = {
@@ -46,6 +49,15 @@ type CatalogEntry = { domain: string; id: string; label: string };
 export async function loadCorpusOverview(): Promise<CorpusOverview> {
   const catalog = await loadCategoryCatalog();
   const entries = await loadDirectoryEntries(catalog);
+
+  // "Changed since last scan": each site's newest report is paired with its most
+  // recent predecessor of the same kind (see lib/temporal-deltas.ts for why kinds
+  // never mix), so the directory can show what a re-scan changed.
+  const deltas = computeSinceLastScan(entries);
+  for (const entry of entries) {
+    const delta = deltas.get(entry.id);
+    if (delta) entry.sinceLastScan = delta;
+  }
 
   // One data point per site for the rollups and leaderboard (a site may carry both
   // a GPC and a Shields report; prefer the Shields one so the blocked number is real).

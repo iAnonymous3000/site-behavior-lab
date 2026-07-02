@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { loadCorpusOverview, type DirectoryEntry } from "@/lib/corpus-overview";
 import { reportPagePath } from "@/lib/report-locator";
+import { formatDelta, type SinceLastScan } from "@/lib/temporal-deltas";
 
 export const dynamic = "force-static";
 
@@ -11,6 +12,19 @@ export const metadata: Metadata = {
     "Browse Site Behavior Lab reports: what popular sites actually loaded during a controlled visit: trackers, cookies, and fingerprinting, as reproducible evidence.",
   alternates: { canonical: "/directory/" }
 };
+
+function sinceLastScanText(delta: SinceLastScan): string {
+  if (delta.thirdPartyRequests === 0 && delta.trackerRequests === 0) {
+    return "no change in third-party or tracker requests";
+  }
+  return `${formatDelta(delta.thirdPartyRequests)} third-party, ${formatDelta(delta.trackerRequests)} tracker requests`;
+}
+
+function formatScanDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
 
 function reportTypeLabel(entry: DirectoryEntry): string {
   if (entry.reportType !== "comparison") return "single scan";
@@ -132,6 +146,15 @@ export default async function DirectoryPage() {
                     <b>{entry.thirdPartyCookies.toLocaleString()}</b> cookies
                   </span>
                 </span>
+                {entry.sinceLastScan && (
+                  <span
+                    className="directory-since"
+                    title="Observed difference between two automated visits of the same kind. It can reflect ad rotation, experiments, caching, or bot detection as well as a real site change."
+                  >
+                    Since {formatScanDate(entry.sinceLastScan.previousScannedAt)}:{" "}
+                    {sinceLastScanText(entry.sinceLastScan)}
+                  </span>
+                )}
               </Link>
             </li>
           ))}
