@@ -1,0 +1,845 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "consent",
+  "title": "Consent accept/reject comparison",
+  "runLabels": {
+    "baseline": "Accept all",
+    "variant": "Reject all"
+  },
+  "requestedUrl": "https://www.starfall.com/",
+  "scannedAt": "2026-07-02T14:33:54.961Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Starfall Education: Kids Games, Movies, Books & Music for K-5 and above",
+      "status": 200,
+      "durationMs": 5611,
+      "firstPartyDomain": "www.starfall.com",
+      "totalRequests": 21,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 2,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://www.starfall.com/",
+      "finalUrl": "https://www.starfall.com/h/",
+      "scannedAt": "2026-07-02T14:33:49.345Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "accept-all",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.starfall.com/",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 41,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.starfall.com/h/",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 505,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.starfall.com/gi/_font/liberationsans/stylesheet.css",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 746,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.starfall.com/gi/_font/liberationsansbold/stylesheet.css",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 746,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.starfall.com/gi/_font/StarfallvBP/StarfallvBP.css",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 747,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.starfall.com/h/_js/starfall/global/Cookies.js",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 748,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.starfall.com/h/_js/jquery/jquery-3.2.1.min.js",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 748,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.starfall.com/h/_js/starfall/utils/CanvasResizer.js",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 748,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.starfall.com/h/_js/starfall/utils/indices.js",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 749,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.starfall.com/h/_css/indices.css",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 749,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.starfall.com/h/_css/indices-topnav.css",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 749,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.starfall.com/h/_images/green-back-circle.png",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 749,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.starfall.com/h/_images/starfall-logo-main-index.png",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 750,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.starfall.com/h/_images/index-css/kindergarten.png",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 885,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.starfall.com/h/_images/index-css/grades123.png",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 950,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.starfall.com/h/_images/index-css/grades45.png",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1010,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.starfall.com/h/_images/index/scriptt-all-main-demo.gif",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1012,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.starfall.com/h/_images/banner-BG-final.png",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1024,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.starfall.com/gi/_font/StarfallvBP/vrzb___starbold-webfont.woff",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1025,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.starfall.com/gi/_font/liberationsansbold/liberationsans-bold-webfont-webfont.woff2",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1025,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.starfall.com/gi/_font/liberationsans/liberationsans-regular-webfont-webfont.woff2",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1025,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.starfall.com",
+        "requests": 21,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "support",
+        "domain": ".starfall.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "grade",
+        "domain": ".starfall.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "Read the site's privacy policy (https://teach.starfall.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://teach.starfall.com/privacy",
+      "claims": [
+        {
+          "kind": "no-selling-or-sharing",
+          "quote": "No Sale of Personal Information — We do not sell your personal information."
+        }
+      ],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 9657
+    },
+    "consentInteraction": {
+      "mode": "accept-all",
+      "clicked": false
+    }
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Starfall Education: Kids Games, Movies, Books & Music for K-5 and above",
+      "status": 200,
+      "durationMs": 5233,
+      "firstPartyDomain": "www.starfall.com",
+      "totalRequests": 21,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 2,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://www.starfall.com/",
+      "finalUrl": "https://www.starfall.com/h/",
+      "scannedAt": "2026-07-02T14:33:54.961Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "reject-all",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.starfall.com/",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 51,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.starfall.com/h/",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 479,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.starfall.com/gi/_font/liberationsans/stylesheet.css",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 660,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.starfall.com/gi/_font/liberationsansbold/stylesheet.css",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 661,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.starfall.com/gi/_font/StarfallvBP/StarfallvBP.css",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 662,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.starfall.com/h/_js/starfall/global/Cookies.js",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 662,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.starfall.com/h/_js/jquery/jquery-3.2.1.min.js",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 662,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.starfall.com/h/_js/starfall/utils/CanvasResizer.js",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 663,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.starfall.com/h/_js/starfall/utils/indices.js",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 664,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.starfall.com/h/_css/indices.css",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 664,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.starfall.com/h/_css/indices-topnav.css",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 664,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.starfall.com/h/_images/green-back-circle.png",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 720,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.starfall.com/h/_images/starfall-logo-main-index.png",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 720,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.starfall.com/h/_images/index-css/kindergarten.png",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 911,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.starfall.com/h/_images/index-css/grades123.png",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 926,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.starfall.com/h/_images/index-css/grades45.png",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 926,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.starfall.com/h/_images/index/scriptt-all-main-demo.gif",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 927,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.starfall.com/h/_images/banner-BG-final.png",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 939,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.starfall.com/gi/_font/StarfallvBP/vrzb___starbold-webfont.woff",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 939,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.starfall.com/gi/_font/liberationsansbold/liberationsans-bold-webfont-webfont.woff2",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 940,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.starfall.com/gi/_font/liberationsans/liberationsans-regular-webfont-webfont.woff2",
+        "domain": "www.starfall.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 940,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.starfall.com",
+        "requests": 21,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "support",
+        "domain": ".starfall.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "grade",
+        "domain": ".starfall.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "Read the site's privacy policy (https://teach.starfall.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://teach.starfall.com/privacy",
+      "claims": [
+        {
+          "kind": "no-selling-or-sharing",
+          "quote": "No Sale of Personal Information — We do not sell your personal information."
+        }
+      ],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 9657
+    },
+    "consentInteraction": {
+      "mode": "reject-all",
+      "clicked": false
+    }
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 21,
+      "after": 21,
+      "delta": 0
+    },
+    "thirdPartyRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Consent comparison runs are sequential automated visits: one clicking the banner's accept-all choice, one clicking reject-all (first layer only). A run where no control was clicked reflects the pre-consent state instead; see each run's consent note. Differences can also come from timing, experiments, cache state, or bot detection.",
+    "Accept all: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Accept all: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Accept all: This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+    "Accept all: Read the site's privacy policy (https://teach.starfall.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Reject all: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Reject all: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Reject all: This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+    "Reject all: Read the site's privacy policy (https://teach.starfall.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260702-6f40193eaef9bd6a408ef3add08aa54c",
+    "path": "/reports/20260702-6f40193eaef9bd6a408ef3add08aa54c/",
+    "jsonPath": "/reports/20260702-6f40193eaef9bd6a408ef3add08aa54c.json"
+  }
+}

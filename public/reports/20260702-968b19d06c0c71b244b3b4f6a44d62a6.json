@@ -1,0 +1,2152 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "consent",
+  "title": "Consent accept/reject comparison",
+  "runLabels": {
+    "baseline": "Accept all",
+    "variant": "Reject all"
+  },
+  "requestedUrl": "https://www.usa.gov/",
+  "scannedAt": "2026-07-02T14:46:35.870Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Making government services easier to find | USAGov",
+      "status": 200,
+      "durationMs": 7019,
+      "firstPartyDomain": "www.usa.gov",
+      "totalRequests": 57,
+      "thirdPartyRequests": 33,
+      "knownTrackerRequests": 17,
+      "thirdPartyDomains": 10,
+      "cookies": 5,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 26
+    },
+    "conditions": {
+      "requestedUrl": "https://www.usa.gov/",
+      "finalUrl": "https://www.usa.gov/",
+      "scannedAt": "2026-07-02T14:46:28.846Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "accept-all",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.usa.gov/",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 44,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.usa.gov/s3/files/styles/max_1440w/public/2023-02/Homepage_Banner.png.webp",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 75,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.usa.gov/sites/default/files/css/css_HOzaX5HCSq_WlRlcWDRPLUTDyyL8VZQ6REn3ac2TQC8.css",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 76,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.usa.gov/sites/default/files/css/css_RS0lu12kxAKVlYtiIn6qpAq__BevSHCXAmcrTugppls.css",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 76,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.usa.gov/themes/custom/usagov/images/favicon-57.png",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 77,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/icon-dot-gov.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 77,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/icon-https.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 135,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.usa.gov/themes/custom/usagov/components/searchbar/images/search--dark.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 136,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.usa.gov/themes/custom/usagov/images/USAGov_Logo_80px.png",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 141,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.usa.gov/sites/default/files/js/js_lgXG-qbIAtdEwWFW2VoRjnVQm8s_kKg_akxfZvcl5FU.js",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 141,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.usa.gov/modules/contrib/uswds_ckeditor_integration/js/aftermarket/uswds_accordion.js",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.usa.gov/themes/custom/usagov/scripts/modifyMobileNav.js",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://script.crazyegg.com/pages/scripts/0007/9651.js",
+        "domain": "script.crazyegg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "crazyegg.com",
+          "entity": "Crazy Egg",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 142,
+        "blockedByShields": true
+      },
+      {
+        "id": 14,
+        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/usa-icons/close.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.usa.gov/themes/custom/usagov/images/Reimagined_Jump_to_Arrow.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.usa.gov/themes/custom/usagov/images/topics/ICONS_Reimagined_Benefits.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 145,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.usa.gov/themes/custom/usagov/scripts/newFooter.js",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 146,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 147,
+        "blockedByShields": true
+      },
+      {
+        "id": 19,
+        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/sprite.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 147,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/usa-icons/expand_more.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 187,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-regular-webfont.woff2",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 187,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.usa.gov/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 188,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-bold-webfont.woff2",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 188,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.usa.gov/themes/custom/usagov/fonts/merriweather/Latin-Merriweather-Bold.woff2",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 189,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-semibold-webfont.woff2",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 189,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-italic-webfont.woff2",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 189,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://siteimproveanalytics.com/js/siteanalyze_51567.js",
+        "domain": "siteimproveanalytics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 251,
+        "blockedByShields": true
+      },
+      {
+        "id": 28,
+        "url": "https://s3-us-gov-west-1.amazonaws.com/cg-4d6fb302-315f-403e-a96e-a7563ccddd3d/1.0/waittime.json",
+        "domain": "s3-us-gov-west-1.amazonaws.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 262,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 370,
+        "blockedByShields": true
+      },
+      {
+        "id": 30,
+        "url": "https://www.googletagmanager.com/gtm.js?id=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 371,
+        "blockedByShields": true
+      },
+      {
+        "id": 31,
+        "url": "https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=&subagency=",
+        "domain": "dap.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 372,
+        "blockedByShields": true
+      },
+      {
+        "id": 32,
+        "url": "https://dap.digitalgov.gov/web-vitals/dist/web-vitals.attribution.iife.js",
+        "domain": "dap.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 404,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 405,
+        "blockedByShields": true
+      },
+      {
+        "id": 34,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 406,
+        "blockedByShields": true
+      },
+      {
+        "id": 35,
+        "url": "https://51567.global.siteimproveanalytics.io/image.aspx?url=&title=&res=&accountid=&rt=&prev=&luid=&rnd=",
+        "domain": "51567.global.siteimproveanalytics.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 428,
+        "blockedByShields": true
+      },
+      {
+        "id": 36,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&sid=&sct=&seg=&en=&_fv=&_nsi=&_ss=&ep.USA_canonical_url=&ep.USA_toggle_url=&ep.USA_gtm_container_info=&ep.USA_page_language=&ep.USA_Taxonomy_Level_1_Text=&ep.USA_Taxonomy_Level_2_Text=&ep.USA_Taxonomy_Level_3_Text=&ep.USA_Taxonomy_Level_4_Text=&ep.USA_Taxonomy_Level_5_Text=&ep.USA_Taxonomy_Level_6_Text=&ep.USA_Taxonomy_Level_1_URL=&ep.USA_Taxonomy_Level_2_URL=&ep.USA_Taxonomy_Level_3_URL=&ep.USA_Taxonomy_Level_4_URL=&ep.USA_Taxonomy_Level_5_URL=&ep.USA_Taxonomy_Level_6_URL=&ep.USA_Taxonomy_4_URL_Levels=&ep.USA_page_type=&ep.USA_page_sub_type=&ep.content_group=&ep.USA_node_id=&ep.USA_page_type_2_levels=&ep.USA_month_of_year=&ep.USA_concat_pageType_and_canonicalURL=&ep.USA_url_fragment=&ep.USA_BF_benefits_project_scope_status=&ep.USA_gtm_container_id=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 591,
+        "blockedByShields": true
+      },
+      {
+        "id": 37,
+        "url": "https://www.googletagmanager.com/td?id=&v=&t=&pid=&gtm=&seq=&exp=&dl=&tdp=&frm=&rtg=&slo=&hlo=&lst=&pcid=&bt=&ct=&jsp=&z=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 593,
+        "blockedByShields": true
+      },
+      {
+        "id": 38,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_fv=&_ss=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 668,
+        "blockedByShields": true
+      },
+      {
+        "id": 39,
+        "url": "https://znbabnroqffo1d7xq-cemgsa.gov1.siteintercept.qualtrics.com/SIE/?Q_ZID=",
+        "domain": "znbabnroqffo1d7xq-cemgsa.gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 702,
+        "blockedByShields": true
+      },
+      {
+        "id": 40,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/881.d239a4f9da069111bd06.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 920,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/941.a09c5b36bb369f224ce3.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 921,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://gov1.siteintercept.qualtrics.com/WRSiteInterceptEngine/Targeting.php?Q_ZoneID=&Q_CLIENTVERSION=&Q_CLIENTTYPE=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1188,
+        "blockedByShields": true
+      },
+      {
+        "id": 43,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/CoreModule.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1375,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/147.1bd41725cb680c56bdbc.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1440,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/308.5b6f220b63d2a0e69fe1.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1440,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 5669,
+        "blockedByShields": true
+      },
+      {
+        "id": 47,
+        "url": "https://www.googletagmanager.com/td?id=&v=&t=&pid=&gtm=&seq=&exp=&dl=&tdp=&mde=&fin=&z=",
+        "domain": "www.googletagmanager.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6292,
+        "blockedByShields": true
+      },
+      {
+        "id": 48,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=&is_td=&v=&t=&pid=&gtm=&seq=&exp=&dl=&tdp=&mde=&fin=&z=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6294,
+        "blockedByShields": true
+      },
+      {
+        "id": 49,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&sid=&sct=&seg=&_tu=&en=&ep.USA_canonical_url=&ep.USA_toggle_url=&ep.USA_gtm_container_info=&ep.USA_page_language=&ep.USA_Taxonomy_Level_1_Text=&ep.USA_Taxonomy_Level_2_Text=&ep.USA_Taxonomy_Level_3_Text=&ep.USA_Taxonomy_Level_4_Text=&ep.USA_Taxonomy_Level_5_Text=&ep.USA_Taxonomy_Level_6_Text=&ep.USA_Taxonomy_Level_1_URL=&ep.USA_Taxonomy_Level_2_URL=&ep.USA_Taxonomy_Level_3_URL=&ep.USA_Taxonomy_Level_4_URL=&ep.USA_Taxonomy_Level_5_URL=&ep.USA_Taxonomy_Level_6_URL=&ep.USA_Taxonomy_4_URL_Levels=&ep.USA_page_type=&ep.USA_page_sub_type=&ep.content_group=&ep.USA_node_id=&ep.USA_page_type_2_levels=&ep.USA_month_of_year=&ep.USA_concat_pageType_and_canonicalURL=&ep.USA_url_fragment=&ep.USA_BF_benefits_project_scope_status=&ep.USA_gtm_container_id=&_et=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6294,
+        "blockedByShields": true
+      },
+      {
+        "id": 50,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&_et=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6295,
+        "blockedByShields": true
+      },
+      {
+        "id": 51,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6295,
+        "blockedByShields": true
+      },
+      {
+        "id": 52,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6295,
+        "blockedByShields": true
+      },
+      {
+        "id": 53,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6300,
+        "blockedByShields": true
+      },
+      {
+        "id": 54,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&sid=&sct=&seg=&_tu=&en=&ep.USA_canonical_url=&ep.USA_toggle_url=&ep.USA_gtm_container_info=&ep.USA_page_language=&ep.USA_Taxonomy_Level_1_Text=&ep.USA_Taxonomy_Level_2_Text=&ep.USA_Taxonomy_Level_3_Text=&ep.USA_Taxonomy_Level_4_Text=&ep.USA_Taxonomy_Level_5_Text=&ep.USA_Taxonomy_Level_6_Text=&ep.USA_Taxonomy_Level_1_URL=&ep.USA_Taxonomy_Level_2_URL=&ep.USA_Taxonomy_Level_3_URL=&ep.USA_Taxonomy_Level_4_URL=&ep.USA_Taxonomy_Level_5_URL=&ep.USA_Taxonomy_Level_6_URL=&ep.USA_Taxonomy_4_URL_Levels=&ep.USA_page_type=&ep.USA_page_sub_type=&ep.content_group=&ep.USA_node_id=&ep.USA_page_type_2_levels=&ep.USA_month_of_year=&ep.USA_concat_pageType_and_canonicalURL=&ep.USA_url_fragment=&ep.USA_BF_benefits_project_scope_status=&ep.USA_gtm_container_id=&_et=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6300,
+        "blockedByShields": true
+      },
+      {
+        "id": 55,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6301,
+        "blockedByShields": true
+      },
+      {
+        "id": 56,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&_et=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6301,
+        "blockedByShields": true
+      },
+      {
+        "id": 57,
+        "url": "https://www.googletagmanager.com/td?id=&v=&t=&pid=&gtm=&seq=&exp=&dl=&tdp=&mde=&fin=&z=&img=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6301,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 9,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "image",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "script.crazyegg.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "crazyegg.com",
+          "entity": "Crazy Egg",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "dap.digitalgov.gov",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "siteimproveanalytics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "s3-us-gov-west-1.amazonaws.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "51567.global.siteimproveanalytics.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "znbabnroqffo1d7xq-cemgsa.gov1.siteintercept.qualtrics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.usa.gov",
+        "requests": 24,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "image",
+          "stylesheet",
+          "script",
+          "other",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "nmstat",
+        "domain": ".usa.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_GXFTMLX26S",
+        "domain": ".usa.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".usa.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_CSLL4ZEK4L",
+        "domain": ".usa.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "QSI_HistorySession",
+        "domain": "www.usa.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "mousedown",
+            "scroll",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "input",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://dap.digitalgov.gov",
+            "https://siteimproveanalytics.com",
+            "https://www.googletagmanager.com"
+          ],
+          "totalListenerCalls": 184
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ],
+    "consentInteraction": {
+      "mode": "accept-all",
+      "clicked": false
+    }
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Making government services easier to find | USAGov",
+      "status": 200,
+      "durationMs": 7030,
+      "firstPartyDomain": "www.usa.gov",
+      "totalRequests": 50,
+      "thirdPartyRequests": 26,
+      "knownTrackerRequests": 13,
+      "thirdPartyDomains": 10,
+      "cookies": 5,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 22
+    },
+    "conditions": {
+      "requestedUrl": "https://www.usa.gov/",
+      "finalUrl": "https://www.usa.gov/",
+      "scannedAt": "2026-07-02T14:46:35.870Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "reject-all",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.usa.gov/",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 46,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.usa.gov/s3/files/styles/max_1440w/public/2023-02/Homepage_Banner.png.webp",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 74,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.usa.gov/sites/default/files/css/css_HOzaX5HCSq_WlRlcWDRPLUTDyyL8VZQ6REn3ac2TQC8.css",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 75,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.usa.gov/sites/default/files/css/css_RS0lu12kxAKVlYtiIn6qpAq__BevSHCXAmcrTugppls.css",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 75,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.usa.gov/themes/custom/usagov/images/favicon-57.png",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 76,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/icon-dot-gov.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 77,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/icon-https.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 107,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.usa.gov/themes/custom/usagov/components/searchbar/images/search--dark.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 107,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.usa.gov/themes/custom/usagov/images/USAGov_Logo_80px.png",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 110,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.usa.gov/sites/default/files/js/js_lgXG-qbIAtdEwWFW2VoRjnVQm8s_kKg_akxfZvcl5FU.js",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 111,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.usa.gov/modules/contrib/uswds_ckeditor_integration/js/aftermarket/uswds_accordion.js",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 112,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.usa.gov/themes/custom/usagov/scripts/modifyMobileNav.js",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 112,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://script.crazyegg.com/pages/scripts/0007/9651.js",
+        "domain": "script.crazyegg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "crazyegg.com",
+          "entity": "Crazy Egg",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 113,
+        "blockedByShields": true
+      },
+      {
+        "id": 14,
+        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/usa-icons/close.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 113,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.usa.gov/themes/custom/usagov/images/Reimagined_Jump_to_Arrow.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 113,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.usa.gov/themes/custom/usagov/images/topics/ICONS_Reimagined_Benefits.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 114,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.usa.gov/themes/custom/usagov/scripts/newFooter.js",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 114,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 115,
+        "blockedByShields": true
+      },
+      {
+        "id": 19,
+        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/sprite.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 116,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/usa-icons/expand_more.svg",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 151,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-regular-webfont.woff2",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 152,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.usa.gov/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 152,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-bold-webfont.woff2",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 153,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.usa.gov/themes/custom/usagov/fonts/merriweather/Latin-Merriweather-Bold.woff2",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 155,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-semibold-webfont.woff2",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 156,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-italic-webfont.woff2",
+        "domain": "www.usa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 156,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://siteimproveanalytics.com/js/siteanalyze_51567.js",
+        "domain": "siteimproveanalytics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 217,
+        "blockedByShields": true
+      },
+      {
+        "id": 28,
+        "url": "https://s3-us-gov-west-1.amazonaws.com/cg-4d6fb302-315f-403e-a96e-a7563ccddd3d/1.0/waittime.json",
+        "domain": "s3-us-gov-west-1.amazonaws.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 227,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 332,
+        "blockedByShields": true
+      },
+      {
+        "id": 30,
+        "url": "https://www.googletagmanager.com/gtm.js?id=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 333,
+        "blockedByShields": true
+      },
+      {
+        "id": 31,
+        "url": "https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=&subagency=",
+        "domain": "dap.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 333,
+        "blockedByShields": true
+      },
+      {
+        "id": 32,
+        "url": "https://dap.digitalgov.gov/web-vitals/dist/web-vitals.attribution.iife.js",
+        "domain": "dap.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 359,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 360,
+        "blockedByShields": true
+      },
+      {
+        "id": 34,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 360,
+        "blockedByShields": true
+      },
+      {
+        "id": 35,
+        "url": "https://51567.global.siteimproveanalytics.io/image.aspx?url=&title=&res=&accountid=&rt=&prev=&luid=&rnd=",
+        "domain": "51567.global.siteimproveanalytics.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 389,
+        "blockedByShields": true
+      },
+      {
+        "id": 36,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&sid=&sct=&seg=&en=&_fv=&_nsi=&_ss=&ep.USA_canonical_url=&ep.USA_toggle_url=&ep.USA_gtm_container_info=&ep.USA_page_language=&ep.USA_Taxonomy_Level_1_Text=&ep.USA_Taxonomy_Level_2_Text=&ep.USA_Taxonomy_Level_3_Text=&ep.USA_Taxonomy_Level_4_Text=&ep.USA_Taxonomy_Level_5_Text=&ep.USA_Taxonomy_Level_6_Text=&ep.USA_Taxonomy_Level_1_URL=&ep.USA_Taxonomy_Level_2_URL=&ep.USA_Taxonomy_Level_3_URL=&ep.USA_Taxonomy_Level_4_URL=&ep.USA_Taxonomy_Level_5_URL=&ep.USA_Taxonomy_Level_6_URL=&ep.USA_Taxonomy_4_URL_Levels=&ep.USA_page_type=&ep.USA_page_sub_type=&ep.content_group=&ep.USA_node_id=&ep.USA_page_type_2_levels=&ep.USA_month_of_year=&ep.USA_concat_pageType_and_canonicalURL=&ep.USA_url_fragment=&ep.USA_BF_benefits_project_scope_status=&ep.USA_gtm_container_id=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 543,
+        "blockedByShields": true
+      },
+      {
+        "id": 37,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_fv=&_ss=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 615,
+        "blockedByShields": true
+      },
+      {
+        "id": 38,
+        "url": "https://znbabnroqffo1d7xq-cemgsa.gov1.siteintercept.qualtrics.com/SIE/?Q_ZID=",
+        "domain": "znbabnroqffo1d7xq-cemgsa.gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 646,
+        "blockedByShields": true
+      },
+      {
+        "id": 39,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/881.d239a4f9da069111bd06.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 916,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/941.a09c5b36bb369f224ce3.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 916,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://gov1.siteintercept.qualtrics.com/WRSiteInterceptEngine/Targeting.php?Q_ZoneID=&Q_CLIENTVERSION=&Q_CLIENTTYPE=",
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1269,
+        "blockedByShields": true
+      },
+      {
+        "id": 42,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 5616,
+        "blockedByShields": true
+      },
+      {
+        "id": 43,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&sid=&sct=&seg=&_tu=&en=&ep.USA_canonical_url=&ep.USA_toggle_url=&ep.USA_gtm_container_info=&ep.USA_page_language=&ep.USA_Taxonomy_Level_1_Text=&ep.USA_Taxonomy_Level_2_Text=&ep.USA_Taxonomy_Level_3_Text=&ep.USA_Taxonomy_Level_4_Text=&ep.USA_Taxonomy_Level_5_Text=&ep.USA_Taxonomy_Level_6_Text=&ep.USA_Taxonomy_Level_1_URL=&ep.USA_Taxonomy_Level_2_URL=&ep.USA_Taxonomy_Level_3_URL=&ep.USA_Taxonomy_Level_4_URL=&ep.USA_Taxonomy_Level_5_URL=&ep.USA_Taxonomy_Level_6_URL=&ep.USA_Taxonomy_4_URL_Levels=&ep.USA_page_type=&ep.USA_page_sub_type=&ep.content_group=&ep.USA_node_id=&ep.USA_page_type_2_levels=&ep.USA_month_of_year=&ep.USA_concat_pageType_and_canonicalURL=&ep.USA_url_fragment=&ep.USA_BF_benefits_project_scope_status=&ep.USA_gtm_container_id=&_et=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6287,
+        "blockedByShields": true
+      },
+      {
+        "id": 44,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&_et=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6288,
+        "blockedByShields": true
+      },
+      {
+        "id": 45,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6290,
+        "blockedByShields": true
+      },
+      {
+        "id": 46,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6290,
+        "blockedByShields": true
+      },
+      {
+        "id": 47,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&sid=&sct=&seg=&_tu=&en=&ep.USA_canonical_url=&ep.USA_toggle_url=&ep.USA_gtm_container_info=&ep.USA_page_language=&ep.USA_Taxonomy_Level_1_Text=&ep.USA_Taxonomy_Level_2_Text=&ep.USA_Taxonomy_Level_3_Text=&ep.USA_Taxonomy_Level_4_Text=&ep.USA_Taxonomy_Level_5_Text=&ep.USA_Taxonomy_Level_6_Text=&ep.USA_Taxonomy_Level_1_URL=&ep.USA_Taxonomy_Level_2_URL=&ep.USA_Taxonomy_Level_3_URL=&ep.USA_Taxonomy_Level_4_URL=&ep.USA_Taxonomy_Level_5_URL=&ep.USA_Taxonomy_Level_6_URL=&ep.USA_Taxonomy_4_URL_Levels=&ep.USA_page_type=&ep.USA_page_sub_type=&ep.content_group=&ep.USA_node_id=&ep.USA_page_type_2_levels=&ep.USA_month_of_year=&ep.USA_concat_pageType_and_canonicalURL=&ep.USA_url_fragment=&ep.USA_BF_benefits_project_scope_status=&ep.USA_gtm_container_id=&_et=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6291,
+        "blockedByShields": true
+      },
+      {
+        "id": 48,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6291,
+        "blockedByShields": true
+      },
+      {
+        "id": 49,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6291,
+        "blockedByShields": true
+      },
+      {
+        "id": 50,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&_et=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6291,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "script.crazyegg.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "crazyegg.com",
+          "entity": "Crazy Egg",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "gov1.siteintercept.qualtrics.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "dap.digitalgov.gov",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "siteimproveanalytics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "s3-us-gov-west-1.amazonaws.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "51567.global.siteimproveanalytics.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "znbabnroqffo1d7xq-cemgsa.gov1.siteintercept.qualtrics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.usa.gov",
+        "requests": 24,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "image",
+          "stylesheet",
+          "script",
+          "other",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "nmstat",
+        "domain": ".usa.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_GXFTMLX26S",
+        "domain": ".usa.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".usa.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_CSLL4ZEK4L",
+        "domain": ".usa.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "QSI_HistorySession",
+        "domain": "www.usa.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "mousedown",
+            "scroll",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "input",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://dap.digitalgov.gov",
+            "https://siteimproveanalytics.com",
+            "https://www.googletagmanager.com"
+          ],
+          "totalListenerCalls": 184
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    ],
+    "consentInteraction": {
+      "mode": "reject-all",
+      "clicked": false
+    }
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 57,
+      "after": 50,
+      "delta": -7
+    },
+    "thirdPartyRequests": {
+      "before": 33,
+      "after": 26,
+      "delta": -7
+    },
+    "knownTrackerRequests": {
+      "before": 17,
+      "after": 13,
+      "delta": -4
+    },
+    "thirdPartyDomains": {
+      "before": 10,
+      "after": 10,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 5,
+      "after": 5,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 26,
+      "after": 22,
+      "delta": -4
+    }
+  },
+  "warnings": [
+    "Consent comparison runs are sequential automated visits: one clicking the banner's accept-all choice, one clicking reject-all (first layer only). A run where no control was clicked reflects the pre-consent state instead; see each run's consent note. Differences can also come from timing, experiments, cache state, or bot detection.",
+    "Accept all: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Accept all: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Accept all: This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+    "Accept all: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Reject all: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Reject all: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Reject all: This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+    "Reject all: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+  ],
+  "share": {
+    "id": "20260702-968b19d06c0c71b244b3b4f6a44d62a6",
+    "path": "/reports/20260702-968b19d06c0c71b244b3b4f6a44d62a6/",
+    "jsonPath": "/reports/20260702-968b19d06c0c71b244b3b4f6a44d62a6.json"
+  }
+}

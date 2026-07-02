@@ -1,0 +1,1883 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "consent",
+  "title": "Consent accept/reject comparison",
+  "runLabels": {
+    "baseline": "Accept all",
+    "variant": "Reject all"
+  },
+  "requestedUrl": "https://www.cdc.gov/",
+  "scannedAt": "2026-07-02T14:47:31.470Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Centers for Disease Control and Prevention | CDC",
+      "status": 200,
+      "durationMs": 11445,
+      "firstPartyDomain": "www.cdc.gov",
+      "totalRequests": 50,
+      "thirdPartyRequests": 4,
+      "knownTrackerRequests": 3,
+      "thirdPartyDomains": 3,
+      "cookies": 11,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://www.cdc.gov/",
+      "finalUrl": "https://www.cdc.gov/",
+      "scannedAt": "2026-07-02T14:47:20.019Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "accept-all",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.cdc.gov/",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 38,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/css/homepage/hp-2024.min.css",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 78,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.cdc.gov/JScript/dmat/cdc-dmat.min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 78,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.cdc.gov/homepage/hp2024.css",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 78,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/js/modules/banner.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 78,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/uswds/icon-dot-gov.svg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 79,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/uswds/icon-https.svg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 79,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/logo/logo2.svg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 130,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/logo/cdc-logo-tag-right.svg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 133,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.cdc.gov/ebola/media/images/2024/07/Stop_Ebola_Classroom_GettyImages-506693649.jpg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 141,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.cdc.gov/config/cdc_config.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.cdc.gov/TemplatePackage/contrib/libs/bootstrap/5x/bootstrap.bundle.min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.cdc.gov/TemplatePackage/contrib/libs/jquery/latest/jquery.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/js/libs/wow.min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 142,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/js/homepage/cdc-hp-2024.min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/js/app.min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.cdc.gov/homepage/hp2024.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/uswds/us_flag_small.png",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/homepage/outbreak.svg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/homepage/aboutcdc.png",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.cdc.gov/homepage/images/banner/2026/ebola-outbreak.jpg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 147,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.cdc.gov/homepage/images/banner/2026/cdc-world-cup-desktop-1700x768-1_1.jpg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 147,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.cdc.gov/homepage/images/banner/summer-travel.jpg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 148,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/homepage/mmwr.png",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 148,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/homepage/eid.png",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 149,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/homepage/pcd.png",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 150,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.cdc.gov/homepage/images/science-cdc.jpg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 151,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/css/print.min.css",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 151,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/homepage/background-swirl.svg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 210,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/nunito.400.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 211,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/poppins.300.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 211,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/cdc-fa-light.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 212,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/cdc-fa-regular.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 212,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/poppins.400.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 213,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/nunito.500.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 213,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/nunito.600.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 214,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/poppins.500.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 219,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/cdc-fa-solid.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 219,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/cdc-icons.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 220,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.cdc.gov/TemplatePackage/contrib/libs/dompurify/latest/purify.min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 305,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://mtrics.cdc.gov/cdcgov/1.0.0/cdc.png",
+        "domain": "mtrics.cdc.gov",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 359,
+        "blockedByShields": true
+      },
+      {
+        "id": 42,
+        "url": "https://www.cdc.gov/JScript/metrics/google/Universal-Federated-Analytics-Min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 359,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.cdc.gov/JScript/surveys/redcap-survey-configs.json",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 361,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://mtrics.cdc.gov/cdcgov/1.0.0/cdc.png",
+        "domain": "mtrics.cdc.gov",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 361,
+        "blockedByShields": true
+      },
+      {
+        "id": 45,
+        "url": "https://www.cdc.gov/config/banner.txt",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 369,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://dap.digitalgov.gov/web-vitals/dist/web-vitals.attribution.iife.js",
+        "domain": "dap.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 388,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 388,
+        "blockedByShields": true
+      },
+      {
+        "id": 48,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_fv=&_nsi=&_ss=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 573,
+        "blockedByShields": true
+      },
+      {
+        "id": 49,
+        "url": "https://www.cdc.gov/TemplatePackage/contrib/libs/qrcodejs/latest/qrcode.min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 582,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 5574,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "dap.digitalgov.gov",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.cdc.gov",
+        "requests": 44,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "mtrics.cdc.gov",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "akamai_visit_id",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "Akamai-Request-ID",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_cdc_test_c",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_cdc_vid",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cdc_vnum",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cdc_sid",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cdc_occ",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cdc_ppu",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cdc_ppn",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_CSLL4ZEK4L",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "The page did not reach network idle before the scan window ended.",
+      "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "Read the site's privacy policy (https://www.cdc.gov/other/privacy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://www.cdc.gov/other/privacy.html",
+      "claims": [],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 12718
+    },
+    "consentInteraction": {
+      "mode": "accept-all",
+      "clicked": false
+    }
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Centers for Disease Control and Prevention | CDC",
+      "status": 200,
+      "durationMs": 11438,
+      "firstPartyDomain": "www.cdc.gov",
+      "totalRequests": 50,
+      "thirdPartyRequests": 4,
+      "knownTrackerRequests": 3,
+      "thirdPartyDomains": 3,
+      "cookies": 11,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://www.cdc.gov/",
+      "finalUrl": "https://www.cdc.gov/",
+      "scannedAt": "2026-07-02T14:47:31.470Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "reject-all",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.cdc.gov/",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 43,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/css/homepage/hp-2024.min.css",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 107,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.cdc.gov/JScript/dmat/cdc-dmat.min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 108,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.cdc.gov/homepage/hp2024.css",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 108,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/js/modules/banner.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 109,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/uswds/icon-dot-gov.svg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 110,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/uswds/icon-https.svg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 110,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/logo/logo2.svg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 167,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/logo/cdc-logo-tag-right.svg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 168,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.cdc.gov/ebola/media/images/2024/07/Stop_Ebola_Classroom_GettyImages-506693649.jpg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 185,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.cdc.gov/config/cdc_config.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 185,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.cdc.gov/TemplatePackage/contrib/libs/bootstrap/5x/bootstrap.bundle.min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 185,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.cdc.gov/TemplatePackage/contrib/libs/jquery/latest/jquery.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 186,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/js/libs/wow.min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 186,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/js/homepage/cdc-hp-2024.min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 186,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/js/app.min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 188,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.cdc.gov/homepage/hp2024.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 188,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/uswds/us_flag_small.png",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 189,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/homepage/outbreak.svg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 189,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/homepage/aboutcdc.png",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 189,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.cdc.gov/homepage/images/banner/2026/ebola-outbreak.jpg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 190,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.cdc.gov/homepage/images/banner/2026/cdc-world-cup-desktop-1700x768-1_1.jpg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 190,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.cdc.gov/homepage/images/banner/summer-travel.jpg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 190,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/homepage/mmwr.png",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 190,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/homepage/eid.png",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 191,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/homepage/pcd.png",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 191,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.cdc.gov/homepage/images/science-cdc.jpg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 191,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/css/print.min.css",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 192,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/img/homepage/background-swirl.svg",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 224,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/nunito.400.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 225,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/poppins.300.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 225,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/cdc-fa-light.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 227,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/cdc-fa-regular.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 227,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/poppins.400.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 228,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/nunito.500.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 228,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/nunito.600.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 228,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/poppins.500.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 229,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/cdc-fa-solid.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 230,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://www.cdc.gov/TemplatePackage/5.0/fonts/cdc-icons.woff2",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 230,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.cdc.gov/TemplatePackage/contrib/libs/dompurify/latest/purify.min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 329,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://mtrics.cdc.gov/cdcgov/1.0.0/cdc.png",
+        "domain": "mtrics.cdc.gov",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 359,
+        "blockedByShields": true
+      },
+      {
+        "id": 42,
+        "url": "https://www.cdc.gov/JScript/metrics/google/Universal-Federated-Analytics-Min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 359,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.cdc.gov/JScript/surveys/redcap-survey-configs.json",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 359,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://mtrics.cdc.gov/cdcgov/1.0.0/cdc.png",
+        "domain": "mtrics.cdc.gov",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 360,
+        "blockedByShields": true
+      },
+      {
+        "id": 45,
+        "url": "https://www.cdc.gov/config/banner.txt",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 366,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://dap.digitalgov.gov/web-vitals/dist/web-vitals.attribution.iife.js",
+        "domain": "dap.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 386,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 386,
+        "blockedByShields": true
+      },
+      {
+        "id": 48,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_fv=&_nsi=&_ss=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 563,
+        "blockedByShields": true
+      },
+      {
+        "id": 49,
+        "url": "https://www.cdc.gov/TemplatePackage/contrib/libs/qrcodejs/latest/qrcode.min.js",
+        "domain": "www.cdc.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 572,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 5564,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "dap.digitalgov.gov",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.cdc.gov",
+        "requests": 44,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "mtrics.cdc.gov",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "akamai_visit_id",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "Akamai-Request-ID",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_cdc_test_c",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_cdc_vid",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cdc_vnum",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cdc_sid",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cdc_occ",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cdc_ppu",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_cdc_ppn",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_CSLL4ZEK4L",
+        "domain": ".cdc.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "The page did not reach network idle before the scan window ended.",
+      "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "Read the site's privacy policy (https://www.cdc.gov/other/privacy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://www.cdc.gov/other/privacy.html",
+      "claims": [],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 12718
+    },
+    "consentInteraction": {
+      "mode": "reject-all",
+      "clicked": false
+    }
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 50,
+      "after": 50,
+      "delta": 0
+    },
+    "thirdPartyRequests": {
+      "before": 4,
+      "after": 4,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 3,
+      "after": 3,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 3,
+      "after": 3,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 11,
+      "after": 11,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 5,
+      "after": 5,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Consent comparison runs are sequential automated visits: one clicking the banner's accept-all choice, one clicking reject-all (first layer only). A run where no control was clicked reflects the pre-consent state instead; see each run's consent note. Differences can also come from timing, experiments, cache state, or bot detection.",
+    "Accept all: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Accept all: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Accept all: The page did not reach network idle before the scan window ended.",
+    "Accept all: This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+    "Accept all: Read the site's privacy policy (https://www.cdc.gov/other/privacy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Reject all: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Reject all: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Reject all: The page did not reach network idle before the scan window ended.",
+    "Reject all: This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+    "Reject all: Read the site's privacy policy (https://www.cdc.gov/other/privacy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260702-8e0fbe3aa3bf6ee432b388f4f019ddda",
+    "path": "/reports/20260702-8e0fbe3aa3bf6ee432b388f4f019ddda/",
+    "jsonPath": "/reports/20260702-8e0fbe3aa3bf6ee432b388f4f019ddda.json"
+  }
+}

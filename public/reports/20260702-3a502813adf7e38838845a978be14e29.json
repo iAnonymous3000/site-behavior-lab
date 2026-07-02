@@ -1,0 +1,5655 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "consent",
+  "title": "Consent accept/reject comparison",
+  "runLabels": {
+    "baseline": "Accept all",
+    "variant": "Reject all"
+  },
+  "requestedUrl": "https://www.abcya.com/",
+  "scannedAt": "2026-07-02T14:33:37.890Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "ABCya! • Learning Games and Apps for Kids",
+      "status": 200,
+      "durationMs": 9750,
+      "firstPartyDomain": "www.abcya.com",
+      "totalRequests": 152,
+      "thirdPartyRequests": 57,
+      "knownTrackerRequests": 23,
+      "thirdPartyDomains": 28,
+      "cookies": 14,
+      "thirdPartyCookies": 4,
+      "storageEntries": 15,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 37
+    },
+    "conditions": {
+      "requestedUrl": "https://www.abcya.com/",
+      "finalUrl": "https://www.abcya.com/",
+      "scannedAt": "2026-07-02T14:33:28.132Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "accept-all",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.abcya.com/",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 53,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.abcya.com/static/assets/montserrat-latin.preload.woff2",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 128,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.abcya.com/static/assets/bpreplay.preload.woff2",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 129,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.abcya.com/static/assets/bpreplay-bold.preload.woff2",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 129,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.abcya.com/client/main-6d381de4d2c1b6cb173b.css",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 131,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.abcya.com/client/runtime-7800394e2adcecc190d8.js",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 131,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.abcya.com/client/strings-d8c53f3e9569de400840.js",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 132,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.abcya.com/client/781-5255ab321d6119808f18.js",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 132,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.abcya.com/client/main-3a6b0609a48f2b103025.js",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 133,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 134,
+        "blockedByShields": true
+      },
+      {
+        "id": 11,
+        "url": "https://www.abcya.com/client/assets/spacebg_1440-1822f7102a1ee3a2431b.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 372,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.abcya.com/client/assets/milkyWay2-f75f138bfee593ed6499.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 373,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.abcya.com/client/assets/sun_en-be58e152019b90a1c098.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 373,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.abcya.com/client/assets/planetPink_en-88c1f16e13c52f6e5735.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 373,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.abcya.com/client/assets/planetYellow_en-ce44065d09cf2ec3f88d.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 374,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.abcya.com/client/assets/planetRed_en-4c58af2ffd7e4c6fbe4d.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 374,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.abcya.com/client/assets/planetBlue_en-33698b3476cea7579e7d.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 375,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.abcya.com/client/assets/planetGreen_en-ed53a48ce3f22325d10d.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 375,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.abcya.com/client/assets/planetMagenta_en-85f68349e5ddf302b111.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 377,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.abcya.com/client/assets/planetOrange_en-3a491c8a848454c095cb.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 377,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.abcya.com/client/assets/planetCyan_en-402237c56bbcdecb9964.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 377,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.abcya.com/client/assets/planetWhite-8b53b0c64ef6b7b0696b.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 378,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.abcya.com/client/assets/leaderAsteroidsBG-603376dd5d82f06e23cf.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 378,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.abcya.com/client/assets/leaderSatellitePanel-abc2feedc708451e12c0.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 379,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.abcya.com/client/assets/spaceTravelLeaderFullBG-c7464998e80db71203a7.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 379,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.abcya.com/client/assets/leaderSattelitesLeft-7a39fbc37bff07974044.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 379,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.abcya.com/client/assets/leaderSattelitesRight-9c46dbfecf851dea5514.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 380,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://assets.abcya.com/abcyaStartup_web.json",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 380,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://assets.abcya.com/abcyaStartup_web_games.json",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 384,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://assets.abcya.com/abcyaStartup_web_printables.json",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 384,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.google.com/recaptcha/enterprise.js?render=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 384,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 384,
+        "blockedByShields": true
+      },
+      {
+        "id": 33,
+        "url": "https://neodarwin-prod.sdcdns.com/main/prebid-min-2023.js",
+        "domain": "neodarwin-prod.sdcdns.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 384,
+        "blockedByShields": true
+      },
+      {
+        "id": 34,
+        "url": "https://www.datadoghq-browser-agent.com/us1/v5/datadog-logs.js",
+        "domain": "www.datadoghq-browser-agent.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "datadoghq-browser-agent.com",
+          "entity": "Datadog",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 385,
+        "blockedByShields": true
+      },
+      {
+        "id": 35,
+        "url": "https://www.abcya.com/client/assets/homeWelcome1024-29d53096c83bd822b32d.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 385,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.abcya.com/client/assets/shimmer-5e15b440b40d69d80b03.png",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 386,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.abcya.com/client/assets/flare-e4999e4e0e72cfe64b0d.png",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 386,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.abcya.com/client/assets/chocChipCookie-0c95dd2acd6ff483d79a.png",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 387,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://securepubads.g.doubleclick.net/tag/js/gpt.js",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 390,
+        "blockedByShields": true
+      },
+      {
+        "id": 40,
+        "url": "https://imasdk.googleapis.com/js/sdkloader/ima3.js",
+        "domain": "imasdk.googleapis.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 390,
+        "blockedByShields": true
+      },
+      {
+        "id": 41,
+        "url": "https://www.abcya.com/client/assets/minibannerCgArt-d8089f260688a5ece973.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 407,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.abcya.com/client/assets/minibannerCgLangArt-2f03150cb2beac9ab847.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 412,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.abcya.com/client/assets/minibannerCgMath-21d55ef42aecef29a91a.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 412,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://www.abcya.com/client/assets/minibannerCgMulti-e6d7f485bae91423cf57.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 412,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://www.abcya.com/client/assets/minibannerCgScience-f6a39d6f2d33678cbfb6.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 413,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.abcya.com/client/assets/minibannerCgSocStud-6b6d7c167189cf4019d5.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 415,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://www.abcya.com/client/assets/minibannerCgTyping-b54ad9a68adcc06e36f1.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 415,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://www.abcya.com/client/assets/minibannerCgWriting-a39f77ca28784581c6e1.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 416,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.abcya.com/client/assets/minibannerCgCar-ae2adea275517e81024b.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 416,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://www.abcya.com/client/assets/minibannerCgCat-1e4557f26d6de904caef.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 416,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://www.abcya.com/client/assets/minibannerCgAnimal-634ca53ff1fe5b881d23.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 417,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.abcya.com/client/assets/minibannerCgFood-aa328c0b7ff51250b86e.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 417,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://www.abcya.com/client/assets/minibannerCgStory-46045ef8230b9b942387.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 417,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://www.abcya.com/client/assets/minibannerCgRobot-3805fe37c839c9e9bd90.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 418,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://www.abcya.com/client/assets/minibannerCgSports-912a8c367e0916f549f2.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 418,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://www.abcya.com/client/assets/minibannerCgRetro-e9648ba538b1637fbff5.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 418,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://www.abcya.com/client/assets/minibannerCgSpace-c7ae98e8df2d4fd0633f.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 418,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://www.abcya.com/client/assets/minibannerCgMoney-0d79909a24a08491d9ab.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 418,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://www.abcya.com/client/assets/minibannerCgBingo-b9878d76e3c57de7d183.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 419,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://www.abcya.com/client/assets/minibannerCgCrossword-eeaa03ca9190b4820e89.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 419,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://www.abcya.com/client/assets/minibannerCgHunt-5e483abaebb75e9c117a.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 420,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://www.abcya.com/client/assets/minibannerCgMultiplayer-36c7e9ce2f69234922c8.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 420,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://www.abcya.com/client/assets/minibannerCgPlatformer-556a43828df58e80fcc0.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 421,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://www.abcya.com/client/assets/minibannerCgPuzzle-9d13e3f094c49943ce76.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 421,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://www.abcya.com/client/assets/minibannerCgRacing-b57fab3786bf23db6800.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 421,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://www.abcya.com/client/assets/minibannerCgWordSearch-707525dc3336aa85060b.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 422,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 533,
+        "blockedByShields": true
+      },
+      {
+        "id": 68,
+        "url": "https://utt.impactcdn.com/A4100326-a0fc-4676-ad4d-810c4a703e971.js",
+        "domain": "utt.impactcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 544,
+        "blockedByShields": true
+      },
+      {
+        "id": 69,
+        "url": "https://shop.pe/widget/widget_async.js",
+        "domain": "shop.pe",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 301,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 544,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202606250101/pubads_impl.js",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 587,
+        "blockedByShields": true
+      },
+      {
+        "id": 71,
+        "url": "https://cmas.sdcdns.com/abc/main-min.js",
+        "domain": "cmas.sdcdns.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 588,
+        "blockedByShields": true
+      },
+      {
+        "id": 72,
+        "url": "https://assets.abcya.com/webp_55a676bb-9dcd-4223-83bf-2ce3db5edeb4.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 712,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://www.abcya.com/client/assets/mbTypeIcon_game-51a82132f9bb1f47a8ad.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 713,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://assets.abcya.com/webp_0ff7166f-ee23-4b5e-9b14-f92fb080276c.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 718,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://assets.abcya.com/webp_b148b412-fb2d-4ecf-90f8-c045eb9ae705.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 721,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://assets.abcya.com/webp_874e5c02-cafc-4179-bc42-fcf37f4d3e5a.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 722,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://assets.abcya.com/webp_ea86240c-da8c-4bf8-9a60-6051d7c39e7b.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 722,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://assets.abcya.com/webp_f0b04c3f-3add-440f-9064-a9925b73dcf0.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 722,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://assets.abcya.com/webp_8d0f233d-0030-4a99-a8c6-15278dc8d89e.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 723,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://assets.abcya.com/webp_4b98ef07-d899-404f-8806-8796823064dd.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 724,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://assets.abcya.com/webp_3f8e133a-a6e7-4d4b-9f09-100c1705a777.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 725,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://assets.abcya.com/webp_3f8a1215-5991-444c-aea7-5c8dfff17daf.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 726,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://assets.abcya.com/webp_bf21728b-2772-49fb-bcaa-788802f9ec1f.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 726,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://assets.abcya.com/webp_cbd2093d-fb5f-4b34-8e04-3f59a8ddbe18.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 726,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://www.abcya.com/client/assets/mbTypeIcon_printable-3e1f05ff716157fbe534.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 727,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://assets.abcya.com/webp_6c2dd383-a55f-4ec1-aad3-a32b9fefc8ff.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 727,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://assets.abcya.com/webp_d73fd7fc-a18f-4042-9f6b-3a1a41a234ff.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 728,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://assets.abcya.com/webp_5991c967-7373-4237-b188-4f66f294ebd8.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 728,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://assets.abcya.com/webp_916876b8-3011-47bb-9a65-865aca497313.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 728,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://assets.abcya.com/webp_41839b2f-04ec-49e8-9298-ad30d1fd7130.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 729,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://assets.abcya.com/webp_476d414f-c454-47b5-8f23-e59389ef89cf.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 729,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://assets.abcya.com/webp_e25c257d-d12e-403b-be2c-73389b775f8e.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 730,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://assets.abcya.com/webp_227a869f-8f3f-4adc-8ddc-77b601904f46.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 730,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://assets.abcya.com/webp_1a832957-d109-48a4-b144-91955f0190cb.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 731,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://assets.abcya.com/webp_8225bc26-0d49-4269-b893-8882ab980e19.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 731,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://assets.abcya.com/webp_2c3e63a2-8d41-4018-9a01-beefa0915767.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 732,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://assets.abcya.com/webp_811311c2-8579-4e74-b2ee-450ef0c22cc7.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 732,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://assets.abcya.com/webp_a728b763-75d0-4835-96f0-f53ef35368c8.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 733,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://assets.abcya.com/webp_585783a1-d8fb-4e61-8cec-9e1aab910642.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 733,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://www.gstatic.com/recaptcha/releases/TnA7HacJFoBWt9hnlunBlYfK/recaptcha__en.js",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 742,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://d2mjzob2nc713b.cloudfront.net/widget/widget_async.js",
+        "domain": "d2mjzob2nc713b.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 871,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dp=&dl=&dt=&sid=&sct=&seg=&en=&_fv=&_nsi=&_ss=&ep.client_container_info=&ep.client_timezone=&ep.subdomain=&ep.referrer=&ep.core_web_vitals_id=&epn.core_web_vitals_delta=&ep.core_web_vitals_rating=&epn.core_web_vitals_value=&up.last_timezone=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 936,
+        "blockedByShields": true
+      },
+      {
+        "id": 103,
+        "url": "https://abcya.sjv.io/xc/5349016/1637442/18982",
+        "domain": "abcya.sjv.io",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 956,
+        "blockedByShields": true
+      },
+      {
+        "id": 104,
+        "url": "https://invstatic101.creativecdn.com/encrypted-signals/encrypted-tag-g.js",
+        "domain": "invstatic101.creativecdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1002,
+        "blockedByShields": true
+      },
+      {
+        "id": 105,
+        "url": "https://static.criteo.net/js/ld/publishertag.ids.js",
+        "domain": "static.criteo.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.net",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1003,
+        "blockedByShields": true
+      },
+      {
+        "id": 106,
+        "url": "https://oa.openxcdn.net/esp.js",
+        "domain": "oa.openxcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1003,
+        "blockedByShields": true
+      },
+      {
+        "id": 107,
+        "url": "https://securepubads.g.doubleclick.net/gampad/ads?pvsid=&correlator=&hxva=&scor=&eid=&output=&gdfp_req=&vrg=&ptt=&impl=&npa=&tfat=&iu_parts=&enc_prev_ius=&prev_iu_szs=&ifi=&dids=&adfs=&sfv=&eri=&sc=&lrm=&cookie_enabled=&abxe=&dt=&lmt=&adxs=&adys=&biw=&bih=&scr_x=&scr_y=&btvi=&ucis=&oid=&u_his=&u_h=&u_w=&u_ah=&u_aw=&u_cd=&u_sd=&dmc=&bc=&nvt=&uach=&url=&vis=&psz=&msz=&fws=&ohw=&dlt=&idt=&prev_scp=&cust_params=&adks=&frm=&eoidce=&pgls=",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1076,
+        "blockedByShields": true
+      },
+      {
+        "id": 108,
+        "url": "https://38204c8ecde44d9ce19e6728f476f97f.safeframe.googlesyndication.com/safeframe/1-0-45/html/container.html",
+        "domain": "38204c8ecde44d9ce19e6728f476f97f.safeframe.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1086,
+        "blockedByShields": false
+      },
+      {
+        "id": 109,
+        "url": "https://www.google.com/recaptcha/enterprise/anchor?ar=&k=&co=&hl=&v=&size=&anchor-ms=&execute-ms=&cb=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1172,
+        "blockedByShields": false
+      },
+      {
+        "id": 110,
+        "url": "https://kidsafe.com/js/seals/seals.js",
+        "domain": "kidsafe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1193,
+        "blockedByShields": false
+      },
+      {
+        "id": 111,
+        "url": "https://d2mjzob2nc713b.cloudfront.net/widget/triggerRunner.js?v=",
+        "domain": "d2mjzob2nc713b.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1194,
+        "blockedByShields": false
+      },
+      {
+        "id": 112,
+        "url": "https://oajs.openx.net/esp?url=&rid=",
+        "domain": "oajs.openx.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1200,
+        "blockedByShields": true
+      },
+      {
+        "id": 113,
+        "url": "https://www.gstatic.com/recaptcha/releases/TnA7HacJFoBWt9hnlunBlYfK/styles__ltr.css",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1215,
+        "blockedByShields": false
+      },
+      {
+        "id": 114,
+        "url": "https://www.gstatic.com/recaptcha/releases/TnA7HacJFoBWt9hnlunBlYfK/recaptcha__en.js",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1216,
+        "blockedByShields": false
+      },
+      {
+        "id": 115,
+        "url": "https://gum.criteo.com/syncframe?origin=&topUrl=",
+        "domain": "gum.criteo.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1261,
+        "blockedByShields": true
+      },
+      {
+        "id": 116,
+        "url": "https://esp.rtbhouse.com/encrypt",
+        "domain": "esp.rtbhouse.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1262,
+        "blockedByShields": true
+      },
+      {
+        "id": 117,
+        "url": "https://securepubads.g.doubleclick.net/pagead/managed/dict/m202606180101/gpt",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1267,
+        "blockedByShields": true
+      },
+      {
+        "id": 118,
+        "url": "https://d2mjzob2nc713b.cloudfront.net/widget/widget.js?v=",
+        "domain": "d2mjzob2nc713b.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1267,
+        "blockedByShields": false
+      },
+      {
+        "id": 119,
+        "url": "https://oajs.openx.net/esp?url=&rid=&cc=",
+        "domain": "oajs.openx.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1365,
+        "blockedByShields": true
+      },
+      {
+        "id": 120,
+        "url": "https://www.google.com/recaptcha/enterprise/webworker.js?hl=&v=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1376,
+        "blockedByShields": false
+      },
+      {
+        "id": 121,
+        "url": "https://www.gstatic.com/recaptcha/api2/logo_48.png",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1385,
+        "blockedByShields": false
+      },
+      {
+        "id": 122,
+        "url": "https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1386,
+        "blockedByShields": false
+      },
+      {
+        "id": 123,
+        "url": "https://google-bidout-d.openx.net/w/1.0/pd?plm=",
+        "domain": "google-bidout-d.openx.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1416,
+        "blockedByShields": true
+      },
+      {
+        "id": 124,
+        "url": "https://www.gstatic.com/recaptcha/releases/TnA7HacJFoBWt9hnlunBlYfK/recaptcha__en.js",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1419,
+        "blockedByShields": false
+      },
+      {
+        "id": 125,
+        "url": "https://kidsafe.com/api/seals/yy4xuBjeeoqZh50sSgug0yVoln1ZidaP7l8y8R4u",
+        "domain": "kidsafe.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1615,
+        "blockedByShields": false
+      },
+      {
+        "id": 126,
+        "url": "https://ep1.adtrafficquality.google/getconfig/sodar?sv=&tid=&tv=&st=&sjk=",
+        "domain": "ep1.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1625,
+        "blockedByShields": true
+      },
+      {
+        "id": 127,
+        "url": "https://app.shop.pe/app/init/params?siteid=&product=&product_url=&image=&price=&currency=&rating=&rating_count=&review_count=&stock_status=&description=&update_product=&subcategory=&url=&callback=&no_cookie_callback=&sos=&rand=&cookie=&referer=",
+        "domain": "app.shop.pe",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1625,
+        "blockedByShields": false
+      },
+      {
+        "id": 128,
+        "url": "https://ep2.adtrafficquality.google/sodar/sodar2.js",
+        "domain": "ep2.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1670,
+        "blockedByShields": true
+      },
+      {
+        "id": 129,
+        "url": "https://ep2.adtrafficquality.google/sodar/sodar2/255/runner.html",
+        "domain": "ep2.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1700,
+        "blockedByShields": true
+      },
+      {
+        "id": 130,
+        "url": "https://www.google.com/recaptcha/api2/aframe",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1704,
+        "blockedByShields": false
+      },
+      {
+        "id": 131,
+        "url": "https://pagead2.googlesyndication.com/bg/cvRB3ei24ST0Ntz6pzbsDKd-E8jDO8AEns0MkpNRs6A.js",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1818,
+        "blockedByShields": true
+      },
+      {
+        "id": 132,
+        "url": "https://pagead2.googlesyndication.com/pagead/sodar?id=&v=&li=&jk=&rc=",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1820,
+        "blockedByShields": true
+      },
+      {
+        "id": 133,
+        "url": "https://pagead2.googlesyndication.com/pagead/ping?e=",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1881,
+        "blockedByShields": true
+      },
+      {
+        "id": 134,
+        "url": "https://ep2.adtrafficquality.google/generate_204?X0fNTQ=",
+        "domain": "ep2.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1930,
+        "blockedByShields": true
+      },
+      {
+        "id": 135,
+        "url": "https://kidsafe.com/api/seals/yy4xuBjeeoqZh50sSgug0yVoln1ZidaP7l8y8R4u/seal/6/image",
+        "domain": "kidsafe.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2021,
+        "blockedByShields": false
+      },
+      {
+        "id": 136,
+        "url": "https://kidsafe.com/api/seals/yy4xuBjeeoqZh50sSgug0yVoln1ZidaP7l8y8R4u/seal/4/image",
+        "domain": "kidsafe.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2022,
+        "blockedByShields": false
+      },
+      {
+        "id": 137,
+        "url": "https://ep1.adtrafficquality.google/pagead/sodar?id=&v=&t=&li=&jk=&bg=",
+        "domain": "ep1.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2450,
+        "blockedByShields": true
+      },
+      {
+        "id": 138,
+        "url": "https://www.abcya.com/client/assets/iconBlogSearch-991d1e7016144c2893fc.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4821,
+        "blockedByShields": false
+      },
+      {
+        "id": 139,
+        "url": "https://www.abcya.com/client/assets/iconGameSearch-28a7d73f29ff682f4798.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4822,
+        "blockedByShields": false
+      },
+      {
+        "id": 140,
+        "url": "https://www.abcya.com/client/assets/iconTeacherResourceSearch-449a6ce05943c807cda4.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4822,
+        "blockedByShields": false
+      },
+      {
+        "id": 141,
+        "url": "https://www.abcya.com/client/assets/iconStandardsSearch-3f9880d128f6728481bb.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4822,
+        "blockedByShields": false
+      },
+      {
+        "id": 142,
+        "url": "https://www.abcya.com/client/assets/iconWorksheetSearch-60758058929bf2933376.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4823,
+        "blockedByShields": false
+      },
+      {
+        "id": 143,
+        "url": "https://www.abcya.com/client/assets/iconColoringPageSearch-89f971fc51c9d02283e2.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4823,
+        "blockedByShields": false
+      },
+      {
+        "id": 144,
+        "url": "https://www.abcya.com/client/assets/iconFaqSearch-6f1c8107d2e2fa25fd81.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4823,
+        "blockedByShields": false
+      },
+      {
+        "id": 145,
+        "url": "https://www.abcya.com/client/assets/iconActivityPageSearch-84965c92ecdeee5236f1.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4823,
+        "blockedByShields": false
+      },
+      {
+        "id": 146,
+        "url": "https://api-js.mixpanel.com/track/?verbose=&ip=&_=",
+        "domain": "api-js.mixpanel.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "mixpanel.com",
+          "entity": "Mixpanel",
+          "category": "product analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 5312,
+        "blockedByShields": true
+      },
+      {
+        "id": 147,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dp=&dl=&dt=&sid=&sct=&seg=&_s=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 5938,
+        "blockedByShields": true
+      },
+      {
+        "id": 148,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dp=&dl=&dt=&sid=&sct=&seg=&en=&ep.client_container_info=&ep.client_timezone=&ep.subdomain=&ep.referrer=&_et=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 7440,
+        "blockedByShields": true
+      },
+      {
+        "id": 149,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dp=&dl=&dt=&sid=&sct=&seg=&en=&ep.client_container_info=&ep.client_timezone=&ep.subdomain=&ep.referrer=&ep.core_web_vitals_id=&epn.core_web_vitals_delta=&ep.core_web_vitals_rating=&epn.core_web_vitals_value=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 7441,
+        "blockedByShields": true
+      },
+      {
+        "id": 150,
+        "url": "https://api-js.mixpanel.com/track/?verbose=&ip=&_=",
+        "domain": "api-js.mixpanel.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "mixpanel.com",
+          "entity": "Mixpanel",
+          "category": "product analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 7441,
+        "blockedByShields": true
+      },
+      {
+        "id": 151,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dp=&dl=&dt=&sid=&sct=&seg=&en=&ep.client_container_info=&ep.client_timezone=&ep.subdomain=&ep.referrer=&_et=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 7444,
+        "blockedByShields": true
+      },
+      {
+        "id": 152,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dp=&dl=&dt=&sid=&sct=&seg=&en=&ep.client_container_info=&ep.client_timezone=&ep.subdomain=&ep.referrer=&ep.core_web_vitals_id=&epn.core_web_vitals_delta=&ep.core_web_vitals_rating=&epn.core_web_vitals_value=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 7444,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "pagead2.googlesyndication.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "image",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "securepubads.g.doubleclick.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "other"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "oajs.openx.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "api-js.mixpanel.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "mixpanel.com",
+          "entity": "Mixpanel",
+          "category": "product analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "ping"
+        ]
+      },
+      {
+        "domain": "www.datadoghq-browser-agent.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "datadoghq-browser-agent.com",
+          "entity": "Datadog",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "static.criteo.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.net",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "38204c8ecde44d9ce19e6728f476f97f.safeframe.googlesyndication.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "gum.criteo.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "google-bidout-d.openx.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "image",
+          "other"
+        ]
+      },
+      {
+        "domain": "kidsafe.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "document"
+        ]
+      },
+      {
+        "domain": "d2mjzob2nc713b.cloudfront.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ep2.adtrafficquality.google",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "ep1.adtrafficquality.google",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "neodarwin-prod.sdcdns.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "imasdk.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "utt.impactcdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "shop.pe",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          301
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cmas.sdcdns.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "abcya.sjv.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "invstatic101.creativecdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "oa.openxcdn.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "esp.rtbhouse.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "app.shop.pe",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.abcya.com",
+        "requests": 66,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "assets.abcya.com",
+        "requests": 29,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "uid",
+        "domain": ".criteo.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "i",
+        "domain": ".openx.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".sdcdns.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "IR_gbd",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "IR_18982",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "__gads",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__gpi",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__eoi",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_YF9ENHBDLE",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "sd_inner_height",
+        "domain": "www.abcya.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_dd_s",
+        "domain": "www.abcya.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "__mpq_e005eb98032f42bb2b81fcf7a9c5fd08_ev",
+        "valueBytes": 795
+      },
+      {
+        "area": "localStorage",
+        "key": "asTimeOnSiteSetTime",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "mp_e005eb98032f42bb2b81fcf7a9c5fd08_mixpanel",
+        "valueBytes": 362
+      },
+      {
+        "area": "localStorage",
+        "key": "startupData",
+        "valueBytes": 1179449
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-openx",
+        "valueBytes": 70
+      },
+      {
+        "area": "localStorage",
+        "key": "asTimeOnSiteValue",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-esp.criteo.com",
+        "valueBytes": 73
+      },
+      {
+        "area": "localStorage",
+        "key": "asPageViews",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-rtbhouse",
+        "valueBytes": 201
+      },
+      {
+        "area": "localStorage",
+        "key": "total_pageviews",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "rtbhouse-esp",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "ksp_seals_yy4xuBjeeoqZh50sSgug0yVoln1ZidaP7l8y8R4u",
+        "valueBytes": 709
+      },
+      {
+        "area": "sessionStorage",
+        "key": "pageviewcount",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "mp_tab_id_mixpanel_e005eb98032f42bb2b81fcf7a9c5fd08",
+        "valueBytes": 41
+      },
+      {
+        "area": "sessionStorage",
+        "key": "mp_gen_new_tab_id_mixpanel_e005eb98032f42bb2b81fcf7a9c5fd08",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "keydown",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://securepubads.g.doubleclick.net",
+            "https://www.datadoghq-browser-agent.com",
+            "https://www.gstatic.com"
+          ],
+          "totalListenerCalls": 5
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "touchstart",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://d2mjzob2nc713b.cloudfront.net",
+            "https://imasdk.googleapis.com",
+            "https://utt.impactcdn.com",
+            "https://www.datadoghq-browser-agent.com",
+            "https://www.googletagmanager.com",
+            "https://www.gstatic.com"
+          ],
+          "totalListenerCalls": 19
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.abcya.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://www.abcya.com/privacy",
+      "claims": [],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [
+        "OpenX",
+        "Criteo",
+        "Mixpanel"
+      ],
+      "policyTextLength": 19748
+    },
+    "consentInteraction": {
+      "mode": "accept-all",
+      "clicked": false
+    }
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "ABCya! • Learning Games and Apps for Kids",
+      "status": 200,
+      "durationMs": 9606,
+      "firstPartyDomain": "www.abcya.com",
+      "totalRequests": 152,
+      "thirdPartyRequests": 57,
+      "knownTrackerRequests": 23,
+      "thirdPartyDomains": 28,
+      "cookies": 14,
+      "thirdPartyCookies": 4,
+      "storageEntries": 15,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 37
+    },
+    "conditions": {
+      "requestedUrl": "https://www.abcya.com/",
+      "finalUrl": "https://www.abcya.com/",
+      "scannedAt": "2026-07-02T14:33:37.890Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "reject-all",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.abcya.com/",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 52,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.abcya.com/static/assets/montserrat-latin.preload.woff2",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 107,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.abcya.com/static/assets/bpreplay.preload.woff2",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 109,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.abcya.com/static/assets/bpreplay-bold.preload.woff2",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 109,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.abcya.com/client/main-6d381de4d2c1b6cb173b.css",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 109,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.abcya.com/client/runtime-7800394e2adcecc190d8.js",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 110,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.abcya.com/client/strings-d8c53f3e9569de400840.js",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 111,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.abcya.com/client/781-5255ab321d6119808f18.js",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 112,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.abcya.com/client/main-3a6b0609a48f2b103025.js",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 112,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 112,
+        "blockedByShields": true
+      },
+      {
+        "id": 11,
+        "url": "https://www.abcya.com/client/assets/spacebg_1440-1822f7102a1ee3a2431b.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 367,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.abcya.com/client/assets/milkyWay2-f75f138bfee593ed6499.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 368,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.abcya.com/client/assets/sun_en-be58e152019b90a1c098.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 368,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.abcya.com/client/assets/planetPink_en-88c1f16e13c52f6e5735.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 369,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.abcya.com/client/assets/planetYellow_en-ce44065d09cf2ec3f88d.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 369,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.abcya.com/client/assets/planetRed_en-4c58af2ffd7e4c6fbe4d.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 373,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.abcya.com/client/assets/planetBlue_en-33698b3476cea7579e7d.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 374,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.abcya.com/client/assets/planetGreen_en-ed53a48ce3f22325d10d.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 375,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.abcya.com/client/assets/planetMagenta_en-85f68349e5ddf302b111.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 375,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.abcya.com/client/assets/planetOrange_en-3a491c8a848454c095cb.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 376,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.abcya.com/client/assets/planetCyan_en-402237c56bbcdecb9964.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 376,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.abcya.com/client/assets/planetWhite-8b53b0c64ef6b7b0696b.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 377,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.abcya.com/client/assets/leaderAsteroidsBG-603376dd5d82f06e23cf.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 377,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.abcya.com/client/assets/leaderSatellitePanel-abc2feedc708451e12c0.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 378,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.abcya.com/client/assets/spaceTravelLeaderFullBG-c7464998e80db71203a7.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 378,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.abcya.com/client/assets/leaderSattelitesLeft-7a39fbc37bff07974044.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 378,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.abcya.com/client/assets/leaderSattelitesRight-9c46dbfecf851dea5514.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 379,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://assets.abcya.com/abcyaStartup_web.json",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 379,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://assets.abcya.com/abcyaStartup_web_games.json",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 379,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://assets.abcya.com/abcyaStartup_web_printables.json",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 380,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.google.com/recaptcha/enterprise.js?render=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 380,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 380,
+        "blockedByShields": true
+      },
+      {
+        "id": 33,
+        "url": "https://neodarwin-prod.sdcdns.com/main/prebid-min-2023.js",
+        "domain": "neodarwin-prod.sdcdns.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 381,
+        "blockedByShields": true
+      },
+      {
+        "id": 34,
+        "url": "https://www.datadoghq-browser-agent.com/us1/v5/datadog-logs.js",
+        "domain": "www.datadoghq-browser-agent.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "datadoghq-browser-agent.com",
+          "entity": "Datadog",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "startedAtMs": 383,
+        "blockedByShields": true
+      },
+      {
+        "id": 35,
+        "url": "https://www.abcya.com/client/assets/homeWelcome1024-29d53096c83bd822b32d.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 383,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.abcya.com/client/assets/shimmer-5e15b440b40d69d80b03.png",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 384,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://www.abcya.com/client/assets/flare-e4999e4e0e72cfe64b0d.png",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 385,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.abcya.com/client/assets/chocChipCookie-0c95dd2acd6ff483d79a.png",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 385,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://securepubads.g.doubleclick.net/tag/js/gpt.js",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 393,
+        "blockedByShields": true
+      },
+      {
+        "id": 40,
+        "url": "https://imasdk.googleapis.com/js/sdkloader/ima3.js",
+        "domain": "imasdk.googleapis.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 393,
+        "blockedByShields": true
+      },
+      {
+        "id": 41,
+        "url": "https://www.abcya.com/client/assets/minibannerCgArt-d8089f260688a5ece973.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 412,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.abcya.com/client/assets/minibannerCgLangArt-2f03150cb2beac9ab847.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 412,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.abcya.com/client/assets/minibannerCgMath-21d55ef42aecef29a91a.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 413,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://www.abcya.com/client/assets/minibannerCgMulti-e6d7f485bae91423cf57.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 415,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://www.abcya.com/client/assets/minibannerCgScience-f6a39d6f2d33678cbfb6.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 415,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.abcya.com/client/assets/minibannerCgSocStud-6b6d7c167189cf4019d5.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 416,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://www.abcya.com/client/assets/minibannerCgTyping-b54ad9a68adcc06e36f1.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 418,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://www.abcya.com/client/assets/minibannerCgWriting-a39f77ca28784581c6e1.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 420,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.abcya.com/client/assets/minibannerCgCar-ae2adea275517e81024b.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 420,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://www.abcya.com/client/assets/minibannerCgCat-1e4557f26d6de904caef.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 421,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://www.abcya.com/client/assets/minibannerCgAnimal-634ca53ff1fe5b881d23.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 421,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.abcya.com/client/assets/minibannerCgFood-aa328c0b7ff51250b86e.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 422,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://www.abcya.com/client/assets/minibannerCgStory-46045ef8230b9b942387.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 422,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://www.abcya.com/client/assets/minibannerCgRobot-3805fe37c839c9e9bd90.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 422,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://www.abcya.com/client/assets/minibannerCgSports-912a8c367e0916f549f2.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 426,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://www.abcya.com/client/assets/minibannerCgRetro-e9648ba538b1637fbff5.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 428,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://www.abcya.com/client/assets/minibannerCgSpace-c7ae98e8df2d4fd0633f.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 429,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://www.abcya.com/client/assets/minibannerCgMoney-0d79909a24a08491d9ab.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 429,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://www.abcya.com/client/assets/minibannerCgBingo-b9878d76e3c57de7d183.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 430,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://www.abcya.com/client/assets/minibannerCgCrossword-eeaa03ca9190b4820e89.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 430,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://www.abcya.com/client/assets/minibannerCgHunt-5e483abaebb75e9c117a.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 430,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://www.abcya.com/client/assets/minibannerCgMultiplayer-36c7e9ce2f69234922c8.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 430,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://www.abcya.com/client/assets/minibannerCgPlatformer-556a43828df58e80fcc0.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 430,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://www.abcya.com/client/assets/minibannerCgPuzzle-9d13e3f094c49943ce76.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 431,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://www.abcya.com/client/assets/minibannerCgRacing-b57fab3786bf23db6800.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 431,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://www.abcya.com/client/assets/minibannerCgWordSearch-707525dc3336aa85060b.webp",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 434,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 554,
+        "blockedByShields": true
+      },
+      {
+        "id": 68,
+        "url": "https://utt.impactcdn.com/A4100326-a0fc-4676-ad4d-810c4a703e971.js",
+        "domain": "utt.impactcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 561,
+        "blockedByShields": true
+      },
+      {
+        "id": 69,
+        "url": "https://shop.pe/widget/widget_async.js",
+        "domain": "shop.pe",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 301,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 561,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202606250101/pubads_impl.js?cb=",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 611,
+        "blockedByShields": true
+      },
+      {
+        "id": 71,
+        "url": "https://cmas.sdcdns.com/abc/main-min.js",
+        "domain": "cmas.sdcdns.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 612,
+        "blockedByShields": true
+      },
+      {
+        "id": 72,
+        "url": "https://assets.abcya.com/webp_55a676bb-9dcd-4223-83bf-2ce3db5edeb4.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 713,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://www.abcya.com/client/assets/mbTypeIcon_game-51a82132f9bb1f47a8ad.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 714,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://assets.abcya.com/webp_0ff7166f-ee23-4b5e-9b14-f92fb080276c.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 717,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://assets.abcya.com/webp_b148b412-fb2d-4ecf-90f8-c045eb9ae705.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 717,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://assets.abcya.com/webp_874e5c02-cafc-4179-bc42-fcf37f4d3e5a.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 717,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://assets.abcya.com/webp_ea86240c-da8c-4bf8-9a60-6051d7c39e7b.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 718,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://assets.abcya.com/webp_f0b04c3f-3add-440f-9064-a9925b73dcf0.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 718,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://assets.abcya.com/webp_8d0f233d-0030-4a99-a8c6-15278dc8d89e.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 719,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://assets.abcya.com/webp_4b98ef07-d899-404f-8806-8796823064dd.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 719,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://assets.abcya.com/webp_3f8e133a-a6e7-4d4b-9f09-100c1705a777.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 720,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://assets.abcya.com/webp_3f8a1215-5991-444c-aea7-5c8dfff17daf.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 720,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://assets.abcya.com/webp_bf21728b-2772-49fb-bcaa-788802f9ec1f.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 720,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://assets.abcya.com/webp_cbd2093d-fb5f-4b34-8e04-3f59a8ddbe18.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 721,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://www.abcya.com/client/assets/mbTypeIcon_printable-3e1f05ff716157fbe534.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 721,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://assets.abcya.com/webp_6c2dd383-a55f-4ec1-aad3-a32b9fefc8ff.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 721,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://assets.abcya.com/webp_d73fd7fc-a18f-4042-9f6b-3a1a41a234ff.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 722,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://assets.abcya.com/webp_5991c967-7373-4237-b188-4f66f294ebd8.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 722,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://assets.abcya.com/webp_916876b8-3011-47bb-9a65-865aca497313.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 723,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://assets.abcya.com/webp_41839b2f-04ec-49e8-9298-ad30d1fd7130.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 723,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://assets.abcya.com/webp_476d414f-c454-47b5-8f23-e59389ef89cf.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 733,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://assets.abcya.com/webp_e25c257d-d12e-403b-be2c-73389b775f8e.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 733,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://assets.abcya.com/webp_227a869f-8f3f-4adc-8ddc-77b601904f46.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 734,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://assets.abcya.com/webp_1a832957-d109-48a4-b144-91955f0190cb.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 734,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://assets.abcya.com/webp_8225bc26-0d49-4269-b893-8882ab980e19.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 734,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://assets.abcya.com/webp_2c3e63a2-8d41-4018-9a01-beefa0915767.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 735,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://assets.abcya.com/webp_811311c2-8579-4e74-b2ee-450ef0c22cc7.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 735,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://assets.abcya.com/webp_a728b763-75d0-4835-96f0-f53ef35368c8.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 735,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://assets.abcya.com/webp_585783a1-d8fb-4e61-8cec-9e1aab910642.webp",
+        "domain": "assets.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 736,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://d2mjzob2nc713b.cloudfront.net/widget/widget_async.js",
+        "domain": "d2mjzob2nc713b.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 742,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://www.gstatic.com/recaptcha/releases/TnA7HacJFoBWt9hnlunBlYfK/recaptcha__en.js",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 756,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://abcya.sjv.io/xc/5349016/1637442/18982",
+        "domain": "abcya.sjv.io",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 902,
+        "blockedByShields": true
+      },
+      {
+        "id": 103,
+        "url": "https://invstatic101.creativecdn.com/encrypted-signals/encrypted-tag-g.js",
+        "domain": "invstatic101.creativecdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 936,
+        "blockedByShields": true
+      },
+      {
+        "id": 104,
+        "url": "https://static.criteo.net/js/ld/publishertag.ids.js",
+        "domain": "static.criteo.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.net",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 937,
+        "blockedByShields": true
+      },
+      {
+        "id": 105,
+        "url": "https://oa.openxcdn.net/esp.js",
+        "domain": "oa.openxcdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 937,
+        "blockedByShields": true
+      },
+      {
+        "id": 106,
+        "url": "https://securepubads.g.doubleclick.net/gampad/ads?pvsid=&correlator=&hxva=&scor=&eid=&output=&gdfp_req=&vrg=&ptt=&impl=&npa=&tfat=&iu_parts=&enc_prev_ius=&prev_iu_szs=&ifi=&dids=&adfs=&sfv=&eri=&sc=&lrm=&cookie_enabled=&abxe=&dt=&lmt=&adxs=&adys=&biw=&bih=&scr_x=&scr_y=&btvi=&ucis=&oid=&u_his=&u_h=&u_w=&u_ah=&u_aw=&u_cd=&u_sd=&dmc=&bc=&nvt=&uach=&url=&vis=&psz=&msz=&fws=&ohw=&dlt=&idt=&prev_scp=&cust_params=&adks=&frm=&eoidce=&pgls=",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1007,
+        "blockedByShields": true
+      },
+      {
+        "id": 107,
+        "url": "https://42f1f68108978109f72688de02b31c88.safeframe.googlesyndication.com/safeframe/1-0-45/html/container.html",
+        "domain": "42f1f68108978109f72688de02b31c88.safeframe.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1018,
+        "blockedByShields": false
+      },
+      {
+        "id": 108,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dp=&dl=&dt=&sid=&sct=&seg=&en=&_fv=&_nsi=&_ss=&ep.client_container_info=&ep.client_timezone=&ep.subdomain=&ep.referrer=&ep.core_web_vitals_id=&epn.core_web_vitals_delta=&ep.core_web_vitals_rating=&epn.core_web_vitals_value=&up.last_timezone=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1093,
+        "blockedByShields": true
+      },
+      {
+        "id": 109,
+        "url": "https://d2mjzob2nc713b.cloudfront.net/widget/triggerRunner.js?v=",
+        "domain": "d2mjzob2nc713b.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1104,
+        "blockedByShields": false
+      },
+      {
+        "id": 110,
+        "url": "https://www.google.com/recaptcha/enterprise/anchor?ar=&k=&co=&hl=&v=&size=&anchor-ms=&execute-ms=&cb=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1185,
+        "blockedByShields": false
+      },
+      {
+        "id": 111,
+        "url": "https://kidsafe.com/js/seals/seals.js",
+        "domain": "kidsafe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1225,
+        "blockedByShields": false
+      },
+      {
+        "id": 112,
+        "url": "https://www.gstatic.com/recaptcha/releases/TnA7HacJFoBWt9hnlunBlYfK/styles__ltr.css",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1235,
+        "blockedByShields": false
+      },
+      {
+        "id": 113,
+        "url": "https://www.gstatic.com/recaptcha/releases/TnA7HacJFoBWt9hnlunBlYfK/recaptcha__en.js",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1235,
+        "blockedByShields": false
+      },
+      {
+        "id": 114,
+        "url": "https://oajs.openx.net/esp?url=&rid=",
+        "domain": "oajs.openx.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1244,
+        "blockedByShields": true
+      },
+      {
+        "id": 115,
+        "url": "https://gum.criteo.com/syncframe?origin=&topUrl=",
+        "domain": "gum.criteo.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1259,
+        "blockedByShields": true
+      },
+      {
+        "id": 116,
+        "url": "https://d2mjzob2nc713b.cloudfront.net/widget/widget.js?v=",
+        "domain": "d2mjzob2nc713b.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1262,
+        "blockedByShields": false
+      },
+      {
+        "id": 117,
+        "url": "https://securepubads.g.doubleclick.net/pagead/managed/dict/m202606180101/gpt",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1267,
+        "blockedByShields": true
+      },
+      {
+        "id": 118,
+        "url": "https://oajs.openx.net/esp?url=&rid=&cc=",
+        "domain": "oajs.openx.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1275,
+        "blockedByShields": true
+      },
+      {
+        "id": 119,
+        "url": "https://google-bidout-d.openx.net/w/1.0/pd?plm=",
+        "domain": "google-bidout-d.openx.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1296,
+        "blockedByShields": true
+      },
+      {
+        "id": 120,
+        "url": "https://www.google.com/recaptcha/enterprise/webworker.js?hl=&v=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1397,
+        "blockedByShields": false
+      },
+      {
+        "id": 121,
+        "url": "https://www.gstatic.com/recaptcha/api2/logo_48.png",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1407,
+        "blockedByShields": false
+      },
+      {
+        "id": 122,
+        "url": "https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1407,
+        "blockedByShields": false
+      },
+      {
+        "id": 123,
+        "url": "https://www.gstatic.com/recaptcha/releases/TnA7HacJFoBWt9hnlunBlYfK/recaptcha__en.js",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1436,
+        "blockedByShields": false
+      },
+      {
+        "id": 124,
+        "url": "https://esp.rtbhouse.com/encrypt",
+        "domain": "esp.rtbhouse.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1462,
+        "blockedByShields": true
+      },
+      {
+        "id": 125,
+        "url": "https://kidsafe.com/api/seals/yy4xuBjeeoqZh50sSgug0yVoln1ZidaP7l8y8R4u",
+        "domain": "kidsafe.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1665,
+        "blockedByShields": false
+      },
+      {
+        "id": 126,
+        "url": "https://ep1.adtrafficquality.google/getconfig/sodar?sv=&tid=&tv=&st=&sjk=",
+        "domain": "ep1.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1670,
+        "blockedByShields": true
+      },
+      {
+        "id": 127,
+        "url": "https://app.shop.pe/app/init/params?siteid=&product=&product_url=&image=&price=&currency=&rating=&rating_count=&review_count=&stock_status=&description=&update_product=&subcategory=&url=&callback=&no_cookie_callback=&sos=&rand=&cookie=&referer=",
+        "domain": "app.shop.pe",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1671,
+        "blockedByShields": false
+      },
+      {
+        "id": 128,
+        "url": "https://ep2.adtrafficquality.google/sodar/sodar2.js",
+        "domain": "ep2.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1712,
+        "blockedByShields": true
+      },
+      {
+        "id": 129,
+        "url": "https://ep2.adtrafficquality.google/sodar/sodar2/255/runner.html",
+        "domain": "ep2.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1842,
+        "blockedByShields": true
+      },
+      {
+        "id": 130,
+        "url": "https://www.google.com/recaptcha/api2/aframe",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1843,
+        "blockedByShields": false
+      },
+      {
+        "id": 131,
+        "url": "https://pagead2.googlesyndication.com/bg/cvRB3ei24ST0Ntz6pzbsDKd-E8jDO8AEns0MkpNRs6A.js",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1865,
+        "blockedByShields": true
+      },
+      {
+        "id": 132,
+        "url": "https://pagead2.googlesyndication.com/pagead/sodar?id=&v=&li=&jk=&rc=",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1896,
+        "blockedByShields": true
+      },
+      {
+        "id": 133,
+        "url": "https://pagead2.googlesyndication.com/pagead/ping?e=",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1897,
+        "blockedByShields": true
+      },
+      {
+        "id": 134,
+        "url": "https://ep2.adtrafficquality.google/generate_204?xw_Gdg=",
+        "domain": "ep2.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1949,
+        "blockedByShields": true
+      },
+      {
+        "id": 135,
+        "url": "https://kidsafe.com/api/seals/yy4xuBjeeoqZh50sSgug0yVoln1ZidaP7l8y8R4u/seal/6/image",
+        "domain": "kidsafe.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2063,
+        "blockedByShields": false
+      },
+      {
+        "id": 136,
+        "url": "https://kidsafe.com/api/seals/yy4xuBjeeoqZh50sSgug0yVoln1ZidaP7l8y8R4u/seal/4/image",
+        "domain": "kidsafe.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2063,
+        "blockedByShields": false
+      },
+      {
+        "id": 137,
+        "url": "https://ep1.adtrafficquality.google/pagead/sodar?id=&v=&t=&li=&jk=&bg=",
+        "domain": "ep1.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2471,
+        "blockedByShields": true
+      },
+      {
+        "id": 138,
+        "url": "https://www.abcya.com/client/assets/iconBlogSearch-991d1e7016144c2893fc.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4827,
+        "blockedByShields": false
+      },
+      {
+        "id": 139,
+        "url": "https://www.abcya.com/client/assets/iconGameSearch-28a7d73f29ff682f4798.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4828,
+        "blockedByShields": false
+      },
+      {
+        "id": 140,
+        "url": "https://www.abcya.com/client/assets/iconTeacherResourceSearch-449a6ce05943c807cda4.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4828,
+        "blockedByShields": false
+      },
+      {
+        "id": 141,
+        "url": "https://www.abcya.com/client/assets/iconStandardsSearch-3f9880d128f6728481bb.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4829,
+        "blockedByShields": false
+      },
+      {
+        "id": 142,
+        "url": "https://www.abcya.com/client/assets/iconWorksheetSearch-60758058929bf2933376.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4830,
+        "blockedByShields": false
+      },
+      {
+        "id": 143,
+        "url": "https://www.abcya.com/client/assets/iconColoringPageSearch-89f971fc51c9d02283e2.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4830,
+        "blockedByShields": false
+      },
+      {
+        "id": 144,
+        "url": "https://www.abcya.com/client/assets/iconFaqSearch-6f1c8107d2e2fa25fd81.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4830,
+        "blockedByShields": false
+      },
+      {
+        "id": 145,
+        "url": "https://www.abcya.com/client/assets/iconActivityPageSearch-84965c92ecdeee5236f1.svg",
+        "domain": "www.abcya.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4831,
+        "blockedByShields": false
+      },
+      {
+        "id": 146,
+        "url": "https://api-js.mixpanel.com/track/?verbose=&ip=&_=",
+        "domain": "api-js.mixpanel.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "mixpanel.com",
+          "entity": "Mixpanel",
+          "category": "product analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 5308,
+        "blockedByShields": true
+      },
+      {
+        "id": 147,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dp=&dl=&dt=&sid=&sct=&seg=&_s=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6094,
+        "blockedByShields": true
+      },
+      {
+        "id": 148,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dp=&dl=&dt=&sid=&sct=&seg=&en=&ep.client_container_info=&ep.client_timezone=&ep.subdomain=&ep.referrer=&_et=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 7449,
+        "blockedByShields": true
+      },
+      {
+        "id": 149,
+        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dp=&dl=&dt=&sid=&sct=&seg=&en=&ep.client_container_info=&ep.client_timezone=&ep.subdomain=&ep.referrer=&ep.core_web_vitals_id=&epn.core_web_vitals_delta=&ep.core_web_vitals_rating=&epn.core_web_vitals_value=&tfd=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 7450,
+        "blockedByShields": true
+      },
+      {
+        "id": 150,
+        "url": "https://api-js.mixpanel.com/track/?verbose=&ip=&_=",
+        "domain": "api-js.mixpanel.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "mixpanel.com",
+          "entity": "Mixpanel",
+          "category": "product analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 7451,
+        "blockedByShields": true
+      },
+      {
+        "id": 151,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dp=&dl=&dt=&sid=&sct=&seg=&en=&ep.client_container_info=&ep.client_timezone=&ep.subdomain=&ep.referrer=&_et=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 7452,
+        "blockedByShields": true
+      },
+      {
+        "id": 152,
+        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dp=&dl=&dt=&sid=&sct=&seg=&en=&ep.client_container_info=&ep.client_timezone=&ep.subdomain=&ep.referrer=&ep.core_web_vitals_id=&epn.core_web_vitals_delta=&ep.core_web_vitals_rating=&epn.core_web_vitals_value=&tfd=&gaf=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 7453,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "pagead2.googlesyndication.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "image",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "securepubads.g.doubleclick.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "other"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "oajs.openx.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "api-js.mixpanel.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "mixpanel.com",
+          "entity": "Mixpanel",
+          "category": "product analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "ping"
+        ]
+      },
+      {
+        "domain": "www.datadoghq-browser-agent.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "datadoghq-browser-agent.com",
+          "entity": "Datadog",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "static.criteo.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.net",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "42f1f68108978109f72688de02b31c88.safeframe.googlesyndication.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "gum.criteo.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "google-bidout-d.openx.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "image",
+          "other"
+        ]
+      },
+      {
+        "domain": "kidsafe.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "document"
+        ]
+      },
+      {
+        "domain": "d2mjzob2nc713b.cloudfront.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ep2.adtrafficquality.google",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "ep1.adtrafficquality.google",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "neodarwin-prod.sdcdns.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "imasdk.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "utt.impactcdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "shop.pe",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          301
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cmas.sdcdns.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "abcya.sjv.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "invstatic101.creativecdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "oa.openxcdn.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "esp.rtbhouse.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "app.shop.pe",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.abcya.com",
+        "requests": 66,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "assets.abcya.com",
+        "requests": 29,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "uid",
+        "domain": ".criteo.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "i",
+        "domain": ".openx.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".sdcdns.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "IR_gbd",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "IR_18982",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__gads",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__gpi",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__eoi",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_YF9ENHBDLE",
+        "domain": ".abcya.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "sd_inner_height",
+        "domain": "www.abcya.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_dd_s",
+        "domain": "www.abcya.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "__mpq_e005eb98032f42bb2b81fcf7a9c5fd08_ev",
+        "valueBytes": 795
+      },
+      {
+        "area": "localStorage",
+        "key": "asTimeOnSiteSetTime",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "mp_e005eb98032f42bb2b81fcf7a9c5fd08_mixpanel",
+        "valueBytes": 362
+      },
+      {
+        "area": "localStorage",
+        "key": "startupData",
+        "valueBytes": 1179449
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-openx",
+        "valueBytes": 70
+      },
+      {
+        "area": "localStorage",
+        "key": "asTimeOnSiteValue",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-esp.criteo.com",
+        "valueBytes": 73
+      },
+      {
+        "area": "localStorage",
+        "key": "asPageViews",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "_GESPSK-rtbhouse",
+        "valueBytes": 221
+      },
+      {
+        "area": "localStorage",
+        "key": "total_pageviews",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "rtbhouse-esp",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "ksp_seals_yy4xuBjeeoqZh50sSgug0yVoln1ZidaP7l8y8R4u",
+        "valueBytes": 709
+      },
+      {
+        "area": "sessionStorage",
+        "key": "pageviewcount",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "mp_tab_id_mixpanel_e005eb98032f42bb2b81fcf7a9c5fd08",
+        "valueBytes": 41
+      },
+      {
+        "area": "sessionStorage",
+        "key": "mp_gen_new_tab_id_mixpanel_e005eb98032f42bb2b81fcf7a9c5fd08",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "keydown",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://securepubads.g.doubleclick.net",
+            "https://www.datadoghq-browser-agent.com",
+            "https://www.gstatic.com"
+          ],
+          "totalListenerCalls": 5
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "touchstart",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://d2mjzob2nc713b.cloudfront.net",
+            "https://imasdk.googleapis.com",
+            "https://utt.impactcdn.com",
+            "https://www.datadoghq-browser-agent.com",
+            "https://www.googletagmanager.com",
+            "https://www.gstatic.com"
+          ],
+          "totalListenerCalls": 19
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.abcya.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://www.abcya.com/privacy",
+      "claims": [],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [
+        "OpenX",
+        "Criteo",
+        "Mixpanel"
+      ],
+      "policyTextLength": 19748
+    },
+    "consentInteraction": {
+      "mode": "reject-all",
+      "clicked": false
+    }
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 152,
+      "after": 152,
+      "delta": 0
+    },
+    "thirdPartyRequests": {
+      "before": 57,
+      "after": 57,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 23,
+      "after": 23,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 28,
+      "after": 28,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 14,
+      "after": 14,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 4,
+      "after": 4,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 15,
+      "after": 15,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [
+      {
+        "domain": "42f1f68108978109f72688de02b31c88.safeframe.googlesyndication.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "removedDomains": [
+      {
+        "domain": "38204c8ecde44d9ce19e6728f476f97f.safeframe.googlesyndication.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 37,
+      "after": 37,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Consent comparison runs are sequential automated visits: one clicking the banner's accept-all choice, one clicking reject-all (first layer only). A run where no control was clicked reflects the pre-consent state instead; see each run's consent note. Differences can also come from timing, experiments, cache state, or bot detection.",
+    "Accept all: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Accept all: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Accept all: This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+    "Accept all: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Accept all: Read the site's privacy policy (https://www.abcya.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Reject all: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Reject all: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Reject all: This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+    "Reject all: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Reject all: Read the site's privacy policy (https://www.abcya.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260702-3a502813adf7e38838845a978be14e29",
+    "path": "/reports/20260702-3a502813adf7e38838845a978be14e29/",
+    "jsonPath": "/reports/20260702-3a502813adf7e38838845a978be14e29.json"
+  }
+}

@@ -1,0 +1,4820 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "consent",
+  "title": "Consent accept/reject comparison",
+  "runLabels": {
+    "baseline": "Accept all",
+    "variant": "Reject all"
+  },
+  "requestedUrl": "https://bumble.com/",
+  "scannedAt": "2026-07-02T14:29:57.680Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Bumble | Date, Chat & Meet New People",
+      "status": 200,
+      "durationMs": 10674,
+      "firstPartyDomain": "bumble.com",
+      "totalRequests": 120,
+      "thirdPartyRequests": 43,
+      "knownTrackerRequests": 33,
+      "thirdPartyDomains": 17,
+      "cookies": 29,
+      "thirdPartyCookies": 10,
+      "storageEntries": 9,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 44
+    },
+    "conditions": {
+      "requestedUrl": "https://bumble.com/",
+      "finalUrl": "https://bumble.com/",
+      "scannedAt": "2026-07-02T14:29:46.996Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "accept-all",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://bumble.com/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 48,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://consent.bumble.com/unified/wrapperMessagingWithoutDetection.js",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 754,
+        "blockedByShields": true
+      },
+      {
+        "id": 3,
+        "url": "https://bumble.com/bumble-brand-assets/fonts/BumbleSans/BumbleSans-BoldCondensed.woff2",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 754,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://bumble.com/bumble-brand-assets/fonts/BumbleSans/BumbleSans-Medium.woff2",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 754,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/css/4e9e69a9ac9b2e67.css",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 755,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/css/effe7c444ad84d2a.css",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 755,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/9fab77bf4fc366ef.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 758,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/4101edefd833a9ef.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 759,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/af4e10453a764913.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 760,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/556d2932c0ff2ae2.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 761,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/84285cd15339b1a6.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 762,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/9246b388839924e4.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 762,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/973dca4db395beb0.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 762,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/49676f2d1b4f66a8.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 763,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/9925d78b50ff5c2f.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 763,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/d3227988fc974638.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 763,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/e09tOnOpiGv7vn7_Y8wHy/_buildManifest.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 763,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/e09tOnOpiGv7vn7_Y8wHy/_ssgManifest.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 763,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://bumble.com/bumble-brand-assets/project-love/assets/member-circle.svg",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 764,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://bumble.com/bumble-brand-assets/assets/get-the-app-desktop.png",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 765,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 766,
+        "blockedByShields": true
+      },
+      {
+        "id": 22,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 953,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 965,
+        "blockedByShields": true
+      },
+      {
+        "id": 24,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 967,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1013,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1014,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1018,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1018,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1018,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1019,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1019,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1020,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1022,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1026,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1042,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://bumble.com/bumble-brand-assets/fonts/BumbleSans/fonts-bumble.css",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1114,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://consent.bumble.com/unified/4.40.1/gdpr-tcf.27718c8cb9d29947d2c1.bundle.js",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1202,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://consent.bumble.com/unified/4.40.1/ccpa.1820a7ba1340e3c799af.bundle.js",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1202,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://consent.bumble.com/mms/v2/get_site_data",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1203,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://consent.bumble.com/wrapper/v2/meta-data",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1226,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://consent.bumble.com/wrapper/v2/messages",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1272,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1286,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1305,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://ad.doubleclick.net/ccm/s/collect?auid=&gtm=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1320,
+        "blockedByShields": true
+      },
+      {
+        "id": 45,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1321,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://analytics.google.com/g/collect?v=&tid=&gtm=&_p=&_gaz=&gcd=&npa=&dma=&tcfd=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&gaf=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&en=&_fv=&_nsi=&_ss=&tfd=",
+        "domain": "analytics.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1341,
+        "blockedByShields": true
+      },
+      {
+        "id": 47,
+        "url": "https://stats.g.doubleclick.net/g/collect?v=&tid=&cid=&gtm=&rcb=&aip=&dma=&gcd=&npa=&frm=&tag_exp=",
+        "domain": "stats.g.doubleclick.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1342,
+        "blockedByShields": true
+      },
+      {
+        "id": 48,
+        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/941436846/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tcfd=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&us_privacy=&gdpr=&gdpr_consent=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1342,
+        "blockedByShields": true
+      },
+      {
+        "id": 49,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1343,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://www.google.com/rmkt/collect/941436846/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tcfd=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&us_privacy=&gdpr=&gdpr_consent=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&gcp=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1348,
+        "blockedByShields": true
+      },
+      {
+        "id": 51,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1350,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&ae=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&us_privacy=&gdpr=&gdpr_consent=&ep.ads_data_redaction=&gtm=&gcd=&dma=&tcfd=&tag_exp=&apve=&apvf=&apvc=&tft=&tfd=&fmt=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1351,
+        "blockedByShields": true
+      },
+      {
+        "id": 53,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1351,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&us_privacy=&gdpr=&gdpr_consent=&gtm=&gcd=&dma=&tcfd=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1353,
+        "blockedByShields": true
+      },
+      {
+        "id": 55,
+        "url": "https://consent.bumble.com/wrapper/v2/pv-data",
+        "domain": "consent.bumble.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1354,
+        "blockedByShields": true
+      },
+      {
+        "id": 56,
+        "url": "https://consent.bumble.com/index.html",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1360,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://consent.bumble.com/Notice.1c267.css",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1376,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://consent.bumble.com/polyfills.01516.js",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1377,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://consent.bumble.com/Notice.97af9.js",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1378,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://fonts.googleapis.com/css2?family=&display=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1472,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://bumble.com/static/bumble/images/logo.svg",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1472,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://bumble.com/bumble-brand-assets/fonts/BumbleSans/BumbleSans-RegularCompact.woff2",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1484,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://bumble.com/bumble-brand-assets/fonts/BumbleSans/BumbleSans-SemiBoldCompact.woff2",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1485,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://bumble.com/bumble-brand-assets/fonts/BumbleSans/BumbleSans-MediumCompact.woff2",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1485,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1494,
+        "blockedByShields": true
+      },
+      {
+        "id": 66,
+        "url": "https://bumble.com/undefined",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1502,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://bumble.com/bumble-brand-assets/libraries/tracking/facebook-pixel.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1503,
+        "blockedByShields": true
+      },
+      {
+        "id": 68,
+        "url": "https://bumble.com/bumble-brand-assets/libraries/tracking/google-ads.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1503,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://bumble.com/bumble-brand-assets/libraries/tracking/linkedin.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1503,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://bumble.com/bumble-brand-assets/libraries/tracking/pinterest.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1504,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://bumble.com/bumble-brand-assets/libraries/tracking/taboola.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1504,
+        "blockedByShields": true
+      },
+      {
+        "id": 72,
+        "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1526,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://www.google.com/pagead/1p-user-list/941436846/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tcfd=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&us_privacy=&gdpr=&gdpr_consent=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1530,
+        "blockedByShields": true
+      },
+      {
+        "id": 74,
+        "url": "https://snap.licdn.com/li.lms-analytics/insight.min.js",
+        "domain": "snap.licdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "snap.licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1805,
+        "blockedByShields": true
+      },
+      {
+        "id": 75,
+        "url": "https://px.ads.linkedin.com/collect/?pid=&fmt=",
+        "domain": "px.ads.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1805,
+        "blockedByShields": true
+      },
+      {
+        "id": 76,
+        "url": "https://cdn.taboola.com/libtrc/unip/1387956/tfa.js",
+        "domain": "cdn.taboola.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1805,
+        "blockedByShields": true
+      },
+      {
+        "id": 77,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1812,
+        "blockedByShields": true
+      },
+      {
+        "id": 78,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1815,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://s.pinimg.com/ct/core.js",
+        "domain": "s.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1816,
+        "blockedByShields": true
+      },
+      {
+        "id": 80,
+        "url": "https://ct.pinterest.com/v3/?tid=&noscript=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1816,
+        "blockedByShields": true
+      },
+      {
+        "id": 81,
+        "url": "https://connect.facebook.net/en_US/fbevents.js",
+        "domain": "connect.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "connect.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1816,
+        "blockedByShields": true
+      },
+      {
+        "id": 82,
+        "url": "https://www.facebook.com/tr?id=&ev=&noscript=",
+        "domain": "www.facebook.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "facebook.com",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1817,
+        "blockedByShields": true
+      },
+      {
+        "id": 83,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1817,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1851,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://s.pinimg.com/ct/lib/main.3c5b736e.js",
+        "domain": "s.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1852,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1887,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://ct.pinterest.com/user/?tid=&cb=&dep=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1887,
+        "blockedByShields": true
+      },
+      {
+        "id": 88,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1892,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://ct.pinterest.com/user/?event=&tid=&cb=&dep=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1893,
+        "blockedByShields": true
+      },
+      {
+        "id": 90,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1894,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://ct.pinterest.com/v3/?tid=&event=&ad=&cb=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1894,
+        "blockedByShields": true
+      },
+      {
+        "id": 92,
+        "url": "https://snap.licdn.com/li.lms-analytics/insight.old.min.js",
+        "domain": "snap.licdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "snap.licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1896,
+        "blockedByShields": true
+      },
+      {
+        "id": 93,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1922,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://px.ads.linkedin.com/attribution_trigger?pid=&time=&url=",
+        "domain": "px.ads.linkedin.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1922,
+        "blockedByShields": true
+      },
+      {
+        "id": 95,
+        "url": "https://px.ads.linkedin.com/collect?v=&fmt=&pid=&time=&li_adsId=&url=",
+        "domain": "px.ads.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1923,
+        "blockedByShields": true
+      },
+      {
+        "id": 96,
+        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/380859420/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tcfd=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&us_privacy=&gdpr=&gdpr_consent=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&1p.ce=&data=&ept=&rfmt=&fmt=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1994,
+        "blockedByShields": true
+      },
+      {
+        "id": 97,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1995,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://www.google.com/rmkt/collect/380859420/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tcfd=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&us_privacy=&gdpr=&gdpr_consent=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&1p.ce=&data=&ept=&gcp=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1996,
+        "blockedByShields": true
+      },
+      {
+        "id": 99,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1997,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&us_privacy=&gdpr=&gdpr_consent=&_tu=&gtm=&gcs=&gcd=&dma=&tcfd=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2000,
+        "blockedByShields": true
+      },
+      {
+        "id": 101,
+        "url": "https://px.ads.linkedin.com/collect/?pid=&fmt=&cookiesTest=",
+        "domain": "px.ads.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2000,
+        "blockedByShields": true
+      },
+      {
+        "id": 102,
+        "url": "https://px.ads.linkedin.com/collect?v=&fmt=&pid=&time=&li_adsId=&url=&cookiesTest=",
+        "domain": "px.ads.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2000,
+        "blockedByShields": true
+      },
+      {
+        "id": 103,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2052,
+        "blockedByShields": false
+      },
+      {
+        "id": 104,
+        "url": "https://connect.facebook.net/signals/config/259026827778330?v=&r=&domain=&hme=&ex_m=",
+        "domain": "connect.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "connect.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2053,
+        "blockedByShields": true
+      },
+      {
+        "id": 105,
+        "url": "https://www.linkedin.com/px/li_sync?redirect=",
+        "domain": "www.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2062,
+        "blockedByShields": true
+      },
+      {
+        "id": 106,
+        "url": "https://www.linkedin.com/px/li_sync?redirect=",
+        "domain": "www.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2062,
+        "blockedByShields": true
+      },
+      {
+        "id": 107,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2118,
+        "blockedByShields": false
+      },
+      {
+        "id": 108,
+        "url": "https://ct.pinterest.com/v3/?event=&tid=&cb=&dep=&ad=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2119,
+        "blockedByShields": true
+      },
+      {
+        "id": 109,
+        "url": "https://px.ads.linkedin.com/collect/?pid=&fmt=&cookiesTest=&liSync=",
+        "domain": "px.ads.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2150,
+        "blockedByShields": true
+      },
+      {
+        "id": 110,
+        "url": "https://px.ads.linkedin.com/collect?v=&fmt=&pid=&time=&li_adsId=&url=&cookiesTest=&liSync=",
+        "domain": "px.ads.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2157,
+        "blockedByShields": true
+      },
+      {
+        "id": 111,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2232,
+        "blockedByShields": false
+      },
+      {
+        "id": 112,
+        "url": "https://px.ads.linkedin.com/wa/?medium=&fmt=",
+        "domain": "px.ads.linkedin.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2233,
+        "blockedByShields": true
+      },
+      {
+        "id": 113,
+        "url": "https://ct.pinterest.com/ct.html",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2781,
+        "blockedByShields": true
+      },
+      {
+        "id": 114,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2785,
+        "blockedByShields": false
+      },
+      {
+        "id": 115,
+        "url": "https://consent.bumble.com/wrapper/v2/choice/consent-all",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3403,
+        "blockedByShields": false
+      },
+      {
+        "id": 116,
+        "url": "https://consent.bumble.com/wrapper/v2/choice/ccpa/11",
+        "domain": "consent.bumble.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3424,
+        "blockedByShields": false
+      },
+      {
+        "id": 117,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6350,
+        "blockedByShields": false
+      },
+      {
+        "id": 118,
+        "url": "https://analytics.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&tcfd=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&gaf=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&en=&_et=&tfd=",
+        "domain": "analytics.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6351,
+        "blockedByShields": true
+      },
+      {
+        "id": 119,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6425,
+        "blockedByShields": false
+      },
+      {
+        "id": 120,
+        "url": "https://trc-events.taboola.com/1387956/log/3/unip?en=&tos=&scd=&ssd=&est=&ver=&isls=&src=&invt=&msa=&rv=&tim=&mrir=&vi=&ref=&cv=&item-url=&ccpaPs=&cbp=&cbpv=&it=",
+        "domain": "trc-events.taboola.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6426,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "px.ads.linkedin.com",
+        "requests": 8,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "image",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "ct.pinterest.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "xhr",
+          "fetch",
+          "document"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "snap.licdn.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "snap.licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "connect.facebook.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "connect.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.linkedin.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "stats.g.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "cdn.taboola.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.facebook.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "facebook.com",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "trc-events.taboola.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "s.pinimg.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "bumble.com",
+        "requests": 64,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          404
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "image",
+          "other"
+        ]
+      },
+      {
+        "domain": "consent.bumble.com",
+        "requests": 13,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "document",
+          "stylesheet"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "_pinterest_ct_ua",
+        "domain": ".ct.pinterest.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "li_gp",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "li_sugr",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "bcookie",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "lidc",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "UserMatchHistory",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "AnalyticsSyncHistory",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "bscookie",
+        "domain": ".www.linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "dnsDisplayed",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ccpaApplies",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "signedLspa",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_NSEKRQF5TF",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_sp_su",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ccpaUUID",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "session",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "session_cookie_name",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "device_id",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "buzz_lang_code",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "first_web_visit_id",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "last_referred_web_visit_id",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_fbp",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_pin_unauth",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ccpaConsentAll",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ccpaReject",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "consentStatus",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "_sp_non_keyed_local_state",
+        "valueBytes": 100
+      },
+      {
+        "area": "localStorage",
+        "key": "lastExternalReferrerTime",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "eng_mt",
+        "valueBytes": 174
+      },
+      {
+        "area": "localStorage",
+        "key": "_sp_local_state",
+        "valueBytes": 317
+      },
+      {
+        "area": "localStorage",
+        "key": "lastExternalReferrer",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls",
+        "valueBytes": 277
+      },
+      {
+        "area": "localStorage",
+        "key": "_sp_user_consent_22303",
+        "valueBytes": 1454
+      },
+      {
+        "area": "localStorage",
+        "key": "li_adsId",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "is_eu",
+        "valueBytes": 5
+      }
+    ],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This visit clicked \"Accept all\" on the Sourcepoint banner after page load, so requests, cookies, and storage reflect the post-choice state.",
+      "Read the site's privacy policy (https://bumble.com/privacy-policy/en) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "pixelEvents": [
+      {
+        "platform": "Meta",
+        "product": "Meta Pixel",
+        "events": [
+          "PageView"
+        ],
+        "advancedMatching": [],
+        "requests": 1
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://bumble.com/privacy-policy/en",
+      "claims": [],
+      "mentionedEntities": [
+        "LinkedIn",
+        "Google",
+        "Pinterest",
+        "Meta"
+      ],
+      "unmentionedEntities": [
+        "Taboola"
+      ],
+      "policyTextLength": 15307
+    },
+    "consentInteraction": {
+      "mode": "accept-all",
+      "clicked": true,
+      "cmp": "Sourcepoint",
+      "selector": ".sp_choice_type_11",
+      "frameUrl": "https://consent.bumble.com/index.html"
+    }
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Bumble | Date, Chat & Meet New People",
+      "status": 200,
+      "durationMs": 8719,
+      "firstPartyDomain": "bumble.com",
+      "totalRequests": 119,
+      "thirdPartyRequests": 42,
+      "knownTrackerRequests": 33,
+      "thirdPartyDomains": 17,
+      "cookies": 29,
+      "thirdPartyCookies": 10,
+      "storageEntries": 9,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 43
+    },
+    "conditions": {
+      "requestedUrl": "https://bumble.com/",
+      "finalUrl": "https://bumble.com/",
+      "scannedAt": "2026-07-02T14:29:57.680Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "reject-all",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://bumble.com/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 53,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://consent.bumble.com/unified/wrapperMessagingWithoutDetection.js",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1158,
+        "blockedByShields": true
+      },
+      {
+        "id": 3,
+        "url": "https://bumble.com/bumble-brand-assets/fonts/BumbleSans/BumbleSans-BoldCondensed.woff2",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1158,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://bumble.com/bumble-brand-assets/fonts/BumbleSans/BumbleSans-Medium.woff2",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1159,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/css/4e9e69a9ac9b2e67.css",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1159,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/css/effe7c444ad84d2a.css",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1160,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/9fab77bf4fc366ef.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1163,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/4101edefd833a9ef.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1165,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/af4e10453a764913.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1165,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/556d2932c0ff2ae2.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1166,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/84285cd15339b1a6.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1166,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/9246b388839924e4.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1166,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/973dca4db395beb0.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1167,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/49676f2d1b4f66a8.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1167,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/9925d78b50ff5c2f.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1167,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/chunks/d3227988fc974638.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1167,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/e09tOnOpiGv7vn7_Y8wHy/_buildManifest.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1168,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://bumble.com/bumble-brand-assets/_next/static/e09tOnOpiGv7vn7_Y8wHy/_ssgManifest.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1168,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://bumble.com/bumble-brand-assets/project-love/assets/member-circle.svg",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1169,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://bumble.com/bumble-brand-assets/assets/get-the-app-desktop.png",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1170,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1170,
+        "blockedByShields": true
+      },
+      {
+        "id": 22,
+        "url": "https://consent.bumble.com/unified/4.40.1/gdpr-tcf.27718c8cb9d29947d2c1.bundle.js",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1205,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://consent.bumble.com/unified/4.40.1/ccpa.1820a7ba1340e3c799af.bundle.js",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1205,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://consent.bumble.com/mms/v2/get_site_data",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1205,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://consent.bumble.com/wrapper/v2/meta-data",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1221,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://consent.bumble.com/wrapper/v2/messages",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1268,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1280,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://consent.bumble.com/wrapper/v2/pv-data",
+        "domain": "consent.bumble.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1284,
+        "blockedByShields": true
+      },
+      {
+        "id": 29,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1338,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1359,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://ad.doubleclick.net/ccm/s/collect?auid=&gtm=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1367,
+        "blockedByShields": true
+      },
+      {
+        "id": 32,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1367,
+        "blockedByShields": true
+      },
+      {
+        "id": 33,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1370,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1377,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&ae=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&us_privacy=&gdpr=&gdpr_consent=&ep.ads_data_redaction=&gtm=&gcs=&gcd=&dma=&tcfd=&tag_exp=&apve=&apvf=&apvc=&tft=&tfd=&fmt=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1378,
+        "blockedByShields": true
+      },
+      {
+        "id": 36,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1434,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1435,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1435,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1438,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1438,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1440,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1441,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1442,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1442,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://bumble.com/_next/image/",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1444,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1560,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://analytics.google.com/g/collect?v=&tid=&gtm=&_p=&_gaz=&gcs=&gcd=&npa=&dma=&tcfd=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&gaf=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&en=&_fv=&_nsi=&_ss=&tfd=",
+        "domain": "analytics.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1582,
+        "blockedByShields": true
+      },
+      {
+        "id": 48,
+        "url": "https://stats.g.doubleclick.net/g/collect?v=&tid=&cid=&gtm=&rcb=&aip=&dma=&gcs=&gcd=&npa=&frm=&tag_exp=",
+        "domain": "stats.g.doubleclick.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1583,
+        "blockedByShields": true
+      },
+      {
+        "id": 49,
+        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/941436846/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tcfd=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&us_privacy=&gdpr=&gdpr_consent=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1583,
+        "blockedByShields": true
+      },
+      {
+        "id": 50,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1585,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://www.google.com/rmkt/collect/941436846/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tcfd=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&us_privacy=&gdpr=&gdpr_consent=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&gcp=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1591,
+        "blockedByShields": true
+      },
+      {
+        "id": 52,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1592,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&us_privacy=&gdpr=&gdpr_consent=&gtm=&gcs=&gcd=&dma=&tcfd=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1593,
+        "blockedByShields": true
+      },
+      {
+        "id": 54,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1680,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://consent.bumble.com/index.html",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1696,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://bumble.com/bumble-brand-assets/fonts/BumbleSans/fonts-bumble.css",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1754,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://consent.bumble.com/Notice.1c267.css",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1768,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://consent.bumble.com/polyfills.01516.js",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1768,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://consent.bumble.com/Notice.97af9.js",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1769,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://fonts.googleapis.com/css2?family=&display=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1862,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://bumble.com/static/bumble/images/logo.svg",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1863,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://bumble.com/bumble-brand-assets/fonts/BumbleSans/BumbleSans-RegularCompact.woff2",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1880,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://bumble.com/bumble-brand-assets/fonts/BumbleSans/BumbleSans-SemiBoldCompact.woff2",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1880,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://bumble.com/bumble-brand-assets/fonts/BumbleSans/BumbleSans-MediumCompact.woff2",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1881,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1886,
+        "blockedByShields": true
+      },
+      {
+        "id": 66,
+        "url": "https://bumble.com/undefined",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1890,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://bumble.com/bumble-brand-assets/libraries/tracking/facebook-pixel.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1891,
+        "blockedByShields": true
+      },
+      {
+        "id": 68,
+        "url": "https://bumble.com/bumble-brand-assets/libraries/tracking/google-ads.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1891,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://bumble.com/bumble-brand-assets/libraries/tracking/linkedin.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1891,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://bumble.com/bumble-brand-assets/libraries/tracking/pinterest.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1892,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://bumble.com/bumble-brand-assets/libraries/tracking/taboola.js",
+        "domain": "bumble.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1892,
+        "blockedByShields": true
+      },
+      {
+        "id": 72,
+        "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1907,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1976,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://connect.facebook.net/en_US/fbevents.js",
+        "domain": "connect.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "connect.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1977,
+        "blockedByShields": true
+      },
+      {
+        "id": 75,
+        "url": "https://www.facebook.com/tr?id=&ev=&noscript=",
+        "domain": "www.facebook.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "facebook.com",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1977,
+        "blockedByShields": true
+      },
+      {
+        "id": 76,
+        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1987,
+        "blockedByShields": true
+      },
+      {
+        "id": 77,
+        "url": "https://s.pinimg.com/ct/core.js",
+        "domain": "s.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1989,
+        "blockedByShields": true
+      },
+      {
+        "id": 78,
+        "url": "https://ct.pinterest.com/v3/?tid=&noscript=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1990,
+        "blockedByShields": true
+      },
+      {
+        "id": 79,
+        "url": "https://cdn.taboola.com/libtrc/unip/1387956/tfa.js",
+        "domain": "cdn.taboola.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1990,
+        "blockedByShields": true
+      },
+      {
+        "id": 80,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1990,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://snap.licdn.com/li.lms-analytics/insight.min.js",
+        "domain": "snap.licdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "snap.licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1991,
+        "blockedByShields": true
+      },
+      {
+        "id": 82,
+        "url": "https://px.ads.linkedin.com/collect/?pid=&fmt=",
+        "domain": "px.ads.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1991,
+        "blockedByShields": true
+      },
+      {
+        "id": 83,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2055,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://s.pinimg.com/ct/lib/main.3c5b736e.js",
+        "domain": "s.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2056,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://snap.licdn.com/li.lms-analytics/insight.old.min.js",
+        "domain": "snap.licdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "snap.licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2071,
+        "blockedByShields": true
+      },
+      {
+        "id": 86,
+        "url": "https://ct.pinterest.com/user/?tid=&cb=&dep=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2092,
+        "blockedByShields": true
+      },
+      {
+        "id": 87,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2093,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2095,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://ct.pinterest.com/user/?event=&tid=&cb=&dep=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2096,
+        "blockedByShields": true
+      },
+      {
+        "id": 90,
+        "url": "https://ct.pinterest.com/v3/?tid=&event=&ad=&cb=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2100,
+        "blockedByShields": true
+      },
+      {
+        "id": 91,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2100,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://px.ads.linkedin.com/attribution_trigger?pid=&time=&url=",
+        "domain": "px.ads.linkedin.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2109,
+        "blockedByShields": true
+      },
+      {
+        "id": 93,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2111,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://px.ads.linkedin.com/collect?v=&fmt=&pid=&time=&li_adsId=&url=",
+        "domain": "px.ads.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2111,
+        "blockedByShields": true
+      },
+      {
+        "id": 95,
+        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/380859420/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tcfd=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&us_privacy=&gdpr=&gdpr_consent=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&1p.ce=&data=&ept=&rfmt=&fmt=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2180,
+        "blockedByShields": true
+      },
+      {
+        "id": 96,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2181,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://www.google.com/rmkt/collect/380859420/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tcfd=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&us_privacy=&gdpr=&gdpr_consent=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&1p.ce=&data=&ept=&gcp=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2182,
+        "blockedByShields": true
+      },
+      {
+        "id": 98,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2184,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&us_privacy=&gdpr=&gdpr_consent=&_tu=&gtm=&gcs=&gcd=&dma=&tcfd=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2186,
+        "blockedByShields": true
+      },
+      {
+        "id": 100,
+        "url": "https://px.ads.linkedin.com/collect?v=&fmt=&pid=&time=&li_adsId=&url=&cookiesTest=",
+        "domain": "px.ads.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2186,
+        "blockedByShields": true
+      },
+      {
+        "id": 101,
+        "url": "https://px.ads.linkedin.com/collect/?pid=&fmt=&cookiesTest=",
+        "domain": "px.ads.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2186,
+        "blockedByShields": true
+      },
+      {
+        "id": 102,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2190,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://ct.pinterest.com/v3/?event=&tid=&cb=&dep=&ad=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2191,
+        "blockedByShields": true
+      },
+      {
+        "id": 104,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2232,
+        "blockedByShields": false
+      },
+      {
+        "id": 105,
+        "url": "https://connect.facebook.net/signals/config/259026827778330?v=&r=&domain=&hme=&ex_m=",
+        "domain": "connect.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "connect.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2233,
+        "blockedByShields": true
+      },
+      {
+        "id": 106,
+        "url": "https://www.linkedin.com/px/li_sync?redirect=",
+        "domain": "www.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2295,
+        "blockedByShields": true
+      },
+      {
+        "id": 107,
+        "url": "https://www.linkedin.com/px/li_sync?redirect=",
+        "domain": "www.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2297,
+        "blockedByShields": true
+      },
+      {
+        "id": 108,
+        "url": "https://px.ads.linkedin.com/collect/?pid=&fmt=&cookiesTest=&liSync=",
+        "domain": "px.ads.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2418,
+        "blockedByShields": true
+      },
+      {
+        "id": 109,
+        "url": "https://px.ads.linkedin.com/collect?v=&fmt=&pid=&time=&li_adsId=&url=&cookiesTest=&liSync=",
+        "domain": "px.ads.linkedin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2692,
+        "blockedByShields": true
+      },
+      {
+        "id": 110,
+        "url": "https://ct.pinterest.com/ct.html",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2827,
+        "blockedByShields": true
+      },
+      {
+        "id": 111,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2830,
+        "blockedByShields": false
+      },
+      {
+        "id": 112,
+        "url": "https://px.ads.linkedin.com/wa/?medium=&fmt=",
+        "domain": "px.ads.linkedin.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2830,
+        "blockedByShields": true
+      },
+      {
+        "id": 113,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2833,
+        "blockedByShields": false
+      },
+      {
+        "id": 114,
+        "url": "https://consent.bumble.com/wrapper/v2/choice/reject-all",
+        "domain": "consent.bumble.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3502,
+        "blockedByShields": false
+      },
+      {
+        "id": 115,
+        "url": "https://consent.bumble.com/wrapper/v2/choice/ccpa/13",
+        "domain": "consent.bumble.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3514,
+        "blockedByShields": false
+      },
+      {
+        "id": 116,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6690,
+        "blockedByShields": false
+      },
+      {
+        "id": 117,
+        "url": "https://analytics.google.com/g/collect?v=&tid=&gtm=&_p=&gcs=&gcd=&npa=&dma=&tcfd=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&gaf=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&en=&_et=&tfd=",
+        "domain": "analytics.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6691,
+        "blockedByShields": true
+      },
+      {
+        "id": 118,
+        "url": "https://trc-events.taboola.com/1387956/log/3/unip?en=&tos=&scd=&ssd=&est=&ver=&isls=&src=&invt=&msa=&rv=&tim=&mrir=&vi=&ref=&cv=&item-url=&ccpaPs=&cbp=&cbpv=&it=",
+        "domain": "trc-events.taboola.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "startedAtMs": 6692,
+        "blockedByShields": true
+      },
+      {
+        "id": 119,
+        "url": "https://bumble.com/jss/csp_report.phtml",
+        "domain": "bumble.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6693,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "px.ads.linkedin.com",
+        "requests": 8,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "image",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "ct.pinterest.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "xhr",
+          "fetch",
+          "document"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "connect.facebook.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "connect.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "snap.licdn.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "snap.licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.linkedin.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "linkedin.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "stats.g.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "www.facebook.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "facebook.com",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.taboola.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "trc-events.taboola.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "s.pinimg.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "bumble.com",
+        "requests": 64,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          404
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "image",
+          "other"
+        ]
+      },
+      {
+        "domain": "consent.bumble.com",
+        "requests": 13,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "document",
+          "stylesheet"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "_pinterest_ct_ua",
+        "domain": ".ct.pinterest.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "li_gp",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "li_sugr",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "bcookie",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "lidc",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "UserMatchHistory",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "AnalyticsSyncHistory",
+        "domain": ".linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "bscookie",
+        "domain": ".www.linkedin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "dnsDisplayed",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ccpaApplies",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "signedLspa",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ccpaReject",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ccpaConsentAll",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_sp_su",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "ccpaUUID",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_NSEKRQF5TF",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "session",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "session_cookie_name",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "device_id",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "buzz_lang_code",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "first_web_visit_id",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "last_referred_web_visit_id",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_fbp",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_pin_unauth",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "consentStatus",
+        "domain": ".bumble.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "_sp_non_keyed_local_state",
+        "valueBytes": 100
+      },
+      {
+        "area": "localStorage",
+        "key": "lastExternalReferrerTime",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "eng_mt",
+        "valueBytes": 174
+      },
+      {
+        "area": "localStorage",
+        "key": "_sp_local_state",
+        "valueBytes": 317
+      },
+      {
+        "area": "localStorage",
+        "key": "lastExternalReferrer",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls",
+        "valueBytes": 277
+      },
+      {
+        "area": "localStorage",
+        "key": "_sp_user_consent_22303",
+        "valueBytes": 1445
+      },
+      {
+        "area": "localStorage",
+        "key": "li_adsId",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "is_eu",
+        "valueBytes": 5
+      }
+    ],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This visit clicked \"Reject all\" on the Sourcepoint banner after page load, so requests, cookies, and storage reflect the post-choice state.",
+      "Read the site's privacy policy (https://bumble.com/privacy-policy/en) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "pixelEvents": [
+      {
+        "platform": "Meta",
+        "product": "Meta Pixel",
+        "events": [
+          "PageView"
+        ],
+        "advancedMatching": [],
+        "requests": 1
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://bumble.com/privacy-policy/en",
+      "claims": [],
+      "mentionedEntities": [
+        "LinkedIn",
+        "Google",
+        "Pinterest",
+        "Meta"
+      ],
+      "unmentionedEntities": [
+        "Taboola"
+      ],
+      "policyTextLength": 15307
+    },
+    "consentInteraction": {
+      "mode": "reject-all",
+      "clicked": true,
+      "cmp": "Sourcepoint",
+      "selector": ".sp_choice_type_13",
+      "frameUrl": "https://consent.bumble.com/index.html"
+    }
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 120,
+      "after": 119,
+      "delta": -1
+    },
+    "thirdPartyRequests": {
+      "before": 43,
+      "after": 42,
+      "delta": -1
+    },
+    "knownTrackerRequests": {
+      "before": 33,
+      "after": 33,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 17,
+      "after": 17,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 29,
+      "after": 29,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 10,
+      "after": 10,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 9,
+      "after": 9,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 44,
+      "after": 43,
+      "delta": -1
+    }
+  },
+  "warnings": [
+    "Consent comparison runs are sequential automated visits: one clicking the banner's accept-all choice, one clicking reject-all (first layer only). A run where no control was clicked reflects the pre-consent state instead; see each run's consent note. Differences can also come from timing, experiments, cache state, or bot detection.",
+    "Accept all: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Accept all: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Accept all: This visit clicked \"Accept all\" on the Sourcepoint banner after page load, so requests, cookies, and storage reflect the post-choice state.",
+    "Accept all: Read the site's privacy policy (https://bumble.com/privacy-policy/en) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Reject all: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Reject all: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Reject all: This visit clicked \"Reject all\" on the Sourcepoint banner after page load, so requests, cookies, and storage reflect the post-choice state.",
+    "Reject all: Read the site's privacy policy (https://bumble.com/privacy-policy/en) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260702-49784740d1652241f2fd669eadaf98cb",
+    "path": "/reports/20260702-49784740d1652241f2fd669eadaf98cb/",
+    "jsonPath": "/reports/20260702-49784740d1652241f2fd669eadaf98cb.json"
+  }
+}
