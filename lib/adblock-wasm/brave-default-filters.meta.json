@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-06-19T17:24:24.927Z",
+  "fetchedAt": "2026-07-02T01:00:58.178Z",
   "catalog": "https://raw.githubusercontent.com/brave/adblock-resources/master/filter_lists/list_catalog.json",
   "sourceCount": 31,
   "sources": [
@@ -35,6 +35,6 @@
     "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/brave-cookie-specific.txt",
     "https://secure.fanboy.co.nz/fanboy-mobile-notifications.txt"
   ],
-  "rawBytes": 8858950,
-  "gzipBytes": 2675207
+  "rawBytes": 8813630,
+  "gzipBytes": 2656233
 }
