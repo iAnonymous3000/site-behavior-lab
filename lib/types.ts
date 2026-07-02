@@ -395,8 +395,6 @@ export type ComparisonDiff = {
   removedProvenance: ProvenanceChange[];
 };
 
-export type GpcComparisonDiff = ComparisonDiff;
-
 export type ComparisonRunLabels = {
   baseline: string;
   variant: string;

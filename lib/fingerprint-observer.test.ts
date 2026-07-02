@@ -1,14 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import {
-  collectFingerprintEventsFromFrames,
-  collectFingerprintObservationsFromFrames,
-  fingerprintObserverInitScript
-} from "./fingerprint-observer";
+import { collectFingerprintObservationsFromFrames, fingerprintObserverInitScript } from "./fingerprint-observer";
 import type { FingerprintDetectionSummary } from "./types";
 
-test("collectFingerprintEventsFromFrames merges, sorts, and ignores inaccessible frames", async () => {
-  const events = await collectFingerprintEventsFromFrames([
+test("collectFingerprintObservationsFromFrames merges, sorts, and ignores inaccessible frames", async () => {
+  const { events } = await collectFingerprintObservationsFromFrames([
     frameWithEvents({
       "canvas.toDataURL": 1,
       "webgl.readPixels": 2

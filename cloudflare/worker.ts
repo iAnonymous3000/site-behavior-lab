@@ -14,6 +14,7 @@ import { isThirdParty } from "../lib/domain-utils";
 import { producerCapability } from "../lib/report-producers";
 import { buildReportShare } from "../lib/report-locator";
 import { scanCorsHeaders } from "../lib/cors";
+import { REPORT_ID_PATTERN } from "../lib/report-validation";
 import { scanTokenFromHeaders } from "../lib/scan-token";
 import { asScanRuntimeHealth } from "../lib/scan-runtime-health";
 import { collectFingerprintObservationsFromFrames, fingerprintObserverInitScript } from "../lib/fingerprint-observer";
@@ -96,7 +97,6 @@ const NAVIGATION_TIMEOUT_MS = 30_000;
 const NETWORK_IDLE_TIMEOUT_MS = 8_000;
 const DESKTOP_VIEWPORT = { width: 1440, height: 980 };
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
-const REPORT_ID_PATTERN = /^\d{8}-[a-f0-9]{32}$/;
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
