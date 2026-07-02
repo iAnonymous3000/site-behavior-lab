@@ -43,7 +43,7 @@ export function createGpcComparisonReport(baseline: ScanResult, variant: ScanRes
 export function createShieldsComparisonReport(baseline: ScanResult, variant: ScanResult): ComparisonScanResult {
   return createComparisonReport({
     comparisonType: "shields",
-    title: "Shields off/on comparison",
+    title: "Brave Shields off/on comparison",
     runLabels: {
       baseline: "Shields off",
       variant: "Shields on"
@@ -51,7 +51,7 @@ export function createShieldsComparisonReport(baseline: ScanResult, variant: Sca
     baseline,
     variant,
     warningPrefix:
-      "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection."
+      "Brave Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection."
   });
 }
 

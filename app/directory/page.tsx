@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 function reportTypeLabel(entry: DirectoryEntry): string {
   if (entry.reportType !== "comparison") return "single scan";
-  if (entry.comparisonType === "shields") return "Shields comparison";
+  if (entry.comparisonType === "shields") return "Brave Shields comparison";
   if (entry.comparisonType === "temporal") return "temporal comparison";
   if (entry.comparisonType === "gpc") return "GPC comparison";
   return "comparison";
@@ -104,7 +104,8 @@ export default async function DirectoryPage() {
             Medians from one controlled visit per site, using the curated service catalog (a lower bound). A 0 means no{" "}
             <em>catalogued third-party</em> trackers were seen. Large platforms like Google, YouTube, and X serve much of
             their own tracking first-party, which is not counted as third-party here. &ldquo;Brave would block&rdquo; is the
-            median third-party requests Brave&rsquo;s default Shields would remove, from a block simulation.
+            median third-party requests Brave Shields (the ad and tracker blocker built into the Brave browser, with its
+            default lists) would remove, from a block simulation.
           </p>
         </section>
       )}

@@ -101,6 +101,18 @@ function isComparisonMode(form: ScanFormState): boolean {
   return form.compareGpc || form.compareShields;
 }
 
+// One plain-language line under the run controls. "Brave Shields" and "GPC" are
+// jargon to a first-time visitor, so the selected mode always explains itself.
+function runModeHint(form: ScanFormState): string {
+  if (form.compareShields) {
+    return "Visits the page twice: once normally, then once with Brave Shields (the ad and tracker blocker built into the Brave browser) to show what it would block.";
+  }
+  if (form.compareGpc) {
+    return 'Visits the page twice: once normally, then once sending Global Privacy Control (GPC), a legal "do not sell or share my data" signal, to show whether the site reacts.';
+  }
+  return "One controlled visit that records every request, cookie, and script the page loads.";
+}
+
 // The browser reads health through the shared cross-runtime contract.
 type ScannerHealth = ScanRuntimeHealth;
 
@@ -544,6 +556,7 @@ export function SiteBehaviorApp({
                 type="button"
                 aria-pressed={!isComparisonMode(form)}
                 className={!isComparisonMode(form) ? "active" : ""}
+                title="One controlled visit."
                 onClick={() => setForm((current) => ({ ...current, compareGpc: false, compareShields: false }))}
               >
                 <Search size={16} aria-hidden="true" />
@@ -554,7 +567,11 @@ export function SiteBehaviorApp({
                 aria-pressed={form.compareGpc}
                 className={form.compareGpc ? "active" : ""}
                 disabled={!gpcComparisonEnabled}
-                title={gpcComparisonEnabled ? undefined : "GPC comparison is not available from this scanner."}
+                title={
+                  gpcComparisonEnabled
+                    ? "Two visits: with and without the Global Privacy Control opt-out signal."
+                    : "GPC comparison is not available from this scanner."
+                }
                 onClick={() => setForm((current) => ({ ...current, compareGpc: gpcComparisonEnabled, compareShields: false }))}
               >
                 <ShieldCheck size={16} aria-hidden="true" />
@@ -565,11 +582,16 @@ export function SiteBehaviorApp({
                 aria-pressed={form.compareShields}
                 className={form.compareShields ? "active" : ""}
                 disabled={!shieldsComparisonEnabled}
-                title={shieldsComparisonEnabled ? undefined : "Shields comparison requires the Node scanner."}
+                title={
+                  shieldsComparisonEnabled
+                    ? "Two visits: with and without Brave Shields, the ad and tracker blocker built into the Brave browser."
+                    : "Brave Shields comparison requires the Node scanner."
+                }
+                aria-label="Blocker comparison (Brave Shields)"
                 onClick={() => setForm((current) => ({ ...current, compareGpc: false, compareShields: shieldsComparisonEnabled }))}
               >
                 <Shield size={16} aria-hidden="true" />
-                Shields
+                Blocker
               </button>
             </div>
           </fieldset>
@@ -632,6 +654,7 @@ export function SiteBehaviorApp({
             </fieldset>
           )}
         </div>
+        <p className="run-mode-hint">{runModeHint(form)}</p>
       </details>
     </form>
   );
@@ -827,7 +850,7 @@ export function SiteBehaviorApp({
                     </div>
                     {primaryResult.conditions.adblock && (
                       <div>
-                        <dt>Shields lists</dt>
+                        <dt>Brave Shields lists</dt>
                         <dd>
                           {primaryResult.conditions.adblock.source}
                           <br />
@@ -894,8 +917,8 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
       <p className="corpus-hero-lead">
         We open {plural(highlights.siteCount, "real site")} in a controlled browser and record every request, cookie, and
         tracker, then run each through <strong>Brave&rsquo;s own ad-block engine</strong> (the open-source{" "}
-        <code>adblock-rust</code>, with Brave&rsquo;s default lists) to show what Shields would block. Reproducible
-        evidence, not a score.
+        <code>adblock-rust</code>, with Brave&rsquo;s default lists) to show what Brave Shields, the ad and tracker
+        blocker built into the Brave browser, would block. Reproducible evidence, not a score.
       </p>
       {highlights.topCategories.length > 0 && (
         <div className="corpus-hero-cats">
@@ -1350,7 +1373,7 @@ function LoadingState({ mode }: { mode: "single" | "gpc" | "shields" | "opening"
         {mode === "gpc"
           ? "Comparing GPC off and on runs for requests, cookies, storage, and browser API observations."
           : mode === "shields"
-            ? "Comparing Shields off and block-simulated Shields on runs for requests, cookies, storage, and browser API observations."
+            ? "Comparing a normal visit against one with Brave Shields (the ad and tracker blocker built into the Brave browser) simulated on, across requests, cookies, storage, and browser API observations."
           : "Collecting network requests, cookies, storage, and browser API observations."}
       </p>
       <div className="progress-track" aria-hidden="true">
@@ -1742,7 +1765,7 @@ function MetricGrid({ result }: { result: ScanResult }) {
     ...(result.conditions.adblock?.active
       ? [
           {
-            label: "Shields blocks",
+            label: "Brave would block",
             value: result.summary.shieldsBlockedRequests ?? 0,
             detail: `of ${result.summary.totalRequests.toLocaleString()} requests`,
             icon: ShieldCheck

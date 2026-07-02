@@ -38,7 +38,7 @@ function ComparisonPanel({ report }: { report: ComparisonScanResult }) {
     { label: "Third-party cookies", metric: report.diff.thirdPartyCookies },
     { label: "Storage keys", metric: report.diff.storageEntries },
     { label: "Fingerprint events", metric: report.diff.fingerprintEvents },
-    ...(report.diff.shieldsBlockedRequests ? [{ label: "Shields-blocked", metric: report.diff.shieldsBlockedRequests }] : [])
+    ...(report.diff.shieldsBlockedRequests ? [{ label: "Brave would block", metric: report.diff.shieldsBlockedRequests }] : [])
   ].filter((item): item is { label: string; metric: ComparisonMetricDelta } => Boolean(item.metric));
 
   return (
@@ -106,7 +106,7 @@ function comparisonRunLabels(report: ComparisonScanResult): { baseline: string; 
 
 function comparisonEyebrow(report: ComparisonScanResult): string {
   if (report.comparisonType === "gpc") return "GPC Comparison";
-  if (report.comparisonType === "shields") return "Shields Comparison";
+  if (report.comparisonType === "shields") return "Brave Shields Comparison";
   if (report.comparisonType === "temporal") return "Temporal Comparison";
   return "Comparison Report";
 }

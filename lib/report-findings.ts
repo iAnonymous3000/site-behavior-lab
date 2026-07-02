@@ -529,11 +529,12 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
       id: "shields-comparison",
       icon: "shield-check",
       level: blockedTotal > 0 ? "ok" : "quiet",
-      title: blockedTotal > 0 ? "Fewer tracking signals observed with Shields on" : "No reduction observed with Shields on",
+      title:
+        blockedTotal > 0 ? "Fewer tracking signals observed with Brave Shields on" : "No reduction observed with Brave Shields on",
       lead:
         blockedTotal > 0
-          ? `Shields on showed ${removedThirdPartyRequests.toLocaleString("en-US")} fewer third-party and ${removedTrackerRequests.toLocaleString("en-US")} fewer known-service requests in this single paired visit.`
-          : "The Shields-on run did not show fewer third-party requests, known-service requests, cookies, or fingerprint-like calls.",
+          ? `With Brave Shields on (the ad and tracker blocker built into the Brave browser), this paired visit showed ${removedThirdPartyRequests.toLocaleString("en-US")} fewer third-party and ${removedTrackerRequests.toLocaleString("en-US")} fewer known-service requests.`
+          : "The run with Brave Shields on (the ad and tracker blocker built into the Brave browser) did not show fewer third-party requests, known-service requests, cookies, or fingerprint-like calls.",
       detail: `${
         removedEntityNames.length > 0 ? `Services only seen with Shields off: ${humanList(removedEntityNames)}. ` : ""
       }A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference, not a measured blocking rate.`,
@@ -587,8 +588,8 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
           : "Brave Shields would block nothing on this page",
       lead:
         blocked > 0
-          ? `${plural(blocked, "request")} matched Brave's default ad-block and tracking lists.`
-          : "No requests matched Brave's default ad-block and tracking lists in this visit.",
+          ? `${plural(blocked, "request")} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser.`
+          : "No requests matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser.",
       detail:
         blocked > 0
           ? "Computed with Brave's own ad-block engine and default filter lists (network requests only, so no cosmetic or CNAME-based blocking) which reflects Brave's real blocking, not just the named-service catalog. The rest loaded normally."

@@ -212,7 +212,7 @@ const REQUEST_SIGNAL_FILTERS: { value: RequestSignalFilter; label: string }[] = 
   { value: "all", label: "All" },
   { value: "third-party", label: "Third-party" },
   { value: "known-service", label: "Known services" },
-  { value: "shields-blocked", label: "Shields-blocked" },
+  { value: "shields-blocked", label: "Brave would block" },
   { value: "fingerprinting", label: "Fingerprinting" },
   { value: "provenance", label: "Provenance" }
 ];

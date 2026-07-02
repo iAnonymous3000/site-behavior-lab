@@ -43,7 +43,7 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong>Your scan options:</strong> the device profile (desktop or mobile), whether to send a Global
-            Privacy Control signal, and which run mode (single, GPC diff, or Shields comparison).
+            Privacy Control signal, and which run mode (single, GPC diff, or Brave Shields comparison).
           </li>
           <li>
             <strong>A Cloudflare Turnstile token</strong>, used to confirm the request is not automated abuse (see

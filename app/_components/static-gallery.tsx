@@ -455,7 +455,7 @@ function StaticReportCard({ report }: { report: StaticReportManifestEntry }) {
         <b>{report.metrics.thirdPartyRequests.toLocaleString()} third-party</b>
         <small>
           {report.comparisonType === "shields" && (report.metrics.shieldsBlockedRequests ?? 0) > 0
-            ? `Shields blocks ${(report.metrics.shieldsBlockedRequests ?? 0).toLocaleString()} · ${report.device}`
+            ? `Brave would block ${(report.metrics.shieldsBlockedRequests ?? 0).toLocaleString()} · ${report.device}`
             : `${report.reportType === "comparison" ? "Comparison" : "Single"} · ${report.device}`}
         </small>
       </span>
@@ -530,7 +530,7 @@ function staticReportCardLabel(report: StaticReportManifestEntry): string {
     plural(report.metrics.thirdPartyDomains, "third-party domain")
   ];
   if (report.comparisonType === "shields" && (report.metrics.shieldsBlockedRequests ?? 0) > 0) {
-    parts.push(`${plural(report.metrics.shieldsBlockedRequests ?? 0, "request")} blocked by Shields`);
+    parts.push(`${plural(report.metrics.shieldsBlockedRequests ?? 0, "request")} Brave Shields would block`);
   }
   return parts.join(", ");
 }

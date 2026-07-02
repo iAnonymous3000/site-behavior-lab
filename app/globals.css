@@ -610,7 +610,7 @@ a {
 .controls-grid {
   display: grid;
   gap: 12px;
-  grid-template-columns: 1.1fr 1.2fr 1fr 1.1fr;
+  grid-template-columns: 1.55fr 1.05fr 0.9fr 0.9fr;
   margin-top: 14px;
 }
 
@@ -619,6 +619,13 @@ a {
   margin: 0;
   min-width: 0;
   padding: 0;
+}
+
+.run-mode-hint {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 10px 0 0;
 }
 
 .segmented-control {
@@ -633,6 +640,14 @@ a {
 
 .run-mode-control {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Three modes share one row and "Brave Shields" is the longest label, so run
+   buttons trade horizontal padding and icon gap for label room. */
+.segmented-control.run-mode-control button {
+  gap: 6px;
+  padding: 0 6px;
+  white-space: nowrap;
 }
 
 .segmented-control button {
