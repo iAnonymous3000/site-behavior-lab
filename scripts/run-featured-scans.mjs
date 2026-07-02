@@ -14,6 +14,7 @@
  *   FEATURED_CATEGORIES               Comma-separated category ids to include (default: all).
  *   FEATURED_LIMIT                    Max number of sites to scan (default: all).
  *   FEATURED_COMPARE_GPC              "true"/"false" GPC off/on comparison per site (default: true).
+ *   FEATURED_COMPARE_CONSENT          "true"/"false" consent accept/reject comparison per site (default: false).
  *   FEATURED_DEVICE                   "desktop"/"mobile" (default: desktop).
  *   FEATURED_DELAY_MS                 Delay between sites in ms (default: 1500).
  */
@@ -39,11 +40,14 @@ async function main() {
   }
 
   const compareShields = booleanEnv("FEATURED_COMPARE_SHIELDS", false);
-  const compareGpc = booleanEnv("FEATURED_COMPARE_GPC", true);
+  const compareConsent = !compareShields && booleanEnv("FEATURED_COMPARE_CONSENT", false);
+  const compareGpc = !compareShields && !compareConsent && booleanEnv("FEATURED_COMPARE_GPC", true);
   const device = process.env.FEATURED_DEVICE === "mobile" ? "mobile" : "desktop";
   const delayMs = positiveIntEnv("FEATURED_DELAY_MS", 1500);
 
-  console.log(`Scanning ${sites.length} featured site${sites.length === 1 ? "" : "s"} (compareShields=${compareShields}, compareGpc=${compareShields ? false : compareGpc}, device=${device}).`);
+  console.log(
+    `Scanning ${sites.length} featured site${sites.length === 1 ? "" : "s"} (compareShields=${compareShields}, compareConsent=${compareConsent}, compareGpc=${compareGpc}, device=${device}).`
+  );
 
   let succeeded = 0;
   const failures = [];
@@ -51,7 +55,7 @@ async function main() {
   for (const [index, site] of sites.entries()) {
     console.log(`\n[${index + 1}/${sites.length}] ${site.label}, ${site.url}`);
     try {
-      await runOneScan(site, { compareGpc, compareShields, device });
+      await runOneScan(site, { compareGpc, compareShields, compareConsent, device });
       succeeded += 1;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -114,15 +118,17 @@ function selectSites(config) {
   return sites.map((site) => ({ ...site, label: site.label || site.domain }));
 }
 
-function runOneScan(site, { compareGpc, compareShields, device }) {
+function runOneScan(site, { compareGpc, compareShields, compareConsent, device }) {
   return run(process.execPath, [ciScanScript], {
     SCAN_URL: site.url,
     SCAN_DEVICE: device,
-    SCAN_GPC_ENABLED: "true",
+    // Only one comparison mode per scan; Shields (the tried-vs-blocked moat) wins,
+    // then the consent accept/reject diff, then GPC (main() already resolves the
+    // precedence, so these flags are mutually exclusive here).
     SCAN_COMPARE_SHIELDS: compareShields ? "true" : "false",
-    // Only one comparison mode per scan; Shields (the tried-vs-blocked moat) wins
-    // when both are requested.
-    SCAN_COMPARE_GPC: compareShields ? "false" : compareGpc ? "true" : "false",
+    SCAN_COMPARE_CONSENT: compareConsent ? "true" : "false",
+    SCAN_COMPARE_GPC: compareGpc ? "true" : "false",
+    SCAN_GPC_ENABLED: "true",
     // Avoid each child appending duplicate keys to a shared GITHUB_OUTPUT file.
     GITHUB_OUTPUT: ""
   });

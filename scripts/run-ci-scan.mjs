@@ -29,10 +29,13 @@ const payload = {
   consentMode: "observe"
 };
 
-// Shields tried-vs-blocked is the headline comparison and takes precedence: the
-// scanner accepts only one comparison mode per scan (see lib/scan-gate.ts).
+// Shields tried-vs-blocked is the headline comparison and takes precedence,
+// then the consent accept/reject diff, then GPC: the scanner accepts only one
+// comparison mode per scan (see lib/scan-gate.ts).
 if (booleanEnv("SCAN_COMPARE_SHIELDS", false)) {
   payload.compareShields = true;
+} else if (booleanEnv("SCAN_COMPARE_CONSENT", false)) {
+  payload.compareConsent = true;
 } else if (booleanEnv("SCAN_COMPARE_GPC", false)) {
   payload.compareGpc = true;
 }

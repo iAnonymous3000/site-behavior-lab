@@ -28,9 +28,17 @@ on:
           - "true"
           - "false"
       compare_shields:
-        description: Run a Shields off/on comparison per site (tried-vs-blocked; takes precedence over GPC)
+        description: Run a Shields off/on comparison per site (tried-vs-blocked; takes precedence over consent and GPC)
         required: true
         default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      compare_consent:
+        description: Run a consent accept-all/reject-all comparison per site (takes precedence over GPC; set compare_shields to false)
+        required: true
+        default: "false"
         type: choice
         options:
           - "true"
@@ -62,6 +70,7 @@ env:
   FEATURED_LIMIT: ${{ github.event.inputs.limit || github.event.client_payload.limit || '' }}
   FEATURED_COMPARE_GPC: ${{ github.event.inputs.compare_gpc || github.event.client_payload.compare_gpc || 'false' }}
   FEATURED_COMPARE_SHIELDS: ${{ github.event.inputs.compare_shields || github.event.client_payload.compare_shields || 'true' }}
+  FEATURED_COMPARE_CONSENT: ${{ github.event.inputs.compare_consent || github.event.client_payload.compare_consent || 'false' }}
   FEATURED_DEVICE: ${{ github.event.inputs.device || github.event.client_payload.device || 'desktop' }}
   # Disclose that the corpus was scanned from CI (GitHub-hosted runner egress).
   # Override with a repo Actions variable named SCANNER_EGRESS if you scan elsewhere.
