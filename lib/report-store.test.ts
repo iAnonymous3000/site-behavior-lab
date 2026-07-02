@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { afterEach, test } from "node:test";
+import { afterEach, beforeEach, test } from "node:test";
 import { createComparisonReport, createGpcComparisonReport } from "./compare-reports";
 import { readScanReport, reportStoreStatus, saveScanReport } from "./report-store";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } from "./types";
@@ -10,14 +10,24 @@ import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } 
 const REPORT_MAX_COUNT_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT";
 const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
 
+// Every test runs against its own temp directory via the store-dir env var.
+// Never write to (or worse, delete) the repo's real `.site-behavior-lab`
+// default store: a developer running the tests next to a dev server would
+// lose their actual saved reports.
+let reportDir = "";
+
+beforeEach(async () => {
+  reportDir = await mkdtemp(path.join(tmpdir(), "sbl-report-store-"));
+  process.env[REPORT_STORE_DIR_ENV] = reportDir;
+});
+
 afterEach(async () => {
   delete process.env[REPORT_MAX_COUNT_ENV];
   delete process.env[REPORT_STORE_DIR_ENV];
-  await rm(path.join(process.cwd(), ".site-behavior-lab"), { recursive: true, force: true });
+  await rm(reportDir, { recursive: true, force: true });
 });
 
 test("readScanReport rejects invalid report IDs", async () => {
-  const reportDir = path.join(process.cwd(), ".site-behavior-lab", "reports");
   await mkdir(reportDir, { recursive: true });
   await writeFile(path.join(reportDir, "20260618-12345678.json"), "{}\n");
 
@@ -27,7 +37,6 @@ test("readScanReport rejects invalid report IDs", async () => {
 });
 
 test("readScanReport rejects malformed persisted reports", async () => {
-  const reportDir = path.join(process.cwd(), ".site-behavior-lab", "reports");
   await mkdir(reportDir, { recursive: true });
 
   const malformedShapeId = "20260618-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
@@ -40,7 +49,6 @@ test("readScanReport rejects malformed persisted reports", async () => {
 });
 
 test("readScanReport rejects malformed comparison reports", async () => {
-  const reportDir = path.join(process.cwd(), ".site-behavior-lab", "reports");
   await mkdir(reportDir, { recursive: true });
 
   const malformedComparisonId = "20260618-cccccccccccccccccccccccccccccccc";
@@ -130,31 +138,23 @@ test("saveScanReport prunes persisted reports by max count", async () => {
   await saveScanReport(makeScanResult());
   await saveScanReport(makeScanResult());
 
-  const reportDir = path.join(process.cwd(), ".site-behavior-lab", "reports");
   const files = (await readdir(reportDir)).filter((file) => file.endsWith(".json"));
   assert.equal(files.length, 2);
 });
 
-test("saveScanReport can use a configured report store directory", async () => {
-  const reportDir = await mkdtemp(path.join(tmpdir(), "sbl-report-store-"));
-  process.env[REPORT_STORE_DIR_ENV] = reportDir;
+test("saveScanReport reports the configured report store directory in its status", async () => {
+  const saved = await saveScanReport(makeScanResult());
+  const files = (await readdir(reportDir)).filter((file) => file.endsWith(".json"));
 
-  try {
-    const saved = await saveScanReport(makeScanResult());
-    const files = (await readdir(reportDir)).filter((file) => file.endsWith(".json"));
-
-    assert.equal(files.length, 1);
-    assert.deepEqual(await readScanReport(saved.share?.id || ""), saved);
-    assert.deepEqual(reportStoreStatus(), {
-      kind: "filesystem",
-      path: reportDir,
-      configuredPath: true,
-      maxAgeDays: 7,
-      maxCount: 500
-    });
-  } finally {
-    await rm(reportDir, { recursive: true, force: true });
-  }
+  assert.equal(files.length, 1);
+  assert.deepEqual(await readScanReport(saved.share?.id || ""), saved);
+  assert.deepEqual(reportStoreStatus(), {
+    kind: "filesystem",
+    path: reportDir,
+    configuredPath: true,
+    maxAgeDays: 7,
+    maxCount: 500
+  });
 });
 
 function makeScanResult(options: { gpcEnabled?: boolean; screenshot?: string | null } = {}): ScanResult {

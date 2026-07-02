@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
-import { rm } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
-import { afterEach, test } from "node:test";
+import { afterEach, beforeEach, test } from "node:test";
 import { PublicScanError } from "./public-errors";
 import { RATE_LIMIT_MAX, resetScanLimitStateForTests } from "./scan-limits";
 import { readScanReport } from "./report-store";
@@ -19,12 +20,24 @@ import type { PreparedScanRequest, ScanRunner } from "./scan-api";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } from "./types";
 
 const ASYNC_SCANS_ENV = "SITE_BEHAVIOR_LAB_ASYNC_SCANS";
+const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
+
+// Route report writes to a per-test temp dir; never touch (or delete) the
+// repo's real `.site-behavior-lab` default store, which may hold a developer's
+// actual saved reports.
+let reportDir = "";
+
+beforeEach(async () => {
+  reportDir = await mkdtemp(path.join(tmpdir(), "sbl-scan-jobs-"));
+  process.env[REPORT_STORE_DIR_ENV] = reportDir;
+});
 
 afterEach(async () => {
   delete process.env[ASYNC_SCANS_ENV];
+  delete process.env[REPORT_STORE_DIR_ENV];
   resetScanJobStateForTests();
   resetScanLimitStateForTests();
-  await rm(path.join(process.cwd(), ".site-behavior-lab"), { recursive: true, force: true });
+  await rm(reportDir, { recursive: true, force: true });
 });
 
 test("asyncScanModeEnabled is controlled by SITE_BEHAVIOR_LAB_ASYNC_SCANS", () => {

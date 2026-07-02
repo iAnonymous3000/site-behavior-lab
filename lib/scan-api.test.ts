@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
-import { rm } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
-import { afterEach, test } from "node:test";
+import { afterEach, beforeEach, test } from "node:test";
 import { PublicScanError } from "./public-errors";
 import { RATE_LIMIT_MAX, resetScanLimitStateForTests, scanLimitStateForTests } from "./scan-limits";
 import { executePreparedScan, prepareScanRequest, runScanRequest, type PreparedScanRequest, type ScanRunner } from "./scan-api";
@@ -9,11 +10,23 @@ import { readScanReport } from "./report-store";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanReport, type ScanRequestPayload, type ScanResult } from "./types";
 
 const SCAN_ACCESS_TOKEN_ENV = "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN";
+const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
+
+// Route report writes to a per-test temp dir; never touch (or delete) the
+// repo's real `.site-behavior-lab` default store, which may hold a developer's
+// actual saved reports.
+let reportDir = "";
+
+beforeEach(async () => {
+  reportDir = await mkdtemp(path.join(tmpdir(), "sbl-scan-api-"));
+  process.env[REPORT_STORE_DIR_ENV] = reportDir;
+});
 
 afterEach(async () => {
   delete process.env[SCAN_ACCESS_TOKEN_ENV];
+  delete process.env[REPORT_STORE_DIR_ENV];
   resetScanLimitStateForTests();
-  await rm(path.join(process.cwd(), ".site-behavior-lab"), { recursive: true, force: true });
+  await rm(reportDir, { recursive: true, force: true });
 });
 
 test("runScanRequest rejects unauthorized scans before charging rate limits", async () => {
