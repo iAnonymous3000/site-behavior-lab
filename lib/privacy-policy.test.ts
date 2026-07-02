@@ -22,6 +22,46 @@ test("pickPrivacyPolicyLink prefers a same-site privacy policy link", () => {
   assert.equal(url, "https://shop.example/legal/privacy-policy");
 });
 
+test("pickPrivacyPolicyLink picks the real /privacy/ policy over a 'Privacy features' marketing page", () => {
+  // Reproduces the brave.com miss: the marketing link's text contains the word
+  // "privacy" while the actual policy's link text ("Brave Browser") does not.
+  const url = pickPrivacyPolicyLink(
+    [
+      { href: "https://brave.com/privacy-features/", text: "Privacy features" },
+      { href: "https://brave.com/web-standards-at-brave/4-global-privacy-control/", text: "Global Privacy Control" },
+      { href: "https://brave.com/privacy-updates/", text: "Privacy updates" },
+      { href: "https://brave.com/privacy/browser/", text: "Brave Browser" },
+      { href: "https://brave.com/privacy/website/", text: "Website & email" }
+    ],
+    "brave.com"
+  );
+  assert.equal(url, "https://brave.com/privacy/browser/");
+});
+
+test("pickPrivacyPolicyLink breaks ties toward the shallowest (most canonical) policy path", () => {
+  const url = pickPrivacyPolicyLink(
+    [
+      { href: "https://shop.example/legal/privacy/mobile-app/", text: "Privacy" },
+      { href: "https://shop.example/privacy/", text: "Privacy" }
+    ],
+    "shop.example"
+  );
+  assert.equal(url, "https://shop.example/privacy/");
+});
+
+test("pickPrivacyPolicyLink ignores a bare 'privacy' mention with no policy path", () => {
+  assert.equal(
+    pickPrivacyPolicyLink(
+      [
+        { href: "https://shop.example/why-privacy-matters", text: "Why privacy matters to us" },
+        { href: "https://shop.example/blog/privacy-tips", text: "Our privacy tips" }
+      ],
+      "shop.example"
+    ),
+    null
+  );
+});
+
 test("pickPrivacyPolicyLink accepts a known policy-hosting service but not arbitrary off-site policies", () => {
   // A CMP-hosted document is still the site's own policy.
   assert.equal(

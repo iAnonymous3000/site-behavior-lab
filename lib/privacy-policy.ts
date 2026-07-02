@@ -55,16 +55,36 @@ const POLICY_HOSTING_SERVICES = [
   "freeprivacypolicy.com"
 ];
 
+// A URL PATH segment that is itself a privacy-policy identifier. This is the
+// strongest signal, and it is what separates the real policy from marketing
+// pages: brave.com/privacy/browser/ (segment "privacy") is the policy, while
+// brave.com/privacy-features/ (a product page) is not, even though its link
+// text reads "Privacy features". Matches "privacy", "privacy-policy",
+// "privacypolicy", "privacy-notice", "privacy-statement", "datenschutz", ...
+// The trailing `(\.[a-z0-9]+)?` tolerates a file extension (privacy-policy.html,
+// privacy.php) so those still count as policy paths.
+const POLICY_PATH_SEGMENT = /^(privacy|privacy[-_]?(policy|notice|statement|centre|center)|datenschutz|privacybeleid)(\.[a-z0-9]+)?$/;
+
+// Privacy-adjacent pages that are NOT the policy: product/marketing ("privacy
+// features", "privacy principles/promise"), changelogs ("privacy updates"),
+// campaigns ("privacy day/month"), and blog/news posts. Without this, a
+// "Privacy features" link outscores the real /privacy/ policy whose link text
+// does not contain the word "privacy". Kept deliberately narrow to avoid
+// excluding a genuine policy that happens to sit at an unusual path.
+const NON_POLICY_PRIVACY_PAGE =
+  /privacy[-_ ]?(feature|update|day|month|week|matter|blog|news|tip|principle|promise|commitment|glossary)/;
+
 /**
- * Pick the most plausible privacy-policy URL from a page's links. Prefers
- * links whose visible text names a privacy policy over bare "privacy" matches.
- * Only same-site links (same registrable domain) and known policy-hosting
- * services qualify: an arbitrary off-site "Privacy Policy" link is some other
- * company's policy, and misattributing it is worse than skipping the check.
+ * Pick the most plausible privacy-policy URL from a page's links. The decision
+ * is driven primarily by the URL PATH (a segment that IS a privacy-policy id),
+ * then by link text explicitly naming a policy; a bare "privacy" mention is too
+ * weak on its own. Only same-site links (same registrable domain) and known
+ * policy-hosting services qualify: an arbitrary off-site "Privacy Policy" link
+ * is some other company's policy, and misattributing it is worse than skipping.
  */
 export function pickPrivacyPolicyLink(links: PolicyLinkCandidate[], firstPartyHostname: string): string | null {
   const firstParty = partyKey(firstPartyHostname);
-  let best: { url: string; score: number } | null = null;
+  let best: { url: string; score: number; depth: number } | null = null;
 
   for (const link of links) {
     let parsed: URL;
@@ -81,18 +101,32 @@ export function pickPrivacyPolicyLink(links: PolicyLinkCandidate[], firstPartyHo
     if (!sameParty && !policyHost) continue;
 
     const text = link.text.trim().toLowerCase();
-    const href = parsed.href.toLowerCase();
+    const path = parsed.pathname.toLowerCase();
+    const segments = path.split("/").filter(Boolean);
+
+    // Marketing/changelog/opt-out pages are never the policy, regardless of the
+    // word "privacy" appearing in the text or path.
+    if (NON_POLICY_PRIVACY_PAGE.test(path) || NON_POLICY_PRIVACY_PAGE.test(text)) continue;
+    if (/do not sell|cookie (settings|preferences)|opt[- ]out|your privacy choices/.test(text)) continue;
+
+    const hasPolicyPath = segments.some((segment) => POLICY_PATH_SEGMENT.test(segment));
+    const hasPolicyText = /\bprivacy\s+(policy|notice|statement)\b/.test(text);
+
     let score = 0;
-    if (/\bprivacy\s+(policy|notice|statement|center)\b/.test(text)) score += 4;
-    else if (/\bprivacy\b/.test(text)) score += 3;
-    if (/privacy/.test(href)) score += 1;
-    // "Do Not Sell" opt-out links and cookie-settings links are not the policy.
-    if (/do not sell|cookie (settings|preferences)|opt[- ]out/.test(text)) score -= 4;
-    if (score <= 0) continue;
+    if (hasPolicyPath) score += 5;
+    if (hasPolicyText) score += 4;
+    if (/\bprivacy\b/.test(text)) score += 1;
+    // Require a strong signal: a policy-shaped path or an explicit "privacy
+    // policy/notice/statement" in the text. A bare "privacy" mention (a "Global
+    // Privacy Control" explainer, a "privacy features" teaser) never qualifies.
+    if (score < 4) continue;
     if (sameParty) score += 2;
 
-    if (!best || score > best.score) {
-      best = { url: parsed.href, score };
+    // Break ties toward the most canonical policy: the shallowest path (e.g.
+    // /privacy/ over /privacy/website/), then the shorter URL.
+    const depth = segments.length;
+    if (!best || score > best.score || (score === best.score && depth < best.depth)) {
+      best = { url: parsed.href, score, depth };
     }
   }
 
