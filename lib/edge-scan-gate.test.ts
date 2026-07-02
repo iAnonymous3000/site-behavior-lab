@@ -5,6 +5,7 @@ import {
   assertTurnstileToken,
   constantTimeEqual,
   enforcePublicScanRateLimit,
+  openScanBlockedForMissingTurnstile,
   publicClientHash,
   publicScanGateStatus,
   publicScanRateLimit,
@@ -134,4 +135,16 @@ test("publicScanRateLimit parses overrides and falls back", () => {
   assert.equal(publicScanRateLimit(undefined, 6), 6);
   assert.equal(publicScanRateLimit("0", 6), 6);
   assert.equal(publicScanRateLimit("nan", 6), 6);
+});
+
+test("openScanBlockedForMissingTurnstile fails closed unless configured or explicitly waived", () => {
+  // No Turnstile secret and no waiver: refuse the open scan.
+  assert.equal(openScanBlockedForMissingTurnstile({}), true);
+  assert.equal(openScanBlockedForMissingTurnstile({ turnstileSecret: "  " }), true);
+  // A configured secret means Turnstile is enforced elsewhere, not blocked here.
+  assert.equal(openScanBlockedForMissingTurnstile({ turnstileSecret: "secret" }), false);
+  // Conscious waiver allows open access without Turnstile.
+  assert.equal(openScanBlockedForMissingTurnstile({ acceptNoTurnstileRisk: "1" }), false);
+  // Any value other than exactly "1" does not waive.
+  assert.equal(openScanBlockedForMissingTurnstile({ acceptNoTurnstileRisk: "true" }), true);
 });

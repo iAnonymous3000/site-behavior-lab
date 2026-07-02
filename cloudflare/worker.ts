@@ -49,6 +49,7 @@ import {
   assertTurnstileToken,
   constantTimeEqual,
   enforcePublicScanRateLimit,
+  openScanBlockedForMissingTurnstile,
   publicClientHash,
   publicScanRateLimit,
   scanTokenCost
@@ -61,6 +62,7 @@ type Env = {
   SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?: string;
   SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS?: string;
   SITE_BEHAVIOR_LAB_ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK?: string;
+  SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK?: string;
   SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN?: string;
   SITE_BEHAVIOR_LAB_SCANNER_EGRESS?: string;
   SITE_BEHAVIOR_LAB_DNS_RESOLVER_URL?: string;
@@ -620,7 +622,24 @@ async function verifyTurnstile(request: Request, env: Env, payload: IncomingScan
   // challenge. Enforce Turnstile whenever a secret is set, in open or gated mode,
   // matching the container Worker (cloudflare/container-worker.ts).
   const secret = env.TURNSTILE_SECRET_KEY?.trim();
-  if (!secret) return;
+  if (!secret) {
+    // Open access with no Turnstile is only best-effort rate limiting, so fail
+    // closed unless the operator has consciously waived Turnstile. Gated mode
+    // (token required) is unaffected.
+    if (
+      openAccessEnabled(env) &&
+      openScanBlockedForMissingTurnstile({
+        turnstileSecret: secret,
+        acceptNoTurnstileRisk: env.SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK
+      })
+    ) {
+      throw new HttpError(
+        "Public scans require Turnstile. Set TURNSTILE_SECRET_KEY, or set SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK=1 to open without it.",
+        503
+      );
+    }
+    return;
+  }
 
   const token =
     typeof payload.turnstileToken === "string" ? payload.turnstileToken : request.headers.get("cf-turnstile-response") || "";

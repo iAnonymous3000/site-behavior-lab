@@ -71,6 +71,20 @@ export function publicScanGateStatus(config: {
 }
 
 /**
+ * In open (unauthenticated) scan mode, Turnstile is the human-verification cost
+ * control. If it is neither configured nor explicitly waived, the gate should
+ * fail closed rather than serve an open scanner with only best-effort rate
+ * limiting. Returns true when the caller must refuse the scan. Waiving requires
+ * a conscious `SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK=1`.
+ */
+export function openScanBlockedForMissingTurnstile(config: {
+  turnstileSecret?: string;
+  acceptNoTurnstileRisk?: string;
+}): boolean {
+  return !config.turnstileSecret?.trim() && config.acceptNoTurnstileRisk !== "1";
+}
+
+/**
  * Whether the request carries the configured access token. Returns false when no
  * token is supplied or it does not match; callers decide the failure response.
  */

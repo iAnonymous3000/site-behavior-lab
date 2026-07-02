@@ -42,6 +42,12 @@ type DecodedPixel = {
   advancedMatching: PixelMatchField[];
 };
 
+// Defensive cap mirroring the scanner's capture-time truncation
+// (lib/scanner.ts MAX_CAPTURED_BODY_CHARS): never JSON-parse or urldecode an
+// over-large third-party body, which the scanned page controls. The URL still
+// decodes normally; only the body is treated as absent past the cap.
+export const MAX_DECODED_BODY_CHARS = 64_000;
+
 // Canonical display order so two scans of the same site render identically.
 const FIELD_ORDER: PixelMatchField[] = ["email", "phone", "name", "address", "date_of_birth", "gender", "external_id"];
 const PLATFORM_ORDER = ["Meta", "TikTok", "X"];
@@ -209,7 +215,7 @@ function hostMatches(host: string, suffix: string): boolean {
 function mergedParams(parsed: URL, input: PixelEventInput): URLSearchParams {
   const params = new URLSearchParams(parsed.search);
   const body = input.postData;
-  if (body && !looksLikeJson(body)) {
+  if (body && body.length <= MAX_DECODED_BODY_CHARS && !looksLikeJson(body)) {
     try {
       new URLSearchParams(body).forEach((value, key) => params.append(key, value));
     } catch {
@@ -220,7 +226,7 @@ function mergedParams(parsed: URL, input: PixelEventInput): URLSearchParams {
 }
 
 function parseJsonBody(body: string | null | undefined): unknown {
-  if (!body || !looksLikeJson(body)) return null;
+  if (!body || body.length > MAX_DECODED_BODY_CHARS || !looksLikeJson(body)) return null;
   try {
     return JSON.parse(body);
   } catch {

@@ -19,6 +19,7 @@ import {
   EdgeScanGateError,
   assertTurnstileToken,
   enforcePublicScanRateLimit,
+  openScanBlockedForMissingTurnstile,
   publicClientHash,
   publicScanGateStatus,
   publicScanRateLimit,
@@ -38,6 +39,9 @@ type Env = {
   SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS?: string;
   SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE?: string;
   SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY?: string;
+  // "1" waives the Turnstile requirement for open access (KV rate limit only).
+  // Without it, open access with no TURNSTILE_SECRET_KEY fails closed.
+  SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK?: string;
   // Set as Worker secrets (`wrangler secret put -c wrangler.container.jsonc <NAME>`)
   // and forwarded into the container via envVars below.
   SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?: string;
@@ -70,6 +74,11 @@ export class ScannerContainer extends Container<Env> {
     SITE_BEHAVIOR_LAB_R2_BUCKET: "site-behavior-lab-reports",
     SITE_BEHAVIOR_LAB_R2_PREFIX: "reports/",
     SITE_BEHAVIOR_LAB_SCANNER_EGRESS: "cloudflare-containers",
+    // This Worker is the only ingress and rewrites x-real-ip from the trusted
+    // cf-connecting-ip on every forward (see forwardToContainer), so the container
+    // can key its per-client rate limits on the real caller instead of collapsing
+    // every reader into one shared "local" bucket.
+    SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS: "1",
     // Browser CORS allow-list for the scan API. Pin to the Pages origin that calls
     // this scanner (set via `vars` in wrangler.container.jsonc); "*" allows any
     // origin, which is safe here because the scan API uses no cookies.
@@ -138,10 +147,21 @@ export default {
 } satisfies ExportedHandler<Env>;
 
 function forwardToContainer(request: Request, env: Env): Promise<Response> {
+  // The container trusts x-real-ip for per-client rate limiting
+  // (SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1). This Worker is the only ingress, so
+  // strip any client-supplied forwarding headers (anti-spoof) and set x-real-ip
+  // from Cloudflare's cf-connecting-ip. Without this, report/status reads and the
+  // container's own scan limiter collapse to one shared bucket for all clients.
+  const headers = new Headers(request.headers);
+  headers.delete("x-real-ip");
+  headers.delete("x-forwarded-for");
+  const clientIp = request.headers.get("cf-connecting-ip")?.trim();
+  if (clientIp) headers.set("x-real-ip", clientIp);
+
   // One warm singleton instance keeps the scanner's in-memory async job queue
   // coherent (a client polls /api/scans/:id on the same instance). Shard on a
   // key here once a single instance is not enough.
-  return getContainer(env.SCANNER).fetch(request);
+  return getContainer(env.SCANNER).fetch(new Request(request, { headers }));
 }
 
 /** Public front-door origin to redirect the backend root to, from the configured allow-list origin. */
@@ -231,6 +251,16 @@ async function gateScanRequest(request: Request, body: string, env: Env): Promis
     const token =
       typeof payload.turnstileToken === "string" ? payload.turnstileToken : request.headers.get("cf-turnstile-response") || "";
     await assertTurnstileToken({ secret, token, remoteIp: request.headers.get("cf-connecting-ip") });
+  } else if (
+    openScanBlockedForMissingTurnstile({
+      turnstileSecret: secret,
+      acceptNoTurnstileRisk: env.SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK
+    })
+  ) {
+    throw new EdgeScanGateError(
+      "Public scans require Turnstile. Set TURNSTILE_SECRET_KEY, or set SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK=1 to open without it.",
+      503
+    );
   }
 
   const store = env.RATE_LIMITS_KV;

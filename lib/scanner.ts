@@ -571,7 +571,7 @@ async function probeKeystrokeExfiltration(
         domain: hostname,
         thirdParty: isThirdParty(firstPartyHostname, hostname),
         url,
-        body: request.postData()
+        body: safeRequestPostData(request)
       });
     } catch {
       /* ignore a malformed request */
@@ -740,11 +740,21 @@ async function probePrivacyPolicy(input: {
   }
 }
 
+// Cap captured POST bodies before we retain, parse, or substring-search them.
+// The scanned page controls these bodies, so without a bound a single very large
+// POST would be copied into scan memory and then JSON-parsed (pixel decoding) or
+// scanned for the keystroke sentinel. 64 KB is far above real pixel/beacon
+// payloads, so decoding stays lossless in practice while the work stays bounded.
+const MAX_CAPTURED_BODY_CHARS = 64_000;
+
 // Playwright exposes the POST body synchronously, but reading it can throw for
 // some request types; pixel decoding treats an unreadable body as "no body".
+// Over-long bodies are truncated (see MAX_CAPTURED_BODY_CHARS).
 function safeRequestPostData(request: Request): string | null {
   try {
-    return request.postData();
+    const body = request.postData();
+    if (body === null) return null;
+    return body.length > MAX_CAPTURED_BODY_CHARS ? body.slice(0, MAX_CAPTURED_BODY_CHARS) : body;
   } catch {
     return null;
   }

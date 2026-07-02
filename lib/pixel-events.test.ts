@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { decodePixelRequest, summarizePixelEvents, type PixelEventInput } from "./pixel-events";
+import { MAX_DECODED_BODY_CHARS, decodePixelRequest, summarizePixelEvents, type PixelEventInput } from "./pixel-events";
 
 const HASH = "a".repeat(64);
 
@@ -128,4 +128,25 @@ test("summarizePixelEvents never stores a raw identifier value, only category la
   const summary = summarizePixelEvents([{ url: `https://www.facebook.com/tr/?id=1&ev=Lead&ud%5Bem%5D=${HASH}` }]);
   assert.ok(!JSON.stringify(summary).includes(HASH));
   assert.deepEqual(summary[0].advancedMatching, ["email"]);
+});
+
+test("decodePixelRequest ignores an over-large POST body but still reads the URL", () => {
+  // The TikTok event lives in the JSON body; past the cap it is treated as absent,
+  // so nothing is parsed out of the oversized string (no crash, no smuggled data).
+  const oversized = `{"event":"Purchase","x":"${"a".repeat(MAX_DECODED_BODY_CHARS)}"}`;
+  const tiktok = decodePixelRequest({
+    url: "https://analytics.tiktok.com/api/v2/pixel?sdkid=1",
+    method: "POST",
+    postData: oversized
+  });
+  assert.deepEqual(tiktok?.events, []);
+  assert.deepEqual(tiktok?.advancedMatching, []);
+
+  // A cap-exceeding urlencoded body is skipped, but URL query params still decode.
+  const urlEncoded = decodePixelRequest({
+    url: "https://www.facebook.com/tr/?id=1&ev=PageView",
+    method: "POST",
+    postData: `pad=${"a".repeat(MAX_DECODED_BODY_CHARS)}`
+  });
+  assert.equal(urlEncoded?.events.join(","), "PageView");
 });

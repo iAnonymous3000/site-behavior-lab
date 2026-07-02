@@ -3,6 +3,7 @@ import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
 import { test } from "node:test";
 import {
+  MAX_SCANNED_CHARS,
   buildKeystrokeExfiltrationDetection,
   createSentinel,
   findSentinelLeaks,
@@ -42,6 +43,21 @@ test("findSentinelLeaks detects a base64-encoded value in a POST body", () => {
   ];
   const leaks = findSentinelLeaks(sentinelEncodings(SENTINEL), requests);
   assert.equal(leaks.some((leak) => leak.encoding === "base64" && leak.location === "body"), true);
+});
+
+test("findSentinelLeaks bounds the per-field search so a padded body cannot exhaust it", () => {
+  const encodings = sentinelEncodings(SENTINEL);
+  // A sentinel hidden past the search bound is not matched (bounded work).
+  const beyondCap: CapturedRequest[] = [
+    { domain: "rec.example", thirdParty: true, url: "https://rec.example/beacon", body: "a".repeat(MAX_SCANNED_CHARS) + SENTINEL }
+  ];
+  assert.deepEqual(findSentinelLeaks(encodings, beyondCap), []);
+
+  // A sentinel within the bound is still caught, so normal-sized payloads work.
+  const withinCap: CapturedRequest[] = [
+    { domain: "rec.example", thirdParty: true, url: "https://rec.example/beacon", body: SENTINEL + "a".repeat(1_000) }
+  ];
+  assert.equal(findSentinelLeaks(encodings, withinCap).some((leak) => leak.encoding === "plain"), true);
 });
 
 test("findSentinelLeaks ignores requests that do not contain the sentinel", () => {

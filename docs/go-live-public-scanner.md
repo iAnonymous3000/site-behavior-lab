@@ -34,8 +34,9 @@ The front Worker chooses one of three postures from its config:
 | Posture | Config | Behavior |
 |---|---|---|
 | **Gated** (default) | `SCAN_ACCESS_TOKEN` secret set | Only callers with the token can scan. |
-| **Public** | no token + `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1` | Anyone can scan; Turnstile (if `TURNSTILE_SECRET_KEY` set) **and** the KV rate limit are enforced. |
+| **Public** | no token + `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1` + `TURNSTILE_SECRET_KEY` | Anyone can scan; Turnstile **and** the KV rate limit are enforced. |
 | **Refused** | no token + not opened | `/api/scan` returns `503`, an unconfigured scanner is never silently world-open. |
+| **Refused (fail-closed)** | open, but no `TURNSTILE_SECRET_KEY` and no waiver | `/api/scan` returns `503`. Open access without Turnstile is only best-effort rate limiting, so it is refused unless the operator sets `SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK=1` to consciously waive it. |
 
 ## Pre-flight
 

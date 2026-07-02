@@ -57,6 +57,23 @@ test("redactUrlForReport can preserve query keys while redacting values", () => 
   );
 });
 
+test("redactUrlForReport replaces value-shaped query keys so names cannot leak PII", () => {
+  // A scanned page could put sensitive data in the parameter *name* itself.
+  const emailAsKey = redactUrlForReport("https://tracker.example/p?alice%40example.com=1", { preserveQueryKeys: true });
+  assert.equal(emailAsKey.includes("alice"), false);
+  assert.equal(emailAsKey, "https://tracker.example/p?%5Bredacted%5D=");
+
+  const longKey = "a".repeat(120);
+  const overlong = redactUrlForReport(`https://tracker.example/p?${longKey}=1`, { preserveQueryKeys: true });
+  assert.equal(overlong.includes(longKey), false);
+
+  // Conventional analytics/pixel key shapes still survive.
+  assert.equal(
+    redactUrlForReport("https://tracker.example/tr?ev=Purchase&ud%5Bem%5D=x&utm_source=n", { preserveQueryKeys: true }),
+    "https://tracker.example/tr?ev=&ud%5Bem%5D=&utm_source="
+  );
+});
+
 test("scanTimeout returns the smaller of the preferred timeout and remaining scan budget", () => {
   assert.equal(scanTimeout(1_000, 30_000, 2_000), 30_000);
   assert.equal(scanTimeout(1_000, 30_000, 45_000), 1_000);

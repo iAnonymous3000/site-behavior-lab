@@ -20,6 +20,11 @@
 import { createHash } from "node:crypto";
 import type { KeystrokeExfiltrationDetectionSummary } from "./types";
 
+// Bound per-field search cost. The scanner already truncates captured bodies
+// (lib/scanner.ts MAX_CAPTURED_BODY_CHARS); this is the matcher's own defense for
+// any caller, since the scanned page controls these URLs and bodies.
+export const MAX_SCANNED_CHARS = 64_000;
+
 export type SentinelEncoding = {
   encoding: string;
   value: string;
@@ -75,8 +80,11 @@ export function findSentinelLeaks(encodings: SentinelEncoding[], requests: Captu
       { location: "body", raw: request.body ?? "" }
     ];
 
-    for (const { location, raw } of locations) {
-      if (!raw) continue;
+    for (const { location, raw: rawFull } of locations) {
+      if (!rawFull) continue;
+      // Bound the lowercasing and substring search per field: the scanned page
+      // controls these URLs and bodies (see lib/scanner.ts MAX_CAPTURED_BODY_CHARS).
+      const raw = rawFull.length > MAX_SCANNED_CHARS ? rawFull.slice(0, MAX_SCANNED_CHARS) : rawFull;
       const lowered = raw.toLowerCase();
       for (const encoding of encodings) {
         if (!encoding.value) continue;
