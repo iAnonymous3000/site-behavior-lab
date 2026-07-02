@@ -256,7 +256,8 @@ function StatusCell({ status }: { status: number | null }) {
 }
 
 function TopThirdParties({ domains }: { domains: DomainSummary[] }) {
-  const top = domains.filter((domain) => domain.thirdParty).slice(0, 8);
+  const thirdParty = domains.filter((domain) => domain.thirdParty);
+  const top = thirdParty.slice(0, 8);
   if (top.length === 0) return <p className="muted">No third-party domains observed in this scan.</p>;
 
   return (
@@ -270,13 +271,25 @@ function TopThirdParties({ domains }: { domains: DomainSummary[] }) {
           <span className="count-pill">{domain.requests.toLocaleString()}</span>
         </div>
       ))}
+      <ListOverflowNote total={thirdParty.length} shown={top.length} where="the domain table" />
     </div>
+  );
+}
+
+// Shared "+N more" footer so truncated sidebar lists never look complete.
+function ListOverflowNote({ total, shown, where }: { total: number; shown: number; where: string }) {
+  if (total <= shown) return null;
+  return (
+    <p className="muted list-overflow-note">
+      +{(total - shown).toLocaleString()} more in {where}.
+    </p>
   );
 }
 
 function CookieList({ cookies }: { cookies: CookieRecord[] }) {
   if (cookies.length === 0) return <p className="muted">No cookies were visible to the scan context.</p>;
 
+  const shown = Math.min(cookies.length, 12);
   return (
     <div className="compact-list">
       {cookies.slice(0, 12).map((cookie) => (
@@ -294,6 +307,7 @@ function CookieList({ cookies }: { cookies: CookieRecord[] }) {
           </span>
         </div>
       ))}
+      <ListOverflowNote total={cookies.length} shown={shown} where="the JSON export" />
     </div>
   );
 }
@@ -301,6 +315,7 @@ function CookieList({ cookies }: { cookies: CookieRecord[] }) {
 function StorageList({ result }: { result: ScanResult }) {
   if (result.storage.length === 0) return <p className="muted">No local or session storage keys observed on the final page.</p>;
 
+  const shown = Math.min(result.storage.length, 12);
   return (
     <div className="compact-list">
       {result.storage.slice(0, 12).map((item) => (
@@ -314,6 +329,7 @@ function StorageList({ result }: { result: ScanResult }) {
           </span>
         </div>
       ))}
+      <ListOverflowNote total={result.storage.length} shown={shown} where="the JSON export" />
     </div>
   );
 }

@@ -272,6 +272,8 @@ function fingerprintingKindLabel(kind: FingerprintingChange["kind"]): string {
       return "Session-recording listeners";
     case "input-monitoring":
       return "Input-monitoring listeners";
+    case "keystroke-exfiltration":
+      return "Keystroke exfiltration";
     default:
       return kind;
   }

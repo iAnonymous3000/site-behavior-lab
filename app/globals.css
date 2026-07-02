@@ -2700,6 +2700,17 @@ td .mono {
   margin-top: 2px;
 }
 
+/* "+N more" footer under truncated sidebar lists; overrides the list's
+   card styling so it reads as a note, not another entry. */
+.domain-stack .list-overflow-note,
+.compact-list .list-overflow-note {
+  background: none;
+  border: 0;
+  font-size: 12px;
+  margin: 0;
+  padding: 2px 2px 0;
+}
+
 /* ---- Methodology ---- */
 .methodology dl {
   display: grid;
