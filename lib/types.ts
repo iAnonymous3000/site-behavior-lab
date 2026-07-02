@@ -70,6 +70,38 @@ export type PixelEventSummary = {
   requests: number;
 };
 
+/**
+ * A specific, checkable statement found in the site's privacy policy by a
+ * conservative sentence-level text match. `quote` is the matched sentence
+ * (capped) so a reader can verify the match in context; this is an automated
+ * text match, never a legal reading of the policy.
+ */
+export type PrivacyPolicyClaimKind = "no-cookies" | "no-third-party-cookies" | "no-selling-or-sharing" | "honors-gpc";
+
+export type PrivacyPolicyClaim = {
+  kind: PrivacyPolicyClaimKind;
+  quote: string;
+};
+
+/**
+ * What the scanner found when it read the site's own privacy policy and
+ * compared it against the observed evidence. Best-effort and Node-scanner only:
+ * the policy page is discovered from the scanned page's links and fetched
+ * through the same SSRF-guarded browser context.
+ */
+export type PrivacyPolicySummary = {
+  /** Redacted URL of the policy page that was read. */
+  url: string;
+  /** Checkable statements matched in the policy text. */
+  claims: PrivacyPolicyClaim[];
+  /** Observed tracking companies whose name (or alias) appears in the policy. */
+  mentionedEntities: string[];
+  /** Observed tracking companies never named in the policy text. */
+  unmentionedEntities: string[];
+  /** Characters of policy text analyzed (evidence the fetch worked). */
+  policyTextLength: number;
+};
+
 export type NetworkRequestRecord = {
   id: number;
   url: string;
@@ -313,6 +345,7 @@ export type ScanResult = {
   fingerprintDetections?: FingerprintDetectionSummary[];
   cnameCloaks?: CnameCloak[];
   pixelEvents?: PixelEventSummary[];
+  privacyPolicy?: PrivacyPolicySummary;
   screenshot: string | null;
   warnings: string[];
   share?: ReportShare;

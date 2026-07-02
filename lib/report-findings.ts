@@ -31,7 +31,14 @@ import {
   trackerEntitySummaries
 } from "./report-insights";
 import { humanList, plural } from "./text-format";
-import type { ComparisonScanResult, NetworkRequestRecord, ProvenanceChange, ScanReport, ScanResult } from "./types";
+import type {
+  ComparisonScanResult,
+  NetworkRequestRecord,
+  PrivacyPolicyClaimKind,
+  ProvenanceChange,
+  ScanReport,
+  ScanResult
+} from "./types";
 
 export type FindingLevel = "ok" | "quiet" | "info" | "warn" | "loud";
 
@@ -46,7 +53,8 @@ export type FindingIconKey =
   | "fingerprint"
   | "shield-check"
   | "check"
-  | "alert";
+  | "alert"
+  | "file-text";
 
 export type Finding = {
   id: string;
@@ -216,6 +224,86 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
       detail:
         'The scanner never clicks the banner, so this is the pre-consent state: loading trackers before the visitor accepts is often not permitted under GDPR/ePrivacy, and more trackers can load after "Accept" that this report does not capture. Tracker counts here are a lower bound for users who consent.',
       evidence: `Consent platform detected via ${consentPlatform.domain}.`
+    });
+  }
+
+  const policy = result.privacyPolicy;
+  if (policy) {
+    // Each entry pairs a testable statement from the policy with the observed
+    // evidence that cuts against it. Quotes come along so a reader can check
+    // the sentence in context; this is a text match, never a legal reading.
+    const conflicts: string[] = [];
+    const quotes: string[] = [];
+    const policyClaim = (kind: PrivacyPolicyClaimKind) => policy.claims.find((claim) => claim.kind === kind);
+
+    const noThirdPartyCookies = policyClaim("no-third-party-cookies");
+    if (noThirdPartyCookies && result.summary.thirdPartyCookies > 0) {
+      conflicts.push(
+        `the policy says third-party cookies are not used, but ${plural(result.summary.thirdPartyCookies, "third-party cookie")} appeared in this visit`
+      );
+      quotes.push(noThirdPartyCookies.quote);
+    }
+
+    const noCookies = policyClaim("no-cookies");
+    if (noCookies && result.summary.cookies > 0) {
+      conflicts.push(`the policy says cookies are not used, but ${plural(result.summary.cookies, "cookie")} appeared in this visit`);
+      quotes.push(noCookies.quote);
+    }
+
+    const noSelling = policyClaim("no-selling-or-sharing");
+    const pixelsWithIdentifiers = pixelEventSummaries(result).filter((pixel) => pixel.advancedMatching.length > 0);
+    if (noSelling && pixelsWithIdentifiers.length > 0) {
+      conflicts.push(
+        `the policy says personal information is not sold, but ${humanList(
+          pixelsWithIdentifiers.map((pixel) => pixel.product)
+        )} received hashed personal identifiers with advertising events in this visit, which many regulators treat as sharing`
+      );
+      quotes.push(noSelling.quote);
+    }
+
+    const honorsGpc = policyClaim("honors-gpc");
+    if (honorsGpc && isComparisonReport(report) && report.comparisonType === "gpc") {
+      const before = report.diff.thirdPartyRequests.before;
+      const after = report.diff.thirdPartyRequests.after;
+      const reductionPct = before > 0 ? Math.round(((before - after) / before) * 100) : 0;
+      if (before > 0 && after > 0 && reductionPct < 10) {
+        conflicts.push(
+          `the policy says Global Privacy Control is honored, but sending GPC changed third-party requests by only ${reductionPct}% in the paired comparison (${before.toLocaleString("en-US")} to ${after.toLocaleString("en-US")})`
+        );
+        quotes.push(honorsGpc.quote);
+      }
+    }
+
+    const namedCount = policy.mentionedEntities.length;
+    const totalObserved = namedCount + policy.unmentionedEntities.length;
+    const coverage =
+      totalObserved > 0
+        ? `${namedCount} of ${plural(totalObserved, "observed tracking company", "observed tracking companies")} named in the policy`
+        : "no catalogued tracking companies observed to check against it";
+
+    findings.push({
+      id: "privacy-policy",
+      icon: "file-text",
+      level: conflicts.length > 0 ? "warn" : policy.unmentionedEntities.length > 0 ? "info" : "ok",
+      title:
+        conflicts.length > 0
+          ? "The privacy policy says one thing; this visit shows another"
+          : policy.unmentionedEntities.length > 0
+            ? "Tracking companies the privacy policy never names"
+            : "Privacy policy read; no checked statement contradicted",
+      lead:
+        conflicts.length > 0
+          ? `Comparing the site's own privacy policy against this visit: ${humanList(conflicts, 3)}.`
+          : policy.unmentionedEntities.length > 0
+            ? `${humanList(policy.unmentionedEntities)} received requests during this visit but ${policy.unmentionedEntities.length === 1 ? "is" : "are"} never named in the privacy policy text.`
+            : `The policy's checkable statements did not contradict this visit's evidence (${coverage}).`,
+      detail:
+        conflicts.length > 0
+          ? `Matched policy wording: ${quotes.map((quote) => `"${quote}"`).join(" / ")}. This is an automated sentence match against the policy's own text, quoted so it can be verified in context. Policies can define terms narrowly (such as what counts as selling), so treat this as a documented discrepancy to review, not a legal conclusion.`
+          : policy.unmentionedEntities.length > 0
+            ? `Policies often disclose vendor categories rather than company names, so an unnamed vendor is a transparency gap worth reviewing, not automatically a violation.${namedCount > 0 ? ` Named in the policy: ${humanList(policy.mentionedEntities)}.` : ""}`
+            : "Statements checked automatically: blanket no-cookie claims, third-party-cookie claims, do-not-sell claims against advertising-pixel identifiers, and Global Privacy Control claims against the GPC comparison when one exists.",
+      evidence: `Policy at ${policy.url}; ${plural(policy.claims.length, "checkable statement")} matched; ${coverage}.`
     });
   }
 

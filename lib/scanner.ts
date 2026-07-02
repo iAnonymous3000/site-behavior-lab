@@ -13,6 +13,7 @@ import { adblockListMeta, getAdblockEngine, mapRequestType } from "./adblock-eng
 import type {
   CookieRecord,
   KeystrokeExfiltrationDetectionSummary,
+  PrivacyPolicySummary,
   ScanRequestPayload,
   ScanResult,
   StorageRecord
@@ -25,7 +26,9 @@ import {
   type CapturedRequest
 } from "./keystroke-exfiltration";
 import { summarizePixelEvents, type PixelEventInput } from "./pixel-events";
-import { isThirdParty, partyKey } from "./domain-utils";
+import { buildPrivacyPolicySummary, pickPrivacyPolicyLink, type PolicyLinkCandidate } from "./privacy-policy";
+import { isOperationalEntity, trackerEntitySummaries } from "./report-insights";
+import { isThirdParty, partyKey, summarizeDomains } from "./domain-utils";
 import { resolveCnameCloaks, type CnameChainResolver } from "./cname-uncloaking";
 import type { CnameCloak, NetworkRequestRecord, TrackerMatch } from "./types";
 import { promises as dnsPromises } from "node:dns";
@@ -94,6 +97,15 @@ const MAX_CNAME_LOOKUPS = 10;
 const CNAME_PROBE_MIN_BUDGET_MS = 3_000;
 const CNAME_LOOKUP_TIMEOUT_MS = 1_500;
 const CNAME_MAX_HOPS = 3;
+// Privacy-policy cross-check: budget needed for the extra page visit, its own
+// navigation timeout, a short wait for JS-rendered policies (CMP-hosted pages),
+// and hard caps on links considered, subresources loaded, and text analyzed.
+const PRIVACY_POLICY_MIN_BUDGET_MS = 7_000;
+const PRIVACY_POLICY_NAV_TIMEOUT_MS = 8_000;
+const PRIVACY_POLICY_RENDER_WAIT_MS = 1_000;
+const MAX_POLICY_LINK_CANDIDATES = 12;
+const MAX_POLICY_PAGE_REQUESTS = 150;
+const MAX_POLICY_TEXT_CHARS = 400_000;
 
 let sharedBrowser: Browser | null = null;
 let browserLaunchPromise: Promise<Browser> | null = null;
@@ -262,6 +274,11 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       warnings.add("Blocked one or more requests that resolved to local or private network addresses at connection time.");
     }
 
+    // Privacy-policy link candidates must be read now: the keystroke probe below
+    // may navigate the page away to flush unload beacons. The policy page itself
+    // is visited later, after the request log has been snapshotted.
+    const policyLinks = await withScanTimeout(collectPrivacyPolicyLinks(page), started).catch(() => [] as PolicyLinkCandidate[]);
+
     // Active input-capture probe: type a synthetic sentinel into form fields and
     // watch for it leaving to a third party. Best-effort and fully bounded, it
     // never throws into the scan and is skipped when the time budget is tight.
@@ -316,6 +333,27 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       );
     }
 
+    // Read the site's own privacy policy and compare its text to the observed
+    // evidence (checkable claims + tracking companies it never names). Runs
+    // after the request log is snapshotted so the extra page visit never
+    // contaminates the report's counts; best-effort and budget-bounded.
+    // Skipped on failed/blocked loads (HTTP >= 400): a challenge or error page
+    // is not the site, and its only policy link is typically the interstitial
+    // vendor's own policy (e.g. Cloudflare's), which must not be attributed to
+    // the scanned site.
+    const pageLoadFailed = responseStatus !== null && responseStatus >= 400;
+    const privacyPolicy = pageLoadFailed
+      ? null
+      : await probePrivacyPolicy({
+          context,
+          links: policyLinks,
+          firstPartyHostname: finalParsed.hostname,
+          requests: publicRequests,
+          started,
+          verifyPublicUrl,
+          warnings
+        }).catch(() => null);
+
     const scannerEgress = scannerEgressDescription();
     const adblockMeta = adblockEngine ? adblockListMeta() : null;
     const conditions = buildScanConditions({
@@ -356,6 +394,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       fingerprintEvents: fingerprintObservations.events,
       cnameCloaks,
       pixelEvents,
+      privacyPolicy: privacyPolicy ?? undefined,
       screenshot,
       warnings: warnings.list,
       shieldsBlockedRequests: adblockEngine
@@ -613,6 +652,92 @@ async function typeSentinelIntoFields(page: Page, sentinel: string): Promise<{ c
   }
 
   return { count, types };
+}
+
+/** Links on the loaded page that plausibly point at a privacy policy. */
+async function collectPrivacyPolicyLinks(page: Page): Promise<PolicyLinkCandidate[]> {
+  const links = await page.evaluate(() =>
+    Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]"))
+      .map((anchor) => ({ href: anchor.href, text: (anchor.textContent || "").trim().slice(0, 80) }))
+      .filter((link) => /privacy/i.test(link.href) || /privacy/i.test(link.text))
+  );
+  return links.slice(0, MAX_POLICY_LINK_CANDIDATES);
+}
+
+/**
+ * Visit the site's privacy policy (in a fresh page of the same SSRF-proxied
+ * context) and build the stored cross-check summary: checkable claims matched in
+ * the policy text plus observed tracking companies the policy never names.
+ * Best-effort: bounded by the scan budget, swallows its own errors, and returns
+ * null when there is no policy link, no time, or the fetch looks like an error
+ * page. The extra visit's requests are never recorded into the report.
+ */
+async function probePrivacyPolicy(input: {
+  context: BrowserContext;
+  links: PolicyLinkCandidate[];
+  firstPartyHostname: string;
+  requests: NetworkRequestRecord[];
+  started: number;
+  verifyPublicUrl: (url: URL) => Promise<void>;
+  warnings: ScanWarningCollector;
+}): Promise<PrivacyPolicySummary | null> {
+  if (MAX_SCAN_DURATION_MS - (Date.now() - input.started) < PRIVACY_POLICY_MIN_BUDGET_MS) return null;
+
+  const policyUrl = pickPrivacyPolicyLink(input.links, input.firstPartyHostname);
+  if (!policyUrl) return null;
+  const parsed = safeParseUrl(policyUrl);
+  if (!parsed) return null;
+  // Same SSRF posture as every other navigation: shape + DNS preflight here,
+  // with the context's connect-time public-address proxy as the backstop.
+  await input.verifyPublicUrl(parsed);
+
+  const policyPage = await input.context.newPage();
+  let requestCount = 0;
+  try {
+    await policyPage.route("**/*", async (route) => {
+      requestCount += 1;
+      const resourceType = route.request().resourceType();
+      const isHttp = /^https?:$/.test(safeParseUrl(route.request().url())?.protocol ?? "");
+      if (!isHttp || requestCount > MAX_POLICY_PAGE_REQUESTS || ["image", "media", "font"].includes(resourceType)) {
+        await route.abort();
+        return;
+      }
+      await route.continue();
+    });
+
+    await policyPage.goto(policyUrl, {
+      waitUntil: "domcontentloaded",
+      timeout: scanTimeout(input.started, PRIVACY_POLICY_NAV_TIMEOUT_MS)
+    });
+    // CMP-hosted policies often render their text client-side after load.
+    const renderWait = Math.min(PRIVACY_POLICY_RENDER_WAIT_MS, MAX_SCAN_DURATION_MS - (Date.now() - input.started) - 500);
+    if (renderWait > 0) await policyPage.waitForTimeout(renderWait);
+
+    const policyText = await withScanDeadline(
+      policyPage.evaluate((cap) => (document.body?.innerText ?? "").slice(0, cap), MAX_POLICY_TEXT_CHARS),
+      input.started,
+      MAX_SCAN_DURATION_MS,
+      scanTimeoutError
+    );
+
+    const trackingEntities = trackerEntitySummaries({ domains: summarizeDomains(input.requests) })
+      .filter((entity) => !isOperationalEntity(entity))
+      .map((entity) => entity.entity);
+
+    const summary = buildPrivacyPolicySummary({
+      url: redactUrlForReport(policyUrl),
+      policyText,
+      trackingEntities
+    });
+    if (summary) {
+      input.warnings.add(
+        `Read the site's privacy policy (${summary.url}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.`
+      );
+    }
+    return summary;
+  } finally {
+    await policyPage.close().catch(() => undefined);
+  }
 }
 
 // Playwright exposes the POST body synchronously, but reading it can throw for

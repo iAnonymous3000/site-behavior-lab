@@ -35,6 +35,7 @@ function isSingleScanResult(value: unknown): value is ScanResult {
       (Array.isArray(value.cnameCloaks) && value.cnameCloaks.every(isCnameCloak))) &&
     (value.pixelEvents === undefined ||
       (Array.isArray(value.pixelEvents) && value.pixelEvents.every(isPixelEventSummary))) &&
+    (value.privacyPolicy === undefined || isPrivacyPolicySummary(value.privacyPolicy)) &&
     // `undefined` is accepted because the UI's JSON export drops the screenshot
     // key entirely; those files must re-open in the report viewer.
     (value.screenshot === undefined || value.screenshot === null || typeof value.screenshot === "string") &&
@@ -82,6 +83,27 @@ function isCnameCloak(value: unknown): boolean {
 }
 
 const PIXEL_MATCH_FIELDS = new Set(["email", "phone", "name", "address", "date_of_birth", "gender", "external_id"]);
+const POLICY_CLAIM_KINDS = new Set(["no-cookies", "no-third-party-cookies", "no-selling-or-sharing", "honors-gpc"]);
+
+function isPrivacyPolicySummary(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    typeof value.url === "string" &&
+    typeof value.policyTextLength === "number" &&
+    Array.isArray(value.claims) &&
+    value.claims.every(
+      (claim) =>
+        isRecord(claim) &&
+        typeof claim.kind === "string" &&
+        POLICY_CLAIM_KINDS.has(claim.kind) &&
+        typeof claim.quote === "string"
+    ) &&
+    Array.isArray(value.mentionedEntities) &&
+    value.mentionedEntities.every((entity) => typeof entity === "string") &&
+    Array.isArray(value.unmentionedEntities) &&
+    value.unmentionedEntities.every((entity) => typeof entity === "string")
+  );
+}
 
 function isPixelEventSummary(value: unknown): boolean {
   return (

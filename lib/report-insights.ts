@@ -52,7 +52,7 @@ export type TrackerEntitySummary = {
 };
 
 /** Group a scan's third-party tracker domains by entity, busiest first. */
-export function trackerEntitySummaries(result: ScanResult): TrackerEntitySummary[] {
+export function trackerEntitySummaries(result: Pick<ScanResult, "domains">): TrackerEntitySummary[] {
   const summaries = new Map<string, TrackerEntitySummary>();
 
   for (const domain of result.domains) {

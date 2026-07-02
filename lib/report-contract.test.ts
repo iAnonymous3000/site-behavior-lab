@@ -59,6 +59,28 @@ test("report validation accepts a report without a screenshot key (UI JSON expor
   assert.equal(isScanReport(JSON.parse(JSON.stringify(report))), true);
 });
 
+test("report validation accepts and rejects privacy-policy summaries by shape", () => {
+  const report = makeScanResult({
+    url: "https://example.com/",
+    device: "desktop",
+    gpcEnabled: true,
+    consentMode: "observe"
+  });
+
+  report.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [{ kind: "no-third-party-cookies", quote: "We do not use third-party cookies." }],
+    mentionedEntities: ["Google"],
+    unmentionedEntities: ["Criteo"],
+    policyTextLength: 5200
+  };
+  assert.equal(isScanReport(report), true);
+
+  const malformed = report as unknown as Record<string, unknown>;
+  malformed.privacyPolicy = { url: "https://example.com/privacy", claims: [{ kind: "not-a-kind", quote: "x" }] };
+  assert.equal(isScanReport(malformed), false);
+});
+
 test("report validation rejects malformed fingerprint detections", () => {
   const report = makeScanResult({
     url: "https://example.com/",

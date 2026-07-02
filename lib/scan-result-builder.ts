@@ -9,6 +9,7 @@ import type {
   FingerprintEventSummary,
   NetworkRequestRecord,
   PixelEventSummary,
+  PrivacyPolicySummary,
   ScanAutomation,
   ScanConditions,
   ScanResult,
@@ -28,6 +29,7 @@ export type BuildScanResultInput = {
   fingerprintEvents: FingerprintEventSummary[];
   cnameCloaks?: CnameCloak[];
   pixelEvents?: PixelEventSummary[];
+  privacyPolicy?: PrivacyPolicySummary;
   screenshot: string | null;
   warnings: string[];
   shieldsBlockedRequests?: number;
@@ -246,6 +248,9 @@ export function buildScanResult(input: BuildScanResultInput): ScanResult {
   }
   if (input.pixelEvents && input.pixelEvents.length > 0) {
     result.pixelEvents = input.pixelEvents;
+  }
+  if (input.privacyPolicy) {
+    result.privacyPolicy = input.privacyPolicy;
   }
 
   return result;

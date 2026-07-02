@@ -12,6 +12,7 @@ import {
   ExternalLink,
   Eye,
   FileJson,
+  FileText,
   Fingerprint,
   FlaskConical,
   Github,
@@ -1685,7 +1686,8 @@ const FINDING_ICONS: Record<FindingIconKey, typeof Eye> = {
   fingerprint: Fingerprint,
   "shield-check": ShieldCheck,
   check: CheckCircle2,
-  alert: AlertTriangle
+  alert: AlertTriangle,
+  "file-text": FileText
 };
 
 function FindingsBoard({ report, result }: { report: ScanReport; result: ScanResult }) {

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createShieldsComparisonReport } from "./compare-reports";
+import { createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { buildFindings, type Finding, type FindingIconKey } from "./report-findings";
 import type { CorpusStats } from "./corpus-stats";
 import {
@@ -16,10 +16,12 @@ const VALID_ICON_KEYS: Set<FindingIconKey> = new Set([
   "radar",
   "cookie",
   "eye",
+  "keyboard",
   "fingerprint",
   "shield-check",
   "check",
-  "alert"
+  "alert",
+  "file-text"
 ]);
 
 function byId(findings: Finding[], id: string): Finding {
@@ -351,6 +353,84 @@ type ResultOverrides = {
   fingerprintDetections?: FingerprintDetectionSummary[];
   status?: number | null;
 };
+
+test("flags a policy contradiction when the policy denies third-party cookies that were observed", () => {
+  const result = makeResult({ thirdPartyCookies: 3 });
+  result.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [{ kind: "no-third-party-cookies", quote: "We do not use third-party cookies." }],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 5000
+  };
+
+  const card = byId(buildFindings(result, result, null), "privacy-policy");
+  assert.equal(card.level, "warn");
+  assert.equal(card.icon, "file-text");
+  assert.match(card.lead, /third-party cookies are not used, but 3 third-party cookies/);
+  assert.match(card.detail, /"We do not use third-party cookies\."/);
+  assert.match(card.detail, /not a legal conclusion/);
+});
+
+test("flags unnamed tracking companies as an informational disclosure gap", () => {
+  const result = makeResult({
+    domains: [makeTrackerDomain("track.criteo.com", 4, "Criteo", "advertising")],
+    thirdPartyDomains: 1
+  });
+  result.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [],
+    mentionedEntities: ["Google"],
+    unmentionedEntities: ["Criteo"],
+    policyTextLength: 5000
+  };
+
+  const card = byId(buildFindings(result, result, null), "privacy-policy");
+  assert.equal(card.level, "info");
+  assert.match(card.title, /never names/);
+  assert.match(card.lead, /Criteo/);
+  assert.match(card.detail, /not automatically a violation/);
+});
+
+test("reports a clean policy check at ok level", () => {
+  const result = makeResult({});
+  result.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [{ kind: "no-selling-or-sharing", quote: "We do not sell your personal information." }],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 5000
+  };
+
+  const card = byId(buildFindings(result, result, null), "privacy-policy");
+  assert.equal(card.level, "ok");
+  assert.match(card.title, /no checked statement contradicted/);
+});
+
+test("flags an honored-GPC claim when the GPC comparison shows no real change", () => {
+  const baseline = makeResult({
+    domains: [makeTrackerDomain("ads.example.net", 40, "AdCo", "advertising")],
+    thirdPartyRequests: 40,
+    thirdPartyDomains: 1
+  });
+  baseline.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [{ kind: "honors-gpc", quote: "We honor Global Privacy Control signals." }],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 5000
+  };
+  const variant = makeResult({
+    domains: [makeTrackerDomain("ads.example.net", 38, "AdCo", "advertising")],
+    thirdPartyRequests: 38,
+    thirdPartyDomains: 1
+  });
+  const report = createGpcComparisonReport(baseline, variant);
+
+  const card = byId(buildFindings(report, baseline, null), "privacy-policy");
+  assert.equal(card.level, "warn");
+  assert.match(card.lead, /Global Privacy Control is honored, but sending GPC changed third-party requests by only 5%/);
+});
 
 function makeResult(overrides: ResultOverrides = {}): ScanResult {
   const domains = overrides.domains ?? [];
