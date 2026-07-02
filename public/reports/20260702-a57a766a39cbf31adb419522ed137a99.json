@@ -1,0 +1,2044 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://europa.eu/",
+  "scannedAt": "2026-07-02T15:26:51.742Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Your gateway to the EU, News, Highlights | European Union",
+      "status": 200,
+      "durationMs": 8823,
+      "firstPartyDomain": "european-union.europa.eu",
+      "totalRequests": 64,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 3,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://europa.eu/",
+      "finalUrl": "https://european-union.europa.eu/index_en",
+      "scannedAt": "2026-07-02T15:26:42.913Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://europa.eu/",
+        "domain": "europa.eu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 301,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 41,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://european-union.europa.eu/select-language",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 423,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://european-union.europa.eu/themes/contrib/oe_theme/dist/duet/duet/duet.esm.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 535,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_J89KoAHJUq7gbRVwPMBWcnBNzcoasO5AXDe0NPWCh68.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 535,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_ehllhA-FYUmJWQoF-RFbnZMiKCW-DSbCN60izJ3gmec.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 536,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_eokCEi0y7Pl-XIqvIQn1pu9_vb8g2VfNpaY38y5DMNg.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 536,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_QrkSboNrCBAVCew772vz3Z5VJVJPL5Mr1RbX9VfyPfw.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 536,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://european-union.europa.eu/profiles/contrib/ewcms/modules/ewcms_multilingual/assets/js/ewcms_js_language_layover.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 536,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://european-union.europa.eu/themes/contrib/oe_theme/dist/eu/images/logo/standard-version/positive/logo-eu--en.svg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 536,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://european-union.europa.eu/core/assets/vendor/jquery/jquery.min.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 537,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://european-union.europa.eu/sites/default/files/js/js_RDmG1tFIElywB-WRNwIH19KhMHkUAdHDkx4JNOqup0E.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 538,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://european-union.europa.eu/sites/default/files/js/js_42mQxUkboZKCmGNkMMDr-0NCjF5zZRgZRldByMd8g2M.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 538,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://ec.europa.eu/wel/surveys/wr_survey01/wr_survey.js",
+        "domain": "ec.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 538,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://webtools.europa.eu/load.js",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 538,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_LtEYp8XR_L_gQW8zFNlfXHYCaL5Gz4Qmmsa8qFiwUXM.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 538,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_8tMB_eCfPaoSF8jNccvoMBHwOZGWSIT4NentTDpvXwg.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 539,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_1VSoKGlVjoaZrnTpjPiuWDaFez2hJZfMVEyKVSRHWtg.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 539,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://european-union.europa.eu/themes/contrib/oe_theme/dist/duet/duet/index-a3afd6e1.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 907,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://ec.europa.eu/wel/surveys/wr_survey03/js/main.js",
+        "domain": "ec.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1020,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://european-union.europa.eu/index_en",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1029,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://webtools.europa.eu/css/webtools.theme-eu.css",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1038,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://european-union.europa.eu/themes/contrib/oe_theme/dist/duet/duet/duet.esm.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1053,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css__Sb5jH2rg4NFCzjjcXbn9U1UQ3QZF9g9KYsG9DEb3Rk.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1054,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_ehllhA-FYUmJWQoF-RFbnZMiKCW-DSbCN60izJ3gmec.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1054,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_eokCEi0y7Pl-XIqvIQn1pu9_vb8g2VfNpaY38y5DMNg.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1055,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_QrkSboNrCBAVCew772vz3Z5VJVJPL5Mr1RbX9VfyPfw.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1055,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://european-union.europa.eu/themes/contrib/oe_theme/dist/eu/images/logo/standard-version/positive/logo-eu--en.svg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1056,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://european-union.europa.eu/sites/default/files/styles/oe_theme_full_width_banner_5_1/public/2025-11/test%20homepage%20banner%20two%20kids.png.webp",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1056,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://european-union.europa.eu/sites/default/files/styles/oe_theme_ratio_3_2_medium/public/2024-08/History-of-the-EU_2.jpg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1059,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://european-union.europa.eu/sites/default/files/styles/oe_theme_ratio_3_2_medium/public/2024-08/EU-countries_2_0.jpg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1059,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://european-union.europa.eu/sites/default/files/styles/oe_theme_ratio_3_2_medium/public/2024-08/institutions-and-bodies_2.jpg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1059,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://european-union.europa.eu/core/assets/vendor/jquery/jquery.min.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1060,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://european-union.europa.eu/sites/default/files/js/js_DJzy7oDikYSmcmMTuWrLXyOWOv7GJlDJc7hPXDGgssw.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1062,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://european-union.europa.eu/sites/default/files/js/js_42mQxUkboZKCmGNkMMDr-0NCjF5zZRgZRldByMd8g2M.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1062,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://european-union.europa.eu/sites/default/files/styles/oe_theme_ratio_3_2_medium/avportal/P-067622/00-19.jpg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1062,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://european-union.europa.eu/sites/default/files/styles/oe_theme_ratio_3_2_medium/public/2026-06/USE%20THIS%20IrelandEU_Logo_01_Portrait_Colour_RGB.jpg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1063,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://european-union.europa.eu/sites/default/files/styles/oe_theme_ratio_3_2_medium/avportal/P-069394/00-13.jpg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1063,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://ec.europa.eu/wel/surveys/wr_survey01/wr_survey.js",
+        "domain": "ec.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1063,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://webtools.europa.eu/load.js",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1063,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_LtEYp8XR_L_gQW8zFNlfXHYCaL5Gz4Qmmsa8qFiwUXM.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1063,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_8tMB_eCfPaoSF8jNccvoMBHwOZGWSIT4NentTDpvXwg.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1064,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_1VSoKGlVjoaZrnTpjPiuWDaFez2hJZfMVEyKVSRHWtg.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1064,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://european-union.europa.eu/themes/contrib/oe_theme/dist/duet/duet/index-a3afd6e1.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1075,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://ec.europa.eu/wel/surveys/wr_survey03/js/main.js",
+        "domain": "ec.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1457,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://webtools.europa.eu/css/webtools.theme-eu.css",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1481,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://webtools.europa.eu/rest/requests/files",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1507,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://webtools.europa.eu/images/spinner.svg",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1507,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://webtools.europa.eu/js/webtools.globan.js",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1511,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.webanalytics.europa.eu/ppms.js",
+        "domain": "www.webanalytics.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1545,
+        "blockedByShields": true
+      },
+      {
+        "id": 50,
+        "url": "https://webtools.europa.eu/js/webtools.cck.js",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1550,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://webtools.europa.eu/css/webtools.etrans.css",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1581,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://webtools.europa.eu/js/webtools.etrans.js",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1581,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://webtools.europa.eu/css/webtools.icons.flags.css",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1606,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://webtools.europa.eu/css/webtools.preview.css",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1611,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://webtools.europa.eu/js/webtools.preview.js",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1612,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://webtools.europa.eu/css/webtools.search.2.0.css",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1643,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://webtools.europa.eu/js/webtools.search.2.0.js",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1643,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://webtools.europa.eu/images/flags/eu.svg",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1645,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://cdn.eaec.fpfis.tech.ec.europa.eu/eas.js",
+        "domain": "cdn.eaec.fpfis.tech.ec.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1668,
+        "blockedByShields": true
+      },
+      {
+        "id": 60,
+        "url": "https://webtools.europa.eu/css/webtools.icons.default.css",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1695,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://webtools.europa.eu/rest/service-inventory",
+        "domain": "webtools.europa.eu",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1995,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://www.webanalytics.europa.eu/ppms.php",
+        "domain": "www.webanalytics.europa.eu",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 202,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2259,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://ec.europa.eu/wel/surveys/wr_survey03/data/survey_url_rules.js",
+        "domain": "ec.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2260,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://ec.europa.eu/wel/surveys/wr_survey03/data/invitation_settings/eu_online_survey/01/invitation_settings.js",
+        "domain": "ec.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2372,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "european-union.europa.eu",
+        "requests": 36,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "image"
+        ]
+      },
+      {
+        "domain": "webtools.europa.eu",
+        "requests": 18,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "ec.europa.eu",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.webanalytics.europa.eu",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          202
+        ],
+        "resourceTypes": [
+          "script",
+          "ping"
+        ]
+      },
+      {
+        "domain": "europa.eu",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          301
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "cdn.eaec.fpfis.tech.ec.europa.eu",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "cck1",
+        "domain": ".european-union.europa.eu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_pk_id.c9513597-70e6-4b84-80c5-36f9dddf8c7c.9f33",
+        "domain": "european-union.europa.eu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_pk_ses.c9513597-70e6-4b84-80c5-36f9dddf8c7c.9f33",
+        "domain": "european-union.europa.eu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://webtools.europa.eu"
+          ],
+          "totalListenerCalls": 4
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mouseup",
+            "scroll"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://webtools.europa.eu"
+          ],
+          "totalListenerCalls": 525
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Resolved 1 first-party subdomain that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
+      "Read the site's privacy policy (https://european-union.europa.eu/privacy-policy_en) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "cnameCloaks": [
+      {
+        "host": "www.webanalytics.europa.eu",
+        "cname": "ec-prod.piwik.pro",
+        "tracker": {
+          "domain": "piwik.pro",
+          "entity": "piwik.pro",
+          "category": "tracking (Brave Shields list)",
+          "confidence": "shields-list"
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://european-union.europa.eu/privacy-policy_en",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 1174
+    }
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Your gateway to the EU, News, Highlights | European Union",
+      "status": 200,
+      "durationMs": 8266,
+      "firstPartyDomain": "european-union.europa.eu",
+      "totalRequests": 61,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 1,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://europa.eu/",
+      "finalUrl": "https://european-union.europa.eu/index_en",
+      "scannedAt": "2026-07-02T15:26:51.742Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://europa.eu/",
+        "domain": "europa.eu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 301,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 47,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://european-union.europa.eu/select-language",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 442,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://european-union.europa.eu/themes/contrib/oe_theme/dist/duet/duet/duet.esm.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 520,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_J89KoAHJUq7gbRVwPMBWcnBNzcoasO5AXDe0NPWCh68.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 521,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_ehllhA-FYUmJWQoF-RFbnZMiKCW-DSbCN60izJ3gmec.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 521,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_eokCEi0y7Pl-XIqvIQn1pu9_vb8g2VfNpaY38y5DMNg.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 521,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_QrkSboNrCBAVCew772vz3Z5VJVJPL5Mr1RbX9VfyPfw.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 521,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://european-union.europa.eu/profiles/contrib/ewcms/modules/ewcms_multilingual/assets/js/ewcms_js_language_layover.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 521,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://european-union.europa.eu/themes/contrib/oe_theme/dist/eu/images/logo/standard-version/positive/logo-eu--en.svg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 521,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://european-union.europa.eu/core/assets/vendor/jquery/jquery.min.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 522,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://european-union.europa.eu/sites/default/files/js/js_RDmG1tFIElywB-WRNwIH19KhMHkUAdHDkx4JNOqup0E.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 523,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://european-union.europa.eu/sites/default/files/js/js_42mQxUkboZKCmGNkMMDr-0NCjF5zZRgZRldByMd8g2M.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 523,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://ec.europa.eu/wel/surveys/wr_survey01/wr_survey.js",
+        "domain": "ec.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 523,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://webtools.europa.eu/load.js",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 523,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_LtEYp8XR_L_gQW8zFNlfXHYCaL5Gz4Qmmsa8qFiwUXM.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 523,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_8tMB_eCfPaoSF8jNccvoMBHwOZGWSIT4NentTDpvXwg.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 523,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_1VSoKGlVjoaZrnTpjPiuWDaFez2hJZfMVEyKVSRHWtg.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 524,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://european-union.europa.eu/themes/contrib/oe_theme/dist/duet/duet/index-a3afd6e1.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 555,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://ec.europa.eu/wel/surveys/wr_survey03/js/main.js",
+        "domain": "ec.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 903,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://european-union.europa.eu/index_en",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 911,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://webtools.europa.eu/css/webtools.theme-eu.css",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 920,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://european-union.europa.eu/themes/contrib/oe_theme/dist/duet/duet/duet.esm.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 933,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css__Sb5jH2rg4NFCzjjcXbn9U1UQ3QZF9g9KYsG9DEb3Rk.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 934,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_ehllhA-FYUmJWQoF-RFbnZMiKCW-DSbCN60izJ3gmec.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 935,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_eokCEi0y7Pl-XIqvIQn1pu9_vb8g2VfNpaY38y5DMNg.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 935,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_QrkSboNrCBAVCew772vz3Z5VJVJPL5Mr1RbX9VfyPfw.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 936,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://european-union.europa.eu/themes/contrib/oe_theme/dist/eu/images/logo/standard-version/positive/logo-eu--en.svg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 936,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://european-union.europa.eu/sites/default/files/styles/oe_theme_full_width_banner_5_1/public/2025-11/test%20homepage%20banner%20two%20kids.png.webp",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 937,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://european-union.europa.eu/sites/default/files/styles/oe_theme_ratio_3_2_medium/public/2024-08/History-of-the-EU_2.jpg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 941,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://european-union.europa.eu/sites/default/files/styles/oe_theme_ratio_3_2_medium/public/2024-08/EU-countries_2_0.jpg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 941,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://european-union.europa.eu/sites/default/files/styles/oe_theme_ratio_3_2_medium/public/2024-08/institutions-and-bodies_2.jpg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 941,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://european-union.europa.eu/core/assets/vendor/jquery/jquery.min.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 942,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://european-union.europa.eu/sites/default/files/js/js_DJzy7oDikYSmcmMTuWrLXyOWOv7GJlDJc7hPXDGgssw.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 942,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://european-union.europa.eu/sites/default/files/js/js_42mQxUkboZKCmGNkMMDr-0NCjF5zZRgZRldByMd8g2M.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 942,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://european-union.europa.eu/sites/default/files/styles/oe_theme_ratio_3_2_medium/avportal/P-067622/00-19.jpg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 943,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://european-union.europa.eu/sites/default/files/styles/oe_theme_ratio_3_2_medium/public/2026-06/USE%20THIS%20IrelandEU_Logo_01_Portrait_Colour_RGB.jpg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 943,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://european-union.europa.eu/sites/default/files/styles/oe_theme_ratio_3_2_medium/avportal/P-069394/00-13.jpg",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 943,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://ec.europa.eu/wel/surveys/wr_survey01/wr_survey.js",
+        "domain": "ec.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 943,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://webtools.europa.eu/load.js",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 944,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_LtEYp8XR_L_gQW8zFNlfXHYCaL5Gz4Qmmsa8qFiwUXM.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 944,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_8tMB_eCfPaoSF8jNccvoMBHwOZGWSIT4NentTDpvXwg.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 944,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://european-union.europa.eu/sites/default/files/css/css_1VSoKGlVjoaZrnTpjPiuWDaFez2hJZfMVEyKVSRHWtg.css",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 944,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://european-union.europa.eu/themes/contrib/oe_theme/dist/duet/duet/index-a3afd6e1.js",
+        "domain": "european-union.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 953,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://ec.europa.eu/wel/surveys/wr_survey03/js/main.js",
+        "domain": "ec.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1333,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://webtools.europa.eu/css/webtools.theme-eu.css",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1358,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://webtools.europa.eu/rest/requests/files",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1382,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://webtools.europa.eu/images/spinner.svg",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1383,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://webtools.europa.eu/js/webtools.globan.js",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1387,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://webtools.europa.eu/js/webtools.cck.js",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1424,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://webtools.europa.eu/css/webtools.etrans.css",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1452,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://webtools.europa.eu/js/webtools.etrans.js",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1453,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://ec.europa.eu/wel/surveys/wr_survey03/data/survey_url_rules.js",
+        "domain": "ec.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1455,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://webtools.europa.eu/css/webtools.icons.flags.css",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1485,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://webtools.europa.eu/css/webtools.preview.css",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1496,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://webtools.europa.eu/js/webtools.preview.js",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1497,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://webtools.europa.eu/css/webtools.search.2.0.css",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1524,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://webtools.europa.eu/js/webtools.search.2.0.js",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1525,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://webtools.europa.eu/images/flags/eu.svg",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1532,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://ec.europa.eu/wel/surveys/wr_survey03/data/invitation_settings/eu_online_survey/01/invitation_settings.js",
+        "domain": "ec.europa.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1560,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://webtools.europa.eu/css/webtools.icons.default.css",
+        "domain": "webtools.europa.eu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1573,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://webtools.europa.eu/rest/service-inventory",
+        "domain": "webtools.europa.eu",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1867,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "european-union.europa.eu",
+        "requests": 36,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "image"
+        ]
+      },
+      {
+        "domain": "webtools.europa.eu",
+        "requests": 18,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "ec.europa.eu",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "europa.eu",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          301
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "cck1",
+        "domain": ".european-union.europa.eu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://webtools.europa.eu"
+          ],
+          "totalListenerCalls": 4
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://european-union.europa.eu/privacy-policy_en) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://european-union.europa.eu/privacy-policy_en",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 1174
+    }
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 64,
+      "after": 61,
+      "delta": -3
+    },
+    "thirdPartyRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 3,
+      "after": 1,
+      "delta": -2
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.webanalytics.europa.eu",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.eaec.fpfis.tech.ec.europa.eu",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_pk_id.c9513597-70e6-4b84-80c5-36f9dddf8c7c.9f33",
+        "domain": "european-union.europa.eu",
+        "thirdParty": false
+      },
+      {
+        "name": "_pk_ses.c9513597-70e6-4b84-80c5-36f9dddf8c7c.9f33",
+        "domain": "european-union.europa.eu",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields off: Resolved 1 first-party subdomain that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
+    "Shields off: Read the site's privacy policy (https://european-union.europa.eu/privacy-policy_en) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields on: Read the site's privacy policy (https://european-union.europa.eu/privacy-policy_en) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260702-a57a766a39cbf31adb419522ed137a99",
+    "path": "/reports/20260702-a57a766a39cbf31adb419522ed137a99/",
+    "jsonPath": "/reports/20260702-a57a766a39cbf31adb419522ed137a99.json"
+  }
+}

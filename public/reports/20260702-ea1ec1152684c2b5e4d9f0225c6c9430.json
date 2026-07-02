@@ -1,0 +1,2504 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.canada.ca/en.html",
+  "scannedAt": "2026-07-02T15:26:13.990Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Home - Canada.ca",
+      "status": 200,
+      "durationMs": 20167,
+      "firstPartyDomain": "www.canada.ca",
+      "totalRequests": 59,
+      "thirdPartyRequests": 19,
+      "knownTrackerRequests": 10,
+      "thirdPartyDomains": 11,
+      "cookies": 21,
+      "thirdPartyCookies": 2,
+      "storageEntries": 6,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 10
+    },
+    "conditions": {
+      "requestedUrl": "https://www.canada.ca/en.html",
+      "finalUrl": "https://www.canada.ca/en.html",
+      "scannedAt": "2026-07-02T15:25:53.815Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.canada.ca/en.html",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 50,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://assets.adobedtm.com/be5dfd287373/abb618326704/launch-3eac5e076135.min.js",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1131,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://use.fontawesome.com/releases/v5.15.4/css/all.css",
+        "domain": "use.fontawesome.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1131,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/js/gcdsloader.min.js",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1132,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/css/theme.min.css",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1133,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/css/gc-th%C3%A9matique.min.css",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1133,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/assets/sig-blk-en.svg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1133,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260513-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1134,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://dpm.demdex.net/id?d_visid_ver=&d_fieldgroup=&d_rtbd=&d_ver=&d_orgid=&d_nsid=&ts=",
+        "domain": "dpm.demdex.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1271,
+        "blockedByShields": true
+      },
+      {
+        "id": 11,
+        "url": "https://canada.tt.omtrdc.net/rest/v1/delivery?client=&sessionId=&version=",
+        "domain": "canada.tt.omtrdc.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1370,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.36.0/dist/gcds/gcds.esm.js",
+        "domain": "cdn.design-system.alpha.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3158,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.36.0/dist/gcds/gcds.css",
+        "domain": "cdn.design-system.alpha.canada.ca",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3159,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js",
+        "domain": "ajax.googleapis.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3171,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://s.go-mpulse.net/boomerang/KBFUZ-C9D7G-RB8SX-GRGEN-HGMC9",
+        "domain": "s.go-mpulse.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3171,
+        "blockedByShields": true
+      },
+      {
+        "id": 16,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260601-2-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3172,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260623-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3175,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260615-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3176,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/js/ep-pp.min.js",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3176,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/js/wet-boew.min.js",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3176,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/js/theme.min.js",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3177,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/js/gc-th%C3%A9matique.min.js",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3177,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260601-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3178,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260604-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3178,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260602-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3178,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260626-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3178,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260610-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3183,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260611-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3183,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260626-2-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3183,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20231121-4-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3184,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260501-3-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3184,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260629-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3184,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3185,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://assets.adobedtm.com/extensions/EP31dbb9c60e404ba1aa6e746d49be6f29/AppMeasurement.min.js",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3185,
+        "blockedByShields": true
+      },
+      {
+        "id": 35,
+        "url": "https://assets.adobedtm.com/extensions/EP31dbb9c60e404ba1aa6e746d49be6f29/AppMeasurement_Module_ActivityMap.min.js",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3186,
+        "blockedByShields": true
+      },
+      {
+        "id": 36,
+        "url": "https://cm.everesttech.net/cm/dd?d_uuid=",
+        "domain": "cm.everesttech.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3186,
+        "blockedByShields": true
+      },
+      {
+        "id": 37,
+        "url": "https://canada.demdex.net/dest5.html?d_nsid=",
+        "domain": "canada.demdex.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3190,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://dpm.demdex.net/ibs:dpid=411&dpuuid=akaDBQAAAEaBUAOx",
+        "domain": "dpm.demdex.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3297,
+        "blockedByShields": true
+      },
+      {
+        "id": 39,
+        "url": "https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.36.0/dist/gcds/p-75198e23.js",
+        "domain": "cdn.design-system.alpha.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3461,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.36.0/dist/gcds/p-e1255160.js",
+        "domain": "cdn.design-system.alpha.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3462,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://www.canada.ca/content/dam/canada/carousel/bkg-home-yourgov.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3491,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/assets/bkg-home-yourgov.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3492,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/assets/landscape.png",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3492,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://fonts.gstatic.com/s/lato/v22/S6u9w4BMUTPHh6UVSwiPGQ.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3492,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://fonts.gstatic.com/s/notosans/v25/o-0IIpQlx3QUlC5A4PNr5TRA.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3492,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://fonts.gstatic.com/s/lato/v22/S6uyw4BMUTPHjx4wXg.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3493,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://fonts.gstatic.com/s/notosans/v25/o-0NIpQlx3QUlC5A4PNjXhFVZNyB.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3493,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/fonts/glyphicons-halflings-regular.woff2",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3493,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.36.0/dist/gcds/p-9ea2df32.entry.js",
+        "domain": "cdn.design-system.alpha.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3520,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://c.go-mpulse.net/api/config.json?key=&d=&t=&v=&if=&sl=&si=&plugins=&acao=&ak.ai=",
+        "domain": "c.go-mpulse.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3526,
+        "blockedByShields": true
+      },
+      {
+        "id": 51,
+        "url": "https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.36.0/dist/gcds/p-a8ff93af.js",
+        "domain": "cdn.design-system.alpha.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3546,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.canada.ca/libs/granite/csrf/token.json",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4217,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/js/i18n/en.min.js",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4252,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/js/i18n/en.min.js",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6276,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://www.canada.ca/content/dam/canada/json/im.xml",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 7301,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://www.canada.ca/content/dam/canada/sitemenu/sitemenu-v2-en.html",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 7555,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://www.canada.ca/content/dam/canada/homepage-bg/home-banner-summer-2026-1290x315.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 7556,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://assets.adobedtm.com/be5dfd287373/abb618326704/8bba1bf0935d/RCc7c610d9dee640cd865175c1d4e6d1c0-source.min.js",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 10617,
+        "blockedByShields": true
+      },
+      {
+        "id": 59,
+        "url": "https://assets.adobedtm.com/be5dfd287373/abb618326704/8bba1bf0935d/RCe9261c9b467245888a4ee2dc5037e213-source.min.js",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 10630,
+        "blockedByShields": true
+      },
+      {
+        "id": 60,
+        "url": "https://canada.sc.omtrdc.net/b/ss/canadalivemain/1/JS-2.27.0-LGU4/s31545288495480?AQB=&ndh=&pf=&t=&sdid=&mid=&aamlh=&ce=&pageName=&g=&c.=&getQueryParam=&pt=&rfl=&apl=&inList=&getPercentPageViewed=&getTimeBetweenEvents=&.c=&cc=&server=&events=&aamb=&c1=&v1=&l1=&c2=&v2=&c4=&v4=&c5=&v5=&c7=&c8=&v10=&c11=&v11=&c12=&v12=&c15=&c16=&v16=&v19=&c21=&v21=&c22=&v22=&c23=&v23=&c24=&v24=&c25=&c26=&v26=&c39=&v39=&c65=&v65=&c66=&v66=&v74=&c75=&v75=&v77=&v104=&v152=&v153=&s=&c=&j=&v=&k=&bw=&bh=&mcorgid=&AQE=",
+        "domain": "canada.sc.omtrdc.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 10738,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "assets.adobedtm.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "dpm.demdex.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "canada.tt.omtrdc.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "canada.demdex.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "canada.sc.omtrdc.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "use.fontawesome.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "ajax.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "s.go-mpulse.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cm.everesttech.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "c.go-mpulse.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.canada.ca",
+        "requests": 34,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "image",
+          "font",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn.design-system.alpha.canada.ca",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "demdex",
+        "domain": ".demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "dpm",
+        "domain": ".dpm.demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "at_check",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AMCVS_A90F2A0D55423F537F000101%40AdobeOrg",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "mbox",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "gpv_pt",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "gpv_pthl",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "gpv_pc",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "gpv_pqs",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "gpv_url",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AMCV_A90F2A0D55423F537F000101%40AdobeOrg",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "RT",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "s_plt",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "s_ips",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "s_tp",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "s_ppv",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "s_cc",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "aka-ca-site-token",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALB",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALBCORS",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "DomComplete",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "wbdisable",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "FCP",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "LCP",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "tgt:tlm:upper",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "tgt:tlm:0",
+        "valueBytes": 357
+      },
+      {
+        "area": "sessionStorage",
+        "key": "im-settings",
+        "valueBytes": 49071
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document"
+          ],
+          "thirdPartyOrigins": [
+            "https://ajax.googleapis.com",
+            "https://assets.adobedtm.com"
+          ],
+          "totalListenerCalls": 5
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mouseup",
+            "scroll",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://ajax.googleapis.com",
+            "https://assets.adobedtm.com",
+            "https://s.go-mpulse.net"
+          ],
+          "totalListenerCalls": 14
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL"
+          ],
+          "getParameterCalls": 1,
+          "readPixelsCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Blocked a request that could not be verified as public: https://true/id",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.canada.ca/en/transparency/privacy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://www.canada.ca/en/transparency/privacy.html",
+      "claims": [],
+      "mentionedEntities": [
+        "Adobe"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 10269
+    }
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Home - Canada.ca",
+      "status": 200,
+      "durationMs": 27169,
+      "firstPartyDomain": "www.canada.ca",
+      "totalRequests": 48,
+      "thirdPartyRequests": 8,
+      "knownTrackerRequests": 2,
+      "thirdPartyDomains": 5,
+      "cookies": 8,
+      "thirdPartyCookies": 0,
+      "storageEntries": 6,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 7
+    },
+    "conditions": {
+      "requestedUrl": "https://www.canada.ca/en.html",
+      "finalUrl": "https://www.canada.ca/en.html",
+      "scannedAt": "2026-07-02T15:26:13.990Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.canada.ca/en.html",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 51,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://assets.adobedtm.com/be5dfd287373/abb618326704/launch-3eac5e076135.min.js",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3223,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://use.fontawesome.com/releases/v5.15.4/css/all.css",
+        "domain": "use.fontawesome.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3224,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/js/gcdsloader.min.js",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3224,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/css/theme.min.css",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3225,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/css/gc-th%C3%A9matique.min.css",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3226,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/assets/sig-blk-en.svg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3226,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260513-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3226,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://canada.tt.omtrdc.net/rest/v1/delivery?client=&sessionId=&version=",
+        "domain": "canada.tt.omtrdc.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3438,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260601-2-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4281,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.36.0/dist/gcds/gcds.esm.js",
+        "domain": "cdn.design-system.alpha.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 5265,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.36.0/dist/gcds/gcds.css",
+        "domain": "cdn.design-system.alpha.canada.ca",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 5266,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260623-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 5302,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.36.0/dist/gcds/p-75198e23.js",
+        "domain": "cdn.design-system.alpha.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 5405,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.36.0/dist/gcds/p-e1255160.js",
+        "domain": "cdn.design-system.alpha.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 5406,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260615-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6256,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js",
+        "domain": "ajax.googleapis.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6280,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/js/ep-pp.min.js",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6282,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/js/wet-boew.min.js",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6285,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/js/theme.min.js",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6285,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/js/gc-th%C3%A9matique.min.js",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6286,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260601-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6286,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260604-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6287,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260602-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6287,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260626-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6288,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260610-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6291,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260611-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6291,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260626-2-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6291,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20231121-4-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6292,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260501-3-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6292,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.canada.ca/content/dam/canada/activities/20260629-1-520x200.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6293,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6294,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.36.0/dist/gcds/p-9ea2df32.entry.js",
+        "domain": "cdn.design-system.alpha.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6295,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.canada.ca/content/dam/canada/carousel/bkg-home-yourgov.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6309,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/assets/bkg-home-yourgov.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6310,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/assets/landscape.png",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6313,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://fonts.gstatic.com/s/notosans/v25/o-0NIpQlx3QUlC5A4PNjXhFVZNyB.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6316,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://fonts.gstatic.com/s/lato/v22/S6u9w4BMUTPHh6UVSwiPGQ.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6318,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://fonts.gstatic.com/s/notosans/v25/o-0IIpQlx3QUlC5A4PNr5TRA.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6319,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/fonts/glyphicons-halflings-regular.woff2",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6319,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://fonts.gstatic.com/s/lato/v22/S6uyw4BMUTPHjx4wXg.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6319,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.36.0/dist/gcds/p-a8ff93af.js",
+        "domain": "cdn.design-system.alpha.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6373,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://www.canada.ca/libs/granite/csrf/token.json",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9311,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/js/i18n/en.min.js",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9391,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://www.canada.ca/content/dam/canada/json/im.xml",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11420,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://www.canada.ca/etc/designs/canada/wet-boew/js/i18n/en.min.js",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11421,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://www.canada.ca/content/dam/canada/sitemenu/sitemenu-v2-en.html",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13706,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://www.canada.ca/content/dam/canada/homepage-bg/home-banner-summer-2026-1290x315.jpg",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 13707,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "assets.adobedtm.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "canada.tt.omtrdc.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "use.fontawesome.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "ajax.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.canada.ca",
+        "requests": 34,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "image",
+          "font",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn.design-system.alpha.canada.ca",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "at_check",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AMCVS_A90F2A0D55423F537F000101%40AdobeOrg",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AMCV_A90F2A0D55423F537F000101%40AdobeOrg",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "mbox",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "aka-ca-site-token",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALB",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALBCORS",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "DomComplete",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "wbdisable",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "FCP",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "LCP",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "tgt:tlm:upper",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "tgt:tlm:0",
+        "valueBytes": 376
+      },
+      {
+        "area": "sessionStorage",
+        "key": "im-settings",
+        "valueBytes": 49071
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document"
+          ],
+          "thirdPartyOrigins": [
+            "https://ajax.googleapis.com",
+            "https://assets.adobedtm.com"
+          ],
+          "totalListenerCalls": 5
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "scroll",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://ajax.googleapis.com",
+            "https://assets.adobedtm.com"
+          ],
+          "totalListenerCalls": 8
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL"
+          ],
+          "getParameterCalls": 1,
+          "readPixelsCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Blocked a request that could not be verified as public: https://true/id",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.canada.ca/en/transparency/privacy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://www.canada.ca/en/transparency/privacy.html",
+      "claims": [],
+      "mentionedEntities": [
+        "Adobe"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 10269
+    }
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 59,
+      "after": 48,
+      "delta": -11
+    },
+    "thirdPartyRequests": {
+      "before": 19,
+      "after": 8,
+      "delta": -11
+    },
+    "knownTrackerRequests": {
+      "before": 10,
+      "after": 2,
+      "delta": -8
+    },
+    "thirdPartyDomains": {
+      "before": 11,
+      "after": 5,
+      "delta": -6
+    },
+    "cookies": {
+      "before": 21,
+      "after": 8,
+      "delta": -13
+    },
+    "thirdPartyCookies": {
+      "before": 2,
+      "after": 0,
+      "delta": -2
+    },
+    "storageEntries": {
+      "before": 6,
+      "after": 6,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "dpm.demdex.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "c.go-mpulse.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "canada.demdex.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "canada.sc.omtrdc.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cm.everesttech.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "s.go-mpulse.net",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "demdex",
+        "domain": ".demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "dpm",
+        "domain": ".dpm.demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "gpv_pc",
+        "domain": ".canada.ca",
+        "thirdParty": false
+      },
+      {
+        "name": "gpv_pqs",
+        "domain": ".canada.ca",
+        "thirdParty": false
+      },
+      {
+        "name": "gpv_pt",
+        "domain": ".canada.ca",
+        "thirdParty": false
+      },
+      {
+        "name": "gpv_pthl",
+        "domain": ".canada.ca",
+        "thirdParty": false
+      },
+      {
+        "name": "gpv_url",
+        "domain": ".canada.ca",
+        "thirdParty": false
+      },
+      {
+        "name": "RT",
+        "domain": ".canada.ca",
+        "thirdParty": false
+      },
+      {
+        "name": "s_cc",
+        "domain": ".canada.ca",
+        "thirdParty": false
+      },
+      {
+        "name": "s_ips",
+        "domain": ".canada.ca",
+        "thirdParty": false
+      },
+      {
+        "name": "s_plt",
+        "domain": ".canada.ca",
+        "thirdParty": false
+      },
+      {
+        "name": "s_ppv",
+        "domain": ".canada.ca",
+        "thirdParty": false
+      },
+      {
+        "name": "s_tp",
+        "domain": ".canada.ca",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 10,
+      "after": 7,
+      "delta": -3
+    }
+  },
+  "warnings": [
+    "Brave Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: Blocked a request that could not be verified as public: https://true/id",
+    "Shields off: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields off: Read the site's privacy policy (https://www.canada.ca/en/transparency/privacy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: Blocked a request that could not be verified as public: https://true/id",
+    "Shields on: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields on: Read the site's privacy policy (https://www.canada.ca/en/transparency/privacy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260702-ea1ec1152684c2b5e4d9f0225c6c9430",
+    "path": "/reports/20260702-ea1ec1152684c2b5e4d9f0225c6c9430/",
+    "jsonPath": "/reports/20260702-ea1ec1152684c2b5e4d9f0225c6c9430.json"
+  }
+}

@@ -1,0 +1,905 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.w3.org/",
+  "scannedAt": "2026-07-02T15:24:40.879Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "W3C",
+      "status": 200,
+      "durationMs": 2507,
+      "firstPartyDomain": "www.w3.org",
+      "totalRequests": 25,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 1,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://www.w3.org/",
+      "finalUrl": "https://www.w3.org/",
+      "scannedAt": "2026-07-02T15:24:38.367Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.w3.org/",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 38,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.w3.org/assets/website-2021/styles/core.css",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 111,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.w3.org/assets/website-2021/styles/advanced.css",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 112,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.w3.org/assets/website-2021/js/libraries/fontfaceobserver.js",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 112,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.w3.org/assets/logos/w3c-2025/svg/w3c.svg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 112,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.w3.org/assets/website-2021/svg/search.svg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 150,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.w3.org/assets/website-2021/svg/avatar.svg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 155,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.w3.org/assets/website-2021/styles/print.css",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 157,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.w3.org/assets/website-2021/fonts/notosans/notosans-regular.woff2",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 157,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.w3.org/assets/website-2021/js/main.js",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 158,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.w3.org/assets/website-2021/js/members.js",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 159,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.w3.org/cms-uploads/animation.mp4",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 163,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.w3.org/account/user-menu/",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 201,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.w3.org/assets/website-2021/fonts/notosans/notosans-bold.woff2",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 225,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.w3.org/cms-uploads/_920xAUTO_crop_center-center_none/w30c-pattern.jpeg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 226,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.w3.org/cms-uploads/_920xAUTO_crop_center-center_none/ryan-quintal-US9Tc9pKNBU-unsplash.jpg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 226,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.w3.org/cms-uploads/_920xAUTO_crop_center-center_none/marvin-meyer-SYTO3xs06fU-unsplash.jpg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 226,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.w3.org/assets/website-2021/svg/mastodon.svg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 226,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.w3.org/assets/website-2021/svg/github.svg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 227,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.w3.org/thumbnails/250/logos/organizations/156228.png",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 227,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.w3.org/thumbnails/250/logos/organizations/66769.png",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 227,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.w3.org/thumbnails/250/logos/organizations/98318.png",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 233,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.w3.org/thumbnails/250/logos/organizations/146430.png",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 233,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.w3.org/thumbnails/250/logos/organizations/131682.png",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 234,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.w3.org/thumbnails/250/logos/organizations/39381.png",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 234,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.w3.org",
+        "requests": 25,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          206
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font",
+          "media",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".w3.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Read the site's privacy policy (https://www.w3.org/mission/privacy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://www.w3.org/mission/privacy/",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 5679
+    }
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "W3C",
+      "status": 200,
+      "durationMs": 2051,
+      "firstPartyDomain": "www.w3.org",
+      "totalRequests": 25,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 1,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://www.w3.org/",
+      "finalUrl": "https://www.w3.org/",
+      "scannedAt": "2026-07-02T15:24:40.879Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.w3.org/",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 49,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.w3.org/assets/website-2021/styles/core.css",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 119,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.w3.org/assets/website-2021/styles/advanced.css",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 119,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.w3.org/assets/website-2021/js/libraries/fontfaceobserver.js",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 120,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.w3.org/assets/logos/w3c-2025/svg/w3c.svg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 120,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.w3.org/assets/website-2021/svg/search.svg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 170,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.w3.org/assets/website-2021/svg/avatar.svg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 174,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.w3.org/assets/website-2021/styles/print.css",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 175,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.w3.org/assets/website-2021/fonts/notosans/notosans-regular.woff2",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 177,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.w3.org/assets/website-2021/js/main.js",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 177,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.w3.org/assets/website-2021/js/members.js",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 177,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.w3.org/cms-uploads/animation.mp4",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 181,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.w3.org/account/user-menu/",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 229,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.w3.org/assets/website-2021/fonts/notosans/notosans-bold.woff2",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 249,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.w3.org/cms-uploads/_920xAUTO_crop_center-center_none/w30c-pattern.jpeg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 250,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.w3.org/cms-uploads/_920xAUTO_crop_center-center_none/ryan-quintal-US9Tc9pKNBU-unsplash.jpg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 250,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.w3.org/cms-uploads/_920xAUTO_crop_center-center_none/marvin-meyer-SYTO3xs06fU-unsplash.jpg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 251,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.w3.org/assets/website-2021/svg/mastodon.svg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 252,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.w3.org/assets/website-2021/svg/github.svg",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 253,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.w3.org/thumbnails/250/logos/organizations/43576.png",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 257,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.w3.org/thumbnails/250/logos/organizations/1060.png",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 258,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.w3.org/thumbnails/250/logos/organizations/127220.png",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 258,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.w3.org/thumbnails/250/logos/organizations/162507.png",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 259,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.w3.org/thumbnails/250/logos/organizations/151838.png",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 259,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.w3.org/thumbnails/250/logos/organizations/61566.png",
+        "domain": "www.w3.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 259,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.w3.org",
+        "requests": 25,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          206
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font",
+          "media",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".w3.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Read the site's privacy policy (https://www.w3.org/mission/privacy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://www.w3.org/mission/privacy/",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 5679
+    }
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 25,
+      "after": 25,
+      "delta": 0
+    },
+    "thirdPartyRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: Read the site's privacy policy (https://www.w3.org/mission/privacy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: Read the site's privacy policy (https://www.w3.org/mission/privacy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260702-42c4c6895ce834d2df5a556e342d4177",
+    "path": "/reports/20260702-42c4c6895ce834d2df5a556e342d4177/",
+    "jsonPath": "/reports/20260702-42c4c6895ce834d2df5a556e342d4177.json"
+  }
+}

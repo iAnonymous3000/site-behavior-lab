@@ -1,0 +1,2521 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.mit.edu/",
+  "scannedAt": "2026-07-02T15:23:12.182Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "MIT - Massachusetts Institute of Technology",
+      "status": 200,
+      "durationMs": 7795,
+      "firstPartyDomain": "www.mit.edu",
+      "totalRequests": 69,
+      "thirdPartyRequests": 28,
+      "knownTrackerRequests": 4,
+      "thirdPartyDomains": 12,
+      "cookies": 5,
+      "thirdPartyCookies": 5,
+      "storageEntries": 0,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 6
+    },
+    "conditions": {
+      "requestedUrl": "https://www.mit.edu/",
+      "finalUrl": "https://www.mit.edu/",
+      "scannedAt": "2026-07-02T15:23:04.379Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.mit.edu/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 54,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.mit.edu/themes/mit/assets/css/main.css",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 193,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.mit.edu/files/images/202607/MIT_250th-SL.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 194,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.mit.edu/themes/mit/assets/js/modernizr.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 194,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://use.typekit.net/uby1wjv.css",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 323,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.mit.edu/themes/mit/assets/js/main.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 336,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://p.typekit.net/p.css?s=&k=&ht=&f=&a=&app=&e=",
+        "domain": "p.typekit.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 373,
+        "blockedByShields": true
+      },
+      {
+        "id": 8,
+        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 485,
+        "blockedByShields": true
+      },
+      {
+        "id": 9,
+        "url": "https://www.youtube.com/embed/30Rsidn_4Lg?feature=&rel=",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 492,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://use.typekit.net/af/912d1e/00000000000000007735bb33/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 521,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://use.typekit.net/af/2288cb/00000000000000007735bb39/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 522,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://use.typekit.net/af/c002e2/00000000000000007735bb32/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 522,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://use.typekit.net/af/216c2e/00000000000000007735bb6a/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 524,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://use.typekit.net/af/174ae3/00000000000000007735bb5a/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 524,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.mit.edu/themes/mit/assets/img/play-icon.svg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 528,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.mit.edu/files/images/202606/MIT-Map-Chip-SLsub.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 532,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.mit.edu/files/images/202606/MIT-TempSensor-0.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 532,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.mit.edu/files/images/202606/MIT_Ferveret-Cooling-home.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 533,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.mit.edu/files/images/202606/54884213284_1ab5ed6ceb_b_0.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 534,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.mit.edu/files/images/202505/Final-Thumbnails-Filehm.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 535,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.mit.edu/files/images/202505/MIT-This-is-MIT-SLsub_0_0.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 535,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.mit.edu/spotlights-export/suggested-links/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 623,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.mit.edu/themes/mit/assets/js/SpotlightsExploreMoreLink.24ae33fb185156d3181a.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 625,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.mit.edu/themes/mit/assets/js/SpotlightsRecent.d6a3aa4b97b1659f1bbb.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 625,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.mit.edu/themes/mit/assets/js/Notification.11fc703b491d61aecf97.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 626,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.youtube.com/s/player/4918c89a/www-player.css",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 645,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.youtube.com/s/_/ytembeds/_/ss/k=ytembeds.base.PH6_DL9O46E.L.W.O/am=AAAAIA/d=0/br=1/rs=AGKMywFxWiUuLumaXtnx7XK0qW5dDqXKKw",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 645,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.youtube.com/s/_/ytembeds/_/js/k=ytembeds.base.en_US.wO8pDB8x2Mw.es5.O/am=AAAAIA/d=1/br=1/rs=AGKMywEWNjjxadROwyUjz-x89wXaex57gQ/m=root,base",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 646,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.youtube.com/s/player/4918c89a/player_embed.vflset/en_US/base.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 646,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 648,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://googleads.g.doubleclick.net/pagead/id",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 942,
+        "blockedByShields": true
+      },
+      {
+        "id": 32,
+        "url": "https://static.doubleclick.net/instream/ad_status.js",
+        "domain": "static.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 943,
+        "blockedByShields": true
+      },
+      {
+        "id": 33,
+        "url": "https://www.youtube.com/s/_/ytembeds/_/js/k=ytembeds.base.en_US.wO8pDB8x2Mw.es5.O/am=AAAAIA/d=1/exm=base,root/ed=1/br=1/rs=AGKMywEWNjjxadROwyUjz-x89wXaex57gQ/m=r78Drb",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 943,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.mit.edu/spotlights-export/recent/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 951,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.mit.edu/spotlights-export/announcements/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 956,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://googleads.g.doubleclick.net/pagead/id?slf_rd=",
+        "domain": "googleads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1031,
+        "blockedByShields": true
+      },
+      {
+        "id": 37,
+        "url": "https://i.ytimg.com/vi/30Rsidn_4Lg/maxresdefault.jpg",
+        "domain": "i.ytimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1147,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.mit.edu/spotlights-export/recent/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1153,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://yt3.ggpht.com/9XG8u6wOExzGuagspdZMatPyHqthSw_zKrPZaMkkUcukKokFw7PdIfkpLbG9EjUGW10Ql-NCdQ=s68-c-k-c0x00ffffff-no-rj",
+        "domain": "yt3.ggpht.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1162,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.gstatic.com/youtube/img/icons/mweb/youtube_fill/logo/v2/67px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1168,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://www.google.com/js/th/pDz23ndxccczcloXcpDaiy5RDOq9TK6JnzV7vmT_GQI.js",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1449,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://www.youtube.com/generate_204?EObeFw=",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1578,
+        "blockedByShields": true
+      },
+      {
+        "id": 43,
+        "url": "https://jnn-pa.googleapis.com/$rpc/google.internal.waa.v1.Waa/GenerateIT",
+        "domain": "jnn-pa.googleapis.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1613,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://tlesearch.mit.edu/q/sb",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2323,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://tlepeopledir.mit.edu/q/sb",
+        "domain": "tlepeopledir.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2323,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://tlesearch.mit.edu/q/sbl",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2330,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://tlesearch.mit.edu/q/sblc",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2336,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://tlesearch.mit.edu/q/sblca",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2341,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://tlesearch.mit.edu/q/sblcan",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2348,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://tlesearch.mit.edu/q/sblcana",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2351,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://tlesearch.mit.edu/q/sblcanar",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2354,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://tlesearch.mit.edu/q/sblcanary",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2357,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://tlesearch.mit.edu/q/sblcanaryf",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2364,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://tlesearch.mit.edu/q/sblcanaryfa",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2366,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://tlesearch.mit.edu/q/sblcanaryfa0",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2369,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://tlesearch.mit.edu/q/sblcanaryfa09",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2371,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://tlesearch.mit.edu/q/sblcanaryfa09d",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2378,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://tlesearch.mit.edu/q/sblcanaryfa09de",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2380,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://tlesearch.mit.edu/q/sblcanaryfa09de7",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2388,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://tlesearch.mit.edu/q/sblcanaryfa09de70",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2401,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://tlesearch.mit.edu/q/sblcanaryfa09de707",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2409,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://tlesearch.mit.edu/q/sblcanaryfa09de7075",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2415,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://tlesearch.mit.edu/q/sblcanaryfa09de70751",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2425,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://tlesearch.mit.edu/q/sblcanaryfa09de707514",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2429,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://tlepeopledir.mit.edu/q/sblcanaryfa09de707514",
+        "domain": "tlepeopledir.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2599,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://www.youtube.com/youtubei/v1/log_event?alt=",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3679,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://www.youtube.com/youtubei/v1/log_event?alt=",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4942,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://www.youtube.com/api/stats/atr?ns=&el=&cpn=&ver=&cmt=&fs=&rt=&euri=&lact=&cl=&mos=&volume=&cbr=&cbrver=&c=&cver=&cplayer=&cos=&cplatform=&epm=&hl=&cr=&len=&fexp=&feature=&muted=&docid=",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4967,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://www.youtube.com/youtubei/v1/log_event?alt=",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4969,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "static.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 11,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "use.typekit.net",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "font"
+        ]
+      },
+      {
+        "domain": "p.typekit.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "i.ytimg.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "yt3.ggpht.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "jnn-pa.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "tlesearch.mit.edu",
+        "requests": 20,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.mit.edu",
+        "requests": 19,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "tlepeopledir.mit.edu",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__Secure-YNID",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "YSC",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_INFO1_LIVE",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_PRIVACY_METADATA",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "__Secure-ROLLOUT_TOKEN",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.google.com"
+          ],
+          "totalListenerCalls": 6
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "touchmove",
+            "touchstart",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.google.com"
+          ],
+          "totalListenerCalls": 18
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL"
+          ],
+          "getParameterCalls": 1,
+          "readPixelsCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.mit.edu/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://www.mit.edu/privacy",
+      "claims": [
+        {
+          "kind": "no-selling-or-sharing",
+          "quote": "We will not share, exchange, or sell your email address and other provided personal information to third parties."
+        }
+      ],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 7312
+    }
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "MIT - Massachusetts Institute of Technology",
+      "status": 200,
+      "durationMs": 7255,
+      "firstPartyDomain": "www.mit.edu",
+      "totalRequests": 63,
+      "thirdPartyRequests": 22,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 8,
+      "cookies": 5,
+      "thirdPartyCookies": 5,
+      "storageEntries": 0,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://www.mit.edu/",
+      "finalUrl": "https://www.mit.edu/",
+      "scannedAt": "2026-07-02T15:23:12.182Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.mit.edu/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 52,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.mit.edu/themes/mit/assets/css/main.css",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 215,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.mit.edu/files/images/202607/MIT_250th-SL.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 216,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.mit.edu/themes/mit/assets/js/modernizr.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 217,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://use.typekit.net/uby1wjv.css",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 376,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.mit.edu/themes/mit/assets/js/main.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 377,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.youtube.com/embed/30Rsidn_4Lg?feature=&rel=",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 498,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://use.typekit.net/af/912d1e/00000000000000007735bb33/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 531,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://use.typekit.net/af/2288cb/00000000000000007735bb39/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 532,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://use.typekit.net/af/c002e2/00000000000000007735bb32/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 532,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://use.typekit.net/af/216c2e/00000000000000007735bb6a/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 532,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://use.typekit.net/af/174ae3/00000000000000007735bb5a/31/l?primer=&fvd=&v=",
+        "domain": "use.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 534,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.mit.edu/themes/mit/assets/img/play-icon.svg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 539,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.mit.edu/files/images/202606/MIT-Map-Chip-SLsub.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 539,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.mit.edu/files/images/202606/MIT-TempSensor-0.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 540,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.mit.edu/files/images/202606/MIT_Ferveret-Cooling-home.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 541,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.mit.edu/files/images/202606/54884213284_1ab5ed6ceb_b_0.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 541,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.mit.edu/files/images/202505/Final-Thumbnails-Filehm.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 542,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.mit.edu/files/images/202505/MIT-This-is-MIT-SLsub_0_0.jpg",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 542,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.mit.edu/spotlights-export/suggested-links/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 628,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.mit.edu/themes/mit/assets/js/SpotlightsExploreMoreLink.24ae33fb185156d3181a.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 630,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.mit.edu/themes/mit/assets/js/SpotlightsRecent.d6a3aa4b97b1659f1bbb.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 630,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.mit.edu/themes/mit/assets/js/Notification.11fc703b491d61aecf97.js",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 631,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.youtube.com/s/player/4918c89a/www-player.css",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 650,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.youtube.com/s/_/ytembeds/_/ss/k=ytembeds.base.PH6_DL9O46E.L.W.O/am=AAAAIA/d=0/br=1/rs=AGKMywFxWiUuLumaXtnx7XK0qW5dDqXKKw",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 650,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.youtube.com/s/_/ytembeds/_/js/k=ytembeds.base.en_US.wO8pDB8x2Mw.es5.O/am=AAAAIA/d=1/br=1/rs=AGKMywEWNjjxadROwyUjz-x89wXaex57gQ/m=root,base",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 651,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.youtube.com/s/player/4918c89a/player_embed.vflset/en_US/base.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 652,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 653,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://www.youtube.com/s/_/ytembeds/_/js/k=ytembeds.base.en_US.wO8pDB8x2Mw.es5.O/am=AAAAIA/d=1/exm=base,root/ed=1/br=1/rs=AGKMywEWNjjxadROwyUjz-x89wXaex57gQ/m=r78Drb",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 927,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://www.mit.edu/spotlights-export/announcements/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 934,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://www.mit.edu/spotlights-export/recent/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 937,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://www.mit.edu/spotlights-export/recent/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 939,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://i.ytimg.com/vi/30Rsidn_4Lg/maxresdefault.jpg",
+        "domain": "i.ytimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1122,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://www.gstatic.com/youtube/img/icons/mweb/youtube_fill/logo/v2/67px.svg",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1128,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://yt3.ggpht.com/9XG8u6wOExzGuagspdZMatPyHqthSw_zKrPZaMkkUcukKokFw7PdIfkpLbG9EjUGW10Ql-NCdQ=s68-c-k-c0x00ffffff-no-rj",
+        "domain": "yt3.ggpht.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1131,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://www.google.com/js/th/pDz23ndxccczcloXcpDaiy5RDOq9TK6JnzV7vmT_GQI.js",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1434,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://jnn-pa.googleapis.com/$rpc/google.internal.waa.v1.Waa/GenerateIT",
+        "domain": "jnn-pa.googleapis.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1601,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://tlesearch.mit.edu/q/sb",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2267,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://tlepeopledir.mit.edu/q/sb",
+        "domain": "tlepeopledir.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2267,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://tlesearch.mit.edu/q/sbl",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2272,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://tlesearch.mit.edu/q/sblc",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2275,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://tlesearch.mit.edu/q/sblca",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2279,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://tlesearch.mit.edu/q/sblcan",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2282,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://tlesearch.mit.edu/q/sblcana",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2285,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://tlesearch.mit.edu/q/sblcanar",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2289,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://tlesearch.mit.edu/q/sblcanary",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2292,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://tlesearch.mit.edu/q/sblcanary2",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2296,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://tlesearch.mit.edu/q/sblcanary2b",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2300,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://tlesearch.mit.edu/q/sblcanary2b7",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2314,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://tlesearch.mit.edu/q/sblcanary2b77",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2318,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://tlesearch.mit.edu/q/sblcanary2b77c",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2327,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://tlesearch.mit.edu/q/sblcanary2b77cc",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2331,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://tlesearch.mit.edu/q/sblcanary2b77cc3",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2334,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://tlesearch.mit.edu/q/sblcanary2b77cc34",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2341,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://tlesearch.mit.edu/q/sblcanary2b77cc34c",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2344,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://tlesearch.mit.edu/q/sblcanary2b77cc34c0",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2349,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://tlesearch.mit.edu/q/sblcanary2b77cc34c04",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2353,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://tlesearch.mit.edu/q/sblcanary2b77cc34c046",
+        "domain": "tlesearch.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2356,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://tlepeopledir.mit.edu/q/sblcanary2b77cc34c046",
+        "domain": "tlepeopledir.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 2464,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://www.youtube.com/youtubei/v1/log_event?alt=",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3664,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://www.youtube.com/youtubei/v1/log_event?alt=",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4868,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://www.youtube.com/api/stats/atr?ns=&el=&cpn=&ver=&cmt=&fs=&rt=&euri=&lact=&cl=&mos=&volume=&cbr=&cbrver=&c=&cver=&cplayer=&cos=&cplatform=&epm=&hl=&cr=&len=&fexp=&feature=&muted=&docid=",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4897,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://www.youtube.com/youtubei/v1/log_event?alt=",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 4898,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.youtube.com",
+        "requests": 10,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "use.typekit.net",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "font"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "i.ytimg.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "yt3.ggpht.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "jnn-pa.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "tlesearch.mit.edu",
+        "requests": 20,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.mit.edu",
+        "requests": 19,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "tlepeopledir.mit.edu",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__Secure-YNID",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "YSC",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "__Secure-ROLLOUT_TOKEN",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_INFO1_LIVE",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_PRIVACY_METADATA",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      }
+    ],
+    "storage": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.google.com"
+          ],
+          "totalListenerCalls": 6
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "touchmove",
+            "touchstart",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.google.com"
+          ],
+          "totalListenerCalls": 18
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL"
+          ],
+          "getParameterCalls": 1,
+          "readPixelsCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.mit.edu/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://www.mit.edu/privacy",
+      "claims": [
+        {
+          "kind": "no-selling-or-sharing",
+          "quote": "We will not share, exchange, or sell your email address and other provided personal information to third parties."
+        }
+      ],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 7312
+    }
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 69,
+      "after": 63,
+      "delta": -6
+    },
+    "thirdPartyRequests": {
+      "before": 28,
+      "after": 22,
+      "delta": -6
+    },
+    "knownTrackerRequests": {
+      "before": 4,
+      "after": 0,
+      "delta": -4
+    },
+    "thirdPartyDomains": {
+      "before": 12,
+      "after": 8,
+      "delta": -4
+    },
+    "cookies": {
+      "before": 5,
+      "after": 5,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 5,
+      "after": 5,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "googleads.g.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "p.typekit.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "static.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 4,
+        "domains": 3
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 6,
+      "after": 5,
+      "delta": -1
+    }
+  },
+  "warnings": [
+    "Brave Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields off: Read the site's privacy policy (https://www.mit.edu/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields on: Read the site's privacy policy (https://www.mit.edu/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260702-c3a4b079ec49c112902b45ccde7488bb",
+    "path": "/reports/20260702-c3a4b079ec49c112902b45ccde7488bb/",
+    "jsonPath": "/reports/20260702-c3a4b079ec49c112902b45ccde7488bb.json"
+  }
+}

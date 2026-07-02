@@ -1,0 +1,1021 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.gutenberg.org/",
+  "scannedAt": "2026-07-02T15:24:12.997Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Free eBooks | Project Gutenberg",
+      "status": 200,
+      "durationMs": 5371,
+      "firstPartyDomain": "www.gutenberg.org",
+      "totalRequests": 31,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://www.gutenberg.org/",
+      "finalUrl": "https://www.gutenberg.org/",
+      "scannedAt": "2026-07-02T15:24:07.620Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.gutenberg.org/",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 41,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.gutenberg.org/gutenberg/gutenberg-globals.css",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 183,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.gutenberg.org/gutenberg/pg-logo-new.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 184,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.gutenberg.org/pics/en_US.gif",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 185,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.gutenberg.org/cache/epub/78994/pg78994.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 188,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.gutenberg.org/cache/epub/78993/pg78993.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 189,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.gutenberg.org/cache/epub/78992/pg78992.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 189,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.gutenberg.org/cache/epub/78991/pg78991.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 190,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.gutenberg.org/cache/epub/78990/pg78990.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 191,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.gutenberg.org/cache/epub/78989/pg78989.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 191,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.gutenberg.org/cache/epub/78988/pg78988.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 192,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.gutenberg.org/cache/epub/78987/pg78987.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 192,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.gutenberg.org/cache/epub/78986/pg78986.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 192,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.gutenberg.org/cache/epub/78985/pg78985.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 192,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.gutenberg.org/cache/epub/2701/pg2701.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 193,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.gutenberg.org/cache/epub/1342/pg1342.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 193,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.gutenberg.org/cache/epub/1513/pg1513.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 193,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.gutenberg.org/cache/epub/2641/pg2641.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 193,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.gutenberg.org/cache/epub/2554/pg2554.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 193,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.gutenberg.org/cache/epub/45304/pg45304.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 194,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.gutenberg.org/cache/epub/11/pg11.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 195,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.gutenberg.org/cache/epub/1184/pg1184.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 196,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.gutenberg.org/cache/epub/67979/pg67979.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 196,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.gutenberg.org/cache/epub/145/pg145.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 196,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.gutenberg.org/gutenberg/f_icon.png",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 197,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.gutenberg.org/gutenberg/m_icon.png",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 197,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.gutenberg.org/gutenberg/b_icon.png",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 198,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.gutenberg.org/gutenberg/f_news_icon.png",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 198,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.gutenberg.org/gutenberg/m_news_icon.png",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 198,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.gutenberg.org/gutenberg/b_news_icon.png",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 199,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.gutenberg.org/gutenberg/ibiblio-logo.png",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 199,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.gutenberg.org",
+        "requests": 31,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.gutenberg.org/policy/privacy_policy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://www.gutenberg.org/policy/privacy_policy.html",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 2136
+    }
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Free eBooks | Project Gutenberg",
+      "status": 200,
+      "durationMs": 5331,
+      "firstPartyDomain": "www.gutenberg.org",
+      "totalRequests": 31,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://www.gutenberg.org/",
+      "finalUrl": "https://www.gutenberg.org/",
+      "scannedAt": "2026-07-02T15:24:12.997Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.gutenberg.org/",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 46,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://www.gutenberg.org/gutenberg/gutenberg-globals.css",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 178,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://www.gutenberg.org/gutenberg/pg-logo-new.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 179,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://www.gutenberg.org/pics/en_US.gif",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 180,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://www.gutenberg.org/cache/epub/78994/pg78994.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 183,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://www.gutenberg.org/cache/epub/78993/pg78993.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 184,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://www.gutenberg.org/cache/epub/78992/pg78992.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 189,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://www.gutenberg.org/cache/epub/78991/pg78991.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 189,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://www.gutenberg.org/cache/epub/78990/pg78990.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 189,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://www.gutenberg.org/cache/epub/78989/pg78989.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 190,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://www.gutenberg.org/cache/epub/78988/pg78988.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 190,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://www.gutenberg.org/cache/epub/78987/pg78987.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 190,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://www.gutenberg.org/cache/epub/78986/pg78986.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 190,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://www.gutenberg.org/cache/epub/78985/pg78985.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 190,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://www.gutenberg.org/cache/epub/2701/pg2701.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 191,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://www.gutenberg.org/cache/epub/1342/pg1342.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 191,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://www.gutenberg.org/cache/epub/1513/pg1513.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 191,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://www.gutenberg.org/cache/epub/2641/pg2641.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 191,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://www.gutenberg.org/cache/epub/2554/pg2554.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 192,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://www.gutenberg.org/cache/epub/45304/pg45304.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 192,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://www.gutenberg.org/cache/epub/11/pg11.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 192,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://www.gutenberg.org/cache/epub/1184/pg1184.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 192,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://www.gutenberg.org/cache/epub/67979/pg67979.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 193,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://www.gutenberg.org/cache/epub/145/pg145.cover.medium.jpg",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 193,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://www.gutenberg.org/gutenberg/f_icon.png",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 193,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://www.gutenberg.org/gutenberg/m_icon.png",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 193,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://www.gutenberg.org/gutenberg/b_icon.png",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 193,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://www.gutenberg.org/gutenberg/f_news_icon.png",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 194,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://www.gutenberg.org/gutenberg/m_news_icon.png",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 194,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://www.gutenberg.org/gutenberg/b_news_icon.png",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 194,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://www.gutenberg.org/gutenberg/ibiblio-logo.png",
+        "domain": "www.gutenberg.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 194,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.gutenberg.org",
+        "requests": 31,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.gutenberg.org/policy/privacy_policy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://www.gutenberg.org/policy/privacy_policy.html",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 2136
+    }
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 31,
+      "after": 31,
+      "delta": 0
+    },
+    "thirdPartyRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields off: Read the site's privacy policy (https://www.gutenberg.org/policy/privacy_policy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields on: Read the site's privacy policy (https://www.gutenberg.org/policy/privacy_policy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260702-e97416a5a91bf2f3f3cded33d3cd97f2",
+    "path": "/reports/20260702-e97416a5a91bf2f3f3cded33d3cd97f2/",
+    "jsonPath": "/reports/20260702-e97416a5a91bf2f3f3cded33d3cd97f2.json"
+  }
+}
