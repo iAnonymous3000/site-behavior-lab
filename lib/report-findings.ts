@@ -391,7 +391,7 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
             ? "A third-party script registered broad mouse, scroll, visibility, and input listener coverage during the visit."
             : `${humanList(sessionReplayNames)} appeared in the request log.`,
       detail:
-        "This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests. The scanner does not type into fields and does not collect typed values, so treat it as a review prompt rather than proof that form contents were transmitted.",
+        "This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests: it shows a script was positioned to observe interaction, not that anything was transmitted. On scanners that run the active keystroke-capture probe, actual transmission is tested separately (a synthetic value is typed, never real input, and no typed values are collected); treat this card as a review prompt rather than proof.",
       evidence: humanList(behaviorNotes, 4)
     });
   }
