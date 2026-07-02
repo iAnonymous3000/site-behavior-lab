@@ -8,7 +8,7 @@ export type ReportProducerCapability = {
   asyncJobs: boolean;
   dnsGuard: "node-connect-time-proxy" | "edge-doh-preflight-only" | "source-artifact";
   trackerCatalog: "hand-curated-service-catalog" | "none" | "provided-or-hand-curated";
-  reportStore: "filesystem" | "kv-or-r2" | "caller-managed";
+  reportStore: "filesystem-or-r2" | "kv-or-r2" | "caller-managed";
 };
 
 export type ReportProducerId = ReportProducerCapability["producer"];
@@ -24,7 +24,7 @@ export const REPORT_PRODUCER_CAPABILITIES: readonly ReportProducerCapability[] =
     asyncJobs: true,
     dnsGuard: "node-connect-time-proxy",
     trackerCatalog: "hand-curated-service-catalog",
-    reportStore: "filesystem"
+    reportStore: "filesystem-or-r2"
   },
   {
     producer: "cloudflare-worker",

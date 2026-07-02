@@ -280,7 +280,7 @@ Runtime capability parity is intentionally explicit:
 
 | Producer | Single scan | GPC comparison | Shields comparison | Async jobs | DNS guard | Tracker catalog | Store |
 |---|---:|---:|---:|---:|---|---|---|
-| Node / Playwright | yes | yes | yes | yes | connect-time public-address proxy | hand-curated service catalog | filesystem |
+| Node / Playwright | yes | yes | yes | yes | connect-time public-address proxy | hand-curated service catalog | filesystem or R2 |
 | Cloudflare Worker / Browser Run | yes | yes | no | no | DNS-over-HTTPS preflight only | none | KV or R2 |
 | Brave PageGraph adapter | yes | no | no | no | source artifact | provided or bundled curated catalog | caller-managed |
 
