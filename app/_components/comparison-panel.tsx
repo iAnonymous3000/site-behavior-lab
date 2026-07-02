@@ -100,6 +100,7 @@ function comparisonRunLabels(report: ComparisonScanResult): { baseline: string; 
   if (report.runLabels) return report.runLabels;
   if (report.comparisonType === "gpc") return { baseline: "GPC off", variant: "GPC on" };
   if (report.comparisonType === "shields") return { baseline: "Shields off", variant: "Shields on" };
+  if (report.comparisonType === "consent") return { baseline: "Accept all", variant: "Reject all" };
   if (report.comparisonType === "temporal") return { baseline: "Before", variant: "After" };
   return { baseline: "Baseline", variant: "Variant" };
 }
@@ -107,6 +108,7 @@ function comparisonRunLabels(report: ComparisonScanResult): { baseline: string; 
 function comparisonEyebrow(report: ComparisonScanResult): string {
   if (report.comparisonType === "gpc") return "GPC Comparison";
   if (report.comparisonType === "shields") return "Brave Shields Comparison";
+  if (report.comparisonType === "consent") return "Consent Comparison";
   if (report.comparisonType === "temporal") return "Temporal Comparison";
   return "Comparison Report";
 }

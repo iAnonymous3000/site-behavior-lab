@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 function reportTypeLabel(entry: DirectoryEntry): string {
   if (entry.reportType !== "comparison") return "single scan";
   if (entry.comparisonType === "shields") return "Brave Shields comparison";
+  if (entry.comparisonType === "consent") return "consent comparison";
   if (entry.comparisonType === "temporal") return "temporal comparison";
   if (entry.comparisonType === "gpc") return "GPC comparison";
   return "comparison";

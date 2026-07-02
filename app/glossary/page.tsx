@@ -73,6 +73,12 @@ const ENTRIES: GlossaryEntry[] = [
     term: "Advertising pixels",
     definition:
       "Tracking pixels from platforms like Meta, TikTok, and X. Reports decode which events each pixel fired (PageView, Purchase, and so on) and whether hashed personal-identifier fields were attached. Detection is by parameter name only; the values are never read or stored."
+  },
+  {
+    id: "consent-diff",
+    term: "Consent comparison",
+    definition:
+      'Two paired visits: one clicking "Accept all" on the cookie/consent banner and one clicking "Reject all" (recognized banner controls or an exact accept/reject label, first layer only). The diff shows what the choice actually changed, including tracking companies that still loaded after rejecting. Banners often appear only in regions that require them, so a visit where no control was found stays pre-consent and the report says so.'
   }
 ];
 

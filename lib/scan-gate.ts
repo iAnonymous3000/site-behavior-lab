@@ -16,6 +16,7 @@ export type PreparedScanRequest = {
   gpcEnabled: boolean;
   compareGpc: boolean;
   compareShields: boolean;
+  compareConsent: boolean;
   rateLimitCost: 1 | 2;
 };
 
@@ -45,7 +46,8 @@ export class ScanGate {
     const payload = await readScanPayload(request);
     const targetUrl = normalizeUrl(payload.url);
     assertPublicHttpUrlShape(targetUrl);
-    if (payload.compareGpc === true && payload.compareShields === true) {
+    const comparisonModes = [payload.compareGpc === true, payload.compareShields === true, payload.compareConsent === true];
+    if (comparisonModes.filter(Boolean).length > 1) {
       throw new PublicScanError("Choose one comparison mode.");
     }
     const clientKey = requestClientKey(request);
@@ -60,6 +62,7 @@ export class ScanGate {
       gpcEnabled: payload.gpcEnabled === true,
       compareGpc: payload.compareGpc === true,
       compareShields: payload.compareShields === true,
+      compareConsent: payload.compareConsent === true,
       rateLimitCost: cost
     };
   }
@@ -69,13 +72,13 @@ export async function prepareScanRequest(request: Request, gate = new ScanGate()
   return gate.prepare(request);
 }
 
-export function scanRateLimitCost(payload: { compareGpc?: boolean; compareShields?: boolean }): 1 | 2 {
-  return payload.compareGpc === true || payload.compareShields === true ? 2 : 1;
+export function scanRateLimitCost(payload: { compareGpc?: boolean; compareShields?: boolean; compareConsent?: boolean }): 1 | 2 {
+  return payload.compareGpc === true || payload.compareShields === true || payload.compareConsent === true ? 2 : 1;
 }
 
 async function readScanPayload(
   request: Request
-): Promise<Partial<ScanRequestPayload> & { url: string; compareGpc?: boolean; compareShields?: boolean }> {
+): Promise<Partial<ScanRequestPayload> & { url: string; compareGpc?: boolean; compareShields?: boolean; compareConsent?: boolean }> {
   const body = await request.text();
   if (new Blob([body]).size > MAX_BODY_BYTES) {
     throw new PublicScanError("Request body is too large.", 413);
@@ -92,5 +95,5 @@ async function readScanPayload(
     throw new PublicScanError("Enter a public URL to scan.");
   }
 
-  return payload as Partial<ScanRequestPayload> & { url: string; compareGpc?: boolean; compareShields?: boolean };
+  return payload as Partial<ScanRequestPayload> & { url: string; compareGpc?: boolean; compareShields?: boolean; compareConsent?: boolean };
 }

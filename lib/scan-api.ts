@@ -3,10 +3,10 @@ import {
   assertRateLimit,
   QUEUE_TIMEOUT_MS
 } from "./scan-limits";
-import { createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
+import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { saveScanReport } from "./report-store";
 import { scanSite, type ScanSiteOptions } from "./scanner";
-import type { ScanDevice, ScanReport, ScanRequestPayload, ScanResult } from "./types";
+import type { ConsentMode, ScanDevice, ScanReport, ScanRequestPayload, ScanResult } from "./types";
 import { prepareScanRequest, type PreparedScanRequest } from "./scan-gate";
 
 export { prepareScanRequest, ScanGate, scanRateLimitCost, type PreparedScanRequest } from "./scan-gate";
@@ -61,6 +61,16 @@ export async function executePreparedScan(
       return await saveScanReportBestEffort(createShieldsComparisonReport(baseline, variant), saveReport);
     }
 
+    if (prepared.compareConsent) {
+      const acceptRun = await scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled, "accept-all"), {
+        publicUrlAlreadyVerified: true
+      });
+      const rejectRun = await scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled, "reject-all"), {
+        publicUrlAlreadyVerified: true
+      });
+      return await saveScanReportBestEffort(createConsentComparisonReport(acceptRun, rejectRun), saveReport);
+    }
+
     const result = await scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
       publicUrlAlreadyVerified: true
     });
@@ -70,12 +80,12 @@ export async function executePreparedScan(
   }
 }
 
-function createScanPayload(url: string, device: ScanDevice, gpcEnabled: boolean): ScanRequestPayload {
+function createScanPayload(url: string, device: ScanDevice, gpcEnabled: boolean, consentMode: ConsentMode = "observe"): ScanRequestPayload {
   return {
     url,
     device,
     gpcEnabled,
-    consentMode: "observe"
+    consentMode
   };
 }
 

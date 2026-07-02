@@ -85,6 +85,7 @@ type ScanFormState = {
   gpcEnabled: boolean;
   compareGpc: boolean;
   compareShields: boolean;
+  compareConsent: boolean;
   accessKey: string;
 };
 
@@ -94,18 +95,19 @@ const initialForm: ScanFormState = {
   gpcEnabled: true,
   compareGpc: false,
   compareShields: false,
+  compareConsent: false,
   accessKey: ""
 };
 
 function isComparisonMode(form: ScanFormState): boolean {
-  return form.compareGpc || form.compareShields;
+  return form.compareGpc || form.compareShields || form.compareConsent;
 }
 
 // One plain-language line under the run controls. "Brave Shields" and "GPC" are
 // jargon to a first-time visitor, so the selected mode always explains itself;
 // the copy lives in lib/run-mode-copy.ts where unit tests pin it.
 function selectedRunMode(form: ScanFormState): RunMode {
-  return form.compareShields ? "shields" : form.compareGpc ? "gpc" : "single";
+  return form.compareShields ? "shields" : form.compareGpc ? "gpc" : form.compareConsent ? "consent" : "single";
 }
 
 // The browser reads health through the shared cross-runtime contract.
@@ -277,6 +279,7 @@ export function SiteBehaviorApp({
 
   const gpcComparisonEnabled = !STATIC_EXPORT || scannerHealth?.capabilities?.gpcComparison === true;
   const shieldsComparisonEnabled = !STATIC_EXPORT || scannerHealth?.capabilities?.shieldsComparison === true;
+  const consentComparisonEnabled = !STATIC_EXPORT || scannerHealth?.capabilities?.consentComparison === true;
   const openAccessScanner = OPEN_ACCESS_SCANNER || scannerHealth?.openAccess === true;
   // A live-scanned report only has a shareable permalink when the scan API serves
   // its own report pages (the full Node app / container). The JSON-only Browser
@@ -297,9 +300,10 @@ export function SiteBehaviorApp({
     setForm((current) => ({
       ...current,
       compareGpc: current.compareGpc && gpcComparisonEnabled,
-      compareShields: current.compareShields && shieldsComparisonEnabled
+      compareShields: current.compareShields && shieldsComparisonEnabled,
+      compareConsent: current.compareConsent && consentComparisonEnabled
     }));
-  }, [gpcComparisonEnabled, shieldsComparisonEnabled]);
+  }, [consentComparisonEnabled, gpcComparisonEnabled, shieldsComparisonEnabled]);
 
   async function runScan(targetUrl: string) {
     if (!LIVE_SCAN_ENABLED) {
@@ -350,6 +354,7 @@ export function SiteBehaviorApp({
           gpcEnabled: form.gpcEnabled,
           compareGpc: gpcComparisonEnabled && form.compareGpc,
           compareShields: shieldsComparisonEnabled && form.compareShields,
+          compareConsent: consentComparisonEnabled && form.compareConsent,
           consentMode: "observe",
           ...(turnstileRequired && turnstileToken ? { turnstileToken } : {})
         })
@@ -552,7 +557,7 @@ export function SiteBehaviorApp({
                 aria-pressed={!isComparisonMode(form)}
                 className={!isComparisonMode(form) ? "active" : ""}
                 title={RUN_MODE_TITLES.single}
-                onClick={() => setForm((current) => ({ ...current, compareGpc: false, compareShields: false }))}
+                onClick={() => setForm((current) => ({ ...current, compareGpc: false, compareShields: false, compareConsent: false }))}
               >
                 <Search size={16} aria-hidden="true" />
                 {RUN_MODE_LABELS.single}
@@ -563,7 +568,9 @@ export function SiteBehaviorApp({
                 className={form.compareGpc ? "active" : ""}
                 disabled={!gpcComparisonEnabled}
                 title={gpcComparisonEnabled ? RUN_MODE_TITLES.gpc : "GPC comparison is not available from this scanner."}
-                onClick={() => setForm((current) => ({ ...current, compareGpc: gpcComparisonEnabled, compareShields: false }))}
+                onClick={() =>
+                  setForm((current) => ({ ...current, compareGpc: gpcComparisonEnabled, compareShields: false, compareConsent: false }))
+                }
               >
                 <ShieldCheck size={16} aria-hidden="true" />
                 {RUN_MODE_LABELS.gpc}
@@ -575,10 +582,26 @@ export function SiteBehaviorApp({
                 disabled={!shieldsComparisonEnabled}
                 title={shieldsComparisonEnabled ? RUN_MODE_TITLES.shields : "Brave Shields comparison requires the Node scanner."}
                 aria-label="Blocker comparison (Brave Shields)"
-                onClick={() => setForm((current) => ({ ...current, compareGpc: false, compareShields: shieldsComparisonEnabled }))}
+                onClick={() =>
+                  setForm((current) => ({ ...current, compareGpc: false, compareShields: shieldsComparisonEnabled, compareConsent: false }))
+                }
               >
                 <Shield size={16} aria-hidden="true" />
                 {RUN_MODE_LABELS.shields}
+              </button>
+              <button
+                type="button"
+                aria-pressed={form.compareConsent}
+                className={form.compareConsent ? "active" : ""}
+                disabled={!consentComparisonEnabled}
+                title={consentComparisonEnabled ? RUN_MODE_TITLES.consent : "Consent comparison requires the Node scanner."}
+                aria-label="Consent comparison (accept all versus reject all)"
+                onClick={() =>
+                  setForm((current) => ({ ...current, compareGpc: false, compareShields: false, compareConsent: consentComparisonEnabled }))
+                }
+              >
+                <Cookie size={16} aria-hidden="true" />
+                {RUN_MODE_LABELS.consent}
               </button>
             </div>
           </fieldset>
@@ -732,7 +755,19 @@ export function SiteBehaviorApp({
             />
           )}
           {loading && (
-            <LoadingState mode={!scanning ? "opening" : form.compareGpc ? "gpc" : form.compareShields ? "shields" : "single"} />
+            <LoadingState
+              mode={
+                !scanning
+                  ? "opening"
+                  : form.compareGpc
+                    ? "gpc"
+                    : form.compareShields
+                      ? "shields"
+                      : form.compareConsent
+                        ? "consent"
+                        : "single"
+              }
+            />
           )}
           {result && primaryResult && (
             <section className="report-grid">
@@ -824,6 +859,18 @@ export function SiteBehaviorApp({
                       <dt>GPC</dt>
                       <dd>{primaryResult.conditions.gpcEnabled ? "sent" : "not sent"}</dd>
                     </div>
+                    {primaryResult.consentInteraction && (
+                      <div>
+                        <dt>Consent</dt>
+                        <dd>
+                          {primaryResult.consentInteraction.clicked
+                            ? `clicked "${primaryResult.consentInteraction.mode === "accept-all" ? "Accept all" : "Reject all"}"${
+                                primaryResult.consentInteraction.cmp ? ` (${primaryResult.consentInteraction.cmp})` : ""
+                              }`
+                            : "no banner control found; pre-consent"}
+                        </dd>
+                      </div>
+                    )}
                     <div>
                       <dt>Egress</dt>
                       <dd>{primaryResult.conditions.scannerEgress}</dd>
@@ -1332,9 +1379,9 @@ const SCAN_CHECKS: { icon: typeof Eye; label: string; question: string }[] = [
   { icon: Keyboard, label: "Keystroke capture", question: "Is what you type into a form sent to a third party?" }
 ];
 
-function LoadingState({ mode }: { mode: "single" | "gpc" | "shields" | "opening" }) {
+function LoadingState({ mode }: { mode: "single" | "gpc" | "shields" | "consent" | "opening" }) {
   const [elapsed, setElapsed] = useState(0);
-  const isComparison = mode === "gpc" || mode === "shields";
+  const isComparison = mode === "gpc" || mode === "shields" || mode === "consent";
   const isScanning = mode !== "opening";
 
   useEffect(() => {
@@ -1368,7 +1415,9 @@ function LoadingState({ mode }: { mode: "single" | "gpc" | "shields" | "opening"
           ? "Comparing GPC off and on runs for requests, cookies, storage, and browser API observations."
           : mode === "shields"
             ? "Comparing a normal visit against one with Brave Shields (the ad and tracker blocker built into the Brave browser) simulated on, across requests, cookies, storage, and browser API observations."
-          : "Collecting network requests, cookies, storage, and browser API observations."}
+            : mode === "consent"
+              ? 'Comparing a visit that clicks "Accept all" on the cookie banner against one that clicks "Reject all", across requests, cookies, storage, and browser API observations.'
+              : "Collecting network requests, cookies, storage, and browser API observations."}
       </p>
       <div className="progress-track" aria-hidden="true">
         <div className="progress-fill" />

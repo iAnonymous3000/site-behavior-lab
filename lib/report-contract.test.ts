@@ -250,10 +250,13 @@ test("report producer capability matrix captures intentional runtime gaps", () =
 
   assert.equal(capabilities.get("node")?.gpcComparison, true);
   assert.equal(capabilities.get("node")?.shieldsComparison, true);
+  assert.equal(capabilities.get("node")?.consentComparison, true);
   assert.equal(capabilities.get("node")?.asyncJobs, true);
   assert.equal(capabilities.get("node")?.trackerCatalog, "hand-curated-service-catalog");
   assert.equal(capabilities.get("cloudflare-worker")?.gpcComparison, true);
   assert.equal(capabilities.get("cloudflare-worker")?.shieldsComparison, false);
+  assert.equal(capabilities.get("cloudflare-worker")?.consentComparison, false);
+  assert.equal(capabilities.get("pagegraph")?.consentComparison, false);
   assert.equal(capabilities.get("node")?.dnsGuard, "node-connect-time-proxy");
   assert.equal(capabilities.get("cloudflare-worker")?.dnsGuard, "edge-doh-preflight-only");
   assert.equal(capabilities.get("cloudflare-worker")?.trackerCatalog, "none");

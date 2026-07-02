@@ -152,6 +152,34 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
     );
   }
 
+  // Consent comparison: the story is what the visitor's choice actually changed.
+  // Claims are gated on the reject click having really happened; when it did not,
+  // the report falls through to the ordinary evidence-led headline instead of
+  // pretending the choice was measured.
+  if (isComparison(report) && report.comparisonType === "consent" && report.variant.consentInteraction?.clicked === true) {
+    const rejectTracking = trackerEntitySummaries(report.variant).filter((entity) => !isOperationalEntity(entity));
+    if (rejectTracking.length > 0) {
+      return finish(
+        "alarm",
+        `${domain} kept tracking after you clicked Reject all.`,
+        `After the reject choice, ${plural(rejectTracking.length, "tracking company", "tracking companies")} (${joinNames(
+          rejectTracking.map((entity) => entity.entity)
+        )}) still received requests in that visit. Some may be pre-click traffic or claimed as strictly necessary; the diff shows exactly what rejecting did remove.`
+      );
+    }
+    if (report.baseline.consentInteraction?.clicked === true && trackingEntities.length > 0) {
+      return finish(
+        "info",
+        `Rejecting cookies on ${domain} made a real difference.`,
+        `Clicking Reject all left no catalogued tracking company, while Accept all loaded ${plural(
+          trackingEntities.length,
+          "tracking company",
+          "tracking companies"
+        )}: ${plural(report.diff.thirdPartyRequests.before, "third-party request")} became ${report.diff.thirdPartyRequests.after.toLocaleString("en-US")}.`
+      );
+    }
+  }
+
   if (isComparison(report) && report.comparisonType === "gpc") {
     const before = report.diff.thirdPartyRequests.before;
     const after = report.diff.thirdPartyRequests.after;

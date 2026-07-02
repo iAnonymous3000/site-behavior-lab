@@ -3,7 +3,7 @@ import { isRecord } from "./guards";
 import { isFingerprintDetectionSummary } from "./fingerprint-detection-guard";
 
 export const REPORT_ID_PATTERN = /^[0-9]{8}-[0-9a-f]{32}$/;
-const COMPARISON_TYPES = new Set(["gpc", "shields", "temporal", "custom"]);
+const COMPARISON_TYPES = new Set(["gpc", "shields", "consent", "temporal", "custom"]);
 
 export function isScanReport(value: unknown): value is ScanReport {
   if (!isRecord(value) || value.ok !== true || value.schemaVersion !== SCAN_REPORT_SCHEMA_VERSION || !Array.isArray(value.warnings)) {
@@ -36,6 +36,7 @@ function isSingleScanResult(value: unknown): value is ScanResult {
     (value.pixelEvents === undefined ||
       (Array.isArray(value.pixelEvents) && value.pixelEvents.every(isPixelEventSummary))) &&
     (value.privacyPolicy === undefined || isPrivacyPolicySummary(value.privacyPolicy)) &&
+    (value.consentInteraction === undefined || isConsentInteractionSummary(value.consentInteraction)) &&
     // `undefined` is accepted because the UI's JSON export drops the screenshot
     // key entirely; those files must re-open in the report viewer.
     (value.screenshot === undefined || value.screenshot === null || typeof value.screenshot === "string") &&
@@ -102,6 +103,18 @@ function isPrivacyPolicySummary(value: unknown): boolean {
     value.mentionedEntities.every((entity) => typeof entity === "string") &&
     Array.isArray(value.unmentionedEntities) &&
     value.unmentionedEntities.every((entity) => typeof entity === "string")
+  );
+}
+
+function isConsentInteractionSummary(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    (value.mode === "accept-all" || value.mode === "reject-all") &&
+    typeof value.clicked === "boolean" &&
+    (value.cmp === undefined || typeof value.cmp === "string") &&
+    (value.selector === undefined || typeof value.selector === "string") &&
+    (value.matchedText === undefined || typeof value.matchedText === "string") &&
+    (value.frameUrl === undefined || typeof value.frameUrl === "string")
   );
 }
 

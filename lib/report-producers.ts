@@ -5,6 +5,7 @@ export type ReportProducerCapability = {
   singleScan: boolean;
   gpcComparison: boolean;
   shieldsComparison: boolean;
+  consentComparison: boolean;
   asyncJobs: boolean;
   dnsGuard: "node-connect-time-proxy" | "edge-doh-preflight-only" | "source-artifact";
   trackerCatalog: "hand-curated-service-catalog" | "none" | "provided-or-hand-curated";
@@ -21,6 +22,7 @@ export const REPORT_PRODUCER_CAPABILITIES: readonly ReportProducerCapability[] =
     singleScan: true,
     gpcComparison: true,
     shieldsComparison: true,
+    consentComparison: true,
     asyncJobs: true,
     dnsGuard: "node-connect-time-proxy",
     trackerCatalog: "hand-curated-service-catalog",
@@ -33,6 +35,7 @@ export const REPORT_PRODUCER_CAPABILITIES: readonly ReportProducerCapability[] =
     singleScan: true,
     gpcComparison: true,
     shieldsComparison: false,
+    consentComparison: false,
     asyncJobs: false,
     dnsGuard: "edge-doh-preflight-only",
     trackerCatalog: "none",
@@ -45,6 +48,7 @@ export const REPORT_PRODUCER_CAPABILITIES: readonly ReportProducerCapability[] =
     singleScan: true,
     gpcComparison: false,
     shieldsComparison: false,
+    consentComparison: false,
     asyncJobs: false,
     dnsGuard: "source-artifact",
     trackerCatalog: "provided-or-hand-curated",

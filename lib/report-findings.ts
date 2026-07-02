@@ -204,7 +204,10 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
     });
   }
 
-  const consentPlatform = detectConsentPlatform(result.domains);
+  // The pre-consent framing ("the scanner never clicks the banner") only holds
+  // for observe-mode runs. Consent-comparison runs clicked a choice, and their
+  // story is carried by the dedicated consent-comparison card below instead.
+  const consentPlatform = (result.conditions.consentMode ?? "observe") === "observe" ? detectConsentPlatform(result.domains) : null;
   if (consentPlatform) {
     const preConsentTrackers = trackingEntities.length;
     findings.push({
@@ -542,6 +545,10 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
     });
   }
 
+  if (isComparisonReport(report) && report.comparisonType === "consent") {
+    findings.unshift(buildConsentComparisonFinding(report));
+  }
+
   // A failed/blocked load (HTTP >= 400) produces low counts that are an artifact
   // of the page not loading, not a privacy result. Lead with that so the bottom
   // line never reads an error page as "few review signals".
@@ -603,6 +610,87 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
   // card (the fingerprinting finding) on Node Shields-comparison reports that
   // also surfaced a session-recording or input-monitoring signal.
   return findings;
+}
+
+/**
+ * The leading card for a consent accept/reject comparison. Every claim is
+ * gated on the click actually having happened: a run whose control was not
+ * found is pre-consent, and the card says which run that was instead of
+ * pretending the diff measured the choice.
+ */
+function buildConsentComparisonFinding(report: ComparisonScanResult): Finding {
+  const acceptClicked = report.baseline.consentInteraction?.clicked === true;
+  const rejectClicked = report.variant.consentInteraction?.clicked === true;
+  const acceptTracking = trackerEntitySummaries(report.baseline).filter((entity) => !isOperationalEntity(entity));
+  const rejectTracking = trackerEntitySummaries(report.variant).filter((entity) => !isOperationalEntity(entity));
+  const requestsBefore = report.diff.thirdPartyRequests.before;
+  const requestsAfter = report.diff.thirdPartyRequests.after;
+  const evidence = `Third-party requests: ${requestsBefore.toLocaleString("en-US")} with Accept all, ${requestsAfter.toLocaleString("en-US")} with Reject all.`;
+
+  if (!acceptClicked && !rejectClicked) {
+    return {
+      id: "consent-comparison",
+      icon: "cookie",
+      level: "info",
+      title: "No consent banner could be clicked in either visit",
+      lead: "Neither visit found a recognizable accept or reject control, so both runs reflect the pre-consent state and this diff mostly shows run-to-run variance.",
+      detail:
+        "Many consent banners are only shown to visitors in regions where the law requires them (the EEA, UK, or California), so this scanner's location may simply not be served one; a banner may also use controls this scanner's catalog does not recognize. No claim about the site's consent behavior can be made from this pair of visits.",
+      evidence
+    };
+  }
+
+  if (acceptClicked !== rejectClicked) {
+    const clickedLabel = acceptClicked ? "Accept all" : "Reject all";
+    const missingLabel = acceptClicked ? "Reject all" : "Accept all";
+    return {
+      id: "consent-comparison",
+      icon: "cookie",
+      level: "info",
+      title: `Only the ${clickedLabel} control could be clicked`,
+      lead: `The ${clickedLabel} visit clicked the banner, but no ${missingLabel} control was found, so that run reflects the pre-consent state and this diff does not measure the ${missingLabel.toLowerCase()} choice.`,
+      detail:
+        missingLabel === "Reject all"
+          ? "Many banners offer no first-layer reject control and put refusal behind a settings layer this scanner does not navigate. That design is itself worth noting, but it can also mean this scanner's catalog simply does not recognize the control, so treat the asymmetry as a prompt to check the banner yourself."
+          : "The accept control was not recognized on its visit, so the accept side of this diff reflects the pre-consent state. Treat the comparison as incomplete rather than as evidence about the site's consent behavior.",
+      evidence
+    };
+  }
+
+  if (rejectTracking.length > 0) {
+    return {
+      id: "consent-comparison",
+      icon: "cookie",
+      level: "warn",
+      title: `${plural(rejectTracking.length, "tracking company", "tracking companies")} still loaded after Reject all`,
+      lead: `After clicking Reject all, ${humanList(rejectTracking.map((entity) => entity.entity))} still received requests in that visit (${plural(
+        acceptTracking.length,
+        "tracking company",
+        "tracking companies"
+      )} loaded with Accept all).`,
+      detail:
+        "Some of this can be traffic that loaded before the click landed, vendors a site treats as strictly necessary, or processing claimed under legitimate interest, so it is a documented observation to review against the banner's promises, not a violation ruling. The diff below lists exactly which services the rejection did remove.",
+      evidence
+    };
+  }
+
+  return {
+    id: "consent-comparison",
+    icon: "shield-check",
+    level: "ok",
+    title: "Rejecting consent removed the catalogued trackers",
+    lead:
+      acceptTracking.length > 0
+        ? `Clicking Reject all left no catalogued tracking company in that visit, while Accept all loaded ${plural(
+            acceptTracking.length,
+            "tracking company",
+            "tracking companies"
+          )}: the consent choice made a real difference.`
+        : "No catalogued tracking company loaded in either visit; on this page the consent choice changed little because there was little to consent to.",
+    detail:
+      "A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference for this pair of visits.",
+    evidence
+  };
 }
 
 function requestProvenanceHighlights(result: ScanResult): string[] {

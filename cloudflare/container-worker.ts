@@ -55,6 +55,7 @@ type Env = {
 type ScanGatePayload = {
   compareGpc?: unknown;
   compareShields?: unknown;
+  compareConsent?: unknown;
   turnstileToken?: unknown;
 };
 
@@ -271,7 +272,11 @@ async function gateScanRequest(request: Request, body: string, env: Env): Promis
   await enforcePublicScanRateLimit({
     store,
     clientHash: await publicClientHash(request.headers),
-    cost: scanTokenCost({ compareGpc: payload.compareGpc === true, compareShields: payload.compareShields === true }),
+    cost: scanTokenCost({
+      compareGpc: payload.compareGpc === true,
+      compareShields: payload.compareShields === true,
+      compareConsent: payload.compareConsent === true
+    }),
     perMinute: publicScanRateLimit(env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE, DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE),
     perDay: publicScanRateLimit(env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY, DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY)
   });

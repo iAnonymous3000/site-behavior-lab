@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
+import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { buildReportHeadline } from "./report-headline";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
@@ -283,6 +283,73 @@ test("an event-only pixel does not trigger the identifier headline", () => {
   const headline = buildReportHeadline(result);
   // No advanced matching, so it falls through to the named-platform line.
   assert.match(headline.headline, /shop\.example told Meta you were here\./);
+});
+
+test("trackers surviving a real Reject all click lead the consent-comparison headline", () => {
+  const acceptRun = {
+    ...makeResult({
+      firstPartyDomain: "shop.example",
+      domains: [
+        makeTrackerDomain("google-analytics.com", 8, "Google", "analytics"),
+        makeTrackerDomain("facebook.net", 4, "Meta", "social / advertising pixel")
+      ],
+      thirdPartyRequests: 25
+    }),
+    consentInteraction: { mode: "accept-all" as const, clicked: true, cmp: "OneTrust" }
+  };
+  const rejectRun = {
+    ...makeResult({
+      firstPartyDomain: "shop.example",
+      domains: [makeTrackerDomain("google-analytics.com", 3, "Google", "analytics")],
+      thirdPartyRequests: 6
+    }),
+    consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "OneTrust" }
+  };
+
+  const headline = buildReportHeadline(createConsentComparisonReport(acceptRun, rejectRun));
+  assert.equal(headline.tone, "alarm");
+  assert.match(headline.headline, /shop\.example kept tracking after you clicked Reject all\./);
+  assert.match(headline.subhead, /Google/);
+});
+
+test("a clean reject run headlines that the consent choice made a difference", () => {
+  const acceptRun = {
+    ...makeResult({
+      firstPartyDomain: "shop.example",
+      domains: [makeTrackerDomain("google-analytics.com", 8, "Google", "analytics")],
+      thirdPartyRequests: 20
+    }),
+    consentInteraction: { mode: "accept-all" as const, clicked: true, cmp: "Cookiebot" }
+  };
+  const rejectRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 1 }),
+    consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "Cookiebot" }
+  };
+
+  const headline = buildReportHeadline(createConsentComparisonReport(acceptRun, rejectRun));
+  assert.equal(headline.tone, "info");
+  assert.match(headline.headline, /Rejecting cookies on shop\.example made a real difference\./);
+});
+
+test("an un-clicked reject run falls through to the ordinary evidence headline", () => {
+  const acceptRun = {
+    ...makeResult({
+      firstPartyDomain: "shop.example",
+      domains: [makeTrackerDomain("google-analytics.com", 8, "Google", "analytics")],
+      thirdPartyRequests: 20
+    }),
+    consentInteraction: { mode: "accept-all" as const, clicked: true, cmp: "OneTrust" }
+  };
+  const rejectRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 18 }),
+    consentInteraction: { mode: "reject-all" as const, clicked: false }
+  };
+
+  const headline = buildReportHeadline(createConsentComparisonReport(acceptRun, rejectRun));
+  // No Reject all claim is allowed when the click never happened; the report
+  // leads with the ordinary evidence story instead.
+  assert.equal(/Reject all/.test(headline.headline), false);
+  assert.match(headline.headline, /shop\.example told Google you were here\./);
 });
 
 test("an HTTP error load is framed as a failed load, not as relatively private", () => {

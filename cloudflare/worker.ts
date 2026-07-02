@@ -77,6 +77,7 @@ type IncomingScanPayload = {
   gpcEnabled?: unknown;
   compareGpc?: unknown;
   compareShields?: unknown;
+  compareConsent?: unknown;
   turnstileToken?: unknown;
 };
 
@@ -166,6 +167,7 @@ function workerHealth(env: Env) {
       singleScan: ready && capability.singleScan,
       gpcComparison: ready && capability.gpcComparison,
       shieldsComparison: capability.shieldsComparison,
+      consentComparison: capability.consentComparison,
       savedReports: Boolean(env.REPORTS || env.REPORTS_KV),
       // API-only: this Worker exposes /api/reports/:id JSON but no /reports/:id
       // page, so a freshly scanned report has no shareable permalink here.
@@ -253,6 +255,9 @@ async function readScanPayload(request: Request): Promise<IncomingScanPayload> {
 function normalizeScanRequest(payload: IncomingScanPayload): NormalizedScanRequest {
   if (payload.compareShields === true) {
     throw new HttpError("Shields comparison is not enabled in the Cloudflare scanner yet.", 400);
+  }
+  if (payload.compareConsent === true) {
+    throw new HttpError("Consent comparison requires the Node scanner; it is not available on the Cloudflare Browser Run scanner.", 400);
   }
 
   if (typeof payload.url !== "string") {

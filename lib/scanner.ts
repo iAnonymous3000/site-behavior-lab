@@ -25,6 +25,13 @@ import {
   sentinelEncodings,
   type CapturedRequest
 } from "./keystroke-exfiltration";
+import {
+  consentClickArgs,
+  consentInteractionWarning,
+  findAndClickConsentControl,
+  type ConsentChoice,
+  type ConsentInteractionSummary
+} from "./consent-interaction";
 import { summarizePixelEvents, type PixelEventInput } from "./pixel-events";
 import { buildPrivacyPolicySummary, pickPrivacyPolicyLink, type PolicyLinkCandidate } from "./privacy-policy";
 import { isOperationalEntity, trackerEntitySummaries } from "./report-insights";
@@ -95,6 +102,14 @@ const MAX_CNAME_LOOKUPS = 10;
 const CNAME_PROBE_MIN_BUDGET_MS = 3_000;
 const CNAME_LOOKUP_TIMEOUT_MS = 1_500;
 const CNAME_MAX_HOPS = 3;
+// Consent-choice click (accept-all / reject-all modes): budget needed to bother,
+// a short retry window for banners that render late, and the settle wait that
+// lets the post-choice tracker burst land in the request log before collection.
+const CONSENT_CLICK_MIN_BUDGET_MS = 6_000;
+const CONSENT_BANNER_RETRIES = 3;
+const CONSENT_BANNER_RETRY_WAIT_MS = 800;
+const CONSENT_SETTLE_WAIT_MS = 3_500;
+const CONSENT_SETTLE_IDLE_TIMEOUT_MS = 3_000;
 // Privacy-policy cross-check: budget needed for the extra page visit, its own
 // navigation timeout, a short wait for JS-rendered policies (CMP-hosted pages),
 // and hard caps on links considered, subresources loaded, and text analyzed.
@@ -126,8 +141,12 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
   }
 
   const warnings = new ScanWarningCollector([
-    "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-    "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+    payload.consentMode === "observe"
+      ? "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations."
+      : "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    payload.consentMode === "observe"
+      ? "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+      : "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
   ]);
 
   const browser = await getSharedBrowser();
@@ -248,8 +267,23 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     // completes and an error/block page reads as a low-tracker (falsely "private")
     // result. Surface it as a warning, and the headline/findings reframe it.
     const responseStatus = response?.status() ?? null;
-    if (responseStatus !== null && responseStatus >= 400) {
+    const pageLoadFailed = responseStatus !== null && responseStatus >= 400;
+    if (pageLoadFailed) {
       warnings.add(`The page returned HTTP ${responseStatus}; this report reflects an error or block page, not a normal load.`);
+    }
+
+    // Consent-choice modes: click Accept all / Reject all on the banner now, so
+    // everything collected below (cookies, storage, requests, pixels) reflects
+    // the post-choice state. Skipped on failed loads: an interstitial's banner
+    // (a challenge page's cookie notice) is not the site's consent banner.
+    const consentInteraction =
+      payload.consentMode === "observe" || pageLoadFailed
+        ? undefined
+        : await withScanTimeout(applyConsentChoice(page, payload.consentMode, started), started).catch(
+            (): ConsentInteractionSummary => ({ mode: payload.consentMode as ConsentChoice, clicked: false })
+          );
+    if (consentInteraction) {
+      warnings.add(consentInteractionWarning(consentInteraction));
     }
 
     const pageTitle = await withScanTimeout(page.title(), started).catch((error) => {
@@ -339,7 +373,6 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     // is not the site, and its only policy link is typically the interstitial
     // vendor's own policy (e.g. Cloudflare's), which must not be attributed to
     // the scanned site.
-    const pageLoadFailed = responseStatus !== null && responseStatus >= 400;
     const privacyPolicy = pageLoadFailed
       ? null
       : await probePrivacyPolicy({
@@ -393,6 +426,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       cnameCloaks,
       pixelEvents,
       privacyPolicy: privacyPolicy ?? undefined,
+      consentInteraction,
       screenshot,
       warnings: warnings.list,
       shieldsBlockedRequests: adblockEngine
@@ -540,6 +574,56 @@ async function collectStorage(page: Page): Promise<StorageRecord[]> {
 
 async function collectFingerprintObservations(page: Page) {
   return collectFingerprintObservationsFromFrames(page.frames());
+}
+
+/**
+ * Click the requested consent-banner choice (Accept all / Reject all) in the
+ * first frame that has a recognizable control: known CMP selectors first, then
+ * a conservative whole-label text match (see lib/consent-interaction.ts). After
+ * a successful click, waits briefly so the post-choice tracker burst lands in
+ * the request log before collection. Bounded by the scan budget, first-layer
+ * only, and honest on failure: `clicked: false` means the visit stays
+ * pre-consent, and the caller discloses exactly that.
+ */
+async function applyConsentChoice(page: Page, choice: ConsentChoice, started: number): Promise<ConsentInteractionSummary> {
+  const summary: ConsentInteractionSummary = { mode: choice, clicked: false };
+  if (MAX_SCAN_DURATION_MS - (Date.now() - started) < CONSENT_CLICK_MIN_BUDGET_MS) return summary;
+
+  const args = consentClickArgs(choice);
+  for (let attempt = 0; attempt < CONSENT_BANNER_RETRIES && !summary.clicked; attempt += 1) {
+    // Main frame first; consent iframes (Sourcepoint and similar) after it.
+    for (const frame of page.frames()) {
+      const outcome = await frame.evaluate(findAndClickConsentControl, args).catch(() => null);
+      if (!outcome?.clicked) continue;
+      summary.clicked = true;
+      if (outcome.cmp) summary.cmp = outcome.cmp;
+      if (outcome.selector) summary.selector = outcome.selector;
+      if (outcome.matchedText) summary.matchedText = outcome.matchedText;
+      if (frame !== page.mainFrame()) summary.frameUrl = redactUrlForReport(frame.url());
+      break;
+    }
+    // Banners often render after network idle; retry briefly while budget allows.
+    if (!summary.clicked && attempt < CONSENT_BANNER_RETRIES - 1) {
+      if (MAX_SCAN_DURATION_MS - (Date.now() - started) < CONSENT_CLICK_MIN_BUDGET_MS) break;
+      await page.waitForTimeout(CONSENT_BANNER_RETRY_WAIT_MS);
+    }
+  }
+
+  if (summary.clicked) {
+    const settleMs = Math.min(CONSENT_SETTLE_WAIT_MS, MAX_SCAN_DURATION_MS - (Date.now() - started) - 1_000);
+    if (settleMs > 0) await page.waitForTimeout(settleMs);
+    // Never throw after a successful click (the caller's failure fallback would
+    // misreport it as un-clicked), so budget the idle wait locally instead of
+    // via the throwing scanTimeout helper.
+    const idleBudgetMs = MAX_SCAN_DURATION_MS - (Date.now() - started) - 500;
+    if (idleBudgetMs > 250) {
+      await page
+        .waitForLoadState("networkidle", { timeout: Math.min(CONSENT_SETTLE_IDLE_TIMEOUT_MS, idleBudgetMs) })
+        .catch(() => undefined);
+    }
+  }
+
+  return summary;
 }
 
 /**

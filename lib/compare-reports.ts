@@ -55,6 +55,23 @@ export function createShieldsComparisonReport(baseline: ScanResult, variant: Sca
   });
 }
 
+export function createConsentComparisonReport(acceptRun: ScanResult, rejectRun: ScanResult): ComparisonScanResult {
+  // Baseline = the Accept all run (the maximal, "unprotected" behavior, matching
+  // how GPC/Shields comparisons lead with the off run); variant = Reject all.
+  return createComparisonReport({
+    comparisonType: "consent",
+    title: "Consent accept/reject comparison",
+    runLabels: {
+      baseline: "Accept all",
+      variant: "Reject all"
+    },
+    baseline: acceptRun,
+    variant: rejectRun,
+    warningPrefix:
+      "Consent comparison runs are sequential automated visits: one clicking the banner's accept-all choice, one clicking reject-all (first layer only). A run where no control was clicked reflects the pre-consent state instead; see each run's consent note. Differences can also come from timing, experiments, cache state, or bot detection."
+  });
+}
+
 export function createTemporalComparisonReport(before: ScanResult, after: ScanResult): ComparisonScanResult {
   return createComparisonReport({
     comparisonType: "temporal",

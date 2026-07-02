@@ -18,3 +18,13 @@ test("every comparison mode defines its jargon in the tooltip and hint", () => {
   assert.match(runModeHint("gpc"), /Global Privacy Control \(GPC\)/);
   assert.match(runModeHint("single"), /One controlled visit/);
 });
+
+test("consent mode explains both choices and the honest failure state", () => {
+  assert.match(RUN_MODE_TITLES.consent, /"Accept all"/);
+  assert.match(RUN_MODE_TITLES.consent, /"Reject all"/);
+  assert.match(runModeHint("consent"), /"Accept all"/);
+  assert.match(runModeHint("consent"), /"Reject all"/);
+  // The hint must state what happens when no control is found, so the mode
+  // never implies the choice was measured when it was not.
+  assert.match(runModeHint("consent"), /pre-consent/);
+});

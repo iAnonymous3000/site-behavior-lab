@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
+import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { buildFindings, type Finding, type FindingIconKey } from "./report-findings";
 import type { CorpusStats } from "./corpus-stats";
 import {
@@ -202,6 +202,107 @@ test("a Shields comparison keeps the fingerprinting card alongside session-recor
   }
   assert.equal(ids[0], "bottom-line");
   assert.equal(ids[1], "shields-comparison");
+});
+
+test("a consent comparison flags trackers that survive Reject all", () => {
+  const acceptRun = {
+    ...makeResult({
+      firstPartyDomain: "shop.example",
+      domains: [
+        makeTrackerDomain("google-analytics.com", 8, "Google", "analytics"),
+        makeTrackerDomain("facebook.net", 4, "Meta", "social / advertising pixel")
+      ],
+      thirdPartyRequests: 30
+    }),
+    consentInteraction: { mode: "accept-all" as const, clicked: true, cmp: "OneTrust" }
+  };
+  const rejectRun = {
+    ...makeResult({
+      firstPartyDomain: "shop.example",
+      domains: [makeTrackerDomain("google-analytics.com", 3, "Google", "analytics")],
+      thirdPartyRequests: 6
+    }),
+    consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "OneTrust" }
+  };
+
+  const report = createConsentComparisonReport(acceptRun, rejectRun);
+  const findings = buildFindings(report, acceptRun, null);
+
+  assert.equal(findings[0].id, "bottom-line");
+  const card = byId(findings, "consent-comparison");
+  assert.equal(card.level, "warn");
+  assert.match(card.title, /still loaded after Reject all/);
+  assert.match(card.lead, /Google/);
+  assert.match(card.detail, /not a violation ruling/);
+  assert.match(card.evidence, /30 with Accept all, 6 with Reject all/);
+});
+
+test("a consent comparison with no clickable banner claims nothing", () => {
+  const acceptRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 10 }),
+    consentInteraction: { mode: "accept-all" as const, clicked: false }
+  };
+  const rejectRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 9 }),
+    consentInteraction: { mode: "reject-all" as const, clicked: false }
+  };
+
+  const report = createConsentComparisonReport(acceptRun, rejectRun);
+  const card = byId(buildFindings(report, acceptRun, null), "consent-comparison");
+
+  assert.equal(card.level, "info");
+  assert.match(card.title, /No consent banner could be clicked/);
+  assert.match(card.lead, /pre-consent state/);
+});
+
+test("a clean reject run earns the ok consent card, and a missing reject control stays neutral", () => {
+  const acceptRun = {
+    ...makeResult({
+      firstPartyDomain: "shop.example",
+      domains: [makeTrackerDomain("google-analytics.com", 8, "Google", "analytics")],
+      thirdPartyRequests: 20
+    }),
+    consentInteraction: { mode: "accept-all" as const, clicked: true, cmp: "Cookiebot" }
+  };
+  const cleanRejectRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 2 }),
+    consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "Cookiebot" }
+  };
+
+  const okCard = byId(buildFindings(createConsentComparisonReport(acceptRun, cleanRejectRun), acceptRun, null), "consent-comparison");
+  assert.equal(okCard.level, "ok");
+  assert.match(okCard.title, /removed the catalogued trackers/);
+
+  const unclickedRejectRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 19 }),
+    consentInteraction: { mode: "reject-all" as const, clicked: false }
+  };
+  const partialCard = byId(
+    buildFindings(createConsentComparisonReport(acceptRun, unclickedRejectRun), acceptRun, null),
+    "consent-comparison"
+  );
+  assert.equal(partialCard.level, "info");
+  assert.match(partialCard.title, /Only the Accept all control could be clicked/);
+  assert.match(partialCard.lead, /does not measure the reject all choice/);
+});
+
+test("the pre-consent CMP card is suppressed on consent-mode runs", () => {
+  const observed = makeResult({
+    domains: [
+      makeTrackerDomain("cdn.cookielaw.org", 2, "OneTrust", "consent management"),
+      makeTrackerDomain("google-analytics.com", 5, "Google", "analytics")
+    ],
+    thirdPartyRequests: 7
+  });
+  const observedIds = buildFindings(observed, observed, null).map((finding) => finding.id);
+  assert.ok(observedIds.includes("consent-banner"), "observe-mode runs keep the pre-consent card");
+
+  const consentRun = {
+    ...observed,
+    conditions: { ...observed.conditions, consentMode: "accept-all" as const }
+  };
+  const consentIds = buildFindings(consentRun, consentRun, null).map((finding) => finding.id);
+  assert.equal(consentIds.includes("consent-banner"), false, "post-click runs must not claim the pre-consent state");
 });
 
 test("confirmed keystroke exfiltration surfaces a loud finding and drives the bottom line", () => {

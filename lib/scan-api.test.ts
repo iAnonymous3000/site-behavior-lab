@@ -74,6 +74,7 @@ test("prepareScanRequest returns a queue-ready payload without acquiring a scan 
     gpcEnabled: true,
     compareGpc: true,
     compareShields: false,
+    compareConsent: false,
     rateLimitCost: 2
   });
   assert.deepEqual(scanLimitStateForTests(), {
@@ -92,6 +93,7 @@ test("executePreparedScan charges rate limits only after acquiring a scan slot",
     gpcEnabled: false,
     compareGpc: false,
     compareShields: false,
+    compareConsent: false,
     rateLimitCost: 1
   };
   let stateDuringScan: ReturnType<typeof scanLimitStateForTests> | undefined;
@@ -234,6 +236,33 @@ test("prepareScanRequest rejects conflicting comparison modes", async () => {
     () => prepareScanRequest(makeScanRequest("https://1.1.1.1/", { compareGpc: true, compareShields: true })),
     (error) => error instanceof PublicScanError && error.message === "Choose one comparison mode."
   );
+  await assert.rejects(
+    () => prepareScanRequest(makeScanRequest("https://1.1.1.1/", { compareGpc: true, compareConsent: true })),
+    (error) => error instanceof PublicScanError && error.message === "Choose one comparison mode."
+  );
+});
+
+test("runScanRequest can run and persist a consent accept/reject comparison", async () => {
+  const scannedPayloads: ScanRequestPayload[] = [];
+  const scan: ScanRunner = async (payload) => {
+    scannedPayloads.push(payload);
+    return makeScanResult(payload, payload.consentMode === "accept-all" ? 9 : 2);
+  };
+
+  const result = await runScanRequest(makeScanRequest("https://1.1.1.1/", { compareConsent: true }), scan);
+
+  assert.equal(result.reportType, "comparison");
+  if (result.reportType !== "comparison") throw new Error("expected comparison report");
+  assert.equal(result.comparisonType, "consent");
+  assert.deepEqual(result.runLabels, { baseline: "Accept all", variant: "Reject all" });
+  // The accept run comes first as the baseline; both keep the requested GPC state.
+  assert.deepEqual(scannedPayloads.map((payload) => payload.consentMode), ["accept-all", "reject-all"]);
+  assert.deepEqual(scannedPayloads.map((payload) => payload.gpcEnabled), [true, true]);
+  assert.equal(result.diff.totalRequests.before, 9);
+  assert.equal(result.diff.totalRequests.after, 2);
+  assert.equal(result.diff.totalRequests.delta, -7);
+  assert.equal(result.share?.path.startsWith("/reports/"), true);
+  assert.deepEqual(await readScanReport(result.share?.id || ""), result);
 });
 
 test("runScanRequest charges comparisons as two rate-limit tokens", async () => {
@@ -275,6 +304,7 @@ test("executePreparedScan does not charge rate limits when the scan slot queue t
     gpcEnabled: true,
     compareGpc: false,
     compareShields: false,
+    compareConsent: false,
     rateLimitCost: 1
   };
   const hang: ScanRunner = () => new Promise(() => {});
@@ -317,7 +347,7 @@ test("runScanRequest returns scan results when report persistence fails", async 
 
 function makeScanRequest(
   url: string,
-  options: { compareGpc?: boolean; compareShields?: boolean } = {},
+  options: { compareGpc?: boolean; compareShields?: boolean; compareConsent?: boolean } = {},
   headers: Record<string, string> = {}
 ): Request {
   return new Request("http://localhost/api/scan", {
@@ -329,6 +359,7 @@ function makeScanRequest(
       gpcEnabled: true,
       compareGpc: options.compareGpc,
       compareShields: options.compareShields,
+      compareConsent: options.compareConsent,
       consentMode: "observe"
     })
   });

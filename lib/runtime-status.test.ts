@@ -62,6 +62,7 @@ test("runtimeStatus reports ok status when production controls are configured", 
     singleScan: true,
     gpcComparison: true,
     shieldsComparison: true,
+    consentComparison: true,
     savedReports: true,
     savedReportPages: true
   });

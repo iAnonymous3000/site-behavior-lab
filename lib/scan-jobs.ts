@@ -228,7 +228,7 @@ function createProgress(phase: ScanJobProgress["phase"], prepared: PreparedScanR
 }
 
 function totalRunsForPreparedRequest(prepared: PreparedScanRequest): number {
-  return prepared.compareGpc || prepared.compareShields ? 2 : 1;
+  return prepared.compareGpc || prepared.compareShields || prepared.compareConsent ? 2 : 1;
 }
 
 function createDeferred(): Deferred {

@@ -1,7 +1,10 @@
 export type ScanDevice = "desktop" | "mobile";
-export type ConsentMode = "observe";
+// "observe" never touches the consent banner (the default; everything recorded is
+// pre-consent). "accept-all"/"reject-all" click that choice on the banner when a
+// recognizable control exists, so the visit records the post-choice state.
+export type ConsentMode = "observe" | "accept-all" | "reject-all";
 export type ScanAutomation = "playwright-chromium" | "brave-pagegraph" | "external";
-export type ComparisonType = "gpc" | "shields" | "temporal" | "custom";
+export type ComparisonType = "gpc" | "shields" | "consent" | "temporal" | "custom";
 export const SCAN_REPORT_SCHEMA_VERSION = 1 as const;
 export type ScanReportSchemaVersion = typeof SCAN_REPORT_SCHEMA_VERSION;
 
@@ -100,6 +103,27 @@ export type PrivacyPolicySummary = {
   unmentionedEntities: string[];
   /** Characters of policy text analyzed (evidence the fetch worked). */
   policyTextLength: number;
+};
+
+/**
+ * What happened when the scanner was asked to click a consent-banner choice
+ * ("accept-all" / "reject-all"). `clicked: false` means no recognizable control
+ * was found, so that visit still reflects the PRE-consent state and no claim may
+ * be made about the site's post-choice behavior. `matchedText` only ever holds a
+ * label that matched the scanner's own conservative accept/reject phrase list,
+ * never arbitrary page text.
+ */
+export type ConsentInteractionSummary = {
+  mode: Exclude<ConsentMode, "observe">;
+  clicked: boolean;
+  /** Consent platform name when a known CMP selector matched (e.g. "OneTrust"). */
+  cmp?: string;
+  /** The CSS selector that matched, when a known CMP control was clicked. */
+  selector?: string;
+  /** The visible control label, when the generic accept/reject text match clicked it. */
+  matchedText?: string;
+  /** Redacted URL of the (i)frame the control was found in, when not the main frame. */
+  frameUrl?: string;
 };
 
 export type NetworkRequestRecord = {
@@ -346,6 +370,7 @@ export type ScanResult = {
   cnameCloaks?: CnameCloak[];
   pixelEvents?: PixelEventSummary[];
   privacyPolicy?: PrivacyPolicySummary;
+  consentInteraction?: ConsentInteractionSummary;
   screenshot: string | null;
   warnings: string[];
   share?: ReportShare;

@@ -164,6 +164,7 @@ function makePreparedScanRequest(overrides: Partial<PreparedScanRequest> = {}): 
     gpcEnabled: true,
     compareGpc: false,
     compareShields: false,
+    compareConsent: false,
     rateLimitCost: 1,
     ...overrides
   };

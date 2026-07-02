@@ -20,6 +20,7 @@ export type ScanRuntimeCapabilities = {
   singleScan?: boolean;
   gpcComparison?: boolean;
   shieldsComparison?: boolean;
+  consentComparison?: boolean;
   savedReports?: boolean;
   /**
    * The scan API origin serves human-viewable `/reports/:id` HTML pages (it runs
@@ -83,7 +84,7 @@ function isScanRuntimeStatus(value: unknown): value is ScanRuntimeStatus {
 
 function isCapabilities(value: unknown): value is ScanRuntimeCapabilities {
   if (!isRecord(value)) return false;
-  return (["singleScan", "gpcComparison", "shieldsComparison", "savedReports", "savedReportPages"] as const).every(
+  return (["singleScan", "gpcComparison", "shieldsComparison", "consentComparison", "savedReports", "savedReportPages"] as const).every(
     (key) => value[key] === undefined || typeof value[key] === "boolean"
   );
 }

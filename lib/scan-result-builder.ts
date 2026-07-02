@@ -3,6 +3,7 @@ import { trackerCatalogMetadata } from "./tracker-catalog";
 import { SCAN_REPORT_SCHEMA_VERSION } from "./types";
 import type {
   CnameCloak,
+  ConsentInteractionSummary,
   ConsentMode,
   CookieRecord,
   FingerprintDetectionSummary,
@@ -30,6 +31,7 @@ export type BuildScanResultInput = {
   cnameCloaks?: CnameCloak[];
   pixelEvents?: PixelEventSummary[];
   privacyPolicy?: PrivacyPolicySummary;
+  consentInteraction?: ConsentInteractionSummary;
   screenshot: string | null;
   warnings: string[];
   shieldsBlockedRequests?: number;
@@ -251,6 +253,11 @@ export function buildScanResult(input: BuildScanResultInput): ScanResult {
   }
   if (input.privacyPolicy) {
     result.privacyPolicy = input.privacyPolicy;
+  }
+  // Attached whenever a consent choice was ATTEMPTED (clicked or not): a failed
+  // click means the run is still pre-consent, and the report must say which.
+  if (input.consentInteraction) {
+    result.consentInteraction = input.consentInteraction;
   }
 
   return result;

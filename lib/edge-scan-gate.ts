@@ -39,9 +39,9 @@ export const DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY = 120;
 const RATE_LIMIT_BUCKET_PREFIX = "rate-limits";
 const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
-/** Comparison runs (GPC or Shields off/on) make two browser visits and cost two tokens. */
-export function scanTokenCost(payload: { compareGpc?: boolean; compareShields?: boolean }): 1 | 2 {
-  return payload.compareGpc || payload.compareShields ? 2 : 1;
+/** Comparison runs (GPC, Shields, or consent accept/reject) make two browser visits and cost two tokens. */
+export function scanTokenCost(payload: { compareGpc?: boolean; compareShields?: boolean; compareConsent?: boolean }): 1 | 2 {
+  return payload.compareGpc || payload.compareShields || payload.compareConsent ? 2 : 1;
 }
 
 export type PublicScanGateStatus = {
