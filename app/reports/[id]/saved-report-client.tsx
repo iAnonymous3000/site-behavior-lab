@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { committedReportLocation } from "@/lib/report-locator";
 import { isScanReport } from "@/lib/report-validation";
 import type { ScanReport } from "@/lib/types";
-import { SiteBehaviorApp, clientReportRuntime } from "../../site-behavior-app";
+import { clientReportRuntime } from "../../client-runtime";
+import { SiteBehaviorApp } from "../../site-behavior-app";
 
 type LoadState =
   | { status: "loading" }
