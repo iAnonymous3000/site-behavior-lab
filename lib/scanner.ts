@@ -40,9 +40,7 @@ import { collectFingerprintObservationsFromFrames, fingerprintObserverInitScript
 import { startPublicScanProxy, type ResolvePublicHost } from "./public-scan-proxy";
 import {
   collectStorageEntries,
-  MAX_RECORDED_REQUESTS,
   ScanNetworkRecorder,
-  NON_HTTP_WARNING_EXAMPLE_LIMIT,
   ScanRequestBudget,
   scanTimeoutMs,
   ScanWarningCollector,

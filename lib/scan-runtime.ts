@@ -8,25 +8,60 @@ const SCAN_TIMEOUT_MESSAGE = "The scan exceeded the maximum scan duration.";
 
 export class ScanWarningCollector {
   readonly list: string[];
-  private nonHttpBlockedCount = 0;
+  private readonly seen: Set<string>;
+  private readonly blockedUrlGroups = new Map<string, Set<string>>();
 
   constructor(initialWarnings: string[] = []) {
     this.list = [...initialWarnings];
+    this.seen = new Set(this.list);
   }
 
+  // Exact-duplicate warnings carry no information but bloat stored reports and
+  // break list rendering keyed by message text. Retries of the same blocked URL
+  // collapse into identical strings once the query is redacted, so drop repeats.
   add(message: string): void {
+    if (this.seen.has(message)) return;
+    this.seen.add(message);
     this.list.push(message);
   }
 
   addNonHttpRequest(url: string): void {
-    this.nonHttpBlockedCount += 1;
-    if (this.nonHttpBlockedCount <= NON_HTTP_WARNING_EXAMPLE_LIMIT) {
-      this.add(`Blocked a non-HTTP(S) request: ${redactUrlForReport(url)}`);
+    this.addBlockedUrlExample(
+      "non-http",
+      url,
+      (redacted) => `Blocked a non-HTTP(S) request: ${redacted}`,
+      `Blocked additional non-HTTP(S) requests. Only the first ${NON_HTTP_WARNING_EXAMPLE_LIMIT} examples are shown.`
+    );
+  }
+
+  addUnverifiedRequest(url: string, label = "Blocked a request that could not be verified as public"): void {
+    this.addBlockedUrlExample(
+      `unverified:${label}`,
+      url,
+      (redacted) => `${label}: ${redacted}`,
+      `Blocked additional requests that could not be verified as public. Only the first ${NON_HTTP_WARNING_EXAMPLE_LIMIT} examples are shown.`
+    );
+  }
+
+  // Per-group cap on blocked-URL examples: a single broken or adversarial page
+  // can fail the guard for dozens of distinct hosts, and one warning line each
+  // would drown the report. Show the first few distinct URLs, then one summary.
+  private addBlockedUrlExample(group: string, url: string, example: (redacted: string) => string, summary: string): void {
+    const redacted = redactUrlForReport(url);
+    let urls = this.blockedUrlGroups.get(group);
+    if (!urls) {
+      urls = new Set<string>();
+      this.blockedUrlGroups.set(group, urls);
+    }
+    if (urls.has(redacted)) return;
+    urls.add(redacted);
+
+    if (urls.size <= NON_HTTP_WARNING_EXAMPLE_LIMIT) {
+      this.add(example(redacted));
       return;
     }
-
-    if (this.nonHttpBlockedCount === NON_HTTP_WARNING_EXAMPLE_LIMIT + 1) {
-      this.add(`Blocked additional non-HTTP(S) requests. Only the first ${NON_HTTP_WARNING_EXAMPLE_LIMIT} examples are shown.`);
+    if (urls.size === NON_HTTP_WARNING_EXAMPLE_LIMIT + 1) {
+      this.add(summary);
     }
   }
 }
@@ -262,7 +297,7 @@ export async function verifyRoutedHttpRequest({
     await verifyPublicUrl(parsed);
     return { action: "continue", url: parsed };
   } catch {
-    warnings.add(`${unverifiedWarning}: ${redactUrlForReport(requestUrl)}`);
+    warnings.addUnverifiedRequest(requestUrl, unverifiedWarning);
     return { action: "abort" };
   }
 }

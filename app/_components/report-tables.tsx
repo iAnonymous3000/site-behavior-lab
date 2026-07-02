@@ -7,10 +7,13 @@ import { detectionEvidence, detectionLabel, fingerprintDetections, pixelFieldLab
 import type { CookieRecord, DomainSummary, NetworkRequestRecord, ScanResult } from "@/lib/types";
 
 function Warnings({ warnings }: { warnings: string[] }) {
-  if (warnings.length === 0) return null;
+  // Reports saved before the collector deduped can carry exact-duplicate
+  // warnings; a repeat adds nothing and would break the message-text keys.
+  const unique = Array.from(new Set(warnings));
+  if (unique.length === 0) return null;
   return (
     <section className="warnings">
-      {warnings.map((warning) => (
+      {unique.map((warning) => (
         <div key={warning}>
           <AlertTriangle size={16} aria-hidden="true" />
           <span>{warning}</span>

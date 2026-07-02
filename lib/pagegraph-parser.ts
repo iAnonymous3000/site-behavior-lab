@@ -17,7 +17,6 @@ type GraphKey = {
 
 const REQUEST_HINT = /\b(request|fetch|xhr|xmlhttprequest|network|resource)\b/i;
 const STORAGE_HINT = /\b(local\s*storage|session\s*storage|storage)\b/i;
-const COOKIE_HINT = /\bcookie\b/i;
 const API_HINT = /\b(api|call|method|web\s*api|js)\b/i;
 const FINGERPRINT_API_HINTS = [
   /canvas/i,

@@ -47,7 +47,6 @@ import {
 } from "./_components/report-tables";
 import { StaticReportGallery } from "./_components/static-gallery";
 import {
-  LIVE_SCAN_API_BASE,
   LIVE_SCAN_ENABLED,
   LIVE_SCAN_TURNSTILE_SITE_KEY,
   OPEN_ACCESS_SCANNER,

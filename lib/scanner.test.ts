@@ -132,6 +132,36 @@ test("ScanWarningCollector limits noisy non-HTTP request examples", () => {
   assert.equal(warnings.list.some((warning) => warning.includes("secret")), false);
 });
 
+test("ScanWarningCollector drops exact-duplicate warnings", () => {
+  const warnings = new ScanWarningCollector(["initial warning"]);
+
+  warnings.add("initial warning");
+  warnings.add("second warning");
+  warnings.add("second warning");
+
+  assert.deepEqual(warnings.list, ["initial warning", "second warning"]);
+});
+
+test("ScanWarningCollector dedupes and caps unverified-request examples", () => {
+  const warnings = new ScanWarningCollector();
+
+  // Retries of the same URL (different query strings) collapse after redaction.
+  warnings.addUnverifiedRequest("https://blocked.example/pixel?attempt=1");
+  warnings.addUnverifiedRequest("https://blocked.example/pixel?attempt=2");
+  assert.deepEqual(warnings.list, ["Blocked a request that could not be verified as public: https://blocked.example/pixel"]);
+
+  for (let index = 0; index < NON_HTTP_WARNING_EXAMPLE_LIMIT + 3; index += 1) {
+    warnings.addUnverifiedRequest(`https://blocked-${index}.example/asset?token=secret`);
+  }
+
+  assert.equal(warnings.list.length, NON_HTTP_WARNING_EXAMPLE_LIMIT + 1);
+  assert.equal(
+    warnings.list.at(-1),
+    `Blocked additional requests that could not be verified as public. Only the first ${NON_HTTP_WARNING_EXAMPLE_LIMIT} examples are shown.`
+  );
+  assert.equal(warnings.list.some((warning) => warning.includes("secret")), false);
+});
+
 test("decideRoutedRequest aborts non-HTTP requests before public host verification", async () => {
   const warnings = new ScanWarningCollector();
   const requestBudget = new ScanRequestBudget(warnings);
