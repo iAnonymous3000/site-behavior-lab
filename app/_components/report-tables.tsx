@@ -130,6 +130,7 @@ function RequestTable({ result }: { result: ScanResult }) {
               type="button"
               className={signalFilter === filter.value ? "secondary-button" : "ghost-button"}
               aria-pressed={signalFilter === filter.value}
+              title={filter.title}
               onClick={() => setSignalFilter(filter.value)}
             >
               {filter.label}
@@ -208,13 +209,29 @@ function RequestTable({ result }: { result: ScanResult }) {
 type RequestSignalFilter = "all" | "third-party" | "known-service" | "shields-blocked" | "fingerprinting" | "provenance";
 type RequestStatusFilter = "all" | "ok" | "redirect" | "client-error" | "server-error" | "pending";
 
-const REQUEST_SIGNAL_FILTERS: { value: RequestSignalFilter; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "third-party", label: "Third-party" },
-  { value: "known-service", label: "Known services" },
-  { value: "shields-blocked", label: "Brave would block" },
-  { value: "fingerprinting", label: "Fingerprinting" },
-  { value: "provenance", label: "Provenance" }
+const REQUEST_SIGNAL_FILTERS: { value: RequestSignalFilter; label: string; title: string }[] = [
+  { value: "all", label: "All", title: "Every request the page made." },
+  { value: "third-party", label: "Third-party", title: "Requests to any domain other than the site itself." },
+  {
+    value: "known-service",
+    label: "Known services",
+    title: "Third parties matched in the curated catalog of advertising, analytics, and social services."
+  },
+  {
+    value: "shields-blocked",
+    label: "Brave would block",
+    title: "Requests matching the default filter lists of Brave Shields, the blocker built into the Brave browser."
+  },
+  {
+    value: "fingerprinting",
+    label: "Fingerprinting",
+    title: "Requests to catalogued services associated with device fingerprinting."
+  },
+  {
+    value: "provenance",
+    label: "Provenance",
+    title: "Requests with a recorded causal chain: which script triggered them, and what injected that script."
+  }
 ];
 
 function requestMatchesSignalFilter(request: NetworkRequestRecord, filter: RequestSignalFilter): boolean {

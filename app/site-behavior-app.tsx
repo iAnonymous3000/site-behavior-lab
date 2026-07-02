@@ -65,6 +65,7 @@ import { committedReportLocation, locateReport, type ReportRuntime } from "@/lib
 import { isScanRuntimeHealth, type ScanRuntimeHealth } from "@/lib/scan-runtime-health";
 import { fingerprintDetectionCount, trackerEntitySummaries } from "@/lib/report-insights";
 import { buildFindings, type FindingIconKey } from "@/lib/report-findings";
+import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/lib/run-mode-copy";
 import { plural } from "@/lib/text-format";
 import { isScanReport, REPORT_ID_PATTERN } from "@/lib/report-validation";
 import type {
@@ -102,15 +103,10 @@ function isComparisonMode(form: ScanFormState): boolean {
 }
 
 // One plain-language line under the run controls. "Brave Shields" and "GPC" are
-// jargon to a first-time visitor, so the selected mode always explains itself.
-function runModeHint(form: ScanFormState): string {
-  if (form.compareShields) {
-    return "Visits the page twice: once normally, then once with Brave Shields (the ad and tracker blocker built into the Brave browser) to show what it would block.";
-  }
-  if (form.compareGpc) {
-    return 'Visits the page twice: once normally, then once sending Global Privacy Control (GPC), a legal "do not sell or share my data" signal, to show whether the site reacts.';
-  }
-  return "One controlled visit that records every request, cookie, and script the page loads.";
+// jargon to a first-time visitor, so the selected mode always explains itself;
+// the copy lives in lib/run-mode-copy.ts where unit tests pin it.
+function selectedRunMode(form: ScanFormState): RunMode {
+  return form.compareShields ? "shields" : form.compareGpc ? "gpc" : "single";
 }
 
 // The browser reads health through the shared cross-runtime contract.
@@ -556,42 +552,34 @@ export function SiteBehaviorApp({
                 type="button"
                 aria-pressed={!isComparisonMode(form)}
                 className={!isComparisonMode(form) ? "active" : ""}
-                title="One controlled visit."
+                title={RUN_MODE_TITLES.single}
                 onClick={() => setForm((current) => ({ ...current, compareGpc: false, compareShields: false }))}
               >
                 <Search size={16} aria-hidden="true" />
-                Single
+                {RUN_MODE_LABELS.single}
               </button>
               <button
                 type="button"
                 aria-pressed={form.compareGpc}
                 className={form.compareGpc ? "active" : ""}
                 disabled={!gpcComparisonEnabled}
-                title={
-                  gpcComparisonEnabled
-                    ? "Two visits: with and without the Global Privacy Control opt-out signal."
-                    : "GPC comparison is not available from this scanner."
-                }
+                title={gpcComparisonEnabled ? RUN_MODE_TITLES.gpc : "GPC comparison is not available from this scanner."}
                 onClick={() => setForm((current) => ({ ...current, compareGpc: gpcComparisonEnabled, compareShields: false }))}
               >
                 <ShieldCheck size={16} aria-hidden="true" />
-                GPC diff
+                {RUN_MODE_LABELS.gpc}
               </button>
               <button
                 type="button"
                 aria-pressed={form.compareShields}
                 className={form.compareShields ? "active" : ""}
                 disabled={!shieldsComparisonEnabled}
-                title={
-                  shieldsComparisonEnabled
-                    ? "Two visits: with and without Brave Shields, the ad and tracker blocker built into the Brave browser."
-                    : "Brave Shields comparison requires the Node scanner."
-                }
+                title={shieldsComparisonEnabled ? RUN_MODE_TITLES.shields : "Brave Shields comparison requires the Node scanner."}
                 aria-label="Blocker comparison (Brave Shields)"
                 onClick={() => setForm((current) => ({ ...current, compareGpc: false, compareShields: shieldsComparisonEnabled }))}
               >
                 <Shield size={16} aria-hidden="true" />
-                Blocker
+                {RUN_MODE_LABELS.shields}
               </button>
             </div>
           </fieldset>
@@ -625,7 +613,10 @@ export function SiteBehaviorApp({
             {gpcComparisonEnabled && form.compareGpc ? (
               <div className="readonly-control">Off + On</div>
             ) : (
-              <label className="switch-row">
+              <label
+                className="switch-row"
+                title='Global Privacy Control: a "do not sell or share my data" signal sent with every request.'
+              >
                 <input
                   type="checkbox"
                   checked={form.gpcEnabled}
@@ -654,7 +645,7 @@ export function SiteBehaviorApp({
             </fieldset>
           )}
         </div>
-        <p className="run-mode-hint">{runModeHint(form)}</p>
+        <p className="run-mode-hint">{runModeHint(selectedRunMode(form))}</p>
       </details>
     </form>
   );
@@ -870,6 +861,10 @@ export function SiteBehaviorApp({
         <footer className="app-footer">
           <span>
             Site Behavior Lab: open-source web transparency tooling.{" "}
+            <a className="footer-link" href={staticAssetPath("/glossary/")}>
+              Glossary
+            </a>
+            {" · "}
             <a className="footer-link" href={staticAssetPath("/privacy/")}>
               Privacy
             </a>
@@ -1723,6 +1718,9 @@ function FindingsBoard({ report, result }: { report: ScanReport; result: ScanRes
         <div>
           <p className="eyebrow">Plain-Language Findings</p>
           <h2>What this visit means</h2>
+          <a className="glossary-link" href={staticAssetPath("/glossary/")}>
+            Unfamiliar terms are defined in the glossary
+          </a>
         </div>
         <span>{result.conditions.automation}</span>
       </div>

@@ -1470,6 +1470,19 @@ a {
   margin: 4px 0 0;
 }
 
+.glossary-link {
+  color: var(--text-muted);
+  display: inline-block;
+  font-size: 12px;
+  margin-top: 6px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.glossary-link:hover {
+  color: var(--text);
+}
+
 .findings-heading > span {
   background: var(--surface-2);
   border: 1px solid var(--border);
