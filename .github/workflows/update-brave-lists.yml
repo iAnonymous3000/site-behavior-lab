@@ -1,0 +1,94 @@
+name: Update Brave Shields Lists
+
+# Keeps the vendored Brave Shields snapshot current so the block simulation and
+# tried-vs-blocked classification track Brave's real default lists:
+#   1. Weekly refresh of the default filter lists from Brave's own catalog,
+#      validated end to end (the WASM engine must load the new snapshot and
+#      still block known ad URLs) before the refresh is committed.
+#   2. A drift check against the adblock-rust crate (github.com/brave/adblock-rust)
+#      that surfaces a warning when the pinned engine version falls behind, since
+#      rebuilding the WASM needs a local Rust toolchain (tools/adblock-wasm/).
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-brave-lists
+  cancel-in-progress: false
+
+env:
+  CI: "1"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  refresh-lists:
+    name: Refresh and validate filter lists
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch Brave default filter lists
+        run: npm run lists:brave
+
+      - name: Validate the refreshed engine snapshot
+        run: npm run lists:verify
+
+      - name: Run unit tests against the new snapshot
+        run: npm run test:unit
+
+      - name: Commit refreshed lists
+        run: |
+          git config user.name "iAnonymous3000"
+          git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
+          git add lib/adblock-wasm/brave-default-filters.txt.gz lib/adblock-wasm/brave-default-filters.meta.json
+          if git diff --cached --quiet; then
+            echo "No filter list changes to commit."
+            exit 0
+          fi
+          git commit -m "Refresh the vendored Brave Shields default filter lists"
+          git push
+
+  engine-drift-check:
+    name: Check adblock-rust engine version drift
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compare the pinned adblock crate against crates.io
+        run: |
+          pinned=$(grep -oE 'adblock = \{ version = "[0-9.]+"' tools/adblock-wasm/Cargo.toml | grep -oE '[0-9.]+')
+          latest=$(curl -fsSL -H "User-Agent: site-behavior-lab-ci (list refresh workflow)" \
+            https://crates.io/api/v1/crates/adblock | node -e "
+              let raw = '';
+              process.stdin.on('data', (chunk) => { raw += chunk; });
+              process.stdin.on('end', () => {
+                process.stdout.write(JSON.parse(raw).crate.max_stable_version);
+              });
+            ")
+          echo "Pinned adblock crate: ${pinned}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Latest stable on crates.io: ${latest}" >> "$GITHUB_STEP_SUMMARY"
+          case "$latest" in
+            "$pinned"|"$pinned".*)
+              echo "Engine pin is current." >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            *)
+              echo "::warning title=adblock-rust engine drift::The vendored WASM engine pins adblock ${pinned} but crates.io has ${latest}. Rebuild tools/adblock-wasm (wasm-pack) and re-vendor lib/adblock-wasm to pick up new filter syntax support."
+              echo "Engine pin is BEHIND: rebuild tools/adblock-wasm against ${latest}." >> "$GITHUB_STEP_SUMMARY"
+              ;;
+          esac

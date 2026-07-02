@@ -14,6 +14,7 @@
     "cf:kv:create": "wrangler kv namespace create site-behavior-lab-reports",
     "cf:typecheck": "tsc -p tsconfig.cloudflare.json --noEmit",
     "lists:brave": "node scripts/fetch-brave-lists.mjs",
+    "lists:verify": "node scripts/verify-adblock-engine.mjs",
     "check": "npm run typecheck && npm run cf:typecheck && npm run test:unit && npm run build",
     "corpus:stats": "node scripts/build-corpus-stats.mjs",
     "reports:manifest": "node scripts/build-static-report-manifest.mjs",
