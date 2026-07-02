@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { loadCorpusOverview, type DirectoryEntry } from "@/lib/corpus-overview";
 import { reportPagePath } from "@/lib/report-locator";
+import { sitePagesBasePath } from "@/lib/site-url";
 import { formatDelta, type SinceLastScan } from "@/lib/temporal-deltas";
 
 export const dynamic = "force-static";
@@ -48,6 +49,12 @@ export default async function DirectoryPage() {
           {entries.length === 0
             ? "No reports have been published yet."
             : `${entries.length.toLocaleString()} ${entries.length === 1 ? "report" : "reports"} of what real sites loaded during a controlled visit. Each links to the full, reproducible evidence.`}
+        </p>
+        <p className="directory-export">
+          Researcher export: <a href={`${sitePagesBasePath()}/corpus.json`}>corpus.json</a>
+          {" · "}
+          <a href={`${sitePagesBasePath()}/corpus.csv`}>corpus.csv</a>
+          {" "}(one row per report; a measured corpus of curated sites, not a random sample of the web)
         </p>
         <p className="directory-back">
           <Link href="/">&larr; Back to Site Behavior Lab</Link>

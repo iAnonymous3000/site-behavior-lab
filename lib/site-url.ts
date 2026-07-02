@@ -25,8 +25,16 @@ export function siteOrigin(): string {
 
 /** Public base URL including any GitHub Pages project base path, no trailing slash. */
 export function siteBaseUrl(): string {
-  const basePath = normalizeBasePath(process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PAGES_BASE_PATH || "");
-  return `${siteOrigin()}${basePath}`;
+  return `${siteOrigin()}${sitePagesBasePath()}`;
+}
+
+/**
+ * The Pages project base path alone ("" at a domain root), for origin-relative
+ * links to non-page files (e.g. /corpus.json) from server components, where
+ * next/link's automatic basePath prefixing does not apply.
+ */
+export function sitePagesBasePath(): string {
+  return normalizeBasePath(process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PAGES_BASE_PATH || "");
 }
 
 function normalizeBasePath(value: string): string {

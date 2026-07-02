@@ -8,7 +8,11 @@ const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const reportsDir = path.join(rootDir, "public", "reports");
 const reportFilePattern = /^([0-9]{8}-[0-9a-f]{32})\.json$/;
 const DEFAULT_MAX_AGE_DAYS = 7;
-const DEFAULT_MAX_COUNT = 500;
+// Hard ceiling on committed reports. With per-site-per-kind history retention
+// (see DEFAULT_KEEP_PER_SITE) the protected set alone can approach
+// sites x kinds x 2, so this sits well above it; at ~150 KB per report the
+// ceiling bounds the repo at roughly 150 MB of report JSON.
+const DEFAULT_MAX_COUNT = 1_000;
 // Each site's newest reports PER KIND (shields / consent / gpc / single) are
 // exempt from AGE pruning so the corpus keeps a "current" and a "previous"
 // generation of each kind for the directory's "changed since last scan" view

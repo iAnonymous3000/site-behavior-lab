@@ -2036,6 +2036,17 @@ a {
   font-variant-numeric: tabular-nums;
 }
 
+.directory-export {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.directory-export a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* ---- Category rollups (directory) ---- */
 .category-rollups {
   margin: 8px 0 36px;

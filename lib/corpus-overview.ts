@@ -33,6 +33,11 @@ export type DirectoryEntry = {
   scannedAt: string;
   reportType: "single" | "comparison";
   comparisonType?: ComparisonType;
+  device: "desktop" | "mobile";
+  /** GPC state of the report's lead (baseline) run. */
+  gpcEnabled: boolean;
+  /** Consent mode of the report's lead run ("accept-all" on consent comparisons). */
+  consentMode: string;
   /** Set on a site's newest report when an earlier report of the same kind exists. */
   sinceLastScan?: SinceLastScan;
 };
@@ -150,6 +155,9 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
       categoryLabel,
       scannedAt: report.reportType === "comparison" ? report.scannedAt : result.conditions.scannedAt,
       reportType: report.reportType === "comparison" ? "comparison" : "single",
+      device: result.conditions.viewport.isMobile ? "mobile" : "desktop",
+      gpcEnabled: result.conditions.gpcEnabled,
+      consentMode: result.conditions.consentMode ?? "observe",
       ...(report.reportType === "comparison" ? { comparisonType: report.comparisonType } : {})
     });
   }
