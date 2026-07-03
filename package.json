@@ -16,6 +16,7 @@
     "lists:brave": "node scripts/fetch-brave-lists.mjs",
     "lists:verify": "node scripts/verify-adblock-engine.mjs",
     "check": "npm run typecheck && npm run cf:typecheck && npm run test:unit && npm run build",
+    "corpus:pagegraph": "tsc -p tsconfig.test.json && node .unit-test-dist/lib/pagegraph-corpus-cli.js",
     "corpus:stats": "node scripts/build-corpus-stats.mjs",
     "reports:manifest": "node scripts/build-static-report-manifest.mjs",
     "reports:prune": "node scripts/prune-static-reports.mjs",

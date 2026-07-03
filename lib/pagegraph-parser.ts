@@ -2,7 +2,7 @@ import { safeParseUrl } from "./report-url";
 import { pageGraphToScanResult, type PageGraphAdapterInput, type PageGraphNetworkRequest } from "./pagegraph-adapter";
 import type { FingerprintEventSummary, NetworkRequestProvenance, ScanResult, StorageRecord } from "./types";
 
-type GraphRecord = {
+export type GraphRecord = {
   id: string;
   kind: "node" | "edge";
   source?: string;

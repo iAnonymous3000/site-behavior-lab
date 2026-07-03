@@ -35,6 +35,7 @@ The project is open source under the [AGPL-3.0-or-later](LICENSE) so anyone can 
 - Server-rendered, indexable `/directory/` page that lists every committed report with its plain-language headline and key metrics, linked from the gallery and included in `sitemap.xml` for crawlable internal linking.
 - Transparency-index hero that leads the static homepage with measured corpus highlights (how many real sites have been scanned and the median catalogued tracker-request count per site for the top categories), linking straight into `/directory/` and the report library, so the landing view is evidence rather than a pitch.
 - Collection-agnostic `ScanResult` contract with a normalized [PageGraph adapter](docs/pagegraph-adapter.md), tolerant GraphML parser, and PageGraph-derived fixture reports for Brave/internal evidence ingestion.
+- PageGraph corpus Phase 0 (`npm run corpus:pagegraph`): GraphML in, DuckDB-queryable fact tables out, with a filter-rule impact simulator that computes downstream removal as a transitive closure over the causal graph. See the [proposal](docs/pagegraph-corpus-db-proposal.md) and the [Phase 0 spike](docs/pagegraph-corpus-phase0.md).
 - Evidence report with:
   - plain-language findings board that translates the evidence into severity-ranked cards
   - summary metrics
