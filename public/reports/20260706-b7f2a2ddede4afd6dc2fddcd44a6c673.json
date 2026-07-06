@@ -1,0 +1,3219 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://x.com/",
+  "scannedAt": "2026-07-06T09:31:33.975Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "X. It’s what’s happening / X",
+      "status": 200,
+      "durationMs": 7562,
+      "firstPartyDomain": "x.com",
+      "totalRequests": 102,
+      "thirdPartyRequests": 90,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 5,
+      "cookies": 6,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 337,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://x.com/",
+      "finalUrl": "https://x.com/",
+      "scannedAt": "2026-07-06T09:31:26.406Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://x.com/",
+        "domain": "x.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 45,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://abs.twimg.com/responsive-web/client-web/Chirp-Regular.80fda27a.woff2",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 174,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://abs.twimg.com/responsive-web/client-web/Chirp-Bold.ebb56aba.woff2",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 175,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://abs.twimg.com/responsive-web/client-web/Chirp-Medium.f8e2739a.woff2",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 175,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://abs.twimg.com/responsive-web/client-web/vendor.f1cda39a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 175,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://abs.twimg.com/responsive-web/client-web/i18n/en.ff8eb6ca.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 175,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://abs.twimg.com/responsive-web/client-web/main.b962870a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 175,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://abs.twimg.com/responsive-web/client-web/bundle.LoggedOutShell.0cc46e6a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 241,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://abs.twimg.com/responsive-web/client-web/bundle.LoggedOutRoutes.ca13e6fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 248,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://abs.twimg.com/responsive-web/client-web/bundle.LoggedOutHome.8f34416a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 258,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://abs.twimg.com/emoji/v2/svg/26a0.svg",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 568,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://x.com/cdn-cgi/challenge-platform/scripts/jsd/api.js",
+        "domain": "x.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 604,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.LoggedInApiFilters~bundle.PaymentShared~ondemand.PaymentsWebCore.e04e17ba.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 796,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://abs.twimg.com/responsive-web/client-web/bundle.LoggedInApiFilters.70468c6a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 797,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.22.d6cae93a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 797,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.18.8863b2ca.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 798,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.28.087a40da.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 798,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.3.dd11566a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 802,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.0.05416e0a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 803,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.5.890d902a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 803,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.20.950781aa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 803,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.23.9d66970a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 804,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.27.54120eca.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 804,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.2.9058eada.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 805,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.12.fb2ee67a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 805,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.8.52d3632a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 805,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.17.62a0db7a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 806,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.15.791d5e8a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 806,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.11.9e42f1ba.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 807,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.6.647e77aa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 807,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.1.0b9ae81a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 808,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.9.fdeb363a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 808,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.16.fe49c61a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 808,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.19.4979fe7a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 809,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.29.18f9efca.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 809,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.4.98dff3fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 810,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.10.8acfc74a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 810,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.14.a666020a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 810,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.26.b2ae730a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 811,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://abs.twimg.com/responsive-web/client-web/98946.53c96ada.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 811,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://x.com/cdn-cgi/challenge-platform/h/b/scripts/jsd/80a697ecdece/api.js",
+        "domain": "x.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 818,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.7.df5ff09a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 820,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://abs.twimg.com/responsive-web/client-web/modules.common.4722c04a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 820,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.25.46e276da.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 820,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.24.dc89e2fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 821,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.21.652c97fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 821,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~ondemand.HoverCard~loader.AudioDock~bundle.GrokDrawer~ondemand.XChat~bundle.ReaderMode~bundle.AudioSpa.1db6557a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 822,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~loaders.video.VideoPlayerDefaultUI~bundle.AudioSpaceDetail~bundle.AudioSpaceDiscovery~bund.9e7de2fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 823,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.GrokDrawer~bundle.ReaderMode~bundle.Birdwatch~bundle.TwitterArticles~bundle.Compose~bundle.Sett.47d71f9a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 824,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~bundle.AudioSpaceDetail~bundle.AudioSpaceDiscovery~bundle.AudioSpacebarScreen~bundle.Birdw.3f0ab4da.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 825,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.AudioSpaceDetail~bundle.AudioSpaceDiscovery~bundle.AudioSpacebarScreen~bundle.Birdwatch~bundle..ece6f8ea.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 825,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.Routes~bundle.LiveEvent~bundle.Communities~bundle.Grok~bundle.Payments~bundle.Notifications~bun.94dc136a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 825,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.WideLayout~bundle.Conversation.2830398a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 825,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://abs.twimg.com/responsive-web/client-web/bundle.Conversation.7870704a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 825,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://abs.twimg.com/responsive-web/client-web/ondemand.castle.c42626ea.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 826,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://x.com/cdn-cgi/challenge-platform/scripts/jsd/main.js",
+        "domain": "x.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 864,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://x.com/i/csp_report",
+        "domain": "x.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 868,
+        "blockedByShields": true
+      },
+      {
+        "id": 58,
+        "url": "https://abs.twimg.com/responsive-web/client-web/ondemand.Dropdown.5ee6072a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 901,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://x.com/cdn-cgi/challenge-platform/h/b/scripts/jsd/80a697ecdece/main.js",
+        "domain": "x.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 907,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.Routes~loader.PrimaryNav.fb3d3aea.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 945,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.25.46e276da.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 947,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.24.dc89e2fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 947,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://abs.twimg.com/responsive-web/client-web/jetfuel.c19d932a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 947,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.Routes~ondemand.HoverCard~bundle.AudioSpacePeek~bundle.LiveEvent~bundle.Communities~bundle.Grok.9d594c7a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 949,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~loaders.video.PlayerBase~bundle.TwitterArticles~bundle.ComposeMedia~bundle.ConnectTab~bund.a2c1d8fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 950,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~bundle.AccountAnalytics~bundle.ConnectTab~ondemand.XChat~bundle.DockPeek~ondemand.Business.3922dfca.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 950,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~bundle.ConnectTab~ondemand.XChat~bundle.DockPeek~bundle.LiveEvent~ondemand.ChatDrawer~load.76191efa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 951,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~bundle.ComposeMedia~bundle.ConnectTab~bundle.SettingsProfile~bundle.DockPeek~loader.Jetfue.f708df0a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 951,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~bundle.ConnectTab~bundle.DockPeek~bundle.LiveEvent~loader.JetfuelFrame~JetfuelWrapper~load.57b6615a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 951,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://abs.twimg.com/responsive-web/client-web/JetfuelWrapper.c3d75e1a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 951,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.LoggedOutExtras~loader.TimelineRenderer~loader.SignupModule.67f9eb8a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 952,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://abs.twimg.com/responsive-web/client-web/loader.LoggedOutExtras.112f899a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 952,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://abs.twimg.com/responsive-web/client-web/modules.common.4722c04a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 952,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.AppModules~loader.Typeahead~ondemand.NotFound~bundle.Login~bundle.Logout~bundle.UserRedirect~on.56dd404a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 952,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://abs.twimg.com/responsive-web/client-web/loader.AppModules.99aaecda.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 953,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.LoggedInApiFilters~bundle.PaymentShared~ondemand.PaymentsWebCore.e04e17ba.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 954,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://abs.twimg.com/responsive-web/client-web/bundle.LoggedInApiFilters.70468c6a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 955,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://abs.twimg.com/responsive-web/client-web/bundle.LoggedOutAppModules.b2ee80aa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 955,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.7.df5ff09a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1171,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.13.de74baea.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1175,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.21.652c97fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1176,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.DashMenu~loader.SideNav~bundle.MultiAccount~bundle.JobSearch~bundle.OAuth.2b9f2fea.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1176,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.SideNav~bundle.MultiAccount~bundle.JobSearch.d41baada.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1178,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://abs.twimg.com/responsive-web/client-web/loader.SideNav.a3ecd61a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1179,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~loaders.video.VideoPlayerDefaultUI~bundle.AudioSpaceDetail~bundle.AudioSpaceDiscovery~bund.9e7de2fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1207,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~bundle.AudioSpaceDetail~bundle.AudioSpaceDiscovery~bundle.AudioSpacebarScreen~bundle.Birdw.3f0ab4da.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1208,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.Routes~bundle.LiveEvent~bundle.Communities~bundle.Grok~bundle.Payments~bundle.Notifications~bun.94dc136a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1208,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://abs.twimg.com/responsive-web/client-web/ondemand.s.886e61da.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1269,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://abs.twimg.com/responsive-web/client-web/Geist-var.2587a0ca.woff2",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1407,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://x.com/i/jfapi/onboarding/web/landing",
+        "domain": "x.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1444,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://api.x.com/1.1/hashflags.json",
+        "domain": "api.x.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1446,
+        "blockedByShields": false
+      },
+      {
+        "id": 92,
+        "url": "https://api.x.com/1.1/graphql/viewer_context.json",
+        "domain": "api.x.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1448,
+        "blockedByShields": true
+      },
+      {
+        "id": 93,
+        "url": "https://accounts.google.com/gsi/client",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1450,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://accounts.google.com/gsi/style",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1534,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://accounts.google.com/gsi/button?theme=&size=&shape=&logo_alignment=&text=&width=&type=&is_fedcm_supported=&client_id=&iframe_id=&cas=&hl=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1542,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js",
+        "domain": "appleid.cdn-apple.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1545,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://x.com/i/jfapi/onboarding/web/remotes/passkey_one_fa",
+        "domain": "x.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1545,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://accounts.google.com/gsi/button?theme=&size=&shape=&logo_alignment=&text=&width=&type=&is_fedcm_supported=&client_id=&iframe_id=&cas=&hl=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1577,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://fonts.gstatic.com/s/googlesans/v62/4UaRrENHsxJlGDuGo1OIlJfC6l_24rlCK1Yo_Iq2vgCI.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1673,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://api.x.com/1.1/graphql/viewer_context.json",
+        "domain": "api.x.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4410,
+        "blockedByShields": true
+      },
+      {
+        "id": 101,
+        "url": "https://api.x.com/1.1/graphql/viewer_context.json",
+        "domain": "api.x.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 5063,
+        "blockedByShields": true
+      },
+      {
+        "id": 102,
+        "url": "https://play.google.com/log?hasfast=&authuser=&format=",
+        "domain": "play.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 5064,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "abs.twimg.com",
+        "requests": 83,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font",
+          "script",
+          "image",
+          "other"
+        ]
+      },
+      {
+        "domain": "accounts.google.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "document"
+        ]
+      },
+      {
+        "domain": "appleid.cdn-apple.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "play.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "x.com",
+        "requests": 8,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "other",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "api.x.com",
+        "requests": 4,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "guest_id",
+        "domain": ".x.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "gt",
+        "domain": ".x.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".x.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__cuid",
+        "domain": ".x.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__cuid",
+        "domain": "x.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "g_state",
+        "domain": "x.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "__cuid",
+        "valueBytes": 36
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 3,
+        "evidence": {
+          "readApis": [
+            "canvas.getImageData",
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 200,
+          "maxCanvasHeight": 200,
+          "maxDistinctTextCharacters": 15,
+          "maxTextWriteCalls": 3
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://abs.twimg.com",
+            "https://accounts.google.com"
+          ],
+          "totalListenerCalls": 37
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://abs.twimg.com",
+            "https://accounts.google.com"
+          ],
+          "totalListenerCalls": 108
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "webgl.readPixels"
+          ],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL"
+          ],
+          "getParameterCalls": 2,
+          "readPixelsCalls": 1
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 1,
+          "createDataChannelCalls": 2,
+          "createOfferCalls": 2,
+          "setLocalDescriptionCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 301
+      },
+      {
+        "api": "canvas.getImageData",
+        "count": 23
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 5
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 2
+      },
+      {
+        "api": "webgl.readPixels",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://x.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://x.com/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 32694
+    }
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "X. It’s what’s happening / X",
+      "status": 200,
+      "durationMs": 7318,
+      "firstPartyDomain": "x.com",
+      "totalRequests": 96,
+      "thirdPartyRequests": 88,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 4,
+      "cookies": 6,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 337,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://x.com/",
+      "finalUrl": "https://x.com/",
+      "scannedAt": "2026-07-06T09:31:33.975Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://x.com/",
+        "domain": "x.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 46,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://abs.twimg.com/responsive-web/client-web/Chirp-Regular.80fda27a.woff2",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 143,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://abs.twimg.com/responsive-web/client-web/Chirp-Bold.ebb56aba.woff2",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://abs.twimg.com/responsive-web/client-web/Chirp-Medium.f8e2739a.woff2",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://abs.twimg.com/responsive-web/client-web/vendor.f1cda39a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://abs.twimg.com/responsive-web/client-web/i18n/en.ff8eb6ca.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://abs.twimg.com/responsive-web/client-web/main.b962870a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 144,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://abs.twimg.com/responsive-web/client-web/bundle.LoggedOutShell.0cc46e6a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 207,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://abs.twimg.com/responsive-web/client-web/bundle.LoggedOutRoutes.ca13e6fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 209,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://abs.twimg.com/responsive-web/client-web/bundle.LoggedOutHome.8f34416a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 215,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://abs.twimg.com/emoji/v2/svg/26a0.svg",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 384,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://x.com/cdn-cgi/challenge-platform/scripts/jsd/api.js",
+        "domain": "x.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 396,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.LoggedInApiFilters~bundle.PaymentShared~ondemand.PaymentsWebCore.e04e17ba.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 603,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://abs.twimg.com/responsive-web/client-web/bundle.LoggedInApiFilters.70468c6a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 604,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.22.d6cae93a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 606,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.18.8863b2ca.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 606,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.28.087a40da.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 608,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.3.dd11566a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 609,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.0.05416e0a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 609,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.5.890d902a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 610,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.20.950781aa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 610,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.23.9d66970a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 614,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.27.54120eca.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 615,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.2.9058eada.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 615,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.12.fb2ee67a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 616,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.8.52d3632a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 616,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.17.62a0db7a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 617,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.15.791d5e8a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 617,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.11.9e42f1ba.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 618,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.6.647e77aa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 618,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.1.0b9ae81a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 619,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.9.fdeb363a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 619,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.16.fe49c61a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 620,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.19.4979fe7a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 620,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.29.18f9efca.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 621,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.4.98dff3fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 621,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.10.8acfc74a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 622,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.14.a666020a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 622,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.26.b2ae730a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 623,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://abs.twimg.com/responsive-web/client-web/98946.53c96ada.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 623,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://x.com/cdn-cgi/challenge-platform/h/b/scripts/jsd/80a697ecdece/api.js",
+        "domain": "x.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 625,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.7.df5ff09a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 628,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://abs.twimg.com/responsive-web/client-web/modules.common.4722c04a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 629,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.25.46e276da.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 629,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.24.dc89e2fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 630,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.21.652c97fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 630,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~ondemand.HoverCard~loader.AudioDock~bundle.GrokDrawer~ondemand.XChat~bundle.ReaderMode~bundle.AudioSpa.1db6557a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 631,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~loaders.video.VideoPlayerDefaultUI~bundle.AudioSpaceDetail~bundle.AudioSpaceDiscovery~bund.9e7de2fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 635,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.GrokDrawer~bundle.ReaderMode~bundle.Birdwatch~bundle.TwitterArticles~bundle.Compose~bundle.Sett.47d71f9a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 636,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~bundle.AudioSpaceDetail~bundle.AudioSpaceDiscovery~bundle.AudioSpacebarScreen~bundle.Birdw.3f0ab4da.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 636,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.AudioSpaceDetail~bundle.AudioSpaceDiscovery~bundle.AudioSpacebarScreen~bundle.Birdwatch~bundle..ece6f8ea.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 637,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.Routes~bundle.LiveEvent~bundle.Communities~bundle.Grok~bundle.Payments~bundle.Notifications~bun.94dc136a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 637,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.WideLayout~bundle.Conversation.2830398a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 638,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://abs.twimg.com/responsive-web/client-web/bundle.Conversation.7870704a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 639,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://abs.twimg.com/responsive-web/client-web/ondemand.castle.c42626ea.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 642,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://x.com/cdn-cgi/challenge-platform/scripts/jsd/main.js",
+        "domain": "x.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 673,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://x.com/cdn-cgi/challenge-platform/h/b/scripts/jsd/80a697ecdece/main.js",
+        "domain": "x.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 713,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://abs.twimg.com/responsive-web/client-web/ondemand.Dropdown.5ee6072a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 944,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.Routes~loader.PrimaryNav.fb3d3aea.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 981,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.25.46e276da.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 982,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.24.dc89e2fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 982,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://abs.twimg.com/responsive-web/client-web/jetfuel.c19d932a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 982,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.Routes~ondemand.HoverCard~bundle.AudioSpacePeek~bundle.LiveEvent~bundle.Communities~bundle.Grok.9d594c7a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 983,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~loaders.video.PlayerBase~bundle.TwitterArticles~bundle.ComposeMedia~bundle.ConnectTab~bund.a2c1d8fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 983,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~bundle.AccountAnalytics~bundle.ConnectTab~ondemand.XChat~bundle.DockPeek~ondemand.Business.3922dfca.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 983,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~bundle.ConnectTab~ondemand.XChat~bundle.DockPeek~bundle.LiveEvent~ondemand.ChatDrawer~load.76191efa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 984,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~bundle.ComposeMedia~bundle.ConnectTab~bundle.SettingsProfile~bundle.DockPeek~loader.Jetfue.f708df0a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 984,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~bundle.ConnectTab~bundle.DockPeek~bundle.LiveEvent~loader.JetfuelFrame~JetfuelWrapper~load.57b6615a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 984,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://abs.twimg.com/responsive-web/client-web/JetfuelWrapper.c3d75e1a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 985,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.LoggedOutExtras~loader.TimelineRenderer~loader.SignupModule.67f9eb8a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 985,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://abs.twimg.com/responsive-web/client-web/loader.LoggedOutExtras.112f899a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 986,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://abs.twimg.com/responsive-web/client-web/modules.common.4722c04a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 988,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.AppModules~loader.Typeahead~ondemand.NotFound~bundle.Login~bundle.Logout~bundle.UserRedirect~on.56dd404a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 989,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://abs.twimg.com/responsive-web/client-web/loader.AppModules.99aaecda.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 989,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.LoggedInApiFilters~bundle.PaymentShared~ondemand.PaymentsWebCore.e04e17ba.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 990,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://abs.twimg.com/responsive-web/client-web/bundle.LoggedInApiFilters.70468c6a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 990,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://abs.twimg.com/responsive-web/client-web/bundle.LoggedOutAppModules.b2ee80aa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 990,
+        "blockedByShields": false
+      },
+      {
+        "id": 79,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.7.df5ff09a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1049,
+        "blockedByShields": false
+      },
+      {
+        "id": 80,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.13.de74baea.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1049,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://abs.twimg.com/responsive-web/client-web/icons.21.652c97fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1050,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.DashMenu~loader.SideNav~bundle.MultiAccount~bundle.JobSearch~bundle.OAuth.2b9f2fea.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1051,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.SideNav~bundle.MultiAccount~bundle.JobSearch.d41baada.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1052,
+        "blockedByShields": false
+      },
+      {
+        "id": 84,
+        "url": "https://abs.twimg.com/responsive-web/client-web/loader.SideNav.a3ecd61a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1052,
+        "blockedByShields": false
+      },
+      {
+        "id": 85,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~loaders.video.VideoPlayerDefaultUI~bundle.AudioSpaceDetail~bundle.AudioSpaceDiscovery~bund.9e7de2fa.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1070,
+        "blockedByShields": false
+      },
+      {
+        "id": 86,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~loader.Dock~bundle.AudioSpaceDetail~bundle.AudioSpaceDiscovery~bundle.AudioSpacebarScreen~bundle.Birdw.3f0ab4da.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1072,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://abs.twimg.com/responsive-web/client-web/shared~bundle.Routes~bundle.LiveEvent~bundle.Communities~bundle.Grok~bundle.Payments~bundle.Notifications~bun.94dc136a.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1072,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://abs.twimg.com/responsive-web/client-web/ondemand.s.886e61da.js",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1115,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://abs.twimg.com/responsive-web/client-web/Geist-var.2587a0ca.woff2",
+        "domain": "abs.twimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1255,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://x.com/i/jfapi/onboarding/web/landing",
+        "domain": "x.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1291,
+        "blockedByShields": false
+      },
+      {
+        "id": 91,
+        "url": "https://api.x.com/1.1/hashflags.json",
+        "domain": "api.x.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1293,
+        "blockedByShields": false
+      },
+      {
+        "id": 93,
+        "url": "https://accounts.google.com/gsi/client",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1297,
+        "blockedByShields": false
+      },
+      {
+        "id": 94,
+        "url": "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js",
+        "domain": "appleid.cdn-apple.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1367,
+        "blockedByShields": false
+      },
+      {
+        "id": 95,
+        "url": "https://x.com/i/jfapi/onboarding/web/remotes/passkey_one_fa",
+        "domain": "x.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1368,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://accounts.google.com/gsi/style",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1412,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://accounts.google.com/gsi/button?theme=&size=&shape=&logo_alignment=&text=&width=&type=&is_fedcm_supported=&client_id=&iframe_id=&cas=&hl=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1474,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://fonts.gstatic.com/s/googlesans/v62/4UaRrENHsxJlGDuGo1OIlJfC6l_24rlCK1Yo_Iq2vgCI.woff2",
+        "domain": "fonts.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1587,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "abs.twimg.com",
+        "requests": 83,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font",
+          "script",
+          "image",
+          "other"
+        ]
+      },
+      {
+        "domain": "accounts.google.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "document"
+        ]
+      },
+      {
+        "domain": "appleid.cdn-apple.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "fonts.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "x.com",
+        "requests": 7,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "api.x.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "guest_id",
+        "domain": ".x.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "gt",
+        "domain": ".x.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".x.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__cuid",
+        "domain": ".x.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__cuid",
+        "domain": "x.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "g_state",
+        "domain": "x.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "__cuid",
+        "valueBytes": 36
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 3,
+        "evidence": {
+          "readApis": [
+            "canvas.getImageData",
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 200,
+          "maxCanvasHeight": 200,
+          "maxDistinctTextCharacters": 15,
+          "maxTextWriteCalls": 3
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://abs.twimg.com",
+            "https://accounts.google.com"
+          ],
+          "totalListenerCalls": 48
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://abs.twimg.com",
+            "https://accounts.google.com"
+          ],
+          "totalListenerCalls": 133
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "webgl.readPixels"
+          ],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL"
+          ],
+          "getParameterCalls": 2,
+          "readPixelsCalls": 1
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 1,
+          "createDataChannelCalls": 2,
+          "createOfferCalls": 2,
+          "setLocalDescriptionCalls": 0
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 301
+      },
+      {
+        "api": "canvas.getImageData",
+        "count": 23
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 5
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 2
+      },
+      {
+        "api": "webgl.readPixels",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://x.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://x.com/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 32694
+    }
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 102,
+      "after": 96,
+      "delta": -6
+    },
+    "thirdPartyRequests": {
+      "before": 90,
+      "after": 88,
+      "delta": -2
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 5,
+      "after": 4,
+      "delta": -1
+    },
+    "cookies": {
+      "before": 6,
+      "after": 6,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 337,
+      "after": 337,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "play.google.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 5,
+      "after": 5,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields off: Read the site's privacy policy (https://x.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields on: Read the site's privacy policy (https://x.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260706-b7f2a2ddede4afd6dc2fddcd44a6c673",
+    "path": "/reports/20260706-b7f2a2ddede4afd6dc2fddcd44a6c673/",
+    "jsonPath": "/reports/20260706-b7f2a2ddede4afd6dc2fddcd44a6c673.json"
+  }
+}

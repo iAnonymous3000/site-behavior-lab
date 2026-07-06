@@ -1,0 +1,6836 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave Shields off/on comparison",
+  "runLabels": {
+    "baseline": "Shields off",
+    "variant": "Shields on"
+  },
+  "requestedUrl": "https://www.healthline.com/",
+  "scannedAt": "2026-07-06T09:18:27.972Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Healthline: Medical information and health advice you can trust.",
+      "status": 200,
+      "durationMs": 14625,
+      "firstPartyDomain": "www.healthline.com",
+      "totalRequests": 227,
+      "thirdPartyRequests": 187,
+      "knownTrackerRequests": 51,
+      "thirdPartyDomains": 63,
+      "cookies": 42,
+      "thirdPartyCookies": 12,
+      "storageEntries": 44,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 134
+    },
+    "conditions": {
+      "requestedUrl": "https://www.healthline.com/",
+      "finalUrl": "https://www.healthline.com/",
+      "scannedAt": "2026-07-06T09:18:13.337Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "classification"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.healthline.com/",
+        "domain": "www.healthline.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 43,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://assets.healthline.com/_next/76671b15-6d0b-47a2-b20a-f55bd4825e7e/hl/vendor.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 167,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://assets.healthline.com/_next/76671b15-6d0b-47a2-b20a-f55bd4825e7e/hl/lib.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 167,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://assets.healthline.com/_next/76671b15-6d0b-47a2-b20a-f55bd4825e7e/hl/page-widgets.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 167,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://assets.healthline.com/_next/76671b15-6d0b-47a2-b20a-f55bd4825e7e/hl/felib.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 168,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://assets.healthline.com/_next/76671b15-6d0b-47a2-b20a-f55bd4825e7e/hl/felib-core.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 168,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://assets.healthline.com/_next/76671b15-6d0b-47a2-b20a-f55bd4825e7e/hl/pages/home-page.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 168,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://cdn.cookielaw.org/scripttemplates/gpp.stub.js",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 168,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://cdn.cookielaw.org/scripttemplates/otSDKStub.js",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 169,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://assets.healthline.com/fonts/proxima/v1/32A982_7_0.woff2",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 169,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://assets.healthline.com/fonts/proxima/v1/32A982_9_0.woff2",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 170,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://assets.healthline.com/fonts/proxima/v1/38C507_0_0.woff2",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 170,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/03/hl_homepage-CTA-glp1-500x666-desktop.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 170,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/03/hl_homepage-CTA-glp1-500x530-mobile.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 170,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://config.aps.amazon-adsystem.com/configs/3083",
+        "domain": "config.aps.amazon-adsystem.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 175,
+        "blockedByShields": true
+      },
+      {
+        "id": 16,
+        "url": "https://client.aps.amazon-adsystem.com/publisher.js",
+        "domain": "client.aps.amazon-adsystem.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 175,
+        "blockedByShields": true
+      },
+      {
+        "id": 17,
+        "url": "https://cdn.cookielaw.org/consent/6a2124b1-8744-4206-802a-a322e8a028c3/6a2124b1-8744-4206-802a-a322e8a028c3.json",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 299,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/03/hl_homepage-CTA-recipe-500x666-desktop.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 308,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/03/hl_homepage-CTA-recipe-500x530-mobile.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 313,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/05/homepage-hero-cta-icons-asset-halo-homepage-CTA-dd-mobile-500x530-sparkle.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 314,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/What-Sets-HL-Apart-Crop.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 314,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/integrity2.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 318,
+        "blockedByShields": false
+      },
+      {
+        "id": 23,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/integrity3.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 318,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/integrity4.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 319,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/HL-Zepbound-OSA-Signature_Program-Spotlight-600x900-1.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 319,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/The-Assist-Beating-Chronic-Migraine-600x900-1.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 322,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/Ebglyss-HL-Program-Key-Art-Request_Soptlight_600x900.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 323,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/HL-Hub-Key-Art-Womens-Wellness-2024-Update-600x900-1.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 323,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/02/jul-homepage_video-is-your-heart-rate-healthy-514x370-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 324,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/02/jul-homepage_video-what-your-poop-color-says-about-your-health-514x370-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 324,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/02/jul-homepage_video-is-fasting-combined-with-hiit-effective-514x370-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 325,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2024/01/jun-homepage_video-honest-convo4-514x370-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 325,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://prod.adspsp.com/adb.2418030.min.js",
+        "domain": "prod.adspsp.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 325,
+        "blockedByShields": true
+      },
+      {
+        "id": 34,
+        "url": "https://securepubads.g.doubleclick.net/tag/js/gpt.js",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 326,
+        "blockedByShields": true
+      },
+      {
+        "id": 35,
+        "url": "https://rvo-cohesion.healthline.com/cohesion/cohesion-tpo.min.js",
+        "domain": "rvo-cohesion.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 328,
+        "blockedByShields": true
+      },
+      {
+        "id": 36,
+        "url": "https://gtm-server.healthline.com/gtm.js",
+        "domain": "gtm-server.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 328,
+        "blockedByShields": true
+      },
+      {
+        "id": 37,
+        "url": "https://assets.healthline.com/fonts/proxima/v1/32A982_1_0.woff2",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 376,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location",
+        "domain": "geolocation.onetrust.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 396,
+        "blockedByShields": true
+      },
+      {
+        "id": 39,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/Healthline_14-Day-Energy-Boost_Thumbnail_732x549-1.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 444,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/GLP1_POV-thumbnail-732x549-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 445,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/fitness-13-732x549-thumbnail-copy.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 445,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/sports_depression-thumbnail-732x549-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 448,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2019/12/sausage-grill-grilling-cooking-732x549-thumbnail.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 448,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/anxietydepression-final.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 449,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/digestive-health.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 449,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/heart-health.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 452,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/menopause-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 453,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/diabetes.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 453,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/weight-managementds.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 454,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/Tools_Photo-desktop-b.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 454,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/Tools_desktop-Treatment-photo-tighter-crop.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 455,
+        "blockedByShields": false
+      },
+      {
+        "id": 52,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/botox-infographic-thumb-732x549-1.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 455,
+        "blockedByShields": false
+      },
+      {
+        "id": 53,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/05/mental-health-solutions-3-732x549-thumbnail-copy.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 455,
+        "blockedByShields": false
+      },
+      {
+        "id": 54,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2025/05/updated-Best-fish-oil-ugc-thumbnail-732x549-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 456,
+        "blockedByShields": false
+      },
+      {
+        "id": 55,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/female-sleeping-732x549-thumbnail.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 456,
+        "blockedByShields": false
+      },
+      {
+        "id": 56,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/05/traveling_drugs_translate-thumbnail-732x549-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 457,
+        "blockedByShields": false
+      },
+      {
+        "id": 57,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/Mother_Daughter_Weight_Management-thumbnail-732x549-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 457,
+        "blockedByShields": false
+      },
+      {
+        "id": 58,
+        "url": "https://cdn-ima.33across.com/ima.js",
+        "domain": "cdn-ima.33across.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 555,
+        "blockedByShields": true
+      },
+      {
+        "id": 59,
+        "url": "https://cdn.id5-sync.com/api/1.0/id5-api.js",
+        "domain": "cdn.id5-sync.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 556,
+        "blockedByShields": true
+      },
+      {
+        "id": 60,
+        "url": "https://secure.cdn.fastclick.net/js/pubcid/latest/pubcid.min.js",
+        "domain": "secure.cdn.fastclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 556,
+        "blockedByShields": true
+      },
+      {
+        "id": 61,
+        "url": "https://c.amazon-adsystem.com/bao-csm/aps-comm/aps_csm.js",
+        "domain": "c.amazon-adsystem.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 556,
+        "blockedByShields": true
+      },
+      {
+        "id": 62,
+        "url": "https://assets.healthline.com/_next/76671b15-6d0b-47a2-b20a-f55bd4825e7e/hl/4708.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 632,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://assets.healthline.com/_next/2829-8f6bc164.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 633,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://assets.healthline.com/_next/6759-537c77d1.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 633,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://assets.healthline.com/_next/chunks/deferred-global-b010dc90.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 634,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://www.healthline.com/api/cdp/profile/v3",
+        "domain": "www.healthline.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 784,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://assets.healthline.com/_next/7314-5299d040.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 784,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://assets.healthline.com/_next/9644-9ccf880d.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 785,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://assets.healthline.com/_next/7616-a191c8dc.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 785,
+        "blockedByShields": false
+      },
+      {
+        "id": 70,
+        "url": "https://assets.healthline.com/_next/9190-c4a71e6b.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 786,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://assets.healthline.com/_next/chunks/yt-e601e7a6.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 786,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://assets.healthline.com/_next/chunks/el-8524c358.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 787,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://assets.medicalnewstoday.com/content/advertising.js",
+        "domain": "assets.medicalnewstoday.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 829,
+        "blockedByShields": false
+      },
+      {
+        "id": 74,
+        "url": "https://cdn.cookielaw.org/scripttemplates/202605.1.0/otBannerSdk.js",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 855,
+        "blockedByShields": true
+      },
+      {
+        "id": 75,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 907,
+        "blockedByShields": true
+      },
+      {
+        "id": 76,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 909,
+        "blockedByShields": true
+      },
+      {
+        "id": 77,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 909,
+        "blockedByShields": true
+      },
+      {
+        "id": 78,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 909,
+        "blockedByShields": true
+      },
+      {
+        "id": 79,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 909,
+        "blockedByShields": true
+      },
+      {
+        "id": 80,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 909,
+        "blockedByShields": true
+      },
+      {
+        "id": 81,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 911,
+        "blockedByShields": true
+      },
+      {
+        "id": 82,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 911,
+        "blockedByShields": true
+      },
+      {
+        "id": 83,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 911,
+        "blockedByShields": true
+      },
+      {
+        "id": 84,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 911,
+        "blockedByShields": true
+      },
+      {
+        "id": 85,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 911,
+        "blockedByShields": true
+      },
+      {
+        "id": 86,
+        "url": "https://cdn.rvohealth.com/cohesion/ext/experimental.min.js",
+        "domain": "cdn.rvohealth.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 912,
+        "blockedByShields": false
+      },
+      {
+        "id": 87,
+        "url": "https://cdn.rvohealth.com/preamp/api/v1/decisions",
+        "domain": "cdn.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 912,
+        "blockedByShields": false
+      },
+      {
+        "id": 88,
+        "url": "https://cdn.rvohealth.com/cohesion/xs1.html",
+        "domain": "cdn.rvohealth.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 912,
+        "blockedByShields": false
+      },
+      {
+        "id": 89,
+        "url": "https://www.healthline.com/navi/reinforce",
+        "domain": "www.healthline.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 912,
+        "blockedByShields": false
+      },
+      {
+        "id": 90,
+        "url": "https://www.googletagmanager.com/gtm.js?id=&gtg_health=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 969,
+        "blockedByShields": true
+      },
+      {
+        "id": 91,
+        "url": "https://gtm-server.healthline.com/gtag/js",
+        "domain": "gtm-server.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 986,
+        "blockedByShields": true
+      },
+      {
+        "id": 92,
+        "url": "https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202606290101/pubads_impl.js?cb=",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1011,
+        "blockedByShields": true
+      },
+      {
+        "id": 93,
+        "url": "https://prod.adspsp.com/adb.2418030.cr.js?c=",
+        "domain": "prod.adspsp.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1035,
+        "blockedByShields": true
+      },
+      {
+        "id": 94,
+        "url": "https://prod.adspsp.com/adb.2418030.pb.js?c=",
+        "domain": "prod.adspsp.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1035,
+        "blockedByShields": true
+      },
+      {
+        "id": 95,
+        "url": "https://cdn.cookielaw.org/consent/6a2124b1-8744-4206-802a-a322e8a028c3/019c0608-a901-7b57-bb83-d07c0e9a9285/en.json",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1100,
+        "blockedByShields": false
+      },
+      {
+        "id": 96,
+        "url": "https://www.healthline.com/static/fonts/healthline/healthline.woff",
+        "domain": "www.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1135,
+        "blockedByShields": false
+      },
+      {
+        "id": 97,
+        "url": "https://cdn.rvohealth.com/cohesion/xs2.html",
+        "domain": "cdn.rvohealth.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1212,
+        "blockedByShields": false
+      },
+      {
+        "id": 98,
+        "url": "https://www.healthline.com/api/drivers/v4",
+        "domain": "www.healthline.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1213,
+        "blockedByShields": false
+      },
+      {
+        "id": 99,
+        "url": "https://assets.healthline.com/_next/chunks/modal-f834ec9a.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1237,
+        "blockedByShields": false
+      },
+      {
+        "id": 100,
+        "url": "https://assets.healthline.com/_next/chunks/auth-provider-afe05448.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1238,
+        "blockedByShields": false
+      },
+      {
+        "id": 101,
+        "url": "https://assets.healthline.com/_next/chunks/lib-components-engagement-invisible-div-popup-bf56c047.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1238,
+        "blockedByShields": false
+      },
+      {
+        "id": 102,
+        "url": "https://cdn.cookielaw.org/scripttemplates/202605.1.0/otGPP.js",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1243,
+        "blockedByShields": false
+      },
+      {
+        "id": 103,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1247,
+        "blockedByShields": true
+      },
+      {
+        "id": 104,
+        "url": "https://cdn.btmessage.com/script/rlink.js?o=",
+        "domain": "cdn.btmessage.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1384,
+        "blockedByShields": false
+      },
+      {
+        "id": 105,
+        "url": "https://pub.doubleverify.com/dvtag/20447058/DV1208979/pub.js",
+        "domain": "pub.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1384,
+        "blockedByShields": true
+      },
+      {
+        "id": 106,
+        "url": "https://api.id5-sync.com/analytics/1151/id5-api-js",
+        "domain": "api.id5-sync.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1461,
+        "blockedByShields": true
+      },
+      {
+        "id": 107,
+        "url": "https://cdn.btmessage.com/assets/bt-rlink-storage-BvSbFeGG.html",
+        "domain": "cdn.btmessage.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1478,
+        "blockedByShields": false
+      },
+      {
+        "id": 108,
+        "url": "https://assets.healthline.com/_next/chunks/wellness-driver-c2d50e08.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1506,
+        "blockedByShields": false
+      },
+      {
+        "id": 109,
+        "url": "https://api.btmessage.com/websiteconfig?bt_env=&o=&w=&l=",
+        "domain": "api.btmessage.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1516,
+        "blockedByShields": false
+      },
+      {
+        "id": 110,
+        "url": "https://ad-delivery.net/px.gif?ch=",
+        "domain": "ad-delivery.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1516,
+        "blockedByShields": true
+      },
+      {
+        "id": 111,
+        "url": "https://ad.doubleclick.net/favicon.ico?ad=&ad_box_=&adnet=&showad=&size=",
+        "domain": "ad.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1517,
+        "blockedByShields": true
+      },
+      {
+        "id": 112,
+        "url": "https://ad-delivery.net/px.gif?ch=&e=",
+        "domain": "ad-delivery.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1517,
+        "blockedByShields": true
+      },
+      {
+        "id": 113,
+        "url": "https://cdn.cookielaw.org/scripttemplates/202605.1.0/assets/otCommonStyles.css",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1566,
+        "blockedByShields": false
+      },
+      {
+        "id": 114,
+        "url": "https://lexicon.33across.com/v1/envelope?pid=&src=&ver=&us_privacy=&gpp=&gpp_sid=",
+        "domain": "lexicon.33across.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1567,
+        "blockedByShields": true
+      },
+      {
+        "id": 115,
+        "url": "https://lexicon.33across.com/v1/envelope?pid=&src=&ver=&us_privacy=&gpp=&gpp_sid=",
+        "domain": "lexicon.33across.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1568,
+        "blockedByShields": true
+      },
+      {
+        "id": 116,
+        "url": "https://lexicon.33across.com/v1/envelope?pid=&src=&ver=&us_privacy=&gpp=&gpp_sid=",
+        "domain": "lexicon.33across.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1575,
+        "blockedByShields": true
+      },
+      {
+        "id": 117,
+        "url": "https://cdn.confiant-integrations.net/cmoHx-7NMqx3kvsCb7fFcqWf2C8/gpt_and_prebid/config.js",
+        "domain": "cdn.confiant-integrations.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1578,
+        "blockedByShields": true
+      },
+      {
+        "id": 118,
+        "url": "https://ats-wrapper.privacymanager.io/ats-modules/89f1e4e8-db80-4402-9a08-9d36b4401007/ats.js",
+        "domain": "ats-wrapper.privacymanager.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1579,
+        "blockedByShields": true
+      },
+      {
+        "id": 119,
+        "url": "https://lbs.eu-1-id5-sync.com/lbs/v1",
+        "domain": "lbs.eu-1-id5-sync.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1584,
+        "blockedByShields": true
+      },
+      {
+        "id": 120,
+        "url": "https://lb.eu-1-id5-sync.com/lb/v1",
+        "domain": "lb.eu-1-id5-sync.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1584,
+        "blockedByShields": true
+      },
+      {
+        "id": 121,
+        "url": "https://ad-delivery.net/px.gif?ch=",
+        "domain": "ad-delivery.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1585,
+        "blockedByShields": true
+      },
+      {
+        "id": 122,
+        "url": "https://ad-delivery.net/px.gif?ch=&e=",
+        "domain": "ad-delivery.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1586,
+        "blockedByShields": true
+      },
+      {
+        "id": 123,
+        "url": "https://id5-sync.com/bounce",
+        "domain": "id5-sync.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1586,
+        "blockedByShields": true
+      },
+      {
+        "id": 124,
+        "url": "https://ad.doubleclick.net/favicon.ico?ad=&ad_box_=&adnet=&showad=&size=",
+        "domain": "ad.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1586,
+        "blockedByShields": true
+      },
+      {
+        "id": 125,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1597,
+        "blockedByShields": true
+      },
+      {
+        "id": 126,
+        "url": "https://www.youtube.com/iframe_api",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1598,
+        "blockedByShields": false
+      },
+      {
+        "id": 127,
+        "url": "https://pavlov-prod.healthline.com/api/metrics",
+        "domain": "pavlov-prod.healthline.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1610,
+        "blockedByShields": true
+      },
+      {
+        "id": 128,
+        "url": "https://pub.doubleverify.com/dvtag/signals/ids/pub.json?ctx=&cmp=&url=&ids=&token=",
+        "domain": "pub.doubleverify.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1639,
+        "blockedByShields": true
+      },
+      {
+        "id": 129,
+        "url": "https://pub.doubleverify.com/dvtag/signals/bsc/pub.json?ctx=&cmp=&url=&bsc=&abs=&token=",
+        "domain": "pub.doubleverify.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1640,
+        "blockedByShields": true
+      },
+      {
+        "id": 130,
+        "url": "https://securepubads.g.doubleclick.net/pagead/managed/dict/m202606180101/gpt",
+        "domain": "securepubads.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1643,
+        "blockedByShields": true
+      },
+      {
+        "id": 131,
+        "url": "https://js-sec.indexww.com/ht/p/180447-192872210293780.js",
+        "domain": "js-sec.indexww.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1662,
+        "blockedByShields": true
+      },
+      {
+        "id": 132,
+        "url": "https://hm.adspsp.com/adb.2418030.33.pf.json",
+        "domain": "hm.adspsp.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1687,
+        "blockedByShields": true
+      },
+      {
+        "id": 133,
+        "url": "https://cdn.confiant-integrations.net/gptprebidnative/202606101730/wrap.js",
+        "domain": "cdn.confiant-integrations.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1708,
+        "blockedByShields": true
+      },
+      {
+        "id": 134,
+        "url": "https://lexicon.33across.com/v1/envelope?pid=&gdpr=&src=&ver=&coppa=&us_privacy=&gpp=&gpp_sid=",
+        "domain": "lexicon.33across.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1735,
+        "blockedByShields": true
+      },
+      {
+        "id": 135,
+        "url": "https://ups.analytics.yahoo.com/ups/58452/fed?v=&1p=&gdpr=&gdpr_consent=&us_privacy=&gpp=&gpp_sid=&url=&pixelId=&he=",
+        "domain": "ups.analytics.yahoo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1736,
+        "blockedByShields": true
+      },
+      {
+        "id": 136,
+        "url": "https://id5-sync.com/api/config/prebid",
+        "domain": "id5-sync.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1736,
+        "blockedByShields": true
+      },
+      {
+        "id": 137,
+        "url": "https://api.rlcdn.com/api/identity/envelope?pid=&gpp=&gpp_sid=",
+        "domain": "api.rlcdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1737,
+        "blockedByShields": true
+      },
+      {
+        "id": 138,
+        "url": "https://id2.sv.rkdms.com/identity/?sv_domain=&sv_pubid=&ssp_ids=",
+        "domain": "id2.sv.rkdms.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1737,
+        "blockedByShields": true
+      },
+      {
+        "id": 139,
+        "url": "https://match.adsrvr.org/track/rid?ttd_pid=&fmt=",
+        "domain": "match.adsrvr.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1737,
+        "blockedByShields": true
+      },
+      {
+        "id": 140,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1739,
+        "blockedByShields": true
+      },
+      {
+        "id": 141,
+        "url": "https://gtm-server.healthline.com/g/collect",
+        "domain": "gtm-server.healthline.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1771,
+        "blockedByShields": true
+      },
+      {
+        "id": 142,
+        "url": "https://gtm-server.healthline.com/_/service_worker/66g0/sw_iframe.html",
+        "domain": "gtm-server.healthline.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1787,
+        "blockedByShields": false
+      },
+      {
+        "id": 143,
+        "url": "https://media.post.rvohealth.io/2kLEJX4A3LDe7GGDNr31WST2A26/2026/01/20/38Xc3mwbXQf5LmV7HB8XFEwJ1xw.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1801,
+        "blockedByShields": false
+      },
+      {
+        "id": 144,
+        "url": "https://cdn.rvohealth.com/preamp/api/v1/confirmation",
+        "domain": "cdn.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1812,
+        "blockedByShields": false
+      },
+      {
+        "id": 145,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1812,
+        "blockedByShields": true
+      },
+      {
+        "id": 146,
+        "url": "https://www.youtube.com/s/player/4918c89a/www-widgetapi.vflset/www-widgetapi.js",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1869,
+        "blockedByShields": false
+      },
+      {
+        "id": 147,
+        "url": "https://api.rlcdn.com/api/identity?pid=&rt=",
+        "domain": "api.rlcdn.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1876,
+        "blockedByShields": true
+      },
+      {
+        "id": 148,
+        "url": "https://match.adsrvr.org/track/rid?ttd_pid=&fmt=&p=",
+        "domain": "match.adsrvr.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1877,
+        "blockedByShields": true
+      },
+      {
+        "id": 149,
+        "url": "https://www.google.com/measurement/conversion/?random=&fmt=&cv=&fst=&tid=&gtm=&tag_exp=&gap.gtb=&rcb=&gcs=&dma=&npa=&s3p=&gacid=&gdid=&us_privacy=&pscdl=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&en=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1880,
+        "blockedByShields": true
+      },
+      {
+        "id": 150,
+        "url": "https://gtm-server.healthline.com/_/set_cookie",
+        "domain": "gtm-server.healthline.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1882,
+        "blockedByShields": false
+      },
+      {
+        "id": 151,
+        "url": "https://analytics.google.com/g/s/collect?dma=&npa=&gcs=&gcd=&gtm=&tag_exp=&_is_sw=&_tu=&gap.gtb=&_gsid=",
+        "domain": "analytics.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1882,
+        "blockedByShields": true
+      },
+      {
+        "id": 152,
+        "url": "https://stats.g.doubleclick.net/g/collect?v=&dma=&npa=&gcs=&gcd=&tid=&cid=&gtm=&tag_exp=&_is_sw=&_tu=&gap.gtb=&aip=",
+        "domain": "stats.g.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1882,
+        "blockedByShields": true
+      },
+      {
+        "id": 153,
+        "url": "https://id5-sync.com/gm/v3",
+        "domain": "id5-sync.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2045,
+        "blockedByShields": true
+      },
+      {
+        "id": 154,
+        "url": "https://lb.eu-1-id5-sync.com/lb/v1",
+        "domain": "lb.eu-1-id5-sync.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2046,
+        "blockedByShields": true
+      },
+      {
+        "id": 155,
+        "url": "https://zn0vxykjxsxo4lipw-healthline.siteintercept.qualtrics.com/SIE/?Q_ZID=",
+        "domain": "zn0vxykjxsxo4lipw-healthline.siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2107,
+        "blockedByShields": true
+      },
+      {
+        "id": 156,
+        "url": "https://id5-sync.com/g/v2/1151.json",
+        "domain": "id5-sync.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2232,
+        "blockedByShields": true
+      },
+      {
+        "id": 157,
+        "url": "https://siteintercept.qualtrics.com/dxjsmodule/881.721410485d67c340a412.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2243,
+        "blockedByShields": false
+      },
+      {
+        "id": 158,
+        "url": "https://siteintercept.qualtrics.com/dxjsmodule/941.26756aa0d9c4208a080a.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "domain": "siteintercept.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2243,
+        "blockedByShields": false
+      },
+      {
+        "id": 159,
+        "url": "https://pagead2.googlesyndication.com/pagead/ping?e=",
+        "domain": "pagead2.googlesyndication.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2313,
+        "blockedByShields": true
+      },
+      {
+        "id": 160,
+        "url": "https://siteintercept.qualtrics.com/WRSiteInterceptEngine/Targeting.php?Q_ZoneID=&Q_CLIENTVERSION=&Q_CLIENTTYPE=",
+        "domain": "siteintercept.qualtrics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2321,
+        "blockedByShields": true
+      },
+      {
+        "id": 161,
+        "url": "https://adspsp.com/pt/2418030/23/1/?a=&a2=&a3=&b=&b=&bt=&c=&d=&f=&g=&u=&v=&adbj=&mp=&adb_cm=&txx=&rnd=",
+        "domain": "adspsp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 6382,
+        "blockedByShields": true
+      },
+      {
+        "id": 162,
+        "url": "https://www.redditstatic.com/ads/pixel.js",
+        "domain": "www.redditstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8356,
+        "blockedByShields": true
+      },
+      {
+        "id": 163,
+        "url": "https://aim-tag.hcn.health/js/client.js?dl=&target=",
+        "domain": "aim-tag.hcn.health",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8359,
+        "blockedByShields": true
+      },
+      {
+        "id": 164,
+        "url": "https://analytics.tiktok.com/i18n/pixel/events.js?sdkid=&lib=",
+        "domain": "analytics.tiktok.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8360,
+        "blockedByShields": true
+      },
+      {
+        "id": 165,
+        "url": "https://idsync.rlcdn.com/711973.gif?partner_uid=&us_privacy=",
+        "domain": "idsync.rlcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8360,
+        "blockedByShields": true
+      },
+      {
+        "id": 166,
+        "url": "https://connect.facebook.net/en_US/fbevents.js",
+        "domain": "connect.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "connect.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8361,
+        "blockedByShields": true
+      },
+      {
+        "id": 167,
+        "url": "https://sb.scorecardresearch.com/cs/38584006/beacon.js",
+        "domain": "sb.scorecardresearch.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "scorecardresearch.com",
+          "entity": "Comscore",
+          "category": "audience measurement",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8361,
+        "blockedByShields": true
+      },
+      {
+        "id": 168,
+        "url": "https://s.pinimg.com/ct/core.js",
+        "domain": "s.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8361,
+        "blockedByShields": true
+      },
+      {
+        "id": 169,
+        "url": "https://ak.sail-horizon.com/spm/spm.v1.min.js",
+        "domain": "ak.sail-horizon.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8361,
+        "blockedByShields": false
+      },
+      {
+        "id": 170,
+        "url": "https://sp.analytics.yahoo.com/spp.pl?a=&.yp=&browserlanguage=&ec=&k1=&kmeta=&msiteid=",
+        "domain": "sp.analytics.yahoo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8362,
+        "blockedByShields": true
+      },
+      {
+        "id": 171,
+        "url": "https://bat.bing.com/bat.js",
+        "domain": "bat.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8362,
+        "blockedByShields": true
+      },
+      {
+        "id": 172,
+        "url": "https://pixel-config.reddit.com/pixels/t2_9ij17jjfy/config",
+        "domain": "pixel-config.reddit.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8444,
+        "blockedByShields": false
+      },
+      {
+        "id": 173,
+        "url": "https://alb.reddit.com/rp.gif?ts=&id=&event=&m.value=&m.transactionId=&m.customEventName=&m.products=&m.conversionId=&uuid=&aaid=&external_id=&idfa=&integration=&partner=&partner_version=&opt_out=&sh=&sw=&v=&dpm=&dpcc=&dprc=&esurl=&db=",
+        "domain": "alb.reddit.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8444,
+        "blockedByShields": true
+      },
+      {
+        "id": 174,
+        "url": "https://s.pinimg.com/ct/lib/main.3c5b736e.js",
+        "domain": "s.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8500,
+        "blockedByShields": false
+      },
+      {
+        "id": 175,
+        "url": "https://ct.pinterest.com/user/?tid=&cb=&dep=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8530,
+        "blockedByShields": true
+      },
+      {
+        "id": 176,
+        "url": "https://ct.pinterest.com/v3/?tid=&event=&ad=&cb=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8534,
+        "blockedByShields": true
+      },
+      {
+        "id": 177,
+        "url": "https://ct.pinterest.com/v3/?tid=&event=&ad=&cb=",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8535,
+        "blockedByShields": true
+      },
+      {
+        "id": 178,
+        "url": "https://aim-tag.hcn.health/iframe.html?client-origin=&pageview-id=&stps=&target=",
+        "domain": "aim-tag.hcn.health",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8559,
+        "blockedByShields": true
+      },
+      {
+        "id": 179,
+        "url": "https://api.sail-personalize.com/v1/personalize/simple?pageviews=&isMobile=",
+        "domain": "api.sail-personalize.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8589,
+        "blockedByShields": true
+      },
+      {
+        "id": 180,
+        "url": "https://analytics.tiktok.com/i18n/pixel/static/main.MTIwMGUyODI1MA.js",
+        "domain": "analytics.tiktok.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8590,
+        "blockedByShields": true
+      },
+      {
+        "id": 181,
+        "url": "https://sb.scorecardresearch.com/internal-cs/default/beacon.js",
+        "domain": "sb.scorecardresearch.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "scorecardresearch.com",
+          "entity": "Comscore",
+          "category": "audience measurement",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8590,
+        "blockedByShields": true
+      },
+      {
+        "id": 182,
+        "url": "https://bat.bing.com/p/action/97040225.js",
+        "domain": "bat.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8595,
+        "blockedByShields": true
+      },
+      {
+        "id": 183,
+        "url": "https://connect.facebook.net/signals/config/341638689366170?v=&r=&domain=&hme=&ex_m=",
+        "domain": "connect.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "connect.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8657,
+        "blockedByShields": true
+      },
+      {
+        "id": 184,
+        "url": "https://aim-tag.hcn.health/_itu.png",
+        "domain": "aim-tag.hcn.health",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8675,
+        "blockedByShields": true
+      },
+      {
+        "id": 185,
+        "url": "https://ct.pinterest.com/ct.html",
+        "domain": "ct.pinterest.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8684,
+        "blockedByShields": true
+      },
+      {
+        "id": 186,
+        "url": "https://sb.scorecardresearch.com/b?c1=&c2=&cs_fpcu=&cs_it=&cv=&ns__t=&ns_c=&cs_cfg=&cs_gpc=&cs_ucfr=&cs_fpit=&cs_fpdm=&cs_fpdt=&cs_fpid=&comscorekw=&cs_ucc=&cs_cmp_id=&gpp_ssv=&gpp_gpc=&gpp_oos=&gpp_oon=&gpp_sdp=&gpp_pdc=&gpp_cdc=&gpp_mct=&gpp_mom=&gpp_msm=&cs_cmp_ie=&cs_cmp_rt=&cs_cmp_av=&gpp_sid=&gpp_smv=&c7=&c8=&c9=",
+        "domain": "sb.scorecardresearch.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "scorecardresearch.com",
+          "entity": "Comscore",
+          "category": "audience measurement",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8691,
+        "blockedByShields": true
+      },
+      {
+        "id": 187,
+        "url": "https://www.clarity.ms/tag/uet/97040225",
+        "domain": "www.clarity.ms",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8696,
+        "blockedByShields": true
+      },
+      {
+        "id": 188,
+        "url": "https://bat.bing.com/action/0?ti=&tm=&Ver=&mid=&bo=&sid=&vid=&vids=&msclkid=&gtm_tag_source=&pi=&lg=&sw=&sh=&sc=&nwd=&tl=&p=&r=&lt=&evt=&sv=&cdb=&rn=",
+        "domain": "bat.bing.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8696,
+        "blockedByShields": true
+      },
+      {
+        "id": 189,
+        "url": "https://analytics.tiktok.com/i18n/pixel/static/identify_b8133453.js",
+        "domain": "analytics.tiktok.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8780,
+        "blockedByShields": true
+      },
+      {
+        "id": 190,
+        "url": "https://analytics.tiktok.com/api/v2/monitor",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8782,
+        "blockedByShields": true
+      },
+      {
+        "id": 191,
+        "url": "https://analytics.tiktok.com/api/v2/monitor",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8782,
+        "blockedByShields": true
+      },
+      {
+        "id": 192,
+        "url": "https://analytics.tiktok.com/api/v2/monitor",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8784,
+        "blockedByShields": true
+      },
+      {
+        "id": 193,
+        "url": "https://analytics.tiktok.com/api/v2/monitor",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8785,
+        "blockedByShields": true
+      },
+      {
+        "id": 194,
+        "url": "https://analytics-ipv6.tiktokw.us/ipv6/enrich_ipv6",
+        "domain": "analytics-ipv6.tiktokw.us",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8785,
+        "blockedByShields": true
+      },
+      {
+        "id": 195,
+        "url": "https://analytics.tiktok.com/api/v2/pixel",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8786,
+        "blockedByShields": true
+      },
+      {
+        "id": 196,
+        "url": "https://analytics.tiktok.com/api/v2/pixel",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8786,
+        "blockedByShields": true
+      },
+      {
+        "id": 197,
+        "url": "https://sb.scorecardresearch.com/b2?c1=&c2=&cs_fpcu=&cs_it=&cv=&ns__t=&ns_c=&cs_cfg=&cs_gpc=&cs_ucfr=&cs_fpit=&cs_fpdm=&cs_fpdt=&cs_fpid=&comscorekw=&cs_ucc=&cs_cmp_id=&gpp_ssv=&gpp_gpc=&gpp_oos=&gpp_oon=&gpp_sdp=&gpp_pdc=&gpp_cdc=&gpp_mct=&gpp_mom=&gpp_msm=&cs_cmp_ie=&cs_cmp_rt=&cs_cmp_av=&gpp_sid=&gpp_smv=&c7=&c8=&c9=",
+        "domain": "sb.scorecardresearch.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "scorecardresearch.com",
+          "entity": "Comscore",
+          "category": "audience measurement",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8788,
+        "blockedByShields": true
+      },
+      {
+        "id": 198,
+        "url": "https://analytics.tiktok.com/api/v2/monitor",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8810,
+        "blockedByShields": true
+      },
+      {
+        "id": 199,
+        "url": "https://analytics.tiktok.com/api/v2/monitor",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8811,
+        "blockedByShields": true
+      },
+      {
+        "id": 200,
+        "url": "https://analytics.tiktok.com/api/v2/monitor",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8814,
+        "blockedByShields": true
+      },
+      {
+        "id": 201,
+        "url": "https://analytics.tiktok.com/api/v2/monitor",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8814,
+        "blockedByShields": true
+      },
+      {
+        "id": 202,
+        "url": "https://analytics.tiktok.com/api/v2/monitor",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8815,
+        "blockedByShields": true
+      },
+      {
+        "id": 203,
+        "url": "https://analytics.tiktok.com/api/v2/monitor",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8952,
+        "blockedByShields": true
+      },
+      {
+        "id": 204,
+        "url": "https://trc.lhmos.com/enrich/data/jsonp?mcode=&mid=&callback=",
+        "domain": "trc.lhmos.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8961,
+        "blockedByShields": true
+      },
+      {
+        "id": 205,
+        "url": "https://match.deepintent.com/identity/?key=&sid=&cb=",
+        "domain": "match.deepintent.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8962,
+        "blockedByShields": true
+      },
+      {
+        "id": 206,
+        "url": "https://trc.lhmos.com/uid/set?aimsessionidv4=&dgid=&mcode=&mid=",
+        "domain": "trc.lhmos.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8962,
+        "blockedByShields": true
+      },
+      {
+        "id": 207,
+        "url": "https://match.deepintent.com/usersync/114/store?ext1=&id=",
+        "domain": "match.deepintent.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8962,
+        "blockedByShields": true
+      },
+      {
+        "id": 208,
+        "url": "https://id.rlcdn.com/713366.gif?cparams=",
+        "domain": "id.rlcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8965,
+        "blockedByShields": true
+      },
+      {
+        "id": 209,
+        "url": "https://aim-tag.hcn.health/api/v4/aim-reader/dom-content-loaded",
+        "domain": "aim-tag.hcn.health",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8965,
+        "blockedByShields": true
+      },
+      {
+        "id": 210,
+        "url": "https://aim-tag.hcn.health/api/v4/aim-reader/hcp/a25e1a30-791b-11f1-8f1c-e52d109a484f/?data=&signature=",
+        "domain": "aim-tag.hcn.health",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8968,
+        "blockedByShields": true
+      },
+      {
+        "id": 211,
+        "url": "https://analytics.tiktok.com/api/v2/pixel/act",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 8985,
+        "blockedByShields": true
+      },
+      {
+        "id": 212,
+        "url": "https://aim-tag.hcn.health/api/v4/aim-reader/dom-content-loaded",
+        "domain": "aim-tag.hcn.health",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 8997,
+        "blockedByShields": true
+      },
+      {
+        "id": 213,
+        "url": "https://secure.adnxs.com/getuidu?%5Bredacted%5D=&aimsessionidv4=&dgid=&mcode=&mid=",
+        "domain": "secure.adnxs.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9090,
+        "blockedByShields": true
+      },
+      {
+        "id": 214,
+        "url": "https://secure.adnxs.com/getuidp?callback=",
+        "domain": "secure.adnxs.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9091,
+        "blockedByShields": true
+      },
+      {
+        "id": 215,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9220,
+        "blockedByShields": true
+      },
+      {
+        "id": 216,
+        "url": "https://i0.wp.com/assets.healthline.com/content/ccpaprivacyoptions29x14.png",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9312,
+        "blockedByShields": false
+      },
+      {
+        "id": 217,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/03/image-1.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9312,
+        "blockedByShields": false
+      },
+      {
+        "id": 218,
+        "url": "https://assets.healthline.com/content/hl-black.svg",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9313,
+        "blockedByShields": false
+      },
+      {
+        "id": 219,
+        "url": "https://ingest.make.rvohealth.com/v2/t",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 9334,
+        "blockedByShields": true
+      },
+      {
+        "id": 220,
+        "url": "https://pavlov-prod.healthline.com/api/metrics",
+        "domain": "pavlov-prod.healthline.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 9375,
+        "blockedByShields": true
+      },
+      {
+        "id": 221,
+        "url": "https://analytics.tiktok.com/api/v2/monitor",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 10662,
+        "blockedByShields": true
+      },
+      {
+        "id": 222,
+        "url": "https://pavlov-prod.healthline.com/api/metrics/unload",
+        "domain": "pavlov-prod.healthline.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11889,
+        "blockedByShields": true
+      },
+      {
+        "id": 223,
+        "url": "https://ingest.make.rvohealth.com/v2/t?k=",
+        "domain": "ingest.make.rvohealth.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11890,
+        "blockedByShields": true
+      },
+      {
+        "id": 224,
+        "url": "https://gtm-server.healthline.com/g/collect",
+        "domain": "gtm-server.healthline.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 11909,
+        "blockedByShields": true
+      },
+      {
+        "id": 225,
+        "url": "https://bat.bing.com/actionp/0?ti=&tm=&Ver=&mid=&bo=&sid=&vid=&vids=&msclkid=&evt=",
+        "domain": "bat.bing.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 11910,
+        "blockedByShields": true
+      },
+      {
+        "id": 226,
+        "url": "https://analytics.tiktok.com/api/v2/pixel/inter",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "startedAtMs": 11912,
+        "blockedByShields": true
+      },
+      {
+        "id": 227,
+        "url": "https://vtrk.dv.tech/?ec=&ea=&ctx=&cmp=&cd110=&cm106=&cm107=&cm108=&cm109=&cm110=&cm111=&cm112=&cd102=&cd103=&cd107=&cd109=&cd200=&cd108=&cd105=&cd106=&cd104=&cd199=&cd101=&cm101=&cid=&t=&v=&z=&cd160=",
+        "domain": "vtrk.dv.tech",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 11913,
+        "blockedByShields": true
+      }
+    ],
+    "domains": [
+      {
+        "domain": "analytics.tiktok.com",
+        "requests": 18,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "ping"
+        ]
+      },
+      {
+        "domain": "sb.scorecardresearch.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "scorecardresearch.com",
+          "entity": "Comscore",
+          "category": "audience measurement",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "bat.bing.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "image",
+          "ping"
+        ]
+      },
+      {
+        "domain": "ct.pinterest.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "fetch",
+          "document"
+        ]
+      },
+      {
+        "domain": "securepubads.g.doubleclick.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "other"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "api.rlcdn.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "match.adsrvr.org",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "connect.facebook.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "connect.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "config.aps.amazon-adsystem.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "client.aps.amazon-adsystem.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "c.amazon-adsystem.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "stats.g.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "pagead2.googlesyndication.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "idsync.rlcdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.clarity.ms",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "id.rlcdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "media.post.rvohealth.io",
+        "requests": 38,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "ingest.make.rvohealth.com",
+        "requests": 18,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "ping"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "aim-tag.hcn.health",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          202
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn.rvohealth.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "document"
+        ]
+      },
+      {
+        "domain": "ad-delivery.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "lexicon.33across.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "id5-sync.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "prod.adspsp.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "pub.doubleverify.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "siteintercept.qualtrics.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn.btmessage.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "cdn.confiant-integrations.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "lb.eu-1-id5-sync.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "s.pinimg.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "trc.lhmos.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "match.deepintent.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "secure.adnxs.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "image",
+          "script"
+        ]
+      },
+      {
+        "domain": "geolocation.onetrust.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn-ima.33across.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.id5-sync.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "secure.cdn.fastclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "assets.medicalnewstoday.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "api.id5-sync.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "api.btmessage.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "ats-wrapper.privacymanager.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "lbs.eu-1-id5-sync.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "js-sec.indexww.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "hm.adspsp.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "ups.analytics.yahoo.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "id2.sv.rkdms.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "zn0vxykjxsxo4lipw-healthline.siteintercept.qualtrics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "adspsp.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.redditstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ak.sail-horizon.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "sp.analytics.yahoo.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "pixel-config.reddit.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "alb.reddit.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "api.sail-personalize.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "analytics-ipv6.tiktokw.us",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "i0.wp.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "vtrk.dv.tech",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "assets.healthline.com",
+        "requests": 25,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "font",
+          "image"
+        ]
+      },
+      {
+        "domain": "gtm-server.healthline.com",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.healthline.com",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "fetch",
+          "image",
+          "font"
+        ]
+      },
+      {
+        "domain": "pavlov-prod.healthline.com",
+        "requests": 3,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "rvo-cohesion.healthline.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".33across.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "TDID",
+        "domain": ".adsrvr.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "id5",
+        "domain": ".id5-sync.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "sessionid",
+        "domain": ".rkdms.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "cohsn_xs_id",
+        "domain": ".rvohealth.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "_ttp",
+        "domain": ".tiktok.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "A3",
+        "domain": ".yahoo.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "__Secure-YNID",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "YSC",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "__Secure-ROLLOUT_TOKEN",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_INFO1_LIVE",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_PRIVACY_METADATA",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "blab",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "cleared-onetrust-cookies",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_anon_id",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_hash_id",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_http_only",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_sess_id",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_ref",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_req",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_sess_count",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_tenant_id",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_gpc_sess_id",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_smpl",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_transit_id",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "pmpdid",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "cohsn_xs_id",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "OTGPPConsent",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "usprivacy",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_0N29CNZT79",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "FPID",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "FPLC",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "FPGSID",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_rdt_uuid",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "chsn_cnsnt",
+        "domain": ".www.healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_lr_retry_request",
+        "domain": "www.healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_lr_env_src_ats",
+        "domain": "www.healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "pbjs-unifiedid",
+        "domain": "www.healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "pbjs-unifiedid_cst",
+        "domain": "www.healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "sailthru_pageviews",
+        "domain": "www.healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "_sharedID_cst",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetvid_exp",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_exp",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "_sharedID",
+        "valueBytes": 36
+      },
+      {
+        "area": "localStorage",
+        "key": "merkleId_cst",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls",
+        "valueBytes": 83
+      },
+      {
+        "area": "localStorage",
+        "key": "connectid_cst",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id",
+        "valueBytes": 1591
+      },
+      {
+        "area": "localStorage",
+        "key": "loglevel",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "IXWRAPPERAdserverOrgIp",
+        "valueBytes": 313
+      },
+      {
+        "area": "localStorage",
+        "key": "connectId",
+        "valueBytes": 449
+      },
+      {
+        "area": "localStorage",
+        "key": "aps:3083:deviceSignal/sua",
+        "valueBytes": 296
+      },
+      {
+        "area": "localStorage",
+        "key": "pmp_dcsn_cache",
+        "valueBytes": 243
+      },
+      {
+        "area": "localStorage",
+        "key": "IXWRAPPERLiveRampIp",
+        "valueBytes": 79
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetvid",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "merkleId_exp",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_v2_6731402884891114",
+        "valueBytes": 641
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_cached_consent_data",
+        "valueBytes": 16
+      },
+      {
+        "area": "localStorage",
+        "key": "_pubcid_exp",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "connectid_exp",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "merkleId",
+        "valueBytes": 96
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_extensions",
+        "valueBytes": 181
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_cst",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_privacy",
+        "valueBytes": 44
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_last",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetsid",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "_pubcid",
+        "valueBytes": 36
+      },
+      {
+        "area": "localStorage",
+        "key": "_sharedID_exp",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "aps:3083:idVendors/enabled",
+        "valueBytes": 261
+      },
+      {
+        "area": "localStorage",
+        "key": "connectid",
+        "valueBytes": 535
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetsid_exp",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_privacy_exp",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "33acrossId_csti",
+        "valueBytes": 52
+      },
+      {
+        "area": "localStorage",
+        "key": "adb_u",
+        "valueBytes": 46
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_cached_consent_data_exp",
+        "valueBytes": 29
+      },
+      {
+        "area": "sessionStorage",
+        "key": "BT_sid",
+        "valueBytes": 10
+      },
+      {
+        "area": "sessionStorage",
+        "key": "is_eu",
+        "valueBytes": 5
+      },
+      {
+        "area": "sessionStorage",
+        "key": "healthline.pageView",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "tt_appInfo",
+        "valueBytes": 17
+      },
+      {
+        "area": "sessionStorage",
+        "key": "adb_s",
+        "valueBytes": 48
+      },
+      {
+        "area": "sessionStorage",
+        "key": "tt_sessionId",
+        "valueBytes": 60
+      },
+      {
+        "area": "sessionStorage",
+        "key": "tglr_hash_id",
+        "valueBytes": 66
+      },
+      {
+        "area": "sessionStorage",
+        "key": "tt_pixel_session_index",
+        "valueBytes": 20
+      },
+      {
+        "area": "sessionStorage",
+        "key": "QSI_HistorySession",
+        "valueBytes": 49
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document",
+            "input",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://assets.healthline.com",
+            "https://prod.adspsp.com",
+            "https://rvo-cohesion.healthline.com",
+            "https://s.pinimg.com"
+          ],
+          "totalListenerCalls": 48
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "scroll",
+            "selectionchange",
+            "touchstart",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "documentElement",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://analytics.tiktok.com",
+            "https://assets.healthline.com",
+            "https://cdn.cookielaw.org",
+            "https://connect.facebook.net",
+            "https://gtm-server.healthline.com",
+            "https://prod.adspsp.com",
+            "https://pub.doubleverify.com",
+            "https://rvo-cohesion.healthline.com"
+          ],
+          "totalListenerCalls": 59
+        }
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.getImageData",
+        "count": 1
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "The page did not reach network idle before the scan window ended.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.healthline.com/about/privacy-notice) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "pixelEvents": [
+      {
+        "platform": "TikTok",
+        "product": "TikTok Pixel",
+        "events": [
+          "LandingPageView",
+          "Pageview"
+        ],
+        "advancedMatching": [],
+        "requests": 4
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.healthline.com/about/privacy-notice",
+      "claims": [
+        {
+          "kind": "honors-gpc",
+          "quote": "If enabled for the jurisdiction from which you are accessing our website or mobile application, you can opt out of the processing of your personal information for targeted advertising purposes by c..."
+        }
+      ],
+      "mentionedEntities": [
+        "Google",
+        "LiveRamp"
+      ],
+      "unmentionedEntities": [
+        "TikTok",
+        "Comscore",
+        "Microsoft",
+        "Pinterest",
+        "Amazon Ads",
+        "Meta",
+        "The Trade Desk",
+        "Microsoft Clarity"
+      ],
+      "policyTextLength": 94295
+    }
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Healthline: Medical information and health advice you can trust.",
+      "status": 200,
+      "durationMs": 8409,
+      "firstPartyDomain": "www.healthline.com",
+      "totalRequests": 71,
+      "thirdPartyRequests": 43,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 4,
+      "cookies": 2,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 13
+    },
+    "conditions": {
+      "requestedUrl": "https://www.healthline.com/",
+      "finalUrl": "https://www.healthline.com/",
+      "scannedAt": "2026-07-06T09:18:27.972Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
+      "shieldsMode": "block-simulation"
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.healthline.com/",
+        "domain": "www.healthline.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 54,
+        "blockedByShields": false
+      },
+      {
+        "id": 2,
+        "url": "https://assets.healthline.com/_next/76671b15-6d0b-47a2-b20a-f55bd4825e7e/hl/vendor.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 310,
+        "blockedByShields": false
+      },
+      {
+        "id": 3,
+        "url": "https://assets.healthline.com/_next/76671b15-6d0b-47a2-b20a-f55bd4825e7e/hl/lib.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 311,
+        "blockedByShields": false
+      },
+      {
+        "id": 4,
+        "url": "https://assets.healthline.com/_next/76671b15-6d0b-47a2-b20a-f55bd4825e7e/hl/page-widgets.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 311,
+        "blockedByShields": false
+      },
+      {
+        "id": 5,
+        "url": "https://assets.healthline.com/_next/76671b15-6d0b-47a2-b20a-f55bd4825e7e/hl/felib.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 311,
+        "blockedByShields": false
+      },
+      {
+        "id": 6,
+        "url": "https://assets.healthline.com/_next/76671b15-6d0b-47a2-b20a-f55bd4825e7e/hl/felib-core.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 311,
+        "blockedByShields": false
+      },
+      {
+        "id": 7,
+        "url": "https://assets.healthline.com/_next/76671b15-6d0b-47a2-b20a-f55bd4825e7e/hl/pages/home-page.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 311,
+        "blockedByShields": false
+      },
+      {
+        "id": 8,
+        "url": "https://assets.healthline.com/fonts/proxima/v1/32A982_7_0.woff2",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 387,
+        "blockedByShields": false
+      },
+      {
+        "id": 9,
+        "url": "https://assets.healthline.com/fonts/proxima/v1/32A982_9_0.woff2",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 388,
+        "blockedByShields": false
+      },
+      {
+        "id": 10,
+        "url": "https://assets.healthline.com/fonts/proxima/v1/38C507_0_0.woff2",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 388,
+        "blockedByShields": false
+      },
+      {
+        "id": 11,
+        "url": "https://cdn.cookielaw.org/scripttemplates/gpp.stub.js",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 389,
+        "blockedByShields": false
+      },
+      {
+        "id": 12,
+        "url": "https://cdn.cookielaw.org/scripttemplates/otSDKStub.js",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 390,
+        "blockedByShields": false
+      },
+      {
+        "id": 13,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/03/hl_homepage-CTA-glp1-500x666-desktop.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 390,
+        "blockedByShields": false
+      },
+      {
+        "id": 14,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/03/hl_homepage-CTA-glp1-500x530-mobile.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 390,
+        "blockedByShields": false
+      },
+      {
+        "id": 15,
+        "url": "https://cdn.cookielaw.org/consent/6a2124b1-8744-4206-802a-a322e8a028c3/6a2124b1-8744-4206-802a-a322e8a028c3.json",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 429,
+        "blockedByShields": false
+      },
+      {
+        "id": 16,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/03/hl_homepage-CTA-recipe-500x666-desktop.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 434,
+        "blockedByShields": false
+      },
+      {
+        "id": 17,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/03/hl_homepage-CTA-recipe-500x530-mobile.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 434,
+        "blockedByShields": false
+      },
+      {
+        "id": 18,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/05/homepage-hero-cta-icons-asset-halo-homepage-CTA-dd-mobile-500x530-sparkle.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 435,
+        "blockedByShields": false
+      },
+      {
+        "id": 19,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/What-Sets-HL-Apart-Crop.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 436,
+        "blockedByShields": false
+      },
+      {
+        "id": 20,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/integrity2.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 437,
+        "blockedByShields": false
+      },
+      {
+        "id": 21,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/integrity3.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 437,
+        "blockedByShields": false
+      },
+      {
+        "id": 22,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/integrity4.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 438,
+        "blockedByShields": false
+      },
+      {
+        "id": 24,
+        "url": "https://assets.healthline.com/fonts/proxima/v1/32A982_1_0.woff2",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 466,
+        "blockedByShields": false
+      },
+      {
+        "id": 25,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/Healthline_14-Day-Energy-Boost_Thumbnail_732x549-1.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 467,
+        "blockedByShields": false
+      },
+      {
+        "id": 26,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/GLP1_POV-thumbnail-732x549-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 468,
+        "blockedByShields": false
+      },
+      {
+        "id": 27,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/fitness-13-732x549-thumbnail-copy.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 468,
+        "blockedByShields": false
+      },
+      {
+        "id": 28,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/sports_depression-thumbnail-732x549-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 469,
+        "blockedByShields": false
+      },
+      {
+        "id": 29,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2019/12/sausage-grill-grilling-cooking-732x549-thumbnail.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 470,
+        "blockedByShields": false
+      },
+      {
+        "id": 30,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/anxietydepression-final.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 470,
+        "blockedByShields": false
+      },
+      {
+        "id": 31,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/digestive-health.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 471,
+        "blockedByShields": false
+      },
+      {
+        "id": 32,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/heart-health.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 472,
+        "blockedByShields": false
+      },
+      {
+        "id": 33,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/menopause-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 473,
+        "blockedByShields": false
+      },
+      {
+        "id": 34,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/diabetes.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 474,
+        "blockedByShields": false
+      },
+      {
+        "id": 35,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/weight-managementds.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 478,
+        "blockedByShields": false
+      },
+      {
+        "id": 36,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/Tools_Photo-desktop-b.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 478,
+        "blockedByShields": false
+      },
+      {
+        "id": 37,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/01/Tools_desktop-Treatment-photo-tighter-crop.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 479,
+        "blockedByShields": false
+      },
+      {
+        "id": 38,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/botox-infographic-thumb-732x549-1.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 484,
+        "blockedByShields": false
+      },
+      {
+        "id": 39,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/05/mental-health-solutions-3-732x549-thumbnail-copy.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 485,
+        "blockedByShields": false
+      },
+      {
+        "id": 40,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2025/05/updated-Best-fish-oil-ugc-thumbnail-732x549-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 487,
+        "blockedByShields": false
+      },
+      {
+        "id": 41,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/female-sleeping-732x549-thumbnail.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 488,
+        "blockedByShields": false
+      },
+      {
+        "id": 42,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/05/traveling_drugs_translate-thumbnail-732x549-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 489,
+        "blockedByShields": false
+      },
+      {
+        "id": 43,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/Mother_Daughter_Weight_Management-thumbnail-732x549-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 489,
+        "blockedByShields": false
+      },
+      {
+        "id": 44,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/HL-Zepbound-OSA-Signature_Program-Spotlight-600x900-1.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 491,
+        "blockedByShields": false
+      },
+      {
+        "id": 45,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/The-Assist-Beating-Chronic-Migraine-600x900-1.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 491,
+        "blockedByShields": false
+      },
+      {
+        "id": 46,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/Ebglyss-HL-Program-Key-Art-Request_Soptlight_600x900.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 492,
+        "blockedByShields": false
+      },
+      {
+        "id": 47,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/06/HL-Hub-Key-Art-Womens-Wellness-2024-Update-600x900-1.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 492,
+        "blockedByShields": false
+      },
+      {
+        "id": 48,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/02/jul-homepage_video-is-your-heart-rate-healthy-514x370-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 493,
+        "blockedByShields": false
+      },
+      {
+        "id": 49,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/02/jul-homepage_video-what-your-poop-color-says-about-your-health-514x370-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 494,
+        "blockedByShields": false
+      },
+      {
+        "id": 50,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/02/jul-homepage_video-is-fasting-combined-with-hiit-effective-514x370-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 495,
+        "blockedByShields": false
+      },
+      {
+        "id": 51,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2024/01/jun-homepage_video-honest-convo4-514x370-1.jpg",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 495,
+        "blockedByShields": false
+      },
+      {
+        "id": 59,
+        "url": "https://assets.healthline.com/_next/76671b15-6d0b-47a2-b20a-f55bd4825e7e/hl/4708.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 652,
+        "blockedByShields": false
+      },
+      {
+        "id": 60,
+        "url": "https://assets.healthline.com/_next/2829-8f6bc164.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 654,
+        "blockedByShields": false
+      },
+      {
+        "id": 61,
+        "url": "https://assets.healthline.com/_next/6759-537c77d1.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 655,
+        "blockedByShields": false
+      },
+      {
+        "id": 62,
+        "url": "https://assets.healthline.com/_next/chunks/deferred-global-b010dc90.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 655,
+        "blockedByShields": false
+      },
+      {
+        "id": 63,
+        "url": "https://assets.healthline.com/_next/7314-5299d040.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 803,
+        "blockedByShields": false
+      },
+      {
+        "id": 64,
+        "url": "https://assets.healthline.com/_next/9644-9ccf880d.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 806,
+        "blockedByShields": false
+      },
+      {
+        "id": 65,
+        "url": "https://assets.healthline.com/_next/7616-a191c8dc.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 808,
+        "blockedByShields": false
+      },
+      {
+        "id": 66,
+        "url": "https://assets.healthline.com/_next/9190-c4a71e6b.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 810,
+        "blockedByShields": false
+      },
+      {
+        "id": 67,
+        "url": "https://assets.healthline.com/_next/chunks/yt-e601e7a6.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 811,
+        "blockedByShields": false
+      },
+      {
+        "id": 68,
+        "url": "https://assets.healthline.com/_next/chunks/el-8524c358.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 811,
+        "blockedByShields": false
+      },
+      {
+        "id": 69,
+        "url": "https://assets.medicalnewstoday.com/content/advertising.js",
+        "domain": "assets.medicalnewstoday.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 855,
+        "blockedByShields": false
+      },
+      {
+        "id": 71,
+        "url": "https://assets.healthline.com/_next/chunks/modal-f834ec9a.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 892,
+        "blockedByShields": false
+      },
+      {
+        "id": 72,
+        "url": "https://assets.healthline.com/_next/chunks/auth-provider-afe05448.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 893,
+        "blockedByShields": false
+      },
+      {
+        "id": 73,
+        "url": "https://assets.healthline.com/_next/chunks/lib-components-engagement-invisible-div-popup-bf56c047.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 894,
+        "blockedByShields": false
+      },
+      {
+        "id": 75,
+        "url": "https://www.healthline.com/api/drivers/v4",
+        "domain": "www.healthline.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 899,
+        "blockedByShields": false
+      },
+      {
+        "id": 76,
+        "url": "https://assets.healthline.com/_next/chunks/wellness-driver-c2d50e08.js",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1008,
+        "blockedByShields": false
+      },
+      {
+        "id": 77,
+        "url": "https://www.healthline.com/static/fonts/healthline/healthline.woff",
+        "domain": "www.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 1149,
+        "blockedByShields": false
+      },
+      {
+        "id": 78,
+        "url": "https://media.post.rvohealth.io/2kLEJX4A3LDe7GGDNr31WST2A26/2026/01/20/38Xc3mwbXQf5LmV7HB8XFEwJ1xw.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1217,
+        "blockedByShields": false
+      },
+      {
+        "id": 81,
+        "url": "https://i0.wp.com/assets.healthline.com/content/ccpaprivacyoptions29x14.png",
+        "domain": "i0.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3575,
+        "blockedByShields": false
+      },
+      {
+        "id": 82,
+        "url": "https://media.post.rvohealth.io/wp-content/uploads/2026/03/image-1.png",
+        "domain": "media.post.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 3576,
+        "blockedByShields": false
+      },
+      {
+        "id": 83,
+        "url": "https://assets.healthline.com/content/hl-black.svg",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 3576,
+        "blockedByShields": false
+      }
+    ],
+    "domains": [
+      {
+        "domain": "media.post.rvohealth.io",
+        "requests": 38,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "assets.medicalnewstoday.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "i0.wp.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "assets.healthline.com",
+        "requests": 25,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "font",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.healthline.com",
+        "requests": 3,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "fetch",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "blab",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "cleared-onetrust-cookies",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "sessionStorage",
+        "key": "healthline.pageView",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://assets.healthline.com"
+          ],
+          "totalListenerCalls": 42
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "scroll",
+            "selectionchange",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://assets.healthline.com"
+          ],
+          "totalListenerCalls": 32
+        }
+      }
+    ],
+    "fingerprintEvents": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.healthline.com/about/privacy-notice) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "privacyPolicy": {
+      "url": "https://www.healthline.com/about/privacy-notice",
+      "claims": [
+        {
+          "kind": "honors-gpc",
+          "quote": "If enabled for the jurisdiction from which you are accessing our website or mobile application, you can opt out of the processing of your personal information for targeted advertising purposes by c..."
+        }
+      ],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 94295
+    }
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 227,
+      "after": 71,
+      "delta": -156
+    },
+    "thirdPartyRequests": {
+      "before": 187,
+      "after": 43,
+      "delta": -144
+    },
+    "knownTrackerRequests": {
+      "before": 51,
+      "after": 0,
+      "delta": -51
+    },
+    "thirdPartyDomains": {
+      "before": 63,
+      "after": 4,
+      "delta": -59
+    },
+    "cookies": {
+      "before": 42,
+      "after": 2,
+      "delta": -40
+    },
+    "thirdPartyCookies": {
+      "before": 12,
+      "after": 0,
+      "delta": -12
+    },
+    "storageEntries": {
+      "before": 44,
+      "after": 1,
+      "delta": -43
+    },
+    "fingerprintEvents": {
+      "before": 1,
+      "after": 0,
+      "delta": -1
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "analytics.tiktok.com",
+        "requests": 18,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ingest.make.rvohealth.com",
+        "requests": 18,
+        "tracker": null
+      },
+      {
+        "domain": "aim-tag.hcn.health",
+        "requests": 6,
+        "tracker": null
+      },
+      {
+        "domain": "gtm-server.healthline.com",
+        "requests": 6,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.rvohealth.com",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "ad-delivery.net",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "bat.bing.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "bat.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ct.pinterest.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "ct.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "id5-sync.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "lexicon.33across.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "sb.scorecardresearch.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "scorecardresearch.com",
+          "entity": "Comscore",
+          "category": "audience measurement",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "pavlov-prod.healthline.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "prod.adspsp.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "pub.doubleverify.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "securepubads.g.doubleclick.net",
+        "requests": 3,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "siteintercept.qualtrics.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "api.rlcdn.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cdn.btmessage.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.confiant-integrations.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "connect.facebook.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "connect.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "lb.eu-1-id5-sync.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "match.adsrvr.org",
+        "requests": 2,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "match.deepintent.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "s.pinimg.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "secure.adnxs.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "trc.lhmos.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "adspsp.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "ak.sail-horizon.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "alb.reddit.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "analytics-ipv6.tiktokw.us",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "api.btmessage.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "api.id5-sync.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "api.sail-personalize.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "ats-wrapper.privacymanager.io",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "c.amazon-adsystem.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cdn-ima.33across.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.id5-sync.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "client.aps.amazon-adsystem.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "config.aps.amazon-adsystem.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "geolocation.onetrust.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "hm.adspsp.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "id.rlcdn.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "id2.sv.rkdms.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "idsync.rlcdn.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "js-sec.indexww.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "lbs.eu-1-id5-sync.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "pagead2.googlesyndication.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "pixel-config.reddit.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "rvo-cohesion.healthline.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "secure.cdn.fastclick.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "sp.analytics.yahoo.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "stats.g.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ups.analytics.yahoo.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "vtrk.dv.tech",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "www.clarity.ms",
+        "requests": 1,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.redditstatic.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "zn0vxykjxsxo4lipw-healthline.siteintercept.qualtrics.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "TikTok",
+        "requests": 18,
+        "domains": 1
+      },
+      {
+        "entity": "Google",
+        "requests": 9,
+        "domains": 6
+      },
+      {
+        "entity": "Comscore",
+        "requests": 4,
+        "domains": 1
+      },
+      {
+        "entity": "LiveRamp",
+        "requests": 4,
+        "domains": 3
+      },
+      {
+        "entity": "Microsoft",
+        "requests": 4,
+        "domains": 1
+      },
+      {
+        "entity": "Pinterest",
+        "requests": 4,
+        "domains": 1
+      },
+      {
+        "entity": "Amazon Ads",
+        "requests": 3,
+        "domains": 3
+      },
+      {
+        "entity": "Meta",
+        "requests": 2,
+        "domains": 1
+      },
+      {
+        "entity": "The Trade Desk",
+        "requests": 2,
+        "domains": 1
+      },
+      {
+        "entity": "Microsoft Clarity",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".33across.com",
+        "thirdParty": true
+      },
+      {
+        "name": "TDID",
+        "domain": ".adsrvr.org",
+        "thirdParty": true
+      },
+      {
+        "name": "id5",
+        "domain": ".id5-sync.com",
+        "thirdParty": true
+      },
+      {
+        "name": "sessionid",
+        "domain": ".rkdms.com",
+        "thirdParty": true
+      },
+      {
+        "name": "cohsn_xs_id",
+        "domain": ".rvohealth.com",
+        "thirdParty": true
+      },
+      {
+        "name": "_ttp",
+        "domain": ".tiktok.com",
+        "thirdParty": true
+      },
+      {
+        "name": "A3",
+        "domain": ".yahoo.com",
+        "thirdParty": true
+      },
+      {
+        "name": "__Secure-ROLLOUT_TOKEN",
+        "domain": ".youtube.com",
+        "thirdParty": true
+      },
+      {
+        "name": "__Secure-YNID",
+        "domain": ".youtube.com",
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_INFO1_LIVE",
+        "domain": ".youtube.com",
+        "thirdParty": true
+      },
+      {
+        "name": "VISITOR_PRIVACY_METADATA",
+        "domain": ".youtube.com",
+        "thirdParty": true
+      },
+      {
+        "name": "YSC",
+        "domain": ".youtube.com",
+        "thirdParty": true
+      },
+      {
+        "name": "_ga",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga_0N29CNZT79",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_rdt_uuid",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "cohsn_xs_id",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "FPGSID",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "FPID",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "FPLC",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "OTGPPConsent",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "pmpdid",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_anon_id",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_gpc_sess_id",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_hash_id",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_http_only",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_ref",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_req",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_sess_count",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_sess_id",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_smpl",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_tenant_id",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "tglr_transit_id",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "usprivacy",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "chsn_cnsnt",
+        "domain": ".www.healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_lr_env_src_ats",
+        "domain": "www.healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_lr_retry_request",
+        "domain": "www.healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "pbjs-unifiedid",
+        "domain": "www.healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "pbjs-unifiedid_cst",
+        "domain": "www.healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "sailthru_pageviews",
+        "domain": "www.healthline.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "_gcl_ls"
+      },
+      {
+        "area": "localStorage",
+        "key": "_pubcid"
+      },
+      {
+        "area": "localStorage",
+        "key": "_pubcid_exp"
+      },
+      {
+        "area": "localStorage",
+        "key": "_sharedID"
+      },
+      {
+        "area": "localStorage",
+        "key": "_sharedID_cst"
+      },
+      {
+        "area": "localStorage",
+        "key": "_sharedID_exp"
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetsid"
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetsid_exp"
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetvid"
+      },
+      {
+        "area": "localStorage",
+        "key": "_uetvid_exp"
+      },
+      {
+        "area": "localStorage",
+        "key": "33acrossId_csti"
+      },
+      {
+        "area": "localStorage",
+        "key": "adb_u"
+      },
+      {
+        "area": "localStorage",
+        "key": "aps:3083:deviceSignal/sua"
+      },
+      {
+        "area": "localStorage",
+        "key": "aps:3083:idVendors/enabled"
+      },
+      {
+        "area": "localStorage",
+        "key": "connectid"
+      },
+      {
+        "area": "localStorage",
+        "key": "connectId"
+      },
+      {
+        "area": "localStorage",
+        "key": "connectid_cst"
+      },
+      {
+        "area": "localStorage",
+        "key": "connectid_exp"
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id"
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_cached_consent_data"
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_cached_consent_data_exp"
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_cst"
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_exp"
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_extensions"
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_last"
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_privacy"
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_privacy_exp"
+      },
+      {
+        "area": "localStorage",
+        "key": "id5id_v2_6731402884891114"
+      },
+      {
+        "area": "localStorage",
+        "key": "IXWRAPPERAdserverOrgIp"
+      },
+      {
+        "area": "localStorage",
+        "key": "IXWRAPPERLiveRampIp"
+      },
+      {
+        "area": "localStorage",
+        "key": "loglevel"
+      },
+      {
+        "area": "localStorage",
+        "key": "merkleId"
+      },
+      {
+        "area": "localStorage",
+        "key": "merkleId_cst"
+      },
+      {
+        "area": "localStorage",
+        "key": "merkleId_exp"
+      },
+      {
+        "area": "localStorage",
+        "key": "pmp_dcsn_cache"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "adb_s"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "BT_sid"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "is_eu"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "QSI_HistorySession"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "tglr_hash_id"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "tt_appInfo"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "tt_pixel_session_index"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "tt_sessionId"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 134,
+      "after": 13,
+      "delta": -121
+    },
+    "removedPixelEvents": [
+      {
+        "platform": "TikTok",
+        "product": "TikTok Pixel",
+        "events": [
+          "LandingPageView",
+          "Pageview"
+        ],
+        "advancedMatching": []
+      }
+    ]
+  },
+  "warnings": [
+    "Brave Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "Shields off: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields off: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields off: The page did not reach network idle before the scan window ended.",
+    "Shields off: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields off: Read the site's privacy policy (https://www.healthline.com/about/privacy-notice) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Shields on: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Shields on: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Shields on: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Shields on: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Shields on: Read the site's privacy policy (https://www.healthline.com/about/privacy-notice) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260706-1be4ea9591ceb3a4f95f6f2cf0f0eae4",
+    "path": "/reports/20260706-1be4ea9591ceb3a4f95f6f2cf0f0eae4/",
+    "jsonPath": "/reports/20260706-1be4ea9591ceb3a4f95f6f2cf0f0eae4.json"
+  }
+}
