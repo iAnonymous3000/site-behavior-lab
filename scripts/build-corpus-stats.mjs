@@ -43,6 +43,13 @@ async function main() {
     const result = report.reportType === "comparison" ? report.baseline : report;
     if (!isRecord(result) || !isRecord(result.summary) || !isRecord(result.conditions)) continue;
 
+    // A run that answered with an HTTP error (403/401/429 bot walls, outages)
+    // reflects an error page, not the site: its near-zero counts would drag the
+    // percentile distribution down and misrank every real site against it. The
+    // per-report pages already disclose these as failed loads; the corpus
+    // distribution must only contain measured site behavior.
+    if (typeof result.summary.status === "number" && result.summary.status >= 400) continue;
+
     const domain = normalizeDomain(result.summary.firstPartyDomain);
     if (!domain || excludedDomains.has(domain)) continue;
 

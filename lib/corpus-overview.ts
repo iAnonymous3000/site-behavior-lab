@@ -38,6 +38,8 @@ export type DirectoryEntry = {
   gpcEnabled: boolean;
   /** Consent mode of the report's lead run ("accept-all" on consent comparisons). */
   consentMode: string;
+  /** Lead run's top-level HTTP status; >= 400 means an error/block page, not the site. */
+  status: number | null;
   /** Set on a site's newest report when an earlier report of the same kind exists. */
   sinceLastScan?: SinceLastScan;
 };
@@ -51,14 +53,26 @@ export type CorpusOverview = {
 
 type CatalogEntry = { domain: string; id: string; label: string };
 
+/** Same rule as lib/report-insights scanLoadFailureStatus: HTTP >= 400 = error/block page. */
+function entryLoadFailed(entry: DirectoryEntry): boolean {
+  return typeof entry.status === "number" && entry.status >= 400;
+}
+
 export async function loadCorpusOverview(): Promise<CorpusOverview> {
   const catalog = await loadCategoryCatalog();
   const entries = await loadDirectoryEntries(catalog);
 
+  // Failed loads (HTTP >= 400: bot walls, outages) stay listed with their honest
+  // "did not load" headline, but they are error pages, not measured site
+  // behavior, so they must not feed the statistics: no since-last-scan pairing
+  // (a delta against an error page reads as a site change), no category
+  // medians, no leaderboard.
+  const measured = entries.filter((entry) => !entryLoadFailed(entry));
+
   // "Changed since last scan": each site's newest report is paired with its most
   // recent predecessor of the same kind (see lib/temporal-deltas.ts for why kinds
   // never mix), so the directory can show what a re-scan changed.
-  const deltas = computeSinceLastScan(entries);
+  const deltas = computeSinceLastScan(measured);
   for (const entry of entries) {
     const delta = deltas.get(entry.id);
     if (delta) entry.sinceLastScan = delta;
@@ -67,7 +81,7 @@ export async function loadCorpusOverview(): Promise<CorpusOverview> {
   // One data point per site for the rollups and leaderboard (a site may carry both
   // a GPC and a Shields report; prefer the Shields one so the blocked number is real).
   const byDomain = new Map<string, DirectoryEntry>();
-  for (const entry of entries) {
+  for (const entry of measured) {
     const existing = byDomain.get(entry.domain);
     if (!existing || (entry.comparisonType === "shields" && existing.comparisonType !== "shields")) {
       byDomain.set(entry.domain, entry);
@@ -158,6 +172,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
       device: result.conditions.viewport.isMobile ? "mobile" : "desktop",
       gpcEnabled: result.conditions.gpcEnabled,
       consentMode: result.conditions.consentMode ?? "observe",
+      status: typeof result.summary.status === "number" ? result.summary.status : null,
       ...(report.reportType === "comparison" ? { comparisonType: report.comparisonType } : {})
     });
   }
