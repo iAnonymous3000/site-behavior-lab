@@ -21,7 +21,19 @@ export type R2ReportStoreDeps = {
   sign?: (input: string, init: RequestInit) => Promise<Request>;
   /** Dispatch the signed request. Defaults to the global fetch; injected in tests. */
   fetch?: typeof fetch;
+  /** Wait between retry attempts. Defaults to setTimeout; injected in tests. */
+  sleep?: (ms: number) => Promise<void>;
 };
+
+// Transient R2 failures (a 5xx from the S3 API, a throttle, or a dropped
+// connection such as a stale keep-alive socket after the container sat idle)
+// otherwise surface as a user-visible "shareable report could not be saved"
+// warning on an otherwise successful scan. S3-compatible stores expect clients
+// to retry these; every operation here is safe to retry (GET/DELETE/LIST are
+// idempotent, and the create-only PUT resolves an ambiguous replay via a
+// read-back, see `write`).
+const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
+const RETRY_DELAYS_MS = [250, 750];
 
 /** Thrown when configured for R2 but the required R2_* env vars are missing. */
 export class ReportStoreConfigError extends Error {}
@@ -35,13 +47,46 @@ export function createR2ReportStoreBackend(
 ): ReportStoreBackend {
   const doFetch = deps.fetch ?? fetch;
   const sign = deps.sign ?? defaultSigner(config);
+  const sleep = deps.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
 
   const objectUrl = (id: string): string =>
     `${config.endpoint}/${encodeURIComponent(config.bucket)}/${encodeKey(`${config.prefix}${id}.json`)}`;
 
-  async function send(input: string, init: RequestInit): Promise<Response> {
-    const request = await sign(input, init);
-    return doFetch(request);
+  // One signed dispatch with bounded retries on transient failures. A rejected
+  // fetch (network error) or a retryable status marks the attempt's server-side
+  // outcome as unknown, which `write` needs to disambiguate a create-only
+  // conflict caused by its own earlier attempt landing.
+  async function send(input: string, init: RequestInit): Promise<{ response: Response; outcomeUnknown: boolean }> {
+    let outcomeUnknown = false;
+    for (let attempt = 0; ; attempt += 1) {
+      let response: Response;
+      try {
+        response = await doFetch(await sign(input, init));
+      } catch (error) {
+        outcomeUnknown = true;
+        if (attempt >= RETRY_DELAYS_MS.length) throw error;
+        await sleep(RETRY_DELAYS_MS[attempt]);
+        continue;
+      }
+      if (RETRYABLE_STATUSES.has(response.status) && attempt < RETRY_DELAYS_MS.length) {
+        outcomeUnknown = true;
+        await drain(response);
+        await sleep(RETRY_DELAYS_MS[attempt]);
+        continue;
+      }
+      return { response, outcomeUnknown };
+    }
+  }
+
+  async function readBlob(id: string): Promise<StoredReportBlob | null> {
+    const { response } = await send(objectUrl(id), { method: "GET" });
+    if (response.status === 404) {
+      await drain(response);
+      return null;
+    }
+    await assertOk(response, "read report");
+    const contents = await response.text();
+    return { contents, lastModifiedMs: parseLastModified(response.headers) } satisfies StoredReportBlob;
   }
 
   return {
@@ -49,30 +94,31 @@ export function createR2ReportStoreBackend(
     async write(id, contents) {
       // If-None-Match: * makes the PUT create-only, preserving the filesystem
       // `wx` guarantee against ID reuse.
-      const response = await send(objectUrl(id), {
+      const { response, outcomeUnknown } = await send(objectUrl(id), {
         method: "PUT",
         body: contents,
         headers: { "content-type": "application/json", "if-none-match": "*" }
       });
       if (response.status === 412 || response.status === 409) {
         await drain(response);
+        // A 412 after an attempt whose outcome was unknown can be this call's
+        // own earlier PUT having landed (the response was lost, the object was
+        // created). Read the object back: identical contents mean the write
+        // succeeded; anything else is a genuine ID conflict.
+        if (outcomeUnknown) {
+          const stored = await readBlob(id).catch(() => null);
+          if (stored?.contents === contents) return;
+        }
         throw new ReportStoreWriteConflictError(`Report ${id} already exists.`);
       }
       await assertOk(response, "store report");
       await drain(response);
     },
-    async read(id) {
-      const response = await send(objectUrl(id), { method: "GET" });
-      if (response.status === 404) {
-        await drain(response);
-        return null;
-      }
-      await assertOk(response, "read report");
-      const contents = await response.text();
-      return { contents, lastModifiedMs: parseLastModified(response.headers) } satisfies StoredReportBlob;
+    read(id) {
+      return readBlob(id);
     },
     async remove(id) {
-      const response = await send(objectUrl(id), { method: "DELETE" });
+      const { response } = await send(objectUrl(id), { method: "DELETE" });
       if (response.status !== 404) {
         await assertOk(response, "delete report");
       }
@@ -82,7 +128,7 @@ export function createR2ReportStoreBackend(
       const entries: StoredReportEntry[] = [];
       let continuationToken: string | null = null;
       do {
-        const response = await send(listUrl(config, continuationToken), { method: "GET" });
+        const { response } = await send(listUrl(config, continuationToken), { method: "GET" });
         await assertOk(response, "list reports");
         const page = parseListResult(await response.text(), config.prefix);
         entries.push(...page.entries);

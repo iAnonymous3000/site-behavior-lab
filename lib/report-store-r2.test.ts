@@ -19,7 +19,8 @@ const VALID_ID = "20260620-0123456789abcdef0123456789abcdef";
 
 type RecordedRequest = { method: string; url: string; headers: Record<string, string>; body: string };
 
-function recordingFetch(responses: Response[]): { fetch: typeof fetch; requests: RecordedRequest[] } {
+/** Queue a Response to return it, or an Error to simulate a network failure. */
+function recordingFetch(responses: (Response | Error)[]): { fetch: typeof fetch; requests: RecordedRequest[] } {
   const queue = [...responses];
   const requests: RecordedRequest[] = [];
   const fetchImpl = (async (input: Request): Promise<Response> => {
@@ -35,19 +36,24 @@ function recordingFetch(responses: Response[]): { fetch: typeof fetch; requests:
     });
     const next = queue.shift();
     if (!next) throw new Error("No queued response for request.");
+    if (next instanceof Error) throw next;
     return next;
   }) as unknown as typeof fetch;
   return { fetch: fetchImpl, requests };
 }
 
-function backendWith(responses: Response[]) {
+function backendWith(responses: (Response | Error)[]) {
   const recorder = recordingFetch(responses);
+  const sleeps: number[] = [];
   const backend = createR2ReportStoreBackend(CONFIG, {
     // Skip real SigV4 signing; this exercises only the backend's HTTP behaviour.
     sign: async (input, init) => new Request(input, init),
-    fetch: recorder.fetch
+    fetch: recorder.fetch,
+    sleep: async (ms) => {
+      sleeps.push(ms);
+    }
   });
-  return { backend, requests: recorder.requests };
+  return { backend, requests: recorder.requests, sleeps };
 }
 
 test("R2 write issues a create-only PUT to the prefixed key", async () => {
@@ -64,6 +70,77 @@ test("R2 write issues a create-only PUT to the prefixed key", async () => {
 test("R2 write rejects when the object already exists", async () => {
   const { backend } = backendWith([new Response(null, { status: 412 })]);
   await assert.rejects(() => backend.write(VALID_ID, "{}\n"), ReportStoreWriteConflictError);
+});
+
+test("R2 write retries a transient 5xx and succeeds", async () => {
+  const { backend, requests, sleeps } = backendWith([
+    new Response("busy", { status: 503 }),
+    new Response(null, { status: 200 })
+  ]);
+  await backend.write(VALID_ID, "{}\n");
+
+  assert.equal(requests.length, 2);
+  assert.equal(requests[1].method, "PUT");
+  assert.deepEqual(sleeps, [250]);
+});
+
+test("R2 write retries a dropped connection and succeeds", async () => {
+  const { backend, requests } = backendWith([
+    new Error("socket hang up"),
+    new Response(null, { status: 200 })
+  ]);
+  await backend.write(VALID_ID, "{}\n");
+  assert.equal(requests.length, 2);
+});
+
+test("R2 write treats a 412 after a lost response as success when the object matches", async () => {
+  // First PUT lands server-side but the response is lost; the retried
+  // create-only PUT then 412s. The read-back proves our write succeeded.
+  const { backend, requests } = backendWith([
+    new Error("socket hang up"),
+    new Response(null, { status: 412 }),
+    new Response("{}\n", { status: 200, headers: { "last-modified": "Fri, 20 Jun 2026 12:00:00 GMT" } })
+  ]);
+  await backend.write(VALID_ID, "{}\n");
+
+  assert.equal(requests.length, 3);
+  assert.equal(requests[2].method, "GET");
+});
+
+test("R2 write still rejects a 412 after a lost response when the object differs", async () => {
+  const { backend } = backendWith([
+    new Error("socket hang up"),
+    new Response(null, { status: 412 }),
+    new Response("SOMEONE-ELSES-REPORT", { status: 200 })
+  ]);
+  await assert.rejects(() => backend.write(VALID_ID, "{}\n"), ReportStoreWriteConflictError);
+});
+
+test("R2 write gives up after exhausting retries", async () => {
+  const { backend, requests, sleeps } = backendWith([
+    new Response(null, { status: 500 }),
+    new Response(null, { status: 500 }),
+    new Response(null, { status: 500 })
+  ]);
+  await assert.rejects(() => backend.write(VALID_ID, "{}\n"), /HTTP 500/);
+  assert.equal(requests.length, 3);
+  assert.deepEqual(sleeps, [250, 750]);
+});
+
+test("R2 write does not retry a non-retryable client error", async () => {
+  const { backend, requests } = backendWith([new Response(null, { status: 403 })]);
+  await assert.rejects(() => backend.write(VALID_ID, "{}\n"), /HTTP 403/);
+  assert.equal(requests.length, 1);
+});
+
+test("R2 read retries a transient failure and succeeds", async () => {
+  const { backend, requests } = backendWith([
+    new Error("read ECONNRESET"),
+    new Response("REPORT-JSON", { status: 200, headers: { "last-modified": "Fri, 20 Jun 2026 12:00:00 GMT" } })
+  ]);
+  const blob = await backend.read(VALID_ID);
+  assert.equal(blob?.contents, "REPORT-JSON");
+  assert.equal(requests.length, 2);
 });
 
 test("R2 read returns contents and last-modified", async () => {
