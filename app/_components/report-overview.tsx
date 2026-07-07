@@ -1,0 +1,377 @@
+"use client";
+
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  Cookie,
+  Copy,
+  Database,
+  ExternalLink,
+  Eye,
+  FileText,
+  Fingerprint,
+  Globe2,
+  Keyboard,
+  Network,
+  Radar,
+  Shield,
+  ShieldCheck
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { clientReportRuntime, staticAssetPath } from "../client-runtime";
+import { isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
+import { buildFindings, type FindingIconKey } from "@/lib/report-findings";
+import { buildReportHeadline } from "@/lib/report-headline";
+import { fingerprintDetectionCount, trackerEntitySummaries } from "@/lib/report-insights";
+import { committedReportLocation, locateReport, type ReportRuntime } from "@/lib/report-locator";
+import { plural } from "@/lib/text-format";
+import type { NetworkRequestRecord, ScanReport, ScanResult } from "@/lib/types";
+
+/**
+ * The report page's overview cluster: the plain-language headline banner, the
+ * findings board, the by-the-numbers metric grid, and the request
+ * composition/timeline visualization, plus the share-permalink helpers the
+ * headline's social actions and the app shell's Share button both resolve
+ * links through. Moved byte-for-byte out of the app shell.
+ */
+
+export function reportSharePath(result: ScanReport, liveApiServesReportPages: boolean): string | null {
+  const share = result.share;
+  if (!share?.id) return null;
+  // The scan API only yields a shareable permalink when it serves its own report
+  // pages (the full Node app / container). The JSON-only Browser Run Worker does
+  // not, so `locateReport` then withholds the link rather than 404 it.
+  const runtime: ReportRuntime = { ...clientReportRuntime(), liveApiServesReportPages };
+  // A report whose JSON lives behind the scan API (`/api/reports/:id`) was just
+  // produced by a running Node/container scanner; on a live-API static build it
+  // is only servable from that API's own origin, so resolve it there. Committed
+  // reports instead carry the static-file convention (`/reports/:id.json`) and
+  // are served by the page that is already rendering them.
+  const apiBacked = share.jsonPath.startsWith("/api/");
+  if (runtime.staticExport && runtime.liveApiBacked && apiBacked) {
+    return locateReport(share.id, runtime).pagePath;
+  }
+  return committedReportLocation(share.id, runtime).pagePath;
+}
+
+/**
+ * Resolve a report permalink to an absolute URL fit for the clipboard or a
+ * social post. Node and committed-static reports yield origin-relative paths
+ * (e.g. `/reports/:id`) that navigate fine in an anchor but are useless once
+ * pasted elsewhere; a live-API report already carries an absolute origin and is
+ * left unchanged. Must run in the browser, it reads `window.location`.
+ */
+export function absoluteShareUrl(sharePath: string): string {
+  try {
+    return new URL(sharePath, window.location.origin).toString();
+  } catch {
+    return sharePath;
+  }
+}
+
+export function HeadlineBanner({ report, liveApiServesReportPages }: { report: ScanReport; liveApiServesReportPages: boolean }) {
+  const headline = useMemo(() => buildReportHeadline(report), [report]);
+  const [shareLink, setShareLink] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Reuse the same permalink rule as the main Share button so "Post on X" /
+    // "Copy post" never hand out a link the report's origin cannot render. When
+    // there is no shareable permalink (a JSON-only scan API has no report page),
+    // post the headline with no URL rather than the current app page, which is
+    // not this report.
+    const sharePath = reportSharePath(report, liveApiServesReportPages);
+    setShareLink(sharePath ? absoluteShareUrl(sharePath) : "");
+  }, [report, liveApiServesReportPages]);
+
+  const postText = shareLink ? `${headline.shareText} ${shareLink}` : headline.shareText;
+  const xHref = `https://twitter.com/intent/tweet?${new URLSearchParams({
+    text: headline.shareText,
+    ...(shareLink ? { url: shareLink } : {})
+  }).toString()}`;
+
+  async function copyPost() {
+    try {
+      await navigator.clipboard.writeText(postText);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <section className={`headline-banner tone-${headline.tone}`} aria-label="Plain-language summary">
+      <p className="headline-kicker">{headline.kicker}</p>
+      <h2 className="headline-title">{headline.headline}</h2>
+      <p className="headline-subhead">{headline.subhead}</p>
+
+      {headline.stats.length > 0 && (
+        <div className="headline-stats">
+          {headline.stats.map((stat) => (
+            <div className={`headline-stat${stat.emphasis ? " is-emphasis" : ""}`} key={stat.label}>
+              <span className="headline-stat-value">{stat.value}</span>
+              <span className="headline-stat-label">{stat.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="headline-footer">
+        <span className="headline-caveat">{headline.caveat}</span>
+        <div className="headline-actions">
+          <a className="headline-share primary" href={xHref} target="_blank" rel="noreferrer">
+            <ExternalLink size={15} aria-hidden="true" />
+            Post on X
+          </a>
+          <button type="button" className="headline-share" onClick={copyPost}>
+            {copied ? <CheckCircle2 size={15} aria-hidden="true" /> : <Copy size={15} aria-hidden="true" />}
+            {copied ? "Copied" : "Copy post"}
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Module-level cache so the corpus stats are fetched once per session.
+let corpusStatsCache: CorpusStats | null | undefined;
+
+function useCorpusStats(): CorpusStats | null {
+  const [corpus, setCorpus] = useState<CorpusStats | null>(corpusStatsCache ?? null);
+
+  useEffect(() => {
+    if (corpusStatsCache !== undefined) {
+      setCorpus(corpusStatsCache);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadCorpus() {
+      try {
+        const response = await fetch(staticAssetPath("/corpus-stats.json"), { cache: "no-store" });
+        if (!response.ok) throw new Error("Corpus stats unavailable.");
+        const payload = (await response.json()) as unknown;
+        corpusStatsCache = isCorpusStats(payload) ? payload : null;
+      } catch {
+        corpusStatsCache = null;
+      }
+      if (!cancelled) setCorpus(corpusStatsCache ?? null);
+    }
+
+    void loadCorpus();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return corpus;
+}
+
+// Maps the findings engine's React-free icon keys to lucide components.
+const FINDING_ICONS: Record<FindingIconKey, typeof Eye> = {
+  globe: Globe2,
+  network: Network,
+  radar: Radar,
+  cookie: Cookie,
+  eye: Eye,
+  keyboard: Keyboard,
+  fingerprint: Fingerprint,
+  "shield-check": ShieldCheck,
+  check: CheckCircle2,
+  alert: AlertTriangle,
+  "file-text": FileText
+};
+
+export function FindingsBoard({ report, result }: { report: ScanReport; result: ScanResult }) {
+  const corpus = useCorpusStats();
+  const findings = buildFindings(report, result, corpus);
+
+  return (
+    <section className="findings-board">
+      <div className="findings-heading">
+        <div>
+          <p className="eyebrow">Plain-Language Findings</p>
+          <h2>What this visit means</h2>
+          <a className="glossary-link" href={staticAssetPath("/glossary/")}>
+            Unfamiliar terms are defined in the glossary
+          </a>
+        </div>
+        <span>{result.conditions.automation}</span>
+      </div>
+      <div className="finding-list">
+        {findings.map((finding) => {
+          const Icon = FINDING_ICONS[finding.icon];
+          return (
+            <article className={`finding-card tile-${finding.level}`} key={finding.id}>
+              <div className="finding-icon">
+                <Icon size={18} aria-hidden="true" />
+              </div>
+              <div>
+                <h3>{finding.title}</h3>
+                <p className="finding-lead">{finding.lead}</p>
+                <p>{finding.detail}</p>
+                <div className="finding-meta">
+                  <span>{finding.evidence}</span>
+                  {finding.benchmark && <span>{finding.benchmark}</span>}
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+export function MetricGrid({ result }: { result: ScanResult }) {
+  const knownServices = trackerEntitySummaries(result).length;
+  const apiFamilies = result.fingerprintEvents.length;
+  const detectionCount = fingerprintDetectionCount(result);
+  const metrics = [
+    {
+      label: "Requests",
+      value: result.summary.totalRequests,
+      detail: `${result.summary.thirdPartyRequests.toLocaleString()} third-party`,
+      icon: Network
+    },
+    ...(result.conditions.adblock?.active
+      ? [
+          {
+            label: "Brave would block",
+            value: result.summary.shieldsBlockedRequests ?? 0,
+            detail: `of ${result.summary.totalRequests.toLocaleString()} requests`,
+            icon: ShieldCheck
+          }
+        ]
+      : []),
+    {
+      label: "Third-party domains",
+      value: result.summary.thirdPartyDomains,
+      detail: `${knownServices.toLocaleString()} known ${knownServices === 1 ? "service" : "services"}`,
+      icon: Globe2
+    },
+    {
+      label: "Cookies",
+      value: result.summary.cookies,
+      detail: `${result.summary.thirdPartyCookies.toLocaleString()} third-party`,
+      icon: Cookie
+    },
+    { label: "Storage keys", value: result.summary.storageEntries, detail: "values redacted", icon: Database },
+    {
+      label: "Fingerprint-like calls",
+      value: result.summary.fingerprintEvents,
+      detail:
+        detectionCount > 0
+          ? `${plural(detectionCount, "behavior")} matched`
+          : `${apiFamilies.toLocaleString()} API ${apiFamilies === 1 ? "family" : "families"}`,
+      icon: Fingerprint
+    },
+    {
+      label: "GPC signal",
+      value: result.conditions.gpcEnabled ? "Sent" : "Off",
+      detail: result.conditions.gpcEnabled ? "opt-out sent" : "no opt-out sent",
+      icon: result.conditions.gpcEnabled ? ShieldCheck : Shield
+    },
+    {
+      label: "Duration",
+      value: `${Math.round(result.summary.durationMs / 100) / 10}s`,
+      detail: new Date(result.conditions.scannedAt).toLocaleTimeString(),
+      icon: Clock
+    }
+  ];
+
+  return (
+    <section className="numbers-section">
+      <div className="numbers-heading">
+        <p className="eyebrow">By the numbers</p>
+        <span>Raw counts from this one visit. The findings above interpret them.</span>
+      </div>
+      <div className="metric-grid">
+        {metrics.map((metric) => {
+          const Icon = metric.icon;
+          return (
+            <div className="metric-card" key={metric.label}>
+              <Icon size={18} aria-hidden="true" />
+              <span className="m-label">{metric.label}</span>
+              <strong className="m-value">
+                {typeof metric.value === "number" ? metric.value.toLocaleString() : metric.value}
+              </strong>
+              <small className="m-detail">{metric.detail}</small>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+export function TrafficViz({ result }: { result: ScanResult }) {
+  // Clamp so the three segments always partition the total exactly, even in the
+  // edge case of scanning a tracker's own domain (where a first-party request can
+  // match the catalog and knownTrackerRequests can exceed thirdPartyRequests).
+  const total = result.summary.totalRequests;
+  const thirdParty = Math.min(result.summary.thirdPartyRequests, total);
+  const tracker = Math.min(result.summary.knownTrackerRequests, thirdParty);
+  const third = thirdParty - tracker;
+  const first = total - thirdParty;
+
+  const pct = (n: number) => (total > 0 ? `${Math.round((n / total) * 10000) / 100}%` : "0%");
+
+  return (
+    <section className="viz-card">
+      <h2>Request composition &amp; timeline</h2>
+      <div className="party-bar" role="img" aria-label={`${first} first-party, ${third} third-party, ${tracker} known-service requests`}>
+        {first > 0 && <span className="party-seg-first" style={{ width: pct(first) }} />}
+        {third > 0 && <span className="party-seg-third" style={{ width: pct(third) }} />}
+        {tracker > 0 && <span className="party-seg-track" style={{ width: pct(tracker) }} />}
+      </div>
+      <div className="party-legend">
+        <div>
+          <span className="legend-swatch party-seg-first" />
+          First-party <span className="legend-count">{first.toLocaleString()}</span>
+        </div>
+        <div>
+          <span className="legend-swatch party-seg-third" />
+          Third-party <span className="legend-count">{third.toLocaleString()}</span>
+        </div>
+        <div>
+          <span className="legend-swatch party-seg-track" />
+          Known service <span className="legend-count">{tracker.toLocaleString()}</span>
+        </div>
+      </div>
+      <RequestTimeline requests={result.requests} />
+    </section>
+  );
+}
+
+function RequestTimeline({ requests }: { requests: NetworkRequestRecord[] }) {
+  if (requests.length === 0) return null;
+  const maxTime = Math.max(...requests.map((request) => request.startedAtMs), 1);
+  const width = 1000;
+  const height = 44;
+
+  return (
+    <div className="timeline">
+      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label="When requests fired during the visit">
+        {requests.map((request) => {
+          const x = (request.startedAtMs / maxTime) * (width - 2);
+          const color = request.tracker
+            ? "var(--sig-warn)"
+            : request.thirdParty
+              ? "var(--sig-info)"
+              : "var(--sig-quiet)";
+          return <rect key={request.id} x={x} y={request.tracker ? 4 : request.thirdParty ? 12 : 20} width={2} height={height - 24} fill={color} opacity={0.85} rx={1} />;
+        })}
+      </svg>
+      <div className="timeline-axis">
+        <span>0 ms</span>
+        <span>{maxTime.toLocaleString()} ms</span>
+      </div>
+    </div>
+  );
+}
