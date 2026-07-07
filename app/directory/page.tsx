@@ -18,7 +18,13 @@ function sinceLastScanText(delta: SinceLastScan): string {
   if (delta.thirdPartyRequests === 0 && delta.trackerRequests === 0) {
     return "no change in third-party or tracker requests";
   }
-  return `${formatDelta(delta.thirdPartyRequests)} third-party, ${formatDelta(delta.trackerRequests)} tracker requests`;
+  // Each metric reads grammatically on its own, so a lone zero renders as
+  // "no change in tracker requests" instead of "no change tracker requests".
+  const thirdParty =
+    delta.thirdPartyRequests === 0 ? "no change in third-party" : `${formatDelta(delta.thirdPartyRequests)} third-party`;
+  const tracker =
+    delta.trackerRequests === 0 ? "no change in tracker requests" : `${formatDelta(delta.trackerRequests)} tracker requests`;
+  return `${thirdParty}, ${tracker}`;
 }
 
 function formatScanDate(value: string): string {

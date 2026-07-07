@@ -13,8 +13,9 @@
  *                                     Set to public/corpus-seed-sites.json to scan the corpus de-bias seed list.
  *   FEATURED_CATEGORIES               Comma-separated category ids to include (default: all).
  *   FEATURED_LIMIT                    Max number of sites to scan (default: all).
+ *   FEATURED_COMPARE_SHIELDS          "true"/"false" Shields off/on comparison per site (default: false; takes precedence over consent and GPC).
+ *   FEATURED_COMPARE_CONSENT          "true"/"false" consent accept/reject comparison per site (default: false; takes precedence over GPC).
  *   FEATURED_COMPARE_GPC              "true"/"false" GPC off/on comparison per site (default: true).
- *   FEATURED_COMPARE_CONSENT          "true"/"false" consent accept/reject comparison per site (default: false).
  *   FEATURED_DEVICE                   "desktop"/"mobile" (default: desktop).
  *   FEATURED_DELAY_MS                 Delay between sites in ms (default: 1500).
  */
