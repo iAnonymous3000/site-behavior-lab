@@ -494,6 +494,14 @@ export type ScanJobSubmissionResponse = {
   jobId: string;
   status: "queued";
   statusPath: string;
+  /**
+   * The ID the finished report will be saved and shared under. Deliberately
+   * different from jobId: the status endpoint (which can carry the screenshot)
+   * is a capability held only by the submitter, so a shared report link must
+   * not reveal it. The submitter keeps this ID to recover the saved report if
+   * the in-memory job record disappears mid-poll (e.g. a container restart).
+   */
+  reportId: string;
 };
 
 export type ScanJobStatusResponse = {

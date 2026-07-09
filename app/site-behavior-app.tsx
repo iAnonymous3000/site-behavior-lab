@@ -364,7 +364,7 @@ export function SiteBehaviorApp({
       const payload = (await response.json()) as ScanApiResponse;
       if (!payload.ok) throw new Error(payload.error);
       if (isScanJobSubmissionResponse(payload)) {
-        setResult(await pollScanJob(payload.statusPath, scannerRequiresAccessKey ? accessKey : ""));
+        setResult(await pollScanJob(payload.statusPath, scannerRequiresAccessKey ? accessKey : "", payload.reportId));
         return;
       }
       setResult(payload);
@@ -1070,8 +1070,13 @@ function friendlyError(message: string): string {
   return message;
 }
 
-async function pollScanJob(statusPath: string, accessKey = ""): Promise<ScanReport> {
-  const jobId = scanJobIdFromStatusPath(statusPath);
+async function pollScanJob(statusPath: string, accessKey = "", reportId?: string): Promise<ScanReport> {
+  // The saved report lives under its own ID (distinct from the job ID) so share
+  // links can't derive the screenshot-bearing status URL. Older scanners saved
+  // under the job ID itself and their submissions carry no reportId, so fall
+  // back to the ID parsed from the status path for recovery against them.
+  const savedReportId =
+    reportId && REPORT_ID_PATTERN.test(reportId) ? reportId : scanJobIdFromStatusPath(statusPath);
 
   for (let attempt = 0; attempt < SCAN_JOB_MAX_POLLS; attempt += 1) {
     const headers: Record<string, string> = {};
@@ -1082,8 +1087,8 @@ async function pollScanJob(statusPath: string, accessKey = ""): Promise<ScanRepo
     const response = await fetch(scannerApiUrl(statusPath), { cache: "no-store", headers });
     const payload = (await response.json()) as ScanJobApiResponse;
     if (!payload.ok) {
-      if (response.status === 404 && jobId) {
-        const recovered = await readSavedReportForJob(jobId);
+      if (response.status === 404 && savedReportId) {
+        const recovered = await readSavedReport(savedReportId);
         if (recovered) return recovered;
       }
       throw new Error(payload.error);
@@ -1101,16 +1106,16 @@ async function pollScanJob(statusPath: string, accessKey = ""): Promise<ScanRepo
     await sleep(SCAN_JOB_POLL_INTERVAL_MS);
   }
 
-  if (jobId) {
-    const recovered = await readSavedReportForJob(jobId);
+  if (savedReportId) {
+    const recovered = await readSavedReport(savedReportId);
     if (recovered) return recovered;
   }
 
   throw new Error("Scan is still running. Try opening the saved report again shortly.");
 }
 
-async function readSavedReportForJob(jobId: string): Promise<ScanReport | null> {
-  const response = await fetch(scannerApiUrl(`/api/reports/${jobId}`), { cache: "no-store" });
+async function readSavedReport(reportId: string): Promise<ScanReport | null> {
+  const response = await fetch(scannerApiUrl(`/api/reports/${reportId}`), { cache: "no-store" });
   if (!response.ok) return null;
 
   const payload = (await response.json()) as unknown;

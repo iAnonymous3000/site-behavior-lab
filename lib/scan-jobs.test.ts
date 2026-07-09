@@ -60,6 +60,10 @@ test("enqueuePreparedScanJob returns a submission and stores the completed repor
   assert.equal(submission.status, "queued");
   assert.match(submission.jobId, /^[0-9]{8}-[0-9a-f]{32}$/);
   assert.equal(submission.statusPath, `/api/scans/${submission.jobId}`);
+  // The share ID is a separate capability: a shared report link must never let
+  // its holder derive the screenshot-bearing status URL.
+  assert.match(submission.reportId, /^[0-9]{8}-[0-9a-f]{32}$/);
+  assert.notEqual(submission.reportId, submission.jobId);
 
   await waitForScanJobForTests(submission.jobId);
 
@@ -98,7 +102,7 @@ test("enqueuePreparedScanJob reports Shields comparison progress as two runs", a
   assert.equal(status?.progress?.totalRuns, 2);
 });
 
-test("enqueuePreparedScanJob persists default saved reports under the job ID", async () => {
+test("enqueuePreparedScanJob persists default saved reports under the submission's report ID, not the job ID", async () => {
   const scan: ScanRunner = async (payload) => makeScanResult(payload);
   const submission = enqueuePreparedScanJob(makePreparedScanRequest(), { scan });
 
@@ -106,8 +110,11 @@ test("enqueuePreparedScanJob persists default saved reports under the job ID", a
 
   const status = getScanJobStatus(submission.jobId);
   assert.equal(status?.status, "succeeded");
-  assert.equal(status?.report?.share?.id, submission.jobId);
-  assert.deepEqual(await readScanReport(submission.jobId), status?.report);
+  assert.equal(status?.report?.share?.id, submission.reportId);
+  assert.deepEqual(await readScanReport(submission.reportId), status?.report);
+  // Nothing may be stored under the job ID: the report store is public by ID,
+  // and the job ID must stay a submitter-only capability.
+  assert.equal(await readScanReport(submission.jobId), null);
 });
 
 test("enqueuePreparedScanJob reports sanitized job failures", async () => {

@@ -24,6 +24,8 @@ type Deferred = {
 
 type InternalScanJobRecord = {
   id: string;
+  /** The saved report's share ID; minted separately from the job ID (see enqueue). */
+  reportId: string;
   status: ScanJobStatus;
   createdAt: string;
   createdAtMs: number;
@@ -65,8 +67,16 @@ export function enqueuePreparedScanJob(
 
   const now = new Date();
   const id = createJobId(now);
+  // The report is saved and shared under its own ID so a share link never
+  // reveals the status URL: `/api/scans/:jobId` can carry the screenshot and is
+  // a capability held only by the submitter. Minting the report ID up front
+  // (instead of at save time) lets the submission response hand it to the
+  // submitter, who can still recover the saved report if this in-memory job
+  // record disappears mid-poll (e.g. a container restart).
+  const reportId = createJobId(now);
   const record: InternalScanJobRecord = {
     id,
+    reportId,
     status: "queued",
     createdAt: now.toISOString(),
     createdAtMs: now.getTime(),
@@ -86,7 +96,8 @@ export function enqueuePreparedScanJob(
     ok: true,
     jobId: id,
     status: "queued",
-    statusPath: `/api/scans/${id}`
+    statusPath: `/api/scans/${id}`,
+    reportId
   };
 }
 
@@ -109,8 +120,8 @@ export function getScanJobStatus(id: string): ScanJobStatusResponse | null {
     // is the transient immediate-result channel for the caller who submitted the
     // scan (the client renders this screenshot directly), gated behind a 128-bit
     // bearer job id that expires with the in-process record. The shareable
-    // permalink path (`/api/reports/:id`) is the one that strips screenshots; keep
-    // status paths out of share/permalink flows so the two policies stay distinct.
+    // permalink path (`/api/reports/:id`) strips screenshots and uses a SEPARATE
+    // ID (record.reportId), so holding a share link never derives this status URL.
     response.report = record.report;
   }
   if ((record.status === "failed" || record.status === "expired" || record.status === "cancelled") && record.error) {
@@ -171,7 +182,7 @@ async function runScanJob(record: InternalScanJobRecord): Promise<void> {
   markRunning(record);
 
   try {
-    const saveReport: ReportSaver = record.saveReport ?? ((report) => saveScanReport(report, { shareId: record.id }));
+    const saveReport: ReportSaver = record.saveReport ?? ((report) => saveScanReport(report, { shareId: record.reportId }));
     const report = await executePreparedScan(record.prepared, record.scan, saveReport, QUEUE_TIMEOUT_MS, false);
     markSucceeded(record, report);
   } catch (error) {
