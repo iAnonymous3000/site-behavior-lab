@@ -120,9 +120,15 @@ Initial async endpoints:
   "ok": true,
   "jobId": "20260619-abc123...",
   "status": "queued",
-  "statusPath": "/api/scans/20260619-abc123..."
+  "statusPath": "/api/scans/20260619-abc123...",
+  "reportId": "20260619-def456..."
 }
 ```
+
+  - `reportId` is the ID the finished report will be saved and shared under.
+    It is minted separately from `jobId` so a shared report link can never be
+    turned into the screenshot-bearing status URL; the submitter keeps it to
+    recover the saved report if the in-memory job record is lost.
 
 - `GET /api/scans/:id`
   - Return status, progress, and the completed report or sanitized error.
@@ -242,6 +248,6 @@ Recommended single-node progression:
 
 ## Current Implementation
 
-The first implementation keeps synchronous scans as the default behavior. When `SITE_BEHAVIOR_LAB_ASYNC_SCANS=1` is set, `POST /api/scan` prepares and validates the request, enqueues it in an in-memory single-process queue, and returns `202 { jobId, status, statusPath }`. Job status is ephemeral process memory: a Node restart drops queued, running, and recently completed job records. Completed async reports are saved under the job ID, so the client can recover from a lost `/api/scans/:id` status record by reading `/api/reports/:id` when persistence succeeded. The worker path calls `executePreparedScan`, so slot acquisition, Playwright execution, comparison scans, and report persistence stay behind the same tested execution path.
+The first implementation keeps synchronous scans as the default behavior. When `SITE_BEHAVIOR_LAB_ASYNC_SCANS=1` is set, `POST /api/scan` prepares and validates the request, enqueues it in an in-memory single-process queue, and returns `202 { jobId, status, statusPath, reportId }`. Job status is ephemeral process memory: a Node restart drops queued, running, and recently completed job records. Completed async reports are saved under the submission's separate `reportId`, never the job ID: the status channel (`/api/scans/:jobId`) can carry the screenshot and is a capability held only by the submitter, so a shared report link must not be derivable from it in either direction. The submitter can recover from a lost status record by reading `/api/reports/:reportId` when persistence succeeded. The worker path calls `executePreparedScan`, so slot acquisition, Playwright execution, comparison scans, and report persistence stay behind the same tested execution path.
 
 `GET /api/scans/:id` returns queued/running/succeeded/failed status, progress metadata, and the completed report when available. This is suitable for one Node instance where in-flight restart loss is acceptable. Multi-node hosting or fully restart-resilient polling still needs shared queue/storage before async mode can be treated as durable infrastructure.
