@@ -43,7 +43,8 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong>Your scan options:</strong> the device profile (desktop or mobile), whether to send a Global
-            Privacy Control signal, and which run mode (single, GPC diff, or Brave Shields comparison).
+            Privacy Control signal, and which run mode: Single (one visit), or a GPC diff, Blocker, or Consent
+            comparison (each comparison visits the page twice so the pair can be compared).
           </li>
           <li>
             <strong>A Cloudflare Turnstile token</strong>, used to confirm the request is not automated abuse (see
@@ -55,10 +56,18 @@ export default function PrivacyPage() {
       <section className="legal-section">
         <h2>What the scan itself does</h2>
         <p>
-          The scanner makes <strong>one automated browser visit</strong> to the page and records what the page did:
+          In Single mode the scanner makes <strong>one automated browser visit</strong> to the page; the comparison
+          modes make <strong>two visits</strong>, one per compared condition. Each visit records what the page did:
           the network requests it made, the cookies and storage it set, fingerprinting-style API calls, and a
           screenshot <em>of the page</em> (never of you or your device). That observation is the report. The scanned
           site sees a visit from the scanner&rsquo;s infrastructure, not from your IP address.
+        </p>
+        <p>
+          Two parts of a visit are active rather than passive, and neither involves your data: the scanner types a
+          <strong> synthetic, throwaway string</strong> into a few visible form fields to test whether keystrokes are
+          captured and sent off the page (it never types anything about you), and in Consent mode it clicks the
+          cookie banner&rsquo;s &ldquo;Accept all&rdquo; or &ldquo;Reject all&rdquo; control. If no banner control is
+          found, nothing is clicked and the report says so.
         </p>
       </section>
 
