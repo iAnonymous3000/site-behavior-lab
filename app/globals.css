@@ -1990,7 +1990,11 @@ a {
 .directory-row-top {
   align-items: baseline;
   display: flex;
-  gap: 10px;
+  /* Long type chips (e.g. "consent comparison (no banner clicked)") drop to
+     their own line instead of crushing the domain into a vertical letter stack
+     (the domain wraps anywhere, the chip doesn't). */
+  flex-wrap: wrap;
+  gap: 4px 10px;
   justify-content: space-between;
 }
 

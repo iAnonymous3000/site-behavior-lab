@@ -41,6 +41,21 @@ test("never pairs across report kinds: a consent baseline is not a shields basel
   assert.equal(deltas.size, 0);
 });
 
+test("never pairs a clicked consent run with an unclicked one: the interaction difference is not a site change", () => {
+  const deltas = computeSinceLastScan([
+    entry({ id: "unclicked", scannedAt: "2026-06-20T00:00:00.000Z", comparisonType: "consent", consentClicks: "none", thirdPartyRequests: 90 }),
+    entry({ id: "clicked", scannedAt: "2026-07-02T00:00:00.000Z", comparisonType: "consent", consentClicks: "accept-and-reject", thirdPartyRequests: 40 })
+  ]);
+  assert.equal(deltas.size, 0);
+
+  // Two runs with the SAME verified click state still pair.
+  const sameState = computeSinceLastScan([
+    entry({ id: "old", scannedAt: "2026-06-20T00:00:00.000Z", comparisonType: "consent", consentClicks: "none", thirdPartyRequests: 90 }),
+    entry({ id: "new", scannedAt: "2026-07-02T00:00:00.000Z", comparisonType: "consent", consentClicks: "none", thirdPartyRequests: 100 })
+  ]);
+  assert.equal(sameState.get("new")?.thirdPartyRequests, 10);
+});
+
 test("separates sites, requires two reports, and skips invalid timestamps", () => {
   const deltas = computeSinceLastScan([
     entry({ id: "a-new", domain: "a.example", scannedAt: "2026-07-02T00:00:00.000Z", thirdPartyRequests: 5 }),

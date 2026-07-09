@@ -7,7 +7,7 @@ import { readReportForId } from "./report-source";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { listStaticReportIds } from "./static-report-files";
 import { computeSinceLastScan, type SinceLastScan } from "./temporal-deltas";
-import type { ComparisonType } from "./types";
+import type { ComparisonType, ScanReport } from "./types";
 
 /**
  * Server-only: loads the committed report corpus and derives the index-level views
@@ -38,11 +38,20 @@ export type DirectoryEntry = {
   gpcEnabled: boolean;
   /** Consent mode of the report's lead run ("accept-all" on consent comparisons). */
   consentMode: string;
+  /**
+   * Which consent-banner choices the scanner verifiably clicked; null on reports
+   * that never attempted a consent interaction. Anything short of
+   * "accept-and-reject" on a consent comparison means at least one run reflects
+   * the PRE-consent state, so the report is not evidence of post-choice behavior.
+   */
+  consentClicks: ConsentClicks | null;
   /** Lead run's top-level HTTP status; >= 400 means an error/block page, not the site. */
   status: number | null;
   /** Set on a site's newest report when an earlier report of the same kind exists. */
   sinceLastScan?: SinceLastScan;
 };
+
+export type ConsentClicks = "accept-and-reject" | "accept-only" | "reject-only" | "none";
 
 export type CorpusOverview = {
   entries: DirectoryEntry[];
@@ -83,7 +92,7 @@ export async function loadCorpusOverview(): Promise<CorpusOverview> {
   const byDomain = new Map<string, DirectoryEntry>();
   for (const entry of measured) {
     const existing = byDomain.get(entry.domain);
-    if (!existing || (entry.comparisonType === "shields" && existing.comparisonType !== "shields")) {
+    if (!existing || preferAsSiteDataPoint(entry, existing)) {
       byDomain.set(entry.domain, entry);
     }
   }
@@ -105,6 +114,44 @@ export async function loadCorpusOverview(): Promise<CorpusOverview> {
     .slice(0, 5);
 
   return { entries, rollups, heaviest, siteCount: sites.length };
+}
+
+/**
+ * Picks the report that represents a site in the rollups and leaderboard:
+ * prefer a Shields comparison (its blocked count is real), then the NEWEST
+ * scan. Newest matters because the archive keeps every historical report and
+ * the entry list arrives sorted heaviest-first, so keeping the first hit would
+ * pin category medians and "heaviest" rankings to each site's historical
+ * maximum instead of its current behavior.
+ */
+export function preferAsSiteDataPoint(candidate: DirectoryEntry, existing: DirectoryEntry): boolean {
+  const candidateShields = candidate.comparisonType === "shields";
+  const existingShields = existing.comparisonType === "shields";
+  if (candidateShields !== existingShields) return candidateShields;
+  return Date.parse(candidate.scannedAt) > Date.parse(existing.scannedAt);
+}
+
+/**
+ * Derives the verified consent-click state from the report's recorded
+ * interactions. Classification must come from what the scanner actually
+ * clicked, never from the requested mode: most consent runs find no clickable
+ * banner and therefore only observed the pre-consent state.
+ */
+export function consentClicksForReport(report: ScanReport): ConsentClicks | null {
+  if (report.reportType === "comparison") {
+    if (report.comparisonType !== "consent") return null;
+    const accepted = report.baseline.consentInteraction?.clicked === true;
+    const rejected = report.variant.consentInteraction?.clicked === true;
+    if (accepted && rejected) return "accept-and-reject";
+    if (accepted) return "accept-only";
+    if (rejected) return "reject-only";
+    return "none";
+  }
+
+  const interaction = report.consentInteraction;
+  if (!interaction) return null;
+  if (!interaction.clicked) return "none";
+  return interaction.mode === "accept-all" ? "accept-only" : "reject-only";
 }
 
 async function loadCategoryCatalog(): Promise<CatalogEntry[]> {
@@ -172,6 +219,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
       device: result.conditions.viewport.isMobile ? "mobile" : "desktop",
       gpcEnabled: result.conditions.gpcEnabled,
       consentMode: result.conditions.consentMode ?? "observe",
+      consentClicks: consentClicksForReport(report),
       status: typeof result.summary.status === "number" ? result.summary.status : null,
       ...(report.reportType === "comparison" ? { comparisonType: report.comparisonType } : {})
     });

@@ -29,6 +29,13 @@ export type CorpusExportRow = {
   device: "desktop" | "mobile";
   gpcEnabled: boolean;
   consentMode: string;
+  /**
+   * Which consent-banner choices the scanner verifiably clicked
+   * ("accept-and-reject" / "accept-only" / "reject-only" / "none"); null when no
+   * interaction was attempted. Consent rows without "accept-and-reject" reflect
+   * the pre-consent state, not a verified choice comparison.
+   */
+  consentClicks: string | null;
   /** Lead run's top-level HTTP status; >= 400 means an error/block page, not the site. */
   status: number | null;
   headline: string;
@@ -43,7 +50,7 @@ export type CorpusExportRow = {
 };
 
 export const CORPUS_EXPORT_NOTE =
-  "One row per published report; each report is one automated, controlled Chromium visit. The corpus is a curated set of sites (popular, mostly commercial, plus a diversity seed list), not a random sample of the web, so treat cross-site statistics as describing this corpus only. Counts use the report's lead run (the unprotected baseline on Shields/GPC comparisons, the accept-all run on consent comparisons) and are lower bounds. Rows with a status of 400 or higher reflect an error or block page (the site refusing the automated visit), not the site's normal behavior; exclude them from aggregate statistics, as this project's own percentiles and category medians do. siteCount counts distinct sites with at least one successful load. Delta fields compare a site's newest report against its previous successfully loaded report of the same kind and can reflect run-to-run variance as well as real site changes. Full methodology and per-report evidence are linked from each row.";
+  "One row per published report; each report is one automated, controlled Chromium visit. The corpus is a curated set of sites (popular, mostly commercial, plus a diversity seed list), not a random sample of the web, so treat cross-site statistics as describing this corpus only. Counts use the report's lead run (the unprotected baseline on Shields/GPC comparisons, the accept-all run on consent comparisons) and are lower bounds. On consent rows, consent_clicks records which banner choices the scanner verifiably clicked; rows without accept-and-reject reflect the pre-consent state (the scanner found no clickable control for at least one choice), so do not treat them as evidence of post-choice behavior. Rows with a status of 400 or higher reflect an error or block page (the site refusing the automated visit), not the site's normal behavior; exclude them from aggregate statistics, as this project's own percentiles and category medians do. siteCount counts distinct sites with at least one successful load. Delta fields compare a site's newest report against its previous successfully loaded report of the same kind and can reflect run-to-run variance as well as real site changes. Full methodology and per-report evidence are linked from each row.";
 
 export function buildCorpusExportRows(entries: DirectoryEntry[], origin: string): CorpusExportRow[] {
   const base = origin.replace(/\/+$/, "");
@@ -60,6 +67,7 @@ export function buildCorpusExportRows(entries: DirectoryEntry[], origin: string)
     device: entry.device,
     gpcEnabled: entry.gpcEnabled,
     consentMode: entry.consentMode,
+    consentClicks: entry.consentClicks,
     status: entry.status,
     headline: entry.headline,
     thirdPartyRequests: entry.thirdPartyRequests,
@@ -109,6 +117,7 @@ const CSV_HEADER = [
   "device",
   "gpc_enabled",
   "consent_mode",
+  "consent_clicks",
   "status",
   "headline",
   "third_party_requests",
@@ -135,6 +144,7 @@ export function corpusExportToCsv(rows: CorpusExportRow[]): string {
     row.device,
     row.gpcEnabled ? "yes" : "no",
     row.consentMode,
+    row.consentClicks ?? "",
     row.status ?? "",
     row.headline,
     row.thirdPartyRequests,
