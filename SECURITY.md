@@ -22,12 +22,16 @@ as quickly as is practical for a volunteer-maintained project.
 ## Areas of particular interest
 
 - **SSRF / network-boundary escapes.** The scanner must never reach localhost,
-  private, link-local, or reserved ranges. Of special interest: DNS rebinding
-  (the Node-side allow-check and the browser's own resolver are separate), redirect
-  chains to private targets, and IPv6/encoded-host bypasses. See
-  [`lib/url-safety.ts`](lib/url-safety.ts). Browser-routed HTTP(S) requests are
-  re-checked before they continue, but current host verification does not pin DNS
-  answers into Chromium and is not a complete DNS-rebinding defense.
+  private, link-local, or reserved ranges. Of special interest: DNS rebinding,
+  redirect chains to private targets, and IPv6/encoded-host bypasses. See
+  [`lib/url-safety.ts`](lib/url-safety.ts). The Node scanner routes all browser
+  HTTP(S) traffic through a per-scan local proxy that re-resolves each host,
+  validates every answer, and pins the connection to a verified public IP at
+  connect time ([`lib/public-scan-proxy.ts`](lib/public-scan-proxy.ts)), so a
+  rebinding answer after the preflight cannot redirect the browser to a private
+  address. The legacy Browser Run worker has only preflight DNS checks (no
+  connect-time pinning), which is why its config defaults to gated. Bypasses of
+  the pinning proxy are exactly what we want to hear about.
 - **Data leakage.** Raw cookie/storage *values* or PII appearing in reports,
   exports, or logs. Values are intentionally redacted to byte counts, and report
   URLs omit credentials and fragments. Third-party request logs preserve query
