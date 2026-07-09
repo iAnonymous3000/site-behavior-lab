@@ -51,7 +51,14 @@ const nextConfig = {
           // eval(), so the dev CSP must allow 'unsafe-eval' or the client bundle never
           // executes and the app never hydrates. Production keeps the stricter policy.
           const isDev = process.env.NODE_ENV !== "production";
-          const scriptSrc = isDev ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'" : "script-src 'self' 'unsafe-inline'";
+          // challenges.cloudflare.com is Cloudflare Turnstile: the scan form on
+          // saved-report pages (served by this Node deployment) loads its widget
+          // script and renders its challenge iframe, so both script-src and
+          // frame-src must allow it or shared-report visitors can never start a
+          // scan (the button waits on a token that can't arrive).
+          const scriptSrc = isDev
+            ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com"
+            : "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com";
           const securityHeaders = [
             // CSP retains 'unsafe-inline' for scripts/styles in v1: Next emits inline bootstrap
             // scripts plus the pre-paint theme script, so moving to per-request nonces is the
@@ -64,6 +71,7 @@ const nextConfig = {
                 "connect-src 'self'",
                 "form-action 'self'",
                 "frame-ancestors 'none'",
+                "frame-src https://challenges.cloudflare.com",
                 "img-src 'self' data:",
                 "object-src 'none'",
                 scriptSrc,
