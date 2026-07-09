@@ -7,7 +7,11 @@
   "main": "cloudflare/container-worker.ts",
   "compatibility_date": "2026-06-19",
   "compatibility_flags": ["nodejs_compat"],
-  "workers_dev": true,
+  // Single ingress: the custom domain (scan.sitebehavior.org). The Turnstile and
+  // rate-limit gates live in container-worker.ts so a workers.dev alias would be
+  // equally gated, but keeping one hostname means zone-level protections (WAF,
+  // analytics, future rules) can never be sidestepped by the alias.
+  "workers_dev": false,
   "vars": {
     // Browser CORS allow-list for the scan API, forwarded into the container by
     // container-worker.ts. Pin it to the Pages origin that calls this scanner;

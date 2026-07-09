@@ -43,7 +43,7 @@ The front Worker chooses one of three postures from its config:
 1. Confirm the gated scanner is healthy and reachable:
 
    ```bash
-   SCAN_BASE_URL=https://<scanner>.workers.dev \
+   SCAN_BASE_URL=https://<scanner-domain> \
    SMOKE_SCAN_ACCESS_TOKEN=<token> \
    npm run test:smoke:scanner
    ```
@@ -96,8 +96,9 @@ The front Worker chooses one of three postures from its config:
      key** (the static UI renders the widget and sends its token; without it the
      scan button stays disabled with an explanation)
 
-   Optionally map a custom domain (`scan.sitebehavior.org`) to the Worker first
-   and use that as the API base.
+   Map a custom domain (`scan.sitebehavior.org`) to the Worker first and use
+   that as the API base: the production config sets `workers_dev: false`, so
+   the custom domain is the scanner's only ingress.
 
 ## Verify
 

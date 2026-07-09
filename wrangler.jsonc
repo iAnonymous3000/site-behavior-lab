@@ -4,7 +4,12 @@
   "main": "cloudflare/worker.ts",
   "compatibility_date": "2026-06-19",
   "compatibility_flags": ["nodejs_compat"],
-  "workers_dev": true,
+  // No workers.dev alias: the production scanner is the Containers deployment at
+  // scan.sitebehavior.org, and this legacy Browser Run worker must not stay
+  // reachable as an ungated side door (its DNS preflight cannot pin the
+  // browser's eventual connection). Deploying with this config removes the
+  // workers.dev route; the live legacy deployment should be deleted outright.
+  "workers_dev": false,
   "upload_source_maps": false,
   "browser": {
     "binding": "BROWSER"
@@ -17,16 +22,16 @@
   ],
   "vars": {
     "SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN": "*",
-    // sitebehavior.org runs as an intentionally open public GPC/trackers scanner.
-    // Both flags must be "1" together to enable unauthenticated scans; setting the
-    // risk flag accepts the documented Browser Run DNS-rebinding limitation
-    // (preflight-only DNS, no connect-time pinning). If this Worker is routed
-    // through a Cloudflare zone, add WAF rate rules; otherwise the KV quotas below
-    // (best-effort, not atomic) are the only in-app abuse control.
-    // Self-hosting a gated instance instead? Set both back to "0" and put a token
-    // in the SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN secret.
-    "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS": "1",
-    "SITE_BEHAVIOR_LAB_ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK": "1",
+    // GATED by default since the 2026-07-09 security review: the public scanner
+    // is the Containers deployment (wrangler.container.jsonc), which verifies
+    // Turnstile and pins connections. This Browser Run worker performs only a
+    // DNS preflight (no connect-time pinning), so an open deployment of it is a
+    // DNS-rebinding risk. To run a gated instance, keep both flags "0" and set
+    // the SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN secret. Opening it back up
+    // requires flipping BOTH flags to "1", which is an explicit acceptance of
+    // the documented rebinding limitation.
+    "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS": "0",
+    "SITE_BEHAVIOR_LAB_ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK": "0",
     "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE": "6",
     "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY": "120",
     "SITE_BEHAVIOR_LAB_SCANNER_EGRESS": "cloudflare-browser-run"
