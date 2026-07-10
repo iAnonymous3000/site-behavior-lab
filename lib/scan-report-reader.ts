@@ -10,6 +10,7 @@
  */
 import { isRecord } from "./guards";
 import { isScanReport } from "./report-validation";
+import { deepValidateScanReportV1 } from "./scan-report-v1-guard";
 import type { ScanReport } from "./types";
 import {
   SCAN_REPORT_V2_SCHEMA_REVISION,
@@ -17,16 +18,24 @@ import {
   type PublicScanReportV2
 } from "./scan-report-v2";
 import { isPublicScanReportV2 } from "./scan-report-v2-validation";
+import { scanReportV2SemanticViolations } from "./scan-report-v2-evaluators";
 
 export type StoredScanReport =
   | { schemaVersion: 1; report: ScanReport }
   | { schemaVersion: 2; report: PublicScanReportV2 };
 
-export type ReadStoredScanReportError = "invalid" | "unsupported-version" | "unsupported-revision";
+/**
+ * "invalid": malformed wire data. "inconsistent": structurally valid v2 whose
+ * derived blocks (quality, verification outcomes, comparability, diff)
+ * disagree with a recomputation from the recorded facts; a forged conclusion,
+ * not a parse problem. "unsupported-*": capability gaps, never best-effort
+ * parsed.
+ */
+export type ReadStoredScanReportError = "invalid" | "inconsistent" | "unsupported-version" | "unsupported-revision";
 
 export type ReadStoredScanReportResult =
   | { ok: true; stored: StoredScanReport }
-  | { ok: false; error: ReadStoredScanReportError };
+  | { ok: false; error: ReadStoredScanReportError; violations?: string[] };
 
 const V1_SCHEMA_VERSION = 1;
 
@@ -36,7 +45,10 @@ export function readStoredScanReport(value: unknown): ReadStoredScanReportResult
   }
 
   if (value.schemaVersion === V1_SCHEMA_VERSION) {
-    return isScanReport(value)
+    // The frozen validator plus the deep security backport: malformed uploads
+    // (null request entries, cookie without a name) fail here as a typed
+    // error instead of crashing a consumer downstream.
+    return isScanReport(value) && deepValidateScanReportV1(value)
       ? { ok: true, stored: { schemaVersion: 1, report: value } }
       : { ok: false, error: "invalid" };
   }
@@ -49,9 +61,10 @@ export function readStoredScanReport(value: unknown): ReadStoredScanReportResult
         ? { ok: false, error: "unsupported-revision" }
         : { ok: false, error: "invalid" };
     }
-    return isPublicScanReportV2(value)
-      ? { ok: true, stored: { schemaVersion: 2, report: value } }
-      : { ok: false, error: "invalid" };
+    if (!isPublicScanReportV2(value)) return { ok: false, error: "invalid" };
+    const violations = scanReportV2SemanticViolations(value);
+    if (violations.length > 0) return { ok: false, error: "inconsistent", violations };
+    return { ok: true, stored: { schemaVersion: 2, report: value } };
   }
 
   return (value.schemaVersion as number) > SCAN_REPORT_V2_SCHEMA_VERSION

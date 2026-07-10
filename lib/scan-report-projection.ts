@@ -7,9 +7,6 @@
  * depth on top of the sanitizer (which runs at the raw -> sanitized boundary),
  * and the strict public validator rejects anything that still carries extras.
  *
- * The one deliberate exception is `diff`: its shape is non-normative until
- * implementation step 2 (RFC 10.5), so it is deep-cloned as-is here and gains
- * its own allowlist copier together with its normative shape.
  */
 import type {
   CnameCloak,
@@ -27,6 +24,8 @@ import {
   METRIC_FAMILIES,
   EVIDENCE_FAMILIES,
   type Comparability,
+  type ComparisonDiffV2,
+  type MetricDelta,
   type ConditionVector,
   type ConsentEvidence,
   type DetectorLedger,
@@ -546,6 +545,48 @@ function copyComparability(comparability: Comparability): Comparability {
   };
 }
 
+function copyDelta(delta: MetricDelta): MetricDelta {
+  return { baseline: delta.baseline, variant: delta.variant, delta: delta.delta };
+}
+
+function copyDiff(diff: ComparisonDiffV2): ComparisonDiffV2 {
+  const families = diff.families;
+  return {
+    families: {
+      "raw-counts": {
+        eligible: families["raw-counts"].eligible,
+        metrics: {
+          totalRequests: copyDelta(families["raw-counts"].metrics.totalRequests),
+          thirdPartyRequests: copyDelta(families["raw-counts"].metrics.thirdPartyRequests),
+          thirdPartyDomains: copyDelta(families["raw-counts"].metrics.thirdPartyDomains),
+          cookies: copyDelta(families["raw-counts"].metrics.cookies),
+          thirdPartyCookies: copyDelta(families["raw-counts"].metrics.thirdPartyCookies),
+          storageEntries: copyDelta(families["raw-counts"].metrics.storageEntries)
+        }
+      },
+      "tracker-classification": {
+        eligible: families["tracker-classification"].eligible,
+        metrics: { knownTrackerRequests: copyDelta(families["tracker-classification"].metrics.knownTrackerRequests) },
+        addedTrackerDomains: [...families["tracker-classification"].addedTrackerDomains],
+        removedTrackerDomains: [...families["tracker-classification"].removedTrackerDomains]
+      },
+      "shields-simulation": {
+        eligible: families["shields-simulation"].eligible,
+        metrics:
+          families["shields-simulation"].metrics === null
+            ? null
+            : { shieldsBlockedRequests: copyDelta(families["shields-simulation"].metrics.shieldsBlockedRequests) }
+      },
+      "consent-verification": { eligible: families["consent-verification"].eligible },
+      "detector-findings": {
+        eligible: families["detector-findings"].eligible,
+        addedDetectionKinds: [...families["detector-findings"].addedDetectionKinds],
+        removedDetectionKinds: [...families["detector-findings"].removedDetectionKinds]
+      }
+    }
+  };
+}
+
 function copyShare(share: ReportShare | undefined): { share?: ReportShare } {
   if (share === undefined) return {};
   return { share: { id: share.id, path: share.path, jsonPath: share.jsonPath } };
@@ -572,9 +613,7 @@ export function toPublicScanReport(report: EphemeralScanReport): PublicScanRepor
     variant: copyScanRunV2(report.variant),
     experiment: copyExperiment(report.experiment),
     comparability: copyComparability(report.comparability),
-    // Non-normative until step 2 (RFC 10.5): cloned as-is, gains its own
-    // allowlist copier together with its normative shape.
-    diff: structuredClone(report.diff),
+    diff: copyDiff(report.diff),
     ...copyShare(report.share)
   };
 }

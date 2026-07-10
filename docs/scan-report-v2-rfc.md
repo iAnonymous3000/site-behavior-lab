@@ -80,7 +80,7 @@ type PublicComparisonReportV2 = {
   variant: ScanRunV2;
   experiment: Experiment;            // section 4.1, a discriminated union; the design lives HERE and only here
   comparability: Comparability;      // section 4.4, evaluated
-  diff: ComparisonDiffV2;            // non-normative shape (section 10.5); per-family eligibility applied
+  diff: ComparisonDiffV2;            // NORMATIVE since the hardening amendment (10.5); rebuilt-and-compared on read
   share?: ReportShare;
 };
 ```
@@ -935,14 +935,26 @@ blocks, `PublicSingleReportV2`, `PublicComparisonReportV2`, the `Experiment` uni
 `Provenance`, the `DetectorId` and `MetricFamily` initial sets, the phase model, the
 tier model of section 8, and the versioning rules of 10.2.
 
-Explicitly **non-normative** (implementation-defined during step 2, under stated
-constraints): `ComparisonDiffV2` (must be derivable from the two runs alone, organized
-per metric family, and must carry each family's eligibility so renderers cannot show
-an ineligible delta); the exact carried-over field lists of `*RecordV1` inside the
-phase-aware types (normative requirement: v1 record + `phaseId` where phase-sensitive,
-strings re-policed per 9.4); the concrete contents of the allowlist data files
-(versioned, reviewed like code); the internal shape of tier-0 `RawCapture` (never
-serialized, no schema).
+`ComparisonDiffV2` was originally non-normative; the 2026-07-09 hardening amendment
+made it **normative** before schema generation (an unrestricted object in an immutable
+r1 schema would have been an open exfiltration boundary). Its definition is the shared
+builder `buildComparisonDiffV2` in
+[lib/scan-report-v2-evaluators.ts](../lib/scan-report-v2-evaluators.ts): derivable from
+the two runs alone, organized per metric family, carrying each family's eligibility;
+the reader rejects any diff that does not equal the rebuilt one.
+
+The same amendment made semantic consistency a read-time requirement: structurally
+valid v2 whose derived blocks (quality vs qualityFacts, arm outcomes vs observations,
+comparability vs the shared evaluator, diff vs the rebuilt diff) disagree with a
+recomputation reads as a distinct `inconsistent` error, never as data. The v1 reader
+path gained a deep guard (security backport, new module, frozen files untouched) so
+malformed uploads fail typed instead of crashing consumers.
+
+Still explicitly **non-normative**: the exact carried-over field lists of `*RecordV1`
+inside the phase-aware types (normative requirement: v1 record + `phaseId` where
+phase-sensitive, strings re-policed per 9.4); the concrete contents of the allowlist
+data files (versioned, reviewed like code); the internal shape of tier-0 `RawCapture`
+(never serialized, no schema).
 
 ---
 
@@ -1102,6 +1114,16 @@ Then the larger phases:
 
 ## Changelog
 
+- **v0.3.1 hardening amendment (2026-07-09, post-acceptance, pre-schema)**: closed the
+  `diff` boundary (normative `ComparisonDiffV2` + shared builder, rebuilt-and-compared
+  on read); deep default-deny structural validation across every nested evidence
+  record; semantic reject-on-read (`inconsistent`) for quality, arm outcomes,
+  comparability, and diff; deep v1 guard as a security backport; the consumer seam
+  (`ReportView`/`RunView`/`ComparisonView`, `LoadedReport`, transport reader replacing
+  `payload.ok` sniffing); normalized public strings (closed consent observed states,
+  axis-state vocabulary, scanner vocab codes for reason/detail fields, parameterized
+  reason validation). No architecture change; scoped by the 2026-07-09 foundation
+  review.
 - **v0.3.1 (2026-07-09)**: surgical normative corrections per the v0.3 acceptance
   review; no architecture change. `Experiment` became a discriminated union
   (intervention / temporal / descriptive); order, verification, and evidence-strength

@@ -272,12 +272,24 @@ export type PhaseSpan = {
 
 export type ConsentChoiceState = "verified" | "contradicted" | "weak-signal" | "unavailable" | "failed";
 
+/**
+ * Normalized consent state (RFC 9.4): never the raw CMP payload. Interpreters
+ * map whatever they read into this closed vocabulary before anything persists.
+ */
+export type ConsentObservedState = "accepted-all" | "rejected-all" | "partial" | "unknown";
+export const CONSENT_OBSERVED_STATES: readonly ConsentObservedState[] = [
+  "accepted-all",
+  "rejected-all",
+  "partial",
+  "unknown"
+];
+
 export type ConsentVerificationObservation = {
   phaseId: PhaseId;
   /** Versioned interpreter id: "tcf-api@1", "onetrust-cookie@1". */
   method: string;
-  /** The state read; null = interpreter ran, nothing readable. */
-  observed: string | null;
+  /** The normalized state read; null = interpreter ran, nothing readable. */
+  observed: ConsentObservedState | null;
   /** null when observed is null. */
   consistentWithChoice: boolean | null;
 };
@@ -393,12 +405,27 @@ export type ScanRunV2 = {
 // Experiments (RFC section 4)
 // ---------------------------------------------------------------------------
 
+/**
+ * Closed axis-state vocabulary (RFC 9.4): arm expectations and observations are
+ * scanner-controlled codes, never page-derived strings.
+ */
+export type AxisState =
+  | `gpc:${"on" | "off"}`
+  | `shields:${ShieldsCondition}`
+  | `consent:${ConsentCondition}`;
+
+export function axisStateFor(axis: InterventionAxis, conditions: ConditionVector): AxisState {
+  if (axis === "gpc") return conditions.gpc ? "gpc:on" : "gpc:off";
+  if (axis === "shields") return `shields:${conditions.shields}`;
+  return `consent:${conditions.consent}`;
+}
+
 export type ArmVerification = {
   axis: InterventionAxis;
-  /** "gpc:off", "shields:block-simulation", "consent:reject-all". */
-  expected: string;
+  /** The condition the arm was supposed to run under. */
+  expected: AxisState;
   /** What the interpreter actually read; null = unobservable. */
-  observed: string | null;
+  observed: AxisState | null;
   /** Versioned: "gpc-header-readback@1", "shields-engine-status@1", "tcf-api@1". */
   method: string;
   outcome: "passed" | "failed" | "inconclusive";
@@ -491,13 +518,47 @@ export type Comparability = {
 // Reports (RFC section 1)
 // ---------------------------------------------------------------------------
 
+export type MetricDelta = { baseline: number; variant: number; delta: number };
+
 /**
- * Non-normative shape (RFC 10.5), fixed during implementation step 2 under
- * these constraints: derivable from the two runs alone, organized per metric
- * family, and carrying each family's eligibility so renderers cannot show an
- * ineligible delta. Kept opaque here so nothing binds to a premature shape.
+ * Normative r1 diff. Derivable from the two runs alone (the shared builder in
+ * lib/scan-report-v2-evaluators.ts is the definition; semantic validation
+ * rejects any diff that does not equal the rebuilt one), organized per metric
+ * family, carrying each family's eligibility (mirrored from
+ * comparability.perMetric) so renderers cannot show an ineligible delta.
  */
-export type ComparisonDiffV2 = Record<string, unknown>;
+export type ComparisonDiffV2 = {
+  families: {
+    "raw-counts": {
+      eligible: boolean;
+      metrics: {
+        totalRequests: MetricDelta;
+        thirdPartyRequests: MetricDelta;
+        thirdPartyDomains: MetricDelta;
+        cookies: MetricDelta;
+        thirdPartyCookies: MetricDelta;
+        storageEntries: MetricDelta;
+      };
+    };
+    "tracker-classification": {
+      eligible: boolean;
+      metrics: { knownTrackerRequests: MetricDelta };
+      addedTrackerDomains: string[];
+      removedTrackerDomains: string[];
+    };
+    "shields-simulation": {
+      eligible: boolean;
+      /** null when either run recorded no Shields count. */
+      metrics: { shieldsBlockedRequests: MetricDelta } | null;
+    };
+    "consent-verification": { eligible: boolean };
+    "detector-findings": {
+      eligible: boolean;
+      addedDetectionKinds: string[];
+      removedDetectionKinds: string[];
+    };
+  };
+};
 
 export type PublicSingleReportV2 = {
   schemaVersion: typeof SCAN_REPORT_V2_SCHEMA_VERSION;

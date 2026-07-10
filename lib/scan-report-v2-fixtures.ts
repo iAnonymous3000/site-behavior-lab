@@ -5,6 +5,7 @@
  * valid fixture and reject every mutant, so keep builders here rather than
  * inline in one test file.
  */
+import type { ScanReport } from "./types";
 import type {
   ArmVerification,
   DetectorLedger,
@@ -15,6 +16,7 @@ import type {
   ScanRunV2
 } from "./scan-report-v2";
 import { DETECTOR_IDS } from "./scan-report-v2";
+import { buildComparisonDiffV2 } from "./scan-report-v2-evaluators";
 
 export function makeScanRunV2(overrides: { runId?: string; startedAt?: string; shields?: ScanRunV2["conditions"]["shields"] } = {}): ScanRunV2 {
   const detectors = Object.fromEntries(
@@ -142,6 +144,54 @@ export function makePublicSingleReportV2(): PublicSingleReportV2 {
   return { schemaVersion: 2, schemaRevision: 1, reportType: "single", run: makeScanRunV2() };
 }
 
+/** Minimal well-formed FROZEN v1 single report, for reader/view coverage. */
+export function makeScanReportV1(): ScanReport {
+  return {
+    ok: true,
+    schemaVersion: 1,
+    reportType: "single",
+    summary: {
+      pageTitle: "",
+      status: 200,
+      durationMs: 1,
+      firstPartyDomain: "example.com",
+      totalRequests: 1,
+      thirdPartyRequests: 0,
+      knownTrackerRequests: 0,
+      thirdPartyDomains: 0,
+      cookies: 0,
+      thirdPartyCookies: 0,
+      storageEntries: 0,
+      fingerprintEvents: 0
+    },
+    conditions: {
+      requestedUrl: "https://example.com/",
+      finalUrl: "https://example.com/",
+      scannedAt: "2026-07-09T10:00:00.000Z",
+      chromiumVersion: "test",
+      userAgent: "test",
+      timezone: "UTC",
+      locale: "en-US",
+      language: "en-US",
+      viewport: { width: 1440, height: 980, isMobile: false },
+      gpcEnabled: false,
+      consentMode: "observe",
+      automation: "playwright-chromium",
+      headless: true,
+      scannerEgress: "test",
+      trackerCatalog: { source: "t", version: "1", region: "t", entries: 0, curatedOverrides: 0, license: "t" },
+      scannerDisclosure: "test"
+    },
+    requests: [],
+    domains: [],
+    cookies: [],
+    storage: [],
+    fingerprintEvents: [],
+    screenshot: null,
+    warnings: []
+  };
+}
+
 export function makeEphemeralSingleReport(): EphemeralSingleReport {
   return { ...makePublicSingleReportV2(), ephemeral: { screenshot: "data:image/png;base64,AAAA" } };
 }
@@ -176,12 +226,15 @@ function makeComparability(experimentKind: Experiment["kind"]): PublicComparison
 
 /** RFC example 12.1: Shields off/on while GPC stays enabled. */
 export function makeInterventionComparisonReportV2(): PublicComparisonReportV2 {
+  const baseline = makeScanRunV2({ runId: "run-baseline", shields: "classification" });
+  const variant = makeScanRunV2({ runId: "run-variant", startedAt: "2026-07-09T10:01:00.000Z", shields: "block-simulation" });
+  const comparability = makeComparability("intervention");
   return {
     schemaVersion: 2,
     schemaRevision: 1,
     reportType: "comparison",
-    baseline: makeScanRunV2({ runId: "run-baseline", shields: "classification" }),
-    variant: makeScanRunV2({ runId: "run-variant", startedAt: "2026-07-09T10:01:00.000Z", shields: "block-simulation" }),
+    baseline,
+    variant,
     experiment: {
       kind: "intervention",
       axis: "shields",
@@ -193,35 +246,41 @@ export function makeInterventionComparisonReportV2(): PublicComparisonReportV2 {
       },
       evidence: { pairs: 1, counterbalanced: false, strength: "observed-difference" }
     },
-    comparability: makeComparability("intervention"),
-    diff: {}
+    comparability,
+    diff: buildComparisonDiffV2(baseline, variant, comparability.perMetric)
   };
 }
 
 /** RFC example 12.3: temporal pair, no axis, no order, no verification. */
 export function makeTemporalComparisonReportV2(): PublicComparisonReportV2 {
+  const baseline = makeScanRunV2({ runId: "run-earlier", startedAt: "2026-06-18T10:00:00.000Z" });
+  const variant = makeScanRunV2({ runId: "run-later", startedAt: "2026-07-09T10:00:00.000Z" });
+  const comparability = makeComparability("temporal");
   return {
     schemaVersion: 2,
     schemaRevision: 1,
     reportType: "comparison",
-    baseline: makeScanRunV2({ runId: "run-earlier", startedAt: "2026-06-18T10:00:00.000Z" }),
-    variant: makeScanRunV2({ runId: "run-later", startedAt: "2026-07-09T10:00:00.000Z" }),
+    baseline,
+    variant,
     experiment: { kind: "temporal", pairId: "pair-temporal" },
-    comparability: makeComparability("temporal"),
-    diff: {}
+    comparability,
+    diff: buildComparisonDiffV2(baseline, variant, comparability.perMetric)
   };
 }
 
 /** RFC example 12.4: descriptive upload, never causal. */
 export function makeDescriptiveComparisonReportV2(): PublicComparisonReportV2 {
+  const baseline = makeScanRunV2({ runId: "run-a" });
+  const variant = makeScanRunV2({ runId: "run-b" });
+  const comparability = makeComparability("descriptive");
   return {
     schemaVersion: 2,
     schemaRevision: 1,
     reportType: "comparison",
-    baseline: makeScanRunV2({ runId: "run-a" }),
-    variant: makeScanRunV2({ runId: "run-b" }),
+    baseline,
+    variant,
     experiment: { kind: "descriptive", pairId: "pair-descriptive", sourceOrder: "as-provided" },
-    comparability: makeComparability("descriptive"),
-    diff: {}
+    comparability,
+    diff: buildComparisonDiffV2(baseline, variant, comparability.perMetric)
   };
 }

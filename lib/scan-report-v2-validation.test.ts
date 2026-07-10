@@ -5,12 +5,11 @@ import {
   makeEphemeralSingleReport,
   makeInterventionComparisonReportV2,
   makePublicSingleReportV2,
-  makeScanRunV2,
+  makeScanReportV1,
   makeTemporalComparisonReportV2
 } from "./scan-report-v2-fixtures";
 import { isPublicComparisonReportV2, isPublicScanReportV2, isPublicSingleReportV2 } from "./scan-report-v2-validation";
 import { readStoredScanReport } from "./scan-report-reader";
-import { SCAN_REPORT_SCHEMA_VERSION } from "./types";
 
 function mutate<T>(fixture: T, apply: (draft: T) => void): unknown {
   const draft = structuredClone(fixture);
@@ -160,53 +159,7 @@ test("reader: v1 routes to the frozen validator, v2 to the r1 validator", () => 
   assert.equal(v2.ok, true);
   if (v2.ok) assert.equal(v2.stored.schemaVersion, 2);
 
-  // Minimal well-formed v1 single report via the frozen shape.
-  const run = makeScanRunV2();
-  const v1Report = {
-    ok: true,
-    schemaVersion: SCAN_REPORT_SCHEMA_VERSION,
-    reportType: "single",
-    summary: {
-      pageTitle: "",
-      status: 200,
-      durationMs: 1,
-      firstPartyDomain: "example.com",
-      totalRequests: 1,
-      thirdPartyRequests: 0,
-      knownTrackerRequests: 0,
-      thirdPartyDomains: 0,
-      cookies: 0,
-      thirdPartyCookies: 0,
-      storageEntries: 0,
-      fingerprintEvents: 0
-    },
-    conditions: {
-      requestedUrl: "https://example.com/",
-      finalUrl: "https://example.com/",
-      scannedAt: run.startedAt,
-      chromiumVersion: "test",
-      userAgent: "test",
-      timezone: "UTC",
-      locale: "en-US",
-      language: "en-US",
-      viewport: { width: 1440, height: 980, isMobile: false },
-      gpcEnabled: false,
-      consentMode: "observe",
-      automation: "playwright-chromium",
-      headless: true,
-      scannerEgress: "test",
-      trackerCatalog: { source: "t", version: "1", region: "t", entries: 0, curatedOverrides: 0, license: "t" },
-      scannerDisclosure: "test"
-    },
-    requests: [],
-    domains: [],
-    cookies: [],
-    storage: [],
-    fingerprintEvents: [],
-    screenshot: null,
-    warnings: []
-  };
-  const v1 = readStoredScanReport(v1Report);
+  const v1 = readStoredScanReport(makeScanReportV1());
   assert.equal(v1.ok, true);
   if (v1.ok) assert.equal(v1.stored.schemaVersion, 1);
 });
