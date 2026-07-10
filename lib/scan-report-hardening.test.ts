@@ -912,3 +912,129 @@ test("legitimate v1 reports project without loss (screenshot aside)", () => {
     assert.deepEqual(publicWireForExportOrPersistence(comparison.loaded), makeScanReportV1Comparison());
   }
 });
+
+// ---------------------------------------------------------------------------
+// Exhaustive v1 guard: reader/projector totality (fifth pre-emission audit)
+// ---------------------------------------------------------------------------
+
+test("the four reproduced malformed v1 shapes are rejected before projection", () => {
+  const missingViewport = mutate(makeScanReportV1(), (draft) => {
+    delete (draft as AnyRecord).conditions.viewport;
+  });
+  assert.deepEqual(readStoredScanReport(missingViewport), { ok: false, error: "invalid" });
+
+  const nullStatuses = mutate(makeScanReportV1(), (draft) => {
+    (draft as AnyRecord).domains = [
+      { domain: "example.com", requests: 1, thirdParty: false, tracker: null, statuses: null, resourceTypes: [] }
+    ];
+  });
+  assert.deepEqual(readStoredScanReport(nullStatuses), { ok: false, error: "invalid" });
+
+  const partialCookie = mutate(makeScanReportV1(), (draft) => {
+    (draft as AnyRecord).cookies = [{ name: "a", domain: "example.com" }]; // missing required fields
+  });
+  assert.deepEqual(readStoredScanReport(partialCookie), { ok: false, error: "invalid" });
+
+  const incompleteDiff = makeScanReportV1Comparison();
+  delete incompleteDiff.diff.addedDomains;
+  delete incompleteDiff.diff.totalRequests;
+  assert.deepEqual(readStoredScanReport(incompleteDiff), { ok: false, error: "invalid" });
+});
+
+/** Every optional field of the frozen v1 shape populated. */
+function makeMaximalScanReportV1(): AnyRecord {
+  const report = makeScanReportV1() as AnyRecord;
+  report.conditions.shieldsMode = "classification";
+  report.conditions.adblock = { active: true, source: "brave", lists: 31, fetchedAt: "2026-07-01T00:00:00.000Z" };
+  report.requests = [
+    {
+      id: 1,
+      url: "https://tracker.example/pixel",
+      domain: "tracker.example",
+      method: "GET",
+      resourceType: "image",
+      status: 200,
+      thirdParty: true,
+      tracker: { domain: "tracker.example", entity: "Tracker", category: "ads", confidence: "curated", prevalence: 0.4 },
+      blockedByShields: true,
+      provenance: { initiatorUrl: "https://example.com/", scriptDomain: "example.com" },
+      startedAtMs: 12
+    }
+  ];
+  report.domains = [
+    {
+      domain: "tracker.example",
+      requests: 1,
+      thirdParty: true,
+      tracker: { domain: "tracker.example", entity: "Tracker", category: "ads", confidence: "shields-list" },
+      blockedByShields: true,
+      statuses: [200],
+      resourceTypes: ["image"]
+    }
+  ];
+  report.cookies = [
+    { name: "_ga", domain: ".example.com", path: "/", sameSite: "Lax", secure: true, httpOnly: false, session: false, thirdParty: false }
+  ];
+  report.storage = [{ area: "localStorage", key: "theme", valueBytes: 4 }];
+  report.fingerprintEvents = [{ api: "canvas.toDataURL", count: 2 }];
+  report.fingerprintDetections = [
+    {
+      kind: "canvas-fingerprinting",
+      heuristic: "openwpm-canvas-v1",
+      count: 1,
+      evidence: { readApis: ["canvas.toDataURL"], maxCanvasWidth: 280, maxCanvasHeight: 60, maxDistinctTextCharacters: 24, maxTextWriteCalls: 3 }
+    }
+  ];
+  report.cnameCloaks = [
+    { host: "metrics.example.com", cname: "example.eulerian.net", tracker: { domain: "eulerian.net", entity: "Eulerian", category: "analytics", confidence: "curated" } }
+  ];
+  report.pixelEvents = [{ platform: "Meta", product: "Meta Pixel", events: ["PageView"], advancedMatching: ["email"], requests: 1 }];
+  report.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [{ kind: "honors-gpc", quote: "We honor GPC signals." }],
+    mentionedEntities: ["Tracker"],
+    unmentionedEntities: [],
+    policyTextLength: 1200
+  };
+  report.consentInteraction = { mode: "accept-all", clicked: true, cmp: "OneTrust", selector: "#accept", frameUrl: "https://cmp.example/frame" };
+  report.screenshot = "data:image/png;base64,MAXSHOT";
+  report.share = { id: "20260709-" + "a".repeat(32), path: "/reports/x", jsonPath: "/api/reports/x" };
+  report.summary.shieldsBlockedRequests = 1;
+  return report;
+}
+
+test("maximal v1 single and comparison fixtures pass the guard and project losslessly", () => {
+  const maximal = makeMaximalScanReportV1();
+  const single = readScanTransportPayload(maximal);
+  assert.equal(single.kind, "report");
+  if (single.kind === "report") {
+    const projected = publicWireForExportOrPersistence(single.loaded) as AnyRecord;
+    const expected = structuredClone(maximal);
+    expected.screenshot = null;
+    assert.deepEqual(projected, expected);
+  }
+
+  const comparison = makeScanReportV1Comparison();
+  comparison.runLabels = { baseline: "Shields off", variant: "Shields on" };
+  comparison.baseline = makeMaximalScanReportV1();
+  delete comparison.baseline.reportType;
+  comparison.diff.shieldsBlockedRequests = { before: 0, after: 1, delta: 1 };
+  comparison.diff.addedDomains = [{ domain: "tracker.example", requests: 1, tracker: null }];
+  comparison.diff.addedEntities = [{ entity: "Tracker", requests: 1, domains: 1 }];
+  comparison.diff.addedCookies = [{ name: "_ga", domain: ".example.com", thirdParty: false }];
+  comparison.diff.addedStorageKeys = [{ area: "localStorage", key: "theme" }];
+  comparison.diff.addedFingerprinting = [{ kind: "canvas-fingerprinting", heuristic: "openwpm-canvas-v1", count: 1 }];
+  comparison.diff.addedPixelEvents = [{ platform: "Meta", product: "Meta Pixel", events: ["PageView"], advancedMatching: [] }];
+  comparison.diff.addedProvenance = [
+    { domain: "tracker.example", requests: 1, tracker: null, initiator: "example.com", script: null, injectedBy: null }
+  ];
+  const comparisonResult = readScanTransportPayload(comparison);
+  assert.equal(comparisonResult.kind, "report");
+  if (comparisonResult.kind === "report") {
+    const projected = publicWireForExportOrPersistence(comparisonResult.loaded) as AnyRecord;
+    const expected = structuredClone(comparison);
+    expected.baseline.screenshot = null;
+    expected.variant.screenshot = null;
+    assert.deepEqual(projected, expected);
+  }
+});
