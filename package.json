@@ -7,6 +7,7 @@
     "dev": "next dev --hostname 127.0.0.1 --port 3000",
     "build": "next build",
     "build:pages": "node scripts/build-github-pages.mjs",
+    "build:schema": "node scripts/build-schema.mjs",
     "cf:bucket:create": "wrangler r2 bucket create site-behavior-lab-reports",
     "cf:container:deploy": "wrangler deploy -c wrangler.container.jsonc",
     "cf:deploy": "wrangler deploy -c wrangler.jsonc",

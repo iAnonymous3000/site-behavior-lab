@@ -122,6 +122,17 @@ async function main() {
 
   const nextBin = path.join(workDir, "node_modules", ".bin", process.platform === "win32" ? "next.cmd" : "next");
 
+  // Regenerate the ScanReport v2 schema + compiled validator artifact inside
+  // the worktree: the copy above excludes dist/, and the published schema must
+  // never go stale relative to the types (scan-report-v2-rfc.md 10.3).
+  await runCommand(process.execPath, ["scripts/build-schema.mjs"], {
+    cwd: workDir,
+    env: {
+      ...process.env,
+      NEXT_TELEMETRY_DISABLED: "1"
+    }
+  });
+
   await runCommand(process.execPath, ["scripts/build-static-report-manifest.mjs"], {
     cwd: workDir,
     env: {

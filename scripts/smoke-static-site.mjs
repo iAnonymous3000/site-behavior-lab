@@ -56,6 +56,22 @@ async function main() {
     await expectText(page.locator(".static-gallery"), "Saved reports");
     pass("static home renders archive shell");
 
+    // The published ScanReport v2 schema: the immutable revisioned file and
+    // its stable alias must both serve and agree (scan-report-v2-rfc.md 10.3).
+    const revisionedResponse = await fetch(`${baseUrl}/schemas/scan-report.v2.r1.schema.json`);
+    if (!revisionedResponse.ok) fail(`revisioned schema not served (${revisionedResponse.status})`);
+    const revisionedSchema = await revisionedResponse.json();
+    if (revisionedSchema.$id !== "https://sitebehavior.org/schemas/scan-report.v2.r1.schema.json") {
+      fail("revisioned schema has the wrong $id");
+    }
+    const aliasResponse = await fetch(`${baseUrl}/scan-report.schema.json`);
+    if (!aliasResponse.ok) fail(`stable schema alias not served (${aliasResponse.status})`);
+    const aliasSchema = await aliasResponse.json();
+    if (JSON.stringify(aliasSchema) !== JSON.stringify(revisionedSchema)) {
+      fail("stable schema alias does not match the current revision");
+    }
+    pass("scan-report v2 schema published (revisioned file + stable alias)");
+
     if (liveScanApiBase) {
       await expectText(page.locator(".status-pill"), "Live");
       await expectText(page.locator(".scan-panel"), "Public scanner");
