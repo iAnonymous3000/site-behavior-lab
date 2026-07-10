@@ -7,8 +7,8 @@ import {
   type ScanRunner
 } from "./scan-api";
 import { saveScanReport } from "./report-store";
-import { assertRateLimit, MAX_CONCURRENT_SCANS, QUEUE_TIMEOUT_MS } from "./scan-limits";
-import { toPublicError } from "./public-errors";
+import { assertRateLimit, MAX_CONCURRENT_SCANS, MAX_QUEUED_JOBS, QUEUE_TIMEOUT_MS } from "./scan-limits";
+import { PublicScanError, toPublicError } from "./public-errors";
 import type { ScanJobProgress, ScanJobStatus, ScanJobStatusResponse, ScanJobSubmissionResponse, ScanReport } from "./types";
 
 const ASYNC_SCANS_ENV = "SITE_BEHAVIOR_LAB_ASYNC_SCANS";
@@ -59,6 +59,12 @@ export function enqueuePreparedScanJob(
   dependencies: { scan?: ScanRunner; saveReport?: ReportSaver } = {}
 ): ScanJobSubmissionResponse {
   pruneScanJobs();
+  // Explicit aggregate admission: once accepted, a job is a promise of work
+  // that must never be silently dropped, so admission is refused up front
+  // (before the client is charged) when the queue is full.
+  if (queuedJobIds.length >= MAX_QUEUED_JOBS) {
+    throw new PublicScanError("Scanner queue is full. Try again shortly.", 503);
+  }
   // Charge the per-client rate limit when the job is accepted into the queue.
   // The submit gate only peeks, so without this a burst of submissions could
   // all pass and flood the shared job queue before any charge landed at run
@@ -268,13 +274,21 @@ function pruneScanJobs(nowMs = Date.now()): void {
 
     if (nowMs - record.createdAtMs > JOB_MAX_AGE_MS) {
       markExpired(record);
+      // An expired queued job must also leave the admission queue: workers
+      // already skip it, but its id would otherwise keep counting against the
+      // aggregate admission cap until the record itself is deleted.
+      removeQueuedJobId(id);
     }
   }
 
   if (jobs.size <= MAX_RETAINED_JOBS) return;
 
+  // Retention pressure may only evict jobs whose story is over. A "queued" job
+  // is an ACCEPTED promise of work (the submitter holds its status URL) and
+  // must never silently disappear; the aggregate admission cap bounds how many
+  // can exist. "running" and freshly "expired" records are likewise kept.
   const removable = Array.from(jobs.values())
-    .filter((record) => record.status !== "running" && record.status !== "expired")
+    .filter((record) => record.status !== "running" && record.status !== "expired" && record.status !== "queued")
     .sort((a, b) => a.createdAtMs - b.createdAtMs);
 
   for (const record of removable.slice(0, jobs.size - MAX_RETAINED_JOBS)) {

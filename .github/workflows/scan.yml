@@ -54,8 +54,11 @@ on:
 permissions:
   contents: write
 
+# All three repo-writing workflows (scan, scan-featured, update-brave-lists)
+# share one concurrency group per ref so their commit+push steps never race;
+# the push step still rebase-retries in case a human push lands in between.
 concurrency:
-  group: site-behavior-scan-${{ github.ref }}
+  group: site-behavior-repo-writers-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -138,4 +141,13 @@ jobs:
             exit 0
           fi
           git commit -m "Add site behavior scan report"
+          # A finished scan must not be lost to a non-fast-forward race with a
+          # push that landed after checkout: rebase and retry.
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected (attempt ${attempt}); rebasing onto the latest ${GITHUB_REF_NAME}."
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+          done
           git push

@@ -505,16 +505,25 @@ async function getSharedBrowser(): Promise<Browser> {
     return sharedBrowser;
   }
 
-  browserLaunchPromise ??= chromium.launch({ headless: true }).then((browser) => {
-    sharedBrowser = browser;
-    browser.on("disconnected", () => {
-      if (sharedBrowser === browser) {
-        sharedBrowser = null;
-        browserLaunchPromise = null;
-      }
-    });
-    return browser;
-  });
+  browserLaunchPromise ??= chromium.launch({ headless: true }).then(
+    (browser) => {
+      sharedBrowser = browser;
+      browser.on("disconnected", () => {
+        if (sharedBrowser === browser) {
+          sharedBrowser = null;
+          browserLaunchPromise = null;
+        }
+      });
+      return browser;
+    },
+    (error: unknown) => {
+      // A failed launch must not be cached: leaving the rejected promise in
+      // place would fail every later scan until the process restarts, even
+      // after the transient cause (memory pressure, missing display) clears.
+      browserLaunchPromise = null;
+      throw error;
+    }
+  );
 
   return browserLaunchPromise;
 }

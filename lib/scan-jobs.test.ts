@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { PublicScanError } from "./public-errors";
-import { RATE_LIMIT_MAX, resetScanLimitStateForTests } from "./scan-limits";
+import { MAX_QUEUED_JOBS, RATE_LIMIT_MAX, resetScanLimitStateForTests } from "./scan-limits";
 import { readScanReport } from "./report-store";
 import {
   advanceScanJobClockForTests,
@@ -148,6 +148,72 @@ test("stale queued scan jobs return expired status", () => {
   const status = getScanJobStatus(submission.jobId);
   assert.equal(status?.status, "expired");
   assert.equal(status?.error, "This scan job expired before it finished.");
+});
+
+test("retention pressure never evicts accepted queued jobs", async () => {
+  const instant: ScanRunner = async (payload) => makeScanResult(payload);
+  const hang: ScanRunner = () => new Promise(() => {});
+  const keep: ReturnType<typeof enqueuePreparedScanJob>[] = [];
+
+  // Push the retained-job count past the retention cap with finished jobs,
+  // awaiting each so the burst never trips the aggregate admission cap.
+  for (let index = 0; index < 501; index += 1) {
+    const submission = enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: `bulk-${index}` }), {
+      scan: instant,
+      saveReport: async (report) => report
+    });
+    await waitForScanJobForTests(submission.jobId);
+  }
+
+  // Two hanging jobs occupy the workers; three more are accepted and queued.
+  enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "occupy-a" }), { scan: hang });
+  enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "occupy-b" }), { scan: hang });
+  for (const client of ["queued-a", "queued-b", "queued-c"]) {
+    keep.push(enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: client }), { scan: hang }));
+  }
+
+  advanceScanJobClockForTests(Date.now());
+
+  // The finished overflow was evicted, but every ACCEPTED queued job survived:
+  // an accepted job is a promise of work and must never silently disappear.
+  assert.equal(scanJobStateForTests().retainedJobs <= 500, true);
+  assert.equal(scanJobStateForTests().queuedJobs, 3);
+  for (const submission of keep) {
+    assert.equal(getScanJobStatus(submission.jobId)?.status, "queued");
+  }
+});
+
+test("the async queue refuses admission beyond the aggregate cap without charging the client", () => {
+  const hang: ScanRunner = () => new Promise(() => {});
+
+  // Occupy both workers, then fill the admission queue across many distinct
+  // clients (each stays inside its own per-client rate limit).
+  enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "occupy-a" }), { scan: hang });
+  enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "occupy-b" }), { scan: hang });
+  for (let index = 0; index < MAX_QUEUED_JOBS; index += 1) {
+    enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: `filler-${index % 8}` }), { scan: hang });
+  }
+  assert.equal(scanJobStateForTests().queuedJobs, MAX_QUEUED_JOBS);
+
+  assert.throws(
+    () => enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "late-client" }), { scan: hang }),
+    (error) => error instanceof PublicScanError && error.status === 503 && /queue is full/i.test(error.message)
+  );
+});
+
+test("expired queued jobs leave the admission queue", () => {
+  const hang: ScanRunner = () => new Promise(() => {});
+  enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "worker-a" }), { scan: hang });
+  enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "worker-b" }), { scan: hang });
+  const submission = enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "worker-c" }), { scan: hang });
+  assert.equal(scanJobStateForTests().queuedJobs, 1);
+
+  setScanJobCreatedAtForTests(submission.jobId, Date.now() - 61 * 60 * 1000);
+  advanceScanJobClockForTests(Date.now());
+
+  // Expired means it will never run; its slot must return to the admission cap.
+  assert.equal(getScanJobStatus(submission.jobId)?.status, "expired");
+  assert.equal(scanJobStateForTests().queuedJobs, 0);
 });
 
 test("enqueuePreparedScanJob charges the rate limit at submit time so bursts cannot flood the queue", () => {

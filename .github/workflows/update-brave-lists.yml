@@ -17,8 +17,9 @@ on:
 permissions:
   contents: write
 
+# Shared with scan.yml and scan-featured.yml: one writer at a time per ref.
 concurrency:
-  group: update-brave-lists
+  group: site-behavior-repo-writers-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -61,6 +62,15 @@ jobs:
             exit 0
           fi
           git commit -m "Refresh the vendored Brave Shields default filter lists"
+          # A validated list refresh must not be lost to a non-fast-forward race
+          # with a push that landed after checkout: rebase and retry.
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected (attempt ${attempt}); rebasing onto the latest ${GITHUB_REF_NAME}."
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+          done
           git push
 
   engine-drift-check:

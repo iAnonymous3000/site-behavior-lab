@@ -18,6 +18,11 @@
  *   FEATURED_COMPARE_GPC              "true"/"false" GPC off/on comparison per site (default: true).
  *   FEATURED_DEVICE                   "desktop"/"mobile" (default: desktop).
  *   FEATURED_DELAY_MS                 Delay between sites in ms (default: 1500).
+ *   FEATURED_MIN_SUCCESS_RATE         Minimum fraction of sites that must scan
+ *                                     successfully for the run to succeed
+ *                                     (default: 0.9). Below it the run exits
+ *                                     nonzero so a partial refresh is never
+ *                                     silently published as a green run.
  */
 
 import { spawn } from "node:child_process";
@@ -77,9 +82,29 @@ async function main() {
     console.log(`  - ${failure.site}: ${failure.message}`);
   }
 
-  if (succeeded === 0) {
+  // A green run must mean a meaningful refresh. Individual bot walls and
+  // outages are tolerated up to the threshold; beyond it the run fails so the
+  // workflow never commits and publishes a mostly-stale corpus as fresh.
+  const minSuccessRate = successRateEnv("FEATURED_MIN_SUCCESS_RATE", 0.9);
+  const successRate = succeeded / sites.length;
+  if (succeeded === 0 || successRate < minSuccessRate) {
+    console.error(
+      `Refusing to treat this as a successful refresh: ${succeeded}/${sites.length} sites succeeded (${Math.round(
+        successRate * 100
+      )}%), below the ${Math.round(minSuccessRate * 100)}% threshold (FEATURED_MIN_SUCCESS_RATE).`
+    );
     process.exit(1);
   }
+}
+
+function successRateEnv(name, fallback) {
+  const raw = process.env[name]?.trim();
+  if (!raw) return fallback;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < 0 || value > 1) {
+    throw new Error(`${name} must be a number between 0 and 1, got "${raw}".`);
+  }
+  return value;
 }
 
 async function readConfig() {

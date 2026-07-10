@@ -7,6 +7,11 @@ export const MAX_CONCURRENT_SCANS = 2;
 // single burst could enqueue an unbounded number of 15-second waiters before any
 // of them is rate-limited.
 export const MAX_QUEUED_SCANS = MAX_CONCURRENT_SCANS * 4;
+// Aggregate admission cap for the ASYNC job queue, across ALL clients. The
+// per-client rate limit cannot bound the queue when many distinct clients each
+// submit within their own allowance. Sized so the last admitted job still runs
+// before the 60-minute job expiry at two workers and two runs per comparison.
+export const MAX_QUEUED_JOBS = 32;
 export const QUEUE_TIMEOUT_MS = 15_000;
 export const RATE_LIMIT_WINDOW_MS = 60_000;
 export const RATE_LIMIT_MAX = 20;

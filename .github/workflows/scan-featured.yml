@@ -66,8 +66,9 @@ on:
 permissions:
   contents: write
 
+# Shared with scan.yml and update-brave-lists.yml: one writer at a time per ref.
 concurrency:
-  group: site-behavior-featured-scan-${{ github.ref }}
+  group: site-behavior-repo-writers-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -165,4 +166,13 @@ jobs:
             exit 0
           fi
           git commit -m "Add featured site behavior scan reports"
+          # An expensive refresh must not be lost to a non-fast-forward race
+          # with a push that landed after checkout: rebase and retry.
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected (attempt ${attempt}); rebasing onto the latest ${GITHUB_REF_NAME}."
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+          done
           git push
