@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { createComparisonReport, createGpcComparisonReport } from "./compare-reports";
-import { readScanReport, reportStoreStatus, saveScanReport } from "./report-store";
+import { readScanReport, readStoredScanReportById, reportStoreStatus, saveScanReport } from "./report-store";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } from "./types";
 
 const REPORT_MAX_COUNT_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT";
@@ -66,6 +66,37 @@ test("readScanReport rejects malformed comparison reports", async () => {
   );
 
   assert.equal(await readScanReport(malformedComparisonId), null);
+});
+
+test("readStoredScanReportById answers typed outcomes instead of silent null", async () => {
+  await mkdir(reportDir, { recursive: true });
+
+  // Missing and expired reads are "not-found"; malformed bytes and deep-shape
+  // violations are "unreadable", so callers can answer 404 vs 500 honestly.
+  const missing = await readStoredScanReportById("20260618-dddddddddddddddddddddddddddddddd");
+  assert.deepEqual(missing, { outcome: "not-found" });
+
+  const corruptId = "20260618-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+  await writeFile(path.join(reportDir, `${corruptId}.json`), "{\n");
+  assert.deepEqual(await readStoredScanReportById(corruptId), { outcome: "unreadable", error: "invalid" });
+
+  // The exact shallow-validator escape that used to crash the request table:
+  // arrays exist but an entry is null. The deep reader rejects it as typed.
+  const nullEntryId = "20260618-ffffffffffffffffffffffffffffffff";
+  const nullEntryReport = { ...makeScanResult(), requests: [null] };
+  await writeFile(path.join(reportDir, `${nullEntryId}.json`), `${JSON.stringify(nullEntryReport)}\n`);
+  const nullEntryRead = await readStoredScanReportById(nullEntryId);
+  assert.equal(nullEntryRead.outcome, "unreadable");
+  if (nullEntryRead.outcome !== "unreadable") throw new Error("expected unreadable");
+  assert.equal(nullEntryRead.error, "invalid");
+
+  const saved = await saveScanReport(makeScanResult());
+  const found = await readStoredScanReportById(saved.share?.id || "");
+  assert.equal(found.outcome, "found");
+  if (found.outcome !== "found") throw new Error("expected found");
+  assert.equal(found.stored.schemaVersion, 1);
+  // The wire is the stored bytes verbatim, so API responses never re-serialize.
+  assert.deepEqual(JSON.parse(found.wire), JSON.parse(JSON.stringify({ ...saved, screenshot: null })));
 });
 
 test("saveScanReport creates strongly random share IDs", async () => {

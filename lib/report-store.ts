@@ -5,7 +5,12 @@ import {
   type ReportStoreBackendStatus,
   type StoredReportEntry
 } from "./report-store-backend";
-import { isScanReport, REPORT_ID_PATTERN } from "./report-validation";
+import { REPORT_ID_PATTERN } from "./report-validation";
+import {
+  readStoredScanReport,
+  type ReadStoredScanReportError,
+  type StoredScanReport
+} from "./scan-report-reader";
 import type { ReportShare, ScanReport } from "./types";
 
 const DEFAULT_REPORT_MAX_AGE_DAYS = 7;
@@ -27,26 +32,60 @@ export async function saveScanReport<T extends ScanReport>(report: T, options: {
   return saved;
 }
 
-export async function readScanReport(id: string): Promise<ScanReport | null> {
-  if (!REPORT_ID_PATTERN.test(id)) return null;
+/**
+ * Typed outcome of a store read (RFC 14.8: consumers get explicit
+ * unreadable/unsupported handling, never a silent null that conflates
+ * "missing" with "the store holds bytes this deployment cannot read").
+ * Backend failures (outage, bad credentials) still throw and must propagate.
+ */
+export type StoredReportReadOutcome =
+  | { outcome: "found"; stored: StoredScanReport; wire: string }
+  | { outcome: "not-found" }
+  | { outcome: "unreadable"; error: ReadStoredScanReportError; violations?: string[] };
+
+/**
+ * The canonical store read: parses the blob and dispatches it through the
+ * version-aware deep reader, so a malformed stored report (a `requests:[null]`
+ * entry, a truncated write) surfaces as a typed "unreadable" instead of
+ * crashing a renderer downstream. `wire` is the stored bytes; API responses
+ * serve it as-is so the wire form is never re-synthesized.
+ */
+export async function readStoredScanReportById(id: string): Promise<StoredReportReadOutcome> {
+  if (!REPORT_ID_PATTERN.test(id)) return { outcome: "not-found" };
   const backend = resolveReportStoreBackend();
   const blob = await backend.read(id);
-  if (!blob) return null;
+  if (!blob) return { outcome: "not-found" };
 
   if (isExpired(blob.lastModifiedMs)) {
     await backend.remove(id).catch(() => undefined);
-    return null;
+    return { outcome: "not-found" };
   }
 
+  let parsed: unknown;
   try {
-    const report = JSON.parse(blob.contents) as unknown;
-    return isScanReport(report) ? report : null;
+    parsed = JSON.parse(blob.contents) as unknown;
   } catch (error) {
-    if (error instanceof SyntaxError) {
-      return null;
-    }
+    if (error instanceof SyntaxError) return { outcome: "unreadable", error: "invalid" };
     throw error;
   }
+
+  const read = readStoredScanReport(parsed);
+  if (!read.ok) {
+    return { outcome: "unreadable", error: read.error, ...(read.violations ? { violations: read.violations } : {}) };
+  }
+  return { outcome: "found", stored: read.stored, wire: blob.contents };
+}
+
+/**
+ * v1-narrowing wrapper for the render surfaces that still consume the legacy
+ * wire type directly (report page metadata, OG images, corpus loader). They
+ * treat every non-v1 outcome as absent; the typed accessor above is the
+ * primary path and the one API routes use to report unreadable/unsupported
+ * outcomes honestly.
+ */
+export async function readScanReport(id: string): Promise<ScanReport | null> {
+  const result = await readStoredScanReportById(id);
+  return result.outcome === "found" && result.stored.schemaVersion === 1 ? result.stored.report : null;
 }
 
 export async function pruneStoredReports(now = Date.now(), preserveId?: string): Promise<void> {
