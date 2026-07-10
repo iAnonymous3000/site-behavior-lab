@@ -37,13 +37,17 @@ test("every committed report reads and projects without data loss", () => {
 
     const wire = publicWireForExportOrPersistence(transport.loaded) as Record<string, unknown>;
     const expected = structuredClone(raw) as Record<string, unknown>;
-    // Persisted reports already carry null screenshots; normalize anyway so
+    // v1 persisted reports already carry null screenshots; normalize anyway so
     // the gate keeps holding if an inline screenshot ever slips into git.
-    if (expected.reportType === "comparison") {
-      (expected.baseline as Record<string, unknown>).screenshot = null;
-      (expected.variant as Record<string, unknown>).screenshot = null;
-    } else {
-      expected.screenshot = null;
+    // Schema v1 ONLY: public v2 reports have no screenshot field anywhere and
+    // must round-trip byte-identical with no normalization at all.
+    if (expected.schemaVersion === 1) {
+      if (expected.reportType === "comparison") {
+        (expected.baseline as Record<string, unknown>).screenshot = null;
+        (expected.variant as Record<string, unknown>).screenshot = null;
+      } else {
+        expected.screenshot = null;
+      }
     }
     assert.deepEqual(wire, expected, `projection lost data for ${name}`);
     projected += 1;

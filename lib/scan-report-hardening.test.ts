@@ -1038,3 +1038,48 @@ test("maximal v1 single and comparison fixtures pass the guard and project lossl
     assert.deepEqual(projected, expected);
   }
 });
+
+// ---------------------------------------------------------------------------
+// Final r1 enum/compat corrections (sixth pre-emission audit)
+// ---------------------------------------------------------------------------
+
+test("frozen v1 enums reject arbitrary strings", () => {
+  const badConsentMode = mutate(makeScanReportV1(), (draft) => {
+    (draft as AnyRecord).conditions.consentMode = "yolo-mode";
+  });
+  assert.deepEqual(readStoredScanReport(badConsentMode), { ok: false, error: "invalid" });
+
+  const badAutomation = mutate(makeScanReportV1(), (draft) => {
+    (draft as AnyRecord).conditions.automation = "selenium-grid";
+  });
+  assert.deepEqual(readStoredScanReport(badAutomation), { ok: false, error: "invalid" });
+
+  const badFingerprintKind = makeScanReportV1Comparison();
+  badFingerprintKind.diff.addedFingerprinting = [{ kind: "made-up-kind", heuristic: "h", count: 1 }];
+  assert.deepEqual(readStoredScanReport(badFingerprintKind), { ok: false, error: "invalid" });
+});
+
+test("an omitted v1 screenshot is accepted and canonicalized to null", () => {
+  // The UI's JSON export drops the screenshot key entirely; those legacy
+  // files must keep re-opening (frozen validator rule).
+  const single = mutate(makeScanReportV1(), (draft) => {
+    delete (draft as AnyRecord).screenshot;
+  });
+  const singleResult = readScanTransportPayload(single);
+  assert.equal(singleResult.kind, "report");
+  if (singleResult.kind === "report") {
+    const projected = publicWireForExportOrPersistence(singleResult.loaded) as AnyRecord;
+    assert.equal(projected.screenshot, null);
+  }
+
+  const comparison = makeScanReportV1Comparison();
+  delete comparison.baseline.screenshot;
+  delete comparison.variant.screenshot;
+  const comparisonResult = readScanTransportPayload(comparison);
+  assert.equal(comparisonResult.kind, "report");
+  if (comparisonResult.kind === "report") {
+    const projected = publicWireForExportOrPersistence(comparisonResult.loaded) as AnyRecord;
+    assert.equal(projected.baseline.screenshot, null);
+    assert.equal(projected.variant.screenshot, null);
+  }
+});

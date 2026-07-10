@@ -20,6 +20,18 @@ import type { ComparisonScanResult, ScanReport, ScanResult } from "./types";
 
 const COMPARISON_TYPES = new Set(["gpc", "shields", "consent", "temporal", "custom"]);
 const DEVICES = new Set(["desktop", "mobile"]);
+const CONSENT_MODES = new Set(["observe", "accept-all", "reject-all"]);
+const AUTOMATIONS = new Set(["playwright-chromium", "brave-pagegraph", "external"]);
+const DETECTION_KINDS = new Set([
+  "canvas-fingerprinting",
+  "canvas-font-fingerprinting",
+  "webgl-fingerprinting",
+  "audio-fingerprinting",
+  "webrtc-fingerprinting",
+  "session-recording",
+  "input-monitoring",
+  "keystroke-exfiltration"
+]);
 const STORAGE_AREAS = new Set(["localStorage", "sessionStorage"]);
 const TRACKER_CONFIDENCES = new Set(["curated", "shields-list"]);
 const CONSENT_CLICK_MODES = new Set(["accept-all", "reject-all"]);
@@ -214,8 +226,6 @@ function isV1Conditions(value: unknown): boolean {
     "timezone",
     "locale",
     "language",
-    "consentMode",
-    "automation",
     "scannerEgress",
     "scannerDisclosure"
   ];
@@ -230,6 +240,11 @@ function isV1Conditions(value: unknown): boolean {
     typeof viewport.isMobile === "boolean" &&
     typeof value.gpcEnabled === "boolean" &&
     typeof value.headless === "boolean" &&
+    // Methodology/provenance dimensions are frozen closed sets, not free text.
+    typeof value.consentMode === "string" &&
+    CONSENT_MODES.has(value.consentMode) &&
+    typeof value.automation === "string" &&
+    AUTOMATIONS.has(value.automation) &&
     (value.shieldsMode === undefined || (typeof value.shieldsMode === "string" && SHIELDS_MODES.has(value.shieldsMode))) &&
     (adblock === undefined ||
       (isRecord(adblock) &&
@@ -268,7 +283,10 @@ function deepValidateV1Result(result: ScanResult): boolean {
     (value.pixelEvents === undefined || (Array.isArray(value.pixelEvents) && value.pixelEvents.every(isV1PixelEvent))) &&
     (value.privacyPolicy === undefined || isV1PrivacyPolicy(value.privacyPolicy)) &&
     (value.consentInteraction === undefined || isV1ConsentInteraction(value.consentInteraction)) &&
-    (value.screenshot === null || typeof value.screenshot === "string") &&
+    // `undefined` matches the frozen validator: the UI's JSON export drops the
+    // screenshot key entirely, and those legacy files must keep re-opening.
+    // The projector canonicalizes it to null on output.
+    (value.screenshot === undefined || value.screenshot === null || typeof value.screenshot === "string") &&
     isStringArray(value.warnings) &&
     (value.share === undefined || isV1Share(value.share))
   );
@@ -302,7 +320,13 @@ function isV1StorageKeyChange(value: unknown): boolean {
 }
 
 function isV1FingerprintingChange(value: unknown): boolean {
-  return isRecord(value) && typeof value.kind === "string" && typeof value.heuristic === "string" && isFiniteNumber(value.count);
+  return (
+    isRecord(value) &&
+    typeof value.kind === "string" &&
+    DETECTION_KINDS.has(value.kind) &&
+    typeof value.heuristic === "string" &&
+    isFiniteNumber(value.count)
+  );
 }
 
 function isV1PixelEventChange(value: unknown): boolean {
