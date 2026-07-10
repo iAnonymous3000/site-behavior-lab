@@ -65,6 +65,7 @@ import {
 import { consentChoiceLabel } from "@/lib/consent-interaction";
 import { requestLogToCsv } from "@/lib/csv-export";
 import { displayScanResult } from "@/lib/report-headline";
+import { displayableScreenshot } from "@/lib/report-insights";
 import { committedReportLocation } from "@/lib/report-locator";
 import { isScanRuntimeHealth, type ScanRuntimeHealth } from "@/lib/scan-runtime-health";
 import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/lib/run-mode-copy";
@@ -793,11 +794,13 @@ export function SiteBehaviorApp({
               </div>
 
               <aside className="report-sidebar">
-                {primaryResult.screenshot && (
+                {displayableScreenshot(primaryResult.screenshot) && (
                   <section className="side-card screenshot-card">
                     <h2>Viewport</h2>
+                    {/* Only inline data URIs render: an uploaded report's
+                        screenshot field must never drive a network request. */}
                     <img
-                      src={primaryResult.screenshot}
+                      src={displayableScreenshot(primaryResult.screenshot)!}
                       alt={`Screenshot of ${primaryResult.summary.firstPartyDomain}`}
                       loading="lazy"
                       decoding="async"

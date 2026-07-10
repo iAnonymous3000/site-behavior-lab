@@ -263,6 +263,17 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
   )} across ${humanList(detection.evidence.eventTypes)} on ${humanList(detection.evidence.listenerTargets)}`;
 }
 
+/**
+ * The only screenshot format the scanner produces (and the only one the UI may
+ * render): an inline base64 image data URI. An UPLOADED report could carry an
+ * arbitrary URL in this field, and rendering it would make every viewer's
+ * browser issue a request to a host of the uploader's choosing.
+ */
+export function displayableScreenshot(value: string | null | undefined): string | null {
+  if (typeof value !== "string") return null;
+  return /^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(value) ? value : null;
+}
+
 const HASHED_KEYSTROKE_ENCODINGS = new Set(["md5", "sha1", "sha256"]);
 
 /**

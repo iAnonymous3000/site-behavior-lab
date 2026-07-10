@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
+import { displayableScreenshot } from "./report-insights";
 import { buildReportHeadline } from "./report-headline";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
@@ -9,6 +10,23 @@ import {
   type PixelEventSummary,
   type ScanResult
 } from "./types";
+
+test("only inline data-URI screenshots are displayable; uploaded URLs never render", () => {
+  assert.equal(
+    displayableScreenshot("data:image/jpeg;base64,AAAA"),
+    "data:image/jpeg;base64,AAAA"
+  );
+  assert.equal(displayableScreenshot("data:image/png;base64,iVBORw0KGgo="), "data:image/png;base64,iVBORw0KGgo=");
+  // An uploaded report's screenshot field must never drive a network request
+  // or execute anything in the viewer's browser.
+  assert.equal(displayableScreenshot("https://attacker.example/beacon.png"), null);
+  assert.equal(displayableScreenshot("//attacker.example/beacon.png"), null);
+  assert.equal(displayableScreenshot("javascript:alert(1)"), null);
+  assert.equal(displayableScreenshot("data:text/html;base64,PGh0bWw+"), null);
+  assert.equal(displayableScreenshot("data:image/svg+xml;base64,AAAA"), null);
+  assert.equal(displayableScreenshot(null), null);
+  assert.equal(displayableScreenshot(undefined), null);
+});
 
 test("leads with named platforms and strips the www prefix", () => {
   const result = makeResult({
