@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { buildReportHeadline } from "@/lib/report-headline";
 import { serializeJsonLd } from "@/lib/jsonld-script";
 import { buildReportDataset } from "@/lib/report-jsonld";
@@ -49,12 +50,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function SavedReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const report = await readReportForId(id);
-  const dataset = report
-    ? buildReportDataset(report, {
-        url: `${siteBaseUrl()}/reports/${id}/`,
-        jsonUrl: STATIC_EXPORT ? `${siteBaseUrl()}/reports/${id}.json` : `${siteOrigin()}/api/reports/${id}`
-      })
-    : null;
+  // A nonexistent report must answer HTTP 404, not a 200 shell whose client
+  // then renders a soft "not found": crawlers and uptime checks read the
+  // status code. (Static-export builds only prerender committed ids, which
+  // always resolve, so this fires on the dynamic server.)
+  if (!report) notFound();
+  const dataset = buildReportDataset(report, {
+    url: `${siteBaseUrl()}/reports/${id}/`,
+    jsonUrl: STATIC_EXPORT ? `${siteBaseUrl()}/reports/${id}.json` : `${siteOrigin()}/api/reports/${id}`
+  });
 
   return (
     <>

@@ -23,6 +23,7 @@ import {
   publicClientHash,
   publicScanGateStatus,
   publicScanRateLimit,
+  publicScanRefusalReasons,
   scanAccessTokenMatches,
   scanTokenCost
 } from "../lib/edge-scan-gate";
@@ -194,6 +195,20 @@ async function patchHealthResponse(response: Response, env: Env): Promise<Respon
       health.authenticated = gate.authenticated;
       health.openAccess = gate.openAccess;
       health.turnstile = gate.turnstile;
+      // A configuration that refuses EVERY scan must never present as a green
+      // scanner: surface the exact fail-closed reasons and degrade the status.
+      const refusals = publicScanRefusalReasons({
+        accessToken: env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN,
+        allowUnauthenticated: env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS,
+        turnstileSecret: env.TURNSTILE_SECRET_KEY,
+        acceptNoTurnstileRisk: env.SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK,
+        rateLimitStoreBound: Boolean(env.RATE_LIMITS_KV)
+      });
+      health.scansAvailable = refusals.length === 0;
+      if (refusals.length > 0) {
+        health.status = "degraded";
+        health.warnings = [...(Array.isArray(health.warnings) ? health.warnings : []), ...refusals];
+      }
       health.limits = {
         ...(typeof health.limits === "object" && health.limits ? health.limits : {}),
         publicScanRateLimitPerMinute: publicScanRateLimit(

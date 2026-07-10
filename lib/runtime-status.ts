@@ -9,8 +9,10 @@ const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
 
 // Backend-agnostic public projection: never exposes a filesystem path or an R2
 // bucket/endpoint to /api/health, only the backend kind and shared policy.
+// "unavailable" = the configured backend could not even be constructed
+// (e.g. SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND=r2 with missing credentials).
 type PublicReportStoreStatus = {
-  kind: ReportStoreKind;
+  kind: ReportStoreKind | "unavailable";
   configuredPath: boolean;
   maxAgeDays: number;
   maxCount: number;
@@ -41,8 +43,15 @@ export async function runtimeStatus(
   const adblock = await getAdblockStatus();
   const capability = producerCapability("node");
   const authenticated = scanAccessTokenConfigured();
-  const warnings = productionWarnings();
-  const reportStore = publicReportStoreStatus();
+  // A misconfigured store backend (e.g. r2 selected with missing credentials)
+  // must degrade health, never crash it: /api/health is exactly the endpoint an
+  // operator checks when the configuration is broken.
+  const store = safeReportStoreStatus();
+  const warnings = productionWarnings(store.status);
+  const reportStore = store.public;
+  if (store.error !== null) {
+    warnings.push(`The report store backend is misconfigured and unavailable: ${store.error}`);
+  }
   if (!adblock.active) {
     warnings.push("Brave Shields classification is unavailable; tracker labels use the curated catalog only.");
   }
@@ -73,7 +82,9 @@ export async function runtimeStatus(
       // real capability instead of enabling a degraded mode.
       shieldsComparison: capability.shieldsComparison && adblock.active,
       consentComparison: capability.consentComparison,
-      savedReports: true,
+      // A broken store backend cannot save or serve reports; the UI must not
+      // offer share links it cannot honor.
+      savedReports: store.error === null,
       // The full Next app serves /reports/:id pages, so live-scanned reports have
       // a shareable permalink on this origin.
       savedReportPages: true
@@ -82,23 +93,40 @@ export async function runtimeStatus(
   });
 }
 
-function publicReportStoreStatus(): PublicReportStoreStatus {
-  const status = reportStoreStatus();
-  return {
-    kind: status.kind,
-    configuredPath: status.configuredPath,
-    maxAgeDays: status.maxAgeDays,
-    maxCount: status.maxCount
-  };
+type SafeReportStoreStatus = {
+  status: ReturnType<typeof reportStoreStatus> | null;
+  public: PublicReportStoreStatus;
+  error: string | null;
+};
+
+function safeReportStoreStatus(): SafeReportStoreStatus {
+  try {
+    const status = reportStoreStatus();
+    return {
+      status,
+      public: {
+        kind: status.kind,
+        configuredPath: status.configuredPath,
+        maxAgeDays: status.maxAgeDays,
+        maxCount: status.maxCount
+      },
+      error: null
+    };
+  } catch (error) {
+    return {
+      status: null,
+      public: { kind: "unavailable", configuredPath: false, maxAgeDays: 0, maxCount: 0 },
+      error: error instanceof Error ? error.message : "unknown configuration error"
+    };
+  }
 }
 
 function unauthenticatedScansAllowed(): boolean {
   return process.env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS === "1";
 }
 
-function productionWarnings(): string[] {
+function productionWarnings(reportStore: ReturnType<typeof reportStoreStatus> | null): string[] {
   const warnings: string[] = [];
-  const reportStore = reportStoreStatus();
 
   // No token means anyone can scan. That is a warning when it looks accidental,
   // but an explicit `ALLOW_UNAUTHENTICATED_SCANS=1` is a deliberate open posture
@@ -108,7 +136,7 @@ function productionWarnings(): string[] {
     warnings.push("SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN is not configured; public visitors can start scans.");
   }
 
-  if (!reportStore.configuredPath) {
+  if (reportStore !== null && !reportStore.configuredPath) {
     warnings.push("SITE_BEHAVIOR_LAB_REPORT_STORE_DIR is not configured; reports use the app working directory.");
   }
 

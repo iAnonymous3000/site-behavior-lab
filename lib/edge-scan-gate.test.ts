@@ -9,6 +9,7 @@ import {
   publicClientHash,
   publicScanGateStatus,
   publicScanRateLimit,
+  publicScanRefusalReasons,
   scanAccessTokenMatches,
   scanTokenCost,
   type RateLimitStore
@@ -128,6 +129,35 @@ test("publicScanGateStatus reflects the edge gate's admission rules", () => {
   );
   // Neither token nor explicit open access: refused (not open, not authenticated).
   assert.deepEqual(publicScanGateStatus({}), { authenticated: false, openAccess: false, turnstile: false });
+});
+
+test("publicScanRefusalReasons names every configuration that fails all scans closed", () => {
+  // A healthy gated scanner and a healthy open scanner refuse nothing.
+  assert.deepEqual(publicScanRefusalReasons({ accessToken: "t", rateLimitStoreBound: false }), []);
+  assert.deepEqual(
+    publicScanRefusalReasons({ allowUnauthenticated: "1", turnstileSecret: "secret", rateLimitStoreBound: true }),
+    []
+  );
+
+  // No token and not explicitly opened: every scan 503s and health must say so.
+  const closed = publicScanRefusalReasons({ rateLimitStoreBound: true });
+  assert.equal(closed.length, 1);
+  assert.match(closed[0], /unauthenticated scans are not enabled/);
+
+  // Open without Turnstile (and without the explicit waiver): every scan 503s.
+  const noTurnstile = publicScanRefusalReasons({ allowUnauthenticated: "1", rateLimitStoreBound: true });
+  assert.equal(noTurnstile.length, 1);
+  assert.match(noTurnstile[0], /Turnstile is not configured/);
+  // The explicit waiver clears that refusal.
+  assert.deepEqual(
+    publicScanRefusalReasons({ allowUnauthenticated: "1", acceptNoTurnstileRisk: "1", rateLimitStoreBound: true }),
+    []
+  );
+
+  // Open without the KV rate-limit binding: every scan 503s.
+  const noKv = publicScanRefusalReasons({ allowUnauthenticated: "1", turnstileSecret: "secret", rateLimitStoreBound: false });
+  assert.equal(noKv.length, 1);
+  assert.match(noKv[0], /RATE_LIMITS_KV/);
 });
 
 test("publicScanRateLimit parses overrides and falls back", () => {

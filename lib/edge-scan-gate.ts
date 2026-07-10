@@ -71,6 +71,43 @@ export function publicScanGateStatus(config: {
 }
 
 /**
+ * Configurations under which the gate refuses EVERY scan with a 503, mirroring
+ * gateScanRequest's fail-closed branches exactly. `/api/health` must surface
+ * these as degraded status instead of reporting a green scanner that cannot
+ * accept a single scan.
+ */
+export function publicScanRefusalReasons(config: {
+  accessToken?: string;
+  allowUnauthenticated?: string;
+  turnstileSecret?: string;
+  acceptNoTurnstileRisk?: string;
+  rateLimitStoreBound: boolean;
+}): string[] {
+  const gate = publicScanGateStatus(config);
+  if (gate.authenticated) return [];
+
+  if (!gate.openAccess) {
+    return ["No access token is configured and unauthenticated scans are not enabled; every scan request returns 503."];
+  }
+
+  const reasons: string[] = [];
+  if (
+    openScanBlockedForMissingTurnstile({
+      turnstileSecret: config.turnstileSecret,
+      acceptNoTurnstileRisk: config.acceptNoTurnstileRisk
+    })
+  ) {
+    reasons.push(
+      "Open access is enabled but Turnstile is not configured (and not explicitly waived); every scan request returns 503."
+    );
+  }
+  if (!config.rateLimitStoreBound) {
+    reasons.push("Open access is enabled but the RATE_LIMITS_KV binding is missing; every scan request returns 503.");
+  }
+  return reasons;
+}
+
+/**
  * In open (unauthenticated) scan mode, Turnstile is the human-verification cost
  * control. If it is neither configured nor explicitly waived, the gate should
  * fail closed rather than serve an open scanner with only best-effort rate

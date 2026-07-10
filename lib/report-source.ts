@@ -17,12 +17,12 @@ export async function readReportForId(id: string, rootDir = process.cwd()): Prom
   // The static export has no filesystem share store; avoid bundling it there.
   if (process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1") return null;
 
-  try {
-    const { readScanReport } = await import("./report-store");
-    return await readScanReport(id);
-  } catch {
-    return null;
-  }
+  // readScanReport returns null for genuinely missing/expired/corrupt reports.
+  // A thrown backend failure (store outage, bad credentials) must PROPAGATE:
+  // swallowing it here turned an unavailable store into a false "not found"
+  // for every report it holds.
+  const { readScanReport } = await import("./report-store");
+  return readScanReport(id);
 }
 
 async function readPublicReport(id: string, rootDir: string): Promise<ScanReport | null> {

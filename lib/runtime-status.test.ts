@@ -6,12 +6,34 @@ const SCAN_ACCESS_TOKEN_ENV = "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN";
 const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
 const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
 const ALLOW_UNAUTHENTICATED_SCANS_ENV = "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS";
+const REPORT_STORE_BACKEND_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND";
 
 afterEach(() => {
   delete process.env[SCAN_ACCESS_TOKEN_ENV];
   delete process.env[REPORT_STORE_DIR_ENV];
   delete process.env[SCANNER_EGRESS_ENV];
   delete process.env[ALLOW_UNAUTHENTICATED_SCANS_ENV];
+  delete process.env[REPORT_STORE_BACKEND_ENV];
+});
+
+test("runtimeStatus degrades instead of throwing when the store backend is misconfigured", async () => {
+  // r2 selected with none of its credentials set: constructing the backend
+  // throws, and /api/health is exactly the endpoint an operator checks when
+  // the configuration is broken, so it must answer, degraded.
+  process.env[REPORT_STORE_BACKEND_ENV] = "r2";
+  process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+
+  const status = await runtimeStatus(loadedAdblock);
+  assert.equal(status.ok, true);
+  assert.equal(status.status, "degraded");
+  assert.equal(status.checks.reportStore.kind, "unavailable");
+  // A broken store cannot save or serve reports; the UI must not offer share links.
+  assert.equal(status.capabilities.savedReports, false);
+  assert.equal(
+    status.warnings.some((warning) => warning.includes("report store backend is misconfigured")),
+    true
+  );
 });
 
 test("runtimeStatus reports degraded status for open local defaults", async () => {
