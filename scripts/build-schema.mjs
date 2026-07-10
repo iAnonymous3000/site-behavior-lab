@@ -25,7 +25,11 @@ import { createGenerator } from "ts-json-schema-generator";
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 export const SCHEMA_ID = "https://sitebehavior.org/schemas/scan-report.v2.r1.schema.json";
+export const R2_SCHEMA_ID = "https://sitebehavior.org/schemas/scan-report.v2.r2.schema.json";
 const REVISIONED_PATH = path.join(rootDir, "public", "schemas", "scan-report.v2.r1.schema.json");
+const R2_REVISIONED_PATH = path.join(rootDir, "public", "schemas", "scan-report.v2.r2.schema.json");
+// The stable alias stays on r1 until after complete dual-read consumer
+// migration (RFC 14.9); publishing r2 does NOT move it.
 const ALIAS_PATH = path.join(rootDir, "public", "scan-report.schema.json");
 
 /**
@@ -36,6 +40,12 @@ const ALIAS_PATH = path.join(rootDir, "public", "scan-report.schema.json");
  * (scan-report.v2.r2.schema.json), never into r1.
  */
 export const R1_SCHEMA_SHA256 = "7b865e6903ecdd1ecc2a5d5e848ffb320b7a1db9742dc108f603e5e21c9756a6";
+
+/**
+ * THE r2 freeze: pinned at publication (2026-07-10) with the same discipline
+ * as r1. It never changes; new shapes belong in a future revision's file.
+ */
+export const R2_SCHEMA_SHA256 = "539a0fbdcf2e06c41fa4e8662209d275a4e59364153137ab7c4a9f41c5b7c0c7";
 
 export function generateScanReportV2Schema() {
   const schema = createGenerator({
@@ -48,17 +58,40 @@ export function generateScanReportV2Schema() {
   return { $id: SCHEMA_ID, ...schema };
 }
 
+export function generateScanReportV2R2Schema() {
+  const schema = createGenerator({
+    path: path.join(rootDir, "lib", "scan-report-v2-r2.ts"),
+    type: "PublicScanReportV2R2",
+    skipTypeCheck: true,
+    additionalProperties: false,
+    topRef: true
+  }).createSchema("PublicScanReportV2R2");
+  return { $id: R2_SCHEMA_ID, ...schema };
+}
+
 function main() {
   // Atomicity: verify the freeze BEFORE any other side effect (including the
   // validator-artifact compile), so a rejected mutation leaves nothing behind.
   const schema = generateScanReportV2Schema();
   const serialized = `${JSON.stringify(schema, null, 2)}\n`;
+  const r2Schema = generateScanReportV2R2Schema();
+  const r2Serialized = `${JSON.stringify(r2Schema, null, 2)}\n`;
   const digest = createHash("sha256").update(serialized).digest("hex");
   if (digest !== R1_SCHEMA_SHA256) {
     console.error(
       `FATAL: generated r1 schema hash ${digest} does not match the frozen ${R1_SCHEMA_SHA256}.\n` +
         "The published v2 r1 schema is immutable. If the r1 types changed, revert them; " +
         "new shapes belong in a new revision (scan-report.v2.r2.schema.json), never in r1."
+    );
+    process.exit(1);
+  }
+
+  const r2Digest = createHash("sha256").update(r2Serialized).digest("hex");
+  if (r2Digest !== R2_SCHEMA_SHA256) {
+    console.error(
+      `FATAL: generated r2 schema hash ${r2Digest} does not match the frozen ${R2_SCHEMA_SHA256}.\n` +
+        "The published v2 r2 schema is immutable. If the r2 types changed, revert them; " +
+        "new shapes belong in a new revision, never in a published one."
     );
     process.exit(1);
   }
@@ -70,8 +103,13 @@ function main() {
 
   mkdirSync(path.dirname(REVISIONED_PATH), { recursive: true });
   writeFileSync(REVISIONED_PATH, serialized);
+  writeFileSync(R2_REVISIONED_PATH, r2Serialized);
+  // The alias intentionally keeps serving r1 (RFC 14.9).
   writeFileSync(ALIAS_PATH, serialized);
-  console.log(`Schema written to ${path.relative(rootDir, REVISIONED_PATH)} (+ stable alias), validator artifact in dist/schema/.`);
+  console.log(
+    `Schemas written: ${path.relative(rootDir, REVISIONED_PATH)}, ${path.relative(rootDir, R2_REVISIONED_PATH)} ` +
+      "(+ stable alias on r1), validator artifact in dist/schema/."
+  );
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

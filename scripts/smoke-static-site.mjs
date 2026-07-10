@@ -70,7 +70,18 @@ async function main() {
     if (JSON.stringify(aliasSchema) !== JSON.stringify(revisionedSchema)) {
       fail("stable schema alias does not match the current revision");
     }
-    pass("scan-report v2 schema published (revisioned file + stable alias)");
+    const r2Response = await fetch(`${baseUrl}/schemas/scan-report.v2.r2.schema.json`);
+    if (!r2Response.ok) fail(`r2 revisioned schema not served (${r2Response.status})`);
+    const r2Schema = await r2Response.json();
+    if (r2Schema.$id !== "https://sitebehavior.org/schemas/scan-report.v2.r2.schema.json") {
+      fail("r2 revisioned schema has the wrong $id");
+    }
+    // The stable alias must STILL serve r1 (RFC 14.9: it moves only after
+    // complete dual-read consumer migration).
+    if (JSON.stringify(aliasSchema) === JSON.stringify(r2Schema)) {
+      fail("the stable alias must not serve r2 before consumer migration completes");
+    }
+    pass("scan-report v2 schemas published (r1 + r2 revisioned files, stable alias on r1)");
 
     if (liveScanApiBase) {
       await expectText(page.locator(".status-pill"), "Live");

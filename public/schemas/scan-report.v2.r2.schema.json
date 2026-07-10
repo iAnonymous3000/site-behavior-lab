@@ -1,0 +1,3114 @@
+{
+  "$id": "https://sitebehavior.org/schemas/scan-report.v2.r2.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/PublicScanReportV2R2",
+  "definitions": {
+    "PublicScanReportV2R2": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/PublicSingleReportV2R2"
+        },
+        {
+          "$ref": "#/definitions/PublicComparisonReportV2R2"
+        }
+      ]
+    },
+    "PublicSingleReportV2R2": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaRevision": {
+          "type": "number",
+          "const": 2
+        },
+        "run": {
+          "$ref": "#/definitions/ScanRunV2R2"
+        },
+        "schemaVersion": {
+          "type": "number",
+          "const": 2
+        },
+        "reportType": {
+          "type": "string",
+          "const": "single"
+        },
+        "share": {
+          "$ref": "#/definitions/ReportShare"
+        }
+      },
+      "required": [
+        "reportType",
+        "run",
+        "schemaRevision",
+        "schemaVersion"
+      ]
+    },
+    "ScanRunV2R2": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "$ref": "#/definitions/RunEvidenceR2"
+        },
+        "verificationFacts": {
+          "type": "object",
+          "properties": {
+            "gpc": {
+              "$ref": "#/definitions/GpcVerificationFactsR2"
+            },
+            "shields": {
+              "$ref": "#/definitions/ShieldsVerificationFactsR2"
+            }
+          },
+          "additionalProperties": false
+        },
+        "runId": {
+          "type": "string"
+        },
+        "startedAt": {
+          "type": "string",
+          "description": "ISO 8601, per run (v1 comparisons shared one root scannedAt)."
+        },
+        "subject": {
+          "$ref": "#/definitions/SubjectIdentity"
+        },
+        "conditions": {
+          "$ref": "#/definitions/ConditionVector"
+        },
+        "provenance": {
+          "$ref": "#/definitions/Provenance"
+        },
+        "toolchain": {
+          "$ref": "#/definitions/Toolchain"
+        },
+        "fingerprints": {
+          "$ref": "#/definitions/Fingerprints"
+        },
+        "qualityFacts": {
+          "$ref": "#/definitions/QualityFacts"
+        },
+        "quality": {
+          "$ref": "#/definitions/Quality"
+        },
+        "privacy": {
+          "$ref": "#/definitions/PrivacyStats"
+        },
+        "detectors": {
+          "$ref": "#/definitions/DetectorLedger"
+        },
+        "phases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PhaseSpan"
+          }
+        },
+        "summary": {
+          "$ref": "#/definitions/RunSummary"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Scanner-vocabulary strings only (RFC 9.4)."
+        }
+      },
+      "required": [
+        "conditions",
+        "detectors",
+        "evidence",
+        "fingerprints",
+        "phases",
+        "privacy",
+        "provenance",
+        "quality",
+        "qualityFacts",
+        "runId",
+        "startedAt",
+        "subject",
+        "summary",
+        "toolchain",
+        "warnings"
+      ]
+    },
+    "RunEvidenceR2": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "consent": {
+          "$ref": "#/definitions/ConsentEvidenceR2"
+        },
+        "requests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NetworkRequestRecordV2"
+          }
+        },
+        "cookieMutations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CookieMutation"
+          }
+        },
+        "cookiesFinal": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CookieRecordV2"
+          }
+        },
+        "storageMutations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StorageMutation"
+          }
+        },
+        "storageFinal": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StorageRecordV2"
+          }
+        },
+        "fingerprintEvents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phaseId": {
+                "$ref": "#/definitions/PhaseId"
+              },
+              "api": {
+                "type": "string"
+              },
+              "count": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "api",
+              "count",
+              "phaseId"
+            ]
+          }
+        },
+        "fingerprintDetections": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "phaseId": {
+                    "$ref": "#/definitions/PhaseId"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "const": "canvas-fingerprinting"
+                  },
+                  "heuristic": {
+                    "type": "string",
+                    "const": "openwpm-canvas-v1"
+                  },
+                  "count": {
+                    "type": "number"
+                  },
+                  "evidence": {
+                    "type": "object",
+                    "properties": {
+                      "readApis": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "maxCanvasWidth": {
+                        "type": "number"
+                      },
+                      "maxCanvasHeight": {
+                        "type": "number"
+                      },
+                      "maxDistinctTextCharacters": {
+                        "type": "number"
+                      },
+                      "maxTextWriteCalls": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "readApis",
+                      "maxCanvasWidth",
+                      "maxCanvasHeight",
+                      "maxDistinctTextCharacters",
+                      "maxTextWriteCalls"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "count",
+                  "evidence",
+                  "heuristic",
+                  "kind",
+                  "phaseId"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "phaseId": {
+                    "$ref": "#/definitions/PhaseId"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "const": "canvas-font-fingerprinting"
+                  },
+                  "heuristic": {
+                    "type": "string",
+                    "const": "canvas-font-probing-v1"
+                  },
+                  "count": {
+                    "type": "number"
+                  },
+                  "evidence": {
+                    "type": "object",
+                    "properties": {
+                      "measureTextCalls": {
+                        "type": "number"
+                      },
+                      "maxDistinctFonts": {
+                        "type": "number"
+                      },
+                      "maxDistinctTextSamples": {
+                        "type": "number"
+                      },
+                      "maxTextLength": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "measureTextCalls",
+                      "maxDistinctFonts",
+                      "maxDistinctTextSamples",
+                      "maxTextLength"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "count",
+                  "evidence",
+                  "heuristic",
+                  "kind",
+                  "phaseId"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "phaseId": {
+                    "$ref": "#/definitions/PhaseId"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "const": "webgl-fingerprinting"
+                  },
+                  "heuristic": {
+                    "type": "string",
+                    "const": "webgl-entropy-read-v1"
+                  },
+                  "count": {
+                    "type": "number"
+                  },
+                  "evidence": {
+                    "type": "object",
+                    "properties": {
+                      "readApis": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "parameters": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "getParameterCalls": {
+                        "type": "number"
+                      },
+                      "readPixelsCalls": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "readApis",
+                      "parameters",
+                      "getParameterCalls",
+                      "readPixelsCalls"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "count",
+                  "evidence",
+                  "heuristic",
+                  "kind",
+                  "phaseId"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "phaseId": {
+                    "$ref": "#/definitions/PhaseId"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "const": "audio-fingerprinting"
+                  },
+                  "heuristic": {
+                    "type": "string",
+                    "const": "audio-rendering-v1"
+                  },
+                  "count": {
+                    "type": "number"
+                  },
+                  "evidence": {
+                    "type": "object",
+                    "properties": {
+                      "apis": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "offlineRenderCalls": {
+                        "type": "number"
+                      },
+                      "oscillatorCalls": {
+                        "type": "number"
+                      },
+                      "compressorCalls": {
+                        "type": "number"
+                      },
+                      "analyserCalls": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "apis",
+                      "offlineRenderCalls",
+                      "oscillatorCalls",
+                      "compressorCalls",
+                      "analyserCalls"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "count",
+                  "evidence",
+                  "heuristic",
+                  "kind",
+                  "phaseId"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "phaseId": {
+                    "$ref": "#/definitions/PhaseId"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "const": "webrtc-fingerprinting"
+                  },
+                  "heuristic": {
+                    "type": "string",
+                    "const": "webrtc-peerconnection-v1"
+                  },
+                  "count": {
+                    "type": "number"
+                  },
+                  "evidence": {
+                    "type": "object",
+                    "properties": {
+                      "constructorCalls": {
+                        "type": "number"
+                      },
+                      "createDataChannelCalls": {
+                        "type": "number"
+                      },
+                      "createOfferCalls": {
+                        "type": "number"
+                      },
+                      "setLocalDescriptionCalls": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "constructorCalls",
+                      "createDataChannelCalls",
+                      "createOfferCalls",
+                      "setLocalDescriptionCalls"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "count",
+                  "evidence",
+                  "heuristic",
+                  "kind",
+                  "phaseId"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "phaseId": {
+                    "$ref": "#/definitions/PhaseId"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "const": "session-recording"
+                  },
+                  "heuristic": {
+                    "type": "string",
+                    "const": "interaction-listener-coverage-v1"
+                  },
+                  "count": {
+                    "type": "number"
+                  },
+                  "evidence": {
+                    "type": "object",
+                    "properties": {
+                      "eventTypes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "listenerTargets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "thirdPartyOrigins": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "totalListenerCalls": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "eventTypes",
+                      "listenerTargets",
+                      "thirdPartyOrigins",
+                      "totalListenerCalls"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "count",
+                  "evidence",
+                  "heuristic",
+                  "kind",
+                  "phaseId"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "phaseId": {
+                    "$ref": "#/definitions/PhaseId"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "const": "input-monitoring"
+                  },
+                  "heuristic": {
+                    "type": "string",
+                    "const": "input-listener-coverage-v1"
+                  },
+                  "count": {
+                    "type": "number"
+                  },
+                  "evidence": {
+                    "type": "object",
+                    "properties": {
+                      "eventTypes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "listenerTargets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "thirdPartyOrigins": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "totalListenerCalls": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "eventTypes",
+                      "listenerTargets",
+                      "thirdPartyOrigins",
+                      "totalListenerCalls"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "count",
+                  "evidence",
+                  "heuristic",
+                  "kind",
+                  "phaseId"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "phaseId": {
+                    "$ref": "#/definitions/PhaseId"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "const": "keystroke-exfiltration"
+                  },
+                  "heuristic": {
+                    "type": "string",
+                    "const": "input-sentinel-exfiltration-v1"
+                  },
+                  "count": {
+                    "type": "number"
+                  },
+                  "evidence": {
+                    "type": "object",
+                    "properties": {
+                      "recipients": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Third-party domains the sentinel was sent to."
+                      },
+                      "encodings": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Encodings the sentinel appeared in (plain, base64, hex, sha256, ...)."
+                      },
+                      "fieldsTyped": {
+                        "type": "number",
+                        "description": "How many form fields the probe typed into."
+                      },
+                      "fieldTypes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "The input types probed (text, email, password, search, ...)."
+                      }
+                    },
+                    "required": [
+                      "recipients",
+                      "encodings",
+                      "fieldsTyped",
+                      "fieldTypes"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "count",
+                  "evidence",
+                  "heuristic",
+                  "kind",
+                  "phaseId"
+                ]
+              }
+            ]
+          }
+        },
+        "cnameCloaks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CnameCloak"
+          }
+        },
+        "pixelEvents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phaseId": {
+                "$ref": "#/definitions/PhaseId"
+              },
+              "platform": {
+                "type": "string",
+                "description": "Catalogue entity name (e.g. \"Meta\"), aligned with HEADLINE_PLATFORMS."
+              },
+              "product": {
+                "type": "string",
+                "description": "Human-facing pixel product name (e.g. \"Meta Pixel\")."
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Event names observed (configuration signals, never visitor PII)."
+              },
+              "advancedMatching": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/PixelMatchField"
+                },
+                "description": "Personal-data categories attached, detected by key presence only."
+              },
+              "requests": {
+                "type": "number",
+                "description": "Pixel requests observed for this platform in this visit."
+              }
+            },
+            "required": [
+              "advancedMatching",
+              "events",
+              "phaseId",
+              "platform",
+              "product",
+              "requests"
+            ]
+          }
+        },
+        "privacyPolicy": {
+          "$ref": "#/definitions/PrivacyPolicySummary"
+        }
+      },
+      "required": [
+        "cnameCloaks",
+        "cookieMutations",
+        "cookiesFinal",
+        "fingerprintDetections",
+        "fingerprintEvents",
+        "pixelEvents",
+        "requests",
+        "storageFinal",
+        "storageMutations"
+      ]
+    },
+    "ConsentEvidenceR2": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "verificationObservations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ConsentVerificationObservationR2"
+          }
+        },
+        "bannerTransition": {
+          "$ref": "#/definitions/BannerTransitionR2"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "accept-all",
+            "reject-all"
+          ]
+        },
+        "interactionAttempted": {
+          "type": "boolean"
+        },
+        "controlActivated": {
+          "type": "boolean",
+          "description": "A control was actually clicked (v1 `clicked`)."
+        },
+        "choiceState": {
+          "$ref": "#/definitions/ConsentChoiceState",
+          "description": "Derived by the shared evaluator from the observations."
+        },
+        "reverifiedAfterReload": {
+          "type": "boolean",
+          "description": "true iff a post-choice-reload observation exists and agrees."
+        },
+        "verificationFailureReason": {
+          "type": "string"
+        },
+        "cmp": {
+          "type": "string"
+        },
+        "selector": {
+          "type": "string"
+        },
+        "matchedText": {
+          "type": "string"
+        },
+        "frameUrl": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "choiceState",
+        "controlActivated",
+        "interactionAttempted",
+        "mode",
+        "reverifiedAfterReload",
+        "verificationObservations"
+      ]
+    },
+    "ConsentVerificationObservationR2": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/ConsentObservationResultR2"
+        },
+        "phaseId": {
+          "$ref": "#/definitions/PhaseId"
+        },
+        "method": {
+          "type": "string",
+          "description": "Versioned interpreter id: \"tcf-api@1\", \"onetrust-cookie@1\"."
+        },
+        "observed": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ConsentObservedState"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The normalized state read; null = interpreter ran, nothing readable."
+        },
+        "consistentWithChoice": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "null when observed is null."
+        }
+      },
+      "required": [
+        "consistentWithChoice",
+        "method",
+        "observed",
+        "phaseId"
+      ]
+    },
+    "ConsentObservationResultR2": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "const": "read"
+            },
+            "sequence": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "outcome",
+            "sequence"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "const": "unreadable"
+            },
+            "sequence": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "outcome",
+            "sequence"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "const": "error"
+            },
+            "sequence": {
+              "type": "number"
+            },
+            "errorCode": {
+              "type": "string",
+              "enum": [
+                "interpreter-threw",
+                "state-format-unrecognized"
+              ]
+            }
+          },
+          "required": [
+            "outcome",
+            "sequence",
+            "errorCode"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "const": "timeout"
+            },
+            "sequence": {
+              "type": "number"
+            },
+            "errorCode": {
+              "type": "string",
+              "const": "api-timeout"
+            }
+          },
+          "required": [
+            "outcome",
+            "sequence",
+            "errorCode"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "const": "unsupported-frame"
+            },
+            "sequence": {
+              "type": "number"
+            },
+            "errorCode": {
+              "type": "string",
+              "const": "cross-origin-frame-blocked"
+            }
+          },
+          "required": [
+            "outcome",
+            "sequence",
+            "errorCode"
+          ],
+          "additionalProperties": false
+        }
+      ],
+      "description": "Structurally OPTIONAL so the r2 schema stays a superset of r1; the r2 evaluator makes it MANDATORY on every observation present in an r2 consent run. Discriminated: each outcome pins its allowed error code."
+    },
+    "PhaseId": {
+      "type": "number"
+    },
+    "ConsentObservedState": {
+      "type": "string",
+      "enum": [
+        "accepted-all",
+        "rejected-all",
+        "partial",
+        "unknown"
+      ],
+      "description": "Normalized consent state (RFC 9.4): never the raw CMP payload. Interpreters map whatever they read into this closed vocabulary before anything persists."
+    },
+    "BannerTransitionR2": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "const": "banner-visibility@1"
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "moment": {
+                "$ref": "#/definitions/BannerTransitionMomentR2"
+              },
+              "phaseId": {
+                "$ref": "#/definitions/PhaseId"
+              },
+              "atMs": {
+                "type": "number",
+                "description": "Must lie inside the referenced phase's span; strictly before < after (< reload)."
+              },
+              "visible": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "moment",
+              "phaseId",
+              "atMs",
+              "visible"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "method",
+        "observations"
+      ],
+      "additionalProperties": false
+    },
+    "BannerTransitionMomentR2": {
+      "type": "string",
+      "enum": [
+        "before-interaction",
+        "after-interaction",
+        "after-reload"
+      ]
+    },
+    "ConsentChoiceState": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "contradicted",
+        "weak-signal",
+        "unavailable",
+        "failed"
+      ]
+    },
+    "NetworkRequestRecordV2": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "phaseId": {
+          "$ref": "#/definitions/PhaseId"
+        },
+        "id": {
+          "type": "number"
+        },
+        "url": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "status": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "thirdParty": {
+          "type": "boolean"
+        },
+        "tracker": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TrackerMatch"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "blockedByShields": {
+          "type": "boolean"
+        },
+        "provenance": {
+          "$ref": "#/definitions/NetworkRequestProvenance"
+        },
+        "startedAtMs": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "domain",
+        "id",
+        "method",
+        "phaseId",
+        "resourceType",
+        "startedAtMs",
+        "status",
+        "thirdParty",
+        "tracker",
+        "url"
+      ]
+    },
+    "TrackerMatch": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "entity": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "curated",
+            "shields-list"
+          ]
+        },
+        "prevalence": {
+          "type": "number"
+        },
+        "fingerprinting": {
+          "type": "number"
+        },
+        "cookiePrevalence": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "domain",
+        "entity",
+        "category",
+        "confidence"
+      ],
+      "additionalProperties": false
+    },
+    "NetworkRequestProvenance": {
+      "type": "object",
+      "properties": {
+        "graphRecordId": {
+          "type": "string"
+        },
+        "initiatorId": {
+          "type": "string"
+        },
+        "initiatorType": {
+          "type": "string"
+        },
+        "initiatorUrl": {
+          "type": "string"
+        },
+        "initiatorDomain": {
+          "type": "string"
+        },
+        "scriptId": {
+          "type": "string"
+        },
+        "scriptUrl": {
+          "type": "string"
+        },
+        "scriptDomain": {
+          "type": "string"
+        },
+        "injectedById": {
+          "type": "string"
+        },
+        "injectedByUrl": {
+          "type": "string"
+        },
+        "injectedByDomain": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CookieMutation": {
+      "type": "object",
+      "properties": {
+        "phaseId": {
+          "$ref": "#/definitions/PhaseId"
+        },
+        "op": {
+          "type": "string",
+          "enum": [
+            "added",
+            "changed",
+            "removed"
+          ]
+        },
+        "cookie": {
+          "$ref": "#/definitions/CookieRecordV2",
+          "description": "State after the op (or last state, for \"removed\")."
+        }
+      },
+      "required": [
+        "phaseId",
+        "op",
+        "cookie"
+      ],
+      "additionalProperties": false
+    },
+    "CookieRecordV2": {
+      "$ref": "#/definitions/CookieRecord"
+    },
+    "CookieRecord": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "sameSite": {
+          "type": "string"
+        },
+        "secure": {
+          "type": "boolean"
+        },
+        "httpOnly": {
+          "type": "boolean"
+        },
+        "session": {
+          "type": "boolean"
+        },
+        "thirdParty": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "domain",
+        "path",
+        "sameSite",
+        "secure",
+        "httpOnly",
+        "session",
+        "thirdParty"
+      ],
+      "additionalProperties": false
+    },
+    "StorageMutation": {
+      "type": "object",
+      "properties": {
+        "phaseId": {
+          "$ref": "#/definitions/PhaseId"
+        },
+        "op": {
+          "type": "string",
+          "enum": [
+            "added",
+            "changed",
+            "removed"
+          ]
+        },
+        "entry": {
+          "$ref": "#/definitions/StorageRecordV2"
+        }
+      },
+      "required": [
+        "phaseId",
+        "op",
+        "entry"
+      ],
+      "additionalProperties": false
+    },
+    "StorageRecordV2": {
+      "$ref": "#/definitions/StorageRecord"
+    },
+    "StorageRecord": {
+      "type": "object",
+      "properties": {
+        "area": {
+          "type": "string",
+          "enum": [
+            "localStorage",
+            "sessionStorage"
+          ]
+        },
+        "key": {
+          "type": "string"
+        },
+        "valueBytes": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "area",
+        "key",
+        "valueBytes"
+      ],
+      "additionalProperties": false
+    },
+    "CnameCloak": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "cname": {
+          "type": "string"
+        },
+        "tracker": {
+          "$ref": "#/definitions/TrackerMatch"
+        }
+      },
+      "required": [
+        "host",
+        "cname",
+        "tracker"
+      ],
+      "additionalProperties": false,
+      "description": "A CNAME-cloaked tracker: a first-party-looking subdomain the page contacted (`host`) that is a DNS CNAME alias for a third-party tracking service (`tracker`, reached via `cname`), which request-URL matching alone misses."
+    },
+    "PixelMatchField": {
+      "type": "string",
+      "enum": [
+        "email",
+        "phone",
+        "name",
+        "address",
+        "date_of_birth",
+        "gender",
+        "external_id"
+      ],
+      "description": "A personal-data category an advertising pixel attached to its events (\"advanced matching\" in Meta's terms). Detected by parameter-key presence only: the scanner never reads, decodes, or stores the (usually hashed) value."
+    },
+    "PrivacyPolicySummary": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Redacted URL of the policy page that was read."
+        },
+        "claims": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PrivacyPolicyClaim"
+          },
+          "description": "Checkable statements matched in the policy text."
+        },
+        "mentionedEntities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Observed tracking companies whose name (or alias) appears in the policy."
+        },
+        "unmentionedEntities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Observed tracking companies never named in the policy text."
+        },
+        "policyTextLength": {
+          "type": "number",
+          "description": "Characters of policy text analyzed (evidence the fetch worked)."
+        }
+      },
+      "required": [
+        "url",
+        "claims",
+        "mentionedEntities",
+        "unmentionedEntities",
+        "policyTextLength"
+      ],
+      "additionalProperties": false,
+      "description": "What the scanner found when it read the site's own privacy policy and compared it against the observed evidence. Best-effort and Node-scanner only: the policy page is discovered from the scanned page's links and fetched through the same SSRF-guarded browser context."
+    },
+    "PrivacyPolicyClaim": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "$ref": "#/definitions/PrivacyPolicyClaimKind"
+        },
+        "quote": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "quote"
+      ],
+      "additionalProperties": false
+    },
+    "PrivacyPolicyClaimKind": {
+      "type": "string",
+      "enum": [
+        "no-cookies",
+        "no-third-party-cookies",
+        "no-selling-or-sharing",
+        "honors-gpc"
+      ],
+      "description": "A specific, checkable statement found in the site's privacy policy by a conservative sentence-level text match. `quote` is the matched sentence (capped) so a reader can verify the match in context; this is an automated text match, never a legal reading of the policy."
+    },
+    "GpcVerificationFactsR2": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "const": "gpc-header-readback@1"
+        },
+        "header": {
+          "type": "string",
+          "enum": [
+            "confirmed-present",
+            "confirmed-absent",
+            "unobservable"
+          ]
+        },
+        "jsSignal": {
+          "type": "string",
+          "enum": [
+            "confirmed-true",
+            "confirmed-false",
+            "confirmed-absent",
+            "read-failed",
+            "unobservable"
+          ]
+        },
+        "observedOn": {
+          "type": "string",
+          "const": "first-party-navigation",
+          "description": "The only scope in r2; sampled scopes are deferred to a later revision."
+        },
+        "phaseId": {
+          "$ref": "#/definitions/PhaseId",
+          "description": "Must reference a passive-load phase containing the eligible navigation."
+        }
+      },
+      "required": [
+        "method",
+        "header",
+        "jsSignal",
+        "observedOn",
+        "phaseId"
+      ],
+      "additionalProperties": false
+    },
+    "ShieldsVerificationFactsR2": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "const": "shields-engine-status@1"
+        },
+        "engineLoaded": {
+          "type": "boolean"
+        },
+        "applied": {
+          "type": "boolean"
+        },
+        "requestsEvaluated": {
+          "type": "number",
+          "description": "Nonnegative integers; actuallyBlocked <= matched <= evaluated."
+        },
+        "requestsMatched": {
+          "type": "number"
+        },
+        "requestsActuallyBlocked": {
+          "type": "number"
+        },
+        "phaseId": {
+          "$ref": "#/definitions/PhaseId",
+          "description": "The passive-load phase of the engine-status observation."
+        }
+      },
+      "required": [
+        "method",
+        "engineLoaded",
+        "applied",
+        "requestsEvaluated",
+        "requestsMatched",
+        "requestsActuallyBlocked",
+        "phaseId"
+      ],
+      "additionalProperties": false
+    },
+    "SubjectIdentity": {
+      "type": "object",
+      "properties": {
+        "requested": {
+          "$ref": "#/definitions/SubjectKey",
+          "description": "What the submitter asked for."
+        },
+        "observed": {
+          "$ref": "#/definitions/SubjectKey",
+          "description": "Derived from the FINAL url; the measured subject and comparison identity."
+        }
+      },
+      "required": [
+        "requested",
+        "observed"
+      ],
+      "additionalProperties": false
+    },
+    "SubjectKey": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "string",
+          "description": "Normalized privacy-safe origin: lowercase, IDN as punycode A-label, default port stripped, token-like subdomain labels generalized (RFC 9.1)."
+        },
+        "registrableDomain": {
+          "type": "string",
+          "description": "eTLD+1 (\"example.com\"). Public profile grouping key."
+        },
+        "routeShape": {
+          "type": "string",
+          "description": "Privacy-safe path shape (\"/products/{seg}\", RFC 9.1)."
+        }
+      },
+      "required": [
+        "origin",
+        "registrableDomain",
+        "routeShape"
+      ],
+      "additionalProperties": false
+    },
+    "ConditionVector": {
+      "type": "object",
+      "properties": {
+        "gpc": {
+          "type": "boolean"
+        },
+        "shields": {
+          "$ref": "#/definitions/ShieldsCondition"
+        },
+        "consent": {
+          "$ref": "#/definitions/ConsentCondition"
+        },
+        "device": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "desktop",
+                "mobile"
+              ]
+            },
+            "viewport": {
+              "type": "object",
+              "properties": {
+                "width": {
+                  "type": "number"
+                },
+                "height": {
+                  "type": "number"
+                },
+                "isMobile": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "width",
+                "height",
+                "isMobile"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "viewport"
+          ],
+          "additionalProperties": false
+        },
+        "probes": {
+          "type": "object",
+          "properties": {
+            "keystroke": {
+              "type": "boolean"
+            },
+            "policyVisit": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "keystroke",
+            "policyVisit"
+          ],
+          "additionalProperties": false
+        },
+        "locale": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "egress": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "region": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "label"
+          ],
+          "additionalProperties": false
+        },
+        "browser": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "headless": {
+          "type": "boolean"
+        },
+        "automation": {
+          "$ref": "#/definitions/ScanAutomation"
+        }
+      },
+      "required": [
+        "gpc",
+        "shields",
+        "consent",
+        "device",
+        "probes",
+        "locale",
+        "language",
+        "timezone",
+        "egress",
+        "browser",
+        "headless",
+        "automation"
+      ],
+      "additionalProperties": false
+    },
+    "ShieldsCondition": {
+      "type": "string",
+      "enum": [
+        "off",
+        "classification",
+        "block-simulation"
+      ]
+    },
+    "ConsentCondition": {
+      "type": "string",
+      "enum": [
+        "observe",
+        "accept-all",
+        "reject-all"
+      ]
+    },
+    "ScanAutomation": {
+      "type": "string",
+      "enum": [
+        "playwright-chromium",
+        "brave-pagegraph",
+        "external"
+      ]
+    },
+    "Provenance": {
+      "type": "object",
+      "properties": {
+        "observer": {
+          "$ref": "#/definitions/ObserverKind",
+          "description": "What measured."
+        },
+        "acquisition": {
+          "$ref": "#/definitions/AcquisitionKind",
+          "description": "What asked for the measurement; CI is an orchestrator, not a scanner."
+        },
+        "buildCommit": {
+          "type": "string",
+          "description": "Self-reported, machine-checkable metadata, not cryptographic proof."
+        },
+        "methodologyVersion": {
+          "type": "string",
+          "description": "Meaning of the numbers; distinct from schemaVersion (shape)."
+        },
+        "detectorRegistry": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "digest": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "version",
+            "digest"
+          ],
+          "additionalProperties": false,
+          "description": "The known-detector set itself is versioned."
+        },
+        "sourceArtifactDigest": {
+          "type": "string",
+          "description": "e.g. sha256 of an imported PageGraph GraphML."
+        }
+      },
+      "required": [
+        "observer",
+        "acquisition",
+        "buildCommit",
+        "methodologyVersion",
+        "detectorRegistry"
+      ],
+      "additionalProperties": false
+    },
+    "ObserverKind": {
+      "type": "string",
+      "enum": [
+        "node-playwright",
+        "browser-run-worker",
+        "pagegraph-import"
+      ]
+    },
+    "AcquisitionKind": {
+      "type": "string",
+      "enum": [
+        "public-api",
+        "operator-cli",
+        "ci-workflow",
+        "upload"
+      ]
+    },
+    "Toolchain": {
+      "type": "object",
+      "properties": {
+        "trackerCatalog": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "entries": {
+              "type": "number"
+            },
+            "digest": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "version",
+            "entries",
+            "digest"
+          ],
+          "additionalProperties": false
+        },
+        "adblock": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "string"
+                },
+                "lists": {
+                  "type": "number"
+                },
+                "fetchedAt": {
+                  "type": "string"
+                },
+                "manifestDigest": {
+                  "type": "string",
+                  "description": "Aggregate digest; keys the published immutable per-list digest manifest."
+                },
+                "engineVersion": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "source",
+                "lists",
+                "fetchedAt",
+                "manifestDigest",
+                "engineVersion"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "normalizationVersion": {
+          "type": "string",
+          "description": "URL/host canonicalization rules version (RFC section 9)."
+        }
+      },
+      "required": [
+        "trackerCatalog",
+        "adblock",
+        "normalizationVersion"
+      ],
+      "additionalProperties": false,
+      "description": "The digests/versions the fingerprints hash, stored on the run (RFC 3.5)."
+    },
+    "Fingerprints": {
+      "type": "object",
+      "properties": {
+        "execution": {
+          "type": "string",
+          "description": "Exact reproducibility: full conditions + buildCommit + methodology + registries + toolchain."
+        },
+        "measurementEnvironment": {
+          "type": "string",
+          "description": "Behavior-affecting environment EXCLUDING the intervention axes' values and buildCommit. Equal values mean \"measured the same way\"; intervention state may still differ."
+        },
+        "condition": {
+          "type": "string",
+          "description": "The complete condition vector alone. Equal values mean \"same requested setup\"."
+        }
+      },
+      "required": [
+        "execution",
+        "measurementEnvironment",
+        "condition"
+      ],
+      "additionalProperties": false,
+      "description": "RFC 3.2: three digests over canonical JSON. Stored beside their inputs (conditions, provenance, toolchain), so every fingerprint is recomputable from the report itself."
+    },
+    "QualityFacts": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "botWallTitleMatched": {
+          "type": "boolean"
+        },
+        "navigationSettled": {
+          "type": "boolean"
+        },
+        "budgetsExhausted": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "captureLoss": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CaptureLossEntry"
+          }
+        }
+      },
+      "required": [
+        "status",
+        "botWallTitleMatched",
+        "navigationSettled",
+        "budgetsExhausted",
+        "captureLoss"
+      ],
+      "additionalProperties": false,
+      "description": "Recorded facts; producers never declare quality directly (RFC 5.3)."
+    },
+    "CaptureLossEntry": {
+      "type": "object",
+      "properties": {
+        "family": {
+          "$ref": "#/definitions/EvidenceFamily"
+        },
+        "phaseId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PhaseId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "null = not attributable to a phase."
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "dropped",
+            "clipped",
+            "truncated",
+            "timeout",
+            "cap"
+          ]
+        },
+        "count": {
+          "type": "number"
+        },
+        "detail": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "family",
+        "phaseId",
+        "kind",
+        "count"
+      ],
+      "additionalProperties": false
+    },
+    "EvidenceFamily": {
+      "type": "string",
+      "enum": [
+        "requests",
+        "cookies",
+        "storage",
+        "fingerprinting",
+        "detector-output",
+        "consent-verification"
+      ]
+    },
+    "Quality": {
+      "type": "object",
+      "properties": {
+        "evaluatorVersion": {
+          "type": "string"
+        },
+        "run": {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "failed"
+              ]
+            },
+            "reasons": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/QualityReason"
+              }
+            }
+          },
+          "required": [
+            "outcome",
+            "reasons"
+          ],
+          "additionalProperties": false,
+          "description": "Run-level: did the page load produce a valid observation at all?"
+        },
+        "byFamily": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "censored"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/QualityReason"
+                  }
+                }
+              },
+              "required": [
+                "outcome",
+                "reasons"
+              ],
+              "additionalProperties": false
+            },
+            "cookies": {
+              "type": "object",
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "censored"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/QualityReason"
+                  }
+                }
+              },
+              "required": [
+                "outcome",
+                "reasons"
+              ],
+              "additionalProperties": false
+            },
+            "storage": {
+              "type": "object",
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "censored"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/QualityReason"
+                  }
+                }
+              },
+              "required": [
+                "outcome",
+                "reasons"
+              ],
+              "additionalProperties": false
+            },
+            "fingerprinting": {
+              "type": "object",
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "censored"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/QualityReason"
+                  }
+                }
+              },
+              "required": [
+                "outcome",
+                "reasons"
+              ],
+              "additionalProperties": false
+            },
+            "detector-output": {
+              "type": "object",
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "censored"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/QualityReason"
+                  }
+                }
+              },
+              "required": [
+                "outcome",
+                "reasons"
+              ],
+              "additionalProperties": false
+            },
+            "consent-verification": {
+              "type": "object",
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "censored"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/QualityReason"
+                  }
+                }
+              },
+              "required": [
+                "outcome",
+                "reasons"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "requests",
+            "cookies",
+            "storage",
+            "fingerprinting",
+            "detector-output",
+            "consent-verification"
+          ],
+          "additionalProperties": false,
+          "description": "Family-level censoring; one family's loss never contaminates another."
+        }
+      },
+      "required": [
+        "evaluatorVersion",
+        "run",
+        "byFamily"
+      ],
+      "additionalProperties": false
+    },
+    "QualityReason": {
+      "type": "string",
+      "description": "Normative initial vocabulary (RFC 5.3); extensible only with an evaluatorVersion bump. Parameterized codes use \"code:qualifier\"."
+    },
+    "PrivacyStats": {
+      "type": "object",
+      "properties": {
+        "redactionVersion": {
+          "type": "number"
+        },
+        "redaction": {
+          "type": "object",
+          "properties": {
+            "pathSegmentsGeneralized": {
+              "type": "number"
+            },
+            "queryKeysRedacted": {
+              "type": "number"
+            },
+            "storageKeysRedacted": {
+              "type": "number"
+            },
+            "cookieNamesRedacted": {
+              "type": "number"
+            },
+            "matrixParamsStripped": {
+              "type": "number"
+            },
+            "subdomainLabelsGeneralized": {
+              "type": "number"
+            },
+            "malformedUrlsDropped": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "pathSegmentsGeneralized",
+            "queryKeysRedacted",
+            "storageKeysRedacted",
+            "cookieNamesRedacted",
+            "matrixParamsStripped",
+            "subdomainLabelsGeneralized",
+            "malformedUrlsDropped"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "redactionVersion",
+        "redaction"
+      ],
+      "additionalProperties": false,
+      "description": "Redaction is expected behavior, never censoring (RFC 5.2)."
+    },
+    "DetectorLedger": {
+      "type": "object",
+      "properties": {
+        "fingerprint-heuristics": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "status": {
+              "$ref": "#/definitions/DetectorStatus"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "phaseId": {
+              "$ref": "#/definitions/PhaseId"
+            }
+          },
+          "required": [
+            "version",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "keystroke-exfiltration": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "status": {
+              "$ref": "#/definitions/DetectorStatus"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "phaseId": {
+              "$ref": "#/definitions/PhaseId"
+            }
+          },
+          "required": [
+            "version",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "cname-uncloaking": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "status": {
+              "$ref": "#/definitions/DetectorStatus"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "phaseId": {
+              "$ref": "#/definitions/PhaseId"
+            }
+          },
+          "required": [
+            "version",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "pixel-events": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "status": {
+              "$ref": "#/definitions/DetectorStatus"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "phaseId": {
+              "$ref": "#/definitions/PhaseId"
+            }
+          },
+          "required": [
+            "version",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "consent-banner": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "status": {
+              "$ref": "#/definitions/DetectorStatus"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "phaseId": {
+              "$ref": "#/definitions/PhaseId"
+            }
+          },
+          "required": [
+            "version",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "privacy-policy": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "status": {
+              "$ref": "#/definitions/DetectorStatus"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "phaseId": {
+              "$ref": "#/definitions/PhaseId"
+            }
+          },
+          "required": [
+            "version",
+            "status"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "fingerprint-heuristics",
+        "keystroke-exfiltration",
+        "cname-uncloaking",
+        "pixel-events",
+        "consent-banner",
+        "privacy-policy"
+      ],
+      "additionalProperties": false
+    },
+    "DetectorStatus": {
+      "type": "string",
+      "enum": [
+        "complete",
+        "partial",
+        "skipped",
+        "unsupported",
+        "failed"
+      ]
+    },
+    "PhaseSpan": {
+      "type": "object",
+      "properties": {
+        "phaseId": {
+          "$ref": "#/definitions/PhaseId"
+        },
+        "kind": {
+          "$ref": "#/definitions/PhaseKind"
+        },
+        "startedAtMs": {
+          "type": "number"
+        },
+        "endedAtMs": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "phaseId",
+        "kind",
+        "startedAtMs",
+        "endedAtMs"
+      ],
+      "additionalProperties": false
+    },
+    "PhaseKind": {
+      "type": "string",
+      "enum": [
+        "passive-load",
+        "consent-interaction",
+        "post-choice-reload",
+        "active-probe",
+        "policy-analysis"
+      ]
+    },
+    "RunSummary": {
+      "type": "object",
+      "properties": {
+        "pageTitle": {
+          "type": "string"
+        },
+        "status": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "durationMs": {
+          "type": "number"
+        },
+        "counts": {
+          "type": "object",
+          "properties": {
+            "totalRequests": {
+              "type": "number"
+            },
+            "thirdPartyRequests": {
+              "type": "number"
+            },
+            "knownTrackerRequests": {
+              "type": "number"
+            },
+            "thirdPartyDomains": {
+              "type": "number"
+            },
+            "cookies": {
+              "type": "number"
+            },
+            "thirdPartyCookies": {
+              "type": "number"
+            },
+            "storageEntries": {
+              "type": "number"
+            },
+            "fingerprintEvents": {
+              "type": "number"
+            },
+            "shieldsBlockedRequests": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "totalRequests",
+            "thirdPartyRequests",
+            "knownTrackerRequests",
+            "thirdPartyDomains",
+            "cookies",
+            "thirdPartyCookies",
+            "storageEntries",
+            "fingerprintEvents"
+          ],
+          "additionalProperties": false
+        },
+        "countsByPhase": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "phaseId": {
+                "$ref": "#/definitions/PhaseId"
+              },
+              "totalRequests": {
+                "type": "number"
+              },
+              "thirdPartyRequests": {
+                "type": "number"
+              },
+              "knownTrackerRequests": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "phaseId",
+              "totalRequests",
+              "thirdPartyRequests",
+              "knownTrackerRequests"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "pageTitle",
+        "status",
+        "durationMs",
+        "counts",
+        "countsByPhase"
+      ],
+      "additionalProperties": false
+    },
+    "ReportShare": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "jsonPath": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "path",
+        "jsonPath"
+      ],
+      "additionalProperties": false
+    },
+    "PublicComparisonReportV2R2": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaRevision": {
+          "type": "number",
+          "const": 2
+        },
+        "baseline": {
+          "$ref": "#/definitions/ScanRunV2R2"
+        },
+        "variant": {
+          "$ref": "#/definitions/ScanRunV2R2"
+        },
+        "experiment": {
+          "$ref": "#/definitions/ExperimentR2"
+        },
+        "schemaVersion": {
+          "type": "number",
+          "const": 2
+        },
+        "reportType": {
+          "type": "string",
+          "const": "comparison"
+        },
+        "comparability": {
+          "$ref": "#/definitions/Comparability"
+        },
+        "diff": {
+          "$ref": "#/definitions/ComparisonDiffV2"
+        },
+        "share": {
+          "$ref": "#/definitions/ReportShare"
+        }
+      },
+      "required": [
+        "baseline",
+        "comparability",
+        "diff",
+        "experiment",
+        "reportType",
+        "schemaRevision",
+        "schemaVersion",
+        "variant"
+      ]
+    },
+    "ExperimentR2": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/InterventionExperimentR2"
+        },
+        {
+          "$ref": "#/definitions/TemporalExperiment"
+        },
+        {
+          "$ref": "#/definitions/DescriptiveExperiment"
+        }
+      ]
+    },
+    "InterventionExperimentR2": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "supportingPairs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SupportingPairR2"
+          }
+        },
+        "kind": {
+          "type": "string",
+          "const": "intervention"
+        },
+        "axis": {
+          "$ref": "#/definitions/InterventionAxis"
+        },
+        "pairId": {
+          "type": "string",
+          "description": "Random id shared by both runs of the pair."
+        },
+        "order": {
+          "type": "string",
+          "enum": [
+            "AB",
+            "BA"
+          ],
+          "description": "Counterbalanced across pairs from the first v2 release."
+        },
+        "verification": {
+          "type": "object",
+          "properties": {
+            "baseline": {
+              "$ref": "#/definitions/ArmVerification"
+            },
+            "variant": {
+              "$ref": "#/definitions/ArmVerification"
+            }
+          },
+          "required": [
+            "baseline",
+            "variant"
+          ],
+          "additionalProperties": false,
+          "description": "Both arms, always (RFC 4.3)."
+        },
+        "evidence": {
+          "type": "object",
+          "properties": {
+            "pairs": {
+              "type": "number"
+            },
+            "counterbalanced": {
+              "type": "boolean"
+            },
+            "strength": {
+              "$ref": "#/definitions/EvidenceStrength"
+            }
+          },
+          "required": [
+            "pairs",
+            "counterbalanced",
+            "strength"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "axis",
+        "evidence",
+        "kind",
+        "order",
+        "pairId",
+        "verification"
+      ],
+      "description": "supportingPairs exist ONLY on intervention experiments."
+    },
+    "SupportingPairR2": {
+      "type": "object",
+      "properties": {
+        "pairId": {
+          "type": "string"
+        },
+        "order": {
+          "type": "string",
+          "enum": [
+            "AB",
+            "BA"
+          ]
+        },
+        "baseline": {
+          "$ref": "#/definitions/ScanRunV2R2",
+          "description": "COMPLETE embedded runs, never counters (RFC 15.6)."
+        },
+        "variant": {
+          "$ref": "#/definitions/ScanRunV2R2"
+        },
+        "verification": {
+          "type": "object",
+          "properties": {
+            "baseline": {
+              "$ref": "#/definitions/ArmVerification"
+            },
+            "variant": {
+              "$ref": "#/definitions/ArmVerification"
+            }
+          },
+          "required": [
+            "baseline",
+            "variant"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "pairId",
+        "order",
+        "baseline",
+        "variant",
+        "verification"
+      ],
+      "additionalProperties": false
+    },
+    "ArmVerification": {
+      "type": "object",
+      "properties": {
+        "axis": {
+          "$ref": "#/definitions/InterventionAxis"
+        },
+        "expected": {
+          "$ref": "#/definitions/AxisState",
+          "description": "The condition the arm was supposed to run under."
+        },
+        "observed": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AxisState"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "What the interpreter actually read; null = unobservable."
+        },
+        "method": {
+          "type": "string",
+          "description": "Versioned: \"gpc-header-readback@1\", \"shields-engine-status@1\", \"tcf-api@1\"."
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "passed",
+            "failed",
+            "inconclusive"
+          ]
+        },
+        "phaseId": {
+          "$ref": "#/definitions/PhaseId"
+        }
+      },
+      "required": [
+        "axis",
+        "expected",
+        "observed",
+        "method",
+        "outcome",
+        "phaseId"
+      ],
+      "additionalProperties": false
+    },
+    "InterventionAxis": {
+      "type": "string",
+      "enum": [
+        "gpc",
+        "shields",
+        "consent"
+      ],
+      "description": "The axes an experiment may move. Everything else is environment."
+    },
+    "AxisState": {
+      "type": "string",
+      "enum": [
+        "gpc:on",
+        "gpc:off",
+        "shields:off",
+        "shields:classification",
+        "shields:block-simulation",
+        "consent:observe",
+        "consent:accept-all",
+        "consent:reject-all"
+      ],
+      "description": "Closed axis-state vocabulary (RFC 9.4): arm expectations and observations are scanner-controlled codes, never page-derived strings."
+    },
+    "EvidenceStrength": {
+      "type": "string",
+      "enum": [
+        "observed-difference",
+        "replicated-difference"
+      ]
+    },
+    "TemporalExperiment": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "temporal"
+        },
+        "pairId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "pairId"
+      ],
+      "additionalProperties": false
+    },
+    "DescriptiveExperiment": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "descriptive"
+        },
+        "pairId": {
+          "type": "string"
+        },
+        "sourceOrder": {
+          "type": "string",
+          "enum": [
+            "as-provided",
+            "chronological",
+            "unknown"
+          ],
+          "description": "Ordering if known; NEVER causal."
+        }
+      },
+      "required": [
+        "kind",
+        "pairId",
+        "sourceOrder"
+      ],
+      "additionalProperties": false
+    },
+    "Comparability": {
+      "type": "object",
+      "properties": {
+        "evaluatorVersion": {
+          "type": "string"
+        },
+        "metricRegistryVersion": {
+          "type": "string"
+        },
+        "pairValidity": {
+          "type": "object",
+          "properties": {
+            "eligible": {
+              "type": "boolean"
+            },
+            "reasons": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ComparabilityReason"
+              }
+            }
+          },
+          "required": [
+            "eligible",
+            "reasons"
+          ],
+          "additionalProperties": false,
+          "description": "Structural: observed subjects match, the experiment is well-formed for its kind, and BOTH runs are run-level complete. Matching failure statuses never make a pair valid."
+        },
+        "perMetric": {
+          "type": "object",
+          "properties": {
+            "raw-counts": {
+              "type": "object",
+              "properties": {
+                "eligible": {
+                  "type": "boolean"
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ComparabilityReason"
+                  }
+                }
+              },
+              "required": [
+                "eligible",
+                "reasons"
+              ],
+              "additionalProperties": false
+            },
+            "tracker-classification": {
+              "type": "object",
+              "properties": {
+                "eligible": {
+                  "type": "boolean"
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ComparabilityReason"
+                  }
+                }
+              },
+              "required": [
+                "eligible",
+                "reasons"
+              ],
+              "additionalProperties": false
+            },
+            "shields-simulation": {
+              "type": "object",
+              "properties": {
+                "eligible": {
+                  "type": "boolean"
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ComparabilityReason"
+                  }
+                }
+              },
+              "required": [
+                "eligible",
+                "reasons"
+              ],
+              "additionalProperties": false
+            },
+            "consent-verification": {
+              "type": "object",
+              "properties": {
+                "eligible": {
+                  "type": "boolean"
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ComparabilityReason"
+                  }
+                }
+              },
+              "required": [
+                "eligible",
+                "reasons"
+              ],
+              "additionalProperties": false
+            },
+            "detector-findings": {
+              "type": "object",
+              "properties": {
+                "eligible": {
+                  "type": "boolean"
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ComparabilityReason"
+                  }
+                }
+              },
+              "required": [
+                "eligible",
+                "reasons"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "raw-counts",
+            "tracker-classification",
+            "shields-simulation",
+            "consent-verification",
+            "detector-findings"
+          ],
+          "additionalProperties": false,
+          "description": "Per metric family; split eligibility is the point (RFC example 12.3)."
+        },
+        "interventionVerified": {
+          "type": "boolean",
+          "description": "ONLY present when experiment.kind === \"intervention\": both arms passed. Gates intervention-ATTRIBUTED claims, not family eligibility."
+        }
+      },
+      "required": [
+        "evaluatorVersion",
+        "metricRegistryVersion",
+        "pairValidity",
+        "perMetric"
+      ],
+      "additionalProperties": false
+    },
+    "ComparabilityReason": {
+      "type": "string",
+      "description": "Normative initial reason vocabulary (RFC 4.4); extensible only with a metricRegistryVersion or evaluatorVersion bump."
+    },
+    "ComparisonDiffV2": {
+      "type": "object",
+      "properties": {
+        "families": {
+          "type": "object",
+          "properties": {
+            "raw-counts": {
+              "type": "object",
+              "properties": {
+                "eligible": {
+                  "type": "boolean"
+                },
+                "metrics": {
+                  "type": "object",
+                  "properties": {
+                    "totalRequests": {
+                      "$ref": "#/definitions/MetricDelta"
+                    },
+                    "thirdPartyRequests": {
+                      "$ref": "#/definitions/MetricDelta"
+                    },
+                    "thirdPartyDomains": {
+                      "$ref": "#/definitions/MetricDelta"
+                    },
+                    "cookies": {
+                      "$ref": "#/definitions/MetricDelta"
+                    },
+                    "thirdPartyCookies": {
+                      "$ref": "#/definitions/MetricDelta"
+                    },
+                    "storageEntries": {
+                      "$ref": "#/definitions/MetricDelta"
+                    }
+                  },
+                  "required": [
+                    "totalRequests",
+                    "thirdPartyRequests",
+                    "thirdPartyDomains",
+                    "cookies",
+                    "thirdPartyCookies",
+                    "storageEntries"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "eligible",
+                "metrics"
+              ],
+              "additionalProperties": false
+            },
+            "tracker-classification": {
+              "type": "object",
+              "properties": {
+                "eligible": {
+                  "type": "boolean"
+                },
+                "metrics": {
+                  "type": "object",
+                  "properties": {
+                    "knownTrackerRequests": {
+                      "$ref": "#/definitions/MetricDelta"
+                    }
+                  },
+                  "required": [
+                    "knownTrackerRequests"
+                  ],
+                  "additionalProperties": false
+                },
+                "addedTrackerDomains": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "removedTrackerDomains": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "eligible",
+                "metrics",
+                "addedTrackerDomains",
+                "removedTrackerDomains"
+              ],
+              "additionalProperties": false
+            },
+            "shields-simulation": {
+              "type": "object",
+              "properties": {
+                "eligible": {
+                  "type": "boolean"
+                },
+                "metrics": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "shieldsBlockedRequests": {
+                          "$ref": "#/definitions/MetricDelta"
+                        }
+                      },
+                      "required": [
+                        "shieldsBlockedRequests"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when either run recorded no Shields count."
+                }
+              },
+              "required": [
+                "eligible",
+                "metrics"
+              ],
+              "additionalProperties": false
+            },
+            "consent-verification": {
+              "type": "object",
+              "properties": {
+                "eligible": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "eligible"
+              ],
+              "additionalProperties": false
+            },
+            "detector-findings": {
+              "type": "object",
+              "properties": {
+                "eligible": {
+                  "type": "boolean"
+                },
+                "addedDetectionKinds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "removedDetectionKinds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "eligible",
+                "addedDetectionKinds",
+                "removedDetectionKinds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "raw-counts",
+            "tracker-classification",
+            "shields-simulation",
+            "consent-verification",
+            "detector-findings"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "families"
+      ],
+      "additionalProperties": false,
+      "description": "Normative r1 diff. Derivable from the two runs alone (the shared builder in lib/scan-report-v2-evaluators.ts is the definition; semantic validation rejects any diff that does not equal the rebuilt one), organized per metric family, carrying each family's eligibility (mirrored from comparability.perMetric) so renderers cannot show an ineligible delta."
+    },
+    "MetricDelta": {
+      "type": "object",
+      "properties": {
+        "baseline": {
+          "type": "number"
+        },
+        "variant": {
+          "type": "number"
+        },
+        "delta": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "baseline",
+        "variant",
+        "delta"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
