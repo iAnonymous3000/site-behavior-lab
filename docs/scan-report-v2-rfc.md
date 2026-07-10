@@ -1135,12 +1135,13 @@ Then the larger phases:
 
 ## 15. Revision 2 addendum (normative)
 
-> Status: **r2-a3 DRAFT, 2026-07-10, awaiting review.** Supersedes r2-a2 with six
-> narrow corrections: the complete wire-type graph, total consent derivation, a
-> nonzero-exercise Shields rule, closed GPC sampling semantics, unambiguous
-> banner transitions, and the finished redaction-manifest contract. r2
-> implementation begins on this addendum's acceptance (14.1); no further r1
-> review is warranted.
+> Status: **r2-a4 ACCEPTED, 2026-07-10.** a4 applies the final four surgical
+> corrections from the a3 review (optional discriminated observation result
+> block, Shields facts phaseId, non-contradictory zero-observation consent
+> semantics, and a storage-accurate redaction-manifest contract); everything
+> else was accepted at a3. Implementation proceeds in slices: types and
+> fixtures first, validator/evaluator next; readers, consumers, producers,
+> historical data, and the stable alias do not move during the types slice.
 
 ### 15.1 Principles and revision policy
 
@@ -1170,10 +1171,18 @@ Intersection on `ScanRunV2` alone cannot change nested consent evidence, so the
 graph is explicit, `Omit`-based, and total; these are the only r2 wire types:
 
 ```ts
+// Structurally OPTIONAL so r1 payloads stay structurally representable (15.1);
+// the r2 evaluator makes it MANDATORY on every observation that is present in
+// an r2 consent run. Discriminated: each outcome pins its allowed code.
+type ConsentObservationResultR2 =
+  | { outcome: "read"; sequence: number }
+  | { outcome: "unreadable"; sequence: number }
+  | { outcome: "error"; sequence: number; errorCode: "interpreter-threw" | "state-format-unrecognized" }
+  | { outcome: "timeout"; sequence: number; errorCode: "api-timeout" }
+  | { outcome: "unsupported-frame"; sequence: number; errorCode: "cross-origin-frame-blocked" };
+
 type ConsentVerificationObservationR2 = ConsentVerificationObservation & {
-  sequence: number;                    // 15.4: recorded order, on the wire
-  outcome: "read" | "unreadable" | "error" | "timeout" | "unsupported-frame";
-  errorCode?: "interpreter-threw" | "state-format-unrecognized" | "api-timeout" | "cross-origin-frame-blocked";
+  result?: ConsentObservationResultR2;   // 15.4: optional in the schema, required by the evaluator
 };
 
 type ConsentEvidenceR2 = Omit<ConsentEvidence, "verificationObservations"> & {
@@ -1237,6 +1246,7 @@ type ShieldsVerificationFactsR2 = {
   requestsEvaluated: number;        // nonnegative integers, all three
   requestsMatched: number;
   requestsActuallyBlocked: number;
+  phaseId: PhaseId;                 // the passive-load phase of the engine-status observation
 };
 ```
 
@@ -1279,23 +1289,22 @@ a block-simulation run; it is omitted when `engineLoaded === false`.
 requestsEvaluated > 0`; `"shields:classification"` iff `engineLoaded && !applied
 && requestsEvaluated > 0`; `"shields:off"` iff `!engineLoaded`; `observed =
 null` otherwise. An engine that evaluated nothing verified nothing: `applied`
-with zero evaluations is inconclusive, never a pass. `outcome` then follows the
-generic expected/observed rule; `method` and `phaseId` must equal the facts'.
+with zero evaluations is inconclusive, never a pass. The facts' `phaseId` must
+reference a `passive-load` phase (the engine-status observation). `outcome` then
+follows the generic expected/observed rule; the retained arm's `method` and
+`phaseId` must equal the facts'.
 
 ### 15.4 Consent observation outcomes (total derivation)
 
-Every r2 observation carries `sequence` (a nonnegative integer, unique within
-the consent evidence); the observations array MUST be ordered by `(phaseId,
-sequence)`, and "earliest" below means exactly that order. The outcome/code
-mapping is exact:
-
-| `outcome` | `observed` | `errorCode` |
-|---|---|---|
-| `"read"` | non-null | absent |
-| `"unreadable"` | null | absent (interpreter ran; no state present) |
-| `"error"` | null | required: `"interpreter-threw"` or `"state-format-unrecognized"` |
-| `"timeout"` | null | required: `"api-timeout"` |
-| `"unsupported-frame"` | null | required: `"cross-origin-frame-blocked"` |
+The observations array itself keeps its r1 structure and MAY be empty (an
+interaction that produced no interpreter reads is representable). Every
+observation that IS present in an r2 consent run must carry the `result` block
+of 15.2 (structurally optional, semantically mandatory per 15.1); the array
+MUST be ordered by `(phaseId, result.sequence)`, `sequence` values are unique
+within the evidence, and "earliest" below means exactly that order. The
+outcome/code mapping is the discriminated union itself: `"read"` iff `observed`
+is non-null; `error`/`timeout`/`unsupported-frame` pin their `errorCode`;
+`"unreadable"` and `"read"` carry none.
 
 Derived fields, all of them:
 
@@ -1317,25 +1326,30 @@ Derived fields, all of them:
   5. `unavailable`: everything else.
 - `reverifiedAfterReload` derives as: a strong observation exists in a
   `post-choice-reload` phase with outcome `"read"` and
-  `consistentWithChoice === true`.
+  `consistentWithChoice === true`. **Decision:** it is retained as exactly that
+  reload-agreement fact and MAY be `true` on an overall `contradicted` run
+  (interaction contradicted, reload agreed). It is never a verification
+  surface: `choiceState` is the only verification signal, and UI code must
+  never treat `reverifiedAfterReload` alone as verification.
 - **Singular compatibility fields** (arm `method`/`phaseId`): those of the
   earliest observation that established the derived state (`verified`: the
   post-choice-reload read; `contradicted`: the first inconsistent read;
   `failed`: the first error/timeout; `weak-signal`: the 15.5
-  after-interaction observation). For `unavailable`: the earliest recorded
-  observation of any outcome; with zero observations, `method =
-  "banner-visibility@1"` and `phaseId` = the run's `consent-interaction` phase
-  (which every consent-mode run has).
-- **Structural vs semantic**: `outcome`/`sequence` are required properties of
-  every r2 observation type; the observations array itself is structurally
-  present as in r1, and the r2 evaluator makes outcome-bearing observations
-  MANDATORY on consent-mode r2 runs (an r2 consent run without them is
-  semantically invalid, per 15.1).
-- **Interpreter compatibility key**: the consent-verification metric family's
-  compatibility key gains the interpreter set: the versioned method strings of
-  the two arms' establishing observations must be equal, and every supporting
-  pair's interpreter set must equal the primary's; a mismatch is
-  `dependency-version-mismatch:consent-interpreter` (the unknown rule applies).
+  after-interaction observation). For `unavailable` with recorded
+  observations: the earliest observation of any outcome. With ZERO
+  observations, no interpreter ran and none is fabricated: the closed
+  placeholder method `"consent-verification-unavailable@1"` is used with
+  `phaseId` = the run's `consent-interaction` phase (which every consent-mode
+  run has). The placeholder is a compatibility value only; it never appears on
+  an observation.
+- **Interpreter compatibility key**: the sorted unique set of ALL attempted
+  strong interpreter method strings across the run's observations, regardless
+  of outcome (an attempt that timed out still names the interpreter that ran).
+  The two arms' sets must be equal, and every supporting pair's set must equal
+  the primary's; a mismatch is `dependency-version-mismatch:consent-interpreter`.
+  An EMPTY set is an unknown dimension (`unknown-dimension:consent-interpreter`):
+  two runs that attempted nothing never establish consent-verification
+  compatibility.
 
 ### 15.5 Banner-transition facts (unambiguous)
 
@@ -1432,32 +1446,68 @@ type RedactionProvenanceEntry = {
 };
 ```
 
-Contract:
+Contract (written for the storage that actually exists: R2 writes today store
+only a content type, and a report write plus a sidecar write is NOT atomic):
 
+- **Location**: one sidecar per report, beside it. R2 object storage:
+  `<reportKey>.provenance.json` in the same bucket. Committed corpus:
+  `public/reports/<id>.provenance.json` (outside the report-file id pattern, so
+  corpus tooling never confuses it for a report).
 - Digesting uses the canonical JSON rules of 3.2 (sorted keys, NFC, no
   insignificant whitespace), so formatting differences between storage backends
   cannot break matching; `canonicalizationVersion` pins those rules.
-- A report matches its entry iff the recomputed `publicDigest` equals the
-  stored one; only then does the entry's `redactionVersion` apply.
+- **Failure ordering**: report first, sidecar second, no atomicity assumed. A
+  report matches its sidecar iff the recomputed `publicDigest` equals the
+  stored one; until a matching sidecar exists, provenance is UNKNOWN and the
+  report is treated as unremediated. A crash between the two writes therefore
+  fails safe (toward re-remediation, never toward false provenance).
+- **Runtime retention metadata**: from the redaction milestone on, every NEW
+  runtime share write stores `createdAt`/`expiresAt` as R2 custom metadata at
+  creation time (today's writes do not), so rewrites can preserve the original
+  clock verbatim.
 - **Write-before-known**: reports written before the manifest existed have no
-  entry and are "redaction version unknown", treated as unremediated until the
-  remediation pass (9.6) rewrites them and backfills entries. Every subsequent
-  managed write (new scan, remediation rewrite) upserts the entry in the same
-  operation.
+  sidecar and are "redaction version unknown", treated as unremediated until
+  the remediation pass (9.6) handles them. Every subsequent managed write (new
+  scan, remediation rewrite) upserts the sidecar right after the report.
+- **Bootstrap rule for legacy shares**: a runtime R2 share whose original
+  retention clock cannot be recovered (no custom metadata, predates the
+  manifest) is DELETED during remediation rather than rewritten; rewriting
+  would restart its storage timestamps and silently extend a share that was
+  due to expire. Committed corpus reports are exempt (git history preserves
+  their dates and they carry no expiry) and are rewritten and backfilled
+  normally.
 - **Retention preservation**: `createdAt`/`expiresAt` are copied from the
-  original object metadata and preserved verbatim through every rewrite; the
-  manifest is never an input to retention decisions, and a manifest entry never
+  original custom metadata and preserved verbatim through every rewrite; the
+  manifest is never an input to retention decisions, and a sidecar never
   extends or restarts a report's lifetime.
-- **Pruning**: when a managed report is pruned or expires, its manifest entry is
-  deleted in the same operation; a dangling entry (no report) is invalid and
-  removed by the next remediation pass.
-- Externally uploaded v1 reports never get entries and remain
+- **Lifecycle and pruning**: when a managed report is pruned or expires, its
+  sidecar is deleted in the same operation; a dangling sidecar (no report) is
+  invalid and removed by the next remediation pass.
+- Externally uploaded v1 reports never get sidecars and remain
   **"redaction version unknown"**.
 
 ---
 
 ## Changelog
 
+- **r2-a4 addendum (2026-07-10, ACCEPTED)**: four surgical corrections per the
+  a3 review. Observation `sequence`/`outcome` moved into an optional
+  discriminated `result` block so the r2 schema stays a structural superset
+  (the evaluator requires the block on every present observation).
+  `ShieldsVerificationFactsR2` gains `phaseId`, constrained to the passive-load
+  engine-status observation. Zero-observation consent made non-contradictory:
+  the array may be empty while present observations require their result
+  block; the zero-observation compatibility method is the closed placeholder
+  `consent-verification-unavailable@1` (banner-visibility is never fabricated);
+  the interpreter compatibility key is the sorted unique set of ALL attempted
+  strong interpreter versions with the empty set following the unknown rule;
+  `reverifiedAfterReload` is explicitly retained as reload-agreement only (may
+  be true on a contradicted run, never a verification surface). 15.8 rewritten
+  against real storage: per-report sidecar locations, report-first
+  sidecar-second failure ordering with provenance unknown until digests match,
+  custom retention metadata required on new runtime shares, sidecar lifecycle
+  and pruning, and legacy runtime shares whose retention clock cannot be
+  recovered are deleted rather than rewritten.
 - **r2-a3 addendum (2026-07-10)**: the final narrow specification pass per
   review. Complete Omit-based r2 wire-type graph (observation, consent
   evidence, run evidence, run, experiments with supportingPairs restricted to
