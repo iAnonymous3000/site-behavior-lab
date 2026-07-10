@@ -30,7 +30,7 @@ const ENTRIES: GlossaryEntry[] = [
     id: "brave-would-block",
     term: "“Matched Shields filter lists”",
     definition:
-      "The number of a page's requests that matched Brave's default filter lists while the page loaded normally (nothing was blocked). It is one of three distinct Shields numbers a report can carry, and they are deliberately never blended: matched requests (what the engine would target on this visit's traffic), requests the engine actually aborted in a Blocker-comparison visit with blocking active, and the total drop in third-party requests between the paired visits. The total drop is usually the largest, because blocking one script also prevents the requests it would have triggered."
+      "The number of a page's requests that matched Brave's default filter lists while the page loaded normally (nothing was blocked). It is one of three distinct Shields numbers a report can carry, and they are deliberately never blended: matched requests (what the engine would target on this visit's traffic), requests the engine actually aborted in a Blocker-comparison visit with blocking active, and the total drop in third-party requests between the paired visits. The total drop is usually the largest: it can include follow-on requests that never started once their sources were blocked, plus ordinary run-to-run variance between the two visits."
   },
   {
     id: "gpc",
@@ -72,7 +72,7 @@ const ENTRIES: GlossaryEntry[] = [
     id: "advertising-pixels",
     term: "Advertising pixels",
     definition:
-      "Tracking pixels from platforms like Meta, TikTok, and X. Reports decode which events each pixel fired (PageView, Purchase, and so on) and whether hashed personal-identifier fields were attached. Detection is by parameter name only; the values are never read or stored."
+      "Tracking pixels from platforms like Meta, TikTok, and X. Reports decode which events each pixel fired (PageView, Purchase, and so on) and whether personal-identifier fields were attached. Detection is by parameter name only; the values (which the platforms document as hashed) are never read or stored, so the hashing itself is not verified."
   },
   {
     id: "consent-diff",

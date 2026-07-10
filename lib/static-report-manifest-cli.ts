@@ -3,15 +3,17 @@ import path from "node:path";
 import { buildStaticReportManifest } from "./static-report-manifest";
 
 /**
- * CLI wrapper for the static gallery manifest builder. Invoked (compiled)
- * by scripts/build-static-report-manifest.mjs, which the Pages build, the
+ * CLI wrapper for the static gallery manifest builder. Invoked (compiled to
+ * the dist/schema production artifact, RFC 10.3) by
+ * scripts/build-static-report-manifest.mjs, which the Pages build, the
  * featured-scan refresh, and the scan workflows all call.
  *
  * Node-only CLI: never imported by app, worker, or browser code.
  */
 async function main(): Promise<void> {
-  // Compiled to .unit-test-dist/lib/, so the repo root is two levels up.
-  const rootDir = path.resolve(__dirname, "..", "..");
+  // The launcher runs this with cwd = repo root (works identically from the
+  // Pages builder's isolated worktree, which carries no dist/ of its own).
+  const rootDir = process.cwd();
   const reportsDir = path.join(rootDir, "public", "reports");
   await mkdir(reportsDir, { recursive: true });
 

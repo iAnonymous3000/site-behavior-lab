@@ -67,7 +67,11 @@ test("interaction warnings disclose the click or the honest failure", () => {
 
   const clicked = consentInteractionWarning({ mode: "reject-all", clicked: true, cmp: "OneTrust" });
   assert.match(clicked, /clicked "Reject all" on the OneTrust banner/);
-  assert.match(clicked, /post-choice state/);
+  // The click is dispatched, never verified as registered, and recording spans
+  // the whole visit; the disclosure must not claim a post-choice state.
+  assert.match(clicked, /dispatched, not verified/);
+  assert.match(clicked, /before and after the click/);
+  assert.doesNotMatch(clicked, /post-choice state/);
 
   const textClicked = consentInteractionWarning({ mode: "accept-all", clicked: true, matchedText: "accept all" });
   assert.match(textClicked, /a control labeled "accept all"/);

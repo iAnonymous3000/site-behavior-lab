@@ -3,15 +3,16 @@ import path from "node:path";
 import { buildCorpusStats } from "./corpus-stats-builder";
 
 /**
- * CLI wrapper for the corpus percentile builder. Invoked (compiled) by
- * scripts/build-corpus-stats.mjs, which the Pages build and the scan
- * workflows call.
+ * CLI wrapper for the corpus percentile builder. Invoked (compiled to the
+ * dist/schema production artifact, RFC 10.3) by scripts/build-corpus-stats.mjs,
+ * which the Pages build and the scan workflows call.
  *
  * Node-only CLI: never imported by app, worker, or browser code.
  */
 async function main(): Promise<void> {
-  // Compiled to .unit-test-dist/lib/, so the repo root is two levels up.
-  const rootDir = path.resolve(__dirname, "..", "..");
+  // The launcher runs this with cwd = repo root (works identically from the
+  // Pages builder's isolated worktree, which carries no dist/ of its own).
+  const rootDir = process.cwd();
   const reportsDir = path.join(rootDir, "public", "reports");
   const outPath = path.join(rootDir, "public", "corpus-stats.json");
 

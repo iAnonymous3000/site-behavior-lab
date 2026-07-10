@@ -449,7 +449,10 @@ test("a pixel that attached personal identifiers leads over the named-platform s
   const headline = buildReportHeadline(result);
   assert.equal(headline.tone, "warn");
   assert.match(headline.headline, /shop\.example sent personal identifiers to Meta Pixel\./);
-  assert.match(headline.subhead, /hashed personal identifiers \(email and phone\)/);
+  // Field presence is detected; the values' hashing is never validated, so
+  // the copy must not call the observed values hashed.
+  assert.match(headline.subhead, /personal-identifier fields \(email and phone\)/);
+  assert.doesNotMatch(headline.subhead, /hashed/);
 });
 
 test("an event-only pixel does not trigger the identifier headline", () => {

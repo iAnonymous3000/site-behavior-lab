@@ -31,11 +31,12 @@ export type CorpusExportRow = {
   gpcEnabled: boolean;
   consentMode: string;
   /**
-   * Which consent-banner choices the scanner verifiably clicked
+   * Which consent-banner choices the scanner dispatched a click for
    * ("accept-and-reject" / "accept-only" / "reject-only" / "none"); null when no
-   * interaction was attempted. Consent rows without "accept-and-reject" have at
-   * least one run still in the pre-consent state, so they are not a verified
-   * choice comparison.
+   * interaction was attempted. The click is never verified as registered by
+   * the site. Consent rows without "accept-and-reject" have at least one run
+   * still in the pre-consent state, so their diffs do not compare the two
+   * choices.
    */
   consentClicks: string | null;
   /** Lead run's top-level HTTP status; >= 400 means an error/block page, not the site. */
@@ -52,7 +53,7 @@ export type CorpusExportRow = {
 };
 
 export const CORPUS_EXPORT_NOTE =
-  "One row per published report. A single report records one automated, controlled Chromium visit; a comparison report pairs two such visits, one per compared condition. The corpus is a curated set of sites (popular, mostly commercial, plus a diversity seed list), not a random sample of the web, so treat cross-site statistics as describing this corpus only. Counts use the report's lead run (the unprotected baseline on Shields/GPC comparisons, the accept-all run on consent comparisons) and are lower bounds. On consent rows, consent_clicks records which banner choices the scanner verifiably clicked; rows without accept-and-reject have at least one run still in the pre-consent state (the scanner found no clickable control for that choice), so they are not verified choice comparisons and their diffs do not measure what the choice changed; an accept-only or reject-only row still mixes one post-click run with one pre-consent run. Rows with a status of 400 or higher reflect an error or block page (the site refusing the automated visit), not the site's normal behavior; exclude them from aggregate statistics, as this project's own percentiles and category medians do. siteCount counts distinct sites with at least one successful load. Delta fields compare a site's newest report against its previous successfully loaded report of the same kind and can reflect run-to-run variance as well as real site changes. Full methodology and per-report evidence are linked from each row.";
+  "One row per published report. A single report records one automated, controlled Chromium visit; a comparison report pairs two such visits, one per compared condition. The corpus is a curated set of sites (popular, mostly commercial, plus a diversity seed list), not a random sample of the web, so treat cross-site statistics as describing this corpus only. Counts use the report's lead run (the unprotected baseline on Shields/GPC comparisons, the accept-all run on consent comparisons) and are lower bounds. On consent rows, consent_clicks records which banner choices the scanner dispatched a click for (the click is never verified as registered by the site, and each run's counts include pre-click traffic); rows without accept-and-reject have at least one run still in the pre-consent state (the scanner found no clickable control for that choice), so their diffs do not compare the two choices; an accept-only or reject-only row still mixes one post-click run with one pre-consent run. Rows with a status of 400 or higher reflect an error or block page (the site refusing the automated visit), not the site's normal behavior; exclude them from aggregate statistics, as this project's own percentiles and category medians do. siteCount counts distinct sites with at least one successful load. Delta fields compare a site's newest report against its previous successfully loaded report of the same kind and can reflect run-to-run variance as well as real site changes. Full methodology and per-report evidence are linked from each row.";
 
 export function buildCorpusExportRows(entries: DirectoryEntry[], origin: string): CorpusExportRow[] {
   const base = origin.replace(/\/+$/, "");

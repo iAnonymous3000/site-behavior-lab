@@ -240,9 +240,14 @@ test("every producer lane still emits legacy v1", () => {
   assert.equal(comparison.schemaVersion, 1);
   assert.equal("schemaRevision" in comparison, false, "v1 wire has no revision field");
 
-  // The independently hard-coded CI publication lane cannot be imported (it is
-  // an executable script), so its pinned literal is asserted at source level.
+  // The CI publication lane delegates persistence to the compiled publisher
+  // boundary, which refuses anything but v1 until the r2 producer rollout.
+  // Neither file can be imported here (script + CLI), so the delegation and
+  // the v1-only refusal are asserted at source level.
   const ciScanSource = readFileSync(path.join(process.cwd(), "scripts", "run-ci-scan.mjs"), "utf8");
-  assert.equal(ciScanSource.includes("const scanReportSchemaVersion = 1"), true);
+  assert.equal(ciScanSource.includes("publish-scan-report-cli"), true);
   assert.equal(ciScanSource.includes("schemaRevision"), false);
+  const publisherSource = readFileSync(path.join(process.cwd(), "lib", "publish-scan-report-cli.ts"), "utf8");
+  assert.equal(publisherSource.includes("read.stored.schemaVersion !== 1"), true);
+  assert.equal(publisherSource.includes("committed corpus reports are v1 until the r2 producer rollout"), true);
 });

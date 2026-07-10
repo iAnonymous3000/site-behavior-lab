@@ -41,7 +41,7 @@ export type DirectoryEntry = {
   /** Consent mode of the report's lead run ("accept-all" on consent comparisons). */
   consentMode: string;
   /**
-   * Which consent-banner choices the scanner verifiably clicked; null on reports
+   * Which consent-banner choices the scanner dispatched a click for; null on reports
    * that never attempted a consent interaction. Anything short of
    * "accept-and-reject" on a consent comparison means at least one run reflects
    * the PRE-consent state, so the report is not evidence of post-choice behavior.

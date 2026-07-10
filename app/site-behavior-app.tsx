@@ -370,7 +370,11 @@ export function SiteBehaviorApp({
         setResult(await pollScanJob(payload.statusPath, scannerRequiresAccessKey ? accessKey : "", payload.reportId));
         return;
       }
-      setResult(payload);
+      // A synchronous scan result is untrusted wire data like every other
+      // payload: it goes through the canonical reader, never a bare cast.
+      const read = readRenderableReport(payload, "The scan result");
+      if (!read.ok) throw new Error(read.message);
+      setResult(read.report);
     } catch (scanError) {
       setError(scanError instanceof Error ? friendlyError(scanError.message) : "Scan failed.");
     } finally {
@@ -1124,13 +1128,21 @@ async function pollScanJob(statusPath: string, accessKey = "", reportId?: string
   throw new Error("Scan is still running. Try opening the saved report again shortly.");
 }
 
+/**
+ * Recovery read of a saved report. `null` means the report is genuinely not
+ * available yet (404/expired), so the caller may keep waiting or fall back to
+ * its own message. A response that EXISTS but fails the reader THROWS with the
+ * named reason: retrying cannot fix a damaged or newer-schema report, and the
+ * reason must reach the user instead of dissolving into "still running".
+ */
 async function readSavedReport(reportId: string): Promise<ScanReport | null> {
   const response = await fetch(scannerApiUrl(`/api/reports/${reportId}`), { cache: "no-store" });
   if (!response.ok) return null;
 
   const payload = (await response.json()) as unknown;
   const read = readRenderableReport(payload, "The saved report");
-  return read.ok ? read.report : null;
+  if (!read.ok) throw new Error(read.message);
+  return read.report;
 }
 
 function scanJobIdFromStatusPath(statusPath: string): string | null {

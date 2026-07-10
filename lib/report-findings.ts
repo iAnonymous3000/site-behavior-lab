@@ -264,7 +264,7 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
       conflicts.push(
         `the policy says personal information is not sold, but ${humanList(
           pixelsWithIdentifiers.map((pixel) => pixel.product)
-        )} received hashed personal identifiers with advertising events in this visit, which many regulators treat as sharing`
+        )} received personal-identifier fields with advertising events in this visit, which many regulators treat as sharing`
       );
       quotes.push(noSelling.quote);
     }
@@ -371,13 +371,13 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
           : "Advertising pixels reported specific events",
       lead:
         pixelsWithMatching.length > 0
-          ? `${humanList(pixelsWithMatching.map((pixel) => pixel.product))} sent hashed personal identifiers (${humanList(
+          ? `${humanList(pixelsWithMatching.map((pixel) => pixel.product))} attached personal-identifier fields (${humanList(
               matchingFields
-            )}) alongside the events fired in this visit.`
+            )}) to the events fired in this visit.`
           : `${humanList(pixelEvents.map((pixel) => pixel.product))} reported specific named events, not just their presence, during this visit.`,
       detail:
         pixelsWithMatching.length > 0
-          ? "Beyond detecting that a pixel is present, this reads each pixel request's event type and whether it carries advanced-matching parameters that identify you, typically a hashed email or phone, which let the platform tie this visit to a known person. The scanner records only which identifier fields were present, never their values."
+          ? "Beyond detecting that a pixel is present, this reads each pixel request's event type and whether it carries advanced-matching parameters that identify you, typically an email or phone the platforms document as hashed, which let the platform tie this visit to a known person. The scanner records only which identifier fields were present, never their values, so the hashing itself is not verified."
           : "This reads each pixel request's event type (such as PageView, ViewContent, or Purchase), not just that the pixel loaded. No advanced-matching identifier fields were observed in this passive visit; interaction-gated events could still carry them for real users.",
       evidence: humanList(pixelEvents.map(pixelEventEvidence), 4)
     });
@@ -741,7 +741,7 @@ function buildConsentComparisonFinding(report: ComparisonScanResult): Finding {
             "tracking company",
             "tracking companies"
           )}.`
-        : "No catalogued tracking company loaded in either visit; on this page the consent choice changed little because there was little to consent to.",
+        : "No catalogued tracking company loaded in either visit; on this page the two visits differed little because there was little to consent to.",
     detail:
       "A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), and the scanner cannot verify the site registered the click, so treat this as an observed difference for this pair of visits.",
     evidence

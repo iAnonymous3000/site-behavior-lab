@@ -8,8 +8,9 @@
  */
 export type ScanDevice = "desktop" | "mobile";
 // "observe" never touches the consent banner (the default; everything recorded is
-// pre-consent). "accept-all"/"reject-all" click that choice on the banner when a
-// recognizable control exists, so the visit records the post-choice state.
+// pre-consent). "accept-all"/"reject-all" dispatch that click on the banner when a
+// recognizable control exists; the visit's recording still spans before and
+// after the click, and the site's registered consent state is not verified.
 export type ConsentMode = "observe" | "accept-all" | "reject-all";
 export type ScanAutomation = "playwright-chromium" | "brave-pagegraph" | "external";
 export type ComparisonType = "gpc" | "shields" | "consent" | "temporal" | "custom";

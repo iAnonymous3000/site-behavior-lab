@@ -241,5 +241,5 @@ export function consentInteractionWarning(summary: ConsentInteractionSummary): s
     : summary.matchedText
       ? `a control labeled "${summary.matchedText}"`
       : "the consent banner";
-  return `This visit clicked "${label}" on ${via} after page load, so requests, cookies, and storage reflect the post-choice state.`;
+  return `This visit clicked "${label}" on ${via} after page load. The click was dispatched, not verified as registered by the site, and the visit's requests, cookies, and storage include traffic from before and after the click.`;
 }

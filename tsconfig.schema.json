@@ -18,7 +18,11 @@
     "lib/scan-report-reader.ts",
     "lib/scan-report-projection.ts",
     "lib/scan-report-view.ts",
-    "lib/scan-report-v1-guard.ts"
+    "lib/scan-report-v1-guard.ts",
+    "lib/static-report-manifest-cli.ts",
+    "lib/corpus-stats-builder-cli.ts",
+    "lib/publish-scan-report-cli.ts",
+    "lib/prune-static-reports-cli.ts"
   ],
   "exclude": ["node_modules", ".next", ".unit-test-dist", "dist"]
 }

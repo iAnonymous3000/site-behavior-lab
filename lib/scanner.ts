@@ -272,10 +272,12 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       warnings.add(`The page returned HTTP ${responseStatus}; this report reflects an error or block page, not a normal load.`);
     }
 
-    // Consent-choice modes: click Accept all / Reject all on the banner now, so
-    // everything collected below (cookies, storage, requests, pixels) reflects
-    // the post-choice state. Skipped on failed loads: an interstitial's banner
-    // (a challenge page's cookie notice) is not the site's consent banner.
+    // Consent-choice modes: dispatch the Accept all / Reject all click on the
+    // banner now. Collection is cumulative for the whole visit (traffic from
+    // before AND after the click), and the site's registered consent state is
+    // never verified; the report copy must say so. Skipped on failed loads: an
+    // interstitial's banner (a challenge page's cookie notice) is not the
+    // site's consent banner.
     const consentInteraction =
       payload.consentMode === "observe" || pageLoadFailed
         ? undefined

@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
+import { execFileSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { appendFile, mkdir, writeFile } from "node:fs/promises";
+import { appendFile, mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -10,7 +12,6 @@ const reportsDir = path.join(rootDir, "public", "reports");
 const baseUrl = stripTrailingSlash(process.env.BASE_URL || "http://127.0.0.1:3100");
 const targetUrl = process.env.SCAN_URL?.trim();
 const reportIdPattern = /^[0-9]{8}-[0-9a-f]{32}$/;
-const scanReportSchemaVersion = 1;
 // Titles served by common bot walls (Cloudflare, Akamai, PerimeterX, Google). A
 // report whose landing page is one of these is a challenge page, not the site, and
 // must not enter the public corpus.
@@ -50,20 +51,32 @@ try {
 
   const id = reportIdPattern.test(scanReport.share?.id || "") ? scanReport.share.id : createReportId();
   const savedReport = await fetchSavedReport(scanReport, id);
-  const publicReport = makePublicReport(savedReport, id);
 
   // Bot-detection interstitials return HTTP 200 with a challenge page, so the scan
   // "succeeds" but the report misrepresents the site (e.g. a cnn.com report with 0
   // trackers). Refuse to commit those; the caller logs it as a skipped site.
-  const blockReason = botBlockReason(publicReport);
+  const blockReason = botBlockReason(savedReport);
   if (blockReason) {
     console.error(`Skipping ${targetUrl}: ${blockReason}.`);
     process.exit(1);
   }
 
-  await mkdir(reportsDir, { recursive: true });
+  // The persistence boundary is the compiled publisher CLI (RFC 10.3 dist
+  // artifact): it deep-validates the payload, projects known fields only
+  // (never a spread of untrusted JSON), attaches the canonical share pointer,
+  // and re-validates the exact bytes before writing. A scan result that fails
+  // the canonical reader is never committed.
   const reportPath = path.join(reportsDir, `${id}.json`);
-  await writeFile(reportPath, `${JSON.stringify(publicReport, null, 2)}\n`);
+  const stagingDir = await mkdtemp(path.join(tmpdir(), "sbl-publish-"));
+  const stagingPath = path.join(stagingDir, "scan-result.json");
+  await writeFile(stagingPath, JSON.stringify(savedReport));
+  const tsc = path.join(rootDir, "node_modules", "typescript", "bin", "tsc");
+  execFileSync(process.execPath, [tsc, "-p", "tsconfig.schema.json"], { cwd: rootDir, stdio: "inherit" });
+  execFileSync(
+    process.execPath,
+    [path.join(rootDir, "dist", "schema", "lib", "publish-scan-report-cli.js"), stagingPath, reportPath, id],
+    { cwd: rootDir, stdio: "inherit" }
+  );
   await writeGithubOutput({ report_id: id, report_path: `public/reports/${id}.json` });
 
   console.log(`Wrote static report ${id} for ${targetUrl}.`);
@@ -158,31 +171,6 @@ function botBlockReason(report) {
     return `only ${totalRequests} network request(s) observed, navigation likely failed or was blocked`;
   }
   return null;
-}
-
-function makePublicReport(report, id) {
-  const share = {
-    id,
-    path: `/reports/${id}/`,
-    jsonPath: `/reports/${id}.json`
-  };
-
-  if (report.reportType === "comparison") {
-    return {
-      ...report,
-      schemaVersion: scanReportSchemaVersion,
-      share,
-      baseline: { ...report.baseline, schemaVersion: scanReportSchemaVersion, screenshot: null },
-      variant: { ...report.variant, schemaVersion: scanReportSchemaVersion, screenshot: null }
-    };
-  }
-
-  return {
-    ...report,
-    schemaVersion: scanReportSchemaVersion,
-    share,
-    screenshot: null
-  };
 }
 
 function createReportId() {

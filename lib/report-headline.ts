@@ -147,10 +147,12 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
         );
   }
 
-  // An ad pixel that attached hashed personal identifiers (advanced matching)
+  // An ad pixel that attached personal-identifier fields (advanced matching)
   // ties this visit to a known person, a stronger story than mere presence, so
   // it outranks the platform/comparison framings below. Event-only pixels carry
-  // no identifier and fall through to the named-platform line.
+  // no identifier and fall through to the named-platform line. Field PRESENCE
+  // is what the scanner reads; the platforms document the values as hashed,
+  // but that is never verified, so the copy must not assert it.
   const pixelsWithMatching = (result.pixelEvents ?? []).filter((pixel) => pixel.advancedMatching.length > 0);
   if (pixelsWithMatching.length > 0) {
     const products = joinNames(pixelsWithMatching.map((pixel) => pixel.product));
@@ -160,7 +162,7 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
     return finish(
       "warn",
       `${domain} sent personal identifiers to ${products}.`,
-      `An advertising pixel on ${domain} attached hashed personal identifiers (${fields}) to the events it reported, which lets the platform tie this visit to a known person.${extraNote}`
+      `An advertising pixel on ${domain} attached personal-identifier fields (${fields}) to the events it reported, which lets the platform tie this visit to a known person.${extraNote}`
     );
   }
 
