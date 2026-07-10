@@ -1,6 +1,6 @@
 # Deployment Topology Decision
 
-> Status: **Option B DEPLOYED, 2026-06-21; Browser Run Worker retired 2026-07-09.**
+> Status: **Option B DEPLOYED, 2026-06-21; Browser Run Worker retired and deleted from Cloudflare 2026-07-09.**
 > Workers Paid is active, and the recommended Node/Playwright container (Option B
 > below) runs on **Cloudflare Containers** at `scan.sitebehavior.org` (public behind
 > Turnstile and rate limits, with R2-backed report storage), so the Shields
@@ -8,9 +8,10 @@
 > [deploy-cloudflare-containers.md](deploy-cloudflare-containers.md)). The public front
 > door is the static **Cloudflare Pages** site at https://sitebehavior.org (the
 > published Shields-diff evidence corpus) with its scan-API base pointed at the
-> container. The Cloudflare **Browser Run Worker** is retired as a public deployment:
-> its preflight-only DNS check cannot pin the browser's eventual connection, so its
-> config now defaults to gated with no `workers.dev` alias. The analysis below is the
+> container. The Cloudflare **Browser Run Worker** is retired: its
+> preflight-only DNS check cannot pin the browser's eventual connection, so its
+> deployment was deleted from Cloudflare on 2026-07-09. The code stays in-repo for
+> self-hosting and ships gated with no `workers.dev` alias. The analysis below is the
 > decision record that led to Option B, keep it.
 
 ## Context
