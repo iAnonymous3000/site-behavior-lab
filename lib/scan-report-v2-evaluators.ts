@@ -152,7 +152,12 @@ function environmentReasons(a: ScanRunV2, b: ScanRunV2): ComparabilityReason[] {
     ["egress.label", a.conditions.egress.label, b.conditions.egress.label],
     ["egress.region", a.conditions.egress.region, b.conditions.egress.region],
     ["automation", a.conditions.automation, b.conditions.automation],
-    ["methodologyVersion", a.provenance.methodologyVersion, b.provenance.methodologyVersion]
+    ["methodologyVersion", a.provenance.methodologyVersion, b.provenance.methodologyVersion],
+    // A Playwright run and a PageGraph import do not measure equivalent
+    // things, and a normalization change rewrites domains, routes, and party
+    // classification: both are compatibility dimensions for every family.
+    ["observer", a.provenance.observer, b.provenance.observer],
+    ["normalizationVersion", a.toolchain.normalizationVersion, b.toolchain.normalizationVersion]
   ];
   let mismatch = false;
   for (const [name, left, right] of stringDimensions) {
@@ -223,16 +228,30 @@ function metricDependencyReasons(family: MetricFamily, a: ScanRunV2, b: ScanRunV
         reasons.push(`dependency-version-mismatch:${id}`);
       }
       // Detector-status eligibility: a failed detector's findings differ for
-      // tool reasons, and asymmetric statuses (ran here, skipped there) make
-      // the finding sets incomparable.
+      // tool reasons; an APPLICABLE detector that did not run to completion
+      // on both sides makes the finding sets incomparable even when the
+      // incompleteness is symmetric (two partial pixel decoders are still
+      // incomplete). Non-applicable detectors (their probe condition is off
+      // on both runs) are legitimately skipped.
       if (left.status === "failed" || right.status === "failed") {
         reasons.push(`unknown-dimension:detectorStatus.${id}`);
+      } else if (detectorApplicable(id, a) || detectorApplicable(id, b)) {
+        if (left.status !== "complete" || right.status !== "complete") {
+          reasons.push(`dependency-version-mismatch:detectorStatus.${id}`);
+        }
       } else if (left.status !== right.status) {
         reasons.push(`dependency-version-mismatch:detectorStatus.${id}`);
       }
     }
   }
   return reasons;
+}
+
+/** Probe-gated detectors are applicable only when their condition is on. */
+function detectorApplicable(id: (typeof DETECTOR_IDS)[number], run: ScanRunV2): boolean {
+  if (id === "keystroke-exfiltration") return run.conditions.probes.keystroke;
+  if (id === "privacy-policy") return run.conditions.probes.policyVisit;
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -824,6 +843,13 @@ export function scanReportV2SemanticViolations(report: PublicScanReportV2): stri
       ...armViolations(experiment.verification.variant, report.variant, experiment.axis, "variant arm"),
       ...experimentEvidenceViolations(experiment)
     );
+    // The declared execution order must match the runs' chronology: AB means
+    // the baseline actually ran first, BA means the variant did.
+    const baselineFirst = report.baseline.startedAt < report.variant.startedAt;
+    const variantFirst = report.variant.startedAt < report.baseline.startedAt;
+    if ((experiment.order === "AB" && !baselineFirst) || (experiment.order === "BA" && !variantFirst)) {
+      violations.push("experiment: declared order disagrees with the runs' chronology");
+    }
   }
 
   // The whole comparability block must equal the shared evaluator's output:

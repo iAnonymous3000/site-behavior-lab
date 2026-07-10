@@ -749,3 +749,74 @@ test("polling progress is validated to flat primitives", () => {
     assert.deepEqual(result.progress, { step: "navigating", requests: 12 });
   }
 });
+
+// ---------------------------------------------------------------------------
+// r1-only safety patch (2026-07-09 third pre-emission audit)
+// ---------------------------------------------------------------------------
+
+test("the persistence helper strips v1 screenshots", () => {
+  const withScreenshot = mutate(makeScanReportV1(), (draft) => {
+    (draft as AnyRecord).screenshot = "data:image/png;base64,SECRET";
+  });
+  const result = readScanTransportPayload(withScreenshot);
+  assert.equal(result.kind, "report");
+  if (result.kind === "report") {
+    // The immediate-response wire keeps it for the UI...
+    assert.equal(JSON.stringify(result.loaded.wire).includes("SECRET"), true);
+    // ...but the persistence/export boundary never emits it.
+    const persisted = publicWireForExportOrPersistence(result.loaded);
+    assert.equal(JSON.stringify(persisted).includes("SECRET"), false);
+  }
+});
+
+test("cross-producer pairs are never compatible", () => {
+  const baseline = makeScanRunV2({ runId: "a", startedAt: "2026-06-18T10:00:00.000Z" });
+  const variant = makeScanRunV2({ runId: "b" });
+  variant.provenance = { ...variant.provenance, observer: "pagegraph-import" };
+  const comparability = evaluateComparability({ kind: "temporal", pairId: "p" }, baseline, variant);
+  assert.equal(comparability.perMetric["raw-counts"].eligible, false);
+  assert.equal(comparability.perMetric["raw-counts"].reasons.includes("dependency-version-mismatch:environment"), true);
+});
+
+test("a normalization change invalidates every family", () => {
+  const baseline = makeScanRunV2({ runId: "a", startedAt: "2026-06-18T10:00:00.000Z" });
+  const variant = makeScanRunV2({ runId: "b" });
+  variant.toolchain = { ...variant.toolchain, normalizationVersion: "2" };
+  remintFingerprints(variant);
+  const comparability = evaluateComparability({ kind: "temporal", pairId: "p" }, baseline, variant);
+  assert.equal(comparability.perMetric["raw-counts"].eligible, false);
+  assert.equal(comparability.perMetric["tracker-classification"].eligible, false);
+});
+
+test("symmetric incomplete detectors are still incomplete", () => {
+  const baseline = makeScanRunV2({ runId: "a", startedAt: "2026-06-18T10:00:00.000Z" });
+  const variant = makeScanRunV2({ runId: "b" });
+  baseline.detectors["pixel-events"] = { version: "1", status: "partial" };
+  variant.detectors["pixel-events"] = { version: "1", status: "partial" };
+  const comparability = evaluateComparability({ kind: "temporal", pairId: "p" }, baseline, variant);
+  assert.equal(comparability.perMetric["detector-findings"].eligible, false);
+  assert.equal(
+    comparability.perMetric["detector-findings"].reasons.includes("dependency-version-mismatch:detectorStatus.pixel-events"),
+    true
+  );
+  // Probe-gated detectors stay legitimately skipped when the probe is off on
+  // both runs: the fixture's keystroke/privacy-policy skips remain eligible.
+  const clean = evaluateComparability(
+    { kind: "temporal", pairId: "p" },
+    makeScanRunV2({ runId: "c", startedAt: "2026-06-18T10:00:00.000Z" }),
+    makeScanRunV2({ runId: "d" })
+  );
+  assert.equal(clean.perMetric["detector-findings"].eligible, true);
+});
+
+test("declared order must match the runs' chronology", () => {
+  const report = mutate(makeInterventionComparisonReportV2(), (draft) => {
+    if (draft.experiment.kind === "intervention") draft.experiment.order = "BA"; // baseline actually ran first
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) {
+    assert.equal(read.error, "inconsistent");
+    assert.equal(read.violations?.some((entry) => entry.includes("chronology")), true);
+  }
+});

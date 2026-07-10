@@ -206,13 +206,32 @@ function sanitizeJobProgress(value: unknown): JobProgress | null {
 }
 
 /**
+ * v1 carries its screenshot inline on the wire (the immediate-response shape),
+ * with stripping historically applied at each save site. This helper is the
+ * boundary now, so it strips here too; otherwise a migrated persistence path
+ * would serialize the screenshot v1's strip-on-save always removed.
+ */
+function stripV1Screenshots(report: ScanReport): ScanReport {
+  if (report.reportType === "comparison") {
+    return {
+      ...report,
+      baseline: { ...report.baseline, screenshot: null },
+      variant: { ...report.variant, screenshot: null }
+    };
+  }
+  return { ...report, screenshot: null };
+}
+
+/**
  * THE serialization boundary for persistence, download, and export: the
- * original public wire report, never a view, never a storage envelope, and
- * never an ephemeral shell (an ephemeral result's only persistable form is
- * its projection, so a screenshot cannot be serialized by accident).
+ * original public wire report, never a view, never a storage envelope, never
+ * an ephemeral shell, and never an inline v1 screenshot. An ephemeral v2
+ * result resolves to its projection and a v1 report is screenshot-stripped,
+ * so no path through this helper can serialize a screenshot by accident.
  */
 export function publicWireForExportOrPersistence(loaded: LoadedReport): ScanReport | PublicScanReportV2 {
   if (loaded.source === "v2-ephemeral") return loaded.public;
+  if (loaded.source === "v1") return stripV1Screenshots(loaded.wire);
   return loaded.wire;
 }
 
