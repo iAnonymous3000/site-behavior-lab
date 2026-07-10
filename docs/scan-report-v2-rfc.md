@@ -1,9 +1,10 @@
 # RFC: ScanReport v2, the Verified Experiment Contract
 
-> Status: **v0.3 DRAFT, 2026-07-09, awaiting acceptance. Design only; no implementation
-> ships from this document.** v0.3 is the final planned revision (changelog at the end);
-> further changes only if a normative example (section 12) exposes a contradiction.
-> Successor to the v1 schema pinned at `SCAN_REPORT_SCHEMA_VERSION = 1`
+> Status: **v0.3.1 DRAFT, 2026-07-09. Architecture accepted at v0.3; this revision is
+> the surgical normative-contract correction requested in that review. To be marked
+> ACCEPTED once these corrections land with green CI; implementation step 1 follows
+> without another architecture review.** Design only; no implementation ships from this
+> document. Successor to the v1 schema pinned at `SCAN_REPORT_SCHEMA_VERSION = 1`
 > ([lib/types.ts](../lib/types.ts)). The durable job queue
 > ([scan-job-model.md](scan-job-model.md)) and domain watchlists are explicitly out of
 > scope and sequenced after this contract.
@@ -52,6 +53,7 @@ type ScanRunV2 = {
   subject: SubjectIdentity;          // section 2
   conditions: ConditionVector;       // section 3.1
   provenance: Provenance;            // section 5.1
+  toolchain: Toolchain;              // section 3.5: the digests/versions the fingerprints hash
   fingerprints: Fingerprints;        // section 3.2
   qualityFacts: QualityFacts;        // section 5.3, recorded facts
   quality: Quality;                  // section 5.3, derived by the shared evaluator
@@ -59,13 +61,13 @@ type ScanRunV2 = {
   detectors: DetectorLedger;         // section 5.4
   phases: PhaseSpan[];               // section 7
   summary: RunSummary;               // section 1.1
-  evidence: RunEvidence;             // section 7.1, phase-aware types
+  evidence: RunEvidence;             // section 7.1, phase-aware, sanitized (section 8)
   warnings: string[];                // scanner-vocabulary strings only (section 9.4)
 };
 
 type PublicSingleReportV2 = {
   schemaVersion: 2;
-  schemaRevision: number;            // section 10.2
+  schemaRevision: 1;                 // literal per revision; r2 types would say 2 (section 10.2)
   reportType: "single";
   run: ScanRunV2;
   share?: ReportShare;
@@ -73,25 +75,25 @@ type PublicSingleReportV2 = {
 
 type PublicComparisonReportV2 = {
   schemaVersion: 2;
-  schemaRevision: number;
+  schemaRevision: 1;
   reportType: "comparison";
   baseline: ScanRunV2;
   variant: ScanRunV2;
-  experiment: Experiment;            // section 4.2; `design` lives HERE and only here
+  experiment: Experiment;            // section 4.1, a discriminated union; the design lives HERE and only here
   comparability: Comparability;      // section 4.4, evaluated
-  diff: ComparisonDiffV2;            // per-metric eligibility applied (section 3.3)
+  diff: ComparisonDiffV2;            // non-normative shape (section 10.5); per-family eligibility applied
   share?: ReportShare;
 };
 ```
 
-Ephemeral counterparts (`EphemeralSingleReport`, `EphemeralComparisonReport`) are the
-same shapes plus ephemeral-only fields (screenshot, and any future immediate-response
-extras); section 8 defines the projection. The wire type is a discriminated union,
-never a synthesis (section 10.1):
+The wire type is a discriminated union, never a synthesis (section 10.1):
 
 ```ts
 type StoredScanReport = ScanReportV1 | PublicSingleReportV2 | PublicComparisonReportV2;
 ```
+
+Ephemeral report shells and the raw/sanitized evidence boundary are defined in
+section 8.
 
 ### 1.1 `RunSummary`, concrete
 
@@ -134,8 +136,9 @@ type SubjectIdentity = {
   observed: SubjectKey;              // derived from the FINAL url
 };
 type SubjectKey = {
-  origin: string;                    // normalized privacy-safe origin: lowercase, IDN as
-                                     // punycode A-label, default port stripped ("https://shop.example.com")
+  origin: string;                    // normalized privacy-safe origin (sections 9.1/9.2 host policy):
+                                     // lowercase, IDN as punycode A-label, default port stripped,
+                                     // token-like subdomain labels generalized
   registrableDomain: string;         // eTLD+1 ("example.com")
   routeShape: string;                // section 9.1 ("/products/{seg}")
 };
@@ -145,7 +148,7 @@ type SubjectKey = {
 - **Public profile grouping** is `observed.registrableDomain` (origins are display
   detail within a profile).
 - Redirects make the observed subject the measured one; `requested !== observed` is
-  itself evidence and feeds `comparability.checks.subjectMatch`.
+  itself evidence and feeds `comparability.pairValidity`.
 - **Route-specific watches (future) never use route identity in public keys.** A watch
   is a random opaque ID referencing an encrypted target URL (section 9.7). No stable
   hashes of routes, no public route identifiers: a stable hash is linkable and a
@@ -153,12 +156,12 @@ type SubjectKey = {
 
 ---
 
-## 3. Conditions and fingerprints
+## 3. Conditions, toolchain, fingerprints
 
 ### 3.1 The condition vector
 
-Conditions are an **orthogonal vector of every input the operator controls**; the
-experiment separately declares which single axis it intends to move (section 4.2):
+Conditions are an **orthogonal vector of every input the operator controls**; an
+intervention experiment separately declares which single axis it intends to move:
 
 ```ts
 type ConditionVector = {
@@ -182,21 +185,21 @@ type InterventionAxis = "gpc" | "shields" | "consent";
 
 v0.2 had a hard contradiction: its measurement fingerprint included the condition
 vector, while intervention validity required equal measurement fingerprints despite
-intentionally changing one condition. v0.3 fixes the model with three digests:
+intentionally changing one condition. The model is three digests:
 
 ```ts
 type Fingerprints = {
   // Exact reproducibility: sha256 over canonical JSON of the COMPLETE condition
   // vector + buildCommit + methodologyVersion + detectorRegistry version/digest +
-  // catalog/list digests + engine and normalization versions.
+  // the full toolchain (section 3.5).
   execution: string;
 
   // Behavior-affecting environment, EXCLUDING the intervention axes' values
   // (gpc, shields, consent are removed before hashing; device, probes, locale/tz,
   // egress, browser, headless, automation remain) + methodologyVersion + detector
-  // registry + catalog/list digests + engine/normalization versions, MINUS
-  // buildCommit. Two runs with equal measurementEnvironment fingerprints were
-  // measured the same way; they may still differ in intervention state.
+  // registry + toolchain, MINUS buildCommit. Two runs with equal
+  // measurementEnvironment fingerprints were measured the same way; they may still
+  // differ in intervention state.
   measurementEnvironment: string;
 
   // The complete condition vector alone (all axes, including intervention values),
@@ -207,7 +210,9 @@ type Fingerprints = {
 
 Canonicalization: sorted keys, no insignificant whitespace, NFC strings; the exact
 rules ship with the validator and the published schema. Digests exist for equality
-testing and indexing only, never secrecy; the full objects are always stored alongside.
+testing and indexing only, never secrecy; the hashed values are always stored on the
+run (`conditions`, `provenance`, `toolchain`), so every fingerprint is recomputable
+from the report.
 
 **The unknown rule:** any required dimension whose value is unknown (a v1-derived view,
 a failed probe of the environment) makes strict eligibility **unprovable**. Two
@@ -219,58 +224,72 @@ a failed probe of the environment) makes strict eligibility **unprovable**. Two
 Fingerprint equality is still too blunt: a filter-list update invalidates Shields
 metrics but not raw request counts. v2 ships a **metric dependency registry**, itself
 versioned (`metricRegistryVersion`, recorded in every comparability result), mapping
-each metric family to the fingerprint components it depends on:
+each metric family to the compatibility key it depends on:
+
+```ts
+type MetricFamily =
+  | "raw-counts"                // request/cookie/storage totals
+  | "tracker-classification"
+  | "shields-simulation"
+  | "consent-verification"
+  | "detector-findings";
+```
 
 | Metric family | Compatibility key (must match between runs) |
 |---|---|
-| raw request/cookie/storage counts | browser, device, locale/tz, egress, methodologyVersion |
-| tracker classification | the above + trackerCatalog digest |
-| Shields simulation (`shieldsBlockedRequests`, tried-vs-blocked) | the above + adblock manifest digest + engine version |
-| consent verification | the above + CMP interpreter versions |
-| detector findings | the above + that detector's version |
+| `raw-counts` | browser, device, locale/tz, egress, methodologyVersion |
+| `tracker-classification` | the above + trackerCatalog digest |
+| `shields-simulation` | the above + adblock manifest digest + engine version |
+| `consent-verification` | the above + CMP interpreter versions |
+| `detector-findings` | the above + that detector's version |
 
-Comparability (section 4.4) is evaluated **per metric family**: a pair can be
-temporally comparable on raw counts while ineligible on Shields metrics, and the diff
-renders exactly that. Unknown values in any key follow the unknown rule.
+Eligibility is evaluated **per metric family** (section 4.4): a pair can be temporally
+comparable on raw counts while ineligible on Shields metrics, and the diff renders
+exactly that. Unknown values in any key follow the unknown rule.
 
 ### 3.4 List digests
 
-Each run stores one **aggregate digest** over the pinned list/catalog snapshot
-(`catalogDigests.trackerCatalog`, `catalogDigests.adblockManifest`), plus engine and
-normalization versions. Separately, the repo publishes an **immutable per-list digest
-manifest** (list name, version, sha256, fetchedAt) keyed by the aggregate digest, so a
-mismatch can be diagnosed to the specific list without bloating every report.
+Each run stores one **aggregate digest** per catalog (in `toolchain`), and the repo
+publishes an **immutable per-list digest manifest** (list name, version, sha256,
+fetchedAt) keyed by the aggregate digest, so a mismatch can be diagnosed to the
+specific list without bloating every report.
+
+### 3.5 `toolchain`, stored on the run
+
+The fingerprints hash these values, so the run must store them (v0.3 referenced them
+without a home):
+
+```ts
+type Toolchain = {
+  trackerCatalog: { source: string; version: string; entries: number; digest: string };
+  adblock: {
+    source: string;
+    lists: number;
+    fetchedAt: string;
+    manifestDigest: string;          // aggregate digest, keys the published per-list manifest
+    engineVersion: string;           // vendored adblock-wasm build
+  } | null;                          // null when no engine was loaded (e.g. classification-only producers)
+  normalizationVersion: string;      // URL/host canonicalization rules version (section 9)
+};
+```
 
 ---
 
-## 4. Designs, per-arm verification, comparability
+## 4. Experiments, verification, comparability
 
-### 4.1 The design union
+### 4.1 `Experiment` is a discriminated union
 
-```ts
-type ComparisonDesign =
-  | { kind: "intervention"; axis: InterventionAxis }  // exactly one condition axis differs
-  | { kind: "temporal" }        // measurement-compatible conditions separated by time
-  | { kind: "descriptive" };    // arbitrary pair, NEVER causal (imports, ad-hoc uploads)
-```
-
-Validity requirements, enforced by the evaluator:
-
-- `intervention`: equal observed subjects, equal `measurementEnvironment`
-  fingerprints, condition vectors differing in exactly the declared axis, **both
-  arms' verification passed** (4.3), both runs `quality.outcome === "complete"`.
-- `temporal`: equal observed subjects, equal `condition` fingerprints,
-  measurement-compatible per metric family (3.3), both runs complete.
-- `descriptive`: no requirements; every causal surface is suppressed unconditionally.
-
-v1's `comparisonType` maps onto design + axis; "custom" maps to `descriptive`.
-`design` appears in exactly one place: `experiment.design`.
-
-### 4.2 Experiment
+v0.3's single `Experiment` shape required AB/BA order and two intervention-axis
+verifications on every comparison, but a temporal or descriptive comparison has no
+intervention axis (its own example 12.3 could not be typed). The union fixes it;
+verification and order fields **exist only on the intervention variant**:
 
 ```ts
-type Experiment = {
-  design: ComparisonDesign;
+type Experiment = InterventionExperiment | TemporalExperiment | DescriptiveExperiment;
+
+type InterventionExperiment = {
+  kind: "intervention";
+  axis: InterventionAxis;
   pairId: string;                    // random id shared by both runs
   order: "AB" | "BA";                // counterbalanced from the first v2 release (no scan cost)
   verification: {                    // section 4.3: BOTH arms, always
@@ -283,14 +302,46 @@ type Experiment = {
     strength: "observed-difference" | "replicated-difference";
   };
 };
+
+type TemporalExperiment = {
+  kind: "temporal";
+  pairId: string;
+  // baseline is the chronologically earlier run; the validator enforces
+  // baseline.startedAt < variant.startedAt. No order field, no verification:
+  // nothing was manipulated.
+};
+
+type DescriptiveExperiment = {
+  kind: "descriptive";
+  pairId: string;
+  sourceOrder: "as-provided" | "chronological" | "unknown";   // ordering if known; NEVER causal
+};
 ```
 
-Evidence strength is part of the claim vocabulary: one valid pair supports "we observed
-an intervention difference"; only counterbalanced replicated evidence upgrades to the
-stronger causal framing; and **future behavior alerts require a confirmation run**
-regardless.
+Validity requirements, enforced by the evaluator:
 
-### 4.3 Per-arm verification (the manipulation check, both directions)
+- `intervention`: equal observed subjects, equal `measurementEnvironment`
+  fingerprints, condition vectors differing in exactly the declared axis, both runs
+  run-level complete. Verification (4.3) additionally gates intervention-attributed
+  claims.
+- `temporal`: equal observed subjects, equal `condition` fingerprints, baseline
+  chronologically first, both runs run-level complete; per-family compatibility per
+  3.3.
+- `descriptive`: structurally always valid as a pairing of two well-formed runs;
+  every causal surface is suppressed unconditionally.
+
+v1's `comparisonType` maps onto the union: gpc/shields/consent to
+`intervention` + axis, "temporal" to `temporal`, "custom" and ad-hoc uploads to
+`descriptive`.
+
+### 4.2 Evidence strength
+
+Evidence strength is part of the claim vocabulary: one valid pair supports "we
+observed an intervention difference"; only counterbalanced replicated evidence
+(`strength: "replicated-difference"`) upgrades to stronger causal wording; and
+**future behavior alerts require a confirmation run** regardless.
+
+### 4.3 Per-arm verification (intervention experiments only)
 
 A singular variant-only check cannot distinguish "the intervention worked" from "both
 arms silently ran in the same state". Every intervention pair verifies **both arms**:
@@ -315,37 +366,68 @@ type ArmVerification = {
   result.
 
 Any arm outcome other than `passed` makes the pair **inconclusive as an experiment**:
-causal surfaces are suppressed and the pair is reported descriptively, never as "the
-intervention changed nothing".
+intervention-attributed claims are suppressed and the pair is reported descriptively,
+never as "the intervention changed nothing".
 
-### 4.4 Comparability, an evaluated result
+### 4.4 Comparability: pair validity + per-metric eligibility
 
-Computed per pair by one shared, versioned evaluator; never part of a fingerprint:
+v0.3's global `comparable`/`environmentComparable` gate conflicted with its own
+example 12.3 (raw metrics eligible, Shields ineligible would have been suppressed
+globally). The evaluated result has **no global comparable flag**; it has structural
+pair validity, per-family eligibility, and an intervention gate that exists only for
+intervention experiments:
 
 ```ts
 type Comparability = {
   evaluatorVersion: string;
   metricRegistryVersion: string;
-  comparable: boolean;                       // for the declared design as a whole
+
+  // Structural: observed subjects match, the experiment is well-formed for its kind
+  // (axis delta valid / chronology valid), and BOTH runs are run-level complete
+  // (section 5.3). Matching failure statuses never make a pair valid.
+  pairValidity: { eligible: boolean; reasons: ComparabilityReason[] };
+
+  // Per metric family: pairValidity + that family's compatibility key matches
+  // (unknown never matches) + that family is uncensored on both runs.
   perMetric: Record<MetricFamily, { eligible: boolean; reasons: ComparabilityReason[] }>;
-  checks: {
-    subjectMatch: boolean;                   // observed origin + routeShape equal
-    conditionDeltaValid: boolean;            // matches the declared design
-    environmentComparable: boolean;          // per fingerprints + unknown rule
-    bothRunsComplete: boolean;               // quality.outcome === "complete" on BOTH;
-                                             // matching failure statuses never make a pair comparable
-    verificationPassed: boolean;             // both arms, section 4.3
-  };
-  mismatchReasons: ComparabilityReason[];    // enumerated, empty when comparable
+
+  // ONLY present when experiment.kind === "intervention": both arms' verification
+  // passed. Gates intervention-ATTRIBUTED claims, not family eligibility.
+  interventionVerified?: boolean;
 };
 ```
 
-**Product rule:** an incomparable pair (or ineligible metric family) keeps descriptive
-numbers ("we observed 42 vs 17 requests") but suppresses causal headlines, "Shields
-blocked", "rejection changed nothing" framings, since-last-scan deltas, and any future
-alert. This generalizes the per-feature gates that already exist (consent claims
-require a real click, temporal deltas pair same-kind only, stats exclude status>=400)
-into one evaluated object every consumer reads instead of re-deriving.
+**Product rules, per claim surface:**
+
+- `pairValidity.eligible === false`: no pair-level claims at all; the two runs render
+  as independent reports.
+- A family delta (counts, classifications, Shields numbers) renders iff
+  `perMetric[family].eligible`.
+- An intervention-attributed framing ("Shields blocked", "kept tracking after you
+  clicked Reject all", "GPC changed nothing") additionally requires
+  `interventionVerified === true`.
+- Strong causal wording requires `strength === "replicated-difference"`; a single
+  valid pair supports "observed intervention difference" phrasing only.
+- Future alerts require a confirmation run.
+
+This generalizes the per-feature gates that already exist (consent claims require a
+real click, temporal deltas pair same-kind only, stats exclude status>=400) into one
+evaluated object every consumer reads instead of re-deriving.
+
+```ts
+// Normative initial reason vocabulary (extensible only with a metricRegistryVersion
+// or evaluatorVersion bump). Parameterized codes use "code:qualifier".
+type ComparabilityReason =
+  | "subject-mismatch"
+  | "design-invalid"
+  | `run-failed:${"baseline" | "variant"}`
+  | `unknown-dimension:${string}`
+  | `dependency-digest-mismatch:${string}`
+  | `dependency-version-mismatch:${string}`
+  | `family-censored:${"baseline" | "variant"}`
+  | `arm-verification-failed:${"baseline" | "variant"}`
+  | `arm-verification-inconclusive:${"baseline" | "variant"}`;
+```
 
 ---
 
@@ -381,16 +463,17 @@ type PrivacyStats = {
     storageKeysRedacted: number;
     cookieNamesRedacted: number;
     matrixParamsStripped: number;
+    subdomainLabelsGeneralized: number;
     malformedUrlsDropped: number;
   };
 };
 ```
 
-### 5.3 Quality: recorded facts, one shared evaluator
+### 5.3 Quality: run-level validity, family-level censoring
 
 Producers do not declare quality; they record facts, and **one shared versioned
-evaluator** derives the outcome, so no producer can grade its own homework
-differently from another:
+evaluator** derives the outcome. Family-scoped capture loss must not censor the whole
+run: a consent-verification timeout does not invalidate raw request counts.
 
 ```ts
 type QualityFacts = {
@@ -415,20 +498,35 @@ type EvidenceFamily =
 
 type Quality = {
   evaluatorVersion: string;
-  outcome: "complete" | "censored" | "failed";
-  reasons: QualityReason[];                // enumerated
+  // Run-level: did the page load produce a valid observation at all?
+  // "failed" = error/block page, bot wall, navigation never settled, empty load.
+  run: { outcome: "complete" | "failed"; reasons: QualityReason[] };
+  // Family-level: censoring from capture loss, scoped so one family's loss
+  // never contaminates another's eligibility.
+  byFamily: Record<EvidenceFamily, { outcome: "complete" | "censored"; reasons: QualityReason[] }>;
 };
+
+// Normative initial vocabulary; extensible only with an evaluatorVersion bump.
+type QualityReason =
+  | "http-error-status" | "bot-wall-title" | "navigation-timeout" | "empty-load"
+  | "scan-slot-timeout" | `capture-loss:${string}` | `budget-exhausted:${string}`;
 ```
 
-Capture loss is scoped to family and phase so eligibility can be genuinely
-metric-scoped: dropped requests censor request-derived metrics, a consent-verification
-timeout censors consent metrics, and neither poisons the other. "Censored" is the
+The mapping from evidence families to metric families is part of the metric dependency
+registry: `raw-counts` reads requests/cookies/storage, `shields-simulation` reads
+requests, `consent-verification` reads its own family, and so on. "Censored" is the
 statistician's sense: observation ended or was capped before completion. Size-limit
 clipping (section 9.5) is capture loss, never a privacy statistic.
 
 ### 5.4 `detectors`
 
 ```ts
+// Normative initial registry (version "1"); the ledger must contain an entry for
+// every detector in the referenced registry version, or validation fails.
+type DetectorId =
+  | "fingerprint-heuristics" | "keystroke-exfiltration" | "cname-uncloaking"
+  | "pixel-events" | "consent-banner" | "privacy-policy";
+
 type DetectorLedger = Record<DetectorId, {
   version: string;
   status: "complete" | "partial" | "skipped" | "unsupported" | "failed";
@@ -437,35 +535,47 @@ type DetectorLedger = Record<DetectorId, {
 }>;
 ```
 
-The ledger must contain an entry for **every detector in the referenced detector
-registry version**; a missing entry is a validation error, so silence is never
-ambiguous again.
-
 ---
 
 ## 6. Consent semantics
 
-### 6.1 Replace the overloaded `clicked`
+### 6.1 Observations first, states derived
+
+v1's `ConsentInteractionSummary.clicked` conflates "we pressed something" with "the
+choice took effect". v2 records the raw verification **observations** (before and
+after reload, each phase-tagged) and derives the states from them, so
+`reverifiedAfterReload` is machine-checkable rather than asserted:
 
 ```ts
 type ConsentEvidence = {
   mode: "accept-all" | "reject-all";
   interactionAttempted: boolean;
   controlActivated: boolean;               // a control was actually clicked (v1 `clicked`)
+
+  // The recorded facts: one entry per state read, phase-tagged. An intervention-
+  // grade verification has at least one observation in the consent-interaction
+  // phase and one in the post-choice-reload phase.
+  verificationObservations: Array<{
+    phaseId: PhaseId;
+    method: string;                        // versioned interpreter id: "tcf-api@1", "onetrust-cookie@1"
+    observed: string | null;               // the state read; null = interpreter ran, nothing readable
+    consistentWithChoice: boolean | null;  // null when observed is null
+  }>;
+
+  // Derived by the shared evaluator from the observations above:
   choiceState: "verified" | "contradicted" | "weak-signal" | "unavailable" | "failed";
-  verificationMethod?: string;             // versioned interpreter id: "tcf-api@1", "onetrust-cookie@1"
+  reverifiedAfterReload: boolean;          // true iff a post-choice-reload observation exists and agrees
   verificationFailureReason?: string;      // enumerated: banner-persisted, tcf-unavailable,
                                            // cookie-absent, state-contradicts-choice, ...
-  reverifiedAfterReload: boolean;          // the post-reload re-check ran and agreed
+
   cmp?: string; selector?: string; matchedText?: string; frameUrl?: string;   // carried from v1
 };
 ```
 
-- `verified`: a versioned CMP-state interpreter (IAB TCF `__tcfapi` TCData, or a known
-  CMP state cookie such as OneTrust `OptanonConsent`) read a stored state consistent
-  with the choice, **and** the re-verification after reload agreed.
-- `contradicted`: an interpreter read state inconsistent with the click.
-- `weak-signal`: no interpreter available; the only evidence is banner dismissal,
+- `verified`: interpreter observations consistent with the choice in both the
+  consent-interaction and post-choice-reload phases.
+- `contradicted`: any interpreter observation inconsistent with the click.
+- `weak-signal`: no interpreter observation; the only evidence is banner dismissal,
   which is a UI signal, not consent state.
 - `unavailable`: no interpreter and no usable UI signal.
 - `failed`: interpreter errored.
@@ -479,9 +589,9 @@ inconclusive.
 ### 6.2 Phased experiment flow
 
 1. `passive-load`: initial navigation, pre-interaction traffic.
-2. `consent-interaction`: from click attempt to settle, plus initial state read.
-3. `post-choice-reload`: a reload under the established consent state, then
-   re-verification. **This reload is the measured run for post-choice claims.**
+2. `consent-interaction`: from click attempt to settle, plus the first state read.
+3. `post-choice-reload`: a reload under the established consent state, then the
+   second state read. **This reload is the measured run for post-choice claims.**
 4. `active-probe`: keystroke sentinel and unload-flush window.
 5. `policy-analysis`: the bounded policy-page visit (already excluded from counts).
 
@@ -512,11 +622,19 @@ when enabled), so the model is uniform.
 
 ### 7.1 Phase-aware evidence types
 
+The phase-aware records are the v1 records plus `phaseId`; that addition is normative,
+the rest of each record's shape carries over from v1 with the string policies of
+section 9.4 applied:
+
 ```ts
+type NetworkRequestRecordV2 = NetworkRequestRecordV1 & { phaseId: PhaseId };   // start phase
+type CookieRecordV2         = CookieRecordV1;                                   // names/paths per policy
+type StorageRecordV2        = StorageRecordV1;                                  // keys per policy
+
 type RunEvidence = {
-  requests: NetworkRequestRecordV2[];      // v1 record + { phaseId } (start phase)
+  requests: NetworkRequestRecordV2[];
   cookieMutations: CookieMutation[];       // section 7.2
-  cookiesFinal: CookieRecordV2[];          // final-jar snapshot (names/paths per string policy)
+  cookiesFinal: CookieRecordV2[];          // final-jar snapshot
   storageMutations: StorageMutation[];     // section 7.2
   storageFinal: StorageRecordV2[];
   fingerprintEvents: Array<FingerprintEventSummary & { phaseId: PhaseId }>;
@@ -553,26 +671,42 @@ type StorageMutation = {
 
 ---
 
-## 8. Ephemeral vs public schemas
+## 8. Raw, ephemeral, public: three tiers, one sanitizer
 
-Schema annotations cannot stop a screenshot from being persisted; types and a single
-projection function can:
+Intersecting a public type with a screenshot field does not enforce deep sanitization,
+so the boundary is modeled as tiers with the sanitizer at the only place raw strings
+exist:
 
 ```ts
-type EphemeralSingleReport     = PublicSingleReportV2     & { run: { screenshot: string | null } /* + future ephemeral fields */ };
-type EphemeralComparisonReport = PublicComparisonReportV2 & { baseline: {...}; variant: {...} };
+// Tier 0: scanner-internal working state. Unsanitized URLs, bodies, jar dumps.
+// NEVER serialized, never leaves the scan process. Not part of any schema.
+type RawCapture = /* internal to the producer */;
 
+// Tier 0 -> Tier 1: THE sanitizer. Every string crossing this boundary goes
+// through the section 9 policies. Its output is ScanRunV2, whose evidence is
+// sanitized by construction; there is no unsanitized ScanRunV2.
+function sanitizeCapture(raw: RawCapture, policy: RedactionPolicy): ScanRunV2;
+
+// Tier 1 (ephemeral): the immediate-response shells. Sanitized evidence plus an
+// explicit ephemeral block; ephemeral extras are grouped, not intersected in.
+type EphemeralSingleReport = Omit<PublicSingleReportV2, never> & {
+  ephemeral: { screenshot: string | null /* + future immediate-only fields */ };
+};
+type EphemeralComparisonReport = PublicComparisonReportV2 & {
+  ephemeral: { baselineScreenshot: string | null; variantScreenshot: string | null };
+};
+
+// Tier 1 -> Tier 2 (public): allowlist projection DROPS the ephemeral block by
+// copying named public fields only. Defense in depth, not the sanitizer.
 function toPublicScanReport(r: EphemeralSingleReport): PublicSingleReportV2;
 function toPublicScanReport(r: EphemeralComparisonReport): PublicComparisonReportV2;
 ```
 
-- The projection copies **named fields only** (allowlist); unknown or new fields are
-  dropped by construction, so a future ephemeral addition cannot leak by default.
 - The report store, corpus scripts, exports, and share endpoints accept the public
   **types only**; the immediate scan response is the one surface that may carry the
-  ephemeral types (today's screenshot behavior, made structural).
-- The published JSON Schema documents the public types; ephemeral fields are simply
-  absent from it.
+  ephemeral shells (today's screenshot behavior, made structural).
+- The published JSON Schema documents the public types; the ephemeral block is absent
+  from it; tier 0 has no schema at all.
 
 ---
 
@@ -583,65 +717,83 @@ have removed. Current state ([lib/report-url.ts](../lib/report-url.ts)): userinf
 hash, and query values are stripped, but the **path is kept verbatim**, and a URL that
 fails to parse is **returned unmodified** (`report-url.ts:26`), which v2 forbids.
 
-### 9.1 Path-shape redaction, default-deny
+### 9.1 URL policy, default-deny
 
-- Keep scheme + normalized host. Reduce paths to a bounded shape: at most N segments
-  (proposal: 6).
-- A segment survives literally **only** if it appears in a small versioned literal
-  allowlist (`routeLiteralAllowlist@<version>`: common route words like `products`,
-  `privacy`, `search`, `api`, `docs`; shipped with the repo, a few hundred entries,
-  changes reviewed like code). **Everything else becomes a marker**: numeric to
-  `{n}`, everything else to `{seg}`. No "dictionary-ish" heuristics: a heuristic that
-  passes short lowercase words also passes names, health topics, and identifiers.
-- **Semicolon (matrix) parameters**: everything from the first `;` in each segment is
-  stripped before classification; the parameter name is preserved only if it passes
-  the same safe-key rule as query keys.
+- **Host**: lowercase, IDN to punycode A-label, default port stripped. The registrable
+  domain (public-suffix data) always survives. Each subdomain label left of it is
+  screened: labels that are long, high-entropy, hex/UUID/base64-shaped, or exceed a
+  length cap generalize to `{label}` (`privacy.redaction.subdomainLabelsGeneralized`).
+  Tracker evidence keeps its value (`telemetry.example.com` survives;
+  `a8f3c9d2e1.telemetry.example.com` becomes `{label}.telemetry.example.com`).
+- **Path**: at most N segments (proposal: 6). A segment survives literally **only** if
+  it appears in the versioned literal allowlist `routeLiteralAllowlist@<version>`
+  (common route words: `products`, `privacy`, `search`, `api`, `docs`; shipped as a
+  reviewed data file). Everything else becomes a marker: numeric to `{n}`, all else to
+  `{seg}`. No heuristics: a heuristic that passes short lowercase words also passes
+  names, health topics, and identifiers.
+- **Matrix parameters**: everything from the first `;` in each segment is stripped
+  before classification; the parameter name survives only via
+  `queryKeyAllowlist@<version>`.
+- **Query**: values always dropped; a key survives only via
+  `queryKeyAllowlist@<version>` (exact literals plus a small set of reviewed prefix
+  rules such as `utm_`), else it becomes `[redacted]`.
 - **Malformed input redacts, never passes through**: an unparseable URL becomes
   `{invalid-url}` and increments `privacy.redaction.malformedUrlsDropped`.
-- **No public unsalted hashes for token-like segments.** A hash of a low-entropy token
-  is a dictionary lookup away from the token, and a stable hash is itself a linkable
-  identifier. Tokens become `{seg}`, full stop.
+- **No public unsalted hashes for token-like values**, anywhere: a hash of a
+  low-entropy token is a dictionary lookup away from the token, and a stable hash is
+  itself a linkable identifier.
 
 ### 9.2 Every persistent or public sink
 
 The same URL policy applies to: `evidence.requests[].url`, **nested provenance URLs**
 (`NetworkRequestProvenance.initiatorUrl/scriptUrl/injectedByUrl`), requested/final
-URLs, `consent.frameUrl`, `privacyPolicy.url`, PageGraph fact-table rows
-([lib/pagegraph-corpus.ts](../lib/pagegraph-corpus.ts)), corpus exports, share links
-surfaced in UI, server logs, and any future queued job payload. One function, one
-version number, one test suite.
+URLs and subject origins, `consent.frameUrl`, `privacyPolicy.url`, PageGraph
+fact-table rows ([lib/pagegraph-corpus.ts](../lib/pagegraph-corpus.ts)), corpus
+exports, share links surfaced in UI, server logs, and any future queued job payload.
+One sanitizer, one version number, one test suite.
 
-### 9.3 Storage keys and cookie names
+### 9.3 Names and keys: versioned literal allowlists, no patterns
 
-Keys/names matching the safe-key pattern (short, conventional: `_ga`, `theme`,
-`cartId`) survive; the rest become a class marker plus shape info
-(`[redacted:uuid-like]`), keeping `area`/`valueBytes` for storage and flags for
-cookies. Cookie `path` follows the route-shape rules; cookie `domain` is host
-normalization only.
+Pattern-based "safe key" rules (v1's `SAFE_QUERY_KEY_PATTERN`) pass anything
+short-and-alphanumeric, which includes user identifiers. v2 replaces every one of them
+with **explicit versioned literal allowlists**, shipped as reviewed data files:
 
-### 9.4 Field-by-field policy for every public string
+- `queryKeyAllowlist@v` (also governs matrix parameter names),
+- `cookieNameAllowlist@v` (`_ga`, `OptanonConsent`, ...),
+- `storageKeyAllowlist@v` (`theme`, consent-state keys, ...).
 
-The schema documents, for **every** public string field, which policy applies:
+Anything not on the list becomes a class marker with shape info
+(`[redacted:uuid-like]`, `[redacted:long-token]`), keeping `area`/`valueBytes` for
+storage and flags for cookies. Cookie `path` follows the URL path policy; cookie
+`domain` follows the host policy.
+
+### 9.4 The public-string registry, exhaustive
+
+The schema documents, for **every** public string field, which policy applies. A field
+without a registry row does not ship; adding a public string field requires adding its
+policy row in the same change.
 
 | Field | Policy |
 |---|---|
-| all URL fields incl. nested provenance | origin + route shape (9.1) |
-| cookie name / storage key | safe-key allowlist or class marker (9.3) |
-| cookie path | route shape (9.1) |
+| all URL fields incl. nested provenance, subject origins | URL policy (9.1) |
+| cookie name / storage key / query and matrix keys | versioned literal allowlists (9.3) |
+| cookie path | URL path policy (9.1) |
 | `summary.pageTitle` | length cap + control-character strip (bot-wall matching runs before capping) |
-| `consent.matchedText` | only the scanner's own conservative phrase list verbatim (existing rule), else marker |
-| `warnings`, `reason`, `detail` fields | enumerated codes or scanner-vocabulary text only; never page-derived strings |
-| privacy-policy quotes (`PrivacyPolicyClaim`) | page-derived by design (the quote is the evidence); bounded sentence-level matches only, length-capped, and flagged as quoted material in the schema |
+| `consent.matchedText` | scanner's own conservative phrase list verbatim only, else marker |
+| `consent.cmp`, `consent.selector` | scanner's curated CMP vocabulary and curated selector list literals only; never page-derived |
+| tracker labels (`entity`, `category`) | curated catalog / Shields-list vocabulary only |
+| detector `reason`, `verificationFailureReason`, quality/comparability reasons | enumerated vocabularies (sections 4.4, 5.3) |
+| `warnings` | scanner-vocabulary text only; never page-derived strings |
+| privacy-policy quotes (`PrivacyPolicyClaim`) | page-derived by design (the quote is the evidence); bounded sentence-level matches only, length-capped, flagged as quoted material in the schema |
 | pixel event names | existing `isSafeEventToken` filter (value-shaped strings rejected) |
-| PageGraph identifiers | opaque numeric ids; embedded URLs through 9.1 |
-
-Anything not in the table does not ship; adding a public string field requires adding
-its policy row in the same change.
+| PageGraph / provenance identifiers (`graphRecordId`, `initiatorId`, ...) | opaque producer-generated ids only; embedded URLs through 9.1 |
+| `share.path` / `share.jsonPath` and other generated capability paths | producer-generated, contain only the report id; never page-derived |
+| fingerprint API names, resource types, methods, encodings | closed vocabularies from the scanner's own instrumentation |
 
 ### 9.5 Size limits
 
 Per-field string caps, per-array caps, and a total serialized-report cap, enforced at
-build time. Clipping is **capture loss** (`quality.captureLoss`, family- and
+build time. Clipping is **capture loss** (`qualityFacts.captureLoss`, family- and
 phase-scoped), not a privacy statistic: a hostile page must not bloat public
 artifacts, and the report must say which evidence was cut.
 
@@ -698,7 +850,11 @@ bricks every committed report, every R2 share link, and the corpus pages.
 v1 is **never synthesized into something that looks authoritatively v2**:
 
 ```ts
-function readStoredScanReport(json: unknown): StoredScanReport;   // the union, or a typed error
+type ReadResult =
+  | { ok: true; report: StoredScanReport }
+  | { ok: false; error: "invalid" | "unsupported-version" | "unsupported-revision" };
+
+function readStoredScanReport(json: unknown): ReadResult;
 
 type ReportView = { origin: "v2" | "legacy-derived"; /* normalized display fields */ };
 function toReportView(report: StoredScanReport): ReportView;
@@ -711,8 +867,8 @@ function toReportView(report: StoredScanReport): ReportView;
   `legacy-derived` origin is carried through to the UI and export note, never
   presented as recorded fact.
 - **v1 reports are ineligible for intervention and temporal designs**: their
-  environment was never fully recorded, so per the unknown rule (3.2) measurement
-  compatibility is unprovable. v1-v1 and v1-v2 pairs are `descriptive` at best.
+  environment was never fully recorded, so per the unknown rule (3.2) compatibility is
+  unprovable. v1-v1 and v1-v2 pairs are `descriptive` at best.
 - **Builders stay separate**: the frozen v1 builder types
   ([lib/scan-result-builder.ts](../lib/scan-result-builder.ts), used by the Browser
   Run Worker) are not touched by v2 modules; v2 gets its own builder. The frozen
@@ -721,15 +877,19 @@ function toReportView(report: StoredScanReport): ReportView;
 ### 10.2 Versioning
 
 - `schemaVersion` (major, breaking shape changes) + `schemaRevision` (additive,
-  optional-field changes within a major). Readers accept any revision of a known
-  major; validators know the highest revision they understand.
+  optional-field changes within a major). **Revision literals are pinned in the
+  types**: r1 types declare `schemaRevision: 1`, an r2 release ships new types
+  declaring `2`. A reader accepts exactly the revisions it was built to understand;
+  an unknown revision of a known major returns `unsupported-revision` (10.1), never a
+  silent best-effort parse. Forward compatibility is an explicit reader upgrade, not
+  an assumption.
 - JSON Schema files are **immutable per revision** with revisioned `$id` and filename:
   `https://sitebehavior.org/schemas/scan-report.v2.r1.schema.json`. A stable alias
   (`/scan-report.schema.json`) points at the current revision.
-- The detector registry (5.1), metric dependency registry, quality evaluator, and
+- The detector registry (5.4), metric dependency registry, quality evaluator, and
   comparability evaluator each carry their own version, recorded in the artifacts they
   produce, so results are interpretable after any of them changes.
-- **v1 revisioning**: if hardened redaction ships in v1 emission before v2 (step 5 of
+- **v1 revisioning**: if hardened redaction ships in v1 emission before v2 (step 6 of
   section 14), v1 gains an optional top-level `redactionVersion` field as v1
   revision 2 (absent = r1). v1's structural validators tolerate additive optional
   fields, and the v1 schema addendum documents it.
@@ -743,6 +903,12 @@ function toReportView(report: StoredScanReport): ReportView;
 - **Production-safe artifact**: scripts consume a dedicated compiled artifact from a
   `build:schema` step (own tsconfig emitting `dist/schema/`, built in CI before any
   manifest/corpus step), **not** the `.unit-test-dist` test tree.
+- **Pages build wiring**: the static Pages build
+  ([scripts/build-github-pages.mjs](../scripts/build-github-pages.mjs)) runs in an
+  isolated worktree that does not carry `dist/`. Publishing the schema files requires
+  either running `build:schema` inside that worktree or copying `dist/schema/` into
+  it as an explicit build step; the RFC makes that wiring part of the acceptance of
+  implementation step 1, not an afterthought.
 - **JSON Schema generation**: `ts-json-schema-generator` (devDependency, build-time
   only) emits the revisioned schema files; publishing is part of the Pages build.
 - **Differential + invalid-mutation tests**: the fixture corpus contains valid
@@ -760,6 +926,25 @@ schema-compatible, tracked as v1 r2), Browser Run stays v1, and the corpus regen
 organically via the weekly cron with per-site keep-two retention bridging the
 transition.
 
+### 10.5 Normative status of named types
+
+Normative in this RFC (shape and semantics fixed for r1): `ScanRunV2` and all its
+blocks, `PublicSingleReportV2`, `PublicComparisonReportV2`, the `Experiment` union,
+`ArmVerification`, `Comparability` (including the initial `ComparabilityReason` and
+`QualityReason` vocabularies), `Quality`/`QualityFacts`, `PrivacyStats`,
+`ConsentEvidence`, `SubjectIdentity`, `ConditionVector`, `Fingerprints`, `Toolchain`,
+`Provenance`, the `DetectorId` and `MetricFamily` initial sets, the phase model, the
+tier model of section 8, and the versioning rules of 10.2.
+
+Explicitly **non-normative** (implementation-defined during step 2, under stated
+constraints): `ComparisonDiffV2` (must be derivable from the two runs alone, organized
+per metric family, and must carry each family's eligibility so renderers cannot show
+an ineligible delta); the exact carried-over field lists of `*RecordV1` inside the
+phase-aware types (normative requirement: v1 record + `phaseId` where phase-sensitive,
+strings re-policed per 9.4); the concrete contents of the allowlist data files
+(versioned, reviewed like code); the internal shape of tier-0 `RawCapture` (never
+serialized, no schema).
+
 ---
 
 ## 11. Resolved review decisions (2026-07-09)
@@ -775,10 +960,11 @@ transition.
    the per-run phase table; requests attribute by start phase; cookies/storage get
    per-phase mutations plus final snapshots (7.2).
 4. **AB/BA**: counterbalanced from the first v2 experiment release (no added scan
-   cost). Repeated pairs deferred; evidence strength is explicit (4.2) and behavior
-   alerts will require a confirmation run.
-5. **Digests**: aggregate manifest digest per run + published immutable per-list
-   digest manifest, including engine and normalization versions (3.4).
+   cost), on intervention experiments only. Repeated pairs deferred; evidence strength
+   is explicit (4.2) and behavior alerts will require a confirmation run.
+5. **Digests**: aggregate manifest digest per run (stored in `toolchain`) + published
+   immutable per-list digest manifest, including engine and normalization versions
+   (3.4, 3.5).
 
 ---
 
@@ -791,55 +977,86 @@ exceptions.
 
 - Baseline conditions: `{ gpc: true, shields: "classification", consent: "observe", ... }`
 - Variant conditions: `{ gpc: true, shields: "block-simulation", consent: "observe", ... }`
-- `experiment.design = { kind: "intervention", axis: "shields" }`
+- `experiment = { kind: "intervention", axis: "shields", pairId, order: "AB",
+  verification, evidence: { pairs: 1, counterbalanced: false, strength: "observed-difference" } }`
 - Fingerprints: `measurementEnvironment` hashes exclude the gpc/shields/consent
-  values, and everything else (device, locale, egress, browser, digests,
+  values, and everything else (device, locale, egress, browser, toolchain,
   methodology) matches, so the fingerprints are **equal**. GPC being enabled in both
   runs is a constant, not a delta.
-- `conditionDeltaValid`: the vectors differ in exactly `shields`. True.
 - Verification: baseline `{ axis: "shields", expected: "shields:classification",
   observed: "shields:classification", method: "shields-engine-status@1", outcome:
   "passed" }`; variant expected/observed `"shields:block-simulation"` with a nonzero
   evaluation count, `passed`.
-- Both runs `quality.outcome === "complete"`, list digests equal, so
-  `perMetric["shields-simulation"].eligible === true`.
-- **Result: `comparable: true`; causal Shields framing permitted at
-  `strength: "observed-difference"`.** Under v0.2's model this pair was impossible
-  (the measurement fingerprint could never match); that is the contradiction v0.3
-  fixes.
+- Both runs run-level complete; adblock manifest digests equal.
+- **Result**: `pairValidity.eligible = true`;
+  `perMetric["shields-simulation"].eligible = true`; `interventionVerified = true`.
+  The report may state an **observed intervention difference**
+  (`strength: "observed-difference"`). Strong causal wording still requires
+  replicated evidence (`"replicated-difference"`). Under v0.2's model this pair was
+  impossible (the measurement fingerprint could never match); that is the
+  contradiction v0.3 fixed.
 
-### 12.2 Accept verifies, Reject inconclusive: descriptive only
+### 12.2 Accept verifies, Reject inconclusive: no post-reject claim
 
-- `experiment.design = { kind: "intervention", axis: "consent" }`
-- Baseline (accept-all): `consent.choiceState = "verified"` via `onetrust-cookie@1`,
-  re-verified after reload. Arm outcome `passed`.
-- Variant (reject-all): no interpreter available, banner dismissed, so
+- `experiment = { kind: "intervention", axis: "consent", ... }`
+- Baseline (accept-all): observations in both the consent-interaction and
+  post-choice-reload phases via `onetrust-cookie@1`, both consistent, so
+  `choiceState = "verified"`. Arm outcome `passed`.
+- Variant (reject-all): no interpreter observation, banner dismissed, so
   `choiceState = "weak-signal"`. Arm outcome **`inconclusive`**.
-- `checks.verificationPassed = false`; `comparable = false` with
-  `mismatchReasons: ["arm-verification-inconclusive:variant"]`;
-  `perMetric["consent-verification"].eligible = false`.
-- **Result: no post-reject claim of any kind** ("kept tracking after you clicked
+- **Result**: `pairValidity.eligible = true` (both runs loaded fine, subjects match,
+  axis delta valid); `perMetric["raw-counts"].eligible = true` (descriptive numbers
+  render); `perMetric["consent-verification"].eligible = false`
+  (`arm-verification-inconclusive:variant`); `interventionVerified = false`.
+  **No intervention-attributed claim of any kind** ("kept tracking after you clicked
   Reject all" is suppressed, as is "rejection changed nothing"). The report renders
-  descriptive observations (both runs' counts, the verified accept-side state), and
-  the experiment is reported inconclusive with the enumerated reason.
+  descriptive observations and reports the experiment inconclusive with the
+  enumerated reason.
 
 ### 12.3 Temporal pair across a filter-list update: split eligibility
 
 - Two runs, three weeks apart, equal observed subjects, **equal `condition`
-  fingerprints** (same full vector), both `complete`.
-- `experiment.design = { kind: "temporal" }`
-- Between runs, the pinned adblock lists were refreshed: `adblockManifest` digests
-  differ; browser, device, locale, egress, methodology, detector versions all match.
-- Per-metric evaluation: raw request/cookie/storage counts depend on browser, device,
-  locale/tz, egress, methodology only, all equal, so
-  `perMetric["raw-counts"].eligible = true`. Shields simulation depends additionally
-  on the adblock manifest digest, which differs, so
-  `perMetric["shields-simulation"].eligible = false` with
-  `reasons: ["dependency-digest-mismatch:adblockManifest"]` (the published per-list
-  manifest identifies which list changed).
-- **Result: the diff renders raw-count temporal deltas ("+64 third-party requests
-  since Jun 25") and suppresses Shields-derived deltas**, explaining why via the
-  enumerated reason.
+  fingerprints** (same full vector), both run-level complete, baseline chronologically
+  first.
+- The experiment is a valid `TemporalExperiment` and nothing more:
+
+```jsonc
+"experiment": { "kind": "temporal", "pairId": "9f2c..." }
+// No axis. No order. No verification. Those fields do not exist on this type.
+```
+
+- Between runs, the pinned adblock lists were refreshed:
+  `toolchain.adblock.manifestDigest` differs; browser, device, locale, egress,
+  methodology, detector versions all match.
+- Evaluation:
+  - `pairValidity = { eligible: true, reasons: [] }`.
+  - `perMetric["raw-counts"] = { eligible: true, reasons: [] }` (its compatibility
+    key excludes list digests).
+  - `perMetric["shields-simulation"] = { eligible: false, reasons:
+    ["dependency-digest-mismatch:adblockManifest"] }` (the published per-list
+    manifest identifies which list changed).
+  - `interventionVerified` is **absent**: the experiment kind is not intervention.
+- **Result**: the diff renders the raw-count temporal delta ("+64 third-party
+  requests since Jun 25") and suppresses Shields-derived deltas, explaining why via
+  the enumerated reason. No global gate exists to suppress the eligible family.
+
+### 12.4 Descriptive upload: no order, no verification, never causal
+
+Two arbitrary report files uploaded through the "Open report file" UI, paired ad hoc:
+
+```jsonc
+"experiment": { "kind": "descriptive", "pairId": "c41a...", "sourceOrder": "as-provided" }
+```
+
+- The type requires no AB/BA order and no manipulation checks; those fields do not
+  exist on `DescriptiveExperiment`.
+- `pairValidity` may pass (same observed subject, both runs complete) or fail
+  (subject mismatch); it does not matter for causality: **every causal surface is
+  suppressed unconditionally for descriptive experiments**, including
+  intervention-attributed framings and temporal "since last scan" language.
+- **Result**: side-by-side observations with descriptive family deltas where
+  `perMetric[family].eligible`, labeled as a descriptive comparison; no causal
+  headline is ever generated regardless of eligibility.
 
 ---
 
@@ -849,70 +1066,70 @@ exceptions.
   would turn self-reported provenance into verifiable provenance. Deferred until key
   management has an owner; the canonicalization rules shipped with v2 are the
   prerequisite and are designed not to preclude it.
-- **Repeated pairs / variance estimation**: the experiment shape already records
-  `pairs`/`counterbalanced`/`strength`; scheduling replicated pairs waits for
+- **Repeated pairs / variance estimation**: the intervention experiment shape already
+  records `pairs`/`counterbalanced`/`strength`; scheduling replicated pairs waits for
   run-cost data.
 
 ## 14. Implementation order after acceptance
 
 Step 1 is deliberately small and emits nothing new:
 
-1. **Freeze v1**: the existing v1 wire types and validator are frozen as-is (own
-   module, no further edits except security backports).
-2. **Concrete v2 types + revisioned schemas + fixtures**: the types in this RFC,
+1. **Freeze v1 modules**: the existing v1 wire types and validator are frozen as-is
+   (no further edits except security backports).
+2. **Complete v2 r1 types, schemas, and fixtures**: the types in this RFC,
    `scan-report.v2.r1.schema.json`, and the valid/invalid fixture corpus with the
    differential harness (10.3).
-3. **Union reader + allowlist public projector** (`readStoredScanReport`,
+3. **Union reader + deep allowlist projector** (`readStoredScanReport`,
    `toReportView`, `toPublicScanReport`).
-4. **Migrate consumers one at a time** (report pages, directory, manifest builder,
+4. **Wire the schema build correctly**: `build:schema` to `dist/schema/`, available
+   inside the isolated Pages worktree (10.3).
+5. **Migrate consumers one at a time** (report pages, directory, manifest builder,
    corpus stats, exports, smoke tests) onto the reader/view, still emitting v1
    everywhere.
-5. **Only then redaction v2** (sanitizer across every persistent sink, shipped inside
-   v1 emission as v1 r2, plus the remediation inventory and pass of 9.6), **and then
-   producer v2 emission begins** (Node scanner, compare-reports, CI script, PageGraph
-   adapter).
+6. **Only then redaction v2** (the sanitizer across every persistent sink, shipped
+   inside v1 emission as v1 r2, plus the remediation inventory and pass of 9.6), and
+   then producer v2 emission begins (Node scanner, compare-reports, CI script,
+   PageGraph adapter).
 
 Then the larger phases:
 
-6. Verified phased experiments (sections 4, 6, 7).
-7. Unified corpus eligibility (comparability + metric registry consumed by headlines,
+7. Verified phased experiments (sections 4, 6, 7).
+8. Unified corpus eligibility (comparability + metric registry consumed by headlines,
    diffs, temporal deltas, stats, exports) and corpus regeneration.
-8. Durable queue (inheriting 9.7's constraints).
-9. Registrable-domain profiles and watches (opaque watch IDs, encrypted targets).
+9. Durable queue (inheriting 9.7's constraints).
+10. Registrable-domain profiles and watches (opaque watch IDs, encrypted targets).
 
 ---
 
 ## Changelog
 
-- **v0.3 (2026-07-09)**: fixed the fingerprint contradiction (measurement fingerprint
-  included the condition vector, making intervention pairs definitionally
-  incomparable): three fingerprints (execution / measurementEnvironment excluding
-  intervention axes / condition) plus the unknown rule (two unknowns never match).
-  Per-arm verification replaces the variant-only manipulation check (expected,
-  observed, versioned method, outcome, phase; both consent choices and both GPC and
-  Shields states must verify); `design` deduplicated to `experiment` only; evidence
-  strength made explicit (observed vs replicated difference; alerts need
-  confirmation). Wire model completed: per-run `startedAt`, normalized origin in
-  subject keys (comparison identity = origin + route shape; profiles group by
-  registrable domain), concrete `RunSummary`, phase-aware evidence types with cookie
-  and storage per-phase mutations plus final snapshots, concrete ephemeral/public
-  single and comparison types. Eligibility made metric-scoped end to end: capture
-  loss by evidence family and phase, quality derived by one shared versioned
-  evaluator from recorded facts, matching failure statuses never make a pair
-  comparable. Redaction made default-deny: versioned literal allowlist (no
-  dictionary-ish heuristics), malformed input redacts instead of passing through
-  (v1's parse-failure passthrough called out), field-by-field policy table for every
-  public string, remediation preserves retention clocks. Versioning and tooling made
-  executable: `schemaRevision`, immutable revisioned schema `$id`s, detector-registry
-  and evaluator versions, observer vs acquisition split in provenance (CI is not a
-  producer), production-safe `dist/schema` artifact instead of `.unit-test-dist`,
-  differential + invalid-mutation validator tests, explicit v1/v2 builder separation,
-  and v1 r2 for redaction shipped inside v1 output. Added three normative examples
-  evaluated end to end. Implementation step 1 narrowed per review.
-- **v0.2 (2026-07-09)**: evidence blocks moved per-run; orthogonal condition vector;
-  execution vs measurement fingerprint split with per-metric compatibility;
-  comparison-design union plus manipulation check; redaction separated from capture
-  loss; requested vs observed subjects; consent `choiceState`; phase tags on all
-  evidence; structural ephemeral/public split; v1 as a distinct wire type; "prove"
-  softened; concrete tooling; expanded remediation; five open questions resolved.
+- **v0.3.1 (2026-07-09)**: surgical normative corrections per the v0.3 acceptance
+  review; no architecture change. `Experiment` became a discriminated union
+  (intervention / temporal / descriptive); order, verification, and evidence-strength
+  fields exist only on the intervention variant, fixing the type contradiction the
+  temporal example exposed. The global `comparable`/`environmentComparable` gate was
+  replaced by `pairValidity` (structural) + `perMetric` eligibility +
+  `interventionVerified` (intervention-only claim gate), so split eligibility cannot
+  be suppressed globally. Quality split into run-level validity and family-level
+  censoring so one family's capture loss cannot censor another's metrics. Wire/version
+  model finished: `schemaRevision: 1` literals, `unsupported-revision` reader
+  behavior, `toolchain` block stores the digests/versions the fingerprints hash,
+  normative-vs-non-normative status for every named type (10.5), initial reason and
+  detector vocabularies made normative, Pages-worktree schema-build wiring specified.
+  Privacy deepened: versioned literal allowlists replace all pattern-based key rules,
+  subdomain-label policy added, public-string registry made exhaustive (CMP
+  names/selectors, tracker labels, detector strings, capability paths, provenance
+  identifiers), raw/ephemeral/public modeled as three tiers with the sanitizer at the
+  tier 0 boundary, consent verification stored as phase-tagged before/after-reload
+  observations with derived states. Example 12.1 reworded to observed-difference;
+  12.3 rebuilt around a typed `TemporalExperiment` meeting the acceptance condition;
+  12.4 (descriptive upload) added.
+- **v0.3 (2026-07-09)**: three-fingerprint model and unknown rule; per-arm
+  verification; metric-scoped eligibility and shared quality evaluator; default-deny
+  redaction with field policies; executable versioning/tooling; normative examples;
+  narrowed step 1.
+- **v0.2 (2026-07-09)**: per-run evidence blocks; condition vector; fingerprint split;
+  design union + manipulation check; redaction vs capture loss; requested vs observed
+  subjects; consent `choiceState`; phase tags; ephemeral/public split; v1 as distinct
+  wire type; softened proof language; tooling; remediation inventory.
 - **v0.1 (2026-07-09)**: initial draft.
