@@ -165,9 +165,21 @@ test("reader: v1 routes to the frozen validator, v2 to the r1 validator", () => 
 });
 
 test("reader: unknown revisions and majors are capability gaps, not silent parses", () => {
-  const futureRevision = readStoredScanReport(
+  // Revision 2 is a KNOWN revision now (exact dispatch); an r1-shaped payload
+  // declaring it validates under the r2 rules (r2 is a structural superset).
+  const knownRevision = readStoredScanReport(
     mutate(makePublicSingleReportV2(), (draft) => {
       (draft as unknown as Record<string, unknown>).schemaRevision = 2;
+    })
+  );
+  assert.equal(knownRevision.ok, true);
+  if (knownRevision.ok && knownRevision.stored.schemaVersion === 2) {
+    assert.equal(knownRevision.stored.schemaRevision, 2);
+  }
+
+  const futureRevision = readStoredScanReport(
+    mutate(makePublicSingleReportV2(), (draft) => {
+      (draft as unknown as Record<string, unknown>).schemaRevision = 3;
     })
   );
   assert.deepEqual(futureRevision, { ok: false, error: "unsupported-revision" });

@@ -496,7 +496,7 @@ export function copyScanRunV2(run: ScanRunV2): ScanRunV2 {
   };
 }
 
-function copyExperiment(experiment: Experiment): Experiment {
+export function copyExperiment(experiment: Experiment): Experiment {
   if (experiment.kind === "intervention") {
     const copyArm = (arm: typeof experiment.verification.baseline) => ({
       axis: arm.axis,
@@ -528,7 +528,7 @@ function copyExperiment(experiment: Experiment): Experiment {
   return { kind: "descriptive", pairId: experiment.pairId, sourceOrder: experiment.sourceOrder };
 }
 
-function copyComparability(comparability: Comparability): Comparability {
+export function copyComparability(comparability: Comparability): Comparability {
   return {
     evaluatorVersion: comparability.evaluatorVersion,
     metricRegistryVersion: comparability.metricRegistryVersion,
@@ -549,7 +549,7 @@ function copyDelta(delta: MetricDelta): MetricDelta {
   return { baseline: delta.baseline, variant: delta.variant, delta: delta.delta };
 }
 
-function copyDiff(diff: ComparisonDiffV2): ComparisonDiffV2 {
+export function copyDiff(diff: ComparisonDiffV2): ComparisonDiffV2 {
   const families = diff.families;
   return {
     families: {
@@ -587,7 +587,7 @@ function copyDiff(diff: ComparisonDiffV2): ComparisonDiffV2 {
   };
 }
 
-function copyShare(share: ReportShare | undefined): { share?: ReportShare } {
+export function copyShare(share: ReportShare | undefined): { share?: ReportShare } {
   if (share === undefined) return {};
   return { share: { id: share.id, path: share.path, jsonPath: share.jsonPath } };
 }

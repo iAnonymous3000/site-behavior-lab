@@ -1,12 +1,13 @@
 /**
  * Version-aware entry point for stored scan reports (docs/scan-report-v2-rfc.md,
- * section 10.1). v1 and v2 stay distinct wire types; nothing here synthesizes a
- * v1 report into something that looks authoritatively v2.
+ * 10.1, 14.4). v1, v2 r1, and v2 r2 stay distinct wire types; nothing here
+ * synthesizes one into another.
  *
  * Revision discipline (RFC 10.2): a reader accepts exactly the revisions it was
- * built to understand. An unknown revision of a known major returns
- * "unsupported-revision"; an unknown major returns "unsupported-version". No
- * silent best-effort parse in either case.
+ * built to understand, each validated against its own revision's structural
+ * validator and semantic evaluator. An unknown revision of a known major
+ * returns "unsupported-revision"; an unknown major returns
+ * "unsupported-version". No silent best-effort parse in either case.
  */
 import { isRecord } from "./guards";
 import { isScanReport } from "./report-validation";
@@ -19,10 +20,14 @@ import {
 } from "./scan-report-v2";
 import { isPublicScanReportV2 } from "./scan-report-v2-validation";
 import { scanReportV2SemanticViolations } from "./scan-report-v2-evaluators";
+import { SCAN_REPORT_V2_SCHEMA_REVISION_2, type PublicScanReportV2R2 } from "./scan-report-v2-r2";
+import { isPublicScanReportV2R2 } from "./scan-report-v2-r2-validation";
+import { scanReportV2R2SemanticViolations } from "./scan-report-v2-r2-evaluators";
 
 export type StoredScanReport =
   | { schemaVersion: 1; report: ScanReport }
-  | { schemaVersion: 2; report: PublicScanReportV2 };
+  | { schemaVersion: 2; schemaRevision: 1; report: PublicScanReportV2 }
+  | { schemaVersion: 2; schemaRevision: 2; report: PublicScanReportV2R2 };
 
 /**
  * "invalid": malformed wire data. "inconsistent": structurally valid v2 whose
@@ -54,17 +59,23 @@ export function readStoredScanReport(value: unknown): ReadStoredScanReportResult
   }
 
   if (value.schemaVersion === SCAN_REPORT_V2_SCHEMA_VERSION) {
-    if (value.schemaRevision !== SCAN_REPORT_V2_SCHEMA_REVISION) {
-      // A well-formed future revision is a capability gap, not corrupt data;
-      // distinguish it so callers can message "upgrade to read this report".
-      return Number.isInteger(value.schemaRevision) && (value.schemaRevision as number) > SCAN_REPORT_V2_SCHEMA_REVISION
-        ? { ok: false, error: "unsupported-revision" }
-        : { ok: false, error: "invalid" };
+    if (value.schemaRevision === SCAN_REPORT_V2_SCHEMA_REVISION) {
+      if (!isPublicScanReportV2(value)) return { ok: false, error: "invalid" };
+      const violations = scanReportV2SemanticViolations(value);
+      if (violations.length > 0) return { ok: false, error: "inconsistent", violations };
+      return { ok: true, stored: { schemaVersion: 2, schemaRevision: 1, report: value } };
     }
-    if (!isPublicScanReportV2(value)) return { ok: false, error: "invalid" };
-    const violations = scanReportV2SemanticViolations(value);
-    if (violations.length > 0) return { ok: false, error: "inconsistent", violations };
-    return { ok: true, stored: { schemaVersion: 2, report: value } };
+    if (value.schemaRevision === SCAN_REPORT_V2_SCHEMA_REVISION_2) {
+      if (!isPublicScanReportV2R2(value)) return { ok: false, error: "invalid" };
+      const violations = scanReportV2R2SemanticViolations(value);
+      if (violations.length > 0) return { ok: false, error: "inconsistent", violations };
+      return { ok: true, stored: { schemaVersion: 2, schemaRevision: 2, report: value } };
+    }
+    // A well-formed future revision is a capability gap, not corrupt data;
+    // distinguish it so callers can message "upgrade to read this report".
+    return Number.isInteger(value.schemaRevision) && (value.schemaRevision as number) > SCAN_REPORT_V2_SCHEMA_REVISION_2
+      ? { ok: false, error: "unsupported-revision" }
+      : { ok: false, error: "invalid" };
   }
 
   return (value.schemaVersion as number) > SCAN_REPORT_V2_SCHEMA_VERSION

@@ -21,6 +21,14 @@ import { isPublicScanReportV2 } from "./scan-report-v2-validation";
 import { scanReportV2SemanticViolations } from "./scan-report-v2-evaluators";
 import { toPublicScanReport } from "./scan-report-projection";
 import { toPublicScanReportV1 } from "./scan-report-v1-projection";
+import type {
+  EphemeralComparisonReportR2,
+  EphemeralSingleReportR2,
+  PublicScanReportV2R2
+} from "./scan-report-v2-r2";
+import { isEphemeralScanReportR2, isPublicScanReportV2R2 } from "./scan-report-v2-r2-validation";
+import { scanReportV2R2SemanticViolations } from "./scan-report-v2-r2-evaluators";
+import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import {
   readStoredScanReport,
   type ReadStoredScanReportError,
@@ -57,6 +65,15 @@ export type ComparisonView = {
 
 export type ReportView = {
   origin: "v2" | "legacy-derived";
+  /** null for v1 (no v2 revision applies). */
+  revision: 1 | 2 | null;
+  /**
+   * RFC 15.7: v1 and v2 r1 reports are limited/descriptive; their
+   * intervention-attributed and causal surfaces are suppressed (r1 lacks the
+   * structured facts for authoritative verification). Only r2 views may
+   * render causal framing.
+   */
+  limited: boolean;
   reportType: "single" | "comparison";
   domain: string;
   scannedAt: string | null;
@@ -112,6 +129,8 @@ function viewFromV1(report: ScanReport): ReportView {
   if (report.reportType === "comparison") {
     return {
       origin: "legacy-derived",
+      revision: null,
+      limited: true,
       reportType: "comparison",
       domain: report.baseline.summary.firstPartyDomain,
       scannedAt: report.scannedAt,
@@ -129,6 +148,8 @@ function viewFromV1(report: ScanReport): ReportView {
   }
   return {
     origin: "legacy-derived",
+    revision: null,
+    limited: true,
     reportType: "single",
     domain: report.summary.firstPartyDomain,
     scannedAt: report.conditions.scannedAt,
@@ -137,10 +158,16 @@ function viewFromV1(report: ScanReport): ReportView {
   };
 }
 
-function viewFromV2(report: PublicScanReportV2): ReportView {
+function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, revision: 1 | 2): ReportView {
+  // RFC 15.7: r1 reports stay readable but limited/descriptive; the
+  // intervention-attributed surface (interventionVerified) is suppressed and
+  // may never be re-derived from asserted r1 strings.
+  const limited = revision === 1;
   if (report.reportType === "comparison") {
     return {
       origin: "v2",
+      revision,
+      limited,
       reportType: "comparison",
       domain: report.baseline.subject.observed.registrableDomain,
       scannedAt: report.baseline.startedAt,
@@ -148,7 +175,7 @@ function viewFromV2(report: PublicScanReportV2): ReportView {
       comparison: {
         kind: report.experiment.kind,
         axis: report.experiment.kind === "intervention" ? report.experiment.axis : null,
-        interventionVerified: report.comparability.interventionVerified ?? null,
+        interventionVerified: limited ? null : report.comparability.interventionVerified ?? null,
         familiesEligible: Object.fromEntries(
           Object.entries(report.comparability.perMetric).map(([family, entry]) => [family, entry.eligible])
         ) as Record<MetricFamily, boolean>
@@ -157,6 +184,8 @@ function viewFromV2(report: PublicScanReportV2): ReportView {
   }
   return {
     origin: "v2",
+    revision,
+    limited,
     reportType: "single",
     domain: report.run.subject.observed.registrableDomain,
     scannedAt: report.run.startedAt,
@@ -166,7 +195,8 @@ function viewFromV2(report: PublicScanReportV2): ReportView {
 }
 
 export function toReportView(stored: StoredScanReport): ReportView {
-  return stored.schemaVersion === 1 ? viewFromV1(stored.report) : viewFromV2(stored.report);
+  if (stored.schemaVersion === 1) return viewFromV1(stored.report);
+  return viewFromV2(stored.report, stored.schemaRevision);
 }
 
 // ---------------------------------------------------------------------------
@@ -181,7 +211,14 @@ export function toReportView(stored: StoredScanReport): ReportView {
 export type LoadedReport =
   | { source: "v1"; wire: ScanReport; view: ReportView }
   | { source: "v2-public"; wire: PublicScanReportV2; view: ReportView }
-  | { source: "v2-ephemeral"; wire: EphemeralScanReport; public: PublicScanReportV2; view: ReportView };
+  | { source: "v2-ephemeral"; wire: EphemeralScanReport; public: PublicScanReportV2; view: ReportView }
+  | { source: "v2-r2-public"; wire: PublicScanReportV2R2; view: ReportView }
+  | {
+      source: "v2-r2-ephemeral";
+      wire: EphemeralSingleReportR2 | EphemeralComparisonReportR2;
+      public: PublicScanReportV2R2;
+      view: ReportView;
+    };
 
 /**
  * One reader for everything a scan endpoint can return: API errors, async job
@@ -216,8 +253,10 @@ function sanitizeJobProgress(value: unknown): JobProgress | null {
  * fields and inline screenshots along; the projector cannot leak what it
  * never copies).
  */
-export function publicWireForExportOrPersistence(loaded: LoadedReport): ScanReport | PublicScanReportV2 {
-  if (loaded.source === "v2-ephemeral") return loaded.public;
+export function publicWireForExportOrPersistence(
+  loaded: LoadedReport
+): ScanReport | PublicScanReportV2 | PublicScanReportV2R2 {
+  if (loaded.source === "v2-ephemeral" || loaded.source === "v2-r2-ephemeral") return loaded.public;
   if (loaded.source === "v1") return toPublicScanReportV1(loaded.wire);
   return loaded.wire;
 }
@@ -260,37 +299,57 @@ export function readScanTransportPayload(payload: unknown): ScanTransportResult 
     return readScanTransportPayload(payload.report);
   }
 
-  // Ephemeral v2 immediate result: a public shape plus the `ephemeral` block.
-  // A malformed shell must come back as unreadable, never as a thrown
-  // exception from inside the projector.
+  // Ephemeral v2 immediate result: a public shape plus the `ephemeral` block,
+  // dispatched by revision exactly like the stored reader. A malformed shell
+  // must come back as unreadable, never as a thrown exception from inside a
+  // projector.
   if (payload.schemaVersion === 2 && "ephemeral" in payload) {
-    if (!isEphemeralShell(payload)) return { kind: "unreadable", error: "invalid" };
-    let projected: PublicScanReportV2;
-    try {
-      projected = toPublicScanReport(payload);
-    } catch {
-      return { kind: "unreadable", error: "invalid" };
-    }
-    if (!isPublicScanReportV2(projected)) return { kind: "unreadable", error: "invalid" };
-    const violations = scanReportV2SemanticViolations(projected);
-    if (violations.length > 0) return { kind: "unreadable", error: "inconsistent", violations };
-    return {
-      kind: "report",
-      loaded: {
-        source: "v2-ephemeral",
-        wire: payload,
-        public: projected,
-        view: viewFromV2(projected)
+    if (payload.schemaRevision === 1) {
+      if (!isEphemeralShell(payload)) return { kind: "unreadable", error: "invalid" };
+      let projected: PublicScanReportV2;
+      try {
+        projected = toPublicScanReport(payload);
+      } catch {
+        return { kind: "unreadable", error: "invalid" };
       }
-    };
+      if (!isPublicScanReportV2(projected)) return { kind: "unreadable", error: "invalid" };
+      const violations = scanReportV2SemanticViolations(projected);
+      if (violations.length > 0) return { kind: "unreadable", error: "inconsistent", violations };
+      return {
+        kind: "report",
+        loaded: { source: "v2-ephemeral", wire: payload, public: projected, view: viewFromV2(projected, 1) }
+      };
+    }
+    if (payload.schemaRevision === 2) {
+      if (!isEphemeralScanReportR2(payload)) return { kind: "unreadable", error: "invalid" };
+      let projected: PublicScanReportV2R2;
+      try {
+        projected = toPublicScanReportR2(payload);
+      } catch {
+        return { kind: "unreadable", error: "invalid" };
+      }
+      if (!isPublicScanReportV2R2(projected)) return { kind: "unreadable", error: "invalid" };
+      const violations = scanReportV2R2SemanticViolations(projected);
+      if (violations.length > 0) return { kind: "unreadable", error: "inconsistent", violations };
+      return {
+        kind: "report",
+        loaded: { source: "v2-r2-ephemeral", wire: payload, public: projected, view: viewFromV2(projected, 2) }
+      };
+    }
+    return Number.isInteger(payload.schemaRevision) && (payload.schemaRevision as number) > 2
+      ? { kind: "unreadable", error: "unsupported-revision" }
+      : { kind: "unreadable", error: "invalid" };
   }
 
   const read = readStoredScanReport(payload);
   if (!read.ok) return { kind: "unreadable", error: read.error, ...(read.violations ? { violations: read.violations } : {}) };
+  const view = toReportView(read.stored);
   const loaded: LoadedReport =
     read.stored.schemaVersion === 1
-      ? { source: "v1", wire: read.stored.report, view: toReportView(read.stored) }
-      : { source: "v2-public", wire: read.stored.report, view: toReportView(read.stored) };
+      ? { source: "v1", wire: read.stored.report, view }
+      : read.stored.schemaRevision === 1
+        ? { source: "v2-public", wire: read.stored.report, view }
+        : { source: "v2-r2-public", wire: read.stored.report, view };
   return { kind: "report", loaded };
 }
 
