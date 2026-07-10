@@ -1,3 +1,9 @@
+/**
+ * FROZEN v1 wire types (ScanReport schema version 1). Per the accepted ScanReport v2
+ * RFC (docs/scan-report-v2-rfc.md, section 14 step 1), this module receives security
+ * backports only: no shape changes, no new fields beyond the documented v1 r2
+ * `redactionVersion` addendum. New schema work happens in lib/scan-report-v2.ts.
+ */
 export type ScanDevice = "desktop" | "mobile";
 // "observe" never touches the consent banner (the default; everything recorded is
 // pre-consent). "accept-all"/"reject-all" click that choice on the banner when a

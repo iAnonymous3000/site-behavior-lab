@@ -1,3 +1,9 @@
+/**
+ * FROZEN v1 validator (ScanReport schema version 1). Per the accepted ScanReport v2
+ * RFC (docs/scan-report-v2-rfc.md, section 14 step 1), security backports only.
+ * The v2 validator lives in lib/scan-report-v2-validation.ts and the version-aware
+ * entry point is readStoredScanReport in lib/scan-report-reader.ts.
+ */
 import { SCAN_REPORT_SCHEMA_VERSION, type ComparisonScanResult, type ReportShare, type ScanReport, type ScanResult } from "./types";
 import { isRecord } from "./guards";
 import { isFingerprintDetectionSummary } from "./fingerprint-detection-guard";

@@ -1,13 +1,12 @@
 # RFC: ScanReport v2, the Verified Experiment Contract
 
-> Status: **v0.3.1 DRAFT, 2026-07-09. Architecture accepted at v0.3; this revision is
-> the surgical normative-contract correction requested in that review. To be marked
-> ACCEPTED once these corrections land with green CI; implementation step 1 follows
-> without another architecture review.** Design only; no implementation ships from this
-> document. Successor to the v1 schema pinned at `SCAN_REPORT_SCHEMA_VERSION = 1`
-> ([lib/types.ts](../lib/types.ts)). The durable job queue
-> ([scan-job-model.md](scan-job-model.md)) and domain watchlists are explicitly out of
-> scope and sequenced after this contract.
+> Status: **v0.3.1 ACCEPTED, 2026-07-09.** Architecture accepted at v0.3; the v0.3.1
+> normative corrections landed with green CI (commit f746887, all checks passed), so
+> per the acceptance condition this RFC is the implementation contract. Implementation
+> follows section 14 without further architecture review. Successor to the v1 schema
+> pinned at `SCAN_REPORT_SCHEMA_VERSION = 1` ([lib/types.ts](../lib/types.ts)). The
+> durable job queue ([scan-job-model.md](scan-job-model.md)) and domain watchlists are
+> explicitly out of scope and sequenced after this contract.
 
 ## Goal
 
