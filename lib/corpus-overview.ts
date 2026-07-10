@@ -134,7 +134,7 @@ export function preferAsSiteDataPoint(candidate: DirectoryEntry, existing: Direc
 }
 
 /**
- * Derives the verified consent-click state from the report's recorded
+ * Derives the dispatched consent-click state from the report's recorded
  * interactions. Classification must come from what the scanner actually
  * clicked, never from the requested mode: most consent runs find no clickable
  * banner and therefore only observed the pre-consent state.

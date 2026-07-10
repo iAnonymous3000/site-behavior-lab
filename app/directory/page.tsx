@@ -36,8 +36,8 @@ function formatScanDate(value: string): string {
 function reportTypeLabel(entry: DirectoryEntry): string {
   if (entry.reportType !== "comparison") return "single scan";
   if (entry.comparisonType === "shields") return "Brave Shields comparison";
-  // A consent comparison only compared choices if the scanner verifiably
-  // clicked both banner buttons; otherwise the label must say what actually
+  // A consent comparison only compared choices if the scanner dispatched
+  // clicks on both banner buttons; otherwise the label must say what actually
   // happened, because an unclicked run observed the pre-consent state.
   if (entry.comparisonType === "consent") {
     if (entry.consentClicks === "accept-and-reject") return "consent comparison";

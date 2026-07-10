@@ -55,6 +55,13 @@ async function main() {
     `Scanning ${sites.length} featured site${sites.length === 1 ? "" : "s"} (compareShields=${compareShields}, compareConsent=${compareConsent}, compareGpc=${compareGpc}, device=${device}).`
   );
 
+  // Build the dist/schema production artifact ONCE for the whole run (RFC
+  // 10.3: one build step in CI); every child publisher/manifest invocation
+  // skips its own compile via the env flag below.
+  console.log("Building the dist/schema production artifact once for this run...");
+  await run(process.execPath, [path.join(rootDir, "node_modules", "typescript", "bin", "tsc"), "-p", "tsconfig.schema.json"], {});
+  process.env.SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY = "1";
+
   let succeeded = 0;
   const failures = [];
 

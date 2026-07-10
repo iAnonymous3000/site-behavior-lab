@@ -1130,19 +1130,37 @@ async function pollScanJob(statusPath: string, accessKey = "", reportId?: string
 
 /**
  * Recovery read of a saved report. `null` means the report is genuinely not
- * available yet (404/expired), so the caller may keep waiting or fall back to
- * its own message. A response that EXISTS but fails the reader THROWS with the
- * named reason: retrying cannot fix a damaged or newer-schema report, and the
- * reason must reach the user instead of dissolving into "still running".
+ * available yet (a 404: missing or expired), so the caller may keep waiting or
+ * fall back to its own message. Every other failure THROWS with the named
+ * reason: the server's intentional 500 for an unreadable or newer-schema
+ * stored report, and a payload that fails the reader, must reach the user
+ * instead of dissolving into "still running".
  */
 async function readSavedReport(reportId: string): Promise<ScanReport | null> {
   const response = await fetch(scannerApiUrl(`/api/reports/${reportId}`), { cache: "no-store" });
-  if (!response.ok) return null;
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    const message = await apiErrorMessage(response);
+    throw new Error(message ?? `The saved report could not be read (HTTP ${response.status}).`);
+  }
 
   const payload = (await response.json()) as unknown;
   const read = readRenderableReport(payload, "The saved report");
   if (!read.ok) throw new Error(read.message);
   return read.report;
+}
+
+/** The `{ ok: false, error }` message from an API error body, if it has one. */
+async function apiErrorMessage(response: Response): Promise<string | null> {
+  try {
+    const payload = (await response.json()) as unknown;
+    if (payload && typeof payload === "object" && "error" in payload && typeof payload.error === "string") {
+      return payload.error;
+    }
+  } catch {
+    /* non-JSON error body */
+  }
+  return null;
 }
 
 function scanJobIdFromStatusPath(statusPath: string): string | null {

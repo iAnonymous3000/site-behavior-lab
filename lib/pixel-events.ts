@@ -13,10 +13,14 @@
  *   1. Event NAMES are site configuration, not visitor PII, so they are read
  *      from the request and stored verbatim, gated by a safe-token filter so a
  *      mislabelled field can never smuggle a value into the report.
- *   2. Advanced-matching identifiers are detected by parameter-KEY presence
- *      only. The (usually hashed) value is never read, decoded, or stored, only
- *      the category label (email / phone / ...). This makes "the site sends your
- *      hashed email to Meta" reportable without the scanner itself holding PII.
+ *   2. Advanced-matching identifiers are detected by checking that a known
+ *      identifier parameter carries a NON-EMPTY value. The value is inspected
+ *      only transiently in memory for that emptiness test; it is never
+ *      persisted, exposed, semantically decoded, or hash-validated, only the
+ *      category label (email / phone / ...) is stored. This makes "the site
+ *      sends your email identifier to Meta" reportable without the scanner
+ *      itself holding PII. (The frozen v2 r1/r2 schema descriptions overstate
+ *      this as "never reads"; see the RFC errata.)
  *
  * Pure and dependency-light so it unit-tests without a browser. The scanner
  * feeds it the raw (pre-redaction) request URL and POST body; everywhere else

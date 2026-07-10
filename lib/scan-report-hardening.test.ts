@@ -16,6 +16,8 @@ import { isPublicComparisonReportV2, isPublicScanReportV2, isPublicSingleReportV
 import { readStoredScanReport } from "./scan-report-reader";
 import { publicWireForExportOrPersistence, readScanTransportPayload, toReportView } from "./scan-report-view";
 import { evaluateComparability, evaluateQuality } from "./scan-report-v2-evaluators";
+import { createGpcComparisonReport } from "./compare-reports";
+import type { ScanResult } from "./types";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { makeScanRunV2 } from "./scan-report-v2-fixtures";
 import { sha256Hex } from "./sha256";
@@ -181,6 +183,20 @@ test("toReportView marks v1 as legacy-derived and v2 as v2", () => {
     assert.equal(view.origin, "legacy-derived");
     assert.equal(view.domain, "example.com");
     assert.equal(view.runs.length, 1);
+  }
+
+  // A v1 comparison is DESCRIPTIVE by construction (RFC 10.1): its design
+  // must never read as intervention or temporal, regardless of what any
+  // renderer remembers about `limited`. The attempted axis stays as metadata.
+  const v1Single = makeScanReportV1() as ScanResult;
+  const v1Comparison = readStoredScanReport(createGpcComparisonReport(structuredClone(v1Single), structuredClone(v1Single)));
+  assert.equal(v1Comparison.ok, true);
+  if (v1Comparison.ok) {
+    const view = toReportView(v1Comparison.stored);
+    assert.equal(view.limited, true);
+    assert.equal(view.comparison?.kind, "descriptive");
+    assert.equal(view.comparison?.axis, "gpc");
+    assert.equal(view.comparison?.interventionVerified, null);
   }
 
   const v2 = readStoredScanReport(makeTemporalComparisonReportV2());

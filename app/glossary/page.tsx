@@ -36,7 +36,7 @@ const ENTRIES: GlossaryEntry[] = [
     id: "gpc",
     term: "Global Privacy Control (GPC)",
     definition:
-      "A signal the browser sends with every request asking the site not to sell or share your data. It carries legal weight in several US states, including California. The GPC diff mode visits the page with and without the signal to show whether the site actually behaves differently."
+      "A signal the browser sends with every request asking the site not to sell or share your data. It carries legal weight in several US states, including California. The GPC diff mode visits the page with and without the signal to show what differed between the two visits; request counts cannot show whether data sales stopped."
   },
   {
     id: "third-party",
@@ -72,7 +72,7 @@ const ENTRIES: GlossaryEntry[] = [
     id: "advertising-pixels",
     term: "Advertising pixels",
     definition:
-      "Tracking pixels from platforms like Meta, TikTok, and X. Reports decode which events each pixel fired (PageView, Purchase, and so on) and whether personal-identifier fields were attached. Detection is by parameter name only; the values (which the platforms document as hashed) are never read or stored, so the hashing itself is not verified."
+      "Tracking pixels from platforms like Meta, TikTok, and X. Reports decode which events each pixel fired (PageView, Purchase, and so on) and whether personal-identifier fields were attached. Detection checks that a known identifier parameter carries a non-empty value; the value is inspected only transiently and never persisted, exposed, or decoded, so the platforms' documented hashing is not verified."
   },
   {
     id: "consent-diff",

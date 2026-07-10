@@ -113,13 +113,13 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   };
 }
 
-/** v1 comparisonType to the v2 design vocabulary; "custom" is descriptive. */
-function legacyComparisonKind(comparisonType: string): ComparisonView["kind"] {
-  if (comparisonType === "gpc" || comparisonType === "shields" || comparisonType === "consent") return "intervention";
-  if (comparisonType === "temporal") return "temporal";
-  return "descriptive";
-}
-
+/**
+ * Every v1 comparison is DESCRIPTIVE by construction (RFC 10.1): the v1
+ * environment was never fully recorded, so per the unknown rule (3.2) neither
+ * an intervention nor a temporal design is provable from it. The kind must
+ * not depend on renderers remembering `limited: true`; `axis` still records
+ * which intervention the comparison ATTEMPTED, as descriptive metadata.
+ */
 function legacyComparisonAxis(comparisonType: string): InterventionAxis | null {
   if (comparisonType === "gpc" || comparisonType === "shields" || comparisonType === "consent") return comparisonType;
   return null;
@@ -139,7 +139,7 @@ function viewFromV1(report: ScanReport): ReportView {
         runViewFromV1(report.variant, "variant", report.variant.conditions.scannedAt)
       ],
       comparison: {
-        kind: legacyComparisonKind(report.comparisonType),
+        kind: "descriptive",
         axis: legacyComparisonAxis(report.comparisonType),
         interventionVerified: null,
         familiesEligible: null

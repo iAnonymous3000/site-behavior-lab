@@ -140,16 +140,29 @@ async function readReportRecords(reportsDir: string): Promise<{ records: ReportR
       path: filePath,
       scannedAtMs,
       domain: view.domain ? view.domain.toLowerCase().replace(/^www\./, "") : null,
-      kind: reportKind(view.reportType, view.comparison)
+      kind: retentionKind(read.stored)
     });
   }
 
   return { records, warnings };
 }
 
-function reportKind(reportType: "single" | "comparison", comparison: { kind: string; axis: string | null } | null): string {
-  if (reportType !== "comparison" || comparison === null) return "single";
-  return comparison.axis ?? comparison.kind;
+/**
+ * Retention grouping key. Deliberately NOT the view's design vocabulary: the
+ * seam classifies every v1 comparison as descriptive (RFC 10.1), but the
+ * "keep a current and previous generation" pairing groups by what kind of
+ * report was PRODUCED (shields / consent / gpc / temporal / single), which is
+ * wire-level metadata, not an experiment-validity claim.
+ */
+function retentionKind(stored: Parameters<typeof toReportView>[0]): string {
+  if (stored.schemaVersion === 1) {
+    const report = stored.report;
+    if (report.reportType !== "comparison") return "single";
+    return report.comparisonType || "comparison";
+  }
+  const report = stored.report;
+  if (report.reportType !== "comparison") return "single";
+  return report.experiment.kind === "intervention" ? report.experiment.axis : report.experiment.kind;
 }
 
 function isMissingDirectory(error: unknown): boolean {

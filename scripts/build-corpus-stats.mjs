@@ -15,7 +15,11 @@ import { fileURLToPath } from "node:url";
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const tsc = path.join(rootDir, "node_modules", "typescript", "bin", "tsc");
 
-execFileSync(process.execPath, [tsc, "-p", "tsconfig.schema.json"], { cwd: rootDir, stdio: "inherit" });
+// An orchestrator that already built dist/schema for the whole run sets the
+// env flag so repeated invocations skip the recompile.
+if (process.env.SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY !== "1") {
+  execFileSync(process.execPath, [tsc, "-p", "tsconfig.schema.json"], { cwd: rootDir, stdio: "inherit" });
+}
 execFileSync(process.execPath, [path.join(rootDir, "dist", "schema", "lib", "corpus-stats-builder-cli.js")], {
   cwd: rootDir,
   stdio: "inherit"

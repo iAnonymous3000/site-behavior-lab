@@ -1488,6 +1488,21 @@ only a content type, and a report write plus a sidecar write is NOT atomic):
 
 ---
 
+## Errata
+
+- **E1 (2026-07-10, open; fix lands with the next published revision)**: the
+  `PixelMatchField` description in the PUBLISHED v2 r1 and r2 schemas states
+  detection is "by parameter-key presence only: the scanner never reads,
+  decodes, or stores the (usually hashed) value". The decoder actually
+  requires the identifier parameter to carry a NON-EMPTY value, so the value
+  is inspected transiently in memory for that emptiness test. It is never
+  persisted, exposed, semantically decoded, or hash-validated; only the
+  category label is stored. The published r1/r2 schema files are immutable
+  (10.2: hash-pinned, byte-for-byte parity-tested), so the wording is
+  corrected here and in the runtime copy (lib/pixel-events.ts, README,
+  glossary) and the schema description must be fixed in the next new
+  revision's types, never by editing the frozen files.
+
 ## Changelog
 
 - **r2-a4 addendum (2026-07-10, ACCEPTED)**: four surgical corrections per the

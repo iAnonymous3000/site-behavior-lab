@@ -79,7 +79,7 @@ test("rows expose the lead run's HTTP status so failed loads are filterable", ()
   assert.equal(rows[1].status, 403);
 });
 
-test("consent rows expose the verified click state so unclicked runs are filterable", () => {
+test("consent rows expose the dispatched click state so unclicked runs are filterable", () => {
   const rows = buildCorpusExportRows(
     [
       makeEntry({

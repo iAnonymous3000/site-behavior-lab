@@ -2,7 +2,7 @@
 
 import { execFileSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { appendFile, mkdtemp, writeFile } from "node:fs/promises";
+import { appendFile, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -65,18 +65,28 @@ try {
   // artifact): it deep-validates the payload, projects known fields only
   // (never a spread of untrusted JSON), attaches the canonical share pointer,
   // and re-validates the exact bytes before writing. A scan result that fails
-  // the canonical reader is never committed.
+  // the canonical reader is never committed. An orchestrator that already
+  // built dist/schema for the whole run (run-featured-scans) sets the env
+  // flag so 81 sites do not mean 81 recompiles.
   const reportPath = path.join(reportsDir, `${id}.json`);
   const stagingDir = await mkdtemp(path.join(tmpdir(), "sbl-publish-"));
-  const stagingPath = path.join(stagingDir, "scan-result.json");
-  await writeFile(stagingPath, JSON.stringify(savedReport));
-  const tsc = path.join(rootDir, "node_modules", "typescript", "bin", "tsc");
-  execFileSync(process.execPath, [tsc, "-p", "tsconfig.schema.json"], { cwd: rootDir, stdio: "inherit" });
-  execFileSync(
-    process.execPath,
-    [path.join(rootDir, "dist", "schema", "lib", "publish-scan-report-cli.js"), stagingPath, reportPath, id],
-    { cwd: rootDir, stdio: "inherit" }
-  );
+  try {
+    const stagingPath = path.join(stagingDir, "scan-result.json");
+    await writeFile(stagingPath, JSON.stringify(savedReport));
+    if (process.env.SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY !== "1") {
+      const tsc = path.join(rootDir, "node_modules", "typescript", "bin", "tsc");
+      execFileSync(process.execPath, [tsc, "-p", "tsconfig.schema.json"], { cwd: rootDir, stdio: "inherit" });
+    }
+    execFileSync(
+      process.execPath,
+      [path.join(rootDir, "dist", "schema", "lib", "publish-scan-report-cli.js"), stagingPath, reportPath, id],
+      { cwd: rootDir, stdio: "inherit" }
+    );
+  } finally {
+    // The staging file is the UNPROJECTED scan result (it can carry an inline
+    // screenshot); never leave it behind in the temp directory.
+    await rm(stagingDir, { recursive: true, force: true });
+  }
   await writeGithubOutput({ report_id: id, report_path: `public/reports/${id}.json` });
 
   console.log(`Wrote static report ${id} for ${targetUrl}.`);

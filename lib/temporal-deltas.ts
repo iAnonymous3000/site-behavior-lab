@@ -9,7 +9,7 @@ import type { ComparisonType } from "./types";
  * report types: a Shields/GPC comparison leads with a pre-consent observe run,
  * while a consent comparison leads with the post-accept run, so mixing kinds
  * would report a mode change as a site change. Consent reports additionally
- * split by verified click state (`consentClicks`): a run where the banner was
+ * split by dispatched click state (`consentClicks`): a run where the banner was
  * actually clicked measures post-choice behavior, while an unclicked run only
  * observed the pre-consent state, so pairing the two would report the
  * interaction difference as a site change. Only the newest report per
