@@ -49,11 +49,8 @@ export function generateScanReportV2Schema() {
 }
 
 function main() {
-  execFileSync(process.execPath, [path.join(rootDir, "node_modules", "typescript", "bin", "tsc"), "-p", "tsconfig.schema.json"], {
-    cwd: rootDir,
-    stdio: "inherit"
-  });
-
+  // Atomicity: verify the freeze BEFORE any other side effect (including the
+  // validator-artifact compile), so a rejected mutation leaves nothing behind.
   const schema = generateScanReportV2Schema();
   const serialized = `${JSON.stringify(schema, null, 2)}\n`;
   const digest = createHash("sha256").update(serialized).digest("hex");
@@ -65,6 +62,12 @@ function main() {
     );
     process.exit(1);
   }
+
+  execFileSync(process.execPath, [path.join(rootDir, "node_modules", "typescript", "bin", "tsc"), "-p", "tsconfig.schema.json"], {
+    cwd: rootDir,
+    stdio: "inherit"
+  });
+
   mkdirSync(path.dirname(REVISIONED_PATH), { recursive: true });
   writeFileSync(REVISIONED_PATH, serialized);
   writeFileSync(ALIAS_PATH, serialized);

@@ -930,10 +930,11 @@ function toReportView(report: StoredScanReport): ReportView;
 ### 10.4 Migration order
 
 Superseded in detail by section 14; the invariants remain: readers land before any
-emit change, redaction can ship inside v1 emission (removing data is
-schema-compatible, tracked as v1 r2), Browser Run stays v1, and the corpus regenerates
-organically via the weekly cron with per-site keep-two retention bridging the
-transition.
+emit change, redaction ships in the sanitizer while producers still emit v1 wire
+(removing data is schema-compatible; v1 gains NO marker field, provenance is
+tracked by the sidecar manifest of 15.7), Browser Run stays v1, and the corpus
+regenerates organically via the weekly cron with per-site keep-two retention
+bridging the transition.
 
 ### 10.5 Normative status of named types
 
@@ -1111,44 +1112,56 @@ integrity evaluators, exhaustive v1 guard, executable schema freeze) **executed
    assumed).
 8. **Dual-read consumer migration**: storage/API, uploads, pages, scripts, corpus,
    exports, and UI.
-9. **Move the stable schema alias to r2** (only now, after the complete dual-read
-   gate passes, immediately before producer rollout).
-10. **Redaction v2 and historical remediation** (sanitizer across every persistent
-    sink per section 9; remediation inventory and pass per 9.6; versioning per
-    15.7).
-11. **Controlled r2 producer emission** (Node scanner, compare-reports, CI script,
-    PageGraph adapter; Browser Run stays v1 per 11.1).
+9. **Redaction v2, historical remediation, and the provenance manifest** (sanitizer
+   across every persistent sink per section 9; remediation inventory and pass per
+   9.6; sidecar redaction-provenance manifest per 15.7).
+10. **Verified phased experiments and unified corpus eligibility** (sections 4, 6,
+    7; comparability + metric registry consumed by headlines, diffs, temporal
+    deltas, stats, exports), with corpus regeneration.
+11. **Move the stable schema alias to r2**, only after the complete dual-read gate
+    and the phases above.
+12. **Controlled r2 producer emission** (Node scanner, compare-reports, CI script,
+    PageGraph adapter; Browser Run stays v1 per 11.1). Comparison producers emit
+    r2 only once step 10's verified phased experiments exist to populate the
+    structured facts; emitting them earlier would mint r2 reports whose mandatory
+    semantics nothing can satisfy.
 
 Then the larger phases:
 
-12. Verified phased experiments (sections 4, 6, 7).
-13. Unified corpus eligibility (comparability + metric registry consumed by
-    headlines, diffs, temporal deltas, stats, exports) and corpus regeneration.
-14. Durable queue (inheriting 9.7's constraints).
-15. Registrable-domain profiles and watches (opaque watch IDs, encrypted targets).
+13. Durable queue (inheriting 9.7's constraints).
+14. Registrable-domain profiles and watches (opaque watch IDs, encrypted targets).
 
 ---
 
 ## 15. Revision 2 addendum (normative)
 
-> Status: **r2-a1 DRAFT, 2026-07-09, awaiting review.** r2 implementation is gated
-> on this addendum's acceptance (14.1).
+> Status: **r2-a2 DRAFT, 2026-07-09, awaiting review.** Supersedes r2-a1, whose
+> methodology contradictions (global replication strength, collector-impossible
+> Shields invariant, boolean GPC signals, vacuous consent failure, ungrounded
+> banner transitions, optional-vs-mandatory ambiguity) are corrected below. r2
+> implementation is gated on this addendum's acceptance (14.1).
 
-### 15.1 Principles
+### 15.1 Principles and revision policy
 
-- **Additive only.** r2 adds optional structured blocks to the r1 shape; removing
-  or incompatibly replacing an r1 field is a new major schema version, not r2.
+- **Additive, precisely defined.** The r2 structural schema is a superset of r1:
+  every new block is STRUCTURALLY OPTIONAL, so no r1-shaped payload is
+  structurally unrepresentable in r2. Semantic requirements are per revision and
+  MAY be stricter: the r2 evaluator makes the new blocks MANDATORY where
+  applicable (15.2 for the intervention axis, 15.3/15.4 for consent-mode runs),
+  exactly as r1 already requires consent evidence on consent-mode runs. A payload
+  is validated against the semantics of its own declared revision, never a
+  blend. Removing or incompatibly replacing an r1 field remains a new major.
 - **Every r1 field remains present in r2 and becomes derived.** The r2 evaluator
-  recomputes each retained r1 field (arm `expected`/`observed`/`outcome`, consent
-  `choiceState`/`reverifiedAfterReload`, experiment `evidence`) from the structured
-  facts below and rejects disagreement on read, the same discipline r1 applies to
-  quality, comparability, and the diff. Asserted strings never outrank facts.
+  recomputes each retained r1 field (arm `expected`/`observed`/`outcome`/
+  `method`/`phaseId`, consent `choiceState`/`reverifiedAfterReload`, experiment
+  `evidence`) from the structured facts below and rejects disagreement on read.
+  Asserted strings never outrank facts.
 - **r1 stays immutable**, enforced by the executable hash gate (10.2). r2 types
   declare `schemaRevision: 2`; the r1 constant and generic types are untouched.
 - **Reader dispatch is exact**: v2 r1 and v2 r2 each validate against their own
   revision; r3+ returns `unsupported-revision`.
-- **The stable alias stays on r1** until step 14.9. Producers emit v1 through the
-  entire foundation, asserted in tests.
+- **The stable alias stays on r1** until step 14.11. Producers emit v1 through
+  the entire foundation, asserted in tests.
 
 ### 15.2 Structured arm facts (`run.verificationFacts`, r2)
 
@@ -1157,69 +1170,118 @@ type ScanRunV2R2 = ScanRunV2 & {
   verificationFacts?: {
     gpc?: {
       method: "gpc-header-readback@1";
-      headerObserved: boolean | null;    // Sec-GPC: 1 seen on the run's first-party requests; null = unobservable
-      jsSignalObserved: boolean | null;  // navigator.globalPrivacyControl readback
+      // Closed observation states; booleans cannot distinguish absent, false,
+      // and read failure (the scanner leaves navigator.globalPrivacyControl
+      // ABSENT when GPC is off, it never sets false).
+      header: "confirmed-present" | "confirmed-absent" | "unobservable";
+      jsSignal: "confirmed-true" | "confirmed-false" | "confirmed-absent" | "read-failed" | "unobservable";
+      observedOn: "first-party-navigation" | "all-requests-sample";  // observation scope
       phaseId: PhaseId;
     };
     shields?: {
       method: "shields-engine-status@1";
       engineLoaded: boolean;
-      applied: boolean;                  // block simulation actually wired into this run
-      requestsEvaluated: number;
-      requestsBlocked: number;           // must equal the run's derived blocked count
+      applied: boolean;                 // block simulation actually wired into this run
+      requestsEvaluated: number;        // offered to the engine
+      requestsMatched: number;          // engine matched a block rule
+      requestsActuallyBlocked: number;  // simulation only: cancelled, thus ABSENT from retained evidence
       phaseId: PhaseId;
     };
   };
 };
 ```
 
-Both runs of an intervention pair MUST carry the facts block for the declared axis
-(GPC and Shields axes; consent verifies via 15.3/15.4). Normative derivations of
-the retained r1 arm fields:
+Both runs of an intervention pair MUST carry the facts block for the declared
+axis (GPC and Shields; consent verifies via 15.3/15.4).
 
-- GPC: `observed = "gpc:on"` iff `headerObserved === true && jsSignalObserved ===
-  true`; `"gpc:off"` iff both are `false`; `null` otherwise (mixed or unobservable
-  signals are inconclusive, never rounded up).
-- Shields: `observed = "shields:block-simulation"` iff `engineLoaded && applied &&
-  requestsEvaluated > 0`; `"shields:classification"` iff `engineLoaded &&
-  !applied`; `"shields:off"` iff `!engineLoaded && !applied`; `null` otherwise.
-- `outcome` then follows the generic expected/observed rule; `method` and
-  `phaseId` must equal the facts'.
+**GPC derivation** of the retained r1 arm fields: `observed = "gpc:on"` iff
+`header === "confirmed-present" && jsSignal === "confirmed-true"`;
+`observed = "gpc:off"` iff `header === "confirmed-absent"` and `jsSignal` is
+`"confirmed-absent"` or `"confirmed-false"`; `observed = null` otherwise (mixed,
+failed, or unobservable signals are inconclusive, never rounded up).
+
+**Shields invariants** (the collector REMOVES actually blocked requests from the
+public request evidence, so no invariant may equate `requestsActuallyBlocked`
+with a count derived from retained requests):
+
+- `requestsActuallyBlocked <= requestsMatched <= requestsEvaluated`;
+- `engineLoaded === false` implies `applied === false` and all three counts `0`;
+- `applied === false` implies `requestsActuallyBlocked === 0`;
+- toolchain reconciliation: `engineLoaded === true` iff `toolchain.adblock !== null`;
+- retained-evidence reconciliation: on a `block-simulation` run the retained
+  evidence carries zero `blockedByShields` flags (blocked requests never
+  completed); on a `classification` run the count of retained requests flagged
+  `blockedByShields` equals `requestsMatched`.
+
+**Exact compatibility-summary derivation**: `summary.counts.shieldsBlockedRequests`
+equals `requestsMatched` on a classification run and `requestsActuallyBlocked` on
+a block-simulation run; it is omitted when `engineLoaded === false`. (This
+replaces r1's retained-evidence-only reconciliation for r2 simulation runs.)
+
+**Shields derivation** of the retained r1 arm fields:
+`observed = "shields:block-simulation"` iff `engineLoaded && applied`;
+`"shields:classification"` iff `engineLoaded && !applied && requestsEvaluated > 0`;
+`"shields:off"` iff `!engineLoaded`; `null` otherwise. `outcome` then follows the
+generic expected/observed rule; `method` and `phaseId` must equal the facts'.
 
 ### 15.3 Consent observation outcomes (r2)
 
-Each `ConsentVerificationObservation` gains:
+Each `ConsentVerificationObservation` gains a discriminated outcome; the
+outcome/code mapping is exact, not advisory:
 
-```ts
-outcome: "read" | "unreadable" | "error" | "timeout" | "unsupported-frame";
-errorCode?: "interpreter-threw" | "api-timeout" | "cross-origin-frame-blocked" | "state-format-unrecognized";
-```
+| `outcome` | `observed` | `errorCode` |
+|---|---|---|
+| `"read"` | non-null | absent |
+| `"unreadable"` | null | absent (interpreter ran; no state present) |
+| `"error"` | null | required: `"interpreter-threw"` or `"state-format-unrecognized"` |
+| `"timeout"` | null | required: `"api-timeout"` |
+| `"unsupported-frame"` | null | required: `"cross-origin-frame-blocked"` |
 
-Rules: `outcome === "read"` iff `observed !== null`; every other outcome requires
-`observed === null`; `errorCode` present iff outcome is `"error"` or `"timeout"`.
-This makes interpreter failure representable, so the five-state derivation
-completes: **`choiceState = "failed"`** derives when every strong-interpreter
-observation in the attempted consent phases has outcome `error`/`timeout` (no
-strong read succeeded and nothing contradicts); `contradicted` still takes
-precedence, `verified` still requires strong reads in both phases, and the
-weak-signal/unavailable split follows 15.4.
+Any other combination is invalid. The five-state derivation is evaluated in this
+precedence order, first match wins:
+
+1. `contradicted`: at least one strong-interpreter `read` inconsistent with the
+   choice.
+2. `verified`: strong consistent `read`s in BOTH consent phases, control
+   activated, no contradiction.
+3. `failed`: **at least one recorded strong observation** with outcome
+   `error`/`timeout` AND zero strong `read`s (never vacuous: zero strong
+   observations derives `weak-signal`/`unavailable` below, not `failed`).
+4. `weak-signal`: the grounded banner transition of 15.4.
+5. `unavailable`: everything else.
+
+**Singular compatibility fields**: the retained r1 `method` and `phaseId` (arm
+verification and any singular consent surface) are those of the earliest
+observation that established the derived state, in array order; the observations
+array MUST be ordered by `phaseId` then recording time. For `verified` that is
+the post-choice-reload `read`; for `contradicted` the first inconsistent `read`;
+for `failed` the first `error`/`timeout`; for `weak-signal` the 15.4 transition's
+after-interaction observation.
 
 ### 15.4 Banner-transition facts (r2)
+
+Phase-tagged observations, not bare booleans:
 
 ```ts
 consent.bannerTransition?: {
   method: "banner-visibility@1";
-  visibleBefore: boolean;
-  visibleAfterInteraction: boolean;
-  visibleAfterReload: boolean | null;
+  observations: Array<{
+    moment: "before-interaction" | "after-interaction" | "after-reload";
+    phaseId: PhaseId;                 // moment must agree with the phase kind:
+                                      // before/after-interaction in consent-interaction,
+                                      // after-reload in post-choice-reload
+    visible: boolean;
+  }>;
 };
 ```
 
-`weak-signal` derives from an actual observed transition (`visibleBefore &&
-!visibleAfterInteraction`) rather than r1's bare presence of a weak observation;
-weak observations without a transition derive `unavailable`.
+`weak-signal` derives ONLY when all of: `interactionAttempted === true`,
+`controlActivated === true`, the consent-banner detector status is `"complete"`,
+and the transition is observed (`before-interaction` visible `true` and
+`after-interaction` visible `false`). A disappearance without an activated
+control, or weak observations without a transition, derives `unavailable`.
 
-### 15.5 Supporting pairs (replication, r2)
+### 15.5 Supporting pairs (r2): replication machinery without replication claims
 
 ```ts
 experiment.supportingPairs?: Array<{
@@ -1231,26 +1293,29 @@ experiment.supportingPairs?: Array<{
 }>;
 ```
 
-Uniqueness and order rules (normative):
+Uniqueness and matching rules (normative):
 
-- `pairId`s are unique across the report and distinct from the primary's.
-- `runId`s are unique across ALL runs in the report; a run is never reused
-  between pairs.
+- `pairId`s unique across the report and distinct from the primary's; `runId`s
+  unique across ALL runs in the report (a run is never reused between pairs).
 - Each pair's chronology must match its declared order (the r1 rule, per pair).
-- Every supporting pair must pass the SAME evaluator gates as the primary: run
-  completeness, subject match, exact axis delta, measurement-environment equality
-  (with the primary's runs as well), and both arms passed with their structured
-  facts.
+- Each supporting pair must match the primary's observed subject, and its
+  baseline/variant `condition` fingerprints must equal the primary
+  baseline/variant `condition` fingerprints respectively.
+- Each supporting pair must pass the SAME evaluator gates as the primary: run
+  completeness, exact axis delta, measurement-environment equality (including
+  with the primary's runs), and both arms passed with their structured facts.
 
-Derived experiment evidence (r1 fields, now computed): `pairs === 1 +
-supportingPairs.length`; `counterbalanced === true` iff the orders across all
-pairs include both AB and BA; `strength === "replicated-difference"` derivable
-ONLY when `pairs >= 2 && counterbalanced` and every pair is family-eligible for
-the claimed metric family. **Replicated claims remain disabled at r2
-publication**: the evaluator derives strength exclusively from embedded
-supporting pairs, and pair counters or metadata alone are never sufficient.
-Enabling replicated wording in product surfaces is a later decision gated on this
-machinery existing, not a schema event.
+Derived experiment evidence: `pairs === 1 + supportingPairs.length` and
+`counterbalanced === true` iff the orders across all pairs include both AB and
+BA. **`strength` remains `"observed-difference"` unconditionally in r2.**
+Eligibility is metric-family-scoped and there is no "claimed family" on the
+experiment, so a single global strength cannot encode replication; worse, pairs
+with opposite effect directions would count. Replicated wording is DEFERRED to a
+future revision that defines a metric-scoped effect model (per family:
+same-direction, nonzero effects across all pairs, each pair family-eligible).
+Until then `"replicated-difference"` stays unrepresentable and rejected, exactly
+as in r1; supporting pairs exist so replication can later be derived from
+complete evidence, never from counters or metadata.
 
 ### 15.6 r1 display status
 
@@ -1260,19 +1325,48 @@ suppressed for r1, which lacks the structured facts for authoritative
 verification. Asserted r1 strings never regain causal claims. (v1 reports remain
 `legacy-derived` and descriptive, per 10.1.)
 
-### 15.7 Redaction versioning (supersedes the withdrawn v1-r2 marker)
+### 15.7 Redaction provenance (supersedes the withdrawn v1-r2 marker)
 
 v1 is frozen, so no `redactionVersion` field is added to v1. Redaction v2 ships
-in the sanitizer while producers still emit v1 wire (14.10); its version becomes
+in the sanitizer while producers still emit v1 wire (14.9); the version becomes
 observable on the wire only with v2 emission (`privacy.redactionVersion`).
-Whether a given v1 report predates or postdates redaction v2 is determined by its
-scan date against the deployment date, and the public corpus regenerates after
-remediation (9.6) regardless.
+
+For v1 reports, provenance is NEVER inferred from scan dates. Managed reports
+(committed corpus and R2 share store) get a **sidecar provenance manifest**:
+entries keyed by report ID carrying the SHA-256 of the public report bytes and
+the redaction version that produced them, written by the remediation pass (9.6)
+and by every subsequent managed write. A report whose digest matches its
+manifest entry has that entry's redaction version; a missing or mismatched entry,
+and every externally uploaded v1 report, is **"redaction version unknown"** and
+is treated as unremediated.
 
 ---
 
 ## Changelog
 
+- **r2-a2 addendum (2026-07-09)**: corrects r2-a1's methodology contradictions
+  per review. Replication: `strength` stays `"observed-difference"`
+  unconditionally (eligibility is metric-scoped and no claimed family exists;
+  opposite-direction effects must not count); supporting pairs must match the
+  primary's subject and per-arm condition fingerprints; replicated wording
+  deferred to a future metric-scoped effect model. Shields facts split into
+  evaluated/matched/actuallyBlocked with `blocked <= matched <= evaluated`,
+  toolchain and retained-evidence reconciliation, and an exact
+  summary derivation (the collector removes actually blocked requests from
+  public evidence, so the r2-a1 invariant was impossible). GPC signals became
+  closed observation states with scope (absent vs false vs read-failed are
+  distinct). Consent outcome/errorCode mapping is an exact table; `failed`
+  requires at least one recorded strong error/timeout (never vacuous);
+  precedence and singular method/phaseId selection defined. Banner transitions
+  are phase-tagged moment observations gated on an attempted interaction, an
+  activated control, and a complete consent detector. Revision policy resolved:
+  new blocks are structurally optional, semantically mandatory per revision.
+  10.4 and the v1 types header lose the stale v1-r2 redaction marker; 15.7 now
+  specifies the sidecar provenance manifest (report ID + public-bytes digest;
+  external uploads stay "redaction version unknown"; no date inference).
+  Section 14 tail reordered: dual-read consumers, then redaction/remediation/
+  manifest, then verified experiments + unified eligibility, then the alias
+  move, then controlled producer rollout.
 - **r2-a1 addendum (2026-07-09)**: normative revision-2 specification added as
   section 15 (structured GPC/Shields arm facts with exact derivations of the
   retained r1 fields, consent observation outcome/error vocabulary completing the

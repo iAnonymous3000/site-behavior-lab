@@ -61,8 +61,12 @@ type AnyRecord = Record<string, any>;
 test("the committed schema files equal a fresh generation from the types", () => {
   const committed = JSON.parse(readFileSync(path.join(rootDir, "public", "schemas", "scan-report.v2.r1.schema.json"), "utf8"));
   assert.deepEqual(committed, generated, "run `npm run build:schema` and commit the result");
-  const alias = JSON.parse(readFileSync(path.join(rootDir, "public", "scan-report.schema.json"), "utf8"));
-  assert.deepEqual(alias, committed, "the stable alias must match the current revision");
+  // While the alias targets r1 it must be the SAME BYTES, not merely
+  // JSON-equivalent: a reordered or reformatted alias would hash differently
+  // and undermine the freeze pin below.
+  const aliasBytes = readFileSync(path.join(rootDir, "public", "scan-report.schema.json"));
+  const revisionedBytes = readFileSync(path.join(rootDir, "public", "schemas", "scan-report.v2.r1.schema.json"));
+  assert.equal(aliasBytes.equals(revisionedBytes), true, "the stable alias must be byte-identical to the current revision");
 });
 
 // THE r1 freeze, executable (RFC 10.2). The drift test above would pass if
