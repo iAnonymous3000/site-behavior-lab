@@ -258,7 +258,7 @@ function detectorApplicable(id: (typeof DETECTOR_IDS)[number], run: ScanRunV2): 
 // Comparability (RFC 4.4)
 // ---------------------------------------------------------------------------
 
-function subjectsMatch(a: ScanRunV2, b: ScanRunV2): boolean {
+export function subjectsMatch(a: ScanRunV2, b: ScanRunV2): boolean {
   return (
     a.subject.observed.origin === b.subject.observed.origin &&
     a.subject.observed.routeShape === b.subject.observed.routeShape
@@ -423,7 +423,7 @@ function canonicallyEqual(a: unknown, b: unknown): boolean {
   return canonicalJson(a) === canonicalJson(b);
 }
 
-const CONSENT_CHOICE_TO_ARM_OUTCOME: Record<string, ArmVerification["outcome"]> = {
+export const CONSENT_CHOICE_TO_ARM_OUTCOME: Record<string, ArmVerification["outcome"]> = {
   verified: "passed",
   contradicted: "failed",
   failed: "failed",
@@ -484,7 +484,17 @@ function countConsistent(summaryValue: number, derivedValue: number, censored: b
   return censored ? summaryValue >= derivedValue : summaryValue === derivedValue;
 }
 
-function summaryViolations(run: ScanRunV2, derivedQuality: Quality, label: string): string[] {
+export type RunCoreOptions = {
+  /**
+   * r2 runs with Shields verification facts derive summary
+   * shieldsBlockedRequests from the facts (RFC 15.3), not from retained
+   * evidence flags; the r2 evaluator opts out of the r1 evidence-flag rule
+   * and enforces its own.
+   */
+  skipShieldsSummary?: boolean;
+};
+
+function summaryViolations(run: ScanRunV2, derivedQuality: Quality, label: string, options: RunCoreOptions = {}): string[] {
   const violations: string[] = [];
   const derived = deriveCounts(run);
   const counts = run.summary.counts;
@@ -513,12 +523,14 @@ function summaryViolations(run: ScanRunV2, derivedQuality: Quality, label: strin
     }
   }
 
-  if (counts.shieldsBlockedRequests !== undefined) {
-    if (!countConsistent(counts.shieldsBlockedRequests, derived.shieldsBlocked, requestsCensored)) {
-      violations.push(`${label}: summary.counts.shieldsBlockedRequests does not reconcile with the evidence`);
+  if (!options.skipShieldsSummary) {
+    if (counts.shieldsBlockedRequests !== undefined) {
+      if (!countConsistent(counts.shieldsBlockedRequests, derived.shieldsBlocked, requestsCensored)) {
+        violations.push(`${label}: summary.counts.shieldsBlockedRequests does not reconcile with the evidence`);
+      }
+    } else if (derived.shieldsBlocked > 0) {
+      violations.push(`${label}: requests carry blockedByShields but the summary omits shieldsBlockedRequests`);
     }
-  } else if (derived.shieldsBlocked > 0) {
-    violations.push(`${label}: requests carry blockedByShields but the summary omits shieldsBlockedRequests`);
   }
 
   // countsByPhase must cover exactly the phases with observed activity when
@@ -580,7 +592,7 @@ function detectorViolations(run: ScanRunV2, label: string): string[] {
   return violations;
 }
 
-function phaseKindAt(run: ScanRunV2, phaseId: number): PhaseKind | null {
+export function phaseKindAt(run: ScanRunV2, phaseId: number): PhaseKind | null {
   return run.phases[phaseId]?.kind ?? null;
 }
 
@@ -732,7 +744,14 @@ function budgetViolations(run: ScanRunV2, label: string): string[] {
   return violations;
 }
 
-function runViolations(run: ScanRunV2, label: string): string[] {
+/**
+ * Every run-level cross-check EXCEPT consent semantics: timestamps, phases,
+ * fingerprints, quality, budgets, summary reconciliation, and detector
+ * consistency. Exported for the r2 evaluator, whose consent derivations
+ * (result blocks, transitions, failed-via-outcomes) supersede this module's
+ * r1 rules while everything here applies to both revisions.
+ */
+export function scanRunCoreViolations(run: ScanRunV2, label: string, options: RunCoreOptions = {}): string[] {
   const violations: string[] = [];
   if (!isCanonicalIsoTimestamp(run.startedAt)) violations.push(`${label}: startedAt is not a canonical ISO timestamp`);
 
@@ -757,10 +776,13 @@ function runViolations(run: ScanRunV2, label: string): string[] {
   }
 
   violations.push(...budgetViolations(run, label));
-  violations.push(...summaryViolations(run, derivedQuality, label));
+  violations.push(...summaryViolations(run, derivedQuality, label, options));
   violations.push(...detectorViolations(run, label));
-  violations.push(...consentViolations(run, label));
   return violations;
+}
+
+function runViolations(run: ScanRunV2, label: string): string[] {
+  return [...scanRunCoreViolations(run, label), ...consentViolations(run, label)];
 }
 
 function armViolations(arm: ArmVerification, run: ScanRunV2, axis: InterventionAxis, label: string): string[] {

@@ -5,13 +5,13 @@
  * validator/evaluator and differential harness; nothing validates or emits
  * them yet.
  *
- * Derived blocks (quality, comparability, diff) are built with the r1
- * evaluators where the semantics coincide; fields whose derivation changes in
- * r2 (experiment evidence with supporting pairs) are written to the r2-a4
- * rules and will be pinned by the r2 evaluator slice.
+ * Derived blocks are built with the r2 evaluators, so every fixture is
+ * internally consistent by construction and serves as ground truth for the
+ * reject-on-disagreement checks.
  */
 import { axisStateFor, type ArmVerification, type Experiment } from "./scan-report-v2";
-import { buildComparisonDiffV2, evaluateComparability } from "./scan-report-v2-evaluators";
+import { buildComparisonDiffV2 } from "./scan-report-v2-evaluators";
+import { evaluateComparabilityR2 } from "./scan-report-v2-r2-evaluators";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { makeScanRunV2 } from "./scan-report-v2-fixtures";
 import type {
@@ -125,7 +125,7 @@ function makeComparison(
   } else {
     evaluatorExperiment = experiment;
   }
-  const comparability = evaluateComparability(evaluatorExperiment, baseline, variant);
+  const comparability = evaluateComparabilityR2(evaluatorExperiment, baseline, variant);
   return {
     schemaVersion: 2,
     schemaRevision: 2,
@@ -397,7 +397,9 @@ export function makeConsentInterventionReportV2R2(): PublicComparisonReportV2R2 
 // the fixtures never drift apart.
 // ---------------------------------------------------------------------------
 
-/** Arms whose establishing interpreter sets differ (tcf vs onetrust). */
+/** Arms whose attempted interpreter sets differ (tcf vs onetrust). The
+ * variant's retained arm method is updated too, so the CROSS-ARM set mismatch
+ * is the isolated defect, not a stale arm string. */
 export function makeInterpreterMismatchMutantR2(): PublicComparisonReportV2R2 {
   const report = makeConsentInterventionReportV2R2();
   const consent = report.variant.evidence.consent!;
@@ -405,23 +407,30 @@ export function makeInterpreterMismatchMutantR2(): PublicComparisonReportV2R2 {
     ...observation,
     method: "tcf-api@1"
   }));
+  if (report.experiment.kind === "intervention") {
+    report.experiment.verification.variant = { ...report.experiment.verification.variant, method: "tcf-api@1" };
+  }
   return report;
 }
 
-/** Two observations in one phase sharing a sequence value. */
+/** Two observations sharing a sequence value. Phase ids 1 and 2 are
+ * preserved (sequence uniqueness is GLOBAL within the evidence, RFC 15.4), so
+ * choice-state and reload derivations stay intact and the duplicate is the
+ * isolated defect. */
 export function makeDuplicateSequenceMutantR2(): ScanRunV2R2 {
   const run = makeConsentRunR2("reject-all", { runId: "run-consent-dup-seq" });
   const consent = run.evidence.consent!;
   consent.verificationObservations = consent.verificationObservations.map((observation) => ({
     ...observation,
-    phaseId: 1,
     result: { outcome: "read", sequence: 0 }
   }));
   return run;
 }
 
 /** A result block whose outcome contradicts the observed state (read with
- * observed null), the discriminated mapping the validator must enforce. */
+ * observed null). The retained fields are set to what would derive were the
+ * observation legitimately null (weak-signal via the grounded transition, no
+ * reload verification), so the outcome/observed contradiction is isolated. */
 export function makeMalformedResultBlockMutantR2(): ScanRunV2R2 {
   const run = makeConsentRunR2("reject-all", { runId: "run-consent-bad-result" });
   const consent = run.evidence.consent!;
@@ -434,19 +443,49 @@ export function makeMalformedResultBlockMutantR2(): ScanRunV2R2 {
       result: { outcome: "read", sequence: 0 }
     }
   ];
+  consent.choiceState = "weak-signal";
+  consent.reverifiedAfterReload = false;
   return run;
 }
 
-/** Duplicate before-interaction moments with inverted chronology. */
-export function makeInvalidBannerTransitionMutantR2(): ScanRunV2R2 {
-  const run = makeConsentRunR2("reject-all", { runId: "run-consent-bad-banner" });
+/** A duplicate before-interaction moment beside an otherwise valid
+ * before/after pair: the duplicate is the isolated defect. */
+export function makeDuplicateBannerMomentMutantR2(): ScanRunV2R2 {
+  const run = makeConsentRunR2("reject-all", { runId: "run-consent-dup-banner" });
+  const consent = run.evidence.consent!;
+  consent.bannerTransition = {
+    method: "banner-visibility@1",
+    observations: [
+      { moment: "before-interaction", phaseId: 1, atMs: 2100, visible: true },
+      { moment: "before-interaction", phaseId: 1, atMs: 2200, visible: true },
+      { moment: "after-interaction", phaseId: 1, atMs: 2900, visible: false }
+    ]
+  };
+  return run;
+}
+
+/** Unique moments whose in-span timestamps are inverted: chronology is the
+ * isolated defect. */
+export function makeInvertedBannerChronologyMutantR2(): ScanRunV2R2 {
+  const run = makeConsentRunR2("reject-all", { runId: "run-consent-inverted-banner" });
   const consent = run.evidence.consent!;
   consent.bannerTransition = {
     method: "banner-visibility@1",
     observations: [
       { moment: "before-interaction", phaseId: 1, atMs: 2900, visible: true },
-      { moment: "before-interaction", phaseId: 1, atMs: 2100, visible: true }
+      { moment: "after-interaction", phaseId: 1, atMs: 2100, visible: false }
     ]
   };
+  return run;
+}
+
+/** An observation missing its r2 result block: structurally optional but
+ * semantically mandatory whenever an observation exists (RFC 15.4). */
+export function makeMissingResultMutantR2(): ScanRunV2R2 {
+  const run = makeConsentRunR2("reject-all", { runId: "run-consent-missing-result" });
+  const consent = run.evidence.consent!;
+  const stripped = { ...consent.verificationObservations[1] };
+  delete stripped.result;
+  consent.verificationObservations = [consent.verificationObservations[0], stripped];
   return run;
 }

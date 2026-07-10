@@ -23,10 +23,12 @@ import {
   makeDescriptiveReportV2R2,
   makeDuplicateSequenceMutantR2,
   makeFailedConsentRunR2,
+  makeDuplicateBannerMomentMutantR2,
   makeGpcInterventionReportV2R2,
   makeInterpreterMismatchMutantR2,
-  makeInvalidBannerTransitionMutantR2,
+  makeInvertedBannerChronologyMutantR2,
   makeMalformedResultBlockMutantR2,
+  makeMissingResultMutantR2,
   makePublicSingleReportV2R2,
   makeShieldsInterventionReportV2R2,
   makeSupportingPairInterventionReportV2R2,
@@ -135,20 +137,37 @@ test("the MUST-REJECT mutants each carry exactly their intended defect", () => {
   const methods = (run: typeof mismatch.baseline) =>
     [...new Set(run.evidence.consent!.verificationObservations.map((entry) => entry.method))].sort();
   assert.notDeepEqual(methods(mismatch.baseline), methods(mismatch.variant));
+  if (mismatch.experiment.kind === "intervention") {
+    // The retained arm agrees with its own observations: the cross-arm set
+    // mismatch is the isolated defect.
+    assert.equal(mismatch.experiment.verification.variant.method, "tcf-api@1");
+  }
 
   const duplicate = makeDuplicateSequenceMutantR2().evidence.consent!;
-  const keys = duplicate.verificationObservations.map((entry) => `${entry.phaseId}:${entry.result!.sequence}`);
-  assert.notEqual(new Set(keys).size, keys.length, "duplicate (phaseId, sequence)");
+  const sequences = duplicate.verificationObservations.map((entry) => entry.result!.sequence);
+  assert.notEqual(new Set(sequences).size, sequences.length, "GLOBAL sequence uniqueness violated");
+  assert.deepEqual(duplicate.verificationObservations.map((entry) => entry.phaseId), [1, 2], "phases preserved");
 
   const malformed = makeMalformedResultBlockMutantR2().evidence.consent!;
   const bad = malformed.verificationObservations[0];
   assert.equal(bad.result!.outcome, "read");
   assert.equal(bad.observed, null, "read outcome contradicting a null observation");
+  assert.equal(malformed.choiceState, "weak-signal", "retained fields at their legitimate fallback");
+  assert.equal(malformed.reverifiedAfterReload, false);
 
-  const banner = makeInvalidBannerTransitionMutantR2().evidence.consent!.bannerTransition!;
-  const bannerMoments = banner.observations.map((entry) => entry.moment);
+  const duplicateBanner = makeDuplicateBannerMomentMutantR2().evidence.consent!.bannerTransition!;
+  const bannerMoments = duplicateBanner.observations.map((entry) => entry.moment);
   assert.notEqual(new Set(bannerMoments).size, bannerMoments.length, "duplicate moment");
-  assert.equal(banner.observations[0].atMs > banner.observations[1].atMs, true, "inverted chronology");
+  const times = duplicateBanner.observations.map((entry) => entry.atMs);
+  assert.deepEqual([...times].sort((a, b) => a - b), times, "chronology stays valid in the duplicate mutant");
+
+  const inverted = makeInvertedBannerChronologyMutantR2().evidence.consent!.bannerTransition!;
+  assert.equal(new Set(inverted.observations.map((entry) => entry.moment)).size, inverted.observations.length);
+  assert.equal(inverted.observations[0].atMs > inverted.observations[1].atMs, true, "inverted chronology only");
+
+  const missing = makeMissingResultMutantR2().evidence.consent!;
+  assert.equal(missing.verificationObservations[0].result !== undefined, true);
+  assert.equal(missing.verificationObservations[1].result, undefined, "one observation missing its result block");
 });
 
 test("the supporting-pair fixture obeys the a4 uniqueness, order, and evidence rules", () => {
