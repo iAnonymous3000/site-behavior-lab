@@ -70,7 +70,9 @@ import { committedReportLocation } from "@/lib/report-locator";
 import { isScanRuntimeHealth, type ScanRuntimeHealth } from "@/lib/scan-runtime-health";
 import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/lib/run-mode-copy";
 import { plural } from "@/lib/text-format";
-import { isScanReport, REPORT_ID_PATTERN } from "@/lib/report-validation";
+import { readRenderableReport } from "@/lib/client-report-reader";
+import { REPORT_ID_PATTERN } from "@/lib/report-validation";
+import { toPublicScanReportV1 } from "@/lib/scan-report-v1-projection";
 import type {
   ComparisonScanResult,
   ScanApiResponse,
@@ -425,10 +427,11 @@ export function SiteBehaviorApp({
 
     try {
       const payload = JSON.parse(await file.text()) as unknown;
-      if (!isScanReport(payload)) {
-        throw new Error("Report JSON is not a Site Behavior Lab report.");
+      const read = readRenderableReport(payload, "This report JSON");
+      if (!read.ok) {
+        throw new Error(read.message);
       }
-      setResult(stripShare(payload));
+      setResult(stripShare(read.report));
     } catch (readError) {
       setError(readError instanceof Error ? readError.message : "Report JSON could not be opened.");
     }
@@ -1098,7 +1101,11 @@ async function pollScanJob(statusPath: string, accessKey = "", reportId?: string
     }
 
     if (payload.status === "succeeded") {
-      if (payload.report && isScanReport(payload.report)) return payload.report;
+      if (payload.report) {
+        const read = readRenderableReport(payload.report, "The completed scan's report");
+        if (read.ok) return read.report;
+        throw new Error(read.message);
+      }
       throw new Error("Completed scan did not include a report.");
     }
 
@@ -1122,7 +1129,8 @@ async function readSavedReport(reportId: string): Promise<ScanReport | null> {
   if (!response.ok) return null;
 
   const payload = (await response.json()) as unknown;
-  return isScanReport(payload) ? payload : null;
+  const read = readRenderableReport(payload, "The saved report");
+  return read.ok ? read.report : null;
 }
 
 function scanJobIdFromStatusPath(statusPath: string): string | null {
@@ -1210,17 +1218,12 @@ function isStaticReportManifestEntry(value: unknown): value is StaticReportManif
 }
 
 function exportableReport(result: ScanReport): unknown {
-  // Screenshots are stripped as `null` (not `undefined`, which JSON.stringify
-  // drops) so the exported file stays a valid ScanReport and re-opens here.
-  if (!isComparisonReport(result)) {
-    return { ...result, screenshot: null };
-  }
-
-  return {
-    ...result,
-    baseline: { ...result.baseline, screenshot: null },
-    variant: { ...result.variant, screenshot: null }
-  };
+  // The deep named-field projector is THE export boundary: the v1 validator
+  // tolerates unknown properties, so spreading an uploaded report here would
+  // carry smuggled fields along into the exported file. The projector copies
+  // known fields only (screenshots dropped per the strip-on-save rule) and
+  // cannot leak what it never copies.
+  return toPublicScanReportV1(result);
 }
 
 // A locally opened file (or a run pulled into a temporal comparison) has no

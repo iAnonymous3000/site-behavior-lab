@@ -9,7 +9,7 @@ import { createTemporalComparisonReport } from "@/lib/compare-reports";
 import { domainsMatch, isFeaturedSiteConfig, type FeaturedSite, type FeaturedSiteConfig } from "@/lib/featured-sites";
 import { buildReportHeadline, type ReportHeadline } from "@/lib/report-headline";
 import { committedReportLocation } from "@/lib/report-locator";
-import { isScanReport } from "@/lib/report-validation";
+import { readRenderableReport } from "@/lib/client-report-reader";
 import { plural } from "@/lib/text-format";
 import type { ComparisonScanResult, ScanDevice, ScanReport, ScanResult, StaticReportManifestEntry } from "@/lib/types";
 
@@ -74,8 +74,9 @@ async function loadStaticReport(entry: StaticReportManifestEntry): Promise<ScanR
   if (!response.ok) throw new Error(`Could not load ${entry.domain}.`);
 
   const payload = (await response.json()) as unknown;
-  if (!isScanReport(payload)) throw new Error(`${entry.domain} is not a Site Behavior Lab report.`);
-  return payload;
+  const read = readRenderableReport(payload, entry.domain);
+  if (!read.ok) throw new Error(read.message);
+  return read.report;
 }
 
 function FeaturedGallery({ reports }: { reports: StaticReportManifestEntry[] }) {
@@ -516,11 +517,13 @@ async function loadStaticSingleReport(entry: StaticReportManifestEntry): Promise
   }
 
   const payload = (await response.json()) as unknown;
-  if (!isScanReport(payload) || payload.reportType === "comparison") {
+  const read = readRenderableReport(payload, entry.domain);
+  if (!read.ok) throw new Error(read.message);
+  if (read.report.reportType === "comparison") {
     throw new Error(`${entry.domain} is not a single-scan report.`);
   }
 
-  return stripShare(payload);
+  return stripShare(read.report);
 }
 
 async function readCompareUpload(file: File | null, slot: "before" | "after"): Promise<UploadedCompareReport> {
@@ -529,13 +532,15 @@ async function readCompareUpload(file: File | null, slot: "before" | "after"): P
   }
 
   const payload = JSON.parse(await file.text()) as unknown;
-  if (!isScanReport(payload) || payload.reportType === "comparison") {
+  const read = readRenderableReport(payload, `The ${slot} file`);
+  if (!read.ok) throw new Error(read.message);
+  if (read.report.reportType === "comparison") {
     throw new Error("Choose a single-scan Site Behavior Lab JSON report.");
   }
 
   return {
     name: file.name,
-    report: stripShare(payload)
+    report: stripShare(read.report)
   };
 }
 

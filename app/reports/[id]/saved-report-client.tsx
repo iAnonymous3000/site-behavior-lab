@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { readRenderableReport } from "@/lib/client-report-reader";
 import { committedReportLocation } from "@/lib/report-locator";
-import { isScanReport } from "@/lib/report-validation";
 import type { ScanReport } from "@/lib/types";
 import { clientReportRuntime } from "../../client-runtime";
 import { SiteBehaviorApp } from "../../site-behavior-app";
@@ -32,11 +32,12 @@ export function SavedReportClient({ id }: { id: string }) {
         }
 
         const payload = (await response.json()) as unknown;
-        if (!isScanReport(payload)) {
-          throw new Error("Report JSON is not a Site Behavior Lab report.");
+        const read = readRenderableReport(payload, "This report");
+        if (!read.ok) {
+          throw new Error(read.message);
         }
 
-        setState({ status: "loaded", report: payload });
+        setState({ status: "loaded", report: read.report });
       } catch (error) {
         if (controller.signal.aborted) return;
         setState({
