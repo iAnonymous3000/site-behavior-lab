@@ -200,6 +200,11 @@ export function makeShieldsInterventionReportV2R2(): PublicComparisonReportV2R2 
       phaseId: 0
     }
   };
+  // RFC 15.3 summary derivation: present whenever the engine is loaded;
+  // classification = requestsMatched, simulation = requestsActuallyBlocked.
+  // Explicit zeros here, so the diff carries a real zero delta, never null.
+  baseline.summary = { ...baseline.summary, counts: { ...baseline.summary.counts, shieldsBlockedRequests: 0 } };
+  variant.summary = { ...variant.summary, counts: { ...variant.summary.counts, shieldsBlockedRequests: 0 } };
   return makeComparison(baseline, variant, {
     kind: "intervention",
     axis: "shields",
@@ -248,6 +253,14 @@ export function makeSupportingPairInterventionReportV2R2(): PublicComparisonRepo
   });
   supportingBaseline.verificationFacts = structuredClone(report.baseline.verificationFacts);
   supportingVariant.verificationFacts = structuredClone(report.variant.verificationFacts);
+  supportingBaseline.summary = {
+    ...supportingBaseline.summary,
+    counts: { ...supportingBaseline.summary.counts, shieldsBlockedRequests: 0 }
+  };
+  supportingVariant.summary = {
+    ...supportingVariant.summary,
+    counts: { ...supportingVariant.summary.counts, shieldsBlockedRequests: 0 }
+  };
 
   const supportingPair: SupportingPairR2 = {
     pairId: "pair-shields-r2-support",
@@ -269,4 +282,171 @@ export function makeSupportingPairInterventionReportV2R2(): PublicComparisonRepo
       evidence: { pairs: 2, counterbalanced: true, strength: "observed-difference" }
     }
   };
+}
+
+// ---------------------------------------------------------------------------
+// Consent edge coverage (RFC 15.4/15.5): evaluator ground truth
+// ---------------------------------------------------------------------------
+
+/** Zero observations, no transition: derives "unavailable"; the singular
+ * compatibility method is the closed placeholder, never a fabricated banner. */
+export function makeConsentUnavailableRunR2(): ScanRunV2R2 {
+  const run = makeConsentRunR2("reject-all", { runId: "run-consent-unavailable" });
+  const consent = run.evidence.consent!;
+  consent.interactionAttempted = true;
+  consent.controlActivated = false;
+  consent.verificationObservations = [];
+  delete consent.bannerTransition;
+  consent.choiceState = "unavailable";
+  consent.reverifiedAfterReload = false;
+  return run;
+}
+
+/** No interpreter observations; grounded banner disappearance with an
+ * activated control derives "weak-signal". */
+export function makeWeakSignalConsentRunR2(): ScanRunV2R2 {
+  const run = makeConsentRunR2("reject-all", { runId: "run-consent-weak" });
+  const consent = run.evidence.consent!;
+  consent.verificationObservations = [];
+  consent.choiceState = "weak-signal";
+  consent.reverifiedAfterReload = false;
+  // bannerTransition stays: before visible, after not visible (grounded).
+  return run;
+}
+
+/** A successful interaction-phase read followed by a reload timeout derives
+ * "failed" (RFC 15.4 precedence: verified did not match, a strong timeout is
+ * recorded, so this is never "unavailable"). */
+export function makeFailedConsentRunR2(): ScanRunV2R2 {
+  const run = makeConsentRunR2("reject-all", { runId: "run-consent-failed" });
+  const consent = run.evidence.consent!;
+  consent.verificationObservations = [
+    {
+      phaseId: 1,
+      method: "onetrust-cookie@1",
+      observed: "rejected-all",
+      consistentWithChoice: true,
+      result: { outcome: "read", sequence: 0 }
+    },
+    {
+      phaseId: 2,
+      method: "onetrust-cookie@1",
+      observed: null,
+      consistentWithChoice: null,
+      result: { outcome: "timeout", sequence: 1, errorCode: "api-timeout" }
+    }
+  ];
+  consent.choiceState = "failed";
+  consent.reverifiedAfterReload = false;
+  return run;
+}
+
+/** Contradiction outranks everything: a reject-all run whose interpreter read
+ * accepted-all derives "contradicted" even with a later timeout recorded. */
+export function makeContradictedConsentRunR2(): ScanRunV2R2 {
+  const run = makeConsentRunR2("reject-all", { runId: "run-consent-contradicted" });
+  const consent = run.evidence.consent!;
+  consent.verificationObservations = [
+    {
+      phaseId: 1,
+      method: "onetrust-cookie@1",
+      observed: "accepted-all",
+      consistentWithChoice: false,
+      result: { outcome: "read", sequence: 0 }
+    },
+    {
+      phaseId: 2,
+      method: "onetrust-cookie@1",
+      observed: null,
+      consistentWithChoice: null,
+      result: { outcome: "timeout", sequence: 1, errorCode: "api-timeout" }
+    }
+  ];
+  consent.choiceState = "contradicted";
+  consent.reverifiedAfterReload = false;
+  return run;
+}
+
+/** RFC 15.4: a consent-axis intervention whose arms share one interpreter set. */
+export function makeConsentInterventionReportV2R2(): PublicComparisonReportV2R2 {
+  const baseline = makeConsentRunR2("accept-all", { runId: "run-consent-accept" });
+  const variant = makeConsentRunR2("reject-all", { runId: "run-consent-reject" });
+  variant.startedAt = "2026-07-09T10:01:00.000Z"; // not a fingerprint input; no re-mint needed
+  const arm = (run: ScanRunV2R2, mode: "accept-all" | "reject-all"): ArmVerification => ({
+    axis: "consent",
+    expected: `consent:${mode}`,
+    observed: `consent:${mode}`,
+    method: "onetrust-cookie@1",
+    outcome: "passed",
+    phaseId: 2
+  });
+  return makeComparison(baseline, variant, {
+    kind: "intervention",
+    axis: "consent",
+    pairId: "pair-consent-r2",
+    order: "AB",
+    verification: { baseline: arm(baseline, "accept-all"), variant: arm(variant, "reject-all") },
+    evidence: { pairs: 1, counterbalanced: false, strength: "observed-difference" }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// MUST-REJECT mutants for the r2 validator/evaluator slice. Each returns a
+// structurally plausible object whose single defect the next slice's
+// adversarial harness must catch; they are exported here so the harness and
+// the fixtures never drift apart.
+// ---------------------------------------------------------------------------
+
+/** Arms whose establishing interpreter sets differ (tcf vs onetrust). */
+export function makeInterpreterMismatchMutantR2(): PublicComparisonReportV2R2 {
+  const report = makeConsentInterventionReportV2R2();
+  const consent = report.variant.evidence.consent!;
+  consent.verificationObservations = consent.verificationObservations.map((observation) => ({
+    ...observation,
+    method: "tcf-api@1"
+  }));
+  return report;
+}
+
+/** Two observations in one phase sharing a sequence value. */
+export function makeDuplicateSequenceMutantR2(): ScanRunV2R2 {
+  const run = makeConsentRunR2("reject-all", { runId: "run-consent-dup-seq" });
+  const consent = run.evidence.consent!;
+  consent.verificationObservations = consent.verificationObservations.map((observation) => ({
+    ...observation,
+    phaseId: 1,
+    result: { outcome: "read", sequence: 0 }
+  }));
+  return run;
+}
+
+/** A result block whose outcome contradicts the observed state (read with
+ * observed null), the discriminated mapping the validator must enforce. */
+export function makeMalformedResultBlockMutantR2(): ScanRunV2R2 {
+  const run = makeConsentRunR2("reject-all", { runId: "run-consent-bad-result" });
+  const consent = run.evidence.consent!;
+  consent.verificationObservations = [
+    {
+      phaseId: 1,
+      method: "onetrust-cookie@1",
+      observed: null,
+      consistentWithChoice: null,
+      result: { outcome: "read", sequence: 0 }
+    }
+  ];
+  return run;
+}
+
+/** Duplicate before-interaction moments with inverted chronology. */
+export function makeInvalidBannerTransitionMutantR2(): ScanRunV2R2 {
+  const run = makeConsentRunR2("reject-all", { runId: "run-consent-bad-banner" });
+  const consent = run.evidence.consent!;
+  consent.bannerTransition = {
+    method: "banner-visibility@1",
+    observations: [
+      { moment: "before-interaction", phaseId: 1, atMs: 2900, visible: true },
+      { moment: "before-interaction", phaseId: 1, atMs: 2100, visible: true }
+    ]
+  };
+  return run;
 }
