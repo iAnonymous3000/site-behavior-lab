@@ -20,6 +20,7 @@ import {
 import { isPublicScanReportV2 } from "./scan-report-v2-validation";
 import { scanReportV2SemanticViolations } from "./scan-report-v2-evaluators";
 import { toPublicScanReport } from "./scan-report-projection";
+import { toPublicScanReportV1 } from "./scan-report-v1-projection";
 import {
   readStoredScanReport,
   type ReadStoredScanReportError,
@@ -206,32 +207,18 @@ function sanitizeJobProgress(value: unknown): JobProgress | null {
 }
 
 /**
- * v1 carries its screenshot inline on the wire (the immediate-response shape),
- * with stripping historically applied at each save site. This helper is the
- * boundary now, so it strips here too; otherwise a migrated persistence path
- * would serialize the screenshot v1's strip-on-save always removed.
- */
-function stripV1Screenshots(report: ScanReport): ScanReport {
-  if (report.reportType === "comparison") {
-    return {
-      ...report,
-      baseline: { ...report.baseline, screenshot: null },
-      variant: { ...report.variant, screenshot: null }
-    };
-  }
-  return { ...report, screenshot: null };
-}
-
-/**
  * THE serialization boundary for persistence, download, and export: the
  * original public wire report, never a view, never a storage envelope, never
- * an ephemeral shell, and never an inline v1 screenshot. An ephemeral v2
- * result resolves to its projection and a v1 report is screenshot-stripped,
- * so no path through this helper can serialize a screenshot by accident.
+ * an ephemeral shell, and never anything the projectors do not name. An
+ * ephemeral v2 result resolves to its allowlist projection, and a v1 report
+ * goes through the deep named-field v1 projector (the v1 validator tolerates
+ * unknown properties, so spreading the untrusted object would carry smuggled
+ * fields and inline screenshots along; the projector cannot leak what it
+ * never copies).
  */
 export function publicWireForExportOrPersistence(loaded: LoadedReport): ScanReport | PublicScanReportV2 {
   if (loaded.source === "v2-ephemeral") return loaded.public;
-  if (loaded.source === "v1") return stripV1Screenshots(loaded.wire);
+  if (loaded.source === "v1") return toPublicScanReportV1(loaded.wire);
   return loaded.wire;
 }
 

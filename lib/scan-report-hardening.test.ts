@@ -820,3 +820,95 @@ test("declared order must match the runs' chronology", () => {
     assert.equal(read.violations?.some((entry) => entry.includes("chronology")), true);
   }
 });
+
+// ---------------------------------------------------------------------------
+// Deep v1 public projector (first commit of the r2 milestone)
+// ---------------------------------------------------------------------------
+
+function makeScanReportV1Comparison(): AnyRecord {
+  const emptyDelta = { before: 0, after: 0, delta: 0 };
+  const single = makeScanReportV1() as AnyRecord;
+  const { reportType: _ignored, ...run } = single;
+  return {
+    ok: true,
+    schemaVersion: 1,
+    reportType: "comparison",
+    comparisonType: "gpc",
+    title: "GPC Comparison",
+    requestedUrl: "https://example.com/",
+    scannedAt: "2026-07-09T10:00:00.000Z",
+    device: "desktop",
+    baseline: { ...run },
+    variant: { ...run },
+    diff: {
+      totalRequests: emptyDelta,
+      thirdPartyRequests: emptyDelta,
+      knownTrackerRequests: emptyDelta,
+      thirdPartyDomains: emptyDelta,
+      cookies: emptyDelta,
+      thirdPartyCookies: emptyDelta,
+      storageEntries: emptyDelta,
+      fingerprintEvents: emptyDelta,
+      addedDomains: [],
+      removedDomains: [],
+      addedEntities: [],
+      removedEntities: [],
+      addedCookies: [],
+      removedCookies: [],
+      addedStorageKeys: [],
+      removedStorageKeys: [],
+      addedFingerprinting: [],
+      removedFingerprinting: [],
+      addedProvenance: [],
+      removedProvenance: []
+    },
+    warnings: []
+  };
+}
+
+test("the v1 projector drops unknown root and nested fields", () => {
+  const smuggled = mutate(makeScanReportV1(), (draft) => {
+    (draft as AnyRecord).secret = "ROOT_SECRET";
+    (draft as AnyRecord).conditions.secret = "NESTED_SECRET";
+    (draft as AnyRecord).summary.secret = "SUMMARY_SECRET";
+    (draft as AnyRecord).screenshot = "data:image/png;base64,SHOT_SECRET";
+  });
+  const result = readScanTransportPayload(smuggled);
+  assert.equal(result.kind, "report"); // the tolerant v1 reader accepts it
+  if (result.kind === "report") {
+    const persisted = JSON.stringify(publicWireForExportOrPersistence(result.loaded));
+    assert.equal(persisted.includes("ROOT_SECRET"), false);
+    assert.equal(persisted.includes("NESTED_SECRET"), false);
+    assert.equal(persisted.includes("SUMMARY_SECRET"), false);
+    assert.equal(persisted.includes("SHOT_SECRET"), false);
+  }
+});
+
+test("the v1 projector strips single and comparison screenshots", () => {
+  const comparison = makeScanReportV1Comparison();
+  comparison.screenshot = "data:image/png;base64,TOP_SECRET"; // smuggled top-level field
+  comparison.baseline.screenshot = "data:image/png;base64,BASE_SECRET";
+  comparison.variant.screenshot = "data:image/png;base64,VAR_SECRET";
+  comparison.baseline.conditions.secret = "NESTED_SECRET";
+
+  const result = readScanTransportPayload(comparison);
+  assert.equal(result.kind, "report");
+  if (result.kind === "report") {
+    const persisted = JSON.stringify(publicWireForExportOrPersistence(result.loaded));
+    assert.equal(persisted.includes("SECRET"), false);
+  }
+});
+
+test("legitimate v1 reports project without loss (screenshot aside)", () => {
+  const single = readScanTransportPayload(makeScanReportV1());
+  assert.equal(single.kind, "report");
+  if (single.kind === "report") {
+    assert.deepEqual(publicWireForExportOrPersistence(single.loaded), makeScanReportV1());
+  }
+
+  const comparison = readScanTransportPayload(makeScanReportV1Comparison());
+  assert.equal(comparison.kind, "report");
+  if (comparison.kind === "report") {
+    assert.deepEqual(publicWireForExportOrPersistence(comparison.loaded), makeScanReportV1Comparison());
+  }
+});
