@@ -3,13 +3,17 @@
  * 4.4, 5.3, 6, 7): quality derives from recorded facts, fingerprints from the
  * run's own inputs, comparability from the runs, and the diff rebuilds from
  * the runs alone. Producers embed these results, and the reader REJECTS any
- * report whose derived blocks differ from a recomputation, byte for byte
- * (reasons arrays and versions included), so neither a producer bug nor a
- * forged upload can smuggle conclusions the facts do not support.
+ * report whose derived blocks differ from a recomputation (canonical
+ * comparison, property order is non-semantic), so neither a producer bug nor
+ * a forged upload can smuggle conclusions the facts do not support.
  *
- * Version discipline: these constants are the definitions of quality evaluator
- * "1", comparability evaluator "1", and metric dependency registry "1". Any
- * behavior change here bumps the corresponding version (RFC 10.2).
+ * Version discipline (RFC 10.2): these constants are the definitions of
+ * quality evaluator "1", comparability evaluator "1", and metric dependency
+ * registry "1". Decision 2026-07-09: pre-emission refinements keep version
+ * "1" because no v2 report has ever been emitted, stored, or published (all
+ * producers are v1 and the published JSON Schema encodes shape, not evaluator
+ * behavior). The versions freeze the moment the first producer emits v2;
+ * any behavior change after that bumps them.
  */
 import {
   DETECTOR_IDS,
@@ -20,7 +24,7 @@ import {
   type Comparability,
   type ComparabilityReason,
   type ComparisonDiffV2,
-  type ConsentEvidence,
+  type ConsentObservedState,
   type EvidenceFamily,
   type Experiment,
   type InterventionAxis,
@@ -33,25 +37,45 @@ import {
   type QualityReason,
   type ScanRunV2
 } from "./scan-report-v2";
-import { buildFingerprints } from "./scan-report-v2-fingerprints";
+import { buildFingerprints, canonicalJson } from "./scan-report-v2-fingerprints";
 
 export const QUALITY_EVALUATOR_VERSION = "1";
 export const COMPARABILITY_EVALUATOR_VERSION = "1";
 export const METRIC_REGISTRY_VERSION = "1";
 
+/**
+ * Known verification interpreters (RFC 6.1, 9.4): versioned, scanner-owned
+ * identifiers. An unknown method is a forgery signal, not an extension point;
+ * extending this registry is an evaluator-version event once v2 ships.
+ */
+export const CONSENT_INTERPRETER_METHODS = new Set(["tcf-api@1", "onetrust-cookie@1", "banner-visibility@1"]);
+const ARM_METHODS: Record<InterventionAxis, Set<string>> = {
+  gpc: new Set(["gpc-header-readback@1"]),
+  shields: new Set(["shields-engine-status@1"]),
+  consent: CONSENT_INTERPRETER_METHODS
+};
+
 // ---------------------------------------------------------------------------
 // Quality (RFC 5.3)
 // ---------------------------------------------------------------------------
 
-export function evaluateQuality(facts: QualityFacts): Quality {
-  const runReasons: QualityReason[] = [];
-  if (facts.status !== null && facts.status >= 400) runReasons.push("http-error-status");
-  if (facts.botWallTitleMatched) runReasons.push("bot-wall-title");
-  if (!facts.navigationSettled) runReasons.push("navigation-timeout");
-  // Run-level validity comes from load failure only; budget exhaustion is
-  // recorded on the run and censors the families its capture-loss entries
-  // name, so it can never be silently absorbed.
-  const failed = runReasons.length > 0;
+export type QualityContext = {
+  /** evidence.requests.length; lets the evaluator derive empty-load. */
+  observedRequests: number;
+};
+
+export function evaluateQuality(facts: QualityFacts, context: QualityContext): Quality {
+  const failureReasons: QualityReason[] = [];
+  if (facts.status !== null && facts.status >= 400) failureReasons.push("http-error-status");
+  if (facts.botWallTitleMatched) failureReasons.push("bot-wall-title");
+  if (!facts.navigationSettled) failureReasons.push("navigation-timeout");
+  const requestLossRecorded = facts.captureLoss.some((entry) => entry.family === "requests");
+  if (failureReasons.length === 0 && context.observedRequests === 0 && !requestLossRecorded) {
+    // A settled, non-error page that produced zero observable requests did
+    // not really load; low counts would be an artifact, not a result.
+    failureReasons.push("empty-load");
+  }
+  const runReasons: QualityReason[] = [...failureReasons];
   for (const budget of [...facts.budgetsExhausted].sort()) {
     runReasons.push(`budget-exhausted:${budget}`);
   }
@@ -66,7 +90,7 @@ export function evaluateQuality(facts: QualityFacts): Quality {
 
   return {
     evaluatorVersion: QUALITY_EVALUATOR_VERSION,
-    run: { outcome: failed ? "failed" : "complete", reasons: runReasons },
+    run: { outcome: failureReasons.length > 0 ? "failed" : "complete", reasons: runReasons },
     byFamily
   };
 }
@@ -84,56 +108,86 @@ const METRIC_EVIDENCE: Record<MetricFamily, EvidenceFamily[]> = {
   "detector-findings": ["detector-output"]
 };
 
-function baseEnvironmentMatches(a: ScanRunV2, b: ScanRunV2): boolean {
-  return (
-    a.conditions.browser.name === b.conditions.browser.name &&
-    a.conditions.browser.version === b.conditions.browser.version &&
-    a.conditions.device.kind === b.conditions.device.kind &&
-    a.conditions.device.viewport.width === b.conditions.device.viewport.width &&
-    a.conditions.device.viewport.height === b.conditions.device.viewport.height &&
-    a.conditions.device.viewport.isMobile === b.conditions.device.viewport.isMobile &&
-    a.conditions.probes.keystroke === b.conditions.probes.keystroke &&
-    a.conditions.probes.policyVisit === b.conditions.probes.policyVisit &&
-    a.conditions.locale === b.conditions.locale &&
-    a.conditions.language === b.conditions.language &&
-    a.conditions.timezone === b.conditions.timezone &&
-    a.conditions.egress.label === b.conditions.egress.label &&
-    (a.conditions.egress.region ?? null) === (b.conditions.egress.region ?? null) &&
-    a.conditions.headless === b.conditions.headless &&
-    a.conditions.automation === b.conditions.automation &&
-    a.provenance.methodologyVersion === b.provenance.methodologyVersion
-  );
+/**
+ * The RFC unknown rule (3.2): a missing or literal-unknown dimension makes
+ * strict eligibility unprovable; two unknowns never establish a match.
+ */
+function isUnknownDimension(value: string | undefined): boolean {
+  return value === undefined || value === "" || value.toLowerCase() === "unknown";
 }
 
-function metricDependencyMismatch(family: MetricFamily, a: ScanRunV2, b: ScanRunV2): ComparabilityReason | null {
-  if (!baseEnvironmentMatches(a, b)) return "dependency-version-mismatch:environment";
-  if (family === "tracker-classification" || family === "shields-simulation" || family === "detector-findings") {
-    if (a.toolchain.trackerCatalog.digest !== b.toolchain.trackerCatalog.digest) {
-      return "dependency-digest-mismatch:trackerCatalog";
+function environmentReasons(a: ScanRunV2, b: ScanRunV2): ComparabilityReason[] {
+  const reasons: ComparabilityReason[] = [];
+  const stringDimensions: Array<[string, string | undefined, string | undefined]> = [
+    ["browser.name", a.conditions.browser.name, b.conditions.browser.name],
+    ["browser.version", a.conditions.browser.version, b.conditions.browser.version],
+    ["locale", a.conditions.locale, b.conditions.locale],
+    ["language", a.conditions.language, b.conditions.language],
+    ["timezone", a.conditions.timezone, b.conditions.timezone],
+    ["egress.label", a.conditions.egress.label, b.conditions.egress.label],
+    ["egress.region", a.conditions.egress.region, b.conditions.egress.region],
+    ["automation", a.conditions.automation, b.conditions.automation],
+    ["methodologyVersion", a.provenance.methodologyVersion, b.provenance.methodologyVersion]
+  ];
+  let mismatch = false;
+  for (const [name, left, right] of stringDimensions) {
+    if (isUnknownDimension(left) || isUnknownDimension(right)) {
+      reasons.push(`unknown-dimension:${name}`);
+    } else if (left !== right) {
+      mismatch = true;
     }
   }
+  if (
+    a.conditions.device.kind !== b.conditions.device.kind ||
+    a.conditions.device.viewport.width !== b.conditions.device.viewport.width ||
+    a.conditions.device.viewport.height !== b.conditions.device.viewport.height ||
+    a.conditions.device.viewport.isMobile !== b.conditions.device.viewport.isMobile ||
+    a.conditions.probes.keystroke !== b.conditions.probes.keystroke ||
+    a.conditions.probes.policyVisit !== b.conditions.probes.policyVisit ||
+    a.conditions.headless !== b.conditions.headless
+  ) {
+    mismatch = true;
+  }
+  if (mismatch) reasons.push("dependency-version-mismatch:environment");
+  return reasons;
+}
+
+function digestReason(name: string, left: string, right: string): ComparabilityReason | null {
+  if (isUnknownDimension(left) || isUnknownDimension(right)) return `unknown-dimension:${name}`;
+  if (left !== right) return `dependency-digest-mismatch:${name}`;
+  return null;
+}
+
+function metricDependencyReasons(family: MetricFamily, a: ScanRunV2, b: ScanRunV2): ComparabilityReason[] {
+  const reasons: ComparabilityReason[] = [...environmentReasons(a, b)];
+  if (family === "tracker-classification" || family === "shields-simulation" || family === "detector-findings") {
+    const catalog = digestReason("trackerCatalog", a.toolchain.trackerCatalog.digest, b.toolchain.trackerCatalog.digest);
+    if (catalog !== null) reasons.push(catalog);
+  }
   if (family === "shields-simulation") {
-    if (a.toolchain.adblock === null || b.toolchain.adblock === null) return "unknown-dimension:adblock";
-    if (a.toolchain.adblock.manifestDigest !== b.toolchain.adblock.manifestDigest) {
-      return "dependency-digest-mismatch:adblockManifest";
-    }
-    if (a.toolchain.adblock.engineVersion !== b.toolchain.adblock.engineVersion) {
-      return "dependency-version-mismatch:adblockEngine";
+    if (a.toolchain.adblock === null || b.toolchain.adblock === null) {
+      reasons.push("unknown-dimension:adblock");
+    } else {
+      const manifest = digestReason("adblockManifest", a.toolchain.adblock.manifestDigest, b.toolchain.adblock.manifestDigest);
+      if (manifest !== null) reasons.push(manifest);
+      if (a.toolchain.adblock.engineVersion !== b.toolchain.adblock.engineVersion) {
+        reasons.push("dependency-version-mismatch:adblockEngine");
+      }
     }
   }
   if (family === "consent-verification") {
     if (a.detectors["consent-banner"].version !== b.detectors["consent-banner"].version) {
-      return "dependency-version-mismatch:consent-banner";
+      reasons.push("dependency-version-mismatch:consent-banner");
     }
   }
   if (family === "detector-findings") {
     for (const id of DETECTOR_IDS) {
       if (a.detectors[id].version !== b.detectors[id].version) {
-        return `dependency-version-mismatch:${id}`;
+        reasons.push(`dependency-version-mismatch:${id}`);
       }
     }
   }
-  return null;
+  return reasons;
 }
 
 // ---------------------------------------------------------------------------
@@ -190,11 +244,19 @@ export function evaluateComparability(
   const perMetric = Object.fromEntries(
     METRIC_FAMILIES.map((family) => {
       const reasons: ComparabilityReason[] = [...pairReasons];
-      const dependencyMismatch = metricDependencyMismatch(family, baseline, variant);
-      if (dependencyMismatch !== null) reasons.push(dependencyMismatch);
+      reasons.push(...metricDependencyReasons(family, baseline, variant));
       for (const evidenceFamily of METRIC_EVIDENCE[family]) {
         if (baseline.quality.byFamily[evidenceFamily].outcome !== "complete") reasons.push("family-censored:baseline");
         if (variant.quality.byFamily[evidenceFamily].outcome !== "complete") reasons.push("family-censored:variant");
+      }
+      // RFC example 12.2: a consent intervention whose arms did not both pass
+      // has NO verified consent comparison, whatever else is compatible.
+      if (family === "consent-verification" && experiment.kind === "intervention" && experiment.axis === "consent") {
+        for (const arm of ["baseline", "variant"] as const) {
+          const outcome = experiment.verification[arm].outcome;
+          if (outcome === "failed") reasons.push(`arm-verification-failed:${arm}`);
+          if (outcome === "inconclusive") reasons.push(`arm-verification-inconclusive:${arm}`);
+        }
       }
       return [family, { eligible: reasons.length === 0, reasons }];
     })
@@ -292,8 +354,9 @@ function isCanonicalIsoTimestamp(value: string): boolean {
   return !Number.isNaN(parsed.getTime()) && parsed.toISOString() === value;
 }
 
-function deepEqualJson(a: unknown, b: unknown): boolean {
-  return JSON.stringify(a) === JSON.stringify(b);
+/** Canonical comparison: JSON property order is non-semantic. */
+function canonicallyEqual(a: unknown, b: unknown): boolean {
+  return canonicalJson(a) === canonicalJson(b);
 }
 
 const CONSENT_CHOICE_TO_ARM_OUTCOME: Record<string, ArmVerification["outcome"]> = {
@@ -366,6 +429,10 @@ function summaryViolations(run: ScanRunV2, derivedQuality: Quality, label: strin
   const storageCensored = derivedQuality.byFamily.storage.outcome === "censored";
   const fingerprintingCensored = derivedQuality.byFamily.fingerprinting.outcome === "censored";
 
+  if (run.summary.status !== run.qualityFacts.status) {
+    violations.push(`${label}: summary.status disagrees with qualityFacts.status`);
+  }
+
   const checks: Array<[string, number, number, boolean]> = [
     ["totalRequests", counts.totalRequests, derived.totalRequests, requestsCensored],
     ["thirdPartyRequests", counts.thirdPartyRequests, derived.thirdPartyRequests, requestsCensored],
@@ -390,7 +457,14 @@ function summaryViolations(run: ScanRunV2, derivedQuality: Quality, label: strin
     violations.push(`${label}: requests carry blockedByShields but the summary omits shieldsBlockedRequests`);
   }
 
+  // countsByPhase must cover exactly the phases with observed activity when
+  // requests are uncensored; entries must reconcile either way.
+  const seenPhases = new Set<number>();
   for (const entry of run.summary.countsByPhase) {
+    if (seenPhases.has(entry.phaseId)) {
+      violations.push(`${label}: countsByPhase repeats phase ${entry.phaseId}`);
+    }
+    seenPhases.add(entry.phaseId);
     const derivedPhase = derived.byPhase.get(entry.phaseId) ?? { totalRequests: 0, thirdPartyRequests: 0, knownTrackerRequests: 0 };
     if (
       !countConsistent(entry.totalRequests, derivedPhase.totalRequests, requestsCensored) ||
@@ -398,6 +472,13 @@ function summaryViolations(run: ScanRunV2, derivedQuality: Quality, label: strin
       !countConsistent(entry.knownTrackerRequests, derivedPhase.knownTrackerRequests, requestsCensored)
     ) {
       violations.push(`${label}: countsByPhase for phase ${entry.phaseId} does not reconcile with the evidence`);
+    }
+  }
+  if (!requestsCensored) {
+    for (const phaseId of derived.byPhase.keys()) {
+      if (!seenPhases.has(phaseId)) {
+        violations.push(`${label}: countsByPhase omits phase ${phaseId} despite observed requests`);
+      }
     }
   }
   return violations;
@@ -439,6 +520,22 @@ function phaseKindAt(run: ScanRunV2, phaseId: number): PhaseKind | null {
   return run.phases[phaseId]?.kind ?? null;
 }
 
+/**
+ * The one derivation for observation consistency: from the normalized state
+ * and the requested choice, never trusted from the wire (a Reject-all run
+ * whose interpreter read accepted-all can no longer claim consistency).
+ */
+export function deriveObservationConsistency(
+  mode: "accept-all" | "reject-all",
+  observed: ConsentObservedState | null
+): boolean | null {
+  if (observed === null || observed === "unknown") return null;
+  if (mode === "accept-all") return observed === "accepted-all";
+  return observed === "rejected-all";
+}
+
+const CONSENT_OBSERVATION_PHASES = new Set<PhaseKind>(["consent-interaction", "post-choice-reload"]);
+
 function consentViolations(run: ScanRunV2, label: string): string[] {
   const violations: string[] = [];
   const consent = run.evidence.consent;
@@ -447,7 +544,12 @@ function consentViolations(run: ScanRunV2, label: string): string[] {
     if (consent !== undefined) violations.push(`${label}: consent evidence present on an observe-mode run`);
     return violations;
   }
-  if (consent === undefined) return violations;
+  if (consent === undefined) {
+    // An accept/reject run without its interaction record is unaccountable;
+    // a consent comparison could otherwise claim verification from nothing.
+    violations.push(`${label}: consent-mode run carries no consent evidence`);
+    return violations;
+  }
 
   if (consent.mode !== run.conditions.consent) {
     violations.push(`${label}: consent evidence mode disagrees with the run's consent condition`);
@@ -460,6 +562,20 @@ function consentViolations(run: ScanRunV2, label: string): string[] {
   }
 
   const observations = consent.verificationObservations;
+  for (const [index, observation] of observations.entries()) {
+    if (!CONSENT_INTERPRETER_METHODS.has(observation.method)) {
+      violations.push(`${label}: consent observation ${index} uses an unknown interpreter method`);
+    }
+    const phaseKind = phaseKindAt(run, observation.phaseId);
+    if (phaseKind === null || !CONSENT_OBSERVATION_PHASES.has(phaseKind)) {
+      violations.push(`${label}: consent observation ${index} is tagged to a non-consent phase`);
+    }
+    const derivedConsistency = deriveObservationConsistency(consent.mode, observation.observed);
+    if (observation.consistentWithChoice !== derivedConsistency) {
+      violations.push(`${label}: consent observation ${index} consistency does not derive from its observed state`);
+    }
+  }
+
   const anyContradiction = observations.some((observation) => observation.consistentWithChoice === false);
   const consistentInInteraction = observations.some(
     (observation) => observation.consistentWithChoice === true && phaseKindAt(run, observation.phaseId) === "consent-interaction"
@@ -486,16 +602,43 @@ function consentViolations(run: ScanRunV2, label: string): string[] {
   return violations;
 }
 
-function runViolations(run: ScanRunV2, label: string): string[] {
+function phaseAndTimingViolations(run: ScanRunV2, label: string): string[] {
   const violations: string[] = [];
-  if (!isCanonicalIsoTimestamp(run.startedAt)) violations.push(`${label}: startedAt is not a canonical ISO timestamp`);
-
   for (const [index, span] of run.phases.entries()) {
     if (span.startedAtMs > span.endedAtMs) violations.push(`${label}: phase ${span.phaseId} ends before it starts`);
     if (index > 0 && span.startedAtMs < run.phases[index - 1].endedAtMs) {
       violations.push(`${label}: phase ${span.phaseId} starts before phase ${index - 1} ends`);
     }
   }
+  // Requests attribute by start phase (RFC 7); a timestamp outside its
+  // declared phase span is a mis-tagged observation.
+  for (const request of run.evidence.requests) {
+    const span = run.phases[request.phaseId];
+    if (span !== undefined && (request.startedAtMs < span.startedAtMs || request.startedAtMs > span.endedAtMs)) {
+      violations.push(`${label}: request ${request.id} starts outside its declared phase span`);
+    }
+  }
+  return violations;
+}
+
+function budgetViolations(run: ScanRunV2, label: string): string[] {
+  const violations: string[] = [];
+  // An exhausted budget with no recorded capture loss would leave every
+  // family complete and eligible, silently absorbing the cut (review item 3).
+  for (const budget of run.qualityFacts.budgetsExhausted) {
+    const mapped = run.qualityFacts.captureLoss.some((entry) => entry.detail === budget);
+    if (!mapped) {
+      violations.push(`${label}: exhausted budget ${budget} has no corresponding captureLoss entry`);
+    }
+  }
+  return violations;
+}
+
+function runViolations(run: ScanRunV2, label: string): string[] {
+  const violations: string[] = [];
+  if (!isCanonicalIsoTimestamp(run.startedAt)) violations.push(`${label}: startedAt is not a canonical ISO timestamp`);
+
+  violations.push(...phaseAndTimingViolations(run, label));
 
   // Fingerprints are recomputed, never trusted (RFC 3.2).
   const rebuiltFingerprints = buildFingerprints({
@@ -504,17 +647,18 @@ function runViolations(run: ScanRunV2, label: string): string[] {
     toolchain: run.toolchain,
     detectors: run.detectors
   });
-  if (!deepEqualJson(run.fingerprints, rebuiltFingerprints)) {
+  if (!canonicallyEqual(run.fingerprints, rebuiltFingerprints)) {
     violations.push(`${label}: fingerprints do not match a recomputation from the run's own inputs`);
   }
 
-  // Quality must equal the shared evaluator's output exactly, reasons and
-  // version included.
-  const derivedQuality = evaluateQuality(run.qualityFacts);
-  if (!deepEqualJson(run.quality, derivedQuality)) {
+  // Quality must equal the shared evaluator's output, reasons and version
+  // included (canonically: property order is non-semantic).
+  const derivedQuality = evaluateQuality(run.qualityFacts, { observedRequests: run.evidence.requests.length });
+  if (!canonicallyEqual(run.quality, derivedQuality)) {
     violations.push(`${label}: quality does not equal the shared evaluator's output`);
   }
 
+  violations.push(...budgetViolations(run, label));
   violations.push(...summaryViolations(run, derivedQuality, label));
   violations.push(...detectorViolations(run, label));
   violations.push(...consentViolations(run, label));
@@ -524,8 +668,22 @@ function runViolations(run: ScanRunV2, label: string): string[] {
 function armViolations(arm: ArmVerification, run: ScanRunV2, axis: InterventionAxis, label: string): string[] {
   const violations: string[] = [];
   if (arm.axis !== axis) violations.push(`${label}: arm axis ${arm.axis} differs from experiment axis ${axis}`);
+  if (!ARM_METHODS[axis].has(arm.method)) {
+    violations.push(`${label}: arm verification uses an unknown method for axis ${axis}`);
+  }
   if (arm.expected !== axisStateFor(axis, run.conditions)) {
     violations.push(`${label}: arm expected state does not match the run's declared condition`);
+  }
+  if (axis === "consent") {
+    const phaseKind = phaseKindAt(run, arm.phaseId);
+    if (phaseKind === null || !CONSENT_OBSERVATION_PHASES.has(phaseKind)) {
+      violations.push(`${label}: consent arm verification is tagged to a non-consent phase`);
+    }
+  }
+  // A Shields arm cannot have observed the block simulation without a loaded
+  // engine: the promised underlying fact for this axis.
+  if (axis === "shields" && arm.observed === "shields:block-simulation" && run.toolchain.adblock === null) {
+    violations.push(`${label}: shields arm observed block-simulation without a loaded adblock engine`);
   }
   const consistentOutcome: ArmVerification["outcome"] =
     arm.observed === null ? "inconclusive" : arm.observed === arm.expected ? "passed" : "failed";
@@ -537,6 +695,22 @@ function armViolations(arm: ArmVerification, run: ScanRunV2, axis: InterventionA
     if (arm.outcome !== mapped) {
       violations.push(`${label}: arm outcome ${arm.outcome} disagrees with consent choiceState`);
     }
+  }
+  return violations;
+}
+
+function experimentEvidenceViolations(experiment: Experiment): string[] {
+  if (experiment.kind !== "intervention") return [];
+  const violations: string[] = [];
+  const evidence = experiment.evidence;
+  // Evidence strength must be earned, not asserted (review item 2):
+  // counterbalancing needs at least an AB and a BA pair, and the stronger
+  // causal wording needs counterbalanced replication.
+  if (evidence.counterbalanced && evidence.pairs < 2) {
+    violations.push("experiment: counterbalanced evidence requires at least two pairs");
+  }
+  if (evidence.strength === "replicated-difference" && (!evidence.counterbalanced || evidence.pairs < 2)) {
+    violations.push("experiment: replicated-difference strength requires counterbalanced pairs");
   }
   return violations;
 }
@@ -558,19 +732,20 @@ export function scanReportV2SemanticViolations(report: PublicScanReportV2): stri
   if (experiment.kind === "intervention") {
     violations.push(
       ...armViolations(experiment.verification.baseline, report.baseline, experiment.axis, "baseline arm"),
-      ...armViolations(experiment.verification.variant, report.variant, experiment.axis, "variant arm")
+      ...armViolations(experiment.verification.variant, report.variant, experiment.axis, "variant arm"),
+      ...experimentEvidenceViolations(experiment)
     );
   }
 
   // The whole comparability block must equal the shared evaluator's output:
   // eligibility, reasons, interventionVerified, and versions alike.
   const derived = evaluateComparability(experiment, report.baseline, report.variant);
-  if (!deepEqualJson(report.comparability, derived)) {
+  if (!canonicallyEqual(report.comparability, derived)) {
     violations.push("comparability: does not equal the shared evaluator's output");
   }
 
   const rebuiltDiff = buildComparisonDiffV2(report.baseline, report.variant, report.comparability.perMetric);
-  if (!deepEqualJson(report.diff, rebuiltDiff)) {
+  if (!canonicallyEqual(report.diff, rebuiltDiff)) {
     violations.push("diff: does not equal the diff rebuilt from the two runs");
   }
 

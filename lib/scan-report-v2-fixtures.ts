@@ -89,7 +89,9 @@ export function makeScanRunV2(
     toolchain,
     fingerprints: buildFingerprints({ conditions, provenance, toolchain, detectors }),
     qualityFacts,
-    quality: evaluateQuality(qualityFacts),
+    // One observed request in the evidence below; the evaluator needs the
+    // count to derive empty-load.
+    quality: evaluateQuality(qualityFacts, { observedRequests: 1 }),
     privacy: {
       redactionVersion: 2,
       redaction: {

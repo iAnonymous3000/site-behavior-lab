@@ -184,12 +184,15 @@ export type LoadedReport =
 
 /**
  * One reader for everything a scan endpoint can return: API errors, async job
- * submissions (202), v1 reports, public v2 reports, and ephemeral v2 immediate
- * results. Replaces the v1-era `payload.ok` sniffing (v2 roots have no `ok`).
+ * envelopes in every status, v1 reports, public v2 reports, and ephemeral v2
+ * immediate results. Replaces the v1-era `payload.ok` sniffing (v2 roots have
+ * no `ok`). Total by construction: no payload shape may throw or fall through
+ * to `unreadable` when it has a meaningful job state.
  */
 export type ScanTransportResult =
   | { kind: "api-error"; message: string }
-  | { kind: "job-accepted"; jobId: string; statusPath: string | null; reportId: string | null }
+  | { kind: "job-pending"; status: "queued" | "running"; jobId: string; statusPath: string | null; reportId: string | null; progress: unknown }
+  | { kind: "job-ended"; status: "failed" | "expired" | "cancelled"; message: string }
   | { kind: "report"; loaded: LoadedReport }
   | { kind: "unreadable"; error: ReadStoredScanReportError; violations?: string[] };
 
@@ -204,14 +207,20 @@ export function readScanTransportPayload(payload: unknown): ScanTransportResult 
   if (payload.status === "queued" || payload.status === "running") {
     if (typeof payload.jobId !== "string") return { kind: "unreadable", error: "invalid" };
     return {
-      kind: "job-accepted",
+      kind: "job-pending",
+      status: payload.status,
       jobId: payload.jobId,
       statusPath: typeof payload.statusPath === "string" ? payload.statusPath : null,
-      reportId: typeof payload.reportId === "string" ? payload.reportId : null
+      reportId: typeof payload.reportId === "string" ? payload.reportId : null,
+      progress: "progress" in payload ? payload.progress : null
     };
   }
-  if (payload.status === "failed") {
-    return { kind: "api-error", message: typeof payload.error === "string" ? payload.error : "Scan failed." };
+  if (payload.status === "failed" || payload.status === "expired" || payload.status === "cancelled") {
+    return {
+      kind: "job-ended",
+      status: payload.status,
+      message: typeof payload.error === "string" ? payload.error : `Scan job ${payload.status}.`
+    };
   }
   if (payload.status === "succeeded" && "report" in payload) {
     // A completed poll wraps the report; unwrap exactly one level.

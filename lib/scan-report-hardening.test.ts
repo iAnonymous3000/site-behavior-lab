@@ -201,7 +201,14 @@ test("transport: errors, job submissions, and reports are distinguished without 
   });
 
   const job = readScanTransportPayload({ jobId: "job-1", status: "queued", statusPath: "/api/scans/job-1", reportId: "r-1" });
-  assert.deepEqual(job, { kind: "job-accepted", jobId: "job-1", statusPath: "/api/scans/job-1", reportId: "r-1" });
+  assert.deepEqual(job, {
+    kind: "job-pending",
+    status: "queued",
+    jobId: "job-1",
+    statusPath: "/api/scans/job-1",
+    reportId: "r-1",
+    progress: null
+  });
 
   const v1 = readScanTransportPayload(makeScanReportV1());
   assert.equal(v1.kind, "report");
@@ -263,7 +270,7 @@ test("tampered summary counts no longer reconcile with the evidence", () => {
 
 test("budget exhaustion must surface in quality", () => {
   const facts = { ...makeScanRunV2().qualityFacts, budgetsExhausted: ["keystroke-probe"] };
-  const derived = evaluateQuality(facts);
+  const derived = evaluateQuality(facts, { observedRequests: 1 });
   assert.equal(derived.run.reasons.includes("budget-exhausted:keystroke-probe"), true);
 
   const report = mutate(makePublicSingleReportV2(), (draft) => {
@@ -369,10 +376,237 @@ test("async polling envelopes unwrap without payload.ok sniffing", () => {
   if (succeeded.kind === "report") assert.equal(succeeded.loaded.source, "v1");
 
   assert.deepEqual(readScanTransportPayload({ status: "failed", error: "target unreachable" }), {
-    kind: "api-error",
+    kind: "job-ended",
+    status: "failed",
     message: "target unreachable"
   });
 
-  const running = readScanTransportPayload({ status: "running", jobId: "job-9" });
-  assert.equal(running.kind, "job-accepted");
+  const running = readScanTransportPayload({ status: "running", jobId: "job-9", progress: { step: "navigating" } });
+  assert.equal(running.kind, "job-pending");
+  if (running.kind === "job-pending") assert.deepEqual(running.progress, { step: "navigating" });
+});
+
+test("expired and cancelled jobs are meaningful states, not unreadable", () => {
+  assert.deepEqual(readScanTransportPayload({ status: "expired", jobId: "job-2" }), {
+    kind: "job-ended",
+    status: "expired",
+    message: "Scan job expired."
+  });
+  assert.deepEqual(readScanTransportPayload({ status: "cancelled", jobId: "job-3" }), {
+    kind: "job-ended",
+    status: "cancelled",
+    message: "Scan job cancelled."
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Final integrity patch (2026-07-09 pre-emission audit)
+// ---------------------------------------------------------------------------
+
+function remintFingerprints(run: ReturnType<typeof makeScanRunV2>): void {
+  run.fingerprints = buildFingerprints({
+    conditions: run.conditions,
+    provenance: run.provenance,
+    toolchain: run.toolchain,
+    detectors: run.detectors
+  });
+}
+
+/** A consistent consent-mode run: phased, verified, evaluator-minted blocks. */
+function makeConsentRun(mode: "accept-all" | "reject-all") {
+  const run = makeScanRunV2();
+  run.conditions = { ...run.conditions, consent: mode };
+  run.phases = [
+    { phaseId: 0, kind: "passive-load", startedAtMs: 0, endedAtMs: 2000 },
+    { phaseId: 1, kind: "consent-interaction", startedAtMs: 2000, endedAtMs: 3000 },
+    { phaseId: 2, kind: "post-choice-reload", startedAtMs: 3000, endedAtMs: 5000 }
+  ];
+  const observed = mode === "accept-all" ? ("accepted-all" as const) : ("rejected-all" as const);
+  run.evidence = {
+    ...run.evidence,
+    consent: {
+      mode,
+      interactionAttempted: true,
+      controlActivated: true,
+      verificationObservations: [
+        { phaseId: 1, method: "onetrust-cookie@1", observed, consistentWithChoice: true },
+        { phaseId: 2, method: "onetrust-cookie@1", observed, consistentWithChoice: true }
+      ],
+      choiceState: "verified",
+      reverifiedAfterReload: true
+    }
+  };
+  remintFingerprints(run);
+  return run;
+}
+
+test("a consistent consent-mode run passes end to end", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run = makeConsentRun("reject-all");
+  });
+  const read = readStoredScanReport(report);
+  assert.deepEqual(read.ok, true, JSON.stringify(!read.ok ? read.violations : []));
+});
+
+test("a Reject-all run whose interpreter read accepted-all cannot claim verification", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    const run = makeConsentRun("reject-all");
+    // The reproduced forgery: both observations actually read accepted-all,
+    // yet claim consistency and a verified choice.
+    run.evidence.consent!.verificationObservations = [
+      { phaseId: 1, method: "onetrust-cookie@1", observed: "accepted-all", consistentWithChoice: true },
+      { phaseId: 2, method: "onetrust-cookie@1", observed: "accepted-all", consistentWithChoice: true }
+    ];
+    draft.run = run;
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) {
+    assert.equal(read.error, "inconsistent");
+    assert.equal(read.violations?.some((entry) => entry.includes("does not derive from its observed state")), true);
+  }
+});
+
+test("a consent-mode run without consent evidence is rejected", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.conditions = { ...draft.run.conditions, consent: "reject-all" };
+    remintFingerprints(draft.run);
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) {
+    assert.equal(read.error, "inconsistent");
+    assert.equal(read.violations?.some((entry) => entry.includes("carries no consent evidence")), true);
+  }
+});
+
+test("invented verification methods are rejected", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    const run = makeConsentRun("accept-all");
+    run.evidence.consent!.verificationObservations[0].method = "magic@9";
+    draft.run = run;
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.equal(read.violations?.some((entry) => entry.includes("unknown interpreter method")), true);
+});
+
+test("self-asserted evidence strength is rejected", () => {
+  const forgedCounterbalance = mutate(makeInterventionComparisonReportV2(), (draft) => {
+    if (draft.experiment.kind === "intervention") draft.experiment.evidence.counterbalanced = true; // pairs stays 1
+  });
+  const read1 = readStoredScanReport(forgedCounterbalance);
+  assert.equal(read1.ok, false);
+  if (!read1.ok) assert.equal(read1.error, "inconsistent");
+
+  const forgedStrength = mutate(makeInterventionComparisonReportV2(), (draft) => {
+    if (draft.experiment.kind === "intervention") draft.experiment.evidence.strength = "replicated-difference";
+  });
+  const read2 = readStoredScanReport(forgedStrength);
+  assert.equal(read2.ok, false);
+  if (!read2.ok) assert.equal(read2.error, "inconsistent");
+});
+
+test("consent arm failures censor the consent-verification family", () => {
+  const baseline = makeConsentRun("accept-all");
+  const variant = makeConsentRun("reject-all");
+  variant.startedAt = "2026-07-09T10:01:00.000Z";
+  const comparability = evaluateComparability(
+    {
+      kind: "intervention",
+      axis: "consent",
+      pairId: "p",
+      order: "AB",
+      verification: {
+        baseline: { axis: "consent", expected: "consent:accept-all", observed: "consent:accept-all", method: "onetrust-cookie@1", outcome: "passed", phaseId: 2 },
+        variant: { axis: "consent", expected: "consent:reject-all", observed: null, method: "onetrust-cookie@1", outcome: "inconclusive", phaseId: 2 }
+      },
+      evidence: { pairs: 1, counterbalanced: false, strength: "observed-difference" }
+    },
+    baseline,
+    variant
+  );
+  assert.equal(comparability.perMetric["consent-verification"].eligible, false);
+  assert.equal(
+    comparability.perMetric["consent-verification"].reasons.includes("arm-verification-inconclusive:variant"),
+    true
+  );
+  assert.equal(comparability.interventionVerified, false);
+});
+
+test("an exhausted budget without a captureLoss mapping is rejected", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.qualityFacts.budgetsExhausted = ["keystroke-probe"];
+    draft.run.quality = evaluateQuality(draft.run.qualityFacts, { observedRequests: 1 }); // quality consistent
+    // but no captureLoss entry maps the budget: the silent absorption.
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.equal(read.violations?.some((entry) => entry.includes("no corresponding captureLoss")), true);
+});
+
+test("JSON property order is non-semantic for derived-block equality", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    const { execution, measurementEnvironment, condition } = draft.run.fingerprints;
+    (draft.run as AnyRecord).fingerprints = { condition, execution, measurementEnvironment }; // reordered
+  });
+  assert.equal(readStoredScanReport(report).ok, true);
+});
+
+test("summary.status must equal qualityFacts.status", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.summary.status = 204; // facts say 200
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.equal(read.violations?.some((entry) => entry.includes("summary.status")), true);
+});
+
+test("countsByPhase cannot omit phases with observed requests", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.summary.countsByPhase = [];
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.equal(read.violations?.some((entry) => entry.includes("omits phase")), true);
+});
+
+test("a request timestamp outside its declared phase span is rejected", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.evidence.requests[0].startedAtMs = 999999; // phase 0 ends at 5000
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.equal(read.violations?.some((entry) => entry.includes("outside its declared phase span")), true);
+});
+
+test("an empty load cannot claim complete quality", () => {
+  const derived = evaluateQuality(
+    { status: 200, botWallTitleMatched: false, navigationSettled: true, budgetsExhausted: [], captureLoss: [] },
+    { observedRequests: 0 }
+  );
+  assert.equal(derived.run.outcome, "failed");
+  assert.equal(derived.run.reasons.includes("empty-load"), true);
+
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.evidence.requests = [];
+    draft.run.summary.counts = { ...draft.run.summary.counts, totalRequests: 0 };
+    draft.run.summary.countsByPhase = [];
+    // quality stays "complete": the forgery.
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.equal(read.error, "inconsistent");
+});
+
+test("unknown environment dimensions never establish compatibility", () => {
+  const baseline = makeScanRunV2({ runId: "a", startedAt: "2026-06-18T10:00:00.000Z" });
+  const variant = makeScanRunV2({ runId: "b" });
+  delete baseline.conditions.egress.region;
+  delete variant.conditions.egress.region; // unknown on BOTH sides
+  remintFingerprints(baseline);
+  remintFingerprints(variant);
+  const comparability = evaluateComparability({ kind: "temporal", pairId: "p" }, baseline, variant);
+  assert.equal(comparability.perMetric["raw-counts"].eligible, false);
+  assert.equal(comparability.perMetric["raw-counts"].reasons.includes("unknown-dimension:egress.region"), true);
 });
