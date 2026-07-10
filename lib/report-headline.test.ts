@@ -159,6 +159,53 @@ test("credits a GPC comparison that pulled back as calm", () => {
   assert.match(headline.subhead, /not proof the site honors the signal/);
 });
 
+test("the GPC alarm counts tracking companies from the GPC-on visit, not the baseline", () => {
+  // Baseline (GPC off) saw three tracking companies; the GPC-on visit saw one.
+  // The alarm sentence describes the GPC-on visit, so it must say one.
+  const baseline = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [
+      makeTrackerDomain("ads.example", 100, "AdCo", "advertising"),
+      makeTrackerDomain("pixels.example", 40, "PixelCo", "advertising"),
+      makeTrackerDomain("metrics.example", 20, "MetricCo", "analytics")
+    ],
+    thirdPartyRequests: 200,
+    thirdPartyDomains: 12
+  });
+  const variant = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [makeTrackerDomain("ads.example", 90, "AdCo", "advertising")],
+    thirdPartyRequests: 180,
+    thirdPartyDomains: 8
+  });
+
+  const headline = buildReportHeadline(createGpcComparisonReport(baseline, variant));
+  assert.equal(headline.tone, "alarm");
+  assert.match(headline.subhead, /still contacted 1 tracking company:/);
+  assert.doesNotMatch(headline.subhead, /3 tracking companies/);
+});
+
+test("the GPC alarm is not raised from baseline-only tracking companies", () => {
+  // Every catalogued tracker disappeared in the GPC-on visit even though the
+  // request-count reduction is small; the old code read the baseline's
+  // entities and would still have alarmed "still contacted 1 tracking company".
+  const baseline = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [makeTrackerDomain("ads.example", 100, "AdCo", "advertising")],
+    thirdPartyRequests: 100,
+    thirdPartyDomains: 10
+  });
+  const variant = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [],
+    thirdPartyRequests: 90,
+    thirdPartyDomains: 9
+  });
+
+  const headline = buildReportHeadline(createGpcComparisonReport(baseline, variant));
+  assert.doesNotMatch(headline.subhead, /still contacted/);
+});
+
 test("frames a Shields comparison as the observed paired-visit difference", () => {
   const baseline = makeResult({
     firstPartyDomain: "heavy.example",
@@ -206,6 +253,11 @@ test("a Shields comparison names the direct engine blocks separately from the re
   // The direct-abort count and the total reduction are different measurements
   // and must appear as two separately-labeled numbers, never blended.
   assert.match(headline.subhead, /directly stopped 12 requests/);
+  // The residual is NOT established to be follow-on prevention: it can also be
+  // ordinary run variance, so the wording must stay hedged.
+  assert.match(headline.subhead, /may include follow-on requests/);
+  assert.match(headline.subhead, /run-to-run variance/);
+  assert.doesNotMatch(headline.subhead, /the rest never started/);
 });
 
 test("comparison framings are refused when an arm failed, is capped, or mismatches", () => {
@@ -455,7 +507,10 @@ test("a clean reject run headlines that the consent choice made a difference", (
 
   const headline = buildReportHeadline(createConsentComparisonReport(acceptRun, rejectRun));
   assert.equal(headline.tone, "info");
-  assert.match(headline.headline, /Rejecting cookies on shop\.example removed the catalogued trackers\./);
+  // The scanner cannot verify the site registered the click, so the headline
+  // describes the Reject-all visit, never an effect the rejection caused.
+  assert.match(headline.headline, /The Reject-all visit to shop\.example loaded no catalogued trackers\./);
+  assert.doesNotMatch(headline.headline, /Rejecting|removed/);
 });
 
 test("an un-clicked reject run falls through to the ordinary evidence headline", () => {

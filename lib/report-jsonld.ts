@@ -34,7 +34,7 @@ export function buildReportDataset(report: ScanReport, options: { url: string; j
     about: { "@type": "WebSite", name: headline.domain, url: requestedUrl },
     variableMeasured: [
       propertyValue("Third-party requests", summary.thirdPartyRequests),
-      propertyValue("Known tracker requests", summary.knownTrackerRequests),
+      propertyValue("Catalogued service requests", summary.knownTrackerRequests),
       propertyValue("Third-party domains", summary.thirdPartyDomains),
       propertyValue("Third-party cookies", summary.thirdPartyCookies),
       propertyValue("Fingerprint-like API calls", summary.fingerprintEvents)

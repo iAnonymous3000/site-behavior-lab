@@ -179,13 +179,13 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
         `${domain} still reached ${plural(rejectTracking.length, "tracking company", "tracking companies")} in the Reject-all visit.`,
         `After the scanner clicked Reject all, ${joinNames(
           rejectTracking.map((entity) => entity.entity)
-        )} still received requests during that visit. The visit records traffic from before and after the click, and some vendors may be claimed as strictly necessary; the diff shows exactly what rejecting did remove.`
+        )} still received requests during that visit. The visit records traffic from before and after the click, and some vendors may be claimed as strictly necessary; the diff lists the services that appeared only in the Accept-all visit.`
       );
     }
     if (report.baseline.consentInteraction?.clicked === true && trackingEntities.length > 0) {
       return finish(
         "info",
-        `Rejecting cookies on ${domain} removed the catalogued trackers.`,
+        `The Reject-all visit to ${domain} loaded no catalogued trackers.`,
         `The Reject-all visit loaded no catalogued tracking company, while the Accept-all visit loaded ${plural(
           trackingEntities.length,
           "tracking company",
@@ -208,15 +208,19 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
           ? `${Math.abs(reductionPct)}% more than without it`
           : "with no measurable drop";
 
-    if (trackingEntities.length > 0 && after > 0 && reductionPct < 25) {
+    // This claim is about the GPC-ON visit, so every number and name in it must
+    // come from the variant run. The report's lead result (and its extras) is
+    // the baseline run, which would mix the two arms' evidence.
+    const gpcOnTracking = trackerEntitySummaries(report.variant).filter((entity) => !isOperationalEntity(entity));
+    if (gpcOnTracking.length > 0 && after > 0 && reductionPct < 25) {
       return finish(
         "alarm",
         `Your privacy signal barely changed what ${domain} loaded.`,
         `Even with a "do not sell or share" (GPC) signal switched on, ${domain} still contacted ${plural(
-          trackingEntities.length,
+          gpcOnTracking.length,
           "tracking company",
           "tracking companies"
-        )}: ${plural(after, "third-party request")}, ${changePhrase}. Request counts cannot show whether data sales stopped, only what loaded.${extraNote}`
+        )}: ${plural(after, "third-party request")}, ${changePhrase}. Request counts cannot show whether data sales stopped, only what loaded.`
       );
     }
     if (reductionPct >= 50) {
@@ -241,7 +245,7 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
     if (removed > 0) {
       const engineNote =
         engineBlocks && engineBlocks.kind === "engine-blocked"
-          ? ` The blocker directly stopped ${plural(engineBlocks.count, "request")}; the rest never started once their sources were blocked.`
+          ? ` The blocker directly stopped ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked, plus run-to-run variance.`
           : "";
       return finish(
         removed >= 30 ? "warn" : "info",

@@ -215,6 +215,33 @@ test("a Shields comparison keeps the fingerprinting card alongside session-recor
   assert.equal(ids[1], "shields-comparison");
 });
 
+test("the Shields comparison card hedges the residual beyond the direct engine blocks", () => {
+  const baseline = makeResult({
+    firstPartyDomain: "shop.example",
+    domains: [makeTrackerDomain("google-analytics.com", 8, "Google", "analytics")],
+    thirdPartyRequests: 30,
+    thirdPartyDomains: 12,
+    totalRequests: 60
+  });
+  const variant: ScanResult = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 5, thirdPartyDomains: 2, totalRequests: 20 }),
+  };
+  variant.summary = { ...variant.summary, shieldsBlockedRequests: 9 };
+  variant.conditions = {
+    ...variant.conditions,
+    shieldsMode: "block-simulation",
+    adblock: { active: true, source: "brave-default", lists: 5, fetchedAt: new Date(0).toISOString() }
+  };
+
+  const card = byId(buildFindings(createShieldsComparisonReport(baseline, variant), baseline, null), "shields-comparison");
+  assert.match(card.detail, /directly blocked 9 requests/);
+  // The residual is not established to be follow-on prevention; it can also be
+  // run variance, so the attribution must stay hedged.
+  assert.match(card.detail, /may include follow-on requests/);
+  assert.doesNotMatch(card.detail, /the rest of the reduction is/);
+  assert.match(card.detail, /run-to-run variance/);
+});
+
 test("a consent comparison flags trackers that survive Reject all", () => {
   const acceptRun = {
     ...makeResult({
@@ -249,6 +276,9 @@ test("a consent comparison flags trackers that survive Reject all", () => {
   // click is dispatched, not verified.
   assert.match(card.detail, /before AND after the click/);
   assert.match(card.detail, /cannot verify the site registered the choice/);
+  // The diff pointer must describe set membership, not an effect of rejecting.
+  assert.match(card.detail, /appeared only in the Accept-all visit/);
+  assert.doesNotMatch(card.detail, /did remove/);
   assert.match(card.evidence, /30 with Accept all, 6 with Reject all/);
 });
 

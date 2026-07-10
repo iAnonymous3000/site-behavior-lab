@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
+import { comparisonEligibility } from "@/lib/comparison-eligibility";
 import { provenanceChangeText } from "@/lib/report-findings";
 import { pixelFieldLabel } from "@/lib/report-insights";
 import { plural } from "@/lib/text-format";
@@ -19,6 +20,9 @@ import type {
 
 function ComparisonPanel({ report }: { report: ComparisonScanResult }) {
   const labels = comparisonRunLabels(report);
+  // The raw deltas stay visible (they are the evidence), but an ineligible
+  // pair must say so right beside them, not only in the findings board.
+  const eligibility = comparisonEligibility(report);
   const addedCookies = report.diff.addedCookies ?? [];
   const removedCookies = report.diff.removedCookies ?? [];
   const addedStorageKeys = report.diff.addedStorageKeys ?? [];
@@ -68,6 +72,16 @@ function ComparisonPanel({ report }: { report: ComparisonScanResult }) {
           </span>
         </div>
       </div>
+      {!eligibility.eligible && (
+        <div className="comparison-ineligible" role="note">
+          <strong>Raw deltas only; this pair does not support a comparison claim.</strong>
+          <ul>
+            {eligibility.reasons.map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div className="comparison-metrics">
         {metrics.map((item) => (
           <DeltaTile key={item.label} label={item.label} metric={item.metric} />

@@ -49,7 +49,9 @@ export const CORPUS_MIN_SAMPLE = 50;
 const METRIC_LABELS: Record<CorpusMetricKey, string> = {
   thirdPartyRequests: "third-party requests",
   thirdPartyDomains: "third-party domains",
-  knownTrackerRequests: "known-tracker requests",
+  // The summary field counts every catalogued match, operational services
+  // included, so the public label must not call them all trackers.
+  knownTrackerRequests: "catalogued-service requests",
   thirdPartyCookies: "third-party cookies",
   fingerprintEvents: "fingerprint-like API calls"
 };

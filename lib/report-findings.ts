@@ -543,7 +543,7 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
       const engineBlocks = shieldsRunMeasurement(report.variant);
       const engineNote =
         engineBlocks && engineBlocks.kind === "engine-blocked"
-          ? ` The Shields-on visit's engine directly blocked ${plural(engineBlocks.count, "request")}; the rest of the reduction is requests that never started once their sources were blocked.`
+          ? ` The Shields-on visit's engine directly blocked ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked.`
           : "";
 
       findings.unshift({
@@ -724,7 +724,7 @@ function buildConsentComparisonFinding(report: ComparisonScanResult): Finding {
         "tracking companies"
       )} loaded with Accept all).`,
       detail:
-        "The visit records traffic from before AND after the click, and the scanner can dispatch the click but cannot verify the site registered the choice, so some of this can be pre-click traffic, vendors a site treats as strictly necessary, or processing claimed under legitimate interest. It is a documented observation to review against the banner's promises, not a violation ruling. The diff below lists exactly which services the rejection did remove.",
+        "The visit records traffic from before AND after the click, and the scanner can dispatch the click but cannot verify the site registered the choice, so some of this can be pre-click traffic, vendors a site treats as strictly necessary, or processing claimed under legitimate interest. It is a documented observation to review against the banner's promises, not a violation ruling. The diff below lists the services that appeared only in the Accept-all visit.",
       evidence
     };
   }

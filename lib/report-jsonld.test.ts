@@ -31,6 +31,11 @@ test("builds a Dataset with metrics, download link, and the scanned site", () =>
   const measured = dataset.variableMeasured as { name: string; value: number }[];
   const thirdParty = measured.find((entry) => entry.name === "Third-party requests");
   assert.equal(thirdParty?.value, 6);
+
+  // The summary count includes operational services (Sentry and friends), so
+  // the structured-data label must say catalogued services, not trackers.
+  assert.ok(measured.some((entry) => entry.name === "Catalogued service requests"));
+  assert.ok(!measured.some((entry) => entry.name.toLowerCase().includes("tracker")));
 });
 
 test("omits the download link when no JSON URL is provided", () => {

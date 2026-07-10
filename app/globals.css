@@ -1319,6 +1319,22 @@ a {
   padding: 4px 9px;
 }
 
+.comparison-ineligible {
+  background: var(--sig-warn-soft);
+  border: 1px solid color-mix(in srgb, var(--sig-warn) 28%, transparent);
+  border-radius: var(--radius-sm);
+  color: var(--sig-warn);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+}
+
+.comparison-ineligible ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
 .comparison-metrics {
   display: grid;
   gap: 10px;

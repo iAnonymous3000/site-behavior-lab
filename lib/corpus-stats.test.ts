@@ -36,6 +36,16 @@ test("corpusBenchmark returns null for metrics without a distribution", () => {
   assert.equal(corpusBenchmark(makeCorpus(200), "thirdPartyCookies", 10), null);
 });
 
+test("the catalogued-service metric is never labeled as tracker requests", () => {
+  // summary.knownTrackerRequests counts every catalogued match, operational
+  // services included, so percentile sentences must not call them all trackers.
+  const corpus = makeCorpus(200);
+  corpus.metrics.knownTrackerRequests = corpus.metrics.thirdPartyDomains;
+  const benchmark = corpusBenchmark(corpus, "knownTrackerRequests", 50);
+  assert.match(benchmark?.label ?? "", /catalogued-service requests/);
+  assert.doesNotMatch(benchmark?.label ?? "", /tracker/);
+});
+
 test("isCorpusStats validates shape", () => {
   assert.equal(isCorpusStats(makeCorpus(100)), true);
   assert.equal(isCorpusStats({ version: 1, generatedAt: "x", sampleSize: 1, metrics: { thirdPartyDomains: { count: 1 } } }), false);
