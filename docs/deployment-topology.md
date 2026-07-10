@@ -105,9 +105,9 @@ Turnstile wall on every scan and budget P2 + P4 as new Worker work.
 ## Consequences and sequenced follow-on work
 
 Once Option B is chosen, the roadmap re-collapses (**executed 2026-06-21:** P1 container
-deploy + P2 R2 store, operator-gated; P3 corpus active at 88 sites; P4 Shields runs live on
-the container. **Remaining:** surface live Shields on the public front door behind edge
-WAF/Turnstile, plus P5 durable queue):
+deploy + P2 R2 store; P3 corpus active; P4 Shields runs live on the container.
+**Executed 2026-06-22:** live Shields on the public front door at scan.sitebehavior.org,
+open access behind edge WAF/Turnstile. **Remaining:** P5 durable queue):
 
 1. **Container + edge wiring (P1 execution).** Build/ship the Node scanner container
    ([Dockerfile](../Dockerfile) exists; validate with `npm run test:smoke:docker`),

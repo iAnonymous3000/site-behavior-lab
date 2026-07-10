@@ -94,8 +94,9 @@ test("consent rows expose the verified click state so unclicked runs are filtera
   );
 
   assert.equal(rows[0].consentClicks, "none");
-  // The note must tell researchers that anything short of accept-and-reject is
-  // pre-consent observation, not a verified choice comparison.
+  // The note must tell researchers that anything short of accept-and-reject
+  // leaves at least one run in the pre-consent state, so the row is not a
+  // verified choice comparison.
   assert.match(CORPUS_EXPORT_NOTE, /consent_clicks/);
   assert.match(CORPUS_EXPORT_NOTE, /pre-consent state/);
 });

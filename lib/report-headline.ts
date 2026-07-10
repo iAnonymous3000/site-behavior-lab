@@ -54,7 +54,8 @@ export type ReportHeadline = {
   shareText: string;
 };
 
-const CAVEAT = "Observed in one automated visit: evidence to check, not a verdict.";
+const SINGLE_VISIT_CAVEAT = "Observed in one automated visit: evidence to check, not a verdict.";
+const COMPARISON_CAVEAT = "Observed in two automated visits: evidence to check, not a verdict.";
 const KICKER = "What this actually means";
 const SHARE_TAGLINE = "See what a site does, not what it says. Open-source and reproducible:";
 
@@ -91,7 +92,7 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
       kicker: KICKER,
       headline,
       subhead,
-      caveat: CAVEAT,
+      caveat: isComparison(report) ? COMPARISON_CAVEAT : SINGLE_VISIT_CAVEAT,
       stats: resolvedStats,
       domain,
       shareText: buildShareText(headline, resolvedStats)

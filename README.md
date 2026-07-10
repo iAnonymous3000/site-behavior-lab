@@ -233,9 +233,9 @@ The featured-scan workflow also runs on a weekly schedule (Mondays 05:23 UTC) wi
 
 ## Cloudflare Worker Deployment
 
-The repo also includes a Cloudflare-native scanner in `cloudflare/worker.ts`. It powers the public static scan form with Cloudflare Browser Run, KV-backed report storage, DNS-over-HTTPS public-address checks, public scan quotas, and GPC comparison support.
+The repo also includes a Cloudflare-native scanner in `cloudflare/worker.ts`, built on Cloudflare Browser Run with KV-backed report storage, DNS-over-HTTPS public-address checks, public scan quotas, and GPC comparison support. It no longer powers the public scan form: sitebehavior.org runs the full Node/Playwright container scanner (see the note below), and this Worker is retired as a public deployment because its preflight-only DNS check cannot pin the browser's eventual connection. It remains a lightweight self-hosted option for token-gated GPC/trackers scans.
 
-> For the **full Node/Playwright scanner with live Shields** running on Cloudflare (Containers, fronted by a Worker, with R2 report storage), see [docs/deploy-cloudflare-containers.md](docs/deploy-cloudflare-containers.md). That is the Cloudflare-native version of the Node container path; this Browser Run Worker stays the lightweight GPC/trackers option.
+> For the **full Node/Playwright scanner with live Shields** running on Cloudflare (Containers, fronted by a Worker, with R2 report storage), see [docs/deploy-cloudflare-containers.md](docs/deploy-cloudflare-containers.md). That is the Cloudflare-native version of the Node container path and the one serving production; this Browser Run Worker stays a lightweight self-hosted GPC/trackers option.
 
 One-time Cloudflare setup:
 
@@ -246,7 +246,7 @@ npm run cf:kv:create
 ```
 
 2. Put the returned namespace id in `wrangler.jsonc` under the `REPORTS_KV` binding.
-3. Gating is the safer default for self-hosting, but the committed `wrangler.jsonc` ships the intentionally-open posture used by sitebehavior.org (`SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1` plus the risk flag, see step 5). For a gated instance, set both flags back to `0` in `wrangler.jsonc` and set a scan token:
+3. The committed `wrangler.jsonc` ships gated: `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS` and the DNS-rebinding risk flag are both `0`, the safer default for self-hosting. (An intentionally open instance flips both to `1`, see step 5.) For a gated instance, set a scan token:
 
 ```bash
 npx wrangler secret put SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN

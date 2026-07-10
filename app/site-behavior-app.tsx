@@ -917,7 +917,7 @@ export function SiteBehaviorApp({
               Privacy
             </a>
           </span>
-          <span>One automated visit. Reproducible for this configuration, not a universal claim.</span>
+          <span>One automated visit per condition (comparisons pair two). Reproducible for this configuration, not a universal claim.</span>
         </footer>
       </main>
     </>
