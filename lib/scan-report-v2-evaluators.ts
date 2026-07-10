@@ -24,6 +24,7 @@ import {
   type Comparability,
   type ComparabilityReason,
   type ComparisonDiffV2,
+  type ConsentEvidence,
   type ConsentObservedState,
   type EvidenceFamily,
   type Experiment,
@@ -46,13 +47,37 @@ export const METRIC_REGISTRY_VERSION = "1";
 /**
  * Known verification interpreters (RFC 6.1, 9.4): versioned, scanner-owned
  * identifiers. An unknown method is a forgery signal, not an extension point;
- * extending this registry is an evaluator-version event once v2 ships.
+ * extending these registries is an evaluator-version event once v2 ships.
+ *
+ * STRONG methods read actual CMP state and can support "verified" or
+ * "contradicted". WEAK methods observe UI signals only (banner dismissal),
+ * can never claim a definite consent state, and cap the derivation at
+ * "weak-signal" (RFC 6.1).
  */
-export const CONSENT_INTERPRETER_METHODS = new Set(["tcf-api@1", "onetrust-cookie@1", "banner-visibility@1"]);
+export const STRONG_CONSENT_INTERPRETERS = new Set(["tcf-api@1", "onetrust-cookie@1"]);
+export const WEAK_CONSENT_INTERPRETERS = new Set(["banner-visibility@1"]);
+export const CONSENT_INTERPRETER_METHODS = new Set([...STRONG_CONSENT_INTERPRETERS, ...WEAK_CONSENT_INTERPRETERS]);
 const ARM_METHODS: Record<InterventionAxis, Set<string>> = {
   gpc: new Set(["gpc-header-readback@1"]),
   shields: new Set(["shields-engine-status@1"]),
-  consent: CONSENT_INTERPRETER_METHODS
+  consent: STRONG_CONSENT_INTERPRETERS
+};
+
+/**
+ * Closed budget registry: every budget name maps to the evidence family it
+ * cuts, so an exhausted request budget cannot hide behind an unrelated
+ * detector loss. An unknown budget name is a violation.
+ */
+export const BUDGET_FAMILIES: Record<string, EvidenceFamily> = {
+  "request-capture": "requests",
+  "cookie-snapshot": "cookies",
+  "storage-snapshot": "storage",
+  "fingerprint-observer": "fingerprinting",
+  "keystroke-probe": "detector-output",
+  "cname-lookups": "detector-output",
+  "pixel-decode": "detector-output",
+  "policy-visit": "detector-output",
+  "consent-verification": "consent-verification"
 };
 
 // ---------------------------------------------------------------------------
@@ -170,20 +195,40 @@ function metricDependencyReasons(family: MetricFamily, a: ScanRunV2, b: ScanRunV
     } else {
       const manifest = digestReason("adblockManifest", a.toolchain.adblock.manifestDigest, b.toolchain.adblock.manifestDigest);
       if (manifest !== null) reasons.push(manifest);
-      if (a.toolchain.adblock.engineVersion !== b.toolchain.adblock.engineVersion) {
+      // The unknown rule applies to versions too: two "unknown" engines are
+      // not the same engine.
+      if (isUnknownDimension(a.toolchain.adblock.engineVersion) || isUnknownDimension(b.toolchain.adblock.engineVersion)) {
+        reasons.push("unknown-dimension:adblockEngine");
+      } else if (a.toolchain.adblock.engineVersion !== b.toolchain.adblock.engineVersion) {
         reasons.push("dependency-version-mismatch:adblockEngine");
       }
     }
   }
   if (family === "consent-verification") {
-    if (a.detectors["consent-banner"].version !== b.detectors["consent-banner"].version) {
+    const left = a.detectors["consent-banner"].version;
+    const right = b.detectors["consent-banner"].version;
+    if (isUnknownDimension(left) || isUnknownDimension(right)) {
+      reasons.push("unknown-dimension:consent-banner");
+    } else if (left !== right) {
       reasons.push("dependency-version-mismatch:consent-banner");
     }
   }
   if (family === "detector-findings") {
     for (const id of DETECTOR_IDS) {
-      if (a.detectors[id].version !== b.detectors[id].version) {
+      const left = a.detectors[id];
+      const right = b.detectors[id];
+      if (isUnknownDimension(left.version) || isUnknownDimension(right.version)) {
+        reasons.push(`unknown-dimension:${id}`);
+      } else if (left.version !== right.version) {
         reasons.push(`dependency-version-mismatch:${id}`);
+      }
+      // Detector-status eligibility: a failed detector's findings differ for
+      // tool reasons, and asymmetric statuses (ran here, skipped there) make
+      // the finding sets incomparable.
+      if (left.status === "failed" || right.status === "failed") {
+        reasons.push(`unknown-dimension:detectorStatus.${id}`);
+      } else if (left.status !== right.status) {
+        reasons.push(`dependency-version-mismatch:detectorStatus.${id}`);
       }
     }
   }
@@ -536,6 +581,34 @@ export function deriveObservationConsistency(
 
 const CONSENT_OBSERVATION_PHASES = new Set<PhaseKind>(["consent-interaction", "post-choice-reload"]);
 
+/**
+ * The exact choiceState derivation, evaluator "1" (RFC 6.1). "verified"
+ * requires STRONG interpreter agreement in both consent phases plus an
+ * activated control; weak UI evidence caps at "weak-signal"; "failed" is not
+ * representable in r1 (no interpreter-error flag on the wire) and becomes
+ * representable in the planned r2, so an r1 report claiming it is
+ * inconsistent by construction.
+ */
+export function deriveChoiceState(
+  consent: Pick<ConsentEvidence, "controlActivated" | "verificationObservations">,
+  phaseKindOf: (phaseId: number) => PhaseKind | null
+): "verified" | "contradicted" | "weak-signal" | "unavailable" {
+  const strong = consent.verificationObservations.filter((observation) => STRONG_CONSENT_INTERPRETERS.has(observation.method));
+  const weak = consent.verificationObservations.filter((observation) => WEAK_CONSENT_INTERPRETERS.has(observation.method));
+  if (strong.some((observation) => observation.consistentWithChoice === false)) return "contradicted";
+  const strongInInteraction = strong.some(
+    (observation) => observation.consistentWithChoice === true && phaseKindOf(observation.phaseId) === "consent-interaction"
+  );
+  const strongInReload = strong.some(
+    (observation) => observation.consistentWithChoice === true && phaseKindOf(observation.phaseId) === "post-choice-reload"
+  );
+  if (consent.controlActivated && strongInInteraction && strongInReload) return "verified";
+  if (consent.controlActivated && (weak.length > 0 || strong.some((observation) => observation.consistentWithChoice === true))) {
+    return "weak-signal";
+  }
+  return "unavailable";
+}
+
 function consentViolations(run: ScanRunV2, label: string): string[] {
   const violations: string[] = [];
   const consent = run.evidence.consent;
@@ -566,6 +639,15 @@ function consentViolations(run: ScanRunV2, label: string): string[] {
     if (!CONSENT_INTERPRETER_METHODS.has(observation.method)) {
       violations.push(`${label}: consent observation ${index} uses an unknown interpreter method`);
     }
+    // Weak UI methods cannot read consent state; a definite state claim from
+    // one is a forgery signal.
+    if (
+      WEAK_CONSENT_INTERPRETERS.has(observation.method) &&
+      observation.observed !== null &&
+      observation.observed !== "unknown"
+    ) {
+      violations.push(`${label}: consent observation ${index} claims a definite state from a weak UI method`);
+    }
     const phaseKind = phaseKindAt(run, observation.phaseId);
     if (phaseKind === null || !CONSENT_OBSERVATION_PHASES.has(phaseKind)) {
       violations.push(`${label}: consent observation ${index} is tagged to a non-consent phase`);
@@ -576,28 +658,19 @@ function consentViolations(run: ScanRunV2, label: string): string[] {
     }
   }
 
-  const anyContradiction = observations.some((observation) => observation.consistentWithChoice === false);
-  const consistentInInteraction = observations.some(
-    (observation) => observation.consistentWithChoice === true && phaseKindAt(run, observation.phaseId) === "consent-interaction"
+  // choiceState and reverifiedAfterReload are DERIVED, never trusted.
+  const derivedState = deriveChoiceState(consent, (phaseId) => phaseKindAt(run, phaseId));
+  if (consent.choiceState !== derivedState) {
+    violations.push(`${label}: choiceState ${consent.choiceState} does not derive from the observations (expected ${derivedState})`);
+  }
+  const strongInReload = observations.some(
+    (observation) =>
+      STRONG_CONSENT_INTERPRETERS.has(observation.method) &&
+      observation.consistentWithChoice === true &&
+      phaseKindAt(run, observation.phaseId) === "post-choice-reload"
   );
-  const consistentInReload = observations.some(
-    (observation) => observation.consistentWithChoice === true && phaseKindAt(run, observation.phaseId) === "post-choice-reload"
-  );
-
-  if (consent.reverifiedAfterReload !== consistentInReload) {
-    violations.push(`${label}: reverifiedAfterReload disagrees with the recorded observations`);
-  }
-  if (anyContradiction && consent.choiceState !== "contradicted") {
-    violations.push(`${label}: a contradicting observation exists but choiceState is not contradicted`);
-  }
-  if (consent.choiceState === "verified") {
-    if (!consent.controlActivated) violations.push(`${label}: choiceState verified without an activated control`);
-    if (anyContradiction || !consistentInInteraction || !consistentInReload) {
-      violations.push(`${label}: choiceState verified is not supported by the recorded observations`);
-    }
-  }
-  if (observations.length === 0 && (consent.choiceState === "verified" || consent.choiceState === "contradicted")) {
-    violations.push(`${label}: choiceState claims interpreter evidence but no observations were recorded`);
+  if (consent.reverifiedAfterReload !== strongInReload) {
+    violations.push(`${label}: reverifiedAfterReload disagrees with the recorded strong observations`);
   }
   return violations;
 }
@@ -623,12 +696,18 @@ function phaseAndTimingViolations(run: ScanRunV2, label: string): string[] {
 
 function budgetViolations(run: ScanRunV2, label: string): string[] {
   const violations: string[] = [];
-  // An exhausted budget with no recorded capture loss would leave every
-  // family complete and eligible, silently absorbing the cut (review item 3).
+  // An exhausted budget with no recorded capture loss IN ITS OWN FAMILY would
+  // leave the metrics it actually cut complete and eligible; the closed
+  // registry pins each budget to the family it censors.
   for (const budget of run.qualityFacts.budgetsExhausted) {
-    const mapped = run.qualityFacts.captureLoss.some((entry) => entry.detail === budget);
+    const family = BUDGET_FAMILIES[budget];
+    if (family === undefined) {
+      violations.push(`${label}: exhausted budget ${budget} is not in the budget registry`);
+      continue;
+    }
+    const mapped = run.qualityFacts.captureLoss.some((entry) => entry.detail === budget && entry.family === family);
     if (!mapped) {
-      violations.push(`${label}: exhausted budget ${budget} has no corresponding captureLoss entry`);
+      violations.push(`${label}: exhausted budget ${budget} has no captureLoss entry in its ${family} family`);
     }
   }
   return violations;
@@ -685,15 +764,25 @@ function armViolations(arm: ArmVerification, run: ScanRunV2, axis: InterventionA
   if (axis === "shields" && arm.observed === "shields:block-simulation" && run.toolchain.adblock === null) {
     violations.push(`${label}: shields arm observed block-simulation without a loaded adblock engine`);
   }
-  const consistentOutcome: ArmVerification["outcome"] =
-    arm.observed === null ? "inconclusive" : arm.observed === arm.expected ? "passed" : "failed";
-  if (arm.outcome !== consistentOutcome) {
-    violations.push(`${label}: arm outcome ${arm.outcome} disagrees with expected/observed states`);
-  }
-  if (axis === "consent" && run.evidence.consent !== undefined) {
-    const mapped = CONSENT_CHOICE_TO_ARM_OUTCOME[run.evidence.consent.choiceState];
-    if (arm.outcome !== mapped) {
+  if (axis === "consent") {
+    // The consent arm is DEFINED by the run's derived choiceState: outcome is
+    // its mapping, and observed is the expected state only when verified.
+    // The generic observed/expected rule does not apply, so an honest
+    // interpreter failure stays representable without contradiction.
+    const choiceState = run.evidence.consent?.choiceState;
+    const mappedOutcome = choiceState === undefined ? "inconclusive" : CONSENT_CHOICE_TO_ARM_OUTCOME[choiceState];
+    if (arm.outcome !== mappedOutcome) {
       violations.push(`${label}: arm outcome ${arm.outcome} disagrees with consent choiceState`);
+    }
+    const expectedObserved = choiceState === "verified" ? arm.expected : null;
+    if (arm.observed !== expectedObserved) {
+      violations.push(`${label}: consent arm observed state does not derive from the choiceState`);
+    }
+  } else {
+    const consistentOutcome: ArmVerification["outcome"] =
+      arm.observed === null ? "inconclusive" : arm.observed === arm.expected ? "passed" : "failed";
+    if (arm.outcome !== consistentOutcome) {
+      violations.push(`${label}: arm outcome ${arm.outcome} disagrees with expected/observed states`);
     }
   }
   return violations;
@@ -703,14 +792,14 @@ function experimentEvidenceViolations(experiment: Experiment): string[] {
   if (experiment.kind !== "intervention") return [];
   const violations: string[] = [];
   const evidence = experiment.evidence;
-  // Evidence strength must be earned, not asserted (review item 2):
-  // counterbalancing needs at least an AB and a BA pair, and the stronger
-  // causal wording needs counterbalanced replication.
-  if (evidence.counterbalanced && evidence.pairs < 2) {
-    violations.push("experiment: counterbalanced evidence requires at least two pairs");
-  }
-  if (evidence.strength === "replicated-difference" && (!evidence.counterbalanced || evidence.pairs < 2)) {
-    violations.push("experiment: replicated-difference strength requires counterbalanced pairs");
+  // First-release rule: a report carries exactly the one pair it contains,
+  // so replicated claims are not representable at all. One stored pair
+  // asserting { pairs: 2, counterbalanced: true } was reproducibly accepted
+  // before; r2 gains per-pair records before any replicated claim is allowed.
+  if (evidence.pairs !== 1) violations.push("experiment: a report represents exactly the one pair it contains");
+  if (evidence.counterbalanced) violations.push("experiment: counterbalanced claims need per-pair records (r2)");
+  if (evidence.strength !== "observed-difference") {
+    violations.push("experiment: replicated-difference strength needs per-pair records (r2)");
   }
   return violations;
 }

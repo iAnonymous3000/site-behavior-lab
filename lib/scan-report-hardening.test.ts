@@ -14,7 +14,7 @@ import {
 } from "./scan-report-v2-fixtures";
 import { isPublicComparisonReportV2, isPublicScanReportV2, isPublicSingleReportV2 } from "./scan-report-v2-validation";
 import { readStoredScanReport } from "./scan-report-reader";
-import { readScanTransportPayload, toReportView } from "./scan-report-view";
+import { publicWireForExportOrPersistence, readScanTransportPayload, toReportView } from "./scan-report-view";
 import { evaluateComparability, evaluateQuality } from "./scan-report-v2-evaluators";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { makeScanRunV2 } from "./scan-report-v2-fixtures";
@@ -542,7 +542,7 @@ test("an exhausted budget without a captureLoss mapping is rejected", () => {
   });
   const read = readStoredScanReport(report);
   assert.equal(read.ok, false);
-  if (!read.ok) assert.equal(read.violations?.some((entry) => entry.includes("no corresponding captureLoss")), true);
+  if (!read.ok) assert.equal(read.violations?.some((entry) => entry.includes("no captureLoss entry in its")), true);
 });
 
 test("JSON property order is non-semantic for derived-block equality", () => {
@@ -609,4 +609,143 @@ test("unknown environment dimensions never establish compatibility", () => {
   const comparability = evaluateComparability({ kind: "temporal", pairId: "p" }, baseline, variant);
   assert.equal(comparability.perMetric["raw-counts"].eligible, false);
   assert.equal(comparability.perMetric["raw-counts"].reasons.includes("unknown-dimension:egress.region"), true);
+});
+
+// ---------------------------------------------------------------------------
+// Verification-model closure (2026-07-09 second pre-emission audit)
+// ---------------------------------------------------------------------------
+
+test("banner dismissal alone can never establish verified", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    const run = makeConsentRun("reject-all");
+    run.evidence.consent!.verificationObservations = [
+      { phaseId: 1, method: "banner-visibility@1", observed: null, consistentWithChoice: null },
+      { phaseId: 2, method: "banner-visibility@1", observed: null, consistentWithChoice: null }
+    ];
+    // choiceState stays "verified": the reproduced forgery.
+    run.evidence.consent!.reverifiedAfterReload = false;
+    draft.run = run;
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.equal(read.violations?.some((entry) => entry.includes("does not derive from the observations")), true);
+
+  // A weak method claiming a definite state is itself a violation.
+  const definiteWeak = mutate(makePublicSingleReportV2(), (draft) => {
+    const run = makeConsentRun("reject-all");
+    run.evidence.consent!.verificationObservations[0].method = "banner-visibility@1";
+    draft.run = run;
+  });
+  const read2 = readStoredScanReport(definiteWeak);
+  assert.equal(read2.ok, false);
+  if (!read2.ok) assert.equal(read2.violations?.some((entry) => entry.includes("weak UI method")), true);
+});
+
+test("weak-signal requires actual weak evidence", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    const run = makeConsentRun("reject-all");
+    run.evidence.consent!.verificationObservations = [];
+    run.evidence.consent!.choiceState = "weak-signal"; // nothing supports it
+    run.evidence.consent!.reverifiedAfterReload = false;
+    run.evidence.consent!.controlActivated = true;
+    draft.run = run;
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.equal(read.violations?.some((entry) => entry.includes("expected unavailable")), true);
+});
+
+test("one stored pair cannot claim replicated counterbalanced evidence", () => {
+  const report = mutate(makeInterventionComparisonReportV2(), (draft) => {
+    if (draft.experiment.kind === "intervention") {
+      draft.experiment.evidence = { pairs: 2, counterbalanced: true, strength: "replicated-difference" };
+    }
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) {
+    assert.equal(read.error, "inconsistent");
+    assert.equal(read.violations?.some((entry) => entry.includes("exactly the one pair")), true);
+  }
+});
+
+test("matching unknown engine versions never make Shields metrics eligible", () => {
+  const baseline = makeScanRunV2({ runId: "a", startedAt: "2026-06-18T10:00:00.000Z" });
+  const variant = makeScanRunV2({ runId: "b" });
+  baseline.toolchain.adblock!.engineVersion = "unknown";
+  variant.toolchain.adblock!.engineVersion = "unknown";
+  remintFingerprints(baseline);
+  remintFingerprints(variant);
+  const comparability = evaluateComparability({ kind: "temporal", pairId: "p" }, baseline, variant);
+  assert.equal(comparability.perMetric["shields-simulation"].eligible, false);
+  assert.equal(comparability.perMetric["shields-simulation"].reasons.includes("unknown-dimension:adblockEngine"), true);
+  // Other families stay unaffected by the engine dimension.
+  assert.equal(comparability.perMetric["raw-counts"].eligible, true);
+});
+
+test("a budget mapped to the wrong family is rejected", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.qualityFacts.budgetsExhausted = ["request-capture"];
+    // Attached to an unrelated detector loss, not the requests family.
+    draft.run.qualityFacts.captureLoss = [
+      { family: "detector-output", phaseId: 0, kind: "timeout", count: 1, detail: "request-capture" }
+    ];
+    draft.run.quality = evaluateQuality(draft.run.qualityFacts, { observedRequests: 1 });
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.equal(read.violations?.some((entry) => entry.includes("in its requests family")), true);
+
+  const unknownBudget = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.qualityFacts.budgetsExhausted = ["made-up-budget"];
+    draft.run.quality = evaluateQuality(draft.run.qualityFacts, { observedRequests: 1 });
+  });
+  const read2 = readStoredScanReport(unknownBudget);
+  assert.equal(read2.ok, false);
+  if (!read2.ok) assert.equal(read2.violations?.some((entry) => entry.includes("not in the budget registry")), true);
+});
+
+test("failed or asymmetric detector statuses censor detector-findings eligibility", () => {
+  const baseline = makeScanRunV2({ runId: "a", startedAt: "2026-06-18T10:00:00.000Z" });
+  const variant = makeScanRunV2({ runId: "b" });
+  variant.detectors["pixel-events"] = { version: "1", status: "failed" };
+  const comparability = evaluateComparability({ kind: "temporal", pairId: "p" }, baseline, variant);
+  assert.equal(comparability.perMetric["detector-findings"].eligible, false);
+  assert.equal(
+    comparability.perMetric["detector-findings"].reasons.includes("unknown-dimension:detectorStatus.pixel-events"),
+    true
+  );
+
+  const skippedOnOne = makeScanRunV2({ runId: "c" });
+  skippedOnOne.detectors["pixel-events"] = { version: "1", status: "skipped" };
+  const asymmetric = evaluateComparability({ kind: "temporal", pairId: "p" }, baseline, skippedOnOne);
+  assert.equal(asymmetric.perMetric["detector-findings"].eligible, false);
+});
+
+test("the export/persistence boundary never serializes an ephemeral shell", () => {
+  const ephemeral = readScanTransportPayload(makeEphemeralSingleReport());
+  assert.equal(ephemeral.kind, "report");
+  if (ephemeral.kind === "report") {
+    const wire = publicWireForExportOrPersistence(ephemeral.loaded);
+    assert.equal(JSON.stringify(wire).includes("AAAA"), false);
+    assert.equal(isPublicScanReportV2(wire), true);
+  }
+
+  const v1 = readScanTransportPayload(makeScanReportV1());
+  assert.equal(v1.kind, "report");
+  if (v1.kind === "report") {
+    assert.deepEqual(publicWireForExportOrPersistence(v1.loaded), makeScanReportV1());
+  }
+});
+
+test("polling progress is validated to flat primitives", () => {
+  const result = readScanTransportPayload({
+    status: "running",
+    jobId: "job-9",
+    progress: { step: "navigating", requests: 12, nested: { leak: "SECRET" }, fn: null }
+  });
+  assert.equal(result.kind, "job-pending");
+  if (result.kind === "job-pending") {
+    assert.deepEqual(result.progress, { step: "navigating", requests: 12 });
+  }
 });

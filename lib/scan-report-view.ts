@@ -189,9 +189,36 @@ export type LoadedReport =
  * no `ok`). Total by construction: no payload shape may throw or fall through
  * to `unreadable` when it has a meaningful job state.
  */
+/** Validated polling progress: flat primitives only, never raw payload data. */
+export type JobProgress = Record<string, string | number | boolean>;
+
+const MAX_PROGRESS_ENTRIES = 16;
+
+function sanitizeJobProgress(value: unknown): JobProgress | null {
+  if (!isRecord(value)) return null;
+  const entries = Object.entries(value)
+    .filter((entry): entry is [string, string | number | boolean] => {
+      const type = typeof entry[1];
+      return type === "string" || type === "number" || type === "boolean";
+    })
+    .slice(0, MAX_PROGRESS_ENTRIES);
+  return entries.length > 0 ? Object.fromEntries(entries) : null;
+}
+
+/**
+ * THE serialization boundary for persistence, download, and export: the
+ * original public wire report, never a view, never a storage envelope, and
+ * never an ephemeral shell (an ephemeral result's only persistable form is
+ * its projection, so a screenshot cannot be serialized by accident).
+ */
+export function publicWireForExportOrPersistence(loaded: LoadedReport): ScanReport | PublicScanReportV2 {
+  if (loaded.source === "v2-ephemeral") return loaded.public;
+  return loaded.wire;
+}
+
 export type ScanTransportResult =
   | { kind: "api-error"; message: string }
-  | { kind: "job-pending"; status: "queued" | "running"; jobId: string; statusPath: string | null; reportId: string | null; progress: unknown }
+  | { kind: "job-pending"; status: "queued" | "running"; jobId: string; statusPath: string | null; reportId: string | null; progress: JobProgress | null }
   | { kind: "job-ended"; status: "failed" | "expired" | "cancelled"; message: string }
   | { kind: "report"; loaded: LoadedReport }
   | { kind: "unreadable"; error: ReadStoredScanReportError; violations?: string[] };
@@ -212,7 +239,7 @@ export function readScanTransportPayload(payload: unknown): ScanTransportResult 
       jobId: payload.jobId,
       statusPath: typeof payload.statusPath === "string" ? payload.statusPath : null,
       reportId: typeof payload.reportId === "string" ? payload.reportId : null,
-      progress: "progress" in payload ? payload.progress : null
+      progress: sanitizeJobProgress(payload.progress)
     };
   }
   if (payload.status === "failed" || payload.status === "expired" || payload.status === "cancelled") {

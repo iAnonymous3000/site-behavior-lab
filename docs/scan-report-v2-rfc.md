@@ -892,6 +892,13 @@ function toReportView(report: StoredScanReport): ReportView;
   section 14), v1 gains an optional top-level `redactionVersion` field as v1
   revision 2 (absent = r1). v1's structural validators tolerate additive optional
   fields, and the v1 schema addendum documents it.
+- **Planned v2 r2 (decided 2026-07-09, pre-emission audit)**: structured
+  verification facts for the GPC and Shields arms (the header/in-page readback and
+  engine/evaluation-count facts the RFC promises, replacing asserted state strings),
+  an interpreter-error flag on consent observations (making `choiceState: "failed"`
+  representable), and per-pair records for replicated evidence (until then, r1
+  reports carry exactly one pair at `observed-difference`). The published r1 schema
+  file stays immutable; r2 publishes as its own file and the stable alias moves.
 
 ### 10.3 Validator and JSON Schema tooling (executable)
 
