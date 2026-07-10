@@ -13,6 +13,7 @@
  *   moving out of the schema's reach fails loudly here.
  */
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
@@ -62,6 +63,17 @@ test("the committed schema files equal a fresh generation from the types", () =>
   assert.deepEqual(committed, generated, "run `npm run build:schema` and commit the result");
   const alias = JSON.parse(readFileSync(path.join(rootDir, "public", "scan-report.schema.json"), "utf8"));
   assert.deepEqual(alias, committed, "the stable alias must match the current revision");
+});
+
+// THE r1 freeze, executable (RFC 10.2). The drift test above would pass if
+// someone edited the r1 types and regenerated the committed file with them;
+// this pin cannot. It never changes: new shapes belong in a new revision's
+// schema file, and the alias moves only after complete consumer migration.
+const R1_SCHEMA_SHA256 = "7b865e6903ecdd1ecc2a5d5e848ffb320b7a1db9742dc108f603e5e21c9756a6";
+
+test("the published r1 schema file is frozen byte-for-byte", () => {
+  const bytes = readFileSync(path.join(rootDir, "public", "schemas", "scan-report.v2.r1.schema.json"));
+  assert.equal(createHash("sha256").update(bytes).digest("hex"), R1_SCHEMA_SHA256);
 });
 
 test("every valid fixture passes both the runtime validator and the generated schema", () => {

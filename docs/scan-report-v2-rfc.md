@@ -888,17 +888,20 @@ function toReportView(report: StoredScanReport): ReportView;
 - The detector registry (5.4), metric dependency registry, quality evaluator, and
   comparability evaluator each carry their own version, recorded in the artifacts they
   produce, so results are interpretable after any of them changes.
-- **v1 revisioning**: if hardened redaction ships in v1 emission before v2 (step 6 of
-  section 14), v1 gains an optional top-level `redactionVersion` field as v1
-  revision 2 (absent = r1). v1's structural validators tolerate additive optional
-  fields, and the v1 schema addendum documents it.
-- **Planned v2 r2 (decided 2026-07-09, pre-emission audit)**: structured
-  verification facts for the GPC and Shields arms (the header/in-page readback and
-  engine/evaluation-count facts the RFC promises, replacing asserted state strings),
-  an interpreter-error flag on consent observations (making `choiceState: "failed"`
-  representable), and per-pair records for replicated evidence (until then, r1
-  reports carry exactly one pair at `observed-difference`). The published r1 schema
-  file stays immutable; r2 publishes as its own file and the stable alias moves.
+- **v1 is frozen** (commit 0619050): no fields are added to v1, including the
+  previously floated `redactionVersion` marker; that plan is superseded by 15.7.
+  v1 changes require a demonstrated leak, crash, documented legacy
+  incompatibility, or corpus failure.
+- **The r1 freeze is executable**: the published r1 schema's SHA-256
+  (`7b865e6903ecdd1ecc2a5d5e848ffb320b7a1db9742dc108f603e5e21c9756a6`) is pinned in
+  `scripts/build-schema.mjs` (the build refuses to write a differing generation)
+  and asserted byte-for-byte in the parity tests, so editing the r1 types and
+  regenerating both files cannot pass.
+- **v2 r2** is specified normatively in section 15. r1 arm fields are RETAINED and
+  become DERIVED from the structured facts (never replaced); r2 publishes as its
+  own immutable file; **the stable alias stays on r1 for the entire foundation
+  milestone** and moves only after complete consumer dual-read migration,
+  immediately before producer rollout.
 
 ### 10.3 Validator and JSON Schema tooling (executable)
 
@@ -1088,39 +1091,199 @@ Two arbitrary report files uploaded through the "Open report file" UI, paired ad
   records `pairs`/`counterbalanced`/`strength`; scheduling replicated pairs waits for
   run-cost data.
 
-## 14. Implementation order after acceptance
+## 14. Implementation order
 
-Step 1 is deliberately small and emits nothing new:
+The r1 foundation (freeze, types, schemas, fixtures, union reader, projectors,
+integrity evaluators, exhaustive v1 guard, executable schema freeze) **executed
+2026-07-09** through commit 0619050. The remaining order:
 
-1. **Freeze v1 modules**: the existing v1 wire types and validator are frozen as-is
-   (no further edits except security backports).
-2. **Complete v2 r1 types, schemas, and fixtures**: the types in this RFC,
-   `scan-report.v2.r1.schema.json`, and the valid/invalid fixture corpus with the
-   differential harness (10.3).
-3. **Union reader + deep allowlist projector** (`readStoredScanReport`,
-   `toReportView`, `toPublicScanReport`).
-4. **Wire the schema build correctly**: `build:schema` to `dist/schema/`, available
-   inside the isolated Pages worktree (10.3).
-5. **Migrate consumers one at a time** (report pages, directory, manifest builder,
-   corpus stats, exports, smoke tests) onto the reader/view, still emitting v1
-   everywhere.
-6. **Only then redaction v2** (the sanitizer across every persistent sink, shipped
-   inside v1 emission as v1 r2, plus the remediation inventory and pass of 9.6), and
-   then producer v2 emission begins (Node scanner, compare-reports, CI script,
-   PageGraph adapter).
+1. **Normative r2 addendum** (section 15) reviewed and accepted, plus the
+   hard-coded r1 hash gate (10.2). No r2 implementation before acceptance.
+2. **Separate r2 types and fixtures.** The r1 revision constant and r1 generic
+   types are not bumped or redefined.
+3. **Separate r2 validator, evaluator, derivations, and adversarial tests.**
+4. **Exact reader dispatch** for v2/r1, v2/r2, and `unsupported-revision` for r3+.
+5. **Safe r2 projectors and revision-aware views** (r1 marked limited/descriptive
+   per 15.6).
+6. **Publish the immutable revisioned r2 schema** with independent r1/r2 parity
+   and smoke tests. **The stable alias stays on r1.**
+7. **Full gate with every producer still emitting legacy v1** (asserted, not
+   assumed).
+8. **Dual-read consumer migration**: storage/API, uploads, pages, scripts, corpus,
+   exports, and UI.
+9. **Move the stable schema alias to r2** (only now, after the complete dual-read
+   gate passes, immediately before producer rollout).
+10. **Redaction v2 and historical remediation** (sanitizer across every persistent
+    sink per section 9; remediation inventory and pass per 9.6; versioning per
+    15.7).
+11. **Controlled r2 producer emission** (Node scanner, compare-reports, CI script,
+    PageGraph adapter; Browser Run stays v1 per 11.1).
 
 Then the larger phases:
 
-7. Verified phased experiments (sections 4, 6, 7).
-8. Unified corpus eligibility (comparability + metric registry consumed by headlines,
-   diffs, temporal deltas, stats, exports) and corpus regeneration.
-9. Durable queue (inheriting 9.7's constraints).
-10. Registrable-domain profiles and watches (opaque watch IDs, encrypted targets).
+12. Verified phased experiments (sections 4, 6, 7).
+13. Unified corpus eligibility (comparability + metric registry consumed by
+    headlines, diffs, temporal deltas, stats, exports) and corpus regeneration.
+14. Durable queue (inheriting 9.7's constraints).
+15. Registrable-domain profiles and watches (opaque watch IDs, encrypted targets).
+
+---
+
+## 15. Revision 2 addendum (normative)
+
+> Status: **r2-a1 DRAFT, 2026-07-09, awaiting review.** r2 implementation is gated
+> on this addendum's acceptance (14.1).
+
+### 15.1 Principles
+
+- **Additive only.** r2 adds optional structured blocks to the r1 shape; removing
+  or incompatibly replacing an r1 field is a new major schema version, not r2.
+- **Every r1 field remains present in r2 and becomes derived.** The r2 evaluator
+  recomputes each retained r1 field (arm `expected`/`observed`/`outcome`, consent
+  `choiceState`/`reverifiedAfterReload`, experiment `evidence`) from the structured
+  facts below and rejects disagreement on read, the same discipline r1 applies to
+  quality, comparability, and the diff. Asserted strings never outrank facts.
+- **r1 stays immutable**, enforced by the executable hash gate (10.2). r2 types
+  declare `schemaRevision: 2`; the r1 constant and generic types are untouched.
+- **Reader dispatch is exact**: v2 r1 and v2 r2 each validate against their own
+  revision; r3+ returns `unsupported-revision`.
+- **The stable alias stays on r1** until step 14.9. Producers emit v1 through the
+  entire foundation, asserted in tests.
+
+### 15.2 Structured arm facts (`run.verificationFacts`, r2)
+
+```ts
+type ScanRunV2R2 = ScanRunV2 & {
+  verificationFacts?: {
+    gpc?: {
+      method: "gpc-header-readback@1";
+      headerObserved: boolean | null;    // Sec-GPC: 1 seen on the run's first-party requests; null = unobservable
+      jsSignalObserved: boolean | null;  // navigator.globalPrivacyControl readback
+      phaseId: PhaseId;
+    };
+    shields?: {
+      method: "shields-engine-status@1";
+      engineLoaded: boolean;
+      applied: boolean;                  // block simulation actually wired into this run
+      requestsEvaluated: number;
+      requestsBlocked: number;           // must equal the run's derived blocked count
+      phaseId: PhaseId;
+    };
+  };
+};
+```
+
+Both runs of an intervention pair MUST carry the facts block for the declared axis
+(GPC and Shields axes; consent verifies via 15.3/15.4). Normative derivations of
+the retained r1 arm fields:
+
+- GPC: `observed = "gpc:on"` iff `headerObserved === true && jsSignalObserved ===
+  true`; `"gpc:off"` iff both are `false`; `null` otherwise (mixed or unobservable
+  signals are inconclusive, never rounded up).
+- Shields: `observed = "shields:block-simulation"` iff `engineLoaded && applied &&
+  requestsEvaluated > 0`; `"shields:classification"` iff `engineLoaded &&
+  !applied`; `"shields:off"` iff `!engineLoaded && !applied`; `null` otherwise.
+- `outcome` then follows the generic expected/observed rule; `method` and
+  `phaseId` must equal the facts'.
+
+### 15.3 Consent observation outcomes (r2)
+
+Each `ConsentVerificationObservation` gains:
+
+```ts
+outcome: "read" | "unreadable" | "error" | "timeout" | "unsupported-frame";
+errorCode?: "interpreter-threw" | "api-timeout" | "cross-origin-frame-blocked" | "state-format-unrecognized";
+```
+
+Rules: `outcome === "read"` iff `observed !== null`; every other outcome requires
+`observed === null`; `errorCode` present iff outcome is `"error"` or `"timeout"`.
+This makes interpreter failure representable, so the five-state derivation
+completes: **`choiceState = "failed"`** derives when every strong-interpreter
+observation in the attempted consent phases has outcome `error`/`timeout` (no
+strong read succeeded and nothing contradicts); `contradicted` still takes
+precedence, `verified` still requires strong reads in both phases, and the
+weak-signal/unavailable split follows 15.4.
+
+### 15.4 Banner-transition facts (r2)
+
+```ts
+consent.bannerTransition?: {
+  method: "banner-visibility@1";
+  visibleBefore: boolean;
+  visibleAfterInteraction: boolean;
+  visibleAfterReload: boolean | null;
+};
+```
+
+`weak-signal` derives from an actual observed transition (`visibleBefore &&
+!visibleAfterInteraction`) rather than r1's bare presence of a weak observation;
+weak observations without a transition derive `unavailable`.
+
+### 15.5 Supporting pairs (replication, r2)
+
+```ts
+experiment.supportingPairs?: Array<{
+  pairId: string;
+  order: "AB" | "BA";
+  baseline: ScanRunV2R2;               // COMPLETE embedded runs, never counters
+  variant: ScanRunV2R2;
+  verification: { baseline: ArmVerification; variant: ArmVerification };
+}>;
+```
+
+Uniqueness and order rules (normative):
+
+- `pairId`s are unique across the report and distinct from the primary's.
+- `runId`s are unique across ALL runs in the report; a run is never reused
+  between pairs.
+- Each pair's chronology must match its declared order (the r1 rule, per pair).
+- Every supporting pair must pass the SAME evaluator gates as the primary: run
+  completeness, subject match, exact axis delta, measurement-environment equality
+  (with the primary's runs as well), and both arms passed with their structured
+  facts.
+
+Derived experiment evidence (r1 fields, now computed): `pairs === 1 +
+supportingPairs.length`; `counterbalanced === true` iff the orders across all
+pairs include both AB and BA; `strength === "replicated-difference"` derivable
+ONLY when `pairs >= 2 && counterbalanced` and every pair is family-eligible for
+the claimed metric family. **Replicated claims remain disabled at r2
+publication**: the evaluator derives strength exclusively from embedded
+supporting pairs, and pair counters or metadata alone are never sufficient.
+Enabling replicated wording in product surfaces is a later decision gated on this
+machinery existing, not a schema event.
+
+### 15.6 r1 display status
+
+Stored and uploaded v2 r1 reports stay readable and downloadable, but views mark
+them **limited/descriptive**: intervention-attributed and causal surfaces are
+suppressed for r1, which lacks the structured facts for authoritative
+verification. Asserted r1 strings never regain causal claims. (v1 reports remain
+`legacy-derived` and descriptive, per 10.1.)
+
+### 15.7 Redaction versioning (supersedes the withdrawn v1-r2 marker)
+
+v1 is frozen, so no `redactionVersion` field is added to v1. Redaction v2 ships
+in the sanitizer while producers still emit v1 wire (14.10); its version becomes
+observable on the wire only with v2 emission (`privacy.redactionVersion`).
+Whether a given v1 report predates or postdates redaction v2 is determined by its
+scan date against the deployment date, and the public corpus regenerates after
+remediation (9.6) regardless.
 
 ---
 
 ## Changelog
 
+- **r2-a1 addendum (2026-07-09)**: normative revision-2 specification added as
+  section 15 (structured GPC/Shields arm facts with exact derivations of the
+  retained r1 fields, consent observation outcome/error vocabulary completing the
+  five-state derivation, banner-transition facts, supporting-pair shape with
+  uniqueness/order rules, replicated claims disabled at publication). 10.2
+  corrected: r1 arm fields are retained-and-derived (not replaced), the withdrawn
+  v1 `redactionVersion` marker is superseded by 15.7 (v1 is frozen), the r1
+  schema freeze is executable via a pinned SHA-256 in the build and tests, and
+  the stable alias stays on r1 until after complete dual-read consumer
+  migration. Section 14 reordered accordingly (alias move is step 9, after the
+  dual-read gate, before producer rollout).
 - **v0.3.1 hardening amendment (2026-07-09, post-acceptance, pre-schema)**: closed the
   `diff` boundary (normative `ComparisonDiffV2` + shared builder, rebuilt-and-compared
   on read); deep default-deny structural validation across every nested evidence
