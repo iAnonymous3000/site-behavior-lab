@@ -183,6 +183,11 @@ test("the GPC alarm counts tracking companies from the GPC-on visit, not the bas
   assert.equal(headline.tone, "alarm");
   assert.match(headline.subhead, /still contacted 1 tracking company:/);
   assert.doesNotMatch(headline.subhead, /3 tracking companies/);
+  // The stat chips and share text sit next to the sentence, so they must quote
+  // the same GPC-on visit, not the baseline's three companies.
+  assert.equal(headline.stats.find((stat) => stat.label.includes("tracking"))?.value, "1");
+  assert.match(headline.shareText, /1 tracking company/);
+  assert.doesNotMatch(headline.shareText, /3 tracking companies/);
 });
 
 test("the GPC alarm is not raised from baseline-only tracking companies", () => {

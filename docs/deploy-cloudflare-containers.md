@@ -189,8 +189,8 @@ SCAN_BASE_URL=https://scan.sitebehavior.org \
   npm run test:smoke:scanner
 ```
 
-Point `SMOKE_SHIELDS_URL` at a tracker-heavy site to also eyeball a non-zero would-block
-count. A quick manual check of the same essentials:
+Point `SMOKE_SHIELDS_URL` at a tracker-heavy site to also eyeball non-zero engine-blocked
+and baseline filter-match counts. A quick manual check of the same essentials:
 
 ```bash
 curl -s https://scan.sitebehavior.org/api/health | jq '.capabilities'

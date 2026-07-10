@@ -27,7 +27,7 @@ export function runModeHint(mode: RunMode): string {
     return 'Visits the page twice: once normally, then once sending Global Privacy Control (GPC), a legal "do not sell or share my data" signal, to show whether the site reacts.';
   }
   if (mode === "consent") {
-    return 'Visits the page twice: once clicking "Accept all" on the cookie/consent banner and once clicking "Reject all", to show what your consent choice actually changes. If no banner control is found, that visit stays pre-consent and the report says so.';
+    return 'Visits the page twice: once clicking "Accept all" on the cookie/consent banner and once clicking "Reject all", to show what differed between the two visits. If no banner control is found, that visit stays pre-consent and the report says so.';
   }
   return "One controlled visit that records every request, cookie, and script the page loads.";
 }

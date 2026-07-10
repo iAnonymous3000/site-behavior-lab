@@ -1,5 +1,5 @@
 import { buildReportHeadline, displayScanResult } from "./report-headline";
-import type { ScanReport } from "./types";
+import type { ScanReport, ScanResult } from "./types";
 
 /**
  * Builds schema.org `Dataset` JSON-LD for a saved report page. A scan report is
@@ -9,14 +9,22 @@ import type { ScanReport } from "./types";
  * name/description match the page title, social card, and on-page headline.
  */
 export function buildReportDataset(report: ScanReport, options: { url: string; jsonUrl?: string }): Record<string, unknown> {
-  // Measure the same run the page, headline, and manifest lead with (the
-  // baseline for GPC/Shields comparisons), so the structured data's numbers
-  // match the description instead of quoting the protected variant run.
+  // A comparison report's headline can describe either arm (the GPC alarm
+  // quotes the GPC-on variant), so unlabeled numbers from one run would
+  // silently disagree with the description. Comparisons therefore measure BOTH
+  // runs with the run label in each variable name; single reports keep the
+  // plain names.
   const result = displayScanResult(report);
   const headline = buildReportHeadline(report);
-  const summary = result.summary;
   const requestedUrl = report.reportType === "comparison" ? report.requestedUrl : result.conditions.requestedUrl;
   const scannedAt = report.reportType === "comparison" ? report.scannedAt : result.conditions.scannedAt;
+  const variableMeasured =
+    report.reportType === "comparison"
+      ? [
+          ...runMeasurements(report.baseline.summary, report.runLabels?.baseline ?? "baseline"),
+          ...runMeasurements(report.variant.summary, report.runLabels?.variant ?? "variant")
+        ]
+      : runMeasurements(result.summary);
 
   const dataset: Record<string, unknown> = {
     "@context": "https://schema.org",
@@ -32,13 +40,7 @@ export function buildReportDataset(report: ScanReport, options: { url: string; j
     measurementTechnique: "Automated Chromium visit",
     keywords: ["web tracking", "third-party trackers", "cookies", "browser fingerprinting", headline.domain],
     about: { "@type": "WebSite", name: headline.domain, url: requestedUrl },
-    variableMeasured: [
-      propertyValue("Third-party requests", summary.thirdPartyRequests),
-      propertyValue("Catalogued service requests", summary.knownTrackerRequests),
-      propertyValue("Third-party domains", summary.thirdPartyDomains),
-      propertyValue("Third-party cookies", summary.thirdPartyCookies),
-      propertyValue("Fingerprint-like API calls", summary.fingerprintEvents)
-    ]
+    variableMeasured
   };
 
   if (options.jsonUrl) {
@@ -50,6 +52,17 @@ export function buildReportDataset(report: ScanReport, options: { url: string; j
   }
 
   return dataset;
+}
+
+function runMeasurements(summary: ScanResult["summary"], runLabel?: string): Record<string, unknown>[] {
+  const suffix = runLabel ? ` (${runLabel})` : "";
+  return [
+    propertyValue(`Third-party requests${suffix}`, summary.thirdPartyRequests),
+    propertyValue(`Catalogued service requests${suffix}`, summary.knownTrackerRequests),
+    propertyValue(`Third-party domains${suffix}`, summary.thirdPartyDomains),
+    propertyValue(`Third-party cookies${suffix}`, summary.thirdPartyCookies),
+    propertyValue(`Fingerprint-like API calls${suffix}`, summary.fingerprintEvents)
+  ];
 }
 
 function propertyValue(name: string, value: number): Record<string, unknown> {

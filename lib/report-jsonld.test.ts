@@ -43,7 +43,7 @@ test("omits the download link when no JSON URL is provided", () => {
   assert.equal(dataset.distribution, undefined);
 });
 
-test("measures the displayed (baseline) run and top-level dates for comparison reports", () => {
+test("measures both labeled runs and top-level dates for comparison reports", () => {
   const baseline = makeResult({ firstPartyDomain: "news.example", thirdPartyRequests: 50, thirdPartyDomains: 5 });
   const variant = makeResult({ firstPartyDomain: "news.example", thirdPartyRequests: 12, thirdPartyDomains: 5 });
   const comparison = createGpcComparisonReport(baseline, variant);
@@ -52,10 +52,13 @@ test("measures the displayed (baseline) run and top-level dates for comparison r
   assert.equal(dataset.name, "Site Behavior Lab scan of news.example");
   assert.equal(dataset.dateCreated, comparison.scannedAt);
 
-  // The structured data must quote the same run the page and headline lead with
-  // (the unprotected baseline), not the protected variant's residual counts.
+  // A comparison headline can describe either arm, so the structured data must
+  // carry BOTH runs' numbers with the run label in each variable name; an
+  // unlabeled single-run number could silently disagree with the description.
   const measured = dataset.variableMeasured as { name: string; value: number }[];
-  assert.equal(measured.find((entry) => entry.name === "Third-party requests")?.value, 50);
+  assert.equal(measured.find((entry) => entry.name === "Third-party requests (GPC off)")?.value, 50);
+  assert.equal(measured.find((entry) => entry.name === "Third-party requests (GPC on)")?.value, 12);
+  assert.ok(!measured.some((entry) => entry.name === "Third-party requests"));
 });
 
 type ResultOverrides = {

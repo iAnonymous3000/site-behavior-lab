@@ -547,7 +547,8 @@ export type StaticReportManifestEntry = {
     cookies: number;
     thirdPartyCookies: number;
     fingerprintEvents: number;
-    // Requests the Shields engine would block, measured on the baseline (off) scan.
+    // Requests that matched the Shields filter lists on the lead (baseline)
+    // run while it loaded normally; nothing was blocked in that run.
     shieldsBlockedRequests?: number;
   };
 };

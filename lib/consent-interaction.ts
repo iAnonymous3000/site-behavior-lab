@@ -5,7 +5,8 @@ export type { ConsentInteractionSummary } from "./types";
 /**
  * Consent-banner interaction: the pure catalog and matching rules behind the
  * consent-diff comparison (one visit clicks "Accept all", one clicks
- * "Reject all", and the report diffs what the choice actually changed).
+ * "Reject all", and the report diffs what differed between the two visits;
+ * the click is dispatched, never verified as registered by the site).
  *
  * Two matching tiers, tried in order:
  *

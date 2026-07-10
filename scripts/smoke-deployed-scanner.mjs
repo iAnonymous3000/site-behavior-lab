@@ -193,8 +193,13 @@ async function checkShieldsComparison() {
   if (!report.baseline?.conditions?.adblock?.active) {
     fail("Shields comparison ran without the ad-block engine active");
   }
-  const blocked = report.variant?.summary?.shieldsBlockedRequests ?? report.baseline?.summary?.shieldsBlockedRequests ?? 0;
-  pass(`live Shields comparison ran on ${shieldsUrl} (engine active; would-block count: ${blocked})`);
+  // Two DIFFERENT measurements, never blended: the variant's engine-aborted
+  // count and the baseline's filter-list matches while loading normally.
+  const engineBlocked = report.variant?.summary?.shieldsBlockedRequests;
+  const filterMatches = report.baseline?.summary?.shieldsBlockedRequests;
+  pass(
+    `live Shields comparison ran on ${shieldsUrl} (engine active; engine-blocked: ${engineBlocked ?? "n/a"}, baseline filter matches: ${filterMatches ?? "n/a"})`
+  );
 }
 
 async function checkSsrfRefusal() {

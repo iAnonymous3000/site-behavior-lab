@@ -21,8 +21,8 @@ type IndexedCatalogEntry = {
  *
  * Hand-curated, in-repo list of high-prevalence third-party services, no
  * third-party (competitor) dataset and no NonCommercial license. Brave
- * ad-block lists are used separately for Shields would-block signals, not
- * for these service/entity labels.
+ * ad-block lists are used separately for the Shields filter-list-match and
+ * block-simulation signals, not for these service/entity labels.
  */
 const catalog: CatalogEntry[] = [
   {
