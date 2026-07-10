@@ -11,7 +11,19 @@ export type FingerprintObservations = {
   detections: FingerprintDetectionSummary[];
 };
 
-export function fingerprintObserverInitScript(): void {
+/**
+ * Injected into every page before navigation (Playwright serializes the
+ * function; `firstPartySiteKey` travels as the init-script argument).
+ *
+ * `firstPartySiteKey` is the scanned site's registrable domain (computed with
+ * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page
+ * listener-origin classification can recognize same-site siblings such as
+ * verified.capitalone.com vs www.capitalone.com without shipping a
+ * public-suffix list into the page. Hosts outside the key still fall back to
+ * the plain suffix rule.
+ */
+export function fingerprintObserverInitScript(firstPartySiteKey?: string): void {
+  const siteKey = typeof firstPartySiteKey === "string" ? firstPartySiteKey.trim().toLowerCase() : "";
   const eventCounts: Record<string, number> = {};
   type CanvasState = {
     eventListenerCalls: number;
@@ -487,8 +499,17 @@ export function fingerprintObserverInitScript(): void {
     return "other";
   };
 
+  const belongsToSiteKey = (host: string) => siteKey !== "" && (host === siteKey || host.endsWith(`.${siteKey}`));
+
+  // Same-site when one host is a subdomain of the other, or when BOTH sit
+  // under the scanned site's registrable domain (sibling subdomains like
+  // verified.example.com vs www.example.com share no suffix relationship but
+  // are the same site). Hosts outside the site key keep the suffix rule only.
   const sameSiteHost = (left: string, right: string) =>
-    left === right || left.endsWith(`.${right}`) || right.endsWith(`.${left}`);
+    left === right ||
+    left.endsWith(`.${right}`) ||
+    right.endsWith(`.${left}`) ||
+    (belongsToSiteKey(left) && belongsToSiteKey(right));
 
   const scriptOriginFromStack = (): string | null => {
     const stack = new Error().stack || "";

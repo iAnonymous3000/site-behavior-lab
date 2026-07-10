@@ -21,7 +21,7 @@ export const RUN_MODE_TITLES: Record<RunMode, string> = {
 
 export function runModeHint(mode: RunMode): string {
   if (mode === "shields") {
-    return "Visits the page twice: once normally, then once with Brave Shields (the ad and tracker blocker built into the Brave browser) to show what it would block.";
+    return "Visits the page twice: once normally, then once with Brave Shields (the ad and tracker blocker built into the Brave browser) to show what changes with blocking on.";
   }
   if (mode === "gpc") {
     return 'Visits the page twice: once normally, then once sending Global Privacy Control (GPC), a legal "do not sell or share my data" signal, to show whether the site reacts.';

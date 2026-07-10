@@ -14,10 +14,12 @@
  * drift.
  */
 
+import { comparisonEligibility, type ComparisonEligibility } from "./comparison-eligibility";
 import { detectConsentPlatform } from "./consent-banner";
 import { corpusBenchmark, corpusIsUsable, type CorpusStats } from "./corpus-stats";
 import {
   HEADLINE_PLATFORMS,
+  crossSiteListenerDetection,
   detectionEvidence,
   detectionLabel,
   fingerprintDetection,
@@ -28,6 +30,7 @@ import {
   pixelEventSummaries,
   pixelFieldLabel,
   scanLoadFailureStatus,
+  shieldsRunMeasurement,
   trackerEntitySummaries
 } from "./report-insights";
 import { humanList, plural } from "./text-format";
@@ -215,18 +218,20 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
       icon: "cookie",
       level: preConsentTrackers > 0 ? "warn" : "info",
       title:
-        preConsentTrackers > 0 ? "A consent banner was shown, but trackers had already loaded" : "A consent banner was shown",
+        preConsentTrackers > 0
+          ? "Consent management loaded, but trackers had already loaded too"
+          : "A consent management platform loaded",
       lead:
         preConsentTrackers > 0
-          ? `${result.summary.firstPartyDomain} displayed a cookie/consent banner (${consentPlatform.name}), yet ${plural(
+          ? `${result.summary.firstPartyDomain} loaded ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners), yet ${plural(
               preConsentTrackers,
               "tracking company",
               "tracking companies"
             )} already loaded before any consent was given.`
-          : `${result.summary.firstPartyDomain} displayed a cookie/consent banner (${consentPlatform.name}); no catalogued tracking company loaded before consent in this visit.`,
+          : `${result.summary.firstPartyDomain} loaded ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners); no catalogued tracking company loaded before consent in this visit.`,
       detail:
-        'The scanner never clicks the banner, so this is the pre-consent state: loading trackers before the visitor accepts is often not permitted under GDPR/ePrivacy, and more trackers can load after "Accept" that this report does not capture. Tracker counts here are a lower bound for users who consent.',
-      evidence: `Consent platform detected via ${consentPlatform.domain}.`
+        'A request to the platform\'s loader proves the consent tooling loaded, not that a banner was visibly shown to this scanner (many banners appear only in regions where the law requires them). The scanner never clicks a banner in this mode, so this is the pre-consent state: loading trackers before the visitor accepts is often not permitted under GDPR/ePrivacy, and more trackers can load after "Accept" that this report does not capture. Tracker counts here are a lower bound for users who consent.',
+      evidence: `Consent platform detected via a request to ${consentPlatform.domain}.`
     });
   }
 
@@ -264,18 +269,11 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
       quotes.push(noSelling.quote);
     }
 
-    const honorsGpc = policyClaim("honors-gpc");
-    if (honorsGpc && isComparisonReport(report) && report.comparisonType === "gpc") {
-      const before = report.diff.thirdPartyRequests.before;
-      const after = report.diff.thirdPartyRequests.after;
-      const reductionPct = before > 0 ? Math.round(((before - after) / before) * 100) : 0;
-      if (before > 0 && after > 0 && reductionPct < 10) {
-        conflicts.push(
-          `the policy says Global Privacy Control is honored, but sending GPC changed third-party requests by only ${reductionPct}% in the paired comparison (${before.toLocaleString("en-US")} to ${after.toLocaleString("en-US")})`
-        );
-        quotes.push(honorsGpc.quote);
-      }
-    }
+    // Deliberately NOT checked as a conflict: an "honors GPC" claim. Honoring
+    // GPC means not selling or sharing data, which request counts cannot
+    // observe; a site can honor the signal while loading identical requests.
+    // The claim stays in the stored policy summary, but no request-count
+    // comparison is allowed to contradict it.
 
     const namedCount = policy.mentionedEntities.length;
     const totalObserved = namedCount + policy.unmentionedEntities.length;
@@ -305,7 +303,7 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
           ? `Matched policy wording: ${quotes.map((quote) => `"${quote}"`).join(" / ")}. This is an automated sentence match against the policy's own text, quoted so it can be verified in context. Policies can define terms narrowly (such as what counts as selling), so treat this as a documented discrepancy to review, not a legal conclusion.`
           : policy.unmentionedEntities.length > 0
             ? `Policies often disclose vendor categories rather than company names, so an unnamed vendor is a transparency gap worth reviewing, not automatically a violation.${namedCount > 0 ? ` Named in the policy: ${humanList(policy.mentionedEntities)}.` : ""}`
-            : "Statements checked automatically: blanket no-cookie claims, third-party-cookie claims, do-not-sell claims against advertising-pixel identifiers, and Global Privacy Control claims against the GPC comparison when one exists.",
+            : "Statements checked automatically: blanket no-cookie claims, third-party-cookie claims, and do-not-sell claims against advertising-pixel identifiers. Global Privacy Control claims are never checked against request counts, which cannot show whether data sales stopped.",
       evidence: `Policy at ${policy.url}; ${plural(policy.claims.length, "checkable statement")} matched; ${coverage}.`
     });
   }
@@ -449,8 +447,12 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
     benchmark: cookiesBenchmark ? cookiesBenchmark.label : benchmarkLabel("thirdPartyCookies", result.summary.thirdPartyCookies)
   });
 
-  const sessionRecordingDetection = fingerprintDetection(result, "session-recording");
-  const inputMonitoringDetection = fingerprintDetection(result, "input-monitoring");
+  // Restricted to genuinely cross-site listener origins: the in-page probe's
+  // hostname heuristic can misread same-site siblings (verified.example.com vs
+  // www.example.com) as third parties, and a same-party listener is normal
+  // site behavior, not monitoring by an outside party.
+  const sessionRecordingDetection = crossSiteListenerDetection(result, "session-recording");
+  const inputMonitoringDetection = crossSiteListenerDetection(result, "input-monitoring");
   if (sessionRecordingDetection || inputMonitoringDetection || sessionReplayNames.length > 0) {
     const behaviorNotes = [
       sessionRecordingDetection
@@ -520,33 +522,62 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
         : `${plural(result.fingerprintEvents.length, "API family", "API families")} recorded.`
   });
 
-  if (isComparisonReport(report) && report.comparisonType === "shields") {
-    const removedThirdPartyRequests = Math.max(0, -report.diff.thirdPartyRequests.delta);
-    const removedTrackerRequests = Math.max(0, -report.diff.knownTrackerRequests.delta);
-    const removedCookies = Math.max(0, -report.diff.thirdPartyCookies.delta);
-    const removedFingerprintEvents = Math.max(0, -report.diff.fingerprintEvents.delta);
-    const removedEntityNames = report.diff.removedEntities.map((entity) => entity.entity);
-    const blockedTotal = removedThirdPartyRequests + removedTrackerRequests + removedCookies + removedFingerprintEvents;
+  // Every comparison card runs through the SHARED eligibility gate: a failed,
+  // request-capped, or mismatched arm means the pair supports no comparison
+  // claim, and the card must say why instead of quoting the diff.
+  const eligibility = isComparisonReport(report) ? comparisonEligibility(report) : null;
 
-    findings.unshift({
-      id: "shields-comparison",
-      icon: "shield-check",
-      level: blockedTotal > 0 ? "ok" : "quiet",
-      title:
-        blockedTotal > 0 ? "Fewer tracking signals observed with Brave Shields on" : "No reduction observed with Brave Shields on",
-      lead:
-        blockedTotal > 0
-          ? `With Brave Shields on (the ad and tracker blocker built into the Brave browser), this paired visit showed ${removedThirdPartyRequests.toLocaleString("en-US")} fewer third-party and ${removedTrackerRequests.toLocaleString("en-US")} fewer known-service requests.`
-          : "The run with Brave Shields on (the ad and tracker blocker built into the Brave browser) did not show fewer third-party requests, known-service requests, cookies, or fingerprint-like calls.",
-      detail: `${
-        removedEntityNames.length > 0 ? `Services only seen with Shields off: ${humanList(removedEntityNames)}. ` : ""
-      }A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference, not a measured blocking rate.`,
-      evidence: `${removedCookies.toLocaleString("en-US")} fewer third-party cookies and ${removedFingerprintEvents.toLocaleString("en-US")} fewer fingerprint-like calls with Shields on.`
-    });
+  if (isComparisonReport(report) && report.comparisonType === "shields") {
+    if (eligibility && !eligibility.eligible) {
+      findings.unshift(ineligibleComparisonFinding("shields-comparison", "This Shields comparison is not conclusive", eligibility));
+    } else {
+      const removedThirdPartyRequests = Math.max(0, -report.diff.thirdPartyRequests.delta);
+      const removedTrackerRequests = Math.max(0, -report.diff.knownTrackerRequests.delta);
+      const removedCookies = Math.max(0, -report.diff.thirdPartyCookies.delta);
+      const removedFingerprintEvents = Math.max(0, -report.diff.fingerprintEvents.delta);
+      const removedEntityNames = report.diff.removedEntities.map((entity) => entity.entity);
+      const blockedTotal = removedThirdPartyRequests + removedTrackerRequests + removedCookies + removedFingerprintEvents;
+      // The direct engine-block count is a different measurement from the total
+      // reduction: blocking one script prevents its follow-on requests from
+      // ever starting, so the reduction usually exceeds the direct blocks.
+      const engineBlocks = shieldsRunMeasurement(report.variant);
+      const engineNote =
+        engineBlocks && engineBlocks.kind === "engine-blocked"
+          ? ` The Shields-on visit's engine directly blocked ${plural(engineBlocks.count, "request")}; the rest of the reduction is requests that never started once their sources were blocked.`
+          : "";
+
+      findings.unshift({
+        id: "shields-comparison",
+        icon: "shield-check",
+        level: blockedTotal > 0 ? "ok" : "quiet",
+        title:
+          blockedTotal > 0 ? "Fewer tracking signals observed with Brave Shields on" : "No reduction observed with Brave Shields on",
+        lead:
+          blockedTotal > 0
+            ? `With Brave Shields on (the ad and tracker blocker built into the Brave browser), this paired visit showed ${removedThirdPartyRequests.toLocaleString("en-US")} fewer third-party and ${removedTrackerRequests.toLocaleString("en-US")} fewer known-service requests.`
+            : "The run with Brave Shields on (the ad and tracker blocker built into the Brave browser) did not show fewer third-party requests, known-service requests, cookies, or fingerprint-like calls.",
+        detail: `${
+          removedEntityNames.length > 0 ? `Services only seen with Shields off: ${humanList(removedEntityNames)}. ` : ""
+        }${engineNote ? `${engineNote.trim()} ` : ""}A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference, not a measured blocking rate.`,
+        evidence: `${removedCookies.toLocaleString("en-US")} fewer third-party cookies and ${removedFingerprintEvents.toLocaleString("en-US")} fewer fingerprint-like calls with Shields on.`
+      });
+    }
   }
 
   if (isComparisonReport(report) && report.comparisonType === "consent") {
-    findings.unshift(buildConsentComparisonFinding(report));
+    findings.unshift(
+      eligibility && !eligibility.eligible
+        ? ineligibleComparisonFinding("consent-comparison", "This consent comparison is not conclusive", eligibility)
+        : buildConsentComparisonFinding(report)
+    );
+  }
+
+  if (isComparisonReport(report) && report.comparisonType === "gpc" && eligibility && !eligibility.eligible) {
+    findings.unshift(ineligibleComparisonFinding("gpc-comparison", "This GPC comparison is not conclusive", eligibility));
+  }
+
+  if (isComparisonReport(report) && report.comparisonType === "temporal" && eligibility && !eligibility.eligible) {
+    findings.unshift(ineligibleComparisonFinding("temporal-comparison", "This before/after comparison is not conclusive", eligibility));
   }
 
   // A failed/blocked load (HTTP >= 400) produces low counts that are an artifact
@@ -583,24 +614,31 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
     evidence: `${plural(result.summary.totalRequests, "request")} observed in one controlled visit.`
   });
 
-  if (result.conditions.adblock?.active) {
-    const blocked = result.summary.shieldsBlockedRequests ?? 0;
+  const shieldsMeasurement = shieldsRunMeasurement(result);
+  if (shieldsMeasurement) {
+    const blocked = shieldsMeasurement.count;
+    const simulated = shieldsMeasurement.kind === "engine-blocked";
     findings.splice(1, 0, {
       id: "shields-blocked",
       icon: "shield-check",
       level: blocked === 0 ? "ok" : blocked >= 10 ? "warn" : "info",
       title:
         blocked > 0
-          ? `Brave Shields would block ${blocked.toLocaleString("en-US")} of ${result.summary.totalRequests.toLocaleString("en-US")} requests`
-          : "Brave Shields would block nothing on this page",
+          ? simulated
+            ? `Brave Shields blocked ${blocked.toLocaleString("en-US")} requests in this visit`
+            : `${blocked.toLocaleString("en-US")} of ${result.summary.totalRequests.toLocaleString("en-US")} requests matched Brave Shields filter lists`
+          : simulated
+            ? "Brave Shields blocked nothing in this visit"
+            : "No requests matched Brave Shields filter lists",
       lead:
         blocked > 0
-          ? `${plural(blocked, "request")} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser.`
+          ? simulated
+            ? `${plural(blocked, "request")} were aborted by the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, before they could load.`
+            : `${plural(blocked, "request")} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, while loading normally.`
           : "No requests matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser.",
-      detail:
-        blocked > 0
-          ? "Computed with Brave's own ad-block engine and default filter lists (network requests only, so no cosmetic or CNAME-based blocking) which reflects Brave's real blocking, not just the named-service catalog. The rest loaded normally."
-          : "The page's requests did not match Brave's default lists in this visit.",
+      detail: simulated
+        ? "Measured with Brave's own ad-block engine and default filter lists actively blocking (network requests only, so no cosmetic or CNAME-based blocking). Blocked requests are not in this run's totals, and requests a blocked script would have made never started."
+        : "Computed with Brave's own ad-block engine and default filter lists in classification mode: matched requests LOADED normally and are counted in this report. Matching shows what Shields would target on this visit's traffic; an actual Shields visit blocks these and also prevents their follow-on requests, so this number is neither a measured block count nor the total effect.",
       evidence: `${plural(result.summary.knownTrackerRequests, "named-service request")} of them are also in the curated catalog.`
     });
   }
@@ -610,6 +648,23 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
   // card (the fingerprinting finding) on Node Shields-comparison reports that
   // also surfaced a session-recording or input-monitoring signal.
   return findings;
+}
+
+/**
+ * The card that replaces a comparison's story when the SHARED eligibility gate
+ * fails: it names the disqualifying facts and makes no claim from the diff.
+ */
+function ineligibleComparisonFinding(id: string, title: string, eligibility: ComparisonEligibility): Finding {
+  return {
+    id,
+    icon: "alert",
+    level: "info",
+    title,
+    lead: humanList(eligibility.reasons, 3),
+    detail:
+      "The raw request logs of both visits remain below for transparency, but the diff between them supports no claim about what the compared condition changed.",
+    evidence: `${plural(eligibility.reasons.length, "disqualifying condition")} detected by the comparison-eligibility gate.`
+  };
 }
 
 /**
@@ -662,14 +717,14 @@ function buildConsentComparisonFinding(report: ComparisonScanResult): Finding {
       id: "consent-comparison",
       icon: "cookie",
       level: "warn",
-      title: `${plural(rejectTracking.length, "tracking company", "tracking companies")} still loaded after Reject all`,
-      lead: `After clicking Reject all, ${humanList(rejectTracking.map((entity) => entity.entity))} still received requests in that visit (${plural(
+      title: `${plural(rejectTracking.length, "tracking company", "tracking companies")} loaded in the Reject-all visit`,
+      lead: `In the visit where the scanner clicked Reject all, ${humanList(rejectTracking.map((entity) => entity.entity))} received requests (${plural(
         acceptTracking.length,
         "tracking company",
         "tracking companies"
       )} loaded with Accept all).`,
       detail:
-        "Some of this can be traffic that loaded before the click landed, vendors a site treats as strictly necessary, or processing claimed under legitimate interest, so it is a documented observation to review against the banner's promises, not a violation ruling. The diff below lists exactly which services the rejection did remove.",
+        "The visit records traffic from before AND after the click, and the scanner can dispatch the click but cannot verify the site registered the choice, so some of this can be pre-click traffic, vendors a site treats as strictly necessary, or processing claimed under legitimate interest. It is a documented observation to review against the banner's promises, not a violation ruling. The diff below lists exactly which services the rejection did remove.",
       evidence
     };
   }
@@ -678,17 +733,17 @@ function buildConsentComparisonFinding(report: ComparisonScanResult): Finding {
     id: "consent-comparison",
     icon: "shield-check",
     level: "ok",
-    title: "Rejecting consent removed the catalogued trackers",
+    title: "The Reject-all visit had no catalogued trackers",
     lead:
       acceptTracking.length > 0
-        ? `Clicking Reject all left no catalogued tracking company in that visit, while Accept all loaded ${plural(
+        ? `The visit where the scanner clicked Reject all loaded no catalogued tracking company, while the Accept-all visit loaded ${plural(
             acceptTracking.length,
             "tracking company",
             "tracking companies"
-          )}: the consent choice made a real difference.`
+          )}.`
         : "No catalogued tracking company loaded in either visit; on this page the consent choice changed little because there was little to consent to.",
     detail:
-      "A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference for this pair of visits.",
+      "A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), and the scanner cannot verify the site registered the click, so treat this as an observed difference for this pair of visits.",
     evidence
   };
 }

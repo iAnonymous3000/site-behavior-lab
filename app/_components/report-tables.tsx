@@ -222,8 +222,9 @@ const REQUEST_SIGNAL_FILTERS: { value: RequestSignalFilter; label: string; title
   },
   {
     value: "shields-blocked",
-    label: "Brave would block",
-    title: "Requests matching the default filter lists of Brave Shields, the blocker built into the Brave browser."
+    label: "Matched Shields lists",
+    title:
+      "Requests matching the default filter lists of Brave Shields, the blocker built into the Brave browser. Matching is computed while the page loads normally; it is not a measured block."
   },
   {
     value: "fingerprinting",

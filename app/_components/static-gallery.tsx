@@ -4,6 +4,7 @@ import { ExternalLink, FileJson, Loader2, Search, Upload } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { clientReportRuntime, staticAssetPath } from "../client-runtime";
 import { FileUploadButton } from "./file-upload-button";
+import { comparableSubjectHosts } from "@/lib/comparison-eligibility";
 import { createTemporalComparisonReport } from "@/lib/compare-reports";
 import { domainsMatch, isFeaturedSiteConfig, type FeaturedSite, type FeaturedSiteConfig } from "@/lib/featured-sites";
 import { buildReportHeadline, type ReportHeadline } from "@/lib/report-headline";
@@ -265,6 +266,17 @@ function StaticReportGallery({
       setCompareError("Choose two different reports.");
       return;
     }
+    // A temporal diff only means something for the same subject under the same
+    // conditions; two unrelated sites or devices produce a diff that reads as
+    // a site change but is really an apples-to-oranges pairing.
+    if (!comparableSubjectHosts(before.domain, after.domain)) {
+      setCompareError(`Temporal comparison needs two scans of the same site (${before.domain} vs ${after.domain}).`);
+      return;
+    }
+    if (before.device !== after.device) {
+      setCompareError("Temporal comparison needs two scans on the same device type (desktop vs mobile).");
+      return;
+    }
 
     setCompareLoading(true);
     setCompareError(null);
@@ -284,6 +296,16 @@ function StaticReportGallery({
   function compareUploadedReports() {
     if (!uploadBefore || !uploadAfter) {
       setCompareError("Open two single-scan report files.");
+      return;
+    }
+    if (!comparableSubjectHosts(uploadBefore.report.summary.firstPartyDomain, uploadAfter.report.summary.firstPartyDomain)) {
+      setCompareError(
+        `Temporal comparison needs two scans of the same site (${uploadBefore.report.summary.firstPartyDomain} vs ${uploadAfter.report.summary.firstPartyDomain}).`
+      );
+      return;
+    }
+    if (uploadBefore.report.conditions.viewport.isMobile !== uploadAfter.report.conditions.viewport.isMobile) {
+      setCompareError("Temporal comparison needs two scans on the same device type (desktop vs mobile).");
       return;
     }
 
@@ -455,7 +477,7 @@ function StaticReportCard({ report }: { report: StaticReportManifestEntry }) {
         <b>{report.metrics.thirdPartyRequests.toLocaleString()} third-party</b>
         <small>
           {report.comparisonType === "shields" && (report.metrics.shieldsBlockedRequests ?? 0) > 0
-            ? `Brave would block ${(report.metrics.shieldsBlockedRequests ?? 0).toLocaleString()} · ${report.device}`
+            ? `${(report.metrics.shieldsBlockedRequests ?? 0).toLocaleString()} matched Shields lists · ${report.device}`
             : `${report.reportType === "comparison" ? "Comparison" : "Single"} · ${report.device}`}
         </small>
       </span>
@@ -530,7 +552,7 @@ function staticReportCardLabel(report: StaticReportManifestEntry): string {
     plural(report.metrics.thirdPartyDomains, "third-party domain")
   ];
   if (report.comparisonType === "shields" && (report.metrics.shieldsBlockedRequests ?? 0) > 0) {
-    parts.push(`${plural(report.metrics.shieldsBlockedRequests ?? 0, "request")} Brave Shields would block`);
+    parts.push(`${plural(report.metrics.shieldsBlockedRequests ?? 0, "request")} matched Brave Shields filter lists`);
   }
   return parts.join(", ");
 }

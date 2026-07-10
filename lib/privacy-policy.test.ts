@@ -108,6 +108,26 @@ test("extractPolicyClaims matches first-person testable statements with quotes",
   assert.ok(cookieClaim?.quote.includes("third-party cookies"));
 });
 
+test("extractPolicyClaims never reads a negated GPC sentence as an honors-gpc claim", () => {
+  // Each of these states the OPPOSITE of honoring GPC; extracting them as
+  // support would invert the policy's meaning.
+  for (const sentence of [
+    "We do not honor Global Privacy Control signals.",
+    "Our systems will not process Global Privacy Control signals at this time.",
+    "This website does not currently recognize Global Privacy Control.",
+    "We cannot honor Global Privacy Control requests."
+  ]) {
+    assert.deepEqual(extractPolicyClaims(sentence), [], sentence);
+  }
+
+  // The plain positive statement still extracts.
+  const positive = extractPolicyClaims("We honor Global Privacy Control signals.");
+  assert.deepEqual(
+    positive.map((claim) => claim.kind),
+    ["honors-gpc"]
+  );
+});
+
 test("extractPolicyClaims ignores opt-out link labels and scoped cookie statements", () => {
   const claims = extractPolicyClaims(
     "Do Not Sell Or Share My Personal Information. " +

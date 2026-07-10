@@ -103,7 +103,7 @@ export default async function DirectoryPage() {
                   </span>
                   <strong>{rollup.medianTrackers.toLocaleString()}</strong>
                 </div>
-                <span className="rollup-bar-label">median catalogued tracker requests per site</span>
+                <span className="rollup-bar-label">median catalogued tracking-service requests per site</span>
                 <dl className="rollup-stats">
                   <div>
                     <dt>Third-party reqs</dt>
@@ -115,7 +115,7 @@ export default async function DirectoryPage() {
                   </div>
                   {rollup.medianShieldsBlocked !== null && (
                     <div>
-                      <dt>Brave would block</dt>
+                      <dt>Fewer with Shields on</dt>
                       <dd>{rollup.medianShieldsBlocked.toLocaleString()}</dd>
                     </div>
                   )}
@@ -137,11 +137,13 @@ export default async function DirectoryPage() {
             </div>
           )}
           <p className="rollup-note">
-            Medians from one controlled visit per site, using the curated service catalog (a lower bound). A 0 means no{" "}
-            <em>catalogued third-party</em> trackers were seen. Large platforms like Google, YouTube, and X serve much of
-            their own tracking first-party, which is not counted as third-party here. &ldquo;Brave would block&rdquo; is the
-            median third-party requests Brave Shields (the ad and tracker blocker built into the Brave browser, with its
-            default lists) would remove, from a block simulation.
+            Medians from one controlled visit per site, using the curated service catalog (a lower bound). Tracker counts
+            exclude operational-only services such as error monitoring. A 0 means no <em>catalogued third-party</em>{" "}
+            trackers were seen. Large platforms like Google, YouTube, and X serve much of their own tracking first-party,
+            which is not counted as third-party here. &ldquo;Fewer with Shields on&rdquo; is the median difference in
+            third-party requests between a normal visit and a paired visit with Brave Shields (the ad and tracker blocker
+            built into the Brave browser, with its default lists) actively blocking: an observed paired-visit difference,
+            not a count of individually blocked requests.
           </p>
         </section>
       )}

@@ -1,11 +1,14 @@
+import { comparisonEligibility } from "./comparison-eligibility";
 import {
   HEADLINE_PLATFORMS,
+  crossSiteListenerDetection,
   fingerprintDetection,
   highEntropyDetections,
   isOperationalEntity,
   keystrokeLeakHashed,
   pixelFieldLabel,
   scanLoadFailureStatus,
+  shieldsRunMeasurement,
   trackerEntitySummaries
 } from "./report-insights";
 import { plural } from "./text-format";
@@ -70,13 +73,21 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
   const sessionReplay = trackingEntities.some((entity) =>
     entity.categories.some((category) => category.toLowerCase().includes("session replay"))
   );
-  const sessionRecording = hasDetection(result, "session-recording");
-  const inputMonitoring = hasDetection(result, "input-monitoring");
+  // Listener-coverage claims are restricted to genuinely cross-site origins:
+  // the in-page probe's hostname heuristic can misread same-site siblings
+  // (see crossSiteListenerDetection), and a same-party listener is normal.
+  const sessionRecording = Boolean(crossSiteListenerDetection(result, "session-recording"));
+  const inputMonitoring = Boolean(crossSiteListenerDetection(result, "input-monitoring"));
   const stats = buildStats(result, trackingEntities.length);
+  // Comparison claims are gated on the SHARED eligibility rule: a failed,
+  // request-capped, or mismatched arm disqualifies every causal-sounding
+  // comparison framing below, and the report falls back to the evidence-led
+  // single-visit story (the findings board explains why).
+  const comparisonUsable = isComparison(report) ? comparisonEligibility(report).eligible : false;
 
   const extras: string[] = [];
   if (inputMonitoring) {
-    extras.push("a third-party script watched keyboard input");
+    extras.push("a third-party script registered listeners on keyboard input");
   } else if (sessionRecording || sessionReplay) {
     extras.push("a session-replay vendor can record how you move and click");
   }
@@ -153,26 +164,29 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
     );
   }
 
-  // Consent comparison: the story is what the visitor's choice actually changed.
-  // Claims are gated on the reject click having really happened; when it did not,
-  // the report falls through to the ordinary evidence-led headline instead of
-  // pretending the choice was measured.
-  if (isComparison(report) && report.comparisonType === "consent" && report.variant.consentInteraction?.clicked === true) {
+  // Consent comparison: the story is what changed between the two visits.
+  // Claims are gated on the reject click having really been dispatched AND on
+  // the shared eligibility rule; when either fails, the report falls through to
+  // the ordinary evidence-led headline instead of pretending the choice was
+  // measured. The scanner clicks the control but cannot verify the site
+  // accepted the choice, and recording covers the whole visit including
+  // pre-click traffic, so the wording stays observational.
+  if (comparisonUsable && isComparison(report) && report.comparisonType === "consent" && report.variant.consentInteraction?.clicked === true) {
     const rejectTracking = trackerEntitySummaries(report.variant).filter((entity) => !isOperationalEntity(entity));
     if (rejectTracking.length > 0) {
       return finish(
-        "alarm",
-        `${domain} kept tracking after you clicked Reject all.`,
-        `After the reject choice, ${plural(rejectTracking.length, "tracking company", "tracking companies")} (${joinNames(
+        "warn",
+        `${domain} still reached ${plural(rejectTracking.length, "tracking company", "tracking companies")} in the Reject-all visit.`,
+        `After the scanner clicked Reject all, ${joinNames(
           rejectTracking.map((entity) => entity.entity)
-        )}) still received requests in that visit. Some may be pre-click traffic or claimed as strictly necessary; the diff shows exactly what rejecting did remove.`
+        )} still received requests during that visit. The visit records traffic from before and after the click, and some vendors may be claimed as strictly necessary; the diff shows exactly what rejecting did remove.`
       );
     }
     if (report.baseline.consentInteraction?.clicked === true && trackingEntities.length > 0) {
       return finish(
         "info",
-        `Rejecting cookies on ${domain} made a real difference.`,
-        `Clicking Reject all left no catalogued tracking company, while Accept all loaded ${plural(
+        `Rejecting cookies on ${domain} removed the catalogued trackers.`,
+        `The Reject-all visit loaded no catalogued tracking company, while the Accept-all visit loaded ${plural(
           trackingEntities.length,
           "tracking company",
           "tracking companies"
@@ -181,7 +195,7 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
     }
   }
 
-  if (isComparison(report) && report.comparisonType === "gpc") {
+  if (comparisonUsable && isComparison(report) && report.comparisonType === "gpc") {
     const before = report.diff.thirdPartyRequests.before;
     const after = report.diff.thirdPartyRequests.after;
     const reductionPct = before > 0 ? Math.round(((before - after) / before) * 100) : 0;
@@ -202,31 +216,40 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
           trackingEntities.length,
           "tracking company",
           "tracking companies"
-        )}: ${plural(after, "third-party request")}, ${changePhrase}.${extraNote}`
+        )}: ${plural(after, "third-party request")}, ${changePhrase}. Request counts cannot show whether data sales stopped, only what loaded.${extraNote}`
       );
     }
     if (reductionPct >= 50) {
       return finish(
         "calm",
-        `${domain} pulled back when you sent a privacy signal.`,
-        `With a Global Privacy Control signal on, off-site requests dropped ${reductionPct}% (${n(before)} → ${n(after)}).`
+        `Off-site requests to ${domain} dropped ${reductionPct}% with a privacy signal on.`,
+        `With a Global Privacy Control signal on, off-site requests dropped ${reductionPct}% (${n(before)} → ${n(after)}). An observed difference for this pair of visits, not proof the site honors the signal.`
       );
     }
   }
 
-  if (isComparison(report) && report.comparisonType === "shields") {
+  if (comparisonUsable && isComparison(report) && report.comparisonType === "shields") {
     const before = report.diff.thirdPartyRequests.before;
     const after = report.diff.thirdPartyRequests.after;
     const removed = Math.max(0, before - after);
     const total = report.diff.totalRequests.before;
+    // The engine-blocked count (block simulation, variant run) and the total
+    // third-party reduction are DIFFERENT measurements: blocking one script
+    // also prevents its follow-on requests from ever starting, so the
+    // reduction usually exceeds the direct blocks. Say both, never blend them.
+    const engineBlocks = shieldsRunMeasurement(report.variant);
     if (removed > 0) {
+      const engineNote =
+        engineBlocks && engineBlocks.kind === "engine-blocked"
+          ? ` The blocker directly stopped ${plural(engineBlocks.count, "request")}; the rest never started once their sources were blocked.`
+          : "";
       return finish(
         removed >= 30 ? "warn" : "info",
-        `A basic blocker would stop ${plural(removed, "request")} on ${domain}.`,
-        `Of ${plural(total, "request")} this page made, ${plural(
-          removed,
-          "third-party request"
-        )} were ads or trackers a default blocker would remove.${extraNote}`
+        `${domain} loaded ${plural(removed, "fewer third-party request")} with Brave Shields on.`,
+        `The visit without Brave Shields (the ad and tracker blocker built into the Brave browser) made ${plural(
+          total,
+          "request"
+        )}; with Shields on, ${plural(removed, "third-party request")} did not load.${engineNote}${extraNote}`
       );
     }
   }

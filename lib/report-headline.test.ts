@@ -137,10 +137,11 @@ test("credits a GPC comparison that pulled back as calm", () => {
 
   const headline = buildReportHeadline(createGpcComparisonReport(baseline, variant));
   assert.equal(headline.tone, "calm");
-  assert.match(headline.headline, /respectful\.example pulled back when you sent a privacy signal\./);
+  assert.match(headline.headline, /Off-site requests to respectful\.example dropped 100% with a privacy signal on\./);
+  assert.match(headline.subhead, /not proof the site honors the signal/);
 });
 
-test("frames a Shields comparison around what a blocker removes", () => {
+test("frames a Shields comparison as the observed paired-visit difference", () => {
   const baseline = makeResult({
     firstPartyDomain: "heavy.example",
     domains: [makeTrackerDomain("ads.example", 60, "AdCo", "advertising")],
@@ -158,7 +159,112 @@ test("frames a Shields comparison around what a blocker removes", () => {
 
   const headline = buildReportHeadline(createShieldsComparisonReport(baseline, variant));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /A basic blocker would stop 55 requests on heavy\.example\./);
+  assert.match(headline.headline, /heavy\.example loaded 55 fewer third-party requests with Brave Shields on\./);
+  assert.doesNotMatch(headline.headline, /would/);
+});
+
+test("a Shields comparison names the direct engine blocks separately from the reduction", () => {
+  const baseline = makeResult({
+    firstPartyDomain: "heavy.example",
+    domains: [makeTrackerDomain("ads.example", 60, "AdCo", "advertising")],
+    totalRequests: 100,
+    thirdPartyRequests: 60
+  });
+  const variant = makeResult({
+    firstPartyDomain: "heavy.example",
+    domains: [],
+    totalRequests: 45,
+    thirdPartyRequests: 5
+  });
+  variant.summary = { ...variant.summary, shieldsBlockedRequests: 12 };
+  variant.conditions = {
+    ...variant.conditions,
+    shieldsMode: "block-simulation",
+    adblock: { active: true, source: "brave-default", lists: 5, fetchedAt: new Date(0).toISOString() }
+  };
+
+  const headline = buildReportHeadline(createShieldsComparisonReport(baseline, variant));
+  assert.match(headline.headline, /55 fewer third-party requests/);
+  // The direct-abort count and the total reduction are different measurements
+  // and must appear as two separately-labeled numbers, never blended.
+  assert.match(headline.subhead, /directly stopped 12 requests/);
+});
+
+test("comparison framings are refused when an arm failed, is capped, or mismatches", () => {
+  const trackerDomains = [makeTrackerDomain("ads.example", 60, "AdCo", "advertising")];
+
+  // Capped baseline: the Shields story must not be told from truncated counts.
+  const cappedBaseline = makeResult({
+    firstPartyDomain: "heavy.example",
+    domains: trackerDomains,
+    totalRequests: 1000,
+    thirdPartyRequests: 60
+  });
+  const shieldsVariant = makeResult({ firstPartyDomain: "heavy.example", totalRequests: 45, thirdPartyRequests: 5 });
+  const cappedHeadline = buildReportHeadline(createShieldsComparisonReport(cappedBaseline, shieldsVariant));
+  assert.doesNotMatch(cappedHeadline.headline, /fewer third-party requests with Brave Shields on/);
+
+  // Failed GPC variant: the pair supports no signal story.
+  const gpcBaseline = makeResult({ firstPartyDomain: "shop.example", domains: trackerDomains, thirdPartyRequests: 100 });
+  const failedVariant = makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 0, status: 403 });
+  const gpcHeadline = buildReportHeadline(createGpcComparisonReport(gpcBaseline, failedVariant));
+  assert.doesNotMatch(gpcHeadline.headline, /privacy signal/);
+
+  // Mismatched consent subject: the click story must not be told across sites.
+  const acceptRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", domains: trackerDomains, thirdPartyRequests: 30 }),
+    consentInteraction: { mode: "accept-all" as const, clicked: true, cmp: "OneTrust" }
+  };
+  const strayRejectRun = {
+    ...makeResult({
+      firstPartyDomain: "other.example",
+      domains: [makeTrackerDomain("google-analytics.com", 3, "Google", "analytics")],
+      thirdPartyRequests: 6
+    }),
+    consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "OneTrust" }
+  };
+  const consentHeadline = buildReportHeadline(createConsentComparisonReport(acceptRun, strayRejectRun));
+  assert.doesNotMatch(consentHeadline.headline, /Reject-all visit/);
+});
+
+test("listener detections whose origins are same-site per the request log claim nothing", () => {
+  const sameSiteDomain: DomainSummary = {
+    domain: "verified.shop.example",
+    requests: 3,
+    thirdParty: false,
+    tracker: null,
+    statuses: [200],
+    resourceTypes: ["script"]
+  };
+  const result = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [sameSiteDomain],
+    thirdPartyRequests: 0,
+    thirdPartyDomains: 0,
+    fingerprintDetections: [makeInputMonitoringDetection(["https://verified.shop.example"])]
+  });
+
+  const headline = buildReportHeadline(result);
+  assert.doesNotMatch(headline.headline, /probed your browser/);
+  assert.doesNotMatch(headline.subhead, /keyboard input/);
+  assert.equal(headline.tone, "calm");
+});
+
+test("cross-site input monitoring keeps the probe headline with listener wording", () => {
+  const result = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [],
+    thirdPartyRequests: 0,
+    thirdPartyDomains: 0,
+    fingerprintDetections: [makeInputMonitoringDetection(["https://recorder.example.net"])]
+  });
+
+  const headline = buildReportHeadline(result);
+  assert.match(headline.headline, /probed your browser/);
+  // The evidence is listener registration, not observed capture, so the
+  // wording must not say the script "watched" input.
+  assert.match(headline.subhead, /registered listeners on keyboard input/);
+  assert.doesNotMatch(headline.subhead, /watched/);
 });
 
 test("surfaces browser probing when fingerprinting matches without catalogued trackers", () => {
@@ -307,9 +413,12 @@ test("trackers surviving a real Reject all click lead the consent-comparison hea
   };
 
   const headline = buildReportHeadline(createConsentComparisonReport(acceptRun, rejectRun));
-  assert.equal(headline.tone, "alarm");
-  assert.match(headline.headline, /shop\.example kept tracking after you clicked Reject all\./);
+  assert.equal(headline.tone, "warn");
+  assert.match(headline.headline, /shop\.example still reached 1 tracking company in the Reject-all visit\./);
   assert.match(headline.subhead, /Google/);
+  // The recording covers the full visit, so the wording must not claim the
+  // traffic came after the click.
+  assert.match(headline.subhead, /before and after the click/);
 });
 
 test("a clean reject run headlines that the consent choice made a difference", () => {
@@ -328,7 +437,7 @@ test("a clean reject run headlines that the consent choice made a difference", (
 
   const headline = buildReportHeadline(createConsentComparisonReport(acceptRun, rejectRun));
   assert.equal(headline.tone, "info");
-  assert.match(headline.headline, /Rejecting cookies on shop\.example made a real difference\./);
+  assert.match(headline.headline, /Rejecting cookies on shop\.example removed the catalogued trackers\./);
 });
 
 test("an un-clicked reject run falls through to the ordinary evidence headline", () => {
@@ -411,6 +520,20 @@ function makeTrackerDomain(domain: string, requests: number, entity: string, cat
     tracker: { domain, entity, category, confidence: "curated" },
     statuses: [200],
     resourceTypes: ["script"]
+  };
+}
+
+function makeInputMonitoringDetection(thirdPartyOrigins: string[]): FingerprintDetectionSummary {
+  return {
+    kind: "input-monitoring",
+    heuristic: "input-listener-coverage-v1",
+    count: 1,
+    evidence: {
+      eventTypes: ["input", "keydown"],
+      listenerTargets: ["input"],
+      thirdPartyOrigins,
+      totalListenerCalls: 4
+    }
   };
 }
 

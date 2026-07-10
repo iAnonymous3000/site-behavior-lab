@@ -1,8 +1,10 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { buildCategoryRollups, type CategoryRollup } from "./category-rollups";
+import { comparisonEligibility } from "./comparison-eligibility";
 import { domainsMatch } from "./featured-sites";
 import { buildReportHeadline, displayScanResult, type HeadlineTone } from "./report-headline";
+import { trackingServiceRequests } from "./report-insights";
 import { readReportForId } from "./report-source";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { listStaticReportIds } from "./static-report-files";
@@ -198,8 +200,11 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
     if (isReservedReportDomain(result.summary.firstPartyDomain)) continue;
     const headline = buildReportHeadline(report);
     const { id: category, label: categoryLabel } = categoryFor(result.summary.firstPartyDomain, catalog);
+    // The observed third-party reduction of an ELIGIBLE Shields pair (both arms
+    // loaded, uncapped, matched). This is a paired-visit difference, never a
+    // "blocked" count; the directory labels it accordingly.
     const shieldsBlocked =
-      report.reportType === "comparison" && report.comparisonType === "shields"
+      report.reportType === "comparison" && report.comparisonType === "shields" && comparisonEligibility(report).eligible
         ? Math.max(0, report.baseline.summary.thirdPartyRequests - report.variant.summary.thirdPartyRequests)
         : null;
 
@@ -209,7 +214,10 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
       tone: headline.tone,
       headline: headline.headline,
       thirdPartyRequests: result.summary.thirdPartyRequests,
-      trackerRequests: result.summary.knownTrackerRequests,
+      // Tracking services only: summary.knownTrackerRequests also counts
+      // operational-only matches (error monitoring, support chat), which must
+      // not rank sites on a surface labeled "tracker".
+      trackerRequests: trackingServiceRequests(result),
       thirdPartyCookies: result.summary.thirdPartyCookies,
       shieldsBlocked,
       category,

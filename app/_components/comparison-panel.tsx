@@ -29,6 +29,13 @@ function ComparisonPanel({ report }: { report: ComparisonScanResult }) {
   const removedPixelEvents = report.diff.removedPixelEvents ?? [];
   const addedProvenance = report.diff.addedProvenance ?? [];
   const removedProvenance = report.diff.removedProvenance ?? [];
+  // On a Shields comparison the shieldsBlockedRequests delta compares two
+  // DIFFERENT measurements (baseline = filter-list matches while loading
+  // normally; variant = requests the engine actually aborted), so a single
+  // "delta" row would blend them; the findings card reports each with its own
+  // label instead. On other comparison types both arms carry filter-list
+  // matches, so the delta is a like-for-like number and stays.
+  const shieldsDeltaComparable = report.comparisonType !== "shields";
   const metrics = [
     { label: "Requests", metric: report.diff.totalRequests },
     { label: "Third-party requests", metric: report.diff.thirdPartyRequests },
@@ -38,7 +45,9 @@ function ComparisonPanel({ report }: { report: ComparisonScanResult }) {
     { label: "Third-party cookies", metric: report.diff.thirdPartyCookies },
     { label: "Storage keys", metric: report.diff.storageEntries },
     { label: "Fingerprint events", metric: report.diff.fingerprintEvents },
-    ...(report.diff.shieldsBlockedRequests ? [{ label: "Brave would block", metric: report.diff.shieldsBlockedRequests }] : [])
+    ...(report.diff.shieldsBlockedRequests && shieldsDeltaComparable
+      ? [{ label: "Matched Shields lists", metric: report.diff.shieldsBlockedRequests }]
+      : [])
   ].filter((item): item is { label: string; metric: ComparisonMetricDelta } => Boolean(item.metric));
 
   return (

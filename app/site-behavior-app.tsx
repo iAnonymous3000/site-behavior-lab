@@ -960,8 +960,8 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
       <p className="corpus-hero-lead">
         We open {plural(highlights.siteCount, "real site")} in a controlled browser and record every request, cookie, and
         tracker, then run each through <strong>Brave&rsquo;s own ad-block engine</strong> (the open-source{" "}
-        <code>adblock-rust</code>, with Brave&rsquo;s default lists) to show what Brave Shields, the ad and tracker
-        blocker built into the Brave browser, would block. Reproducible evidence, not a score.
+        <code>adblock-rust</code>, with Brave&rsquo;s default lists) to show which requests match the filter lists of
+        Brave Shields, the ad and tracker blocker built into the Brave browser. Reproducible evidence, not a score.
       </p>
       {highlights.topCategories.length > 0 && (
         <div className="corpus-hero-cats">
@@ -971,7 +971,7 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
               <span className="corpus-hero-cat-label">{category.label}</span>
             </div>
           ))}
-          <span className="corpus-hero-cat-note">median catalogued tracker requests per site, by category</span>
+          <span className="corpus-hero-cat-note">median catalogued tracking-service requests per site, by category</span>
         </div>
       )}
       <div className="corpus-hero-actions">

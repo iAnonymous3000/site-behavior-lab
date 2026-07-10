@@ -165,8 +165,14 @@ export function extractPolicyClaims(policyText: string): PrivacyPolicyClaim[] {
       claims.set("no-selling-or-sharing", sentence);
     }
 
-    if (!claims.has("honors-gpc") && /\bglobal privacy control\b/.test(lower) &&
-      /\b(?:honor|respect|recogni[sz]|treat|comply|process)\w*\b/.test(lower)) {
+    // A positive "we honor GPC" claim must contain NO negation at all: "We do
+    // not honor Global Privacy Control" contains both the term and the verb,
+    // and a first-person pattern alone misses subjects like "our systems".
+    // A skipped real claim only means one less extracted statement; a negated
+    // sentence extracted as support would invert the policy's meaning.
+    if (!claims.has("honors-gpc") && !negated && /\bglobal privacy control\b/.test(lower) &&
+      /\b(?:honor|respect|recogni[sz]|treat|comply|process)\w*\b/.test(lower) &&
+      !/\b(?:not|never|no|don'?t|doesn'?t|won'?t|cannot|can'?t|unable)\b/.test(lower)) {
       claims.set("honors-gpc", sentence);
     }
   }

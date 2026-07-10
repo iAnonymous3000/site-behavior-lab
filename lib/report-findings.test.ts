@@ -167,7 +167,18 @@ test("adds a Shields-block card only when ad-block is active", () => {
   };
   const blocked = byId(buildFindings(withAdblock, withAdblock, null), "shields-blocked");
   assert.equal(blocked.level, "warn");
-  assert.match(blocked.title, /Brave Shields would block 12 of 25 requests/);
+  // Classification mode: the number is filter-list MATCHES on a normal load,
+  // never presented as a measured block.
+  assert.match(blocked.title, /12 of 25 requests matched Brave Shields filter lists/);
+  assert.doesNotMatch(blocked.title, /would block/);
+  assert.match(blocked.detail, /neither a measured block count nor the total effect/);
+
+  const simulated: ScanResult = {
+    ...withAdblock,
+    conditions: { ...withAdblock.conditions, shieldsMode: "block-simulation" }
+  };
+  const simulatedCard = byId(buildFindings(simulated, simulated, null), "shields-blocked");
+  assert.match(simulatedCard.title, /Brave Shields blocked 12 requests in this visit/);
 });
 
 test("a Shields comparison keeps the fingerprinting card alongside session-recording (no silent cap)", () => {
@@ -231,9 +242,13 @@ test("a consent comparison flags trackers that survive Reject all", () => {
   assert.equal(findings[0].id, "bottom-line");
   const card = byId(findings, "consent-comparison");
   assert.equal(card.level, "warn");
-  assert.match(card.title, /still loaded after Reject all/);
+  assert.match(card.title, /loaded in the Reject-all visit/);
   assert.match(card.lead, /Google/);
   assert.match(card.detail, /not a violation ruling/);
+  // The claim must stay observational: recording spans the whole visit and the
+  // click is dispatched, not verified.
+  assert.match(card.detail, /before AND after the click/);
+  assert.match(card.detail, /cannot verify the site registered the choice/);
   assert.match(card.evidence, /30 with Accept all, 6 with Reject all/);
 });
 
@@ -271,7 +286,7 @@ test("a clean reject run earns the ok consent card, and a missing reject control
 
   const okCard = byId(buildFindings(createConsentComparisonReport(acceptRun, cleanRejectRun), acceptRun, null), "consent-comparison");
   assert.equal(okCard.level, "ok");
-  assert.match(okCard.title, /removed the catalogued trackers/);
+  assert.match(okCard.title, /The Reject-all visit had no catalogued trackers/);
 
   const unclickedRejectRun = {
     ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 19 }),
@@ -429,6 +444,100 @@ function makeTrackerDomain(domain: string, requests: number, entity: string, cat
   };
 }
 
+test("an ineligible comparison replaces the story card with the disqualifying facts", () => {
+  const cappedBaseline = makeResult({
+    firstPartyDomain: "heavy.example",
+    domains: [makeTrackerDomain("ads.example", 60, "AdCo", "advertising")],
+    totalRequests: 1000,
+    thirdPartyRequests: 60
+  });
+  const variant = makeResult({ firstPartyDomain: "heavy.example", totalRequests: 45, thirdPartyRequests: 5 });
+
+  const shieldsFindings = buildFindings(createShieldsComparisonReport(cappedBaseline, variant), cappedBaseline, null);
+  const shieldsCard = byId(shieldsFindings, "shields-comparison");
+  assert.match(shieldsCard.title, /not conclusive/);
+  assert.match(shieldsCard.lead, /recording cap/);
+  assert.doesNotMatch(shieldsCard.lead, /fewer third-party/);
+
+  const acceptRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 30 }),
+    consentInteraction: { mode: "accept-all" as const, clicked: true, cmp: "OneTrust" }
+  };
+  const failedRejectRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 0, status: 503 }),
+    consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "OneTrust" }
+  };
+  const consentCard = byId(
+    buildFindings(createConsentComparisonReport(acceptRun, failedRejectRun), acceptRun, null),
+    "consent-comparison"
+  );
+  assert.match(consentCard.title, /not conclusive/);
+  assert.match(consentCard.lead, /HTTP 503/);
+
+  const gpcCard = byId(
+    buildFindings(
+      createGpcComparisonReport(makeResult({ firstPartyDomain: "a.example" }), makeResult({ firstPartyDomain: "b.example" })),
+      makeResult({ firstPartyDomain: "a.example" }),
+      null
+    ),
+    "gpc-comparison"
+  );
+  assert.match(gpcCard.title, /not conclusive/);
+  assert.match(gpcCard.lead, /different sites/);
+});
+
+test("listener-coverage cards are restricted to cross-site origins", () => {
+  const sameSiteDomain: DomainSummary = {
+    domain: "verified.shop.example",
+    requests: 3,
+    thirdParty: false,
+    tracker: null,
+    statuses: [200],
+    resourceTypes: ["script"]
+  };
+
+  // Solely same-party origins: no monitoring card at all.
+  const samePartyOnly = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [sameSiteDomain],
+    fingerprintDetections: [makeListenerDetection("input-monitoring", ["https://verified.shop.example"])]
+  });
+  const suppressedIds = buildFindings(samePartyOnly, samePartyOnly, null).map((finding) => finding.id);
+  assert.equal(suppressedIds.includes("session-recording-input-monitoring"), false);
+
+  // Mixed origins: the card names only the cross-site one.
+  const mixed = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [sameSiteDomain],
+    fingerprintDetections: [
+      makeListenerDetection("input-monitoring", ["https://recorder.example.net", "https://verified.shop.example"])
+    ]
+  });
+  const mixedCard = byId(buildFindings(mixed, mixed, null), "session-recording-input-monitoring");
+  assert.match(mixedCard.evidence, /recorder\.example\.net/);
+  assert.doesNotMatch(mixedCard.evidence, /verified\.shop\.example/);
+});
+
+function makeListenerDetection(
+  kind: "session-recording" | "input-monitoring",
+  thirdPartyOrigins: string[]
+): FingerprintDetectionSummary {
+  if (kind === "session-recording") {
+    return {
+      kind,
+      heuristic: "interaction-listener-coverage-v1",
+      count: 1,
+      evidence: { eventTypes: ["mousemove", "scroll", "click"], listenerTargets: ["document", "window"], thirdPartyOrigins, totalListenerCalls: 9 }
+    };
+  }
+  return {
+    kind,
+    heuristic: "input-listener-coverage-v1",
+    count: 1,
+    evidence: { eventTypes: ["input", "keydown"], listenerTargets: ["input"], thirdPartyOrigins, totalListenerCalls: 4 }
+  };
+}
+
 function makeSessionRecordingDetection(): FingerprintDetectionSummary {
   return {
     kind: "session-recording",
@@ -508,7 +617,10 @@ test("reports a clean policy check at ok level", () => {
   assert.match(card.title, /no checked statement contradicted/);
 });
 
-test("flags an honored-GPC claim when the GPC comparison shows no real change", () => {
+test("an honored-GPC claim is never contradicted by request counts", () => {
+  // Honoring GPC means not selling or sharing data, which request counts
+  // cannot observe: a site can honor the signal while loading identical
+  // requests. The claim must therefore never surface as a policy conflict.
   const baseline = makeResult({
     domains: [makeTrackerDomain("ads.example.net", 40, "AdCo", "advertising")],
     thirdPartyRequests: 40,
@@ -529,8 +641,9 @@ test("flags an honored-GPC claim when the GPC comparison shows no real change", 
   const report = createGpcComparisonReport(baseline, variant);
 
   const card = byId(buildFindings(report, baseline, null), "privacy-policy");
-  assert.equal(card.level, "warn");
-  assert.match(card.lead, /Global Privacy Control is honored, but sending GPC changed third-party requests by only 5%/);
+  assert.equal(card.level, "ok");
+  assert.doesNotMatch(card.lead, /Global Privacy Control is honored, but/);
+  assert.match(card.detail, /never checked against request counts/);
 });
 
 function makeResult(overrides: ResultOverrides = {}): ScanResult {

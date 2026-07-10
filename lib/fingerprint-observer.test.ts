@@ -367,6 +367,45 @@ test("fingerprintObserverInitScript flags third-party session recording and inpu
   }
 });
 
+test("fingerprintObserverInitScript treats sibling subdomains of the site key as same-site", () => {
+  const harness = installInteractionHarness();
+  try {
+    (harness.window.location as { hostname: string }).hostname = "www.capitalone.com";
+    // The scanner passes the site's registrable domain as the init-script
+    // argument; sibling subdomains (verified. vs www.) share no suffix
+    // relationship, so without the key they were misread as third parties.
+    fingerprintObserverInitScript("capitalone.com");
+    const input = new harness.Input();
+
+    withStackOrigin("https://verified.capitalone.com", () => {
+      input.addEventListener("input", () => undefined);
+      input.addEventListener("keydown", () => undefined);
+      input.addEventListener("change", () => undefined);
+      input.addEventListener("paste", () => undefined);
+    });
+
+    assert.deepEqual(readSnapshot(harness.window).detections, []);
+
+    // A genuinely cross-site origin still triggers the detection.
+    withStackOrigin("https://recorder.example.net", () => {
+      input.addEventListener("input", () => undefined);
+      input.addEventListener("keydown", () => undefined);
+      input.addEventListener("change", () => undefined);
+      input.addEventListener("paste", () => undefined);
+    });
+
+    const detections = readSnapshot(harness.window).detections;
+    assert.equal(detections.length, 1);
+    assert.equal(detections[0].kind, "input-monitoring");
+    assert.deepEqual(
+      (detections[0].evidence as { thirdPartyOrigins: string[] }).thirdPartyOrigins,
+      ["https://recorder.example.net"]
+    );
+  } finally {
+    harness.restore();
+  }
+});
+
 test("fingerprintObserverInitScript flags repeated canvas font probing without collecting measured text", () => {
   const harness = installCanvasHarness();
   try {

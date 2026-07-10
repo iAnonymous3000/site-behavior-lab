@@ -241,12 +241,19 @@ export function MetricGrid({ result }: { result: ScanResult }) {
     },
     ...(result.conditions.adblock?.active
       ? [
-          {
-            label: "Brave would block",
-            value: result.summary.shieldsBlockedRequests ?? 0,
-            detail: `of ${result.summary.totalRequests.toLocaleString()} requests`,
-            icon: ShieldCheck
-          }
+          result.conditions.shieldsMode === "block-simulation"
+            ? {
+                label: "Blocked by Shields",
+                value: result.summary.shieldsBlockedRequests ?? 0,
+                detail: "aborted in this visit",
+                icon: ShieldCheck
+              }
+            : {
+                label: "Matched Shields lists",
+                value: result.summary.shieldsBlockedRequests ?? 0,
+                detail: `of ${result.summary.totalRequests.toLocaleString()} requests`,
+                icon: ShieldCheck
+              }
         ]
       : []),
     {

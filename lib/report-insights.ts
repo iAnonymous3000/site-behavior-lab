@@ -79,6 +79,18 @@ export function isOperationalEntity(entity: TrackerEntitySummary): boolean {
   return entity.categories.length > 0 && entity.categories.every((category) => !isTrackingCategory(category));
 }
 
+/**
+ * Requests to catalogued TRACKING services only, excluding operational-only
+ * entities (error monitoring, support chat). `summary.knownTrackerRequests`
+ * counts every catalog match including operational services, so aggregate
+ * surfaces that say "tracker" must use this instead.
+ */
+export function trackingServiceRequests(result: Pick<ScanResult, "domains">): number {
+  return trackerEntitySummaries(result)
+    .filter((entity) => !isOperationalEntity(entity))
+    .reduce((total, entity) => total + entity.requests, 0);
+}
+
 /** High-entropy fingerprinting detections (canvas/WebGL/audio/WebRTC), excluding listener-coverage signals. */
 export function highEntropyDetections(result: ScanResult): FingerprintDetectionSummary[] {
   return (result.fingerprintDetections ?? []).filter((detection) => HIGH_ENTROPY_FINGERPRINT_KINDS.has(detection.kind));
@@ -110,6 +122,72 @@ function isTrackingCategory(category: string): boolean {
 /** All fingerprint/behavioral detections on a scan (safe on legacy reports without the field). */
 export function fingerprintDetections(result: ScanResult): FingerprintDetectionSummary[] {
   return result.fingerprintDetections ?? [];
+}
+
+/**
+ * Filters listener-coverage origins down to the ones that are genuinely
+ * cross-site, using the report's own request log as the oracle: an origin
+ * whose host appears in the domain table as first-party (the table is built
+ * with real public-suffix logic at scan time) is a same-site sibling that the
+ * in-page probe's hostname heuristic misclassified. Origins absent from the
+ * request log are kept, since the report holds no evidence either way.
+ */
+export function crossSiteListenerOrigins(result: Pick<ScanResult, "domains">, origins: string[]): string[] {
+  const firstPartyHosts = new Set(
+    result.domains.filter((domain) => !domain.thirdParty).map((domain) => normalizeOriginHost(domain.domain))
+  );
+  return origins.filter((origin) => !firstPartyHosts.has(normalizeOriginHost(origin)));
+}
+
+/**
+ * A session-recording / input-monitoring detection restricted to cross-site
+ * origins, or undefined when every attributed origin turned out to be
+ * same-site (the detection then supports no third-party claim). When origins
+ * were dropped, the listener-call counts still cover every origin the in-page
+ * probe attributed; consumers should say so.
+ */
+export function crossSiteListenerDetection(
+  result: ScanResult,
+  kind: "session-recording" | "input-monitoring"
+): Extract<FingerprintDetectionSummary, { kind: "session-recording" | "input-monitoring" }> | undefined {
+  const detection = fingerprintDetection(result, kind);
+  if (!detection) return undefined;
+  const origins = crossSiteListenerOrigins(result, detection.evidence.thirdPartyOrigins);
+  if (origins.length === 0) return undefined;
+  if (origins.length === detection.evidence.thirdPartyOrigins.length) return detection;
+  if (detection.kind === "session-recording") {
+    return { ...detection, evidence: { ...detection.evidence, thirdPartyOrigins: origins } };
+  }
+  return { ...detection, evidence: { ...detection.evidence, thirdPartyOrigins: origins } };
+}
+
+function normalizeOriginHost(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/.*$/, "")
+    .replace(/:\d+$/, "")
+    .replace(/\.$/, "");
+}
+
+export type ShieldsRunMeasurement = {
+  /**
+   * What `summary.shieldsBlockedRequests` measured on this run:
+   * "filter-matches" = requests that MATCHED Brave's filter lists while
+   * loading normally (classification; nothing was blocked); "engine-blocked" =
+   * requests the engine actually aborted in this visit (block simulation).
+   * The two are different measurements and must never share a label.
+   */
+  kind: "filter-matches" | "engine-blocked";
+  count: number;
+};
+
+/** The Shields engine measurement a run carries, or null when the engine was off. */
+export function shieldsRunMeasurement(result: Pick<ScanResult, "summary" | "conditions">): ShieldsRunMeasurement | null {
+  const count = result.summary.shieldsBlockedRequests;
+  if (typeof count !== "number" || result.conditions.adblock?.active !== true) return null;
+  return { kind: result.conditions.shieldsMode === "block-simulation" ? "engine-blocked" : "filter-matches", count };
 }
 
 /** The single detection of a given kind, narrowed to its evidence shape, if present. */

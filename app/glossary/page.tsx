@@ -24,13 +24,13 @@ const ENTRIES: GlossaryEntry[] = [
     id: "brave-shields",
     term: "Brave Shields",
     definition:
-      "The ad and tracker blocker built into the Brave browser. Reports compute what Shields would block by running every observed request through Brave's own open-source ad-block engine (adblock-rust) with Brave's default filter lists. Only network requests are matched: cosmetic filtering, which hides page elements, is not simulated."
+      "The ad and tracker blocker built into the Brave browser. Reports run every observed request through Brave's own open-source ad-block engine (adblock-rust) with Brave's default filter lists. Only network requests are matched: cosmetic filtering, which hides page elements, is not simulated."
   },
   {
     id: "brave-would-block",
-    term: "“Brave would block”",
+    term: "“Matched Shields filter lists”",
     definition:
-      "The number of a page's requests that matched those default filter lists. In a single scan this is a simulation over the recorded requests; in a Blocker comparison the page is visited a second time with blocking active, so the diff shows measured behavior from one paired visit."
+      "The number of a page's requests that matched Brave's default filter lists while the page loaded normally (nothing was blocked). It is one of three distinct Shields numbers a report can carry, and they are deliberately never blended: matched requests (what the engine would target on this visit's traffic), requests the engine actually aborted in a Blocker-comparison visit with blocking active, and the total drop in third-party requests between the paired visits. The total drop is usually the largest, because blocking one script also prevents the requests it would have triggered."
   },
   {
     id: "gpc",

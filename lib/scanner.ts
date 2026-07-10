@@ -177,7 +177,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     }
 
     const page = await context.newPage();
-    await installFingerprintObserver(page);
+    await installFingerprintObserver(page, targetUrl.hostname);
 
     const requestsBlockedByShields = new WeakSet<Request>();
     const requestsBlockedByGuard = new WeakSet<Request>();
@@ -548,8 +548,11 @@ function createContextOptions(payload: ScanRequestPayload, proxyServer: string):
   };
 }
 
-async function installFingerprintObserver(page: Page): Promise<void> {
-  await page.addInitScript(fingerprintObserverInitScript);
+async function installFingerprintObserver(page: Page, firstPartyHostname: string): Promise<void> {
+  // The registrable domain of the scanned site rides along as the init-script
+  // argument so the in-page listener-origin classification can recognize
+  // same-site sibling subdomains (see fingerprintObserverInitScript).
+  await page.addInitScript(fingerprintObserverInitScript, partyKey(firstPartyHostname));
 }
 
 async function collectCookies(context: BrowserContext, firstPartyDomain: string): Promise<CookieRecord[]> {

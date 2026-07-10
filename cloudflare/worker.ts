@@ -10,7 +10,7 @@ import {
   type Request as PlaywrightRequest
 } from "@cloudflare/playwright";
 import { createGpcComparisonReport } from "../lib/compare-reports";
-import { isThirdParty } from "../lib/domain-utils";
+import { isThirdParty, partyKey } from "../lib/domain-utils";
 import { producerCapability } from "../lib/report-producers";
 import { buildReportShare } from "../lib/report-locator";
 import { scanCorsHeaders } from "../lib/cors";
@@ -367,7 +367,7 @@ async function scanWithBrowserSession(
     }
 
     const page = await withWorkerScanTimeout(context.newPage(), deadlineStarted, maxDurationMs);
-    await withWorkerScanTimeout(installFingerprintObserver(page), deadlineStarted, maxDurationMs);
+    await withWorkerScanTimeout(installFingerprintObserver(page, targetUrl.hostname), deadlineStarted, maxDurationMs);
 
     const networkRecorder = new ScanNetworkRecorder<PlaywrightRequest>({
       firstPartyHostname: targetUrl.hostname,
@@ -504,8 +504,11 @@ function createContextOptions(payload: ScanRequestPayload): BrowserContextOption
   };
 }
 
-async function installFingerprintObserver(page: Page): Promise<void> {
-  await page.addInitScript(fingerprintObserverInitScript);
+async function installFingerprintObserver(page: Page, firstPartyHostname: string): Promise<void> {
+  // The registrable domain rides along as the init-script argument so the
+  // in-page listener-origin classification can recognize same-site sibling
+  // subdomains (see fingerprintObserverInitScript).
+  await page.addInitScript(fingerprintObserverInitScript, partyKey(firstPartyHostname));
 }
 
 async function collectCookies(context: BrowserContext, finalHostname: string): Promise<CookieRecord[]> {
