@@ -29,6 +29,7 @@ import {
   buildComparisonDiffV2,
   deriveObservationConsistency,
   evaluateComparability,
+  interventionAxisDelta,
   phaseKindAt,
   scanRunCoreViolations,
   subjectsMatch
@@ -257,6 +258,12 @@ function consentViolationsR2(run: ScanRunV2R2, label: string): string[] {
   if (run.detectors["consent-banner"].status !== "complete" && run.detectors["consent-banner"].status !== "partial") {
     violations.push(`${label}: consent evidence present but the consent-banner detector did not report activity`);
   }
+  // RFC 15.4: every consent-mode run carries a consent-interaction phase (the
+  // interaction was at least attempted). The zero-observation placeholder's
+  // phaseId also anchors to it, so its absence must reject, never default.
+  if (!run.phases.some((span) => span.kind === "consent-interaction")) {
+    violations.push(`${label}: consent-mode run has no consent-interaction phase`);
+  }
 
   const observations = consent.verificationObservations;
 
@@ -352,9 +359,20 @@ function factsViolationsR2(run: ScanRunV2R2, label: string): string[] {
   const facts = run.verificationFacts;
   if (facts === undefined) return violations;
 
-  if (facts.gpc !== undefined) {
-    if (phaseKindAt(run, facts.gpc.phaseId) !== "passive-load") {
+  const gpc = facts.gpc;
+  if (gpc !== undefined) {
+    if (phaseKindAt(run, gpc.phaseId) !== "passive-load") {
       violations.push(`${label}: gpc facts are tagged to a non-passive-load phase`);
+    }
+    // RFC 15.3 GPC sampling semantics (closed): the referenced phase must
+    // contain an observed eligible first-party navigation (a retained
+    // first-party document request in that phase). Without one, both signals
+    // are "unobservable"; any confirmed-*/read state is invalid.
+    const eligibleNavigation = run.evidence.requests.some(
+      (request) => request.phaseId === gpc.phaseId && request.resourceType === "document" && !request.thirdParty
+    );
+    if (!eligibleNavigation && (gpc.header !== "unobservable" || gpc.jsSignal !== "unobservable")) {
+      violations.push(`${label}: gpc facts claim signal states without an observed eligible first-party navigation`);
     }
   }
 
@@ -460,7 +478,8 @@ function supportingPairViolations(
 
   const pairIds = new Set<string>([experiment.pairId]);
   const runIds = new Set<string>([primaryBaseline.runId, primaryVariant.runId]);
-  const primaryInterpreters = attemptedStrongInterpreters(primaryBaseline);
+  const primaryBaselineInterpreters = attemptedStrongInterpreters(primaryBaseline);
+  const primaryVariantInterpreters = attemptedStrongInterpreters(primaryVariant);
 
   for (const [index, pair] of pairs.entries()) {
     const label = `supporting pair ${index}`;
@@ -473,6 +492,19 @@ function supportingPairViolations(
 
     violations.push(...runR2Violations(pair.baseline, `${label} baseline`));
     violations.push(...runR2Violations(pair.variant, `${label} variant`));
+
+    // RFC 15.6: each supporting pair passes the SAME evaluator gates as the
+    // primary: run completeness and the exact axis delta (the condition
+    // fingerprint match below pins conditions to the primary's, but the gates
+    // are normative and must hold in their own right).
+    for (const [runLabel, run] of [["baseline", pair.baseline], ["variant", pair.variant]] as const) {
+      if (run.quality.run.outcome !== "complete") {
+        violations.push(`${label}: ${runLabel} run did not complete; the pair cannot support the experiment`);
+      }
+    }
+    if (interventionAxisDelta(pair.baseline, pair.variant) !== experiment.axis) {
+      violations.push(`${label}: runs do not differ on exactly the experiment axis`);
+    }
 
     const chronological = pair.baseline.startedAt < pair.variant.startedAt;
     if ((pair.order === "AB") !== chronological) {
@@ -503,8 +535,17 @@ function supportingPairViolations(
       }
     }
     if (experiment.axis === "consent") {
-      if (!canonicallyEqual(attemptedStrongInterpreters(pair.baseline), primaryInterpreters)) {
-        violations.push(`${label}: interpreter set does not match the primary pair`);
+      // RFC 15.4: BOTH supporting runs' attempted-strong-interpreter sets must
+      // equal the primary's key. When the primary's own arms disagree, its key
+      // is undefined and no pair can support the experiment.
+      for (const [runLabel, run] of [["baseline", pair.baseline], ["variant", pair.variant]] as const) {
+        const interpreters = attemptedStrongInterpreters(run);
+        if (
+          !canonicallyEqual(interpreters, primaryBaselineInterpreters) ||
+          !canonicallyEqual(interpreters, primaryVariantInterpreters)
+        ) {
+          violations.push(`${label}: ${runLabel} interpreter set does not match the primary pair`);
+        }
       }
     }
   }

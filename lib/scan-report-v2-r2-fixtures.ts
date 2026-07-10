@@ -10,7 +10,7 @@
  * reject-on-disagreement checks.
  */
 import { axisStateFor, type ArmVerification, type Experiment } from "./scan-report-v2";
-import { buildComparisonDiffV2 } from "./scan-report-v2-evaluators";
+import { buildComparisonDiffV2, evaluateQuality } from "./scan-report-v2-evaluators";
 import { evaluateComparabilityR2 } from "./scan-report-v2-r2-evaluators";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { makeScanRunV2 } from "./scan-report-v2-fixtures";
@@ -390,6 +390,49 @@ export function makeConsentInterventionReportV2R2(): PublicComparisonReportV2R2 
   });
 }
 
+/** RFC 15.4/15.6: a consent-axis intervention replicated by a supporting pair
+ * whose runs share the primary's interpreter set, pass their arms, and run in
+ * BA order (so the derived evidence is counterbalanced). */
+export function makeConsentSupportingPairReportV2R2(): PublicComparisonReportV2R2 {
+  const report = makeConsentInterventionReportV2R2();
+  if (report.experiment.kind !== "intervention") throw new Error("fixture invariant");
+
+  const supportingBaseline = makeConsentRunR2("accept-all", {
+    runId: "run-consent-accept-2",
+    startedAt: "2026-07-09T11:01:00.000Z"
+  });
+  const supportingVariant = makeConsentRunR2("reject-all", {
+    runId: "run-consent-reject-2",
+    startedAt: "2026-07-09T11:00:00.000Z"
+  });
+  const arm = (mode: "accept-all" | "reject-all"): ArmVerification => ({
+    axis: "consent",
+    expected: `consent:${mode}`,
+    observed: `consent:${mode}`,
+    method: "onetrust-cookie@1",
+    outcome: "passed",
+    phaseId: 2
+  });
+
+  const supportingPair: SupportingPairR2 = {
+    pairId: "pair-consent-r2-support",
+    // BA: the reject (variant) run came first chronologically (11:00 < 11:01).
+    order: "BA",
+    baseline: supportingBaseline,
+    variant: supportingVariant,
+    verification: { baseline: arm("accept-all"), variant: arm("reject-all") }
+  };
+
+  return {
+    ...report,
+    experiment: {
+      ...report.experiment,
+      supportingPairs: [supportingPair],
+      evidence: { pairs: 2, counterbalanced: true, strength: "observed-difference" }
+    }
+  };
+}
+
 // ---------------------------------------------------------------------------
 // MUST-REJECT mutants for the r2 validator/evaluator slice. Each returns a
 // structurally plausible object whose single defect the next slice's
@@ -488,4 +531,61 @@ export function makeMissingResultMutantR2(): ScanRunV2R2 {
   delete stripped.result;
   consent.verificationObservations = [consent.verificationObservations[0], stripped];
   return run;
+}
+
+/** GPC facts claiming confirmed states from a phase with NO observed eligible
+ * first-party navigation (the run's only document request becomes a script;
+ * counts, quality, and diff are unaffected, so the missing navigation is the
+ * isolated defect). RFC 15.3: without one, both signals are "unobservable". */
+export function makeGpcUnobservedNavigationMutantR2(): PublicComparisonReportV2R2 {
+  const report = makeGpcInterventionReportV2R2();
+  report.variant.evidence.requests = report.variant.evidence.requests.map((request) => ({
+    ...request,
+    resourceType: "script"
+  }));
+  return report;
+}
+
+/** A consent-mode run with observations but NO consent-interaction phase: the
+ * observation phases collapse to passive-load + post-choice-reload. Built from
+ * the zero-observation run so the missing phase is the isolated defect (with
+ * observations present, every phase-tag rule would fire too). */
+export function makeConsentWithoutInteractionPhaseMutantR2(): ScanRunV2R2 {
+  const run = makeConsentUnavailableRunR2();
+  run.phases = [{ phaseId: 0, kind: "passive-load", startedAtMs: 0, endedAtMs: 5000 }];
+  return run;
+}
+
+/** A supporting pair whose variant run did not complete (HTTP 500 recorded in
+ * the quality facts and honestly derived through evaluateQuality, so the
+ * incomplete run is the isolated defect, never a quality-derivation
+ * disagreement). RFC 15.6: supporting pairs pass the SAME completeness gate
+ * as the primary. */
+export function makeSupportingPairIncompleteRunMutantR2(): PublicComparisonReportV2R2 {
+  const report = makeSupportingPairInterventionReportV2R2();
+  if (report.experiment.kind !== "intervention") throw new Error("fixture invariant");
+  const pair = report.experiment.supportingPairs![0];
+  pair.variant.qualityFacts = { ...pair.variant.qualityFacts, status: 500 };
+  pair.variant.summary = { ...pair.variant.summary, status: 500 };
+  pair.variant.quality = evaluateQuality(pair.variant.qualityFacts, {
+    observedRequests: pair.variant.evidence.requests.length
+  });
+  return report;
+}
+
+/** A consent supporting pair whose VARIANT run attempted a different strong
+ * interpreter than the primary (its arm strings are updated to what its own
+ * observations derive, so the cross-pair set mismatch is the isolated
+ * defect). RFC 15.4: every supporting run's set must equal the primary's. */
+export function makeSupportingPairInterpreterParityMutantR2(): PublicComparisonReportV2R2 {
+  const report = makeConsentSupportingPairReportV2R2();
+  if (report.experiment.kind !== "intervention") throw new Error("fixture invariant");
+  const pair = report.experiment.supportingPairs![0];
+  const consent = pair.variant.evidence.consent!;
+  consent.verificationObservations = consent.verificationObservations.map((observation) => ({
+    ...observation,
+    method: "tcf-api@1"
+  }));
+  pair.verification.variant = { ...pair.verification.variant, method: "tcf-api@1" };
+  return report;
 }

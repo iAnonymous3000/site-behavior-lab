@@ -20,19 +20,24 @@ import {
   makeConsentInterventionReportV2R2,
   makeConsentRunR2,
   makeConsentSingleReportV2R2,
+  makeConsentSupportingPairReportV2R2,
   makeConsentUnavailableRunR2,
+  makeConsentWithoutInteractionPhaseMutantR2,
   makeContradictedConsentRunR2,
   makeDescriptiveReportV2R2,
   makeDuplicateBannerMomentMutantR2,
   makeDuplicateSequenceMutantR2,
   makeFailedConsentRunR2,
   makeGpcInterventionReportV2R2,
+  makeGpcUnobservedNavigationMutantR2,
   makeInterpreterMismatchMutantR2,
   makeInvertedBannerChronologyMutantR2,
   makeMalformedResultBlockMutantR2,
   makeMissingResultMutantR2,
   makePublicSingleReportV2R2,
   makeShieldsInterventionReportV2R2,
+  makeSupportingPairIncompleteRunMutantR2,
+  makeSupportingPairInterpreterParityMutantR2,
   makeSupportingPairInterventionReportV2R2,
   makeTemporalReportV2R2,
   makeWeakSignalConsentRunR2
@@ -79,7 +84,8 @@ const VALID_FIXTURES: Array<[string, () => PublicScanReportV2R2]> = [
   ["consent intervention", makeConsentInterventionReportV2R2],
   ["temporal", makeTemporalReportV2R2],
   ["descriptive", makeDescriptiveReportV2R2],
-  ["supporting pair", makeSupportingPairInterventionReportV2R2]
+  ["supporting pair", makeSupportingPairInterventionReportV2R2],
+  ["consent supporting pair", makeConsentSupportingPairReportV2R2]
 ];
 
 test("every valid r2 fixture passes structural validation and has zero semantic violations", () => {
@@ -220,6 +226,30 @@ test("inverted banner chronology rejects via the chronology rule", () => {
 test("a missing result block rejects via the semantically-mandatory rule", () => {
   const violations = violationsOf(singleWith(makeMissingResultMutantR2()));
   assertSingleViolationPath(violations, "missing its r2 result block", "missing result");
+});
+
+test("GPC facts without an observed eligible first-party navigation reject", () => {
+  const violations = violationsOf(makeGpcUnobservedNavigationMutantR2());
+  assertSingleViolationPath(
+    violations,
+    "without an observed eligible first-party navigation",
+    "gpc unobserved navigation"
+  );
+});
+
+test("a consent-mode run without a consent-interaction phase rejects", () => {
+  const violations = violationsOf(singleWith(makeConsentWithoutInteractionPhaseMutantR2()));
+  assertSingleViolationPath(violations, "no consent-interaction phase", "missing consent-interaction phase");
+});
+
+test("a supporting pair with an incomplete run rejects via the completeness gate", () => {
+  const violations = violationsOf(makeSupportingPairIncompleteRunMutantR2());
+  assertSingleViolationPath(violations, "did not complete; the pair cannot support", "supporting run incomplete");
+});
+
+test("a supporting pair whose variant attempted a different interpreter rejects", () => {
+  const violations = violationsOf(makeSupportingPairInterpreterParityMutantR2());
+  assertSingleViolationPath(violations, "variant interpreter set does not match the primary pair", "supporting parity");
 });
 
 // ---------------------------------------------------------------------------
