@@ -200,7 +200,9 @@ export function readScanTransportPayload(payload: unknown): ScanTransportResult 
     return { kind: "api-error", message: typeof payload.error === "string" ? payload.error : "Scan failed." };
   }
 
-  if (typeof payload.jobId === "string" && (payload.status === "queued" || payload.status === "running")) {
+  // Async job envelopes (`/api/scan` 202 and `/api/scans/:id` polling).
+  if (payload.status === "queued" || payload.status === "running") {
+    if (typeof payload.jobId !== "string") return { kind: "unreadable", error: "invalid" };
     return {
       kind: "job-accepted",
       jobId: payload.jobId,
@@ -208,11 +210,25 @@ export function readScanTransportPayload(payload: unknown): ScanTransportResult 
       reportId: typeof payload.reportId === "string" ? payload.reportId : null
     };
   }
+  if (payload.status === "failed") {
+    return { kind: "api-error", message: typeof payload.error === "string" ? payload.error : "Scan failed." };
+  }
+  if (payload.status === "succeeded" && "report" in payload) {
+    // A completed poll wraps the report; unwrap exactly one level.
+    return readScanTransportPayload(payload.report);
+  }
 
   // Ephemeral v2 immediate result: a public shape plus the `ephemeral` block.
+  // A malformed shell must come back as unreadable, never as a thrown
+  // exception from inside the projector.
   if (payload.schemaVersion === 2 && "ephemeral" in payload) {
     if (!isEphemeralShell(payload)) return { kind: "unreadable", error: "invalid" };
-    const projected = toPublicScanReport(payload);
+    let projected: PublicScanReportV2;
+    try {
+      projected = toPublicScanReport(payload);
+    } catch {
+      return { kind: "unreadable", error: "invalid" };
+    }
     if (!isPublicScanReportV2(projected)) return { kind: "unreadable", error: "invalid" };
     const violations = scanReportV2SemanticViolations(projected);
     if (violations.length > 0) return { kind: "unreadable", error: "inconsistent", violations };

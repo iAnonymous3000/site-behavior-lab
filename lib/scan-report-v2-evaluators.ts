@@ -1,10 +1,11 @@
 /**
- * Shared evaluators for ScanReport v2 (docs/scan-report-v2-rfc.md, sections 4.4
- * and 5.3): quality is derived from recorded facts, comparability from the
- * runs, and the diff is rebuilt from the runs alone. Producers embed the
- * results, and the reader REJECTS reports whose derived blocks disagree with a
- * recomputation, so a producer (or a forged upload) cannot smuggle conclusions
- * the facts do not support.
+ * Shared evaluators for ScanReport v2 (docs/scan-report-v2-rfc.md, sections 3,
+ * 4.4, 5.3, 6, 7): quality derives from recorded facts, fingerprints from the
+ * run's own inputs, comparability from the runs, and the diff rebuilds from
+ * the runs alone. Producers embed these results, and the reader REJECTS any
+ * report whose derived blocks differ from a recomputation, byte for byte
+ * (reasons arrays and versions included), so neither a producer bug nor a
+ * forged upload can smuggle conclusions the facts do not support.
  *
  * Version discipline: these constants are the definitions of quality evaluator
  * "1", comparability evaluator "1", and metric dependency registry "1". Any
@@ -19,25 +20,27 @@ import {
   type Comparability,
   type ComparabilityReason,
   type ComparisonDiffV2,
+  type ConsentEvidence,
   type EvidenceFamily,
   type Experiment,
   type InterventionAxis,
   type MetricDelta,
   type MetricFamily,
-  type PublicComparisonReportV2,
+  type PhaseKind,
   type PublicScanReportV2,
   type Quality,
   type QualityFacts,
   type QualityReason,
   type ScanRunV2
 } from "./scan-report-v2";
+import { buildFingerprints } from "./scan-report-v2-fingerprints";
 
 export const QUALITY_EVALUATOR_VERSION = "1";
 export const COMPARABILITY_EVALUATOR_VERSION = "1";
 export const METRIC_REGISTRY_VERSION = "1";
 
 // ---------------------------------------------------------------------------
-// Quality (RFC 5.3): run-level validity from facts, family censoring from loss
+// Quality (RFC 5.3)
 // ---------------------------------------------------------------------------
 
 export function evaluateQuality(facts: QualityFacts): Quality {
@@ -45,18 +48,25 @@ export function evaluateQuality(facts: QualityFacts): Quality {
   if (facts.status !== null && facts.status >= 400) runReasons.push("http-error-status");
   if (facts.botWallTitleMatched) runReasons.push("bot-wall-title");
   if (!facts.navigationSettled) runReasons.push("navigation-timeout");
+  // Run-level validity comes from load failure only; budget exhaustion is
+  // recorded on the run and censors the families its capture-loss entries
+  // name, so it can never be silently absorbed.
+  const failed = runReasons.length > 0;
+  for (const budget of [...facts.budgetsExhausted].sort()) {
+    runReasons.push(`budget-exhausted:${budget}`);
+  }
 
   const byFamily = Object.fromEntries(
     EVIDENCE_FAMILIES.map((family) => {
       const losses = facts.captureLoss.filter((entry) => entry.family === family);
-      const reasons = losses.map((entry): QualityReason => `capture-loss:${entry.kind}`);
+      const reasons = losses.map((entry): QualityReason => `capture-loss:${entry.kind}`).sort();
       return [family, { outcome: losses.length > 0 ? ("censored" as const) : ("complete" as const), reasons }];
     })
   ) as Quality["byFamily"];
 
   return {
     evaluatorVersion: QUALITY_EVALUATOR_VERSION,
-    run: { outcome: runReasons.length > 0 ? "failed" : "complete", reasons: runReasons },
+    run: { outcome: failed ? "failed" : "complete", reasons: runReasons },
     byFamily
   };
 }
@@ -82,9 +92,15 @@ function baseEnvironmentMatches(a: ScanRunV2, b: ScanRunV2): boolean {
     a.conditions.device.viewport.width === b.conditions.device.viewport.width &&
     a.conditions.device.viewport.height === b.conditions.device.viewport.height &&
     a.conditions.device.viewport.isMobile === b.conditions.device.viewport.isMobile &&
+    a.conditions.probes.keystroke === b.conditions.probes.keystroke &&
+    a.conditions.probes.policyVisit === b.conditions.probes.policyVisit &&
     a.conditions.locale === b.conditions.locale &&
+    a.conditions.language === b.conditions.language &&
     a.conditions.timezone === b.conditions.timezone &&
     a.conditions.egress.label === b.conditions.egress.label &&
+    (a.conditions.egress.region ?? null) === (b.conditions.egress.region ?? null) &&
+    a.conditions.headless === b.conditions.headless &&
+    a.conditions.automation === b.conditions.automation &&
     a.provenance.methodologyVersion === b.provenance.methodologyVersion
   );
 }
@@ -131,14 +147,6 @@ function subjectsMatch(a: ScanRunV2, b: ScanRunV2): boolean {
   );
 }
 
-function designStructurallyValid(experiment: Experiment, baseline: ScanRunV2, variant: ScanRunV2): boolean {
-  if (experiment.kind === "temporal") return baseline.startedAt < variant.startedAt;
-  if (experiment.kind === "intervention") {
-    return interventionAxisDelta(baseline, variant) === experiment.axis;
-  }
-  return true;
-}
-
 /**
  * The single differing intervention axis between two condition vectors, or
  * null when zero or more than one axis differs (RFC 4.1: an intervention pair
@@ -159,7 +167,22 @@ export function evaluateComparability(
 ): Comparability {
   const pairReasons: ComparabilityReason[] = [];
   if (!subjectsMatch(baseline, variant)) pairReasons.push("subject-mismatch");
-  if (!designStructurallyValid(experiment, baseline, variant)) pairReasons.push("design-invalid");
+
+  // Design-specific invariants (RFC 4.1). Fingerprints are individually
+  // verified against recomputation per run before this evaluator's result is
+  // trusted, so equality on the stored values is sound here.
+  if (experiment.kind === "intervention") {
+    if (interventionAxisDelta(baseline, variant) !== experiment.axis) pairReasons.push("design-invalid");
+    if (baseline.fingerprints.measurementEnvironment !== variant.fingerprints.measurementEnvironment) {
+      pairReasons.push("dependency-digest-mismatch:measurementEnvironment");
+    }
+  } else if (experiment.kind === "temporal") {
+    if (!(baseline.startedAt < variant.startedAt)) pairReasons.push("design-invalid");
+    if (baseline.fingerprints.condition !== variant.fingerprints.condition) {
+      pairReasons.push("dependency-digest-mismatch:conditionFingerprint");
+    }
+  }
+
   if (baseline.quality.run.outcome !== "complete") pairReasons.push("run-failed:baseline");
   if (variant.quality.run.outcome !== "complete") pairReasons.push("run-failed:variant");
   const pairEligible = pairReasons.length === 0;
@@ -261,7 +284,7 @@ export function buildComparisonDiffV2(
 }
 
 // ---------------------------------------------------------------------------
-// Semantic validation (reject-on-read; RFC 4.3, 4.4, 5.3, 6.1, 7)
+// Semantic validation (reject-on-read)
 // ---------------------------------------------------------------------------
 
 function isCanonicalIsoTimestamp(value: string): boolean {
@@ -281,30 +304,224 @@ const CONSENT_CHOICE_TO_ARM_OUTCOME: Record<string, ArmVerification["outcome"]> 
   unavailable: "inconclusive"
 };
 
-function runViolations(run: ScanRunV2, label: string): string[] {
+type DerivedCounts = {
+  totalRequests: number;
+  thirdPartyRequests: number;
+  knownTrackerRequests: number;
+  thirdPartyDomains: number;
+  shieldsBlocked: number;
+  cookies: number;
+  thirdPartyCookies: number;
+  storageEntries: number;
+  fingerprintEvents: number;
+  byPhase: Map<number, { totalRequests: number; thirdPartyRequests: number; knownTrackerRequests: number }>;
+};
+
+function deriveCounts(run: ScanRunV2): DerivedCounts {
+  const byPhase = new Map<number, { totalRequests: number; thirdPartyRequests: number; knownTrackerRequests: number }>();
+  const thirdPartyDomains = new Set<string>();
+  let thirdPartyRequests = 0;
+  let knownTrackerRequests = 0;
+  let shieldsBlocked = 0;
+  for (const request of run.evidence.requests) {
+    const phase = byPhase.get(request.phaseId) ?? { totalRequests: 0, thirdPartyRequests: 0, knownTrackerRequests: 0 };
+    phase.totalRequests += 1;
+    if (request.thirdParty) {
+      thirdPartyRequests += 1;
+      thirdPartyDomains.add(request.domain);
+      phase.thirdPartyRequests += 1;
+    }
+    if (request.tracker !== null) {
+      knownTrackerRequests += 1;
+      phase.knownTrackerRequests += 1;
+    }
+    if (request.blockedByShields === true) shieldsBlocked += 1;
+    byPhase.set(request.phaseId, phase);
+  }
+  return {
+    totalRequests: run.evidence.requests.length,
+    thirdPartyRequests,
+    knownTrackerRequests,
+    thirdPartyDomains: thirdPartyDomains.size,
+    shieldsBlocked,
+    cookies: run.evidence.cookiesFinal.length,
+    thirdPartyCookies: run.evidence.cookiesFinal.filter((cookie) => cookie.thirdParty).length,
+    storageEntries: run.evidence.storageFinal.length,
+    fingerprintEvents: run.evidence.fingerprintEvents.reduce((total, event) => total + event.count, 0),
+    byPhase
+  };
+}
+
+/** Exact when the family is uncensored; a lower bound once evidence was cut. */
+function countConsistent(summaryValue: number, derivedValue: number, censored: boolean): boolean {
+  return censored ? summaryValue >= derivedValue : summaryValue === derivedValue;
+}
+
+function summaryViolations(run: ScanRunV2, derivedQuality: Quality, label: string): string[] {
   const violations: string[] = [];
-  if (!isCanonicalIsoTimestamp(run.startedAt)) violations.push(`${label}: startedAt is not a canonical ISO timestamp`);
-  for (const span of run.phases) {
-    if (span.startedAtMs > span.endedAtMs) violations.push(`${label}: phase ${span.phaseId} ends before it starts`);
+  const derived = deriveCounts(run);
+  const counts = run.summary.counts;
+  const requestsCensored = derivedQuality.byFamily.requests.outcome === "censored";
+  const cookiesCensored = derivedQuality.byFamily.cookies.outcome === "censored";
+  const storageCensored = derivedQuality.byFamily.storage.outcome === "censored";
+  const fingerprintingCensored = derivedQuality.byFamily.fingerprinting.outcome === "censored";
+
+  const checks: Array<[string, number, number, boolean]> = [
+    ["totalRequests", counts.totalRequests, derived.totalRequests, requestsCensored],
+    ["thirdPartyRequests", counts.thirdPartyRequests, derived.thirdPartyRequests, requestsCensored],
+    ["knownTrackerRequests", counts.knownTrackerRequests, derived.knownTrackerRequests, requestsCensored],
+    ["thirdPartyDomains", counts.thirdPartyDomains, derived.thirdPartyDomains, requestsCensored],
+    ["cookies", counts.cookies, derived.cookies, cookiesCensored],
+    ["thirdPartyCookies", counts.thirdPartyCookies, derived.thirdPartyCookies, cookiesCensored],
+    ["storageEntries", counts.storageEntries, derived.storageEntries, storageCensored],
+    ["fingerprintEvents", counts.fingerprintEvents, derived.fingerprintEvents, fingerprintingCensored]
+  ];
+  for (const [field, summaryValue, derivedValue, censored] of checks) {
+    if (!countConsistent(summaryValue, derivedValue, censored)) {
+      violations.push(`${label}: summary.counts.${field} does not reconcile with the evidence`);
+    }
   }
-  const derived = evaluateQuality(run.qualityFacts);
-  if (run.quality.run.outcome !== derived.run.outcome) {
-    violations.push(`${label}: quality.run.outcome disagrees with qualityFacts`);
+
+  if (counts.shieldsBlockedRequests !== undefined) {
+    if (!countConsistent(counts.shieldsBlockedRequests, derived.shieldsBlocked, requestsCensored)) {
+      violations.push(`${label}: summary.counts.shieldsBlockedRequests does not reconcile with the evidence`);
+    }
+  } else if (derived.shieldsBlocked > 0) {
+    violations.push(`${label}: requests carry blockedByShields but the summary omits shieldsBlockedRequests`);
   }
-  for (const family of EVIDENCE_FAMILIES) {
-    if (run.quality.byFamily[family].outcome !== derived.byFamily[family].outcome) {
-      violations.push(`${label}: quality.byFamily.${family} disagrees with qualityFacts`);
+
+  for (const entry of run.summary.countsByPhase) {
+    const derivedPhase = derived.byPhase.get(entry.phaseId) ?? { totalRequests: 0, thirdPartyRequests: 0, knownTrackerRequests: 0 };
+    if (
+      !countConsistent(entry.totalRequests, derivedPhase.totalRequests, requestsCensored) ||
+      !countConsistent(entry.thirdPartyRequests, derivedPhase.thirdPartyRequests, requestsCensored) ||
+      !countConsistent(entry.knownTrackerRequests, derivedPhase.knownTrackerRequests, requestsCensored)
+    ) {
+      violations.push(`${label}: countsByPhase for phase ${entry.phaseId} does not reconcile with the evidence`);
     }
   }
   return violations;
 }
 
-function armViolations(
-  arm: ArmVerification,
-  run: ScanRunV2,
-  axis: InterventionAxis,
-  label: string
-): string[] {
+const ACTIVE_DETECTOR_STATUSES = new Set(["complete", "partial"]);
+
+function detectorViolations(run: ScanRunV2, label: string): string[] {
+  const violations: string[] = [];
+  const detectors = run.detectors;
+
+  if (!run.conditions.probes.keystroke && ACTIVE_DETECTOR_STATUSES.has(detectors["keystroke-exfiltration"].status)) {
+    violations.push(`${label}: keystroke detector reports activity but the keystroke probe condition is off`);
+  }
+  if (!run.conditions.probes.policyVisit && ACTIVE_DETECTOR_STATUSES.has(detectors["privacy-policy"].status)) {
+    violations.push(`${label}: privacy-policy detector reports activity but the policy-visit probe condition is off`);
+  }
+  const evidenceRequirements: Array<[boolean, string, string]> = [
+    [run.evidence.fingerprintDetections.some((d) => d.kind === "keystroke-exfiltration"), "keystroke-exfiltration", "keystroke findings"],
+    [run.evidence.cnameCloaks.length > 0, "cname-uncloaking", "CNAME findings"],
+    [run.evidence.pixelEvents.length > 0, "pixel-events", "pixel findings"],
+    [run.evidence.privacyPolicy !== undefined, "privacy-policy", "a policy summary"],
+    [
+      run.evidence.fingerprintDetections.some((d) => d.kind !== "keystroke-exfiltration") ||
+        run.evidence.fingerprintEvents.length > 0,
+      "fingerprint-heuristics",
+      "fingerprint observations"
+    ]
+  ];
+  for (const [present, detectorId, what] of evidenceRequirements) {
+    if (present && !ACTIVE_DETECTOR_STATUSES.has(detectors[detectorId as keyof typeof detectors].status)) {
+      violations.push(`${label}: evidence contains ${what} but the ${detectorId} detector did not report activity`);
+    }
+  }
+  return violations;
+}
+
+function phaseKindAt(run: ScanRunV2, phaseId: number): PhaseKind | null {
+  return run.phases[phaseId]?.kind ?? null;
+}
+
+function consentViolations(run: ScanRunV2, label: string): string[] {
+  const violations: string[] = [];
+  const consent = run.evidence.consent;
+
+  if (run.conditions.consent === "observe") {
+    if (consent !== undefined) violations.push(`${label}: consent evidence present on an observe-mode run`);
+    return violations;
+  }
+  if (consent === undefined) return violations;
+
+  if (consent.mode !== run.conditions.consent) {
+    violations.push(`${label}: consent evidence mode disagrees with the run's consent condition`);
+  }
+  if (!consent.interactionAttempted && consent.controlActivated) {
+    violations.push(`${label}: a control was activated without an interaction attempt`);
+  }
+  if (!ACTIVE_DETECTOR_STATUSES.has(run.detectors["consent-banner"].status)) {
+    violations.push(`${label}: consent evidence present but the consent-banner detector did not report activity`);
+  }
+
+  const observations = consent.verificationObservations;
+  const anyContradiction = observations.some((observation) => observation.consistentWithChoice === false);
+  const consistentInInteraction = observations.some(
+    (observation) => observation.consistentWithChoice === true && phaseKindAt(run, observation.phaseId) === "consent-interaction"
+  );
+  const consistentInReload = observations.some(
+    (observation) => observation.consistentWithChoice === true && phaseKindAt(run, observation.phaseId) === "post-choice-reload"
+  );
+
+  if (consent.reverifiedAfterReload !== consistentInReload) {
+    violations.push(`${label}: reverifiedAfterReload disagrees with the recorded observations`);
+  }
+  if (anyContradiction && consent.choiceState !== "contradicted") {
+    violations.push(`${label}: a contradicting observation exists but choiceState is not contradicted`);
+  }
+  if (consent.choiceState === "verified") {
+    if (!consent.controlActivated) violations.push(`${label}: choiceState verified without an activated control`);
+    if (anyContradiction || !consistentInInteraction || !consistentInReload) {
+      violations.push(`${label}: choiceState verified is not supported by the recorded observations`);
+    }
+  }
+  if (observations.length === 0 && (consent.choiceState === "verified" || consent.choiceState === "contradicted")) {
+    violations.push(`${label}: choiceState claims interpreter evidence but no observations were recorded`);
+  }
+  return violations;
+}
+
+function runViolations(run: ScanRunV2, label: string): string[] {
+  const violations: string[] = [];
+  if (!isCanonicalIsoTimestamp(run.startedAt)) violations.push(`${label}: startedAt is not a canonical ISO timestamp`);
+
+  for (const [index, span] of run.phases.entries()) {
+    if (span.startedAtMs > span.endedAtMs) violations.push(`${label}: phase ${span.phaseId} ends before it starts`);
+    if (index > 0 && span.startedAtMs < run.phases[index - 1].endedAtMs) {
+      violations.push(`${label}: phase ${span.phaseId} starts before phase ${index - 1} ends`);
+    }
+  }
+
+  // Fingerprints are recomputed, never trusted (RFC 3.2).
+  const rebuiltFingerprints = buildFingerprints({
+    conditions: run.conditions,
+    provenance: run.provenance,
+    toolchain: run.toolchain,
+    detectors: run.detectors
+  });
+  if (!deepEqualJson(run.fingerprints, rebuiltFingerprints)) {
+    violations.push(`${label}: fingerprints do not match a recomputation from the run's own inputs`);
+  }
+
+  // Quality must equal the shared evaluator's output exactly, reasons and
+  // version included.
+  const derivedQuality = evaluateQuality(run.qualityFacts);
+  if (!deepEqualJson(run.quality, derivedQuality)) {
+    violations.push(`${label}: quality does not equal the shared evaluator's output`);
+  }
+
+  violations.push(...summaryViolations(run, derivedQuality, label));
+  violations.push(...detectorViolations(run, label));
+  violations.push(...consentViolations(run, label));
+  return violations;
+}
+
+function armViolations(arm: ArmVerification, run: ScanRunV2, axis: InterventionAxis, label: string): string[] {
   const violations: string[] = [];
   if (arm.axis !== axis) violations.push(`${label}: arm axis ${arm.axis} differs from experiment axis ${axis}`);
   if (arm.expected !== axisStateFor(axis, run.conditions)) {
@@ -339,28 +556,17 @@ export function scanReportV2SemanticViolations(report: PublicScanReportV2): stri
 
   const experiment = report.experiment;
   if (experiment.kind === "intervention") {
-    if (interventionAxisDelta(report.baseline, report.variant) !== experiment.axis) {
-      violations.push("experiment: condition vectors do not differ in exactly the declared axis");
-    }
     violations.push(
       ...armViolations(experiment.verification.baseline, report.baseline, experiment.axis, "baseline arm"),
       ...armViolations(experiment.verification.variant, report.variant, experiment.axis, "variant arm")
     );
   }
 
+  // The whole comparability block must equal the shared evaluator's output:
+  // eligibility, reasons, interventionVerified, and versions alike.
   const derived = evaluateComparability(experiment, report.baseline, report.variant);
-  if (report.comparability.pairValidity.eligible !== derived.pairValidity.eligible) {
-    violations.push("comparability: pairValidity disagrees with the shared evaluator");
-  }
-  for (const family of METRIC_FAMILIES) {
-    if (report.comparability.perMetric[family].eligible !== derived.perMetric[family].eligible) {
-      violations.push(`comparability: perMetric.${family} disagrees with the shared evaluator`);
-    }
-  }
-  if (experiment.kind === "intervention") {
-    if (report.comparability.interventionVerified !== derived.interventionVerified) {
-      violations.push("comparability: interventionVerified disagrees with the arm outcomes");
-    }
+  if (!deepEqualJson(report.comparability, derived)) {
+    violations.push("comparability: does not equal the shared evaluator's output");
   }
 
   const rebuiltDiff = buildComparisonDiffV2(report.baseline, report.variant, report.comparability.perMetric);

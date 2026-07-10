@@ -15,6 +15,10 @@ import {
 import { isPublicComparisonReportV2, isPublicScanReportV2, isPublicSingleReportV2 } from "./scan-report-v2-validation";
 import { readStoredScanReport } from "./scan-report-reader";
 import { readScanTransportPayload, toReportView } from "./scan-report-view";
+import { evaluateComparability, evaluateQuality } from "./scan-report-v2-evaluators";
+import { buildFingerprints } from "./scan-report-v2-fingerprints";
+import { makeScanRunV2 } from "./scan-report-v2-fixtures";
+import { sha256Hex } from "./sha256";
 
 function mutate<T>(fixture: T, apply: (draft: T) => void): T {
   const draft = structuredClone(fixture);
@@ -154,7 +158,7 @@ test("a forged interventionVerified reads as inconsistent", () => {
   assert.equal(read.ok, false);
   if (!read.ok) {
     assert.equal(read.error, "inconsistent");
-    assert.equal(read.violations?.some((entry) => entry.includes("interventionVerified")), true);
+    assert.equal(read.violations?.some((entry) => entry.includes("comparability")), true);
   }
 });
 
@@ -221,4 +225,154 @@ test("ephemeral screenshots survive only the immediate result, never the public 
   assert.equal(JSON.stringify(result.loaded.public).includes("ephemeral"), false);
   assert.equal(isPublicScanReportV2(result.loaded.public), true);
   assert.equal(isPublicScanReportV2(result.loaded.wire), false);
+});
+
+// ---------------------------------------------------------------------------
+// Integrity foundation (2026-07-09 follow-up review)
+// ---------------------------------------------------------------------------
+
+test("sha256 matches known vectors", () => {
+  assert.equal(sha256Hex(""), "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+  assert.equal(sha256Hex("abc"), "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+});
+
+test("a forged fingerprint reads as inconsistent", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.fingerprints.measurementEnvironment = "f".repeat(64);
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) {
+    assert.equal(read.error, "inconsistent");
+    assert.equal(read.violations?.some((entry) => entry.includes("fingerprints")), true);
+  }
+});
+
+test("tampered summary counts no longer reconcile with the evidence", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.summary.counts.totalRequests = 12; // evidence records one request
+    draft.run.summary.countsByPhase[0].totalRequests = 12;
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) {
+    assert.equal(read.error, "inconsistent");
+    assert.equal(read.violations?.some((entry) => entry.includes("reconcile")), true);
+  }
+});
+
+test("budget exhaustion must surface in quality", () => {
+  const facts = { ...makeScanRunV2().qualityFacts, budgetsExhausted: ["keystroke-probe"] };
+  const derived = evaluateQuality(facts);
+  assert.equal(derived.run.reasons.includes("budget-exhausted:keystroke-probe"), true);
+
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.qualityFacts.budgetsExhausted = ["keystroke-probe"];
+    // quality left untouched: the silent absorption the review flagged.
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.equal(read.error, "inconsistent");
+});
+
+test("overlapping phase spans read as inconsistent", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.phases = [
+      { phaseId: 0, kind: "passive-load", startedAtMs: 0, endedAtMs: 5000 },
+      { phaseId: 1, kind: "active-probe", startedAtMs: 4000, endedAtMs: 6000 } // overlaps phase 0
+    ];
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.equal(read.error, "inconsistent");
+});
+
+test("a detector reporting activity for a disabled probe reads as inconsistent", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.detectors["keystroke-exfiltration"] = { version: "1", status: "complete" };
+    // probes.keystroke stays false.
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.equal(read.error, "inconsistent");
+});
+
+test("consent evidence on an observe-mode run reads as inconsistent", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    (draft.run.evidence as AnyRecord).consent = {
+      mode: "reject-all",
+      interactionAttempted: true,
+      controlActivated: true,
+      verificationObservations: [],
+      choiceState: "weak-signal",
+      reverifiedAfterReload: false
+    };
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.equal(read.error, "inconsistent");
+});
+
+test("temporal eligibility requires equal condition fingerprints", () => {
+  const baseline = makeScanRunV2({ runId: "a", startedAt: "2026-06-18T10:00:00.000Z" });
+  const variant = makeScanRunV2({ runId: "b", shields: "block-simulation" }); // a different condition vector
+  const comparability = evaluateComparability({ kind: "temporal", pairId: "p" }, baseline, variant);
+  assert.equal(comparability.pairValidity.eligible, false);
+  assert.equal(comparability.pairValidity.reasons.includes("dependency-digest-mismatch:conditionFingerprint"), true);
+});
+
+test("intervention eligibility requires equal measurement-environment fingerprints", () => {
+  const baseline = makeScanRunV2({ runId: "a" });
+  const variant = makeScanRunV2({ runId: "b", startedAt: "2026-07-09T10:01:00.000Z", shields: "block-simulation" });
+  variant.conditions.locale = "de-DE"; // environment drift beyond the declared axis
+  // Re-mint the fingerprints as a correct producer would; the drift must
+  // surface through the fingerprint invariant, not a stale-digest violation.
+  variant.fingerprints = buildFingerprints({
+    conditions: variant.conditions,
+    provenance: variant.provenance,
+    toolchain: variant.toolchain,
+    detectors: variant.detectors
+  });
+  const comparability = evaluateComparability(
+    {
+      kind: "intervention",
+      axis: "shields",
+      pairId: "p",
+      order: "AB",
+      verification: {
+        baseline: { axis: "shields", expected: "shields:classification", observed: "shields:classification", method: "shields-engine-status@1", outcome: "passed", phaseId: 0 },
+        variant: { axis: "shields", expected: "shields:block-simulation", observed: "shields:block-simulation", method: "shields-engine-status@1", outcome: "passed", phaseId: 0 }
+      },
+      evidence: { pairs: 1, counterbalanced: false, strength: "observed-difference" }
+    },
+    baseline,
+    variant
+  );
+  assert.equal(comparability.pairValidity.eligible, false);
+  assert.equal(comparability.pairValidity.reasons.includes("dependency-digest-mismatch:measurementEnvironment"), true);
+});
+
+test("a malformed ephemeral payload returns unreadable instead of throwing", () => {
+  const result = readScanTransportPayload({
+    schemaVersion: 2,
+    schemaRevision: 1,
+    reportType: "single",
+    run: { runId: "not-a-real-run" },
+    ephemeral: { screenshot: null }
+  });
+  assert.deepEqual(result, { kind: "unreadable", error: "invalid" });
+});
+
+test("async polling envelopes unwrap without payload.ok sniffing", () => {
+  const succeeded = readScanTransportPayload({ status: "succeeded", report: makeScanReportV1() });
+  assert.equal(succeeded.kind, "report");
+  if (succeeded.kind === "report") assert.equal(succeeded.loaded.source, "v1");
+
+  assert.deepEqual(readScanTransportPayload({ status: "failed", error: "target unreachable" }), {
+    kind: "api-error",
+    message: "target unreachable"
+  });
+
+  const running = readScanTransportPayload({ status: "running", jobId: "job-9" });
+  assert.equal(running.kind, "job-accepted");
 });

@@ -1,27 +1,81 @@
 /**
  * Deterministic ScanReport v2 r1 fixtures (docs/scan-report-v2-rfc.md).
- * Shared by the runtime-validator tests today and the JSON Schema differential
- * harness (RFC 10.3) once the generated schema lands: both must accept every
- * valid fixture and reject every mutant, so keep builders here rather than
- * inline in one test file.
+ * Shared by the runtime-validator tests and the JSON Schema differential
+ * harness: both must accept every valid fixture and reject every mutant.
+ *
+ * Derived blocks are built BY THE SHARED EVALUATORS (fingerprints, quality,
+ * comparability, diff), never hand-written, so fixtures are internally
+ * consistent by construction, exactly as a correct producer would emit them.
  */
 import type { ScanReport } from "./types";
 import type {
   ArmVerification,
   DetectorLedger,
   EphemeralSingleReport,
-  Experiment,
   PublicComparisonReportV2,
   PublicSingleReportV2,
+  QualityFacts,
   ScanRunV2
 } from "./scan-report-v2";
-import { DETECTOR_IDS } from "./scan-report-v2";
-import { buildComparisonDiffV2 } from "./scan-report-v2-evaluators";
+import { buildComparisonDiffV2, evaluateComparability, evaluateQuality } from "./scan-report-v2-evaluators";
+import { buildFingerprints } from "./scan-report-v2-fingerprints";
 
-export function makeScanRunV2(overrides: { runId?: string; startedAt?: string; shields?: ScanRunV2["conditions"]["shields"] } = {}): ScanRunV2 {
-  const detectors = Object.fromEntries(
-    DETECTOR_IDS.map((id) => [id, { version: "1", status: "complete" as const }])
-  ) as DetectorLedger;
+export function makeScanRunV2(
+  overrides: { runId?: string; startedAt?: string; shields?: ScanRunV2["conditions"]["shields"] } = {}
+): ScanRunV2 {
+  const detectors: DetectorLedger = {
+    "fingerprint-heuristics": { version: "1", status: "complete" },
+    // The probe conditions below are off, so their detectors must not report
+    // activity (enforced by the semantic evaluator).
+    "keystroke-exfiltration": { version: "1", status: "skipped", reason: "probe-disabled" },
+    "cname-uncloaking": { version: "1", status: "complete" },
+    "pixel-events": { version: "1", status: "complete" },
+    "consent-banner": { version: "1", status: "complete" },
+    "privacy-policy": { version: "1", status: "skipped", reason: "probe-disabled" }
+  };
+
+  const conditions: ScanRunV2["conditions"] = {
+    gpc: true,
+    shields: overrides.shields ?? "classification",
+    consent: "observe",
+    device: { kind: "desktop", viewport: { width: 1440, height: 980, isMobile: false } },
+    probes: { keystroke: false, policyVisit: false },
+    locale: "en-US",
+    language: "en-US",
+    timezone: "UTC",
+    egress: { label: "test", region: "us" },
+    browser: { name: "chromium", version: "126.0.0.0" },
+    headless: true,
+    automation: "playwright-chromium"
+  };
+
+  const provenance: ScanRunV2["provenance"] = {
+    observer: "node-playwright",
+    acquisition: "operator-cli",
+    buildCommit: "f".repeat(40),
+    methodologyVersion: "2.0",
+    detectorRegistry: { version: "1", digest: "d".repeat(64) }
+  };
+
+  const toolchain: ScanRunV2["toolchain"] = {
+    trackerCatalog: { source: "test", version: "1", entries: 128, digest: "a".repeat(64) },
+    adblock: {
+      source: "brave",
+      lists: 31,
+      fetchedAt: "2026-07-01T00:00:00.000Z",
+      manifestDigest: "b".repeat(64),
+      engineVersion: "0.9.0"
+    },
+    normalizationVersion: "1"
+  };
+
+  const qualityFacts: QualityFacts = {
+    status: 200,
+    botWallTitleMatched: false,
+    navigationSettled: true,
+    budgetsExhausted: [],
+    captureLoss: []
+  };
 
   return {
     runId: overrides.runId ?? "run-baseline",
@@ -30,58 +84,12 @@ export function makeScanRunV2(overrides: { runId?: string; startedAt?: string; s
       requested: { origin: "https://shop.example.com", registrableDomain: "example.com", routeShape: "/products/{seg}" },
       observed: { origin: "https://shop.example.com", registrableDomain: "example.com", routeShape: "/products/{seg}" }
     },
-    conditions: {
-      gpc: true,
-      shields: overrides.shields ?? "classification",
-      consent: "observe",
-      device: { kind: "desktop", viewport: { width: 1440, height: 980, isMobile: false } },
-      probes: { keystroke: false, policyVisit: false },
-      locale: "en-US",
-      language: "en-US",
-      timezone: "UTC",
-      egress: { label: "test", region: "us" },
-      browser: { name: "chromium", version: "126.0.0.0" },
-      headless: true,
-      automation: "playwright-chromium"
-    },
-    provenance: {
-      observer: "node-playwright",
-      acquisition: "operator-cli",
-      buildCommit: "f".repeat(40),
-      methodologyVersion: "2.0",
-      detectorRegistry: { version: "1", digest: "d".repeat(64) }
-    },
-    toolchain: {
-      trackerCatalog: { source: "test", version: "1", entries: 128, digest: "a".repeat(64) },
-      adblock: {
-        source: "brave",
-        lists: 31,
-        fetchedAt: "2026-07-01T00:00:00.000Z",
-        manifestDigest: "b".repeat(64),
-        engineVersion: "0.9.0"
-      },
-      normalizationVersion: "1"
-    },
-    fingerprints: { execution: "e".repeat(64), measurementEnvironment: "m".repeat(64), condition: "c".repeat(64) },
-    qualityFacts: {
-      status: 200,
-      botWallTitleMatched: false,
-      navigationSettled: true,
-      budgetsExhausted: [],
-      captureLoss: []
-    },
-    quality: {
-      evaluatorVersion: "1",
-      run: { outcome: "complete", reasons: [] },
-      byFamily: {
-        requests: { outcome: "complete", reasons: [] },
-        cookies: { outcome: "complete", reasons: [] },
-        storage: { outcome: "complete", reasons: [] },
-        fingerprinting: { outcome: "complete", reasons: [] },
-        "detector-output": { outcome: "complete", reasons: [] },
-        "consent-verification": { outcome: "complete", reasons: [] }
-      }
-    },
+    conditions,
+    provenance,
+    toolchain,
+    fingerprints: buildFingerprints({ conditions, provenance, toolchain, detectors }),
+    qualityFacts,
+    quality: evaluateQuality(qualityFacts),
     privacy: {
       redactionVersion: 2,
       redaction: {
@@ -100,17 +108,18 @@ export function makeScanRunV2(overrides: { runId?: string; startedAt?: string; s
       pageTitle: "Example Shop",
       status: 200,
       durationMs: 5000,
+      // Reconciled with the evidence below (one first-party document request).
       counts: {
-        totalRequests: 12,
-        thirdPartyRequests: 4,
-        knownTrackerRequests: 2,
-        thirdPartyDomains: 2,
-        cookies: 1,
+        totalRequests: 1,
+        thirdPartyRequests: 0,
+        knownTrackerRequests: 0,
+        thirdPartyDomains: 0,
+        cookies: 0,
         thirdPartyCookies: 0,
-        storageEntries: 1,
+        storageEntries: 0,
         fingerprintEvents: 0
       },
-      countsByPhase: [{ phaseId: 0, totalRequests: 12, thirdPartyRequests: 4, knownTrackerRequests: 2 }]
+      countsByPhase: [{ phaseId: 0, totalRequests: 1, thirdPartyRequests: 0, knownTrackerRequests: 0 }]
     },
     evidence: {
       requests: [
@@ -134,7 +143,7 @@ export function makeScanRunV2(overrides: { runId?: string; startedAt?: string; s
       fingerprintEvents: [],
       fingerprintDetections: [],
       cnameCloaks: [],
-      pixelEvents: [],
+      pixelEvents: []
     },
     warnings: []
   };
@@ -142,6 +151,10 @@ export function makeScanRunV2(overrides: { runId?: string; startedAt?: string; s
 
 export function makePublicSingleReportV2(): PublicSingleReportV2 {
   return { schemaVersion: 2, schemaRevision: 1, reportType: "single", run: makeScanRunV2() };
+}
+
+export function makeEphemeralSingleReport(): EphemeralSingleReport {
+  return { ...makePublicSingleReportV2(), ephemeral: { screenshot: "data:image/png;base64,AAAA" } };
 }
 
 /** Minimal well-formed FROZEN v1 single report, for reader/view coverage. */
@@ -192,10 +205,6 @@ export function makeScanReportV1(): ScanReport {
   };
 }
 
-export function makeEphemeralSingleReport(): EphemeralSingleReport {
-  return { ...makePublicSingleReportV2(), ephemeral: { screenshot: "data:image/png;base64,AAAA" } };
-}
-
 function makeArmVerification(overrides: Partial<ArmVerification> = {}): ArmVerification {
   return {
     axis: "shields",
@@ -208,44 +217,29 @@ function makeArmVerification(overrides: Partial<ArmVerification> = {}): ArmVerif
   };
 }
 
-function makeComparability(experimentKind: Experiment["kind"]): PublicComparisonReportV2["comparability"] {
-  return {
-    evaluatorVersion: "1",
-    metricRegistryVersion: "1",
-    pairValidity: { eligible: true, reasons: [] },
-    perMetric: {
-      "raw-counts": { eligible: true, reasons: [] },
-      "tracker-classification": { eligible: true, reasons: [] },
-      "shields-simulation": { eligible: true, reasons: [] },
-      "consent-verification": { eligible: true, reasons: [] },
-      "detector-findings": { eligible: true, reasons: [] }
-    },
-    ...(experimentKind === "intervention" ? { interventionVerified: true } : {})
-  };
-}
-
 /** RFC example 12.1: Shields off/on while GPC stays enabled. */
 export function makeInterventionComparisonReportV2(): PublicComparisonReportV2 {
   const baseline = makeScanRunV2({ runId: "run-baseline", shields: "classification" });
   const variant = makeScanRunV2({ runId: "run-variant", startedAt: "2026-07-09T10:01:00.000Z", shields: "block-simulation" });
-  const comparability = makeComparability("intervention");
+  const experiment: PublicComparisonReportV2["experiment"] = {
+    kind: "intervention",
+    axis: "shields",
+    pairId: "pair-shields",
+    order: "AB",
+    verification: {
+      baseline: makeArmVerification(),
+      variant: makeArmVerification({ expected: "shields:block-simulation", observed: "shields:block-simulation" })
+    },
+    evidence: { pairs: 1, counterbalanced: false, strength: "observed-difference" }
+  };
+  const comparability = evaluateComparability(experiment, baseline, variant);
   return {
     schemaVersion: 2,
     schemaRevision: 1,
     reportType: "comparison",
     baseline,
     variant,
-    experiment: {
-      kind: "intervention",
-      axis: "shields",
-      pairId: "pair-shields",
-      order: "AB",
-      verification: {
-        baseline: makeArmVerification(),
-        variant: makeArmVerification({ expected: "shields:block-simulation", observed: "shields:block-simulation" })
-      },
-      evidence: { pairs: 1, counterbalanced: false, strength: "observed-difference" }
-    },
+    experiment,
     comparability,
     diff: buildComparisonDiffV2(baseline, variant, comparability.perMetric)
   };
@@ -255,14 +249,15 @@ export function makeInterventionComparisonReportV2(): PublicComparisonReportV2 {
 export function makeTemporalComparisonReportV2(): PublicComparisonReportV2 {
   const baseline = makeScanRunV2({ runId: "run-earlier", startedAt: "2026-06-18T10:00:00.000Z" });
   const variant = makeScanRunV2({ runId: "run-later", startedAt: "2026-07-09T10:00:00.000Z" });
-  const comparability = makeComparability("temporal");
+  const experiment: PublicComparisonReportV2["experiment"] = { kind: "temporal", pairId: "pair-temporal" };
+  const comparability = evaluateComparability(experiment, baseline, variant);
   return {
     schemaVersion: 2,
     schemaRevision: 1,
     reportType: "comparison",
     baseline,
     variant,
-    experiment: { kind: "temporal", pairId: "pair-temporal" },
+    experiment,
     comparability,
     diff: buildComparisonDiffV2(baseline, variant, comparability.perMetric)
   };
@@ -271,15 +266,20 @@ export function makeTemporalComparisonReportV2(): PublicComparisonReportV2 {
 /** RFC example 12.4: descriptive upload, never causal. */
 export function makeDescriptiveComparisonReportV2(): PublicComparisonReportV2 {
   const baseline = makeScanRunV2({ runId: "run-a" });
-  const variant = makeScanRunV2({ runId: "run-b" });
-  const comparability = makeComparability("descriptive");
+  const variant = makeScanRunV2({ runId: "run-b", startedAt: "2026-07-09T10:02:00.000Z" });
+  const experiment: PublicComparisonReportV2["experiment"] = {
+    kind: "descriptive",
+    pairId: "pair-descriptive",
+    sourceOrder: "as-provided"
+  };
+  const comparability = evaluateComparability(experiment, baseline, variant);
   return {
     schemaVersion: 2,
     schemaRevision: 1,
     reportType: "comparison",
     baseline,
     variant,
-    experiment: { kind: "descriptive", pairId: "pair-descriptive", sourceOrder: "as-provided" },
+    experiment,
     comparability,
     diff: buildComparisonDiffV2(baseline, variant, comparability.perMetric)
   };
