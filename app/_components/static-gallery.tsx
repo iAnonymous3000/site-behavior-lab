@@ -377,7 +377,10 @@ function StaticReportGallery({
             <option value="newest">Newest</option>
             <option value="domain">Domain</option>
             <option value="thirdParty">Most third-party</option>
-            <option value="trackers">Most trackers</option>
+            {/* Sorts on summary.knownTrackerRequests, which counts every catalog
+                match including operational-only services, so the label says
+                "catalogued services", never "trackers". */}
+            <option value="trackers">Most catalogued services</option>
           </select>
         </label>
       </div>
@@ -548,7 +551,7 @@ function staticReportOptionLabel(report: StaticReportManifestEntry): string {
 function staticReportCardLabel(report: StaticReportManifestEntry): string {
   const parts = [
     plural(report.metrics.thirdPartyRequests, "third-party request"),
-    plural(report.metrics.knownTrackerRequests, "known tracker request"),
+    plural(report.metrics.knownTrackerRequests, "catalogued service request"),
     plural(report.metrics.thirdPartyDomains, "third-party domain")
   ];
   if (report.comparisonType === "shields" && (report.metrics.shieldsBlockedRequests ?? 0) > 0) {
