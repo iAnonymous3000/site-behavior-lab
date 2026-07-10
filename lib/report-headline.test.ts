@@ -380,6 +380,16 @@ test("a null status (e.g. PageGraph import) is not treated as a failed load", ()
   assert.match(headline.headline, /quiet\.example kept this visit relatively private\./);
 });
 
+test("caveat counts one visit on single reports and two on comparisons", () => {
+  const single = buildReportHeadline(makeResult({ firstPartyDomain: "solo.example" }));
+  assert.match(single.caveat, /one automated visit/);
+
+  const comparison = buildReportHeadline(
+    createGpcComparisonReport(makeResult({ firstPartyDomain: "pair.example" }), makeResult({ firstPartyDomain: "pair.example" }))
+  );
+  assert.match(comparison.caveat, /two automated visits/);
+});
+
 type ResultOverrides = {
   firstPartyDomain?: string;
   domains?: DomainSummary[];

@@ -162,16 +162,18 @@ forwards it into the container); edit that var if your Pages origin differs, or 
 `*` for an open scanner. For an open scanner also add `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_OPEN_ACCESS=1`
 to the Pages build; for Turnstile add `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY=<site-key>`.
 
-## 6. Security: the SSRF backstop is weaker here, launch operator-gated
+## 6. Security: the SSRF backstop is weaker here, gate accordingly
 
 The Node scanner's safety = the in-app **connect-time proxy** (resolves, validates, and
 pins to a public IP) **plus** an external egress firewall as defense-in-depth. On managed
 Cloudflare Containers you **cannot add that external egress firewall** (no VPC/iptables
-control), so the in-app proxy is your only layer. That is fine for an **operator-gated**
-scanner (keep `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` set, you run the scans) and is the
-recommended launch: it unlocks live Shields for building the corpus with no open-abuse
-surface. Only open `POST /api/scan` to the public behind **Turnstile + a WAF rate rule**,
-and only after accepting that the egress backstop is the in-app proxy alone.
+control), so the in-app proxy is your only layer. Start **operator-gated**
+(keep `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` set, you run the scans): it unlocks live
+Shields for building the corpus with no open-abuse surface. Open `POST /api/scan` to the
+public only behind **Turnstile + a WAF rate rule**, and only after accepting that the
+egress backstop is the in-app proxy alone. That open posture is what sitebehavior.org has
+run in production since 2026-06-22; the switch sequence is
+[go-live-public-scanner.md](go-live-public-scanner.md).
 
 ## 7. Verify
 
