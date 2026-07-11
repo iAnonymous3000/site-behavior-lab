@@ -373,7 +373,7 @@ export function SiteBehaviorApp({
       }
       // A synchronous scan result is untrusted wire data like every other
       // payload: it goes through the canonical reader, never a bare cast.
-      const read = readRenderableReport(payload, "The scan result");
+      const read = await readRenderableReport(payload, "The scan result");
       if (!read.ok) throw new Error(read.message);
       setResult(read.report);
     } catch (scanError) {
@@ -432,7 +432,7 @@ export function SiteBehaviorApp({
 
     try {
       const payload = JSON.parse(await file.text()) as unknown;
-      const read = readRenderableReport(payload, "This report JSON");
+      const read = await readRenderableReport(payload, "This report JSON");
       if (!read.ok) {
         throw new Error(read.message);
       }
@@ -1107,7 +1107,7 @@ async function pollScanJob(statusPath: string, accessKey = "", reportId?: string
 
     if (payload.status === "succeeded") {
       if (payload.report) {
-        const read = readRenderableReport(payload.report, "The completed scan's report");
+        const read = await readRenderableReport(payload.report, "The completed scan's report");
         if (read.ok) return read.report;
         throw new Error(read.message);
       }

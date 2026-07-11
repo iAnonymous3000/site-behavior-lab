@@ -32,7 +32,7 @@ export function SavedReportClient({ id }: { id: string }) {
         }
 
         const payload = (await response.json()) as unknown;
-        const read = readRenderableReport(payload, "This report");
+        const read = await readRenderableReport(payload, "This report");
         if (!read.ok) {
           throw new Error(read.message);
         }

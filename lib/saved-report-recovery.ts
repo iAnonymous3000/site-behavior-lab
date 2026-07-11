@@ -29,7 +29,7 @@ export async function recoverSavedReport(response: RecoveryResponse): Promise<Sc
   }
 
   const payload = (await response.json()) as unknown;
-  const read = readRenderableReport(payload, "The saved report");
+  const read = await readRenderableReport(payload, "The saved report");
   if (!read.ok) throw new Error(read.message);
   return read.report;
 }

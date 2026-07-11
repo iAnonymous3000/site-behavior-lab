@@ -74,7 +74,7 @@ async function loadStaticReport(entry: StaticReportManifestEntry): Promise<ScanR
   if (!response.ok) throw new Error(`Could not load ${entry.domain}.`);
 
   const payload = (await response.json()) as unknown;
-  const read = readRenderableReport(payload, entry.domain);
+  const read = await readRenderableReport(payload, entry.domain);
   if (!read.ok) throw new Error(read.message);
   return read.report;
 }
@@ -517,7 +517,7 @@ async function loadStaticSingleReport(entry: StaticReportManifestEntry): Promise
   }
 
   const payload = (await response.json()) as unknown;
-  const read = readRenderableReport(payload, entry.domain);
+  const read = await readRenderableReport(payload, entry.domain);
   if (!read.ok) throw new Error(read.message);
   if (read.report.reportType === "comparison") {
     throw new Error(`${entry.domain} is not a single-scan report.`);
@@ -532,7 +532,7 @@ async function readCompareUpload(file: File | null, slot: "before" | "after"): P
   }
 
   const payload = JSON.parse(await file.text()) as unknown;
-  const read = readRenderableReport(payload, `The ${slot} file`);
+  const read = await readRenderableReport(payload, `The ${slot} file`);
   if (!read.ok) throw new Error(read.message);
   if (read.report.reportType === "comparison") {
     throw new Error("Choose a single-scan Site Behavior Lab JSON report.");
