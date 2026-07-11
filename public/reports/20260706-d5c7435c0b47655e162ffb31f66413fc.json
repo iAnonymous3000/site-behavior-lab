@@ -18248,7 +18248,7 @@
       "The page did not reach network idle before the scan window ended.",
       "The scan stopped recording or loading additional requests after 1000 requests.",
       "Blocked a request that could not be verified as public: https://cs.iqzone.com/570908b7e92df631fee32098aa272f7b.gif",
-      "Blocked one or more requests that resolved to local or private network addresses at connection time.",
+      "One or more requests were blocked or failed at connection time. This scan did not record whether that was a private-address guard block or an ordinary connection failure (a DNS or connect error), so no private-network claim is made.",
       "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
       "Read the site's privacy policy (https://cm.usatoday.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ],
@@ -20679,7 +20679,7 @@
     "No blocking: The page did not reach network idle before the scan window ended.",
     "No blocking: The scan stopped recording or loading additional requests after 1000 requests.",
     "No blocking: Blocked a request that could not be verified as public: https://cs.iqzone.com/570908b7e92df631fee32098aa272f7b.gif",
-    "No blocking: Blocked one or more requests that resolved to local or private network addresses at connection time.",
+    "No blocking: One or more requests were blocked or failed at connection time. This scan did not record whether that was a private-address guard block or an ordinary connection failure (a DNS or connect error), so no private-network claim is made.",
     "No blocking: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
     "No blocking: Read the site's privacy policy (https://cm.usatoday.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
