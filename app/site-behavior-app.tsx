@@ -72,6 +72,7 @@ import { plural } from "@/lib/text-format";
 import { readRenderableReport } from "@/lib/client-report-reader";
 import { recoverSavedReport } from "@/lib/saved-report-recovery";
 import {
+  comparisonArmViews,
   displayRunView,
   runQualitySummary,
   schemaProvenanceLabel,
@@ -470,6 +471,19 @@ export function SiteBehaviorApp({
   // views module so the deep readers stay out of the first-load bundle.
   const reportView = result ? toReportView({ schemaVersion: 1, report: result }) : null;
   const primaryRun = reportView ? displayRunView(reportView) : null;
+  const arms = reportView ? comparisonArmViews(reportView) : null;
+  // Two-arm evidence audit: on comparisons every per-run surface (tables,
+  // sidebar, methodology, CSV) can show EITHER visit, so the protected or
+  // rejected arm is inspectable without downloading the JSON. Defaults to the
+  // lead run; report-level surfaces (headline, findings, panel) stay pair-fed.
+  const [selectedArm, setSelectedArm] = useState<"baseline" | "variant" | null>(null);
+  // A new report must not inherit the previous report's arm selection.
+  useEffect(() => {
+    setSelectedArm(null);
+  }, [result]);
+  const displayedRun = arms && selectedArm ? arms[selectedArm] : primaryRun;
+  const displayedArmLabel: "baseline" | "variant" =
+    selectedArm ?? (reportView?.comparison?.temporalPair ? "variant" : "baseline");
 
   function downloadReport() {
     if (!result || !primaryRun) return;
@@ -485,13 +499,16 @@ export function SiteBehaviorApp({
   }
 
   function downloadCsv() {
-    if (!result || !primaryRun) return;
-    const csv = requestLogToCsv(primaryRun.evidence.requests);
+    if (!result || !displayedRun) return;
+    // The CSV is per-visit evidence: it exports the ARM the page is showing,
+    // and a comparison's filename names that arm so two exports never mix up.
+    const csv = requestLogToCsv(displayedRun.evidence.requests);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
+    const armPart = arms ? `-${safeFilenamePart(armDisplayLabel(reportView, displayedArmLabel))}` : "";
     anchor.href = url;
-    anchor.download = `site-behavior-lab-${safeFilenamePart(primaryRun.domain)}-requests.csv`;
+    anchor.download = `site-behavior-lab-${safeFilenamePart(displayedRun.domain)}${armPart}-requests.csv`;
     anchor.click();
     URL.revokeObjectURL(url);
   }
@@ -791,7 +808,7 @@ export function SiteBehaviorApp({
               }
             />
           )}
-          {result && reportView && primaryRun && (
+          {result && reportView && primaryRun && displayedRun && (
             <section className="report-grid">
               <div className="report-main">
                 <ReportHeader
@@ -804,24 +821,45 @@ export function SiteBehaviorApp({
                 />
                 <HeadlineBanner report={result} view={reportView} liveApiServesReportPages={liveApiServesReportPages} />
                 <FindingsBoard view={reportView} />
-                <CausalityGraph requests={primaryRun.evidence.requests} />
                 {reportView.reportType === "comparison" && <ComparisonPanel view={reportView} />}
-                <MetricGrid run={primaryRun} />
-                <TrafficViz run={primaryRun} />
+                {arms && (
+                  // Two-arm audit switcher: every per-visit surface below (and
+                  // the sidebar and CSV export) follows the selected arm, so
+                  // the protected or rejected visit's evidence is inspectable
+                  // without opening the JSON. The headline, findings, and
+                  // comparison panel above stay pair-level.
+                  <div className="arm-switcher" role="group" aria-label="Which visit's evidence the tables below show">
+                    <span>Evidence shown:</span>
+                    {(["baseline", "variant"] as const).map((arm) => (
+                      <button
+                        key={arm}
+                        type="button"
+                        className={`arm-option${displayedArmLabel === arm ? " is-active" : ""}`}
+                        aria-pressed={displayedArmLabel === arm}
+                        onClick={() => setSelectedArm(arm)}
+                      >
+                        {armDisplayLabel(reportView, arm)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <CausalityGraph requests={displayedRun.evidence.requests} />
+                <MetricGrid run={displayedRun} />
+                <TrafficViz run={displayedRun} />
                 <Warnings warnings={reportView.warnings} />
-                <DomainTable domains={primaryRun.evidence.domains} />
-                <RequestTable requests={primaryRun.evidence.requests} />
+                <DomainTable domains={displayedRun.evidence.domains} />
+                <RequestTable requests={displayedRun.evidence.requests} />
               </div>
 
               <aside className="report-sidebar">
-                {displayableScreenshot(primaryRun.screenshot) && (
+                {displayableScreenshot(displayedRun.screenshot) && (
                   <section className="side-card screenshot-card">
                     <h2>Viewport</h2>
                     {/* Only inline data URIs render: an uploaded report's
                         screenshot field must never drive a network request. */}
                     <img
-                      src={displayableScreenshot(primaryRun.screenshot)!}
-                      alt={`Screenshot of ${primaryRun.domain}`}
+                      src={displayableScreenshot(displayedRun.screenshot)!}
+                      alt={`Screenshot of ${displayedRun.domain}`}
                       loading="lazy"
                       decoding="async"
                     />
@@ -830,31 +868,31 @@ export function SiteBehaviorApp({
 
                 <section className="side-card">
                   <h2>Top Third Parties</h2>
-                  <TopThirdParties domains={primaryRun.evidence.domains} />
+                  <TopThirdParties domains={displayedRun.evidence.domains} />
                 </section>
 
-                {primaryRun.evidence.pixelEvents.length > 0 && (
+                {displayedRun.evidence.pixelEvents.length > 0 && (
                   <section className="side-card">
                     <h2>Advertising Pixels</h2>
-                    <PixelEventsList pixels={primaryRun.evidence.pixelEvents} />
+                    <PixelEventsList pixels={displayedRun.evidence.pixelEvents} />
                   </section>
                 )}
 
                 <section className="side-card">
                   <h2>Cookies</h2>
-                  <CookieList cookies={primaryRun.evidence.cookies} />
+                  <CookieList cookies={displayedRun.evidence.cookies} />
                 </section>
 
                 <section className="side-card">
                   <h2>Storage</h2>
-                  <StorageList storage={primaryRun.evidence.storage} />
+                  <StorageList storage={displayedRun.evidence.storage} />
                 </section>
 
                 <section className="side-card">
                   <h2>Browser Behavior Signals</h2>
                   <FingerprintList
-                    events={primaryRun.evidence.fingerprintEvents}
-                    detections={primaryRun.evidence.fingerprintDetections}
+                    events={displayedRun.evidence.fingerprintEvents}
+                    detections={displayedRun.evidence.fingerprintDetections}
                   />
                 </section>
 
@@ -867,41 +905,41 @@ export function SiteBehaviorApp({
                     </div>
                     <div>
                       <dt>Run quality</dt>
-                      <dd>{runQualitySummary(primaryRun)}</dd>
+                      <dd>{runQualitySummary(displayedRun)}</dd>
                     </div>
                     <div>
                       <dt>Scanner</dt>
-                      <dd>{primaryRun.conditions.automation}</dd>
+                      <dd>{displayedRun.conditions.automation}</dd>
                     </div>
                     <div>
                       <dt>Browser</dt>
-                      <dd>{primaryRun.conditions.browserVersion ?? "not recorded"}</dd>
+                      <dd>{displayedRun.conditions.browserVersion ?? "not recorded"}</dd>
                     </div>
                     <div>
                       <dt>Timezone</dt>
-                      <dd>{primaryRun.conditions.timezone}</dd>
+                      <dd>{displayedRun.conditions.timezone}</dd>
                     </div>
                     <div>
                       <dt>Headless</dt>
-                      <dd>{primaryRun.conditions.headless ? "yes" : "no"}</dd>
+                      <dd>{displayedRun.conditions.headless ? "yes" : "no"}</dd>
                     </div>
                     <div>
                       <dt>Viewport</dt>
                       <dd>
-                        {primaryRun.conditions.viewport.width}×{primaryRun.conditions.viewport.height}
+                        {displayedRun.conditions.viewport.width}×{displayedRun.conditions.viewport.height}
                       </dd>
                     </div>
                     <div>
                       <dt>GPC</dt>
-                      <dd>{primaryRun.conditions.gpcEnabled ? "sent" : "not sent"}</dd>
+                      <dd>{displayedRun.conditions.gpcEnabled ? "sent" : "not sent"}</dd>
                     </div>
-                    {primaryRun.consent && (
+                    {displayedRun.consent && (
                       <div>
                         <dt>Consent</dt>
                         <dd>
-                          {primaryRun.consent.controlActivated
-                            ? `clicked "${consentChoiceLabel(primaryRun.consent.mode)}"${
-                                primaryRun.consent.cmp ? ` (${primaryRun.consent.cmp})` : ""
+                          {displayedRun.consent.controlActivated
+                            ? `clicked "${consentChoiceLabel(displayedRun.consent.mode)}"${
+                                displayedRun.consent.cmp ? ` (${displayedRun.consent.cmp})` : ""
                               }`
                             : "no banner control found; pre-consent"}
                         </dd>
@@ -909,36 +947,36 @@ export function SiteBehaviorApp({
                     )}
                     <div>
                       <dt>Egress</dt>
-                      <dd>{primaryRun.conditions.scannerEgress}</dd>
+                      <dd>{displayedRun.conditions.scannerEgress}</dd>
                     </div>
-                    {primaryRun.conditions.trackerCatalog && (
+                    {displayedRun.conditions.trackerCatalog && (
                       <div>
                         <dt>Catalog</dt>
                         <dd>
-                          {primaryRun.conditions.trackerCatalog.source}
+                          {displayedRun.conditions.trackerCatalog.source}
                           <br />
-                          {primaryRun.conditions.trackerCatalog.region
-                            ? `${primaryRun.conditions.trackerCatalog.region} · `
+                          {displayedRun.conditions.trackerCatalog.region
+                            ? `${displayedRun.conditions.trackerCatalog.region} · `
                             : ""}
-                          {primaryRun.conditions.trackerCatalog.version}
+                          {displayedRun.conditions.trackerCatalog.version}
                           <br />
-                          {primaryRun.conditions.trackerCatalog.entries.toLocaleString()} entries
+                          {displayedRun.conditions.trackerCatalog.entries.toLocaleString()} entries
                         </dd>
                       </div>
                     )}
-                    {primaryRun.conditions.adblockLists && (
+                    {displayedRun.conditions.adblockLists && (
                       <div>
                         <dt>Brave Shields lists</dt>
                         <dd>
-                          {primaryRun.conditions.adblockLists.source}
+                          {displayedRun.conditions.adblockLists.source}
                           <br />
-                          {primaryRun.conditions.adblockLists.lists.toLocaleString()} lists · fetched{" "}
-                          {new Date(primaryRun.conditions.adblockLists.fetchedAt).toLocaleDateString()}
+                          {displayedRun.conditions.adblockLists.lists.toLocaleString()} lists · fetched{" "}
+                          {new Date(displayedRun.conditions.adblockLists.fetchedAt).toLocaleDateString()}
                         </dd>
                       </div>
                     )}
                   </dl>
-                  {primaryRun.conditions.disclosure && <p>{primaryRun.conditions.disclosure}</p>}
+                  {displayedRun.conditions.disclosure && <p>{displayedRun.conditions.disclosure}</p>}
                 </section>
               </aside>
             </section>
@@ -1235,6 +1273,11 @@ function isStaticReportManifestEntry(value: unknown): value is StaticReportManif
     typeof metrics.totalRequests === "number" &&
     typeof metrics.thirdPartyRequests === "number"
   );
+}
+
+/** Display label for one arm of a comparison view ("Shields off"). */
+function armDisplayLabel(view: ReportView | null, arm: "baseline" | "variant"): string {
+  return view?.comparison?.runLabels[arm] ?? arm;
 }
 
 function exportableReport(result: ScanReport): unknown {

@@ -1336,17 +1336,53 @@ a {
 }
 
 .comparison-ineligible .muted {
-  color: var(--text-2);
+  color: var(--text-muted);
   margin: 8px 0 0;
+}
+
+/* Two-arm evidence switcher: which visit the per-run tables and sidebar show. */
+.arm-switcher {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+}
+
+.arm-switcher > span {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.arm-option {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+}
+
+.arm-option.is-active {
+  background: color-mix(in srgb, var(--accent-strong) 16%, transparent);
+  border-color: var(--accent-strong);
+  color: var(--accent-strong);
 }
 
 /* Schema-provenance chip beside the report eyebrow: always-visible origin
    labeling (legacy-derived / limited), never buried in the sidebar. */
 .report-provenance {
   background: var(--surface-2);
-  border: 1px solid var(--border-1);
+  border: 1px solid var(--border);
   border-radius: 999px;
-  color: var(--text-2);
+  color: var(--text-muted);
   display: inline-block;
   font-size: 10px;
   font-weight: 600;
