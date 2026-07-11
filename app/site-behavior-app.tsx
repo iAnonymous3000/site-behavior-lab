@@ -786,7 +786,7 @@ export function SiteBehaviorApp({
               }
             />
           )}
-          {result && primaryResult && (
+          {result && primaryResult && primaryRun && (
             <section className="report-grid">
               <div className="report-main">
                 <ReportHeader
@@ -800,15 +800,11 @@ export function SiteBehaviorApp({
                 <FindingsBoard report={result} result={primaryResult} />
                 <CausalityGraph result={primaryResult} />
                 {isComparisonReport(result) && <ComparisonPanel report={result} />}
-                {primaryRun && (
-                  <>
-                    <MetricGrid run={primaryRun} />
-                    <TrafficViz run={primaryRun} />
-                  </>
-                )}
+                <MetricGrid run={primaryRun} />
+                <TrafficViz run={primaryRun} />
                 <Warnings warnings={isComparisonReport(result) ? result.warnings : primaryResult.warnings} />
                 <DomainTable domains={primaryResult.domains} />
-                <RequestTable result={primaryResult} />
+                <RequestTable requests={primaryRun.evidence.requests} />
               </div>
 
               <aside className="report-sidebar">
@@ -834,23 +830,26 @@ export function SiteBehaviorApp({
                 {primaryResult.pixelEvents && primaryResult.pixelEvents.length > 0 && (
                   <section className="side-card">
                     <h2>Advertising Pixels</h2>
-                    <PixelEventsList result={primaryResult} />
+                    <PixelEventsList pixels={primaryRun.evidence.pixelEvents} />
                   </section>
                 )}
 
                 <section className="side-card">
                   <h2>Cookies</h2>
-                  <CookieList cookies={primaryResult.cookies} />
+                  <CookieList cookies={primaryRun.evidence.cookies} />
                 </section>
 
                 <section className="side-card">
                   <h2>Storage</h2>
-                  <StorageList result={primaryResult} />
+                  <StorageList storage={primaryRun.evidence.storage} />
                 </section>
 
                 <section className="side-card">
                   <h2>Browser Behavior Signals</h2>
-                  <FingerprintList result={primaryResult} />
+                  <FingerprintList
+                    events={primaryRun.evidence.fingerprintEvents}
+                    detections={primaryRun.evidence.fingerprintDetections}
+                  />
                 </section>
 
                 <section className="side-card methodology">

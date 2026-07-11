@@ -3,8 +3,16 @@
 import { useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar } from "lucide-react";
 import { requestProvenanceSearchText, requestProvenanceSummary } from "@/lib/report-findings";
-import { detectionEvidence, detectionLabel, fingerprintDetections, pixelFieldLabel } from "@/lib/report-insights";
-import type { CookieRecord, DomainSummary, NetworkRequestRecord, ScanResult } from "@/lib/types";
+import { detectionEvidence, detectionLabel, pixelFieldLabel } from "@/lib/report-insights";
+import type {
+  CookieRecord,
+  DomainSummary,
+  FingerprintDetectionSummary,
+  FingerprintEventSummary,
+  NetworkRequestRecord,
+  PixelEventSummary,
+  StorageRecord
+} from "@/lib/types";
 
 function Warnings({ warnings }: { warnings: string[] }) {
   // Reports saved before the collector deduped can carry exact-duplicate
@@ -82,20 +90,20 @@ function DomainTable({ domains }: { domains: DomainSummary[] }) {
   );
 }
 
-function RequestTable({ result }: { result: ScanResult }) {
+function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
   const [query, setQuery] = useState("");
   const [signalFilter, setSignalFilter] = useState<RequestSignalFilter>("all");
   const [statusFilter, setStatusFilter] = useState<RequestStatusFilter>("all");
   const [resourceFilter, setResourceFilter] = useState("all");
 
   const resourceTypes = useMemo(
-    () => Array.from(new Set(result.requests.map((request) => request.resourceType))).sort((a, b) => a.localeCompare(b)),
-    [result.requests]
+    () => Array.from(new Set(requests.map((request) => request.resourceType))).sort((a, b) => a.localeCompare(b)),
+    [requests]
   );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return result.requests.filter((request) => {
+    return requests.filter((request) => {
       if (!requestMatchesSignalFilter(request, signalFilter)) return false;
       if (!requestMatchesStatusFilter(request, statusFilter)) return false;
       if (resourceFilter !== "all" && request.resourceType !== resourceFilter) return false;
@@ -110,7 +118,7 @@ function RequestTable({ result }: { result: ScanResult }) {
         request.tracker?.category.toLowerCase().includes(q)
       );
     });
-  }, [result.requests, query, resourceFilter, signalFilter, statusFilter]);
+  }, [requests, query, resourceFilter, signalFilter, statusFilter]);
 
   const shown = filtered.slice(0, 80);
 
@@ -119,9 +127,9 @@ function RequestTable({ result }: { result: ScanResult }) {
       <summary className="section-heading">
         <h2>Request log</h2>
         <span className="count-badge">
-          {filtered.length === result.requests.length
-            ? `${result.requests.length} requests`
-            : `${filtered.length} of ${result.requests.length}`}
+          {filtered.length === requests.length
+            ? `${requests.length} requests`
+            : `${filtered.length} of ${requests.length}`}
         </span>
         <ChevronDown className="disclosure-chevron" size={16} aria-hidden="true" />
       </summary>
@@ -333,13 +341,13 @@ function CookieList({ cookies }: { cookies: CookieRecord[] }) {
   );
 }
 
-function StorageList({ result }: { result: ScanResult }) {
-  if (result.storage.length === 0) return <p className="muted">No local or session storage keys observed on the final page.</p>;
+function StorageList({ storage }: { storage: StorageRecord[] }) {
+  if (storage.length === 0) return <p className="muted">No local or session storage keys observed on the final page.</p>;
 
-  const shown = Math.min(result.storage.length, 12);
+  const shown = Math.min(storage.length, 12);
   return (
     <div className="compact-list">
-      {result.storage.slice(0, 12).map((item) => (
+      {storage.slice(0, 12).map((item) => (
         <div key={`${item.area}:${item.key}`}>
           <Database className="ico-neutral" size={14} aria-hidden="true" />
           <span>
@@ -350,14 +358,19 @@ function StorageList({ result }: { result: ScanResult }) {
           </span>
         </div>
       ))}
-      <ListOverflowNote total={result.storage.length} shown={shown} where="the JSON export" />
+      <ListOverflowNote total={storage.length} shown={shown} where="the JSON export" />
     </div>
   );
 }
 
-function FingerprintList({ result }: { result: ScanResult }) {
-  const detections = fingerprintDetections(result);
-  if (result.fingerprintEvents.length === 0 && detections.length === 0) {
+function FingerprintList({
+  events,
+  detections
+}: {
+  events: FingerprintEventSummary[];
+  detections: FingerprintDetectionSummary[];
+}) {
+  if (events.length === 0 && detections.length === 0) {
     return <p className="muted">No instrumented high-entropy API or interaction listener signals were observed.</p>;
   }
 
@@ -372,7 +385,7 @@ function FingerprintList({ result }: { result: ScanResult }) {
           </span>
         </div>
       ))}
-      {result.fingerprintEvents.map((event) => (
+      {events.map((event) => (
         <div key={event.api}>
           <Fingerprint className="ico-neutral" size={14} aria-hidden="true" />
           <span>
@@ -385,8 +398,7 @@ function FingerprintList({ result }: { result: ScanResult }) {
   );
 }
 
-function PixelEventsList({ result }: { result: ScanResult }) {
-  const pixels = result.pixelEvents ?? [];
+function PixelEventsList({ pixels }: { pixels: PixelEventSummary[] }) {
   if (pixels.length === 0) {
     return <p className="muted">No advertising-pixel events were decoded in this visit.</p>;
   }
