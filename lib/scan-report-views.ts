@@ -9,7 +9,12 @@
  * scan-report-view.ts, which is lazy-loaded via lib/client-report-reader.ts).
  */
 import { compareRunFacts, consentComparisonTitle } from "./compare-reports";
-import { comparisonEligibility, runHitRequestCap } from "./comparison-eligibility";
+import {
+  legacyComparisonDecision,
+  v2ComparisonDecision,
+  type ComparisonDecision
+} from "./comparison-decision";
+import { runHitRequestCap } from "./comparison-eligibility";
 import { summarizeDomains } from "./domain-summaries";
 import type {
   CnameCloak,
@@ -33,6 +38,13 @@ import type {
 } from "./scan-report-v2";
 import type { PublicScanReportV2R2, ScanRunV2R2 } from "./scan-report-v2-r2";
 import type { StoredScanReport } from "./scan-report-reader";
+
+export type {
+  ComparisonDecision,
+  ComparisonDecisionMode,
+  CompatibilityFingerprint,
+  FamilyDecision
+} from "./comparison-decision";
 
 /**
  * Per-run evidence, in the record shapes the tables already render. The v2
@@ -184,15 +196,28 @@ export type ClaimGate = { allowed: boolean; reasons: string[] };
  * not wire fields. Every gate is false unless the stored facts prove the
  * claim, so a renderer that forgets a check under-claims instead of
  * over-claiming.
+ *
+ * The single source is `decision` (lib/comparison-decision.ts): the
+ * reason-bearing comparable / raw-only / suppressed ruling with the shared
+ * compatibility fingerprint. `pairComparison` and `familyDeltas` are DERIVED
+ * from it by {@link claimsFromDecision}, so the boolean gates and the decision
+ * can never disagree; renderers that need the mode distinction or the
+ * fingerprint read `decision`, renderers that only gate wording keep reading
+ * the boolean gates.
  */
 export type ClaimPolicy = {
   /**
+   * The reason-bearing comparison ruling; null on single reports (there is
+   * no pair). See lib/comparison-decision.ts for the mode semantics.
+   */
+  decision: ComparisonDecision | null;
+  /**
    * Pair-level framing ("these two visits compare one subject"). null on
    * single reports (there is no pair). Raw per-run evidence is not a claim
-   * and may always render.
+   * and may always render. Derived from `decision`.
    */
   pairComparison: ClaimGate | null;
-  /** Per metric family: may this family's delta be quoted as comparable? */
+  /** Per metric family: may this family's delta be quoted as comparable? Derived from `decision`. */
   familyDeltas: Record<MetricFamily, ClaimGate> | null;
   /** Intervention-attributed framing ("Shields blocked", "after the Reject click"). */
   interventionAttribution: boolean;
@@ -505,6 +530,7 @@ function displayReportTitle(
 /** The default-deny policy: every claim surface refused. */
 function deniedClaims(): ClaimPolicy {
   return {
+    decision: null,
     pairComparison: null,
     familyDeltas: null,
     interventionAttribution: false,
@@ -514,97 +540,39 @@ function deniedClaims(): ClaimPolicy {
 }
 
 /**
+ * Derive the boolean claim gates from the reason-bearing decision: allowed
+ * exactly when the mode is "comparable" (raw-only and suppressed both refuse
+ * comparative framing; the mode distinction stays on `decision` for renderers
+ * that present evidence). The single derivation point is what makes the gates
+ * and the decision unable to disagree.
+ */
+function claimsFromDecision(decision: ComparisonDecision): Pick<ClaimPolicy, "pairComparison" | "familyDeltas"> {
+  return {
+    pairComparison: { allowed: decision.mode === "comparable", reasons: [...decision.reasons] },
+    familyDeltas: Object.fromEntries(
+      Object.entries(decision.families).map(([family, entry]) => [
+        family,
+        { allowed: entry.mode === "comparable", reasons: [...entry.reasons] }
+      ])
+    ) as Record<MetricFamily, ClaimGate>
+  };
+}
+
+/**
  * Claims a v1 comparison can support: at most a descriptive pairing with
  * per-family DESCRIPTIVE deltas where the facts v1 actually recorded prove
- * the two arms measured alike. The pair-level gate reuses the shared v1
- * eligibility rule (failed, capped, or mismatched arms); each family then
- * adds the recorded-fact checks v1 makes possible:
- *
- * - raw-counts: the whole-pair rule (same subject, both loaded, uncapped,
- *   same device class and pipeline) is the only compatibility v1 can state,
- *   and it covers what raw counts depend on.
- * - tracker-classification: additionally requires the SAME tracker catalog
- *   (source, version, region) on both arms; a different catalog classifies
- *   differently, so entity/known-service deltas would compare instruments.
- * - shields-simulation: additionally requires both arms to carry an active
- *   engine measurement of the SAME kind (equal shieldsMode) from the same
- *   list snapshot (equal source and fetchedAt); a Shields-axis pair measures
- *   filter matches on one arm and engine blocks on the other, two different
- *   quantities that must never share a delta.
- * - consent-verification: denied; v1 recorded that a click was dispatched,
- *   never a verified consent state (RFC 6).
- * - detector-findings: denied; v1 never recorded detector versions, so
- *   fingerprinting/pixel deltas cannot be proven to come from matching
- *   instrumentation (RFC 3.2: unknown never matches).
- *
- * Everything here supports descriptive wording only (RFC 10.1: v1 pairs are
- * descriptive at best); attribution, temporal, and strong-causal framing are
- * denied by construction.
+ * the two arms measured alike. The per-family rules live in
+ * lib/comparison-decision.ts (legacyComparisonDecision); this builder folds
+ * the decision into the claim policy. Everything here supports descriptive
+ * wording only (RFC 10.1: v1 pairs are descriptive at best); attribution,
+ * temporal, and strong-causal framing are denied by construction.
  */
 function legacyClaims(report: Extract<ScanReport, { reportType: "comparison" }>): ClaimPolicy {
-  const eligibility = comparisonEligibility(report);
-  const pairReasons = [...eligibility.reasons];
-
-  const familyGate = (extraReasons: string[]): ClaimGate =>
-    eligibility.eligible && extraReasons.length === 0
-      ? { allowed: true, reasons: [] }
-      : { allowed: false, reasons: [...pairReasons, ...extraReasons] };
-
-  const catalogReasons: string[] = [];
-  const baselineCatalog = report.baseline.conditions.trackerCatalog;
-  const variantCatalog = report.variant.conditions.trackerCatalog;
-  if (!baselineCatalog.source || !variantCatalog.source || !baselineCatalog.version || !variantCatalog.version) {
-    catalogReasons.push("A visit did not record its tracker-catalog identity, so classification comparability is unprovable.");
-  } else if (
-    baselineCatalog.source !== variantCatalog.source ||
-    baselineCatalog.version !== variantCatalog.version ||
-    (baselineCatalog.region ?? null) !== (variantCatalog.region ?? null) ||
-    baselineCatalog.entries !== variantCatalog.entries ||
-    (baselineCatalog.curatedOverrides ?? null) !== (variantCatalog.curatedOverrides ?? null)
-  ) {
-    catalogReasons.push(
-      "The two visits classified trackers with different catalogs, so classification deltas would compare instruments, not the site."
-    );
-  }
-
-  const shieldsReasons: string[] = [];
-  const baselineShields = report.baseline.summary.shieldsBlockedRequests;
-  const variantShields = report.variant.summary.shieldsBlockedRequests;
-  const baselineAdblock = report.baseline.conditions.adblock;
-  const variantAdblock = report.variant.conditions.adblock;
-  if (
-    typeof baselineShields !== "number" ||
-    typeof variantShields !== "number" ||
-    baselineAdblock?.active !== true ||
-    variantAdblock?.active !== true
-  ) {
-    shieldsReasons.push("A Shields measurement exists on at most one visit, so there is no like-for-like Shields delta.");
-  } else if ((report.baseline.conditions.shieldsMode ?? null) !== (report.variant.conditions.shieldsMode ?? null)) {
-    shieldsReasons.push(
-      "The two visits measured different Shields quantities (filter-list matches vs engine-blocked requests), which must never share a delta."
-    );
-  } else if (baselineAdblock.source !== variantAdblock.source || baselineAdblock.fetchedAt !== variantAdblock.fetchedAt) {
-    shieldsReasons.push("The two visits used different filter-list snapshots, so their Shields numbers measure different lists.");
-  }
-
+  const decision = legacyComparisonDecision(report);
   return {
     ...deniedClaims(),
-    pairComparison: { allowed: eligibility.eligible, reasons: pairReasons },
-    familyDeltas: {
-      "raw-counts": familyGate([]),
-      "tracker-classification": familyGate(catalogReasons),
-      "shields-simulation": familyGate(shieldsReasons),
-      "consent-verification": {
-        allowed: false,
-        reasons: ["v1 recorded whether a consent click was dispatched, never a verified consent state, so consent-verification deltas are unprovable."]
-      },
-      "detector-findings": {
-        allowed: false,
-        reasons: [
-          "v1 never recorded detector versions, so fingerprinting and pixel deltas cannot be proven to come from matching instrumentation."
-        ]
-      }
-    }
+    decision,
+    ...claimsFromDecision(decision)
   };
 }
 
@@ -684,14 +652,15 @@ export function viewFromV1Report(report: ScanReport): ReportView {
 
 /**
  * Claims a v2 comparison supports, straight from its recorded facts (RFC 4.1
- * product rules): pair framing from pairValidity, family deltas from
- * perMetric, intervention attribution only for a verified intervention on an
- * unlimited (r2+) report, temporal framing only for a valid temporal pair,
- * and strong causal wording only with replicated counterbalanced evidence.
+ * product rules): the recorded comparability block becomes the decision
+ * (lib/comparison-decision.ts), which derives pair framing and family deltas;
+ * intervention attribution only for a verified intervention on an unlimited
+ * (r2+) report, temporal framing only for a valid temporal pair, and strong
+ * causal wording only with replicated counterbalanced evidence.
  */
 function v2Claims(report: Extract<PublicScanReportV2 | PublicScanReportV2R2, { reportType: "comparison" }>, limited: boolean): ClaimPolicy {
   const experiment = report.experiment;
-  const comparability = report.comparability;
+  const decision = v2ComparisonDecision(report);
   // Attribution REQUIRES pair validity: verification proves the intervention
   // was applied, but an invalid pair (subject mismatch, failed run) supports
   // no pair-level claim at all (RFC 4.4), so a verified intervention on an
@@ -699,21 +668,13 @@ function v2Claims(report: Extract<PublicScanReportV2 | PublicScanReportV2R2, { r
   const interventionAttribution =
     !limited &&
     experiment.kind === "intervention" &&
-    comparability.pairValidity.eligible &&
-    comparability.interventionVerified === true;
+    decision.mode === "comparable" &&
+    report.comparability.interventionVerified === true;
   return {
-    pairComparison: {
-      allowed: comparability.pairValidity.eligible,
-      reasons: [...comparability.pairValidity.reasons]
-    },
-    familyDeltas: Object.fromEntries(
-      Object.entries(comparability.perMetric).map(([family, entry]) => [
-        family,
-        { allowed: entry.eligible, reasons: [...entry.reasons] }
-      ])
-    ) as Record<MetricFamily, ClaimGate>,
+    decision,
+    ...claimsFromDecision(decision),
     interventionAttribution,
-    temporalChange: !limited && experiment.kind === "temporal" && comparability.pairValidity.eligible,
+    temporalChange: !limited && experiment.kind === "temporal" && decision.mode === "comparable",
     strongCausal:
       interventionAttribution &&
       experiment.kind === "intervention" &&

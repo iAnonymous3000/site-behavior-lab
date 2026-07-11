@@ -332,3 +332,37 @@ only while producers emit v1), the UI polish slice (cap indicators,
 arm-switch announcements, CSV arm labels, filter reconciliation,
 aria-expanded, full suppression reasons), and only then v2 production
 emission with a corpus regeneration.
+
+## Decision object (2026-07-11): the reason-bearing three-state ruling
+
+DONE, first item of the round-10 remaining order. lib/comparison-decision.ts
+is the single reason-bearing ruling per pair and per metric family:
+
+- Modes: "comparable" (comparative framing allowed), "raw-only" (arms render
+  side by side, reasons say why no framing), "suppressed" (the family was
+  never measured, nothing to set side by side). Pair-level mode is never
+  suppressed (two readable arms always render).
+- `ClaimPolicy` gained `decision`; `pairComparison` and `familyDeltas` are now
+  DERIVED from it (claimsFromDecision in scan-report-views.ts), so the boolean
+  gates and the decision cannot disagree. All existing consumers (headline,
+  findings, panel, corpus overview) keep reading the derived gates unchanged;
+  the mode distinction and the fingerprint are new surface for the UI slice
+  (full suppression reasons) and the export slice.
+- v1: legacyComparisonDecision moves the family rules out of the claim-policy
+  builder verbatim, with one refinement: the old single "at most one visit"
+  shields sentence split into never-measured (suppressed) vs one-arm
+  (raw-only); consent-verification is suppressed (never measured), and
+  detector-findings stays raw-only (evidence renders, deltas unprovable).
+- v2: v2ComparisonDecision maps the RECORDED comparability block
+  (pairValidity/perMetric) and never invents a suppression the evaluator did
+  not record.
+- Compatibility fingerprint: per-arm measurementEnvironment digest. v2 arms
+  carry the recorded digest; v1 arms get a legacy-derived sha256 (lane-free
+  lib/sha256) over a versioned canonical form ("legacy-env-v1") of the
+  environment dimensions the legacy gate holds constant, EXCLUDING the
+  intervention axes and the subject, with the unknown rule (any missing or
+  literal-"unknown" dimension makes the fingerprint null, and null never
+  matches). A GPC flip does not change the fingerprint (pinned).
+- Cost: report page first-load 154 -> 156 kB (the sha256 implementation now
+  reaches the client-safe views chain; upload views compute fingerprints in
+  the browser).
