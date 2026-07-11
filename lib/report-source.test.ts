@@ -3,7 +3,7 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
-import { readReportForId, readStoredReportForId } from "./report-source";
+import { readStoredReportForId } from "./report-source";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanResult } from "./types";
 
 const STATIC_EXPORT_ENV = "NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT";
@@ -66,17 +66,6 @@ test("a future schema version is a typed capability gap, not invalid data", asyn
   assert.equal(read.outcome, "unreadable");
   if (read.outcome !== "unreadable") throw new Error("expected unreadable");
   assert.equal(read.error, "unsupported-version");
-});
-
-test("readReportForId narrows to v1 for the legacy render surfaces", async () => {
-  const validId = "20260618-ffffffffffffffffffffffffffffffff";
-  await writeFile(path.join(rootDir, "public", "reports", `${validId}.json`), `${JSON.stringify(makeScanResult())}\n`);
-
-  const report = await readReportForId(validId, rootDir);
-  assert.equal(report?.reportType, "single");
-
-  // Unreadable and missing both read as absent on the narrowing wrapper.
-  assert.equal(await readReportForId("20260618-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", rootDir), null);
 });
 
 function makeScanResult(): ScanResult {

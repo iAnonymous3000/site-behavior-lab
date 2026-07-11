@@ -6,7 +6,6 @@ import {
   type ReadStoredScanReportError,
   type StoredScanReport
 } from "./scan-report-reader";
-import type { ScanReport } from "./types";
 
 /**
  * Server/build-time report lookup shared by the report page, its social
@@ -38,18 +37,6 @@ export async function readStoredReportForId(id: string, rootDir = process.cwd())
   const { readStoredScanReportById } = await import("./report-store");
   const stored = await readStoredScanReportById(id);
   return stored.outcome === "found" ? { ...stored, origin: "share-store" } : stored;
-}
-
-/**
- * v1-narrowing wrapper for the one surface still consuming the legacy wire
- * type directly (the sitemap). It treats every non-v1 outcome as absent and
- * skips the entry; surfaces that must answer honestly for unreadable reports
- * (the report page, the API route) or that render from the view (metadata,
- * OG images, corpus loader) use {@link readStoredReportForId} instead.
- */
-export async function readReportForId(id: string, rootDir = process.cwd()): Promise<ScanReport | null> {
-  const result = await readStoredReportForId(id, rootDir);
-  return result.outcome === "found" && result.stored.schemaVersion === 1 ? result.stored.report : null;
 }
 
 async function readCommittedReport(id: string, rootDir: string): Promise<ReportSourceReadResult | null> {

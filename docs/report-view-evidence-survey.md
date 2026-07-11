@@ -91,9 +91,10 @@ fingerprinting, pixel events, provenance), `runLabels`, `comparisonType`,
    builder (`corpus-overview`, incl. `consentClicksForView` and the
    claims-gated Shields reduction) all consume `ReportView`; the metadata/OG
    surfaces read via `readStoredReportForId` + `toReportView` and so will
-   serve v2 reports the moment the store holds them. The sitemap still uses
-   the v1-narrowing `readReportForId` (it reads only id/scannedAt); fold it
-   into the v2 render slice.
+   serve v2 reports the moment the store holds them. The sitemap moved to
+   the stored read + view as well (same follow-up slice), and the
+   v1-narrowing `readReportForId` wrapper is deleted; every server surface
+   now reads through `readStoredReportForId`.
 
 ## Contract sketch (to be refined against the v2 run shapes)
 
