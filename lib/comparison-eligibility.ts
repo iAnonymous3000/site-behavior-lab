@@ -41,6 +41,11 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
     if (typeof status === "number" && status >= 400) {
       reasons.push(`The "${label}" visit returned HTTP ${status}, an error or block page, not the real site.`);
     }
+    // The unknown rule (RFC 3.2) applies to load state too: a visit with no
+    // recorded HTTP status cannot be proven to have loaded the real site.
+    if (status === null || status === undefined) {
+      reasons.push(`The "${label}" visit recorded no HTTP status, so a successful load cannot be proven.`);
+    }
     if (runHitRequestCap(run)) {
       reasons.push(
         `The "${label}" visit hit the ${COMPARISON_REQUEST_CAP.toLocaleString("en-US")}-request recording cap, so its counts are truncated.`
@@ -81,11 +86,52 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
     reasons.push("The two visits used different viewport sizes, which changes what a responsive page loads.");
   }
   reasons.push(...environmentMismatch("browser version", report.baseline.conditions.chromiumVersion, report.variant.conditions.chromiumVersion));
+  reasons.push(...environmentMismatch("user agent", report.baseline.conditions.userAgent, report.variant.conditions.userAgent));
   reasons.push(...environmentMismatch("timezone", report.baseline.conditions.timezone, report.variant.conditions.timezone));
   reasons.push(...environmentMismatch("locale", report.baseline.conditions.locale, report.variant.conditions.locale));
+  reasons.push(...environmentMismatch("language", report.baseline.conditions.language, report.variant.conditions.language));
   reasons.push(...environmentMismatch("network egress", report.baseline.conditions.scannerEgress, report.variant.conditions.scannerEgress));
   if (report.baseline.conditions.headless !== report.variant.conditions.headless) {
     reasons.push("One visit ran headless and the other did not, which sites can detect and react to differently.");
+  }
+  // Same OBSERVED subject, not just the same requested one: two visits that
+  // landed on different final pages (a consent wall, a regional redirect)
+  // measured different documents. Consent pairs are exempt from the final-URL
+  // rule below the origin level: the dispatched click itself can navigate.
+  if (
+    report.comparisonType !== "consent" &&
+    normalizedRoute(report.baseline.conditions.finalUrl) !== normalizedRoute(report.variant.conditions.finalUrl)
+  ) {
+    reasons.push(
+      `The two visits ended on different pages (${report.baseline.conditions.finalUrl} vs ${report.variant.conditions.finalUrl}), so their difference is not a comparison of one page.`
+    );
+  }
+
+  // The DECLARED experiment must actually have happened (RFC 4.4
+  // design-invalid): a "gpc" pair whose arms both ran without the signal, or
+  // a "shields" pair whose blocking arm never blocked, supports no
+  // comparative claim about that axis no matter how well the environments
+  // match.
+  if (report.comparisonType === "gpc") {
+    if (report.baseline.conditions.gpcEnabled !== false || report.variant.conditions.gpcEnabled !== true) {
+      reasons.push(
+        "A GPC comparison requires the signal off in the baseline visit and on in the variant visit; these visits did not vary the signal that way."
+      );
+    }
+  }
+  if (report.comparisonType === "shields") {
+    if (report.variant.conditions.shieldsMode !== "block-simulation" || report.variant.conditions.adblock?.active !== true) {
+      reasons.push("A blocking comparison requires the variant visit to have run the blocking engine; it did not.");
+    } else if (report.baseline.conditions.shieldsMode === "block-simulation") {
+      reasons.push("A blocking comparison requires an unblocked baseline visit; both visits ran the blocking engine.");
+    }
+  }
+  if (report.comparisonType === "consent") {
+    if (report.baseline.conditions.consentMode !== "accept-all" || report.variant.conditions.consentMode !== "reject-all") {
+      reasons.push(
+        "A consent comparison requires an accept-all baseline visit and a reject-all variant visit; these visits did not attempt that pairing."
+      );
+    }
   }
 
   return { eligible: reasons.length === 0, reasons };
@@ -98,12 +144,13 @@ function normalizedRoute(url: string): string {
 
 /**
  * Equality for a recorded environment dimension, with the RFC unknown rule:
- * a visit that never recorded the dimension can never be proven to match.
+ * a visit that never recorded the dimension, or recorded the literal
+ * "unknown", can never be proven to match anything.
  */
 function environmentMismatch(label: string, left: string | undefined, right: string | undefined): string[] {
   const a = (left ?? "").trim();
   const b = (right ?? "").trim();
-  if (a === "" || b === "") {
+  if (a === "" || b === "" || a.toLowerCase() === "unknown" || b.toLowerCase() === "unknown") {
     return [`A visit did not record its ${label}, so the two environments cannot be proven to match.`];
   }
   if (a !== b) {

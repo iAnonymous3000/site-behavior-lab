@@ -202,7 +202,7 @@ test("toReportView marks v1 as legacy-derived and v2 as v2", () => {
   // must never read as intervention or temporal, regardless of what any
   // renderer remembers about `limited`. The attempted axis stays as metadata.
   const v1Single = makeScanReportV1() as ScanResult;
-  const v1Comparison = readStoredScanReport(createGpcComparisonReport(structuredClone(v1Single), structuredClone(v1Single)));
+  const v1Comparison = readStoredScanReport(gpcPairV1(v1Single));
   assert.equal(v1Comparison.ok, true);
   if (v1Comparison.ok) {
     const view = toReportView(v1Comparison.stored);
@@ -298,7 +298,7 @@ test("legacy Shields wire labels are normalized to the simulation-honest pair", 
 test("legacy family gates follow the recorded facts: catalog and Shields-mode mismatches deny their families", () => {
   const v1Single = makeScanReportV1() as ScanResult;
 
-  const catalogMismatch = createGpcComparisonReport(structuredClone(v1Single), structuredClone(v1Single));
+  const catalogMismatch = gpcPairV1(v1Single);
   catalogMismatch.variant.conditions.trackerCatalog = {
     ...catalogMismatch.variant.conditions.trackerCatalog,
     version: "different-version"
@@ -1452,3 +1452,16 @@ test("the view's two-arm diff equals the wire diff the producer wrote", () => {
     if (single.ok) assert.equal(comparisonDiffView(toReportView(single.stored)), null);
   }
 });
+
+/**
+ * A pair-eligible v1 GPC comparison: the eligibility gate verifies the
+ * declared axis actually varied, so the fixture flips the signal the way a
+ * real producer run does.
+ */
+function gpcPairV1(run: ScanResult) {
+  const baseline = structuredClone(run);
+  const variant = structuredClone(run);
+  baseline.conditions = { ...baseline.conditions, gpcEnabled: false };
+  variant.conditions = { ...variant.conditions, gpcEnabled: true };
+  return createGpcComparisonReport(baseline, variant);
+}

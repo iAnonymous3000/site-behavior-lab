@@ -113,7 +113,7 @@ test("a v1 Shields card quotes no fingerprint-call delta; detector versions were
   });
   const variant = makeResult({ firstPartyDomain: "heavy.example", totalRequests: 45, thirdPartyRequests: 5, thirdPartyDomains: 2 });
 
-  const card = byId(buildFindings(viewFromV1Report(createShieldsComparisonReport(baseline, variant)), null), "shields-comparison");
+  const card = byId(buildFindings(viewFromV1Report(shieldsPair(baseline, variant)), null), "shields-comparison");
   // The detector-findings family is denied on every v1 pair, so the card must
   // compose without a fingerprint-call delta anywhere.
   assert.doesNotMatch(`${card.lead} ${card.evidence}`, /fingerprint-like call/);
@@ -141,7 +141,7 @@ test("a Shields pair with mixed directions never reads as 'fewer tracking signal
     thirdPartyDomains: 6
   });
 
-  const card = byId(buildFindings(viewFromV1Report(createShieldsComparisonReport(baseline, variant)), null), "shields-comparison");
+  const card = byId(buildFindings(viewFromV1Report(shieldsPair(baseline, variant)), null), "shields-comparison");
   assert.equal(card.level, "info");
   assert.match(card.title, /Mixed changes observed with Brave-list blocking on/);
   assert.match(card.lead, /8 more third-party requests/);
@@ -301,7 +301,7 @@ test("a Shields comparison keeps the fingerprinting card alongside session-recor
     fingerprintEvents: 0
   });
 
-  const report = createShieldsComparisonReport(baseline, variant);
+  const report = shieldsPair(baseline, variant);
   const ids = buildFindings(viewFromV1Report(report), null).map((finding) => finding.id);
 
   // The historical bug capped the list at eight and dropped the last-pushed
@@ -331,7 +331,7 @@ test("the Shields comparison card hedges the residual beyond the direct engine b
     adblock: { active: true, source: "brave-default", lists: 5, fetchedAt: new Date(0).toISOString() }
   };
 
-  const card = byId(buildFindings(viewFromV1Report(createShieldsComparisonReport(baseline, variant)), null), "shields-comparison");
+  const card = byId(buildFindings(viewFromV1Report(shieldsPair(baseline, variant)), null), "shields-comparison");
   assert.match(card.detail, /directly blocked 9 requests/);
   // The residual is not established to be follow-on prevention; it can also be
   // run variance, so the attribution must stay hedged.
@@ -361,7 +361,7 @@ test("a consent comparison flags trackers that survive Reject all", () => {
     consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "OneTrust" }
   };
 
-  const report = createConsentComparisonReport(acceptRun, rejectRun);
+  const report = consentPair(acceptRun, rejectRun);
   const findings = buildFindings(viewFromV1Report(report), null);
 
   assert.equal(findings[0].id, "bottom-line");
@@ -390,7 +390,7 @@ test("a consent comparison with no clickable banner claims nothing", () => {
     consentInteraction: { mode: "reject-all" as const, clicked: false }
   };
 
-  const report = createConsentComparisonReport(acceptRun, rejectRun);
+  const report = consentPair(acceptRun, rejectRun);
   const card = byId(buildFindings(viewFromV1Report(report), null), "consent-comparison");
 
   assert.equal(card.level, "info");
@@ -412,7 +412,7 @@ test("a clean reject run earns the ok consent card, and a missing reject control
     consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "Cookiebot" }
   };
 
-  const okCard = byId(buildFindings(viewFromV1Report(createConsentComparisonReport(acceptRun, cleanRejectRun)), null), "consent-comparison");
+  const okCard = byId(buildFindings(viewFromV1Report(consentPair(acceptRun, cleanRejectRun)), null), "consent-comparison");
   assert.equal(okCard.level, "ok");
   assert.match(okCard.title, /The Reject-all visit had no catalogued trackers/);
 
@@ -421,7 +421,7 @@ test("a clean reject run earns the ok consent card, and a missing reject control
     consentInteraction: { mode: "reject-all" as const, clicked: false }
   };
   const partialCard = byId(
-    buildFindings(viewFromV1Report(createConsentComparisonReport(acceptRun, unclickedRejectRun)), null),
+    buildFindings(viewFromV1Report(consentPair(acceptRun, unclickedRejectRun)), null),
     "consent-comparison"
   );
   assert.equal(partialCard.level, "info");
@@ -581,7 +581,7 @@ test("an ineligible comparison replaces the story card with the disqualifying fa
   });
   const variant = makeResult({ firstPartyDomain: "heavy.example", totalRequests: 45, thirdPartyRequests: 5 });
 
-  const shieldsFindings = buildFindings(viewFromV1Report(createShieldsComparisonReport(cappedBaseline, variant)), null);
+  const shieldsFindings = buildFindings(viewFromV1Report(shieldsPair(cappedBaseline, variant)), null);
   const shieldsCard = byId(shieldsFindings, "shields-comparison");
   assert.match(shieldsCard.title, /not conclusive/);
   assert.match(shieldsCard.lead, /recording cap/);
@@ -596,14 +596,14 @@ test("an ineligible comparison replaces the story card with the disqualifying fa
     consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "OneTrust" }
   };
   const consentCard = byId(
-    buildFindings(viewFromV1Report(createConsentComparisonReport(acceptRun, failedRejectRun)), null),
+    buildFindings(viewFromV1Report(consentPair(acceptRun, failedRejectRun)), null),
     "consent-comparison"
   );
   assert.match(consentCard.title, /not conclusive/);
   assert.match(consentCard.lead, /HTTP 503/);
 
   const gpcCard = byId(
-    buildFindings(viewFromV1Report(createGpcComparisonReport(makeResult({ firstPartyDomain: "a.example" }), makeResult({ firstPartyDomain: "b.example" }))), null),
+    buildFindings(viewFromV1Report(gpcPair(makeResult({ firstPartyDomain: "a.example" }), makeResult({ firstPartyDomain: "b.example" }))), null),
     "gpc-comparison"
   );
   assert.match(gpcCard.title, /not conclusive/);
@@ -762,7 +762,7 @@ test("an honored-GPC claim is never contradicted by request counts", () => {
     thirdPartyRequests: 38,
     thirdPartyDomains: 1
   });
-  const report = createGpcComparisonReport(baseline, variant);
+  const report = gpcPair(baseline, variant);
 
   const card = byId(buildFindings(viewFromV1Report(report), null), "privacy-policy");
   assert.equal(card.level, "ok");
@@ -836,7 +836,7 @@ test("a tampered wire diff cannot drive the Shields card; deltas and entity list
     thirdPartyRequests: 5,
     thirdPartyDomains: 2
   });
-  const report = createShieldsComparisonReport(baseline, variant);
+  const report = shieldsPair(baseline, variant);
   // An uploaded report can carry any diff block it likes; the card must quote
   // the arms' recorded counts and entities, never the wire's precomputed claim.
   report.diff.thirdPartyRequests = { before: 9, after: 9, delta: 0 };
@@ -848,3 +848,26 @@ test("a tampered wire diff cannot drive the Shields card; deltas and entity list
   assert.match(card.detail, /Services only seen in the unblocked visit: AdCo/);
   assert.doesNotMatch(card.detail, /Forged Co/);
 });
+
+// Axis-valid pair builders: the eligibility gate now verifies the DECLARED
+// experiment actually happened (GPC off->on, an unblocked baseline vs a
+// blocking variant, accept-all vs reject-all), so test pairs must vary their
+// axis the way real producer runs do.
+function gpcPair(baseline: ScanResult, variant: ScanResult) {
+  baseline.conditions = { ...baseline.conditions, gpcEnabled: false };
+  variant.conditions = { ...variant.conditions, gpcEnabled: true };
+  return createGpcComparisonReport(baseline, variant);
+}
+
+function shieldsPair(baseline: ScanResult, variant: ScanResult) {
+  const adblock = { active: true, source: "brave", lists: 3, fetchedAt: "2026-01-01T00:00:00.000Z" };
+  baseline.conditions = { ...baseline.conditions, shieldsMode: "classification" as const, adblock: { ...adblock } };
+  variant.conditions = { ...variant.conditions, shieldsMode: "block-simulation" as const, adblock: { ...adblock } };
+  return createShieldsComparisonReport(baseline, variant);
+}
+
+function consentPair(accept: ScanResult, reject: ScanResult) {
+  accept.conditions = { ...accept.conditions, consentMode: "accept-all" as const };
+  reject.conditions = { ...reject.conditions, consentMode: "reject-all" as const };
+  return createConsentComparisonReport(accept, reject);
+}

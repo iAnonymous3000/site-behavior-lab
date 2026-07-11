@@ -523,7 +523,9 @@ function legacyClaims(report: Extract<ScanReport, { reportType: "comparison" }>)
   } else if (
     baselineCatalog.source !== variantCatalog.source ||
     baselineCatalog.version !== variantCatalog.version ||
-    (baselineCatalog.region ?? null) !== (variantCatalog.region ?? null)
+    (baselineCatalog.region ?? null) !== (variantCatalog.region ?? null) ||
+    baselineCatalog.entries !== variantCatalog.entries ||
+    (baselineCatalog.curatedOverrides ?? null) !== (variantCatalog.curatedOverrides ?? null)
   ) {
     catalogReasons.push(
       "The two visits classified trackers with different catalogs, so classification deltas would compare instruments, not the site."

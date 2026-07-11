@@ -113,7 +113,7 @@ test("flags a GPC comparison that barely changed as an alarm", () => {
     thirdPartyDomains: 40
   });
 
-  const headline = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(baseline, variant)));
+  const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
   assert.equal(headline.tone, "alarm");
   // DESCRIPTIVE two-visit wording only: "the signal barely changed what
   // loaded" is intervention-attributed phrasing (RFC 4.4) and would need
@@ -137,7 +137,7 @@ test("phrases a GPC comparison that loaded more as 'more', not a negative percen
     thirdPartyDomains: 10
   });
 
-  const headline = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(baseline, variant)));
+  const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
   assert.equal(headline.tone, "alarm");
   // Side-by-side numbers, never a computed "down just -10%" phrase.
   assert.match(headline.subhead, /110 third-party requests, versus 100 in the visit without the signal/);
@@ -159,7 +159,7 @@ test("credits a GPC comparison that pulled back as calm", () => {
     thirdPartyDomains: 0
   });
 
-  const headline = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(baseline, variant)));
+  const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
   assert.equal(headline.tone, "calm");
   assert.match(headline.headline, /Off-site requests to respectful\.example dropped 100% with a privacy signal on\./);
   assert.match(headline.subhead, /not proof the site honors the signal/);
@@ -185,7 +185,7 @@ test("the GPC alarm counts tracking companies from the GPC-on visit, not the bas
     thirdPartyDomains: 8
   });
 
-  const headline = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(baseline, variant)));
+  const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
   assert.equal(headline.tone, "alarm");
   assert.match(headline.subhead, /still contacted 1 tracking company:/);
   assert.doesNotMatch(headline.subhead, /3 tracking companies/);
@@ -213,7 +213,7 @@ test("the GPC alarm is not raised from baseline-only tracking companies", () => 
     thirdPartyDomains: 9
   });
 
-  const headline = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(baseline, variant)));
+  const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
   assert.doesNotMatch(headline.subhead, /still contacted/);
 });
 
@@ -233,7 +233,7 @@ test("frames a Shields comparison as the observed paired-visit difference", () =
     thirdPartyDomains: 2
   });
 
-  const headline = buildReportHeadline(viewFromV1Report(createShieldsComparisonReport(baseline, variant)));
+  const headline = buildReportHeadline(viewFromV1Report(shieldsPair(baseline, variant)));
   assert.equal(headline.tone, "warn");
   assert.match(headline.headline, /heavy\.example loaded 55 fewer third-party requests with Brave-list blocking on\./);
   assert.doesNotMatch(headline.headline, /would/);
@@ -259,7 +259,7 @@ test("a Shields comparison names the direct engine blocks separately from the re
     adblock: { active: true, source: "brave-default", lists: 5, fetchedAt: new Date(0).toISOString() }
   };
 
-  const headline = buildReportHeadline(viewFromV1Report(createShieldsComparisonReport(baseline, variant)));
+  const headline = buildReportHeadline(viewFromV1Report(shieldsPair(baseline, variant)));
   assert.match(headline.headline, /55 fewer third-party requests/);
   // The direct-abort count and the total reduction are different measurements
   // and must appear as two separately-labeled numbers, never blended.
@@ -282,13 +282,13 @@ test("comparison framings are refused when an arm failed, is capped, or mismatch
     thirdPartyRequests: 60
   });
   const shieldsVariant = makeResult({ firstPartyDomain: "heavy.example", totalRequests: 45, thirdPartyRequests: 5 });
-  const cappedHeadline = buildReportHeadline(viewFromV1Report(createShieldsComparisonReport(cappedBaseline, shieldsVariant)));
+  const cappedHeadline = buildReportHeadline(viewFromV1Report(shieldsPair(cappedBaseline, shieldsVariant)));
   assert.doesNotMatch(cappedHeadline.headline, /fewer third-party requests with Brave-list blocking on/);
 
   // Failed GPC variant: the pair supports no signal story.
   const gpcBaseline = makeResult({ firstPartyDomain: "shop.example", domains: trackerDomains, thirdPartyRequests: 100 });
   const failedVariant = makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 0, status: 403 });
-  const gpcHeadline = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(gpcBaseline, failedVariant)));
+  const gpcHeadline = buildReportHeadline(viewFromV1Report(gpcPair(gpcBaseline, failedVariant)));
   assert.doesNotMatch(gpcHeadline.headline, /privacy signal/);
 
   // Mismatched consent subject: the click story must not be told across sites.
@@ -304,7 +304,7 @@ test("comparison framings are refused when an arm failed, is capped, or mismatch
     }),
     consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "OneTrust" }
   };
-  const consentHeadline = buildReportHeadline(viewFromV1Report(createConsentComparisonReport(acceptRun, strayRejectRun)));
+  const consentHeadline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, strayRejectRun)));
   assert.doesNotMatch(consentHeadline.headline, /Reject-all visit/);
 });
 
@@ -499,7 +499,7 @@ test("trackers surviving a real Reject all click lead the consent-comparison hea
     consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "OneTrust" }
   };
 
-  const headline = buildReportHeadline(viewFromV1Report(createConsentComparisonReport(acceptRun, rejectRun)));
+  const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
   assert.equal(headline.tone, "warn");
   assert.match(headline.headline, /shop\.example still reached 1 tracking company in the Reject-all visit\./);
   assert.match(headline.subhead, /Google/);
@@ -525,7 +525,7 @@ test("a clean reject run headlines that the consent choice made a difference", (
     consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "Cookiebot" }
   };
 
-  const headline = buildReportHeadline(viewFromV1Report(createConsentComparisonReport(acceptRun, rejectRun)));
+  const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
   assert.equal(headline.tone, "info");
   // The scanner cannot verify the site registered the click, so the headline
   // describes the Reject-all visit, never an effect the rejection caused.
@@ -547,7 +547,7 @@ test("an un-clicked reject run falls through to the ordinary evidence headline",
     consentInteraction: { mode: "reject-all" as const, clicked: false }
   };
 
-  const headline = buildReportHeadline(viewFromV1Report(createConsentComparisonReport(acceptRun, rejectRun)));
+  const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
   // No Reject all claim is allowed when the click never happened; the report
   // leads with the ordinary evidence story instead.
   assert.equal(/Reject all/.test(headline.headline), false);
@@ -599,7 +599,7 @@ test("caveat counts one visit on single reports and two on comparisons", () => {
   const single = buildReportHeadline(viewFromV1Report(makeResult({ firstPartyDomain: "solo.example" })));
   assert.match(single.caveat, /one automated visit/);
 
-  const comparison = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(makeResult({ firstPartyDomain: "pair.example" }), makeResult({ firstPartyDomain: "pair.example" }))));
+  const comparison = buildReportHeadline(viewFromV1Report(gpcPair(makeResult({ firstPartyDomain: "pair.example" }), makeResult({ firstPartyDomain: "pair.example" }))));
   assert.match(comparison.caveat, /two automated visits/);
 });
 
@@ -724,7 +724,7 @@ test("a tampered wire diff cannot drive the headline; numbers derive from the tw
     thirdPartyRequests: 5,
     thirdPartyDomains: 2
   });
-  const report = createShieldsComparisonReport(baseline, variant);
+  const report = shieldsPair(baseline, variant);
   // An uploaded report can carry any diff block it likes; the headline must
   // quote the arms' recorded counts, never the wire's precomputed claim.
   report.diff.thirdPartyRequests = { before: 9999, after: 9998, delta: -1 };
@@ -734,3 +734,26 @@ test("a tampered wire diff cannot drive the headline; numbers derive from the tw
   assert.match(headline.headline, /heavy\.example loaded 55 fewer third-party requests with Brave-list blocking on\./);
   assert.match(headline.subhead, /made 100 requests/);
 });
+
+// Axis-valid pair builders: the eligibility gate now verifies the DECLARED
+// experiment actually happened (GPC off->on, an unblocked baseline vs a
+// blocking variant, accept-all vs reject-all), so test pairs must vary their
+// axis the way real producer runs do.
+function gpcPair(baseline: ScanResult, variant: ScanResult) {
+  baseline.conditions = { ...baseline.conditions, gpcEnabled: false };
+  variant.conditions = { ...variant.conditions, gpcEnabled: true };
+  return createGpcComparisonReport(baseline, variant);
+}
+
+function shieldsPair(baseline: ScanResult, variant: ScanResult) {
+  const adblock = { active: true, source: "brave", lists: 3, fetchedAt: "2026-01-01T00:00:00.000Z" };
+  baseline.conditions = { ...baseline.conditions, shieldsMode: "classification" as const, adblock: { ...adblock } };
+  variant.conditions = { ...variant.conditions, shieldsMode: "block-simulation" as const, adblock: { ...adblock } };
+  return createShieldsComparisonReport(baseline, variant);
+}
+
+function consentPair(accept: ScanResult, reject: ScanResult) {
+  accept.conditions = { ...accept.conditions, consentMode: "accept-all" as const };
+  reject.conditions = { ...reject.conditions, consentMode: "reject-all" as const };
+  return createConsentComparisonReport(accept, reject);
+}

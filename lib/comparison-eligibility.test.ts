@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createShieldsComparisonReport, createTemporalComparisonReport } from "./compare-reports";
+import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport, createTemporalComparisonReport } from "./compare-reports";
 import {
   COMPARISON_REQUEST_CAP,
   comparableSubjectHosts,
@@ -18,19 +18,83 @@ test("the eligibility cap constant matches the scanner's recording cap", () => {
 });
 
 test("a matched, uncapped, loaded pair is eligible", () => {
-  const report = createShieldsComparisonReport(
-    makeRun({ firstPartyDomain: "www.example.com" }),
-    makeRun({ firstPartyDomain: "example.com" })
-  );
+  const report = shieldsPair(makeRun({ firstPartyDomain: "www.example.com" }), makeRun({ firstPartyDomain: "example.com" }));
   assert.deepEqual(comparisonEligibility(report), { eligible: true, reasons: [] });
 });
 
 test("a failed arm disqualifies the comparison and names the run label", () => {
-  const report = createShieldsComparisonReport(makeRun({}), makeRun({ status: 403 }));
+  const report = shieldsPair(makeRun({}), makeRun({ status: 403 }));
   const eligibility = comparisonEligibility(report);
   assert.equal(eligibility.eligible, false);
   assert.equal(eligibility.reasons.length, 1);
   assert.match(eligibility.reasons[0], /"Brave-list blocking" visit returned HTTP 403/);
+});
+
+test("the declared experiment must have happened: unvaried axes disqualify", () => {
+  // GPC pair whose arms both ran without the signal.
+  const gpcReport = createGpcComparisonReport(makeRun({}), makeRun({}));
+  const gpc = comparisonEligibility(gpcReport);
+  assert.equal(gpc.eligible, false);
+  assert.match(gpc.reasons.join(" "), /did not vary the signal/);
+
+  // Shields pair whose blocking arm never ran the engine.
+  const shieldsReport = createShieldsComparisonReport(makeRun({}), makeRun({}));
+  const shields = comparisonEligibility(shieldsReport);
+  assert.equal(shields.eligible, false);
+  assert.match(shields.reasons.join(" "), /requires the variant visit to have run the blocking engine/);
+
+  // Consent pair whose arms never attempted the accept/reject modes.
+  const consentReport = createConsentComparisonReport(makeRun({}), makeRun({}));
+  const consent = comparisonEligibility(consentReport);
+  assert.equal(consent.eligible, false);
+  assert.match(consent.reasons.join(" "), /requires an accept-all baseline visit and a reject-all variant visit/);
+});
+
+test("unknown load state and literal-unknown environments disqualify", () => {
+  const nullStatus = makeRun({});
+  nullStatus.summary = { ...nullStatus.summary, status: null };
+  const noStatus = comparisonEligibility(createTemporalComparisonReport(makeRun({}), nullStatus));
+  assert.equal(noStatus.eligible, false);
+  assert.match(noStatus.reasons.join(" "), /recorded no HTTP status/);
+
+  const unknownEgress = makeRun({});
+  unknownEgress.conditions = { ...unknownEgress.conditions, scannerEgress: "unknown" };
+  const bothUnknown = makeRun({});
+  bothUnknown.conditions = { ...bothUnknown.conditions, scannerEgress: "Unknown" };
+  const egress = comparisonEligibility(createTemporalComparisonReport(bothUnknown, unknownEgress));
+  assert.equal(egress.eligible, false);
+  assert.match(egress.reasons.join(" "), /did not record its network egress/);
+});
+
+test("user agent, language, and final page must also match", () => {
+  const uaVariant = makeRun({});
+  uaVariant.conditions = { ...uaVariant.conditions, userAgent: "other" };
+  assert.match(
+    comparisonEligibility(createTemporalComparisonReport(makeRun({}), uaVariant)).reasons.join(" "),
+    /different user agents/
+  );
+
+  const langVariant = makeRun({});
+  langVariant.conditions = { ...langVariant.conditions, language: "de" };
+  assert.match(
+    comparisonEligibility(createTemporalComparisonReport(makeRun({}), langVariant)).reasons.join(" "),
+    /different languages/
+  );
+
+  const redirected = makeRun({});
+  redirected.conditions = { ...redirected.conditions, finalUrl: "https://example.com/en/services" };
+  assert.match(
+    comparisonEligibility(createTemporalComparisonReport(makeRun({}), redirected)).reasons.join(" "),
+    /ended on different pages/
+  );
+
+  // Consent pairs are exempt from the final-URL rule: the dispatched click
+  // itself can navigate.
+  const acceptArm = makeRun({});
+  acceptArm.conditions = { ...acceptArm.conditions, consentMode: "accept-all" };
+  const rejectArm = makeRun({});
+  rejectArm.conditions = { ...rejectArm.conditions, consentMode: "reject-all", finalUrl: "https://example.com/consent-done" };
+  assert.equal(comparisonEligibility(createConsentComparisonReport(acceptArm, rejectArm)).eligible, true);
 });
 
 test("a request-capped arm disqualifies the comparison", () => {
@@ -175,4 +239,12 @@ function makeRun(overrides: RunOverrides): ScanResult {
     screenshot: null,
     warnings: []
   };
+}
+
+/** Axis-valid Shields pair: the gate verifies the blocking arm really blocked. */
+function shieldsPair(baseline: ScanResult, variant: ScanResult) {
+  const adblock = { active: true, source: "brave", lists: 3, fetchedAt: "2026-01-01T00:00:00.000Z" };
+  baseline.conditions = { ...baseline.conditions, shieldsMode: "classification" as const, adblock: { ...adblock } };
+  variant.conditions = { ...variant.conditions, shieldsMode: "block-simulation" as const, adblock: { ...adblock } };
+  return createShieldsComparisonReport(baseline, variant);
 }
