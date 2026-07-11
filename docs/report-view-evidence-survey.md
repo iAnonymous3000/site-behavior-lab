@@ -47,10 +47,14 @@ fingerprinting, pixel events, provenance), `runLabels`, `comparisonType`,
    /pixel tables).
 3. `app/_components/comparison-panel.tsx` (diff tiles + lists; already
    consults `comparisonEligibility`, should consult `view.claims`).
-   DONE 2026-07-10: banner on `view.claims.pairComparison`, run labels on
-   `view.comparison.runLabels`. The diff tiles/lists still read the v1 wire
-   `diff` (raw evidence, not claims); they move to arm-derived deltas in the
-   v2 render slice, since v2 comparisons carry no precomputed diff.
+   DONE 2026-07-10 (fully): banner on `view.claims.pairComparison`, run
+   labels on `view.comparison.runLabels`, and the diff tiles/lists on
+   `comparisonDiffView` (scan-report-views), which derives the v1-shaped
+   diff from the two arms through `compareRunFacts`, the SAME builder the
+   producer's `compareScanResults` now delegates to, so parity with the
+   wire diff holds by construction (pinned) and v2 pairs (whose wire diff
+   is family-shaped) or tampered uploads render identically. The panel no
+   longer takes the wire report at all.
 4. `lib/report-headline.ts` + `lib/report-findings.ts` (claim wording; must
    consult `view.claims` instead of the interim gate; two-arm evidence work
    lands here). DONE 2026-07-10: both engines take `ReportView`; every

@@ -798,7 +798,7 @@ export function SiteBehaviorApp({
                 <HeadlineBanner report={result} view={reportView} liveApiServesReportPages={liveApiServesReportPages} />
                 <FindingsBoard view={reportView} />
                 <CausalityGraph requests={primaryRun.evidence.requests} />
-                {isComparisonReport(result) && <ComparisonPanel report={result} view={reportView} />}
+                {reportView.reportType === "comparison" && <ComparisonPanel view={reportView} />}
                 <MetricGrid run={primaryRun} />
                 <TrafficViz run={primaryRun} />
                 <Warnings warnings={reportView.warnings} />
@@ -1175,9 +1175,6 @@ function sleep(ms: number): Promise<void> {
   });
 }
 
-function isComparisonReport(result: ScanReport): result is ComparisonScanResult {
-  return result.reportType === "comparison";
-}
 
 
 function normalizeScanUrl(value: string): string {

@@ -127,40 +127,97 @@ export function createComparisonReport({
 }
 
 export function compareScanResults(before: ScanResult, after: ScanResult): ComparisonDiff {
+  return compareRunFacts(runFactsFromScanResult(before), runFactsFromScanResult(after));
+}
+
+/**
+ * The count and evidence surface the diff derives from. Structurally matched
+ * by the view seam's `RunView`, so a consumer holding views computes the SAME
+ * diff the producer wrote (one definition; parity by construction), and a v2
+ * pair (which carries no v1-shaped diff) or a tampered upload gets identical
+ * treatment.
+ */
+export type ComparisonRunFacts = {
+  counts: {
+    totalRequests: number;
+    thirdPartyRequests: number;
+    knownTrackerRequests: number;
+    thirdPartyDomains: number;
+    cookies: number;
+    thirdPartyCookies: number;
+    storageEntries: number;
+    fingerprintEvents: number;
+    shieldsBlockedRequests: number | null;
+  };
+  evidence: {
+    requests: NetworkRequestRecord[];
+    domains: DomainSummary[];
+    cookies: CookieRecord[];
+    storage: StorageRecord[];
+    fingerprintDetections: FingerprintDetectionSummary[];
+    pixelEvents: PixelEventSummary[];
+  };
+};
+
+function runFactsFromScanResult(result: ScanResult): ComparisonRunFacts {
+  return {
+    counts: {
+      totalRequests: result.summary.totalRequests,
+      thirdPartyRequests: result.summary.thirdPartyRequests,
+      knownTrackerRequests: result.summary.knownTrackerRequests,
+      thirdPartyDomains: result.summary.thirdPartyDomains,
+      cookies: result.summary.cookies,
+      thirdPartyCookies: result.summary.thirdPartyCookies,
+      storageEntries: result.summary.storageEntries,
+      fingerprintEvents: result.summary.fingerprintEvents,
+      shieldsBlockedRequests: result.summary.shieldsBlockedRequests ?? null
+    },
+    evidence: {
+      requests: result.requests,
+      domains: result.domains,
+      cookies: result.cookies,
+      storage: result.storage,
+      fingerprintDetections: result.fingerprintDetections ?? [],
+      pixelEvents: result.pixelEvents ?? []
+    }
+  };
+}
+
+export function compareRunFacts(before: ComparisonRunFacts, after: ComparisonRunFacts): ComparisonDiff {
   const diff: ComparisonDiff = {
-    totalRequests: delta(before.summary.totalRequests, after.summary.totalRequests),
-    thirdPartyRequests: delta(before.summary.thirdPartyRequests, after.summary.thirdPartyRequests),
-    knownTrackerRequests: delta(before.summary.knownTrackerRequests, after.summary.knownTrackerRequests),
-    thirdPartyDomains: delta(before.summary.thirdPartyDomains, after.summary.thirdPartyDomains),
-    cookies: delta(before.summary.cookies, after.summary.cookies),
-    thirdPartyCookies: delta(before.summary.thirdPartyCookies, after.summary.thirdPartyCookies),
-    storageEntries: delta(before.summary.storageEntries, after.summary.storageEntries),
-    fingerprintEvents: delta(before.summary.fingerprintEvents, after.summary.fingerprintEvents),
-    addedDomains: domainChanges(before.domains, after.domains),
-    removedDomains: domainChanges(after.domains, before.domains),
-    addedEntities: entityChanges(before.domains, after.domains),
-    removedEntities: entityChanges(after.domains, before.domains),
-    addedCookies: cookieChanges(before.cookies, after.cookies),
-    removedCookies: cookieChanges(after.cookies, before.cookies),
-    addedStorageKeys: storageKeyChanges(before.storage, after.storage),
-    removedStorageKeys: storageKeyChanges(after.storage, before.storage),
-    addedFingerprinting: fingerprintingChanges(before.fingerprintDetections, after.fingerprintDetections),
-    removedFingerprinting: fingerprintingChanges(after.fingerprintDetections, before.fingerprintDetections),
-    addedProvenance: provenanceChanges(before.requests, after.requests),
-    removedProvenance: provenanceChanges(after.requests, before.requests)
+    totalRequests: delta(before.counts.totalRequests, after.counts.totalRequests),
+    thirdPartyRequests: delta(before.counts.thirdPartyRequests, after.counts.thirdPartyRequests),
+    knownTrackerRequests: delta(before.counts.knownTrackerRequests, after.counts.knownTrackerRequests),
+    thirdPartyDomains: delta(before.counts.thirdPartyDomains, after.counts.thirdPartyDomains),
+    cookies: delta(before.counts.cookies, after.counts.cookies),
+    thirdPartyCookies: delta(before.counts.thirdPartyCookies, after.counts.thirdPartyCookies),
+    storageEntries: delta(before.counts.storageEntries, after.counts.storageEntries),
+    fingerprintEvents: delta(before.counts.fingerprintEvents, after.counts.fingerprintEvents),
+    addedDomains: domainChanges(before.evidence.domains, after.evidence.domains),
+    removedDomains: domainChanges(after.evidence.domains, before.evidence.domains),
+    addedEntities: entityChanges(before.evidence.domains, after.evidence.domains),
+    removedEntities: entityChanges(after.evidence.domains, before.evidence.domains),
+    addedCookies: cookieChanges(before.evidence.cookies, after.evidence.cookies),
+    removedCookies: cookieChanges(after.evidence.cookies, before.evidence.cookies),
+    addedStorageKeys: storageKeyChanges(before.evidence.storage, after.evidence.storage),
+    removedStorageKeys: storageKeyChanges(after.evidence.storage, before.evidence.storage),
+    addedFingerprinting: fingerprintingChanges(before.evidence.fingerprintDetections, after.evidence.fingerprintDetections),
+    removedFingerprinting: fingerprintingChanges(after.evidence.fingerprintDetections, before.evidence.fingerprintDetections),
+    addedProvenance: provenanceChanges(before.evidence.requests, after.evidence.requests),
+    removedProvenance: provenanceChanges(after.evidence.requests, before.evidence.requests)
   };
 
   const shieldsBlockedRequests = optionalDelta(
-    before.summary.shieldsBlockedRequests,
-    after.summary.shieldsBlockedRequests
+    before.counts.shieldsBlockedRequests ?? undefined,
+    after.counts.shieldsBlockedRequests ?? undefined
   );
   if (shieldsBlockedRequests) diff.shieldsBlockedRequests = shieldsBlockedRequests;
 
   // Pixel-level detail behind the entity diff: when Shields blocks facebook.com,
   // "Meta" already drops out of removedEntities, but this also names the pixel
   // and the events that stopped firing (e.g. Meta Pixel: PageView, Purchase).
-  const addedPixelEvents = pixelEventChanges(before.pixelEvents, after.pixelEvents);
-  const removedPixelEvents = pixelEventChanges(after.pixelEvents, before.pixelEvents);
+  const addedPixelEvents = pixelEventChanges(before.evidence.pixelEvents, after.evidence.pixelEvents);
+  const removedPixelEvents = pixelEventChanges(after.evidence.pixelEvents, before.evidence.pixelEvents);
   if (addedPixelEvents.length > 0) diff.addedPixelEvents = addedPixelEvents;
   if (removedPixelEvents.length > 0) diff.removedPixelEvents = removedPixelEvents;
 

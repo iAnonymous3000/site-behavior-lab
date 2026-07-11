@@ -14,7 +14,7 @@ import {
 } from "./scan-report-v2-fixtures";
 import { isPublicComparisonReportV2, isPublicScanReportV2, isPublicSingleReportV2 } from "./scan-report-v2-validation";
 import { readStoredScanReport } from "./scan-report-reader";
-import { comparisonArmViews, publicWireForExportOrPersistence, readScanTransportPayload, toReportView } from "./scan-report-view";
+import { comparisonArmViews, comparisonDiffView, publicWireForExportOrPersistence, readScanTransportPayload, toReportView } from "./scan-report-view";
 import { evaluateComparability, evaluateQuality } from "./scan-report-v2-evaluators";
 import { createGpcComparisonReport } from "./compare-reports";
 import type { ScanResult } from "./types";
@@ -1234,5 +1234,23 @@ test("run views carry the consent outcome and comparison views carry display lab
       ...view.runs[0].warnings.map((warning) => `Before: ${warning}`),
       ...view.runs[1].warnings.map((warning) => `After: ${warning}`)
     ]);
+  }
+});
+
+test("the view's two-arm diff equals the wire diff the producer wrote", () => {
+  // One builder serves both: the producer computed the wire's diff from the
+  // arms, and comparisonDiffView recomputes it from the arms' run views, so
+  // parity holds by construction for any producer-built v1 comparison.
+  const v1Single = makeScanReportV1() as ScanResult;
+  const report = createGpcComparisonReport(structuredClone(v1Single), structuredClone(v1Single));
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, true);
+  if (read.ok) {
+    const view = toReportView(read.stored);
+    assert.deepEqual(comparisonDiffView(view), report.diff);
+    // Single reports have no arms and therefore no diff.
+    const single = readStoredScanReport(makeScanReportV1());
+    assert.equal(single.ok, true);
+    if (single.ok) assert.equal(comparisonDiffView(toReportView(single.stored)), null);
   }
 });

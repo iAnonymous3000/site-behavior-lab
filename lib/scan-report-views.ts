@@ -8,10 +8,12 @@
  * dragging the validators into the first-load bundle (the deep readers live in
  * scan-report-view.ts, which is lazy-loaded via lib/client-report-reader.ts).
  */
+import { compareRunFacts } from "./compare-reports";
 import { comparisonEligibility, runHitRequestCap } from "./comparison-eligibility";
 import { summarizeDomains } from "./domain-summaries";
 import type {
   CnameCloak,
+  ComparisonDiff,
   CookieRecord,
   DomainSummary,
   FingerprintDetectionSummary,
@@ -596,6 +598,18 @@ export function toReportView(stored: StoredScanReport): ReportView {
 export function comparisonArmViews(view: ReportView): { baseline: RunView; variant: RunView } | null {
   if (view.reportType !== "comparison" || view.runs.length < 2) return null;
   return { baseline: view.runs[0], variant: view.runs[view.runs.length - 1] };
+}
+
+/**
+ * The two-arm evidence diff, derived from the arms' run views through the SAME
+ * builder the v1 producer used to write the wire's `diff` (parity by
+ * construction), so v2 comparisons (whose wire diff is family-shaped, not
+ * list-shaped) and tampered uploads render identically. Raw evidence, not a
+ * claim: it always renders; `claims` gates wording only.
+ */
+export function comparisonDiffView(view: ReportView): ComparisonDiff | null {
+  const arms = comparisonArmViews(view);
+  return arms ? compareRunFacts(arms.baseline, arms.variant) : null;
 }
 
 /**

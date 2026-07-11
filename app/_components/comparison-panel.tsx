@@ -1,14 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { ReportView } from "@/lib/scan-report-views";
+import { comparisonArmViews, comparisonDiffView, type ReportView } from "@/lib/scan-report-views";
 import { provenanceChangeText } from "@/lib/report-findings";
 import { pixelFieldLabel } from "@/lib/report-insights";
 import { plural } from "@/lib/text-format";
 import type {
   ComparisonMetricDelta,
-  ComparisonScanResult,
   CookieChange,
   DomainChange,
   EntityChange,
@@ -18,7 +17,13 @@ import type {
   StorageKeyChange
 } from "@/lib/types";
 
-function ComparisonPanel({ report, view }: { report: ComparisonScanResult; view: ReportView }) {
+function ComparisonPanel({ view }: { view: ReportView }) {
+  const arms = comparisonArmViews(view);
+  // The two-arm evidence diff, derived through the same builder the v1
+  // producer used to write the wire's diff block, so a v2 pair or a tampered
+  // upload renders identically to a freshly produced comparison.
+  const diff = useMemo(() => comparisonDiffView(view), [view]);
+  if (!arms || !diff) return null;
   // Labels come from the view (wire runLabels or the per-axis defaults), the
   // same source the JSON-LD dataset names its per-arm variables with.
   const labels = view.comparison?.runLabels ?? { baseline: "Baseline", variant: "Variant" };
@@ -27,34 +32,34 @@ function ComparisonPanel({ report, view }: { report: ComparisonScanResult; view:
   // the findings board. The gate comes from the view seam's default-deny
   // ClaimPolicy, the same source every other claim surface consults.
   const pairGate = view.claims.pairComparison;
-  const addedCookies = report.diff.addedCookies ?? [];
-  const removedCookies = report.diff.removedCookies ?? [];
-  const addedStorageKeys = report.diff.addedStorageKeys ?? [];
-  const removedStorageKeys = report.diff.removedStorageKeys ?? [];
-  const addedFingerprinting = report.diff.addedFingerprinting ?? [];
-  const removedFingerprinting = report.diff.removedFingerprinting ?? [];
-  const addedPixelEvents = report.diff.addedPixelEvents ?? [];
-  const removedPixelEvents = report.diff.removedPixelEvents ?? [];
-  const addedProvenance = report.diff.addedProvenance ?? [];
-  const removedProvenance = report.diff.removedProvenance ?? [];
+  const addedCookies = diff.addedCookies ?? [];
+  const removedCookies = diff.removedCookies ?? [];
+  const addedStorageKeys = diff.addedStorageKeys ?? [];
+  const removedStorageKeys = diff.removedStorageKeys ?? [];
+  const addedFingerprinting = diff.addedFingerprinting ?? [];
+  const removedFingerprinting = diff.removedFingerprinting ?? [];
+  const addedPixelEvents = diff.addedPixelEvents ?? [];
+  const removedPixelEvents = diff.removedPixelEvents ?? [];
+  const addedProvenance = diff.addedProvenance ?? [];
+  const removedProvenance = diff.removedProvenance ?? [];
   // On a Shields comparison the shieldsBlockedRequests delta compares two
   // DIFFERENT measurements (baseline = filter-list matches while loading
   // normally; variant = requests the engine actually aborted), so a single
   // "delta" row would blend them; the findings card reports each with its own
   // label instead. On other comparison types both arms carry filter-list
   // matches, so the delta is a like-for-like number and stays.
-  const shieldsDeltaComparable = report.comparisonType !== "shields";
+  const shieldsDeltaComparable = view.comparison?.axis !== "shields";
   const metrics = [
-    { label: "Requests", metric: report.diff.totalRequests },
-    { label: "Third-party requests", metric: report.diff.thirdPartyRequests },
-    { label: "Known-service requests", metric: report.diff.knownTrackerRequests },
-    { label: "Third-party domains", metric: report.diff.thirdPartyDomains },
-    { label: "Cookies", metric: report.diff.cookies },
-    { label: "Third-party cookies", metric: report.diff.thirdPartyCookies },
-    { label: "Storage keys", metric: report.diff.storageEntries },
-    { label: "Fingerprint events", metric: report.diff.fingerprintEvents },
-    ...(report.diff.shieldsBlockedRequests && shieldsDeltaComparable
-      ? [{ label: "Matched Shields lists", metric: report.diff.shieldsBlockedRequests }]
+    { label: "Requests", metric: diff.totalRequests },
+    { label: "Third-party requests", metric: diff.thirdPartyRequests },
+    { label: "Known-service requests", metric: diff.knownTrackerRequests },
+    { label: "Third-party domains", metric: diff.thirdPartyDomains },
+    { label: "Cookies", metric: diff.cookies },
+    { label: "Third-party cookies", metric: diff.thirdPartyCookies },
+    { label: "Storage keys", metric: diff.storageEntries },
+    { label: "Fingerprint events", metric: diff.fingerprintEvents },
+    ...(diff.shieldsBlockedRequests && shieldsDeltaComparable
+      ? [{ label: "Matched Shields lists", metric: diff.shieldsBlockedRequests }]
       : [])
   ].filter((item): item is { label: string; metric: ComparisonMetricDelta } => Boolean(item.metric));
 
@@ -62,17 +67,17 @@ function ComparisonPanel({ report, view }: { report: ComparisonScanResult; view:
     <section className="comparison-card">
       <div className="comparison-heading">
         <div>
-          <p className="eyebrow">{comparisonEyebrow(report)}</p>
+          <p className="eyebrow">{comparisonEyebrow(view)}</p>
           <h2>
             {labels.baseline} → {labels.variant} delta
           </h2>
         </div>
         <div className="comparison-runs">
           <span>
-            {labels.baseline}: {report.baseline.summary.durationMs.toLocaleString()}ms
+            {labels.baseline}: {arms.baseline.durationMs.toLocaleString()}ms
           </span>
           <span>
-            {labels.variant}: {report.variant.summary.durationMs.toLocaleString()}ms
+            {labels.variant}: {arms.variant.durationMs.toLocaleString()}ms
           </span>
         </div>
       </div>
@@ -92,10 +97,10 @@ function ComparisonPanel({ report, view }: { report: ComparisonScanResult; view:
         ))}
       </div>
       <div className="comparison-lists">
-        <ChangeList title={`Domains only with ${labels.variant}`} changes={report.diff.addedDomains} tone="added" />
-        <ChangeList title={`Domains only with ${labels.baseline}`} changes={report.diff.removedDomains} tone="removed" />
-        <EntityChangeList title={`Entities only with ${labels.variant}`} changes={report.diff.addedEntities} tone="added" />
-        <EntityChangeList title={`Entities only with ${labels.baseline}`} changes={report.diff.removedEntities} tone="removed" />
+        <ChangeList title={`Domains only with ${labels.variant}`} changes={diff.addedDomains} tone="added" />
+        <ChangeList title={`Domains only with ${labels.baseline}`} changes={diff.removedDomains} tone="removed" />
+        <EntityChangeList title={`Entities only with ${labels.variant}`} changes={diff.addedEntities} tone="added" />
+        <EntityChangeList title={`Entities only with ${labels.baseline}`} changes={diff.removedEntities} tone="removed" />
         <CookieChangeList title={`Cookies only with ${labels.variant}`} changes={addedCookies} tone="added" />
         <CookieChangeList title={`Cookies only with ${labels.baseline}`} changes={removedCookies} tone="removed" />
         <StorageChangeList title={`Storage keys only with ${labels.variant}`} changes={addedStorageKeys} tone="added" />
@@ -123,11 +128,16 @@ function ComparisonPanel({ report, view }: { report: ComparisonScanResult; view:
   );
 }
 
-function comparisonEyebrow(report: ComparisonScanResult): string {
-  if (report.comparisonType === "gpc") return "GPC Comparison";
-  if (report.comparisonType === "shields") return "Brave Shields Comparison";
-  if (report.comparisonType === "consent") return "Consent Comparison";
-  if (report.comparisonType === "temporal") return "Temporal Comparison";
+function comparisonEyebrow(view: ReportView): string {
+  const axis = view.comparison?.axis ?? null;
+  if (axis === "gpc") return "GPC Comparison";
+  if (axis === "shields") return "Brave Shields Comparison";
+  if (axis === "consent") return "Consent Comparison";
+  // Temporal pairs have no axis: a v2 temporal experiment and a v1 axis-less
+  // (temporal) comparison both land here.
+  if (view.comparison?.kind === "temporal" || (view.origin === "legacy-derived" && axis === null)) {
+    return "Temporal Comparison";
+  }
   return "Comparison Report";
 }
 
