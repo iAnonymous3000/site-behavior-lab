@@ -1335,6 +1335,28 @@ a {
   padding-left: 18px;
 }
 
+.comparison-ineligible .muted {
+  color: var(--text-2);
+  margin: 8px 0 0;
+}
+
+/* Schema-provenance chip beside the report eyebrow: always-visible origin
+   labeling (legacy-derived / limited), never buried in the sidebar. */
+.report-provenance {
+  background: var(--surface-2);
+  border: 1px solid var(--border-1);
+  border-radius: 999px;
+  color: var(--text-2);
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin-left: 8px;
+  padding: 2px 8px;
+  text-transform: none;
+  vertical-align: middle;
+}
+
 .comparison-metrics {
   display: grid;
   gap: 10px;

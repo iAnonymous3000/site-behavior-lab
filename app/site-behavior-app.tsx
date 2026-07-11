@@ -71,7 +71,14 @@ import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/l
 import { plural } from "@/lib/text-format";
 import { readRenderableReport } from "@/lib/client-report-reader";
 import { recoverSavedReport } from "@/lib/saved-report-recovery";
-import { displayRunView, toReportView, type ReportView, type RunView } from "@/lib/scan-report-views";
+import {
+  displayRunView,
+  runQualitySummary,
+  schemaProvenanceLabel,
+  toReportView,
+  type ReportView,
+  type RunView
+} from "@/lib/scan-report-views";
 import { REPORT_ID_PATTERN } from "@/lib/report-validation";
 import { toPublicScanReportV1 } from "@/lib/scan-report-v1-projection";
 import type {
@@ -855,6 +862,14 @@ export function SiteBehaviorApp({
                   <h2>Methodology</h2>
                   <dl>
                     <div>
+                      <dt>Schema</dt>
+                      <dd>{schemaProvenanceLabel(reportView)}</dd>
+                    </div>
+                    <div>
+                      <dt>Run quality</dt>
+                      <dd>{runQualitySummary(primaryRun)}</dd>
+                    </div>
+                    <div>
                       <dt>Scanner</dt>
                       <dd>{primaryRun.conditions.automation}</dd>
                     </div>
@@ -1488,7 +1503,12 @@ function ReportHeader({
   return (
     <section className="report-header">
       <div>
-        <p className="eyebrow">{view.reportType === "comparison" ? "Comparison Report" : "Scan Report"}</p>
+        <p className="eyebrow">
+          {view.reportType === "comparison" ? "Comparison Report" : "Scan Report"}
+          {/* Provenance is always visible, not buried in the sidebar: a
+              legacy-derived or limited report says so where the title is. */}
+          <span className="report-provenance">{schemaProvenanceLabel(view)}</span>
+        </p>
         <h2>{title || run.domain}</h2>
         {finalUrl ? (
           <a href={finalUrl} target="_blank" rel="noreferrer">

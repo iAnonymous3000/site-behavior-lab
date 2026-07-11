@@ -20,6 +20,8 @@ import {
   displayRunView,
   publicWireForExportOrPersistence,
   readScanTransportPayload,
+  runQualitySummary,
+  schemaProvenanceLabel,
   toReportView,
   viewFromV1Report,
   viewFromV2
@@ -304,6 +306,38 @@ test("legacy family gates follow the recorded facts: catalog and Shields-mode mi
   const shieldsView = viewFromV1Report(shieldsPair);
   assert.equal(shieldsView.claims.familyDeltas?.["shields-simulation"].allowed, false);
   assert.match(shieldsView.claims.familyDeltas?.["shields-simulation"].reasons.join(" ") ?? "", /different Shields quantities/);
+});
+
+test("schema provenance and run quality read as honest human labels", () => {
+  const v1 = readStoredScanReport(makeScanReportV1());
+  assert.equal(v1.ok, true);
+  if (v1.ok) {
+    const view = toReportView(v1.stored);
+    assert.equal(schemaProvenanceLabel(view), "v1 schema · facts legacy-derived · descriptive report");
+    // A derived quality guess must say so; it is never recorded fact.
+    assert.equal(runQualitySummary(view.runs[0]), "complete; derived from status and warnings");
+  }
+
+  const failed = makeScanReportV1() as ScanResult;
+  failed.summary.status = 403;
+  const failedView = viewFromV1Report(failed);
+  assert.match(runQualitySummary(failedView.runs[0]), /^failed \(HTTP 403\); derived from status and warnings$/);
+
+  const capped = makeScanReportV1() as ScanResult;
+  capped.summary.totalRequests = 1200;
+  const cappedView = viewFromV1Report(capped);
+  assert.match(runQualitySummary(cappedView.runs[0]), /^cut short: .*request-recording cap.*derived from status and warnings$/);
+
+  const v2 = readStoredScanReport(makePublicSingleReportV2());
+  assert.equal(v2.ok, true);
+  if (v2.ok) {
+    const view = toReportView(v2.stored);
+    assert.equal(schemaProvenanceLabel(view), "v2 schema (r1) · limited, descriptive report");
+    assert.match(runQualitySummary(view.runs[0]), /recorded by the scanner$/);
+  }
+
+  const r2 = viewFromV2(makeGpcInterventionReportV2R2(), 2);
+  assert.equal(schemaProvenanceLabel(r2), "v2 schema (r2)");
 });
 
 test("run views carry the full evidence surface and honest quality for both generations", () => {

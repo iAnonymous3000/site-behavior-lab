@@ -731,6 +731,36 @@ export function runCensorshipNotes(run: RunView): string[] {
 }
 
 /**
+ * Short human label for the report's schema provenance, shown beside the
+ * report header and in the methodology block: names the wire generation,
+ * whether the normalized facts are legacy-derived, and whether the report is
+ * limited/descriptive (RFC 15.7 / 10.1). A LABEL only; the enforcement lives
+ * in `claims`.
+ */
+export function schemaProvenanceLabel(view: ReportView): string {
+  if (view.origin === "legacy-derived") return "v1 schema · facts legacy-derived · descriptive report";
+  if (view.revision === 1) return "v2 schema (r1) · limited, descriptive report";
+  return `v2 schema (r${view.revision ?? 2})`;
+}
+
+/**
+ * One-line run-quality summary for the methodology block: outcome, censoring
+ * notes, and whether the quality block was recorded by the scanner (v2) or
+ * derived from status and warnings (v1), so a derived guess is never read as
+ * recorded fact.
+ */
+export function runQualitySummary(run: RunView): string {
+  const basis = run.quality.origin === "recorded" ? "recorded by the scanner" : "derived from status and warnings";
+  if (run.quality.outcome === "failed") {
+    const status = typeof run.status === "number" && run.status >= 400 ? ` (HTTP ${run.status})` : "";
+    return `failed${status}; ${basis}`;
+  }
+  const notes = runCensorshipNotes(run);
+  if (notes.length > 0) return `cut short: ${notes.join("; ")}; ${basis}`;
+  return `complete; ${basis}`;
+}
+
+/**
  * The run a report page leads with: the newer run for pairs DESIGNED as
  * before/after observations, the baseline (off / unprotected) run otherwise.
  * Keyed on the explicit `temporalPair` design marker, never on "axis is
