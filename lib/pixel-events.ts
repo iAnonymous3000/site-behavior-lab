@@ -10,9 +10,11 @@
  * Two deliberate privacy rules keep this compatible with the rest of the scanner
  * (which scrubs request URLs to origin+path and never retains payloads):
  *
- *   1. Event NAMES are site configuration, not visitor PII, so they are read
- *      from the request and stored verbatim, gated by a safe-token filter so a
- *      mislabelled field can never smuggle a value into the report.
+ *   1. Event NAMES are only stored verbatim when they match the platform's
+ *      standard event vocabulary (PageView, Purchase, ...). Anything else is a
+ *      site-defined string, usually a benign label but potentially a name or
+ *      account identifier, so it is generalized to "custom event" instead of
+ *      persisted. A safe-token filter still bounds what is inspected at all.
  *   2. Advanced-matching identifiers are detected by checking that a known
  *      identifier parameter carries a NON-EMPTY value. The value is inspected
  *      only transiently in memory for that emptiness test; it is never
@@ -122,13 +124,72 @@ const META_UD_FIELDS: Record<string, PixelMatchField> = {
   external_id: "external_id"
 };
 
+/**
+ * Standard event vocabularies, per platform. A name outside the vocabulary is
+ * a site-defined string: usually a benign label, but nothing stops a site
+ * putting a visitor's name or account identifier there, so custom names are
+ * generalized to {@link CUSTOM_EVENT_LABEL} instead of being persisted.
+ */
+const META_STANDARD_EVENTS = buildEventVocabulary([
+  "PageView",
+  "AddPaymentInfo",
+  "AddToCart",
+  "AddToWishlist",
+  "CompleteRegistration",
+  "Contact",
+  "CustomizeProduct",
+  "Donate",
+  "FindLocation",
+  "InitiateCheckout",
+  "Lead",
+  "Purchase",
+  "Schedule",
+  "Search",
+  "StartTrial",
+  "SubmitApplication",
+  "Subscribe",
+  "ViewContent"
+]);
+
+const TIKTOK_STANDARD_EVENTS = buildEventVocabulary([
+  "Pageview",
+  "AddPaymentInfo",
+  "AddToCart",
+  "AddToWishlist",
+  "ClickButton",
+  "CompletePayment",
+  "CompleteRegistration",
+  "Contact",
+  "Download",
+  "InitiateCheckout",
+  "PlaceAnOrder",
+  "Search",
+  "SubmitForm",
+  "Subscribe",
+  "ViewContent"
+]);
+
+const CUSTOM_EVENT_LABEL = "custom event";
+
+function buildEventVocabulary(names: string[]): Map<string, string> {
+  return new Map(names.map((name) => [name.toLowerCase(), name]));
+}
+
+/** The catalogued form of a standard event name, or the generalized custom label. */
+function catalogEventName(value: string, vocabulary: Map<string, string>): string {
+  return vocabulary.get(value.trim().toLowerCase()) ?? CUSTOM_EVENT_LABEL;
+}
+
 function isMetaPixel(host: string, path: string): boolean {
   return hostMatches(host, "facebook.com") && (path === "/tr" || path.startsWith("/tr/"));
 }
 
 function decodeMeta(parsed: URL, input: PixelEventInput): DecodedPixel {
   const params = mergedParams(parsed, input);
-  const events = params.getAll("ev").filter(isSafeEventToken);
+  const events = new Set<string>();
+  for (const token of params.getAll("ev")) {
+    if (isSafeEventToken(token)) events.add(catalogEventName(token, META_STANDARD_EVENTS));
+  }
   const advancedMatching = new Set<PixelMatchField>();
 
   for (const [key, value] of params) {
@@ -139,7 +200,7 @@ function decodeMeta(parsed: URL, input: PixelEventInput): DecodedPixel {
     if (field) advancedMatching.add(field);
   }
 
-  return { platform: "Meta", product: "Meta Pixel", events, advancedMatching: Array.from(advancedMatching) };
+  return { platform: "Meta", product: "Meta Pixel", events: Array.from(events), advancedMatching: Array.from(advancedMatching) };
 }
 
 // --- TikTok Pixel: POST JSON to analytics.tiktok.com/api/v2/pixel -----------
@@ -174,7 +235,7 @@ function decodeTikTok(input: PixelEventInput): DecodedPixel {
 
   for (const event of tiktokEventObjects(body)) {
     const name = firstString(event, ["event", "event_type", "type"]);
-    if (name && isSafeEventToken(name)) events.add(name);
+    if (name && isSafeEventToken(name)) events.add(catalogEventName(name, TIKTOK_STANDARD_EVENTS));
 
     const user = pickUserObject(event);
     if (!user) continue;
@@ -274,7 +335,9 @@ function firstString(obj: Record<string, unknown>, keys: string[]): string | nul
  * Whether a string is a plausible event NAME rather than a payload value. Meta
  * standard and custom events are short identifier-like tokens; a hashed value
  * (64 hex chars), URL-encoded JSON, or anything with separators fails here, so a
- * mislabelled field can never leak a value into the stored report.
+ * mislabelled field can never leak a value into the stored report. Tokens that
+ * pass are still generalized to "custom event" unless they match the platform's
+ * standard vocabulary (see {@link catalogEventName}).
  */
 function isSafeEventToken(value: string): boolean {
   return /^[A-Za-z][A-Za-z0-9 _.-]{0,39}$/.test(value);

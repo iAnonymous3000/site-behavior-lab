@@ -30,6 +30,33 @@ test("Meta: a PII-shaped ev value is rejected by the safe-token filter", () => {
   assert.deepEqual(decoded?.events, []);
 });
 
+test("Meta: non-standard event names are generalized, never persisted", () => {
+  // A site-defined event token can carry a visitor's name or account handle;
+  // the report keeps the standard vocabulary verbatim and generalizes the rest.
+  const decoded = decodePixelRequest({
+    url: "https://www.facebook.com/tr/?id=1&ev=Purchase&ev=JohnSmithSignup&ev=Account%20renamed"
+  });
+  assert.deepEqual(decoded?.events.sort(), ["Purchase", "custom event"]);
+  assert.ok(!JSON.stringify(decoded).includes("JohnSmithSignup"));
+});
+
+test("Meta: standard event names are canonicalized case-insensitively", () => {
+  const decoded = decodePixelRequest({ url: "https://www.facebook.com/tr/?id=1&ev=pageview" });
+  assert.deepEqual(decoded?.events, ["PageView"]);
+});
+
+test("TikTok: non-standard event names are generalized, never persisted", () => {
+  const decoded = decodePixelRequest({
+    url: "https://analytics.tiktok.com/api/v2/pixel",
+    method: "POST",
+    postData: JSON.stringify({
+      batch: [{ event: "ViewContent" }, { event: "jane.doe@example signup" }, { event: "LoyaltyTierGold" }]
+    })
+  });
+  assert.deepEqual(decoded?.events.sort(), ["ViewContent", "custom event"]);
+  assert.ok(!JSON.stringify(decoded).includes("LoyaltyTierGold"));
+});
+
 test("Meta: a urlencoded POST body is merged with the query string", () => {
   const decoded = decodePixelRequest({
     url: "https://www.facebook.com/tr/?id=1",

@@ -7,11 +7,12 @@ import type { ComparisonType } from "./types";
  * report with its most recent predecessor OF THE SAME KIND and returns the
  * metric deltas. Kind matters because baselines mean different things across
  * report types: a Shields/GPC comparison leads with a pre-consent observe run,
- * while a consent comparison leads with the post-accept run, so mixing kinds
- * would report a mode change as a site change. Consent reports additionally
- * split by dispatched click state (`consentClicks`): a run where the banner was
- * actually clicked measures post-choice behavior, while an unclicked run only
- * observed the pre-consent state, so pairing the two would report the
+ * while a consent comparison leads with the accept-all run (a visit whose
+ * recording spans the dispatched accept click), so mixing kinds would report a
+ * mode change as a site change. Consent reports additionally split by
+ * dispatched click state (`consentClicks`): a visit where a banner click was
+ * dispatched is a different kind of observation than an unclicked visit
+ * (which only saw the pre-consent state), so pairing the two would report the
  * interaction difference as a site change. Only the newest report per
  * (site, kind) gets a delta; a site with a single report of that kind gets
  * none.
@@ -31,7 +32,7 @@ export type TemporalDeltaInput = {
   scannedAt: string;
   reportType: "single" | "comparison";
   comparisonType?: ComparisonType;
-  /** Verified consent-click state (see corpus-overview); keeps clicked and unclicked consent runs from pairing. */
+  /** Dispatched consent-click state (see corpus-overview); keeps clicked and unclicked consent runs from pairing. */
   consentClicks?: string | null;
   thirdPartyRequests: number;
   trackerRequests: number;

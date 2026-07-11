@@ -108,6 +108,14 @@ jobs:
       - name: Build scanner app
         run: npm run build
 
+      # One dist/schema build for the WHOLE job (RFC 10.3): every later step
+      # (featured scans, prune, manifest, corpus stats) sees the env flag and
+      # skips its own compile of the same artifact.
+      - name: Build the dist/schema artifact once
+        run: |
+          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+          echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
+
       - name: Start scanner app
         run: |
           npm run start -- --port 3100 > /tmp/site-behavior-lab-featured.log 2>&1 &

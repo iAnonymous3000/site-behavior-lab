@@ -71,6 +71,7 @@ import { isScanRuntimeHealth, type ScanRuntimeHealth } from "@/lib/scan-runtime-
 import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/lib/run-mode-copy";
 import { plural } from "@/lib/text-format";
 import { readRenderableReport } from "@/lib/client-report-reader";
+import { recoverSavedReport } from "@/lib/saved-report-recovery";
 import { REPORT_ID_PATTERN } from "@/lib/report-validation";
 import { toPublicScanReportV1 } from "@/lib/scan-report-v1-projection";
 import type {
@@ -1129,38 +1130,12 @@ async function pollScanJob(statusPath: string, accessKey = "", reportId?: string
 }
 
 /**
- * Recovery read of a saved report. `null` means the report is genuinely not
- * available yet (a 404: missing or expired), so the caller may keep waiting or
- * fall back to its own message. Every other failure THROWS with the named
- * reason: the server's intentional 500 for an unreadable or newer-schema
- * stored report, and a payload that fails the reader, must reach the user
- * instead of dissolving into "still running".
+ * Recovery read of a saved report. The 404-versus-everything-else semantics
+ * live in lib/saved-report-recovery.ts (unit-tested there): `null` only for a
+ * genuine 404, a thrown named reason for unreadable or unservable reports.
  */
 async function readSavedReport(reportId: string): Promise<ScanReport | null> {
-  const response = await fetch(scannerApiUrl(`/api/reports/${reportId}`), { cache: "no-store" });
-  if (response.status === 404) return null;
-  if (!response.ok) {
-    const message = await apiErrorMessage(response);
-    throw new Error(message ?? `The saved report could not be read (HTTP ${response.status}).`);
-  }
-
-  const payload = (await response.json()) as unknown;
-  const read = readRenderableReport(payload, "The saved report");
-  if (!read.ok) throw new Error(read.message);
-  return read.report;
-}
-
-/** The `{ ok: false, error }` message from an API error body, if it has one. */
-async function apiErrorMessage(response: Response): Promise<string | null> {
-  try {
-    const payload = (await response.json()) as unknown;
-    if (payload && typeof payload === "object" && "error" in payload && typeof payload.error === "string") {
-      return payload.error;
-    }
-  } catch {
-    /* non-JSON error body */
-  }
-  return null;
+  return recoverSavedReport(await fetch(scannerApiUrl(`/api/reports/${reportId}`), { cache: "no-store" }));
 }
 
 function scanJobIdFromStatusPath(statusPath: string): string | null {

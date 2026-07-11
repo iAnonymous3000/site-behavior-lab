@@ -72,7 +72,7 @@ const ENTRIES: GlossaryEntry[] = [
     id: "advertising-pixels",
     term: "Advertising pixels",
     definition:
-      "Tracking pixels from platforms like Meta, TikTok, and X. Reports decode which events each pixel fired (PageView, Purchase, and so on) and whether personal-identifier fields were attached. Detection checks that a known identifier parameter carries a non-empty value; the value is inspected only transiently and never persisted, exposed, or decoded, so the platforms' documented hashing is not verified."
+      "Tracking pixels from platforms like Meta, TikTok, and X. Reports decode which events each pixel fired (PageView, Purchase, and so on; a site-defined event name is generalized to \"custom event\" rather than stored) and whether personal-identifier fields were attached. Detection checks that a known identifier parameter carries a non-empty value; the value is inspected only transiently and never persisted, exposed, or semantically interpreted, so the platforms' documented hashing is not verified."
   },
   {
     id: "consent-diff",
