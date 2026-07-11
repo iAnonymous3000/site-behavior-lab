@@ -238,3 +238,37 @@ slice) per Codex's own order:
   empty after switching arms; phase identity invisible.
 - Migration debt AFTER the v2 state migration: site-behavior-app.tsx size,
   duplicated stripShare, readScanReport without production callers.
+
+## Codex round 9 (2026-07-11): aggregate accuracy before the atomic slice
+
+Round 9 blocked the atomic migration on one more production-accuracy pass.
+Landed same day:
+
+- c40af38: capped runs are floors, not behavior: the v1 cap censors EVERY
+  evidence family (absence cards hedge), capped runs leave the percentiles
+  (corpus-stats regenerated, 96 sites, p95s matching Codex's sensitivity
+  check), rollups, leaderboard (AP/USA Today gone), and since-last-scan
+  pairing; temporal deltas pair by SUBJECT (equal requested + final routes);
+  exports gain request_capped; the consent note stops calling a mixed
+  recording "post-click".
+- 1329798: the 169 committed Shields reports remediated in place
+  (format-preserving: both legacy titles, run labels, warning sentence,
+  1,333 warning prefixes; all 235 revalidate; eligibility unchanged),
+  manifest regenerated, view normalizes both legacy titles for share-store
+  copies, README fixed (no "live Brave Shields", no pixel identifier
+  assertion), Shields card reports SIGNED per-family deltas classified
+  fewer/more/mixed/flat (Khan Academy case pinned), fingerprint absence
+  consults the separate v2 "fingerprinting" family, consent/policy
+  reassurance cards hedge under censoring, the conditional pixel observation
+  can only produce a "may conflict" info card, and the ineligible panel
+  stops heading nothing with "delta".
+- 5b4abb3: the legacy gate covers user agent, language, final page (consent
+  exempt), null status, literal "unknown", and DECLARED-axis verification
+  (GPC off->on, blocking arm really blocked, accept/reject modes); catalog
+  entries/overrides join the classification gate; corpus-neutral (214/235,
+  zero flips); fixtures now vary their axes like real runs.
+
+Remaining, unchanged in scope, all recorded above: the explicit three-state
+claim policy, phase/mutation/verification views, the atomic LoadedReport
+migration with cohort-aware statistics and the full fixture matrix, then
+the UI polish slice and transitional-duplication cleanup.
