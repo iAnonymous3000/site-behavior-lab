@@ -5,7 +5,8 @@ import { comparisonEligibility } from "./comparison-eligibility";
 import { domainsMatch } from "./featured-sites";
 import { buildReportHeadline, displayScanResult, type HeadlineTone } from "./report-headline";
 import { trackingServiceRequests } from "./report-insights";
-import { readReportForId } from "./report-source";
+import { readStoredReportForId } from "./report-source";
+import { toReportView } from "./scan-report-view";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { listStaticReportIds } from "./static-report-files";
 import { computeSinceLastScan, type SinceLastScan } from "./temporal-deltas";
@@ -49,6 +50,14 @@ export type DirectoryEntry = {
   consentClicks: ConsentClicks | null;
   /** Lead run's top-level HTTP status; >= 400 means an error/block page, not the site. */
   status: number | null;
+  /** Wire schema generation of the stored report (rows stay 1 until producers emit v2). */
+  schemaVersion: 1 | 2;
+  /** v2 schema revision; null on v1 reports. */
+  schemaRevision: 1 | 2 | null;
+  /** View origin: "legacy-derived" facts come from v1 wire, never recorded v2 fact. */
+  schemaOrigin: "v2" | "legacy-derived";
+  /** RFC 15.7 limited/descriptive marker (true for every v1 and v2 r1 report). */
+  limited: boolean;
   /** Set on a site's newest report when an earlier report of the same kind exists. */
   sinceLastScan?: SinceLastScan;
 };
@@ -189,8 +198,13 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
   const entries: DirectoryEntry[] = [];
 
   for (const id of ids) {
-    const report = await readReportForId(id);
-    if (!report) continue;
+    // The stored read keeps the schema metadata: the directory and researcher
+    // exports carry schema version/revision/origin/limited per row, so a
+    // future v2 row is distinguishable from today's legacy-derived v1 rows.
+    const readResult = await readStoredReportForId(id);
+    if (readResult.outcome !== "found" || readResult.stored.schemaVersion !== 1) continue;
+    const report = readResult.stored.report;
+    const view = toReportView(readResult.stored);
 
     // Lead with the baseline (off / unprotected) run for GPC/Shields so the directory
     // lists and ranks what each site actually did, not the protected residual.
@@ -229,6 +243,10 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
       consentMode: result.conditions.consentMode ?? "observe",
       consentClicks: consentClicksForReport(report),
       status: typeof result.summary.status === "number" ? result.summary.status : null,
+      schemaVersion: readResult.stored.schemaVersion,
+      schemaRevision: view.revision,
+      schemaOrigin: view.origin,
+      limited: view.limited,
       ...(report.reportType === "comparison" ? { comparisonType: report.comparisonType } : {})
     });
   }

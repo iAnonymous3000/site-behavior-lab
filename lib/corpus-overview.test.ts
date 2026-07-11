@@ -95,6 +95,10 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     consentMode: "observe",
     consentClicks: null,
     status: 200,
+    schemaVersion: 1,
+    schemaRevision: null,
+    schemaOrigin: "legacy-derived",
+    limited: true,
     ...overrides
   };
 }

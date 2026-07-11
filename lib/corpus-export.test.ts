@@ -22,6 +22,10 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     consentMode: "observe",
     consentClicks: null,
     status: 200,
+    schemaVersion: 1,
+    schemaRevision: null,
+    schemaOrigin: "legacy-derived",
+    limited: true,
     ...overrides
   };
 }
@@ -112,9 +116,21 @@ test("CSV pins the header and escapes commas and quotes in headlines", () => {
 
   assert.equal(
     header,
-    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,headline,third_party_requests,tracker_requests,third_party_cookies,shields_blocked,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at"
+    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,headline,third_party_requests,tracker_requests,third_party_cookies,shields_blocked,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited"
   );
   assert.match(row, /"shop\.example told Google, Meta ""you were here""\."/);
   assert.match(row, /,desktop,yes,observe,,200,/);
+  // Schema columns: every current corpus row is v1, legacy-derived, limited.
+  assert.match(row, /,1,,legacy-derived,yes$/);
   assert.equal(csv.endsWith("\r\n"), true);
+});
+
+test("rows carry the schema generation so researchers can filter by wire version", () => {
+  const rows = buildCorpusExportRows([makeEntry({ id: "20260702-" + "a".repeat(32) })], "https://sitebehavior.org");
+  assert.equal(rows[0].schemaVersion, 1);
+  assert.equal(rows[0].schemaRevision, null);
+  assert.equal(rows[0].schemaOrigin, "legacy-derived");
+  assert.equal(rows[0].limited, true);
+  assert.match(CORPUS_EXPORT_NOTE, /schema_version/);
+  assert.match(CORPUS_EXPORT_NOTE, /legacy-derived/);
 });
