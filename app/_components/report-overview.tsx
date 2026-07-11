@@ -23,8 +23,8 @@ import { clientReportRuntime, staticAssetPath } from "../client-runtime";
 import { isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
 import { buildFindings, type FindingIconKey } from "@/lib/report-findings";
 import { buildReportHeadline } from "@/lib/report-headline";
-import { fingerprintDetectionCount, trackerEntitySummaries } from "@/lib/report-insights";
 import { committedReportLocation, locateReport, type ReportRuntime } from "@/lib/report-locator";
+import type { RunView } from "@/lib/scan-report-views";
 import { plural } from "@/lib/text-format";
 import type { NetworkRequestRecord, ScanReport, ScanResult } from "@/lib/types";
 
@@ -228,50 +228,54 @@ export function FindingsBoard({ report, result }: { report: ScanReport; result: 
   );
 }
 
-export function MetricGrid({ result }: { result: ScanResult }) {
-  const knownServices = trackerEntitySummaries(result).length;
-  const apiFamilies = result.fingerprintEvents.length;
-  const detectionCount = fingerprintDetectionCount(result);
+export function MetricGrid({ run }: { run: RunView }) {
+  // Distinct catalogued entities among third-party requests: the same set
+  // trackerEntitySummaries derives from the domain table.
+  const knownServices = new Set(
+    run.evidence.requests.filter((request) => request.thirdParty && request.tracker).map((request) => request.tracker!.entity)
+  ).size;
+  const apiFamilies = run.evidence.fingerprintEvents.length;
+  const detectionCount = run.evidence.fingerprintDetections.reduce((total, detection) => total + detection.count, 0);
   const metrics = [
     {
       label: "Requests",
-      value: result.summary.totalRequests,
-      detail: `${result.summary.thirdPartyRequests.toLocaleString()} third-party`,
+      value: run.counts.totalRequests,
+      detail: `${run.counts.thirdPartyRequests.toLocaleString()} third-party`,
       icon: Network
     },
-    ...(result.conditions.adblock?.active
+    ...(run.conditions.adblockActive
       ? [
-          result.conditions.shieldsMode === "block-simulation"
+          run.conditions.shieldsMode === "block-simulation"
             ? {
                 label: "Blocked by Shields",
-                value: result.summary.shieldsBlockedRequests ?? 0,
+                value: run.counts.shieldsBlockedRequests ?? 0,
                 detail: "aborted in this visit",
                 icon: ShieldCheck
               }
             : {
                 label: "Matched Shields lists",
-                value: result.summary.shieldsBlockedRequests ?? 0,
-                detail: `of ${result.summary.totalRequests.toLocaleString()} requests`,
+                value: run.counts.shieldsBlockedRequests ?? 0,
+                detail: `of ${run.counts.totalRequests.toLocaleString()} requests`,
                 icon: ShieldCheck
               }
         ]
       : []),
     {
       label: "Third-party domains",
-      value: result.summary.thirdPartyDomains,
+      value: run.counts.thirdPartyDomains,
       detail: `${knownServices.toLocaleString()} known ${knownServices === 1 ? "service" : "services"}`,
       icon: Globe2
     },
     {
       label: "Cookies",
-      value: result.summary.cookies,
-      detail: `${result.summary.thirdPartyCookies.toLocaleString()} third-party`,
+      value: run.counts.cookies,
+      detail: `${run.counts.thirdPartyCookies.toLocaleString()} third-party`,
       icon: Cookie
     },
-    { label: "Storage keys", value: result.summary.storageEntries, detail: "values redacted", icon: Database },
+    { label: "Storage keys", value: run.counts.storageEntries, detail: "values redacted", icon: Database },
     {
       label: "Fingerprint-like calls",
-      value: result.summary.fingerprintEvents,
+      value: run.counts.fingerprintEvents,
       detail:
         detectionCount > 0
           ? `${plural(detectionCount, "behavior")} matched`
@@ -280,14 +284,14 @@ export function MetricGrid({ result }: { result: ScanResult }) {
     },
     {
       label: "GPC signal",
-      value: result.conditions.gpcEnabled ? "Sent" : "Off",
-      detail: result.conditions.gpcEnabled ? "opt-out sent" : "no opt-out sent",
-      icon: result.conditions.gpcEnabled ? ShieldCheck : Shield
+      value: run.conditions.gpcEnabled ? "Sent" : "Off",
+      detail: run.conditions.gpcEnabled ? "opt-out sent" : "no opt-out sent",
+      icon: run.conditions.gpcEnabled ? ShieldCheck : Shield
     },
     {
       label: "Duration",
-      value: `${Math.round(result.summary.durationMs / 100) / 10}s`,
-      detail: new Date(result.conditions.scannedAt).toLocaleTimeString(),
+      value: `${Math.round(run.durationMs / 100) / 10}s`,
+      detail: run.startedAt ? new Date(run.startedAt).toLocaleTimeString() : "start time not recorded",
       icon: Clock
     }
   ];
@@ -317,13 +321,13 @@ export function MetricGrid({ result }: { result: ScanResult }) {
   );
 }
 
-export function TrafficViz({ result }: { result: ScanResult }) {
+export function TrafficViz({ run }: { run: RunView }) {
   // Clamp so the three segments always partition the total exactly, even in the
   // edge case of scanning a tracker's own domain (where a first-party request can
   // match the catalog and knownTrackerRequests can exceed thirdPartyRequests).
-  const total = result.summary.totalRequests;
-  const thirdParty = Math.min(result.summary.thirdPartyRequests, total);
-  const tracker = Math.min(result.summary.knownTrackerRequests, thirdParty);
+  const total = run.counts.totalRequests;
+  const thirdParty = Math.min(run.counts.thirdPartyRequests, total);
+  const tracker = Math.min(run.counts.knownTrackerRequests, thirdParty);
   const third = thirdParty - tracker;
   const first = total - thirdParty;
 
@@ -351,7 +355,7 @@ export function TrafficViz({ result }: { result: ScanResult }) {
           Known service <span className="legend-count">{tracker.toLocaleString()}</span>
         </div>
       </div>
-      <RequestTimeline requests={result.requests} />
+      <RequestTimeline requests={run.evidence.requests} />
     </section>
   );
 }

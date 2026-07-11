@@ -72,6 +72,7 @@ import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/l
 import { plural } from "@/lib/text-format";
 import { readRenderableReport } from "@/lib/client-report-reader";
 import { recoverSavedReport } from "@/lib/saved-report-recovery";
+import { displayRunView, toReportView } from "@/lib/scan-report-views";
 import { REPORT_ID_PATTERN } from "@/lib/report-validation";
 import { toPublicScanReportV1 } from "@/lib/scan-report-v1-projection";
 import type {
@@ -485,6 +486,11 @@ export function SiteBehaviorApp({
   }
 
   const primaryResult = result ? primaryScanResult(result) : null;
+  // The version-independent view of the current (v1) report; components
+  // migrate onto this instead of the wire (RFC 14.8). Built from the light
+  // views module so the deep readers stay out of the first-load bundle.
+  const reportView = result ? toReportView({ schemaVersion: 1, report: result }) : null;
+  const primaryRun = reportView ? displayRunView(reportView) : null;
   const reportReadyMessage =
     result && primaryResult && !loading && !error
       ? `Scan report ready for ${reportDomain(result)}: ${plural(primaryResult.summary.totalRequests, "request")} observed.`
@@ -794,8 +800,12 @@ export function SiteBehaviorApp({
                 <FindingsBoard report={result} result={primaryResult} />
                 <CausalityGraph result={primaryResult} />
                 {isComparisonReport(result) && <ComparisonPanel report={result} />}
-                <MetricGrid result={primaryResult} />
-                <TrafficViz result={primaryResult} />
+                {primaryRun && (
+                  <>
+                    <MetricGrid run={primaryRun} />
+                    <TrafficViz run={primaryRun} />
+                  </>
+                )}
                 <Warnings warnings={isComparisonReport(result) ? result.warnings : primaryResult.warnings} />
                 <DomainTable domains={primaryResult.domains} />
                 <RequestTable result={primaryResult} />
