@@ -192,8 +192,10 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
             </tr>
           </thead>
           <tbody>
-            {shown.map((request) => (
-              <tr key={request.id}>
+            {/* Keyed with the index: v2 evidence rows are phase-tagged, so one
+                request id can legitimately appear in several phases. */}
+            {shown.map((request, index) => (
+              <tr key={`${request.id}:${index}`}>
                 <td className="mono" data-label="Time">{request.startedAtMs.toLocaleString()}ms</td>
                 <td data-label="Status">
                   <StatusCell status={request.status} />
@@ -385,8 +387,9 @@ function FingerprintList({
           </span>
         </div>
       ))}
-      {events.map((event) => (
-        <div key={event.api}>
+      {/* One API can appear once per phase on v2 runs; the index keeps keys unique. */}
+      {events.map((event, index) => (
+        <div key={`${event.api}:${index}`}>
           <Fingerprint className="ico-neutral" size={14} aria-hidden="true" />
           <span>
             {event.api}

@@ -154,7 +154,12 @@ export function readScanTransportPayload(payload: unknown): ScanTransportResult 
       if (violations.length > 0) return { kind: "unreadable", error: "inconsistent", violations };
       return {
         kind: "report",
-        loaded: { source: "v2-ephemeral", wire: payload, public: projected, view: viewFromV2(projected, 1) }
+        loaded: {
+          source: "v2-ephemeral",
+          wire: payload,
+          public: projected,
+          view: viewWithEphemeralScreenshots(viewFromV2(projected, 1), payload.ephemeral)
+        }
       };
     }
     if (payload.schemaRevision === 2) {
@@ -170,7 +175,12 @@ export function readScanTransportPayload(payload: unknown): ScanTransportResult 
       if (violations.length > 0) return { kind: "unreadable", error: "inconsistent", violations };
       return {
         kind: "report",
-        loaded: { source: "v2-r2-ephemeral", wire: payload, public: projected, view: viewFromV2(projected, 2) }
+        loaded: {
+          source: "v2-r2-ephemeral",
+          wire: payload,
+          public: projected,
+          view: viewWithEphemeralScreenshots(viewFromV2(projected, 2), payload.ephemeral)
+        }
       };
     }
     return Number.isInteger(payload.schemaRevision) && (payload.schemaRevision as number) > 2
@@ -188,6 +198,31 @@ export function readScanTransportPayload(payload: unknown): ScanTransportResult 
         ? { source: "v2-public", wire: read.stored.report, view }
         : { source: "v2-r2-public", wire: read.stored.report, view };
   return { kind: "report", loaded };
+}
+
+/**
+ * Restore the ephemeral shell's screenshots onto the VIEW's runs: the public
+ * projection the view was built from strips them by design (screenshots are
+ * ephemeral-only, RFC 8), but the immediate result's viewer may show them.
+ * Display still goes through the data-URI-only gate, and persistence still
+ * serializes the public wire, which never carries them.
+ */
+function viewWithEphemeralScreenshots(
+  view: ReportView,
+  ephemeral:
+    | { screenshot: string | null }
+    | { baselineScreenshot: string | null; variantScreenshot: string | null }
+): ReportView {
+  const runs = view.runs.map((run, index) => ({
+    ...run,
+    screenshot:
+      "screenshot" in ephemeral
+        ? ephemeral.screenshot
+        : index === 0
+          ? ephemeral.baselineScreenshot
+          : ephemeral.variantScreenshot
+  }));
+  return { ...view, runs };
 }
 
 function isEphemeralShell(payload: Record<string, unknown>): payload is EphemeralScanReport {

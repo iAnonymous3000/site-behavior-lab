@@ -942,6 +942,10 @@ export function SiteBehaviorApp({
                                 displayedRun.consent.cmp ? ` (${displayedRun.consent.cmp})` : ""
                               }`
                             : "no banner control found; pre-consent"}
+                          {/* Dispatch vs verification stay distinct: the click
+                              is a fact, the choice state is what an
+                              interpreter could verify (v2 only). */}
+                          {displayedRun.consent.choiceState ? ` · choice ${displayedRun.consent.choiceState}` : " · choice unverified"}
                         </dd>
                       </div>
                     )}
@@ -1513,7 +1517,9 @@ function ReportHeader({
   useEffect(() => {
     setShareUrl(sharePath ? absoluteShareUrl(sharePath) : null);
   }, [sharePath]);
-  const finalUrl = safeHttpUrl(run.conditions.finalUrl);
+  // v2 subject URLs are privacy-generalized route shapes; they parse as URLs
+  // but point nowhere real, so they render as text, never as a link.
+  const finalUrl = run.conditions.urlsAreRouteShapes ? null : safeHttpUrl(run.conditions.finalUrl);
   const title = view.title || run.pageTitle;
 
   const [shareCopied, setShareCopied] = useState(false);

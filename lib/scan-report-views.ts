@@ -62,6 +62,13 @@ export type RunEvidenceView = {
 export type RunConditionsView = {
   requestedUrl: string;
   finalUrl: string;
+  /**
+   * v2 subject URLs are privacy-generalized route shapes (origin +
+   * "/reports/:id"), never a page that exists to navigate to; v1 URLs are the
+   * scrubbed exact origin + path. Renderers must not emit an anchor when
+   * this is true: the shape parses as a URL but points nowhere real.
+   */
+  urlsAreRouteShapes: boolean;
   automation: string;
   headless: boolean;
   scannerEgress: string;
@@ -107,6 +114,12 @@ export type RunConsentView = {
   controlActivated: boolean;
   /** Consent platform name when a known CMP control matched (e.g. "OneTrust"). */
   cmp: string | null;
+  /**
+   * The evaluator-derived consent choice state (RFC 6): what an interpreter
+   * could VERIFY about the choice, not whether a click was dispatched. null
+   * on v1, which never recorded verification facts.
+   */
+  choiceState: "verified" | "contradicted" | "weak-signal" | "unavailable" | "failed" | null;
 };
 
 export type RunView = {
@@ -261,6 +274,7 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
     conditions: {
       requestedUrl: `${run.subject.requested.origin}${run.subject.requested.routeShape}`,
       finalUrl: `${run.subject.observed.origin}${run.subject.observed.routeShape}`,
+      urlsAreRouteShapes: true,
       automation: run.conditions.automation,
       headless: run.conditions.headless,
       scannerEgress: run.conditions.egress.label,
@@ -270,7 +284,9 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
       viewport: { ...run.conditions.device.viewport },
       gpcEnabled: run.conditions.gpc,
       shieldsMode: run.conditions.shields,
-      adblockActive: run.toolchain.adblock !== null,
+      // The APPLIED state is the recorded shields condition; toolchain.adblock
+      // only says an engine build was pinned, not that it acted on this run.
+      adblockActive: run.conditions.shields !== "off",
       adblockLists: run.toolchain.adblock
         ? {
             source: run.toolchain.adblock.source,
@@ -292,7 +308,8 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
       ? {
           mode: run.evidence.consent.mode,
           controlActivated: run.evidence.consent.controlActivated,
-          cmp: run.evidence.consent.cmp ?? null
+          cmp: run.evidence.consent.cmp ?? null,
+          choiceState: run.evidence.consent.choiceState
         }
       : null,
     quality: {
@@ -350,6 +367,7 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
     conditions: {
       requestedUrl: result.conditions.requestedUrl,
       finalUrl: result.conditions.finalUrl,
+      urlsAreRouteShapes: false,
       automation: result.conditions.automation,
       headless: result.conditions.headless,
       scannerEgress: result.conditions.scannerEgress,
@@ -380,7 +398,10 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
       ? {
           mode: result.consentInteraction.mode,
           controlActivated: result.consentInteraction.clicked,
-          cmp: result.consentInteraction.cmp ?? null
+          cmp: result.consentInteraction.cmp ?? null,
+          // v1 recorded click dispatch only; no interpreter ever verified the
+          // resulting consent state.
+          choiceState: null
         }
       : null,
     quality: {

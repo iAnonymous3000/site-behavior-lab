@@ -243,7 +243,9 @@ export function MetricGrid({ run }: { run: RunView }) {
   const knownServices = new Set(
     run.evidence.requests.filter((request) => request.thirdParty && request.tracker).map((request) => request.tracker!.entity)
   ).size;
-  const apiFamilies = run.evidence.fingerprintEvents.length;
+  // DISTINCT APIs, not row count: v2 evidence is phase-tagged, so one API
+  // family can contribute a row per phase.
+  const apiFamilies = new Set(run.evidence.fingerprintEvents.map((event) => event.api)).size;
   const detectionCount = run.evidence.fingerprintDetections.reduce((total, detection) => total + detection.count, 0);
   const metrics = [
     {
@@ -378,14 +380,16 @@ function RequestTimeline({ requests }: { requests: NetworkRequestRecord[] }) {
   return (
     <div className="timeline">
       <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label="When requests fired during the visit">
-        {requests.map((request) => {
+        {/* Keyed with the index: v2 evidence rows are phase-tagged, so one
+            request id can legitimately appear in several phases. */}
+        {requests.map((request, index) => {
           const x = (request.startedAtMs / maxTime) * (width - 2);
           const color = request.tracker
             ? "var(--sig-warn)"
             : request.thirdParty
               ? "var(--sig-info)"
               : "var(--sig-quiet)";
-          return <rect key={request.id} x={x} y={request.tracker ? 4 : request.thirdParty ? 12 : 20} width={2} height={height - 24} fill={color} opacity={0.85} rx={1} />;
+          return <rect key={`${request.id}:${index}`} x={x} y={request.tracker ? 4 : request.thirdParty ? 12 : 20} width={2} height={height - 24} fill={color} opacity={0.85} rx={1} />;
         })}
       </svg>
       <div className="timeline-axis">

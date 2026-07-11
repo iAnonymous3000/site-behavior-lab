@@ -430,11 +430,37 @@ test("ephemeral screenshots survive only the immediate result, never the public 
   }
   // The immediate-response wire still carries the screenshot for the UI...
   assert.equal(JSON.stringify(result.loaded.wire).includes("AAAA"), true);
+  // ...and so does the VIEW the immediate result renders from (the public
+  // projection strips it, so the reader restores it onto the view's run)...
+  assert.equal(result.loaded.view.runs[0].screenshot?.includes("AAAA"), true);
   // ...but the persistable/downloadable form never does.
   assert.equal(JSON.stringify(result.loaded.public).includes("AAAA"), false);
   assert.equal(JSON.stringify(result.loaded.public).includes("ephemeral"), false);
   assert.equal(isPublicScanReportV2(result.loaded.public), true);
   assert.equal(isPublicScanReportV2(result.loaded.wire), false);
+});
+
+test("view conditions state what v2 recorded: applied shields, route-shape URLs, verified consent state", () => {
+  const v1 = readStoredScanReport(makeScanReportV1());
+  assert.equal(v1.ok, true);
+  if (v1.ok) {
+    const run = toReportView(v1.stored).runs[0];
+    assert.equal(run.conditions.urlsAreRouteShapes, false);
+    if (run.consent) assert.equal(run.consent.choiceState, null);
+  }
+
+  const v2 = readStoredScanReport(makePublicSingleReportV2());
+  assert.equal(v2.ok, true);
+  if (v2.ok && v2.stored.schemaVersion === 2 && v2.stored.report.reportType === "single") {
+    const run = toReportView(v2.stored).runs[0];
+    // v2 subject URLs are privacy-generalized route shapes, never links.
+    assert.equal(run.conditions.urlsAreRouteShapes, true);
+    // Applied state comes from the recorded shields condition, not from the
+    // toolchain block's presence (a pinned engine is not an active engine).
+    assert.equal(run.conditions.adblockActive, v2.stored.report.run.conditions.shields !== "off");
+  } else {
+    assert.fail("expected a stored v2 single report");
+  }
 });
 
 // ---------------------------------------------------------------------------
@@ -1296,7 +1322,13 @@ test("run views carry the consent outcome and comparison views carry display lab
   const v1Read = readStoredScanReport(clicked);
   assert.equal(v1Read.ok, true);
   if (v1Read.ok) {
-    assert.deepEqual(toReportView(v1Read.stored).runs[0].consent, { mode: "reject-all", controlActivated: true, cmp: null });
+    // choiceState stays null on v1: a dispatched click was never verified.
+    assert.deepEqual(toReportView(v1Read.stored).runs[0].consent, {
+      mode: "reject-all",
+      controlActivated: true,
+      cmp: null,
+      choiceState: null
+    });
   }
   const v1Plain = readStoredScanReport(makeScanReportV1());
   assert.equal(v1Plain.ok, true);
@@ -1315,7 +1347,13 @@ test("run views carry the consent outcome and comparison views carry display lab
   const v2Read = readStoredScanReport(v2Consent);
   assert.equal(v2Read.ok, true, JSON.stringify(!v2Read.ok ? v2Read.violations : []));
   if (v2Read.ok) {
-    assert.deepEqual(toReportView(v2Read.stored).runs[0].consent, { mode: "reject-all", controlActivated: true, cmp: null });
+    // v2 carries the evaluator-derived choice state alongside the dispatch fact.
+    assert.deepEqual(toReportView(v2Read.stored).runs[0].consent, {
+      mode: "reject-all",
+      controlActivated: true,
+      cmp: null,
+      choiceState: "verified"
+    });
   }
 
   // Comparison labels: the wire's runLabels win on v1, per-design defaults
