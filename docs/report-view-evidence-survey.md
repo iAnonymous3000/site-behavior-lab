@@ -396,3 +396,25 @@ recorded", so no derived stand-in can present as recorded fact):
 Pins in lib/scan-report-views.test.ts (v1 nulls, v2 relational passthrough,
 r2 readbacks/supporting pairs); the hardening consent-view pins extended.
 Report page first-load 157 kB.
+
+## Fixture matrix (2026-07-11): the acceptance gate before the atomic flip
+
+DONE, third item of the round-10 remaining order.
+lib/report-fixture-matrix.test.ts runs six fixtures (v1 single/comparison,
+v2 r1 single/intervention, v2 r2 single/intervention) through every consumer
+entry path: the transport reader directly (upload / sync result), wrapped in
+a succeeded job envelope (poll), and the canonical stored reader (permalink,
+and the gallery's static JSON loads use the same reader). Per row it pins the
+LoadedReport source tag, view origin/revision, headline + findings engine
+acceptance (nonempty output on every generation), the decision object's
+presence rule (comparisons only), and the JSON-download rule
+(publicWireForExportOrPersistence: deep v1 projection, wire passthrough for
+v2 public, projection for ephemeral shells with the view-restored screenshot
+never reaching the persistable wire). The client seam's v1-only render gate
+is PINNED (v2 refuses with the capability message), so the atomic migration
+removes it by consciously updating the matrix; a future schemaRevision 3 is
+pinned as a named capability gap on all three paths. All matrix rows passed
+on first run: the version-aware reader stack is ready for the consumer flip.
+Note: a v2 fixture must still never be committed under public/reports (it
+would break the static build until the atomic slice lands); the gallery path
+is therefore covered at the reader level plus the existing v1 static smoke.
