@@ -51,7 +51,16 @@ fingerprinting, pixel events, provenance), `runLabels`, `comparisonType`,
    consult `view.claims` instead of the interim gate; two-arm evidence work
    lands here).
 5. `app/site-behavior-app.tsx` shell (state holds `LoadedReport`; exports via
-   `publicWireForExportOrPersistence`).
+   `publicWireForExportOrPersistence`). SEQUENCING DECISION (2026-07-10,
+   after the claims consolidation): deferred until the v2 render slice. All
+   seven producer paths (sync scan, poll, upload, PageGraph, gallery
+   comparison, saved-page initialResult, recovery) are v1-only because
+   `readRenderableReport` rejects v2 by design while renderers cannot draw
+   it, and the shell already derives `reportView`/`primaryRun` from `result`
+   each render, which IS `LoadedReport{source:"v1"}` decomposed
+   (wire=result, view=derived). Swapping the state shape before a v2 source
+   can arrive changes no behavior and risks a broad half-refactor; do it in
+   the same slice that teaches `readRenderableReport` to return v2 loads.
 6. Metadata/OG (`lib/report-jsonld.ts`, og image route), directory, sitemap.
 
 ## Contract sketch (to be refined against the v2 run shapes)
