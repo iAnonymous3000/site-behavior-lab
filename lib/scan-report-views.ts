@@ -773,6 +773,21 @@ export function runCensorshipNotes(run: RunView): string[] {
 }
 
 /**
+ * Whether a run's evidence family was censored before completion: recorded
+ * per-family on v2 (RFC 5.3); on v1 the only budgeted evidence is the request
+ * log, whose cap is derived from the run's warnings. An ABSENCE claim over a
+ * censored family ("no known services matched") must hedge: nothing proves
+ * the absence held after collection stopped.
+ */
+export function familyCensoredOnRun(
+  run: RunView,
+  family: "requests" | "cookies" | "storage" | "consent-verification" | "detector-output"
+): boolean {
+  if (run.quality.byFamily) return run.quality.byFamily[family]?.outcome === "censored";
+  return family === "requests" && run.quality.reasons.includes("budget-exhausted:request-cap");
+}
+
+/**
  * Short human label for the report's schema provenance, shown beside the
  * report header and in the methodology block: names the wire generation,
  * whether the normalized facts are legacy-derived, and whether the report is

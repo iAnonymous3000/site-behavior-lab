@@ -18,6 +18,7 @@ import {
   comparisonArmViews,
   comparisonDiffView,
   displayRunView,
+  familyCensoredOnRun,
   publicWireForExportOrPersistence,
   readScanTransportPayload,
   runQualitySummary,
@@ -321,6 +322,30 @@ test("legacy family gates follow the recorded facts: catalog and Shields-mode mi
   const shieldsView = viewFromV1Report(shieldsPair);
   assert.equal(shieldsView.claims.familyDeltas?.["shields-simulation"].allowed, false);
   assert.match(shieldsView.claims.familyDeltas?.["shields-simulation"].reasons.join(" ") ?? "", /different Shields quantities/);
+});
+
+test("family censoring reads from recorded v2 quality and the derived v1 cap", () => {
+  const v1Capped = makeScanReportV1() as ScanResult;
+  v1Capped.summary.totalRequests = 1200;
+  const cappedRun = viewFromV1Report(v1Capped).runs[0];
+  assert.equal(familyCensoredOnRun(cappedRun, "requests"), true);
+  assert.equal(familyCensoredOnRun(cappedRun, "cookies"), false, "the v1 cap budgets only the request log");
+
+  const v2 = readStoredScanReport(makePublicSingleReportV2());
+  assert.equal(v2.ok, true);
+  if (v2.ok) {
+    const run = toReportView(v2.stored).runs[0];
+    // The fixture's run is complete; a censored family flips the check.
+    assert.equal(familyCensoredOnRun(run, "requests"), false);
+    const censored = {
+      ...run,
+      quality: {
+        ...run.quality,
+        byFamily: { ...run.quality.byFamily, requests: { outcome: "censored" as const, reasons: ["budget-exhausted:request-cap"] } }
+      }
+    };
+    assert.equal(familyCensoredOnRun(censored, "requests"), true);
+  }
 });
 
 test("schema provenance and run quality read as honest human labels", () => {

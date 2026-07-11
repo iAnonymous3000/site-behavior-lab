@@ -41,6 +41,7 @@ import {
 import {
   comparisonArmViews,
   displayRunView,
+  familyCensoredOnRun,
   runCensorshipNotes,
   type ClaimGate,
   type ReportView,
@@ -164,6 +165,14 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   const googleAnalyticsPresent = run.evidence.domains.some((domain) => GOOGLE_ANALYTICS_HOST.test(domain.domain));
   const gaRemarketingOn =
     googleAnalyticsPresent && run.evidence.domains.some((domain) => DOUBLECLICK_REMARKETING_HOST.test(domain.domain));
+
+  // An ABSENCE claim over a censored evidence family cannot reassure: nothing
+  // proves the absence held after collection stopped, so those cards hedge
+  // and drop to "info" instead of "ok".
+  const requestsCensored = familyCensoredOnRun(run, "requests");
+  const cookiesCensored = familyCensoredOnRun(run, "cookies");
+  const detectorCensored = familyCensoredOnRun(run, "detector-output");
+  const CENSORED_ABSENCE_NOTE = " Evidence collection was cut short, so this covers only what was recorded before the cutoff.";
 
   const keystrokeDetection = fingerprintDetection(run.evidence, "keystroke-exfiltration");
   if (keystrokeDetection) {
@@ -323,7 +332,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   findings.push({
     id: "third-party-services",
     icon: "globe",
-    level: trackingEntities.length > 0 ? thirdPartyLevel : "ok",
+    level: trackingEntities.length > 0 ? thirdPartyLevel : requestsCensored ? "info" : "ok",
     title:
       trackingEntities.length > 0
         ? "Tracking and ad services saw this visit"
@@ -340,8 +349,8 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       trackingEntities.length > 0
         ? `These services can profile visitors across sites.${topCategories.length > 0 ? ` Observed categories include ${humanList(topCategories)}.` : ""}${sessionReplayNote}${operationalNote}`
         : operationalEntities.length > 0
-          ? "These are monitoring or support tools, not cross-site trackers. Unlabeled third parties may still be present."
-          : "There may still be unlabeled third parties, but no known catalog entity was matched.",
+          ? `These are monitoring or support tools, not cross-site trackers. Unlabeled third parties may still be present.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
+          : `There may still be unlabeled third parties, but no known catalog entity was matched.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence: `${plural(run.counts.thirdPartyRequests, "third-party request")} across ${plural(run.counts.thirdPartyDomains, "third-party domain")}.`,
     benchmark: domainsBenchmark
       ? domainsBenchmark.label
@@ -353,7 +362,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   findings.push({
     id: "named-platforms",
     icon: "network",
-    level: headlineNames.length === 0 ? "ok" : headlineNames.length >= 3 ? "warn" : "info",
+    level: headlineNames.length === 0 ? (requestsCensored ? "info" : "ok") : headlineNames.length >= 3 ? "warn" : "info",
     title: headlineNames.length > 0 ? "Data reached major platforms" : "No major platforms received data",
     lead:
       headlineNames.length > 0
@@ -362,7 +371,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     detail:
       headlineNames.length > 0
         ? "These platforms can link this visit to the profile they already hold about you from other sites and apps."
-        : "Major ad-platform pixels were not observed in this single passive visit; interaction-gated pixels could still load for real users.",
+        : `Major ad-platform pixels were not observed in this single passive visit; interaction-gated pixels could still load for real users.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence:
       headlineNames.length > 0
         ? `${plural(headlineRequests, "request")} to these platforms.`
@@ -419,7 +428,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   findings.push({
     id: "ga-remarketing",
     icon: "radar",
-    level: gaRemarketingOn ? "warn" : "ok",
+    level: gaRemarketingOn ? "warn" : requestsCensored ? "info" : "ok",
     title: gaRemarketingOn
       ? "Google Analytics remarketing signal detected"
       : googleAnalyticsPresent
@@ -433,8 +442,8 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     detail: gaRemarketingOn
       ? "If remarketing is on, this visit can be added to Google advertising audiences and matched to the profile Google already holds about you across sites. The DoubleClick sync is a strong signal, not configuration-level proof."
       : googleAnalyticsPresent
-        ? "Standard analytics collection was observed, without the stats.g.doubleclick.net advertising sync."
-        : "Neither Google Analytics nor its remarketing sync was observed in this visit.",
+        ? `Standard analytics collection was observed, without the stats.g.doubleclick.net advertising sync.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
+        : `Neither Google Analytics nor its remarketing sync was observed in this visit.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence: gaRemarketingOn
       ? "Google Analytics host plus a request to stats.g.doubleclick.net (Blacklight's remarketing marker)."
       : googleAnalyticsPresent
@@ -445,7 +454,12 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   findings.push({
     id: "third-party-cookies",
     icon: "cookie",
-    level: cookiesBenchmark ? cookiesBenchmark.level : levelForMetric("thirdPartyCookies", run.counts.thirdPartyCookies),
+    level:
+      run.counts.thirdPartyCookies === 0 && cookiesCensored
+        ? "info"
+        : cookiesBenchmark
+          ? cookiesBenchmark.level
+          : levelForMetric("thirdPartyCookies", run.counts.thirdPartyCookies),
     title: run.counts.thirdPartyCookies > 0 ? "Third-party cookies were present" : "No third-party cookies observed",
     lead:
       run.counts.thirdPartyCookies > 0
@@ -454,7 +468,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     detail:
       run.counts.thirdPartyCookies > 0
         ? "Third-party cookies can help outside services recognize repeat visits across sites when the browser allows them."
-        : "This does not prove the site never uses cookies; it means this visit did not observe third-party cookies.",
+        : `This does not prove the site never uses cookies; it means this visit did not observe third-party cookies.${cookiesCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence: `${plural(run.counts.cookies, "cookie")} total in this report.`,
     benchmark: cookiesBenchmark ? cookiesBenchmark.label : benchmarkLabel("thirdPartyCookies", run.counts.thirdPartyCookies)
   });
@@ -507,7 +521,12 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   findings.push({
     id: "fingerprint-apis",
     icon: "fingerprint",
-    level: highEntropyDetections.length > 0 ? "warn" : run.counts.fingerprintEvents > 0 ? "info" : "ok",
+    level:
+      highEntropyDetections.length > 0
+        ? "warn"
+        : run.counts.fingerprintEvents > 0 || detectorCensored
+          ? "info"
+          : "ok",
     title:
       highEntropyDetections.length > 0
         ? highEntropyDetections.length === 1
@@ -527,7 +546,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         ? "These heuristics look for behavior patterns such as canvas readback after drawing, repeated canvas font measurement, WebGL entropy reads, offline audio rendering, or WebRTC peer-connection setup. They are review prompts for this visit, not proof of cross-site identity tracking."
         : run.counts.fingerprintEvents > 0
           ? `These calls can be legitimate (charts, graphics, media), so the count is observational, not a severity score, and it excludes Web and Service Workers. Top calls: ${humanList(topFingerprintApis)}.`
-          : "This is an observation layer, not proof that fingerprinting is impossible.",
+          : `This is an observation layer, not proof that fingerprinting is impossible.${detectorCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence:
       highEntropyDetections.length > 0
         ? humanList(highEntropyDetections.map(detectionEvidence), 4)
@@ -662,9 +681,13 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
 
   // A quiet result on a censored run is a floor, not a verdict: the bottom
   // line must lead with the truncation instead of "few review signals".
+  // "Quiet" here means nothing warn-or-louder surfaced; the hedged absence
+  // cards themselves sit at "info" on a censored run and must not read as
+  // review-worthy signals.
   const censorshipNotes = runCensorshipNotes(run);
   const overallLevel = strongestLevel(findings.map((finding) => finding.level));
-  const censoredQuiet = censorshipNotes.length > 0 && overallLevel === "ok";
+  const censoredQuiet =
+    censorshipNotes.length > 0 && (overallLevel === "ok" || overallLevel === "quiet" || overallLevel === "info");
   findings.unshift({
     id: "bottom-line",
     icon: overallLevel === "ok" && !censoredQuiet ? "check" : "alert",
