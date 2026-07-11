@@ -263,6 +263,21 @@ test("run views carry the full evidence surface and honest quality for both gene
     assert.ok(Array.isArray(run.evidence.cookies));
     assert.ok(Array.isArray(run.evidence.storage));
     assert.equal(run.screenshot, null, "v2 public runs never carry a screenshot");
+    // Conditions normalize across generations: v2 has no prose disclosure and
+    // privacy-safe subject URLs (origin + route shape).
+    assert.equal(run.conditions.disclosure, null);
+    assert.match(run.conditions.finalUrl, /^https:\/\//);
+    assert.equal(typeof run.conditions.gpcEnabled, "boolean");
+  }
+
+  // v1 conditions carry the prose disclosure and the scrubbed URLs verbatim.
+  const v1Again = readStoredScanReport(makeScanReportV1());
+  assert.equal(v1Again.ok, true);
+  if (v1Again.ok) {
+    const run = toReportView(v1Again.stored).runs[0];
+    assert.equal(typeof run.conditions.requestedUrl, "string");
+    assert.equal(typeof run.conditions.consentMode, "string");
+    assert.notEqual(run.conditions.trackerCatalog, null);
   }
 });
 

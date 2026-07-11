@@ -72,6 +72,31 @@ export type RunEvidenceView = {
 };
 
 /**
+ * Normalized disclosure facts for the methodology block. Fields a generation
+ * never recorded are null; v2 URLs are the privacy-safe origin + route shape
+ * (RFC 9.1), v1 URLs are the already-scrubbed origin + path.
+ */
+export type RunConditionsView = {
+  requestedUrl: string;
+  finalUrl: string;
+  automation: string;
+  headless: boolean;
+  scannerEgress: string;
+  browserVersion: string | null;
+  timezone: string;
+  locale: string;
+  viewport: { width: number; height: number; isMobile: boolean };
+  gpcEnabled: boolean;
+  /** "off" | "classification" | "block-simulation"; null when never recorded. */
+  shieldsMode: string | null;
+  adblockActive: boolean | null;
+  consentMode: string;
+  trackerCatalog: { source: string; version: string; entries: number } | null;
+  /** v1's prose scanner disclosure; v2 records structured facts instead. */
+  disclosure: string | null;
+};
+
+/**
  * Run quality. v2 records this (RFC 5.3: outcome + reasons, per-family
  * censoring); a v1 run never did, so its quality is DERIVED from status and
  * cap warnings and marked "legacy-derived", never presented as recorded fact.
@@ -111,6 +136,7 @@ export type RunView = {
    */
   screenshot: string | null;
   evidence: RunEvidenceView;
+  conditions: RunConditionsView;
   quality: RunQualityView;
 };
 
@@ -208,6 +234,28 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
       cnameCloaks: run.evidence.cnameCloaks,
       privacyPolicy: run.evidence.privacyPolicy ?? null
     },
+    conditions: {
+      requestedUrl: `${run.subject.requested.origin}${run.subject.requested.routeShape}`,
+      finalUrl: `${run.subject.observed.origin}${run.subject.observed.routeShape}`,
+      automation: run.conditions.automation,
+      headless: run.conditions.headless,
+      scannerEgress: run.conditions.egress.label,
+      browserVersion: run.conditions.browser.version,
+      timezone: run.conditions.timezone,
+      locale: run.conditions.locale,
+      viewport: { ...run.conditions.device.viewport },
+      gpcEnabled: run.conditions.gpc,
+      shieldsMode: run.conditions.shields,
+      adblockActive: run.toolchain.adblock !== null,
+      consentMode: run.conditions.consent,
+      trackerCatalog: {
+        source: run.toolchain.trackerCatalog.source,
+        version: run.toolchain.trackerCatalog.version,
+        entries: run.toolchain.trackerCatalog.entries
+      },
+      // v2 records structured facts; there is no prose disclosure to quote.
+      disclosure: null
+    },
     quality: {
       origin: "recorded",
       outcome: run.quality.run.outcome,
@@ -258,6 +306,27 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
       pixelEvents: result.pixelEvents ?? [],
       cnameCloaks: result.cnameCloaks ?? [],
       privacyPolicy: result.privacyPolicy ?? null
+    },
+    conditions: {
+      requestedUrl: result.conditions.requestedUrl,
+      finalUrl: result.conditions.finalUrl,
+      automation: result.conditions.automation,
+      headless: result.conditions.headless,
+      scannerEgress: result.conditions.scannerEgress,
+      browserVersion: result.conditions.chromiumVersion || null,
+      timezone: result.conditions.timezone,
+      locale: result.conditions.locale,
+      viewport: { ...result.conditions.viewport },
+      gpcEnabled: result.conditions.gpcEnabled,
+      shieldsMode: result.conditions.shieldsMode ?? null,
+      adblockActive: result.conditions.adblock?.active ?? null,
+      consentMode: result.conditions.consentMode ?? "observe",
+      trackerCatalog: {
+        source: result.conditions.trackerCatalog.source,
+        version: result.conditions.trackerCatalog.version,
+        entries: result.conditions.trackerCatalog.entries
+      },
+      disclosure: result.conditions.scannerDisclosure || null
     },
     quality: {
       origin: "legacy-derived",
