@@ -29,7 +29,7 @@ export type DirectoryEntry = {
   thirdPartyRequests: number;
   trackerRequests: number;
   thirdPartyCookies: number;
-  shieldsBlocked: number | null;
+  shieldsThirdPartyReduction: number | null;
   category: string;
   categoryLabel: string;
   scannedAt: string;
@@ -115,7 +115,7 @@ export async function loadCorpusOverview(): Promise<CorpusOverview> {
       trackerRequests: site.trackerRequests,
       thirdPartyRequests: site.thirdPartyRequests,
       thirdPartyCookies: site.thirdPartyCookies,
-      shieldsBlocked: site.shieldsBlocked
+      shieldsThirdPartyReduction: site.shieldsThirdPartyReduction
     }))
   );
   const heaviest = [...sites]
@@ -219,7 +219,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
     // request-count delta is a raw-counts family claim (RFC 4.4), so it needs
     // that family's gate on top of pair validity. This is a paired-visit
     // difference, never a "blocked" count; the directory labels it accordingly.
-    const shieldsBlocked =
+    const shieldsThirdPartyReduction =
       arms &&
       view.comparison?.axis === "shields" &&
       view.claims.pairComparison?.allowed === true &&
@@ -238,7 +238,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
       // not rank sites on a surface labeled "tracker".
       trackerRequests: trackingServiceRequests(run.evidence),
       thirdPartyCookies: run.counts.thirdPartyCookies,
-      shieldsBlocked,
+      shieldsThirdPartyReduction,
       category,
       categoryLabel,
       // Non-null on every v1 report (the loop is v1-gated above).

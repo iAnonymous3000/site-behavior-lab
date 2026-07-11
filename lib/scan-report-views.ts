@@ -428,9 +428,30 @@ function legacyComparisonAxis(comparisonType: string): InterventionAxis | null {
 /** Default per-axis display labels, shared by both generations' builders. */
 function defaultRunLabels(axis: InterventionAxis | null, temporal: boolean): { baseline: string; variant: string } {
   if (axis === "gpc") return { baseline: "GPC off", variant: "GPC on" };
-  if (axis === "shields") return { baseline: "Shields off", variant: "Shields on" };
+  // The blocking arm runs Brave's ad-block engine and default Shields lists
+  // as a block SIMULATION in this scanner's browser; "Shields on" would read
+  // as a live Brave-browser visit, which it is not.
+  if (axis === "shields") return { baseline: "No blocking", variant: "Brave-list blocking" };
   if (axis === "consent") return { baseline: "Accept all", variant: "Reject all" };
   return temporal ? { baseline: "Before", variant: "After" } : { baseline: "Baseline", variant: "Variant" };
+}
+
+/**
+ * Producer-written display labels with one normalization: the legacy Shields
+ * producer named its arms "Shields off"/"Shields on", which overstates the
+ * simulation as a live Brave visit, so display renames exactly that pair.
+ * Any other custom labels pass through untouched.
+ */
+function displayRunLabels(
+  wireLabels: { baseline: string; variant: string } | undefined,
+  axis: InterventionAxis | null,
+  temporal: boolean
+): { baseline: string; variant: string } {
+  if (!wireLabels) return defaultRunLabels(axis, temporal);
+  if (axis === "shields" && wireLabels.baseline === "Shields off" && wireLabels.variant === "Shields on") {
+    return defaultRunLabels(axis, temporal);
+  }
+  return { ...wireLabels };
 }
 
 /** The default-deny policy: every claim surface refused. */
@@ -580,7 +601,7 @@ export function viewFromV1Report(report: ScanReport): ReportView {
         kind: "descriptive",
         axis,
         temporalPair: report.comparisonType === "temporal",
-        runLabels: report.runLabels ? { ...report.runLabels } : defaultRunLabels(axis, report.comparisonType === "temporal")
+        runLabels: displayRunLabels(report.runLabels, axis, report.comparisonType === "temporal")
       },
       claims: legacyClaims(report)
     };

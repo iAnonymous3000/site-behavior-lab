@@ -258,7 +258,7 @@ export function MetricGrid({ run }: { run: RunView }) {
       ? [
           run.conditions.shieldsMode === "block-simulation"
             ? {
-                label: "Blocked by Shields",
+                label: "Blocked by Brave lists",
                 value: run.counts.shieldsBlockedRequests ?? 0,
                 detail: "aborted in this visit",
                 icon: ShieldCheck

@@ -4,7 +4,7 @@
  * Pure aggregation over one data point per scanned site (already deduped and
  * categorized by the caller), so it stays unit-testable and free of fs/Next deps.
  * Metrics describe the baseline (off / unprotected) run (what the site tried),
- * matching the rest of the report surface; `shieldsBlocked` is the third-party
+ * matching the rest of the report surface; `shieldsThirdPartyReduction` is the third-party
  * requests a Shields comparison removed, when one exists for that site.
  */
 
@@ -14,7 +14,7 @@ export type RollupSite = {
   trackerRequests: number;
   thirdPartyRequests: number;
   thirdPartyCookies: number;
-  shieldsBlocked: number | null;
+  shieldsThirdPartyReduction: number | null;
 };
 
 export type CategoryRollup = {
@@ -24,7 +24,7 @@ export type CategoryRollup = {
   medianTrackers: number;
   medianThirdParty: number;
   medianCookies: number;
-  medianShieldsBlocked: number | null;
+  medianShieldsReduction: number | null;
 };
 
 /** Integer median of a list of counts. Empty list -> 0. */
@@ -51,7 +51,7 @@ export function buildCategoryRollups(sites: RollupSite[]): CategoryRollup[] {
 
   const rollups: CategoryRollup[] = [];
   for (const [id, list] of byCategory) {
-    const blocked = list.map((site) => site.shieldsBlocked).filter((value): value is number => value !== null);
+    const blocked = list.map((site) => site.shieldsThirdPartyReduction).filter((value): value is number => value !== null);
     rollups.push({
       id,
       label: list[0].categoryLabel,
@@ -59,7 +59,7 @@ export function buildCategoryRollups(sites: RollupSite[]): CategoryRollup[] {
       medianTrackers: median(list.map((site) => site.trackerRequests)),
       medianThirdParty: median(list.map((site) => site.thirdPartyRequests)),
       medianCookies: median(list.map((site) => site.thirdPartyCookies)),
-      medianShieldsBlocked: blocked.length > 0 ? median(blocked) : null
+      medianShieldsReduction: blocked.length > 0 ? median(blocked) : null
     });
   }
 

@@ -30,14 +30,14 @@ test("a failed arm disqualifies the comparison and names the run label", () => {
   const eligibility = comparisonEligibility(report);
   assert.equal(eligibility.eligible, false);
   assert.equal(eligibility.reasons.length, 1);
-  assert.match(eligibility.reasons[0], /"Shields on" visit returned HTTP 403/);
+  assert.match(eligibility.reasons[0], /"Brave-list blocking" visit returned HTTP 403/);
 });
 
 test("a request-capped arm disqualifies the comparison", () => {
   const report = createShieldsComparisonReport(makeRun({ totalRequests: COMPARISON_REQUEST_CAP }), makeRun({}));
   const eligibility = comparisonEligibility(report);
   assert.equal(eligibility.eligible, false);
-  assert.match(eligibility.reasons[0], /"Shields off" visit hit the 1,000-request recording cap/);
+  assert.match(eligibility.reasons[0], /"No blocking" visit hit the 1,000-request recording cap/);
 });
 
 test("the cap is also detected from the scanner's real cap warning", () => {

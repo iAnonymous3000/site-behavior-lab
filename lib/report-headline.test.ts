@@ -235,7 +235,7 @@ test("frames a Shields comparison as the observed paired-visit difference", () =
 
   const headline = buildReportHeadline(viewFromV1Report(createShieldsComparisonReport(baseline, variant)));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /heavy\.example loaded 55 fewer third-party requests with Brave Shields on\./);
+  assert.match(headline.headline, /heavy\.example loaded 55 fewer third-party requests with Brave-list blocking on\./);
   assert.doesNotMatch(headline.headline, /would/);
 });
 
@@ -283,7 +283,7 @@ test("comparison framings are refused when an arm failed, is capped, or mismatch
   });
   const shieldsVariant = makeResult({ firstPartyDomain: "heavy.example", totalRequests: 45, thirdPartyRequests: 5 });
   const cappedHeadline = buildReportHeadline(viewFromV1Report(createShieldsComparisonReport(cappedBaseline, shieldsVariant)));
-  assert.doesNotMatch(cappedHeadline.headline, /fewer third-party requests with Brave Shields on/);
+  assert.doesNotMatch(cappedHeadline.headline, /fewer third-party requests with Brave-list blocking on/);
 
   // Failed GPC variant: the pair supports no signal story.
   const gpcBaseline = makeResult({ firstPartyDomain: "shop.example", domains: trackerDomains, thirdPartyRequests: 100 });
@@ -503,9 +503,12 @@ test("trackers surviving a real Reject all click lead the consent-comparison hea
   assert.equal(headline.tone, "warn");
   assert.match(headline.headline, /shop\.example still reached 1 tracking company in the Reject-all visit\./);
   assert.match(headline.subhead, /Google/);
-  // The recording covers the full visit, so the wording must not claim the
-  // traffic came after the click.
+  // The recording covers the full visit and the click is never verified, so
+  // no sentence may sequence the traffic relative to the click.
+  assert.match(headline.subhead, /In the visit where the scanner clicked Reject all/);
   assert.match(headline.subhead, /before and after the click/);
+  assert.match(headline.subhead, /never verified/);
+  assert.doesNotMatch(headline.subhead, /After the scanner clicked/);
 });
 
 test("a clean reject run headlines that the consent choice made a difference", () => {
@@ -728,6 +731,6 @@ test("a tampered wire diff cannot drive the headline; numbers derive from the tw
   report.diff.totalRequests = { before: 12345, after: 12345, delta: 0 };
 
   const headline = buildReportHeadline(viewFromV1Report(report));
-  assert.match(headline.headline, /heavy\.example loaded 55 fewer third-party requests with Brave Shields on\./);
+  assert.match(headline.headline, /heavy\.example loaded 55 fewer third-party requests with Brave-list blocking on\./);
   assert.match(headline.subhead, /made 100 requests/);
 });

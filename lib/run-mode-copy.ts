@@ -15,13 +15,13 @@ export const RUN_MODE_LABELS: Record<RunMode, string> = {
 export const RUN_MODE_TITLES: Record<RunMode, string> = {
   single: "One controlled visit.",
   gpc: "Two visits: with and without the Global Privacy Control opt-out signal.",
-  shields: "Two visits: with and without Brave Shields, the ad and tracker blocker built into the Brave browser.",
+  shields: "Two visits: one normal, one with Brave's ad-block engine and default Shields lists actively blocking (a simulation, not a live Brave-browser visit).",
   consent: 'Two visits: one clicking "Accept all" on the cookie banner, one clicking "Reject all".'
 };
 
 export function runModeHint(mode: RunMode): string {
   if (mode === "shields") {
-    return "Visits the page twice: once normally, then once with Brave Shields (the ad and tracker blocker built into the Brave browser) to show what changes with blocking on.";
+    return "Visits the page twice: once normally, then once with Brave's ad-block engine and Shields' default filter lists actively blocking, a simulation of Brave Shields inside this scanner's browser (not a live Brave visit), to show what changes with blocking on.";
   }
   if (mode === "gpc") {
     return 'Visits the page twice: once normally, then once sending Global Privacy Control (GPC), a legal "do not sell or share my data" signal, to show whether the site reacts.';

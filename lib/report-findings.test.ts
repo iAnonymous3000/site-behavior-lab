@@ -3,7 +3,8 @@ import { test } from "node:test";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { buildFindings, type Finding, type FindingIconKey } from "./report-findings";
 import type { CorpusStats } from "./corpus-stats";
-import { viewFromV1Report } from "./scan-report-views";
+import { makePublicSingleReportV2 } from "./scan-report-v2-fixtures";
+import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
   type DomainSummary,
@@ -179,6 +180,17 @@ test("uses measured percentile wording when the corpus is usable, fixed threshol
   assert.match(byId(withoutCorpus, "bottom-line").detail, /fixed reference thresholds/);
 });
 
+test("a v2 view is never benchmarked against the v1-only corpus", () => {
+  // The published percentiles are built from v1 reports only (the builder
+  // excludes v2 as non-comparable), so ranking a v2 report against them
+  // would compare across methodologies; v2 falls back to fixed thresholds
+  // until a matching cohort exists.
+  const view = viewFromV2(makePublicSingleReportV2(), 1);
+  const findings = buildFindings(view, makeCorpus(60));
+  assert.doesNotMatch(byId(findings, "third-party-services").benchmark ?? "", /sites scanned so far/);
+  assert.match(byId(findings, "bottom-line").detail, /fixed reference thresholds/);
+});
+
 test("small corpora below the honesty gate fall back to fixed thresholds", () => {
   const result = makeResult({ thirdPartyDomains: 40, thirdPartyRequests: 40 });
   const tiny = buildFindings(viewFromV1Report(result), makeCorpus(10));
@@ -210,7 +222,7 @@ test("adds a Shields-block card only when ad-block is active", () => {
     conditions: { ...withAdblock.conditions, shieldsMode: "block-simulation" }
   };
   const simulatedCard = byId(buildFindings(viewFromV1Report(simulated), null), "shields-blocked");
-  assert.match(simulatedCard.title, /Brave Shields blocked 12 requests in this visit/);
+  assert.match(simulatedCard.title, /Brave's blocking engine stopped 12 requests in this visit/);
 });
 
 test("a Shields comparison keeps the fingerprinting card alongside session-recording (no silent cap)", () => {
@@ -779,6 +791,6 @@ test("a tampered wire diff cannot drive the Shields card; deltas and entity list
 
   const card = byId(buildFindings(viewFromV1Report(report), null), "shields-comparison");
   assert.match(card.lead, /55 fewer third-party requests and 60 fewer known-service requests/);
-  assert.match(card.detail, /Services only seen with Shields off: AdCo/);
+  assert.match(card.detail, /Services only seen in the unblocked visit: AdCo/);
   assert.doesNotMatch(card.detail, /Forged Co/);
 });

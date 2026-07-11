@@ -16,16 +16,16 @@ function site(partial: Partial<RollupSite>): RollupSite {
     trackerRequests: 0,
     thirdPartyRequests: 0,
     thirdPartyCookies: 0,
-    shieldsBlocked: null,
+    shieldsThirdPartyReduction: null,
     ...partial
   };
 }
 
 test("buildCategoryRollups groups, medians, and orders heaviest category first", () => {
   const rollups = buildCategoryRollups([
-    site({ category: "dating", categoryLabel: "Dating", trackerRequests: 40, thirdPartyRequests: 100, shieldsBlocked: 30 }),
-    site({ category: "dating", categoryLabel: "Dating", trackerRequests: 60, thirdPartyRequests: 140, shieldsBlocked: 50 }),
-    site({ category: "news", categoryLabel: "News & media", trackerRequests: 10, thirdPartyRequests: 30, shieldsBlocked: 5 })
+    site({ category: "dating", categoryLabel: "Dating", trackerRequests: 40, thirdPartyRequests: 100, shieldsThirdPartyReduction: 30 }),
+    site({ category: "dating", categoryLabel: "Dating", trackerRequests: 60, thirdPartyRequests: 140, shieldsThirdPartyReduction: 50 }),
+    site({ category: "news", categoryLabel: "News & media", trackerRequests: 10, thirdPartyRequests: 30, shieldsThirdPartyReduction: 5 })
   ]);
 
   assert.equal(rollups.length, 2);
@@ -33,7 +33,7 @@ test("buildCategoryRollups groups, medians, and orders heaviest category first",
   assert.equal(rollups[0].id, "dating");
   assert.equal(rollups[0].siteCount, 2);
   assert.equal(rollups[0].medianTrackers, 50); // median(40,60)
-  assert.equal(rollups[0].medianShieldsBlocked, 40); // median(30,50)
+  assert.equal(rollups[0].medianShieldsReduction, 40); // median(30,50)
   assert.equal(rollups[1].id, "news");
   assert.equal(rollups[1].medianTrackers, 10);
 });
@@ -41,10 +41,10 @@ test("buildCategoryRollups groups, medians, and orders heaviest category first",
 test("buildCategoryRollups excludes uncategorized sites and reports null Shields median when absent", () => {
   const rollups = buildCategoryRollups([
     site({ category: "", categoryLabel: "Other", trackerRequests: 999 }),
-    site({ category: "gov", categoryLabel: "Government", trackerRequests: 2, shieldsBlocked: null })
+    site({ category: "gov", categoryLabel: "Government", trackerRequests: 2, shieldsThirdPartyReduction: null })
   ]);
 
   assert.equal(rollups.length, 1);
   assert.equal(rollups[0].id, "gov");
-  assert.equal(rollups[0].medianShieldsBlocked, null);
+  assert.equal(rollups[0].medianShieldsReduction, null);
 });

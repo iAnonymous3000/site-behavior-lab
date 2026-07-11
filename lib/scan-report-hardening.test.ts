@@ -279,6 +279,21 @@ test("a legacy custom comparison stays baseline-led and is never labeled tempora
   assert.equal(displayRunView(temporalView), temporalView.runs[1]);
 });
 
+test("legacy Shields wire labels are normalized to the simulation-honest pair", () => {
+  const v1Single = makeScanReportV1() as ScanResult;
+  const shields = createShieldsComparisonReport(structuredClone(v1Single), structuredClone(v1Single));
+  // Already-stored reports carry the older producer labels; display renames
+  // exactly that pair ("Shields on" reads as a live Brave visit, which the
+  // block simulation is not) and passes any custom labels through untouched.
+  shields.runLabels = { baseline: "Shields off", variant: "Shields on" };
+  assert.deepEqual(viewFromV1Report(shields).comparison?.runLabels, {
+    baseline: "No blocking",
+    variant: "Brave-list blocking"
+  });
+  shields.runLabels = { baseline: "Vanilla", variant: "Filtered" };
+  assert.deepEqual(viewFromV1Report(shields).comparison?.runLabels, { baseline: "Vanilla", variant: "Filtered" });
+});
+
 test("legacy family gates follow the recorded facts: catalog and Shields-mode mismatches deny their families", () => {
   const v1Single = makeScanReportV1() as ScanResult;
 

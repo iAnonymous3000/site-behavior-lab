@@ -113,10 +113,10 @@ export default async function DirectoryPage() {
                     <dt>3rd-party cookies</dt>
                     <dd>{rollup.medianCookies.toLocaleString()}</dd>
                   </div>
-                  {rollup.medianShieldsBlocked !== null && (
+                  {rollup.medianShieldsReduction !== null && (
                     <div>
-                      <dt>Fewer with Shields on</dt>
-                      <dd>{rollup.medianShieldsBlocked.toLocaleString()}</dd>
+                      <dt>Fewer with Brave-list blocking</dt>
+                      <dd>{rollup.medianShieldsReduction.toLocaleString()}</dd>
                     </div>
                   )}
                 </dl>
@@ -140,10 +140,10 @@ export default async function DirectoryPage() {
             Medians from one controlled visit per site, using the curated service catalog (a lower bound). Tracker counts
             exclude operational-only services such as error monitoring. A 0 means no <em>catalogued third-party</em>{" "}
             trackers were seen. Large platforms like Google, YouTube, and X serve much of their own tracking first-party,
-            which is not counted as third-party here. &ldquo;Fewer with Shields on&rdquo; is the median difference in
-            third-party requests between a normal visit and a paired visit with Brave Shields (the ad and tracker blocker
-            built into the Brave browser, with its default lists) actively blocking: an observed paired-visit difference,
-            not a count of individually blocked requests.
+            which is not counted as third-party here. &ldquo;Fewer with Brave-list blocking&rdquo; is the median difference
+            in third-party requests between a normal visit and a paired visit with Brave&apos;s ad-block engine and default
+            Shields lists actively blocking (a simulation in this scanner&apos;s browser, not a live Brave-browser visit):
+            an observed paired-visit difference, not a count of individually blocked requests.
           </p>
         </section>
       )}

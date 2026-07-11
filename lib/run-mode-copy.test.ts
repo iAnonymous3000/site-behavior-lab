@@ -12,9 +12,11 @@ test("run-mode labels lead with function, not Brave-internal vocabulary", () => 
 });
 
 test("every comparison mode defines its jargon in the tooltip and hint", () => {
-  assert.match(RUN_MODE_TITLES.shields, /Brave Shields, the ad and tracker blocker built into the Brave browser/);
+  // The blocking mode must name the SIMULATION: Brave's engine and lists in
+  // this scanner's browser, never a claim of a live Brave-browser visit.
+  assert.match(RUN_MODE_TITLES.shields, /simulation, not a live Brave-browser visit/);
   assert.match(RUN_MODE_TITLES.gpc, /Global Privacy Control/);
-  assert.match(runModeHint("shields"), /Brave Shields \(the ad and tracker blocker built into the Brave browser\)/);
+  assert.match(runModeHint("shields"), /simulation of Brave Shields inside this scanner's browser/);
   assert.match(runModeHint("gpc"), /Global Privacy Control \(GPC\)/);
   assert.match(runModeHint("single"), /One controlled visit/);
 });

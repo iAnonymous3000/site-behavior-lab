@@ -99,6 +99,12 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   // claims.interventionAttribution, which no readable report grants yet.
   const comparisonUsable = view.claims.pairComparison?.allowed ?? false;
   const rawCountDeltasUsable = comparisonUsable && view.claims.familyDeltas?.["raw-counts"]?.allowed === true;
+  // Cross-arm framing that leans on the tracker catalog ("still contacted",
+  // "loaded no catalogued trackers while the other visit did") additionally
+  // needs the classification family: two visits classified by different
+  // catalogs support no such contrast.
+  const classificationDeltasUsable =
+    comparisonUsable && view.claims.familyDeltas?.["tracker-classification"]?.allowed === true;
 
   const extras: string[] = [];
   if (inputMonitoring) {
@@ -189,18 +195,21 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   // measured. The scanner clicks the control but cannot verify the site
   // accepted the choice, and recording covers the whole visit including
   // pre-click traffic, so the wording stays observational.
-  if (comparisonUsable && arms && axis === "consent" && arms.variant.consent?.controlActivated === true) {
+  if (classificationDeltasUsable && arms && axis === "consent" && arms.variant.consent?.controlActivated === true) {
     const rejectTracking = trackerEntitySummaries(arms.variant.evidence).filter((entity) => !isOperationalEntity(entity));
     // Both consent headlines describe the Reject-all (variant) visit, so the
     // stat chips and share text must quote that run too, not the Accept-all
-    // baseline the report otherwise leads with.
+    // baseline the report otherwise leads with. "In the visit where the
+    // scanner clicked", never "after the click": the recording covers traffic
+    // from before and after an unverified click, so no sentence may sequence
+    // the traffic relative to it.
     if (rejectTracking.length > 0) {
       return finish(
         "warn",
         `${domain} still reached ${plural(rejectTracking.length, "tracking company", "tracking companies")} in the Reject-all visit.`,
-        `After the scanner clicked Reject all, ${joinNames(
+        `In the visit where the scanner clicked Reject all, ${joinNames(
           rejectTracking.map((entity) => entity.entity)
-        )} still received requests during that visit. The visit records traffic from before and after the click, and some vendors may be claimed as strictly necessary; the diff lists the services that appeared only in the Accept-all visit.`,
+        )} received requests. The recording covers traffic from before and after the click, the click's acceptance by the site is never verified, and some vendors may be claimed as strictly necessary; the diff lists the services that appeared only in the Accept-all visit.`,
         buildStats(arms.variant, rejectTracking.length)
       );
     }
@@ -231,7 +240,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     // intervention-attributed phrasing (RFC 4.4) and needs
     // claims.interventionAttribution, which no readable report grants yet.
     const gpcOnTracking = trackerEntitySummaries(arms.variant.evidence).filter((entity) => !isOperationalEntity(entity));
-    if (gpcOnTracking.length > 0 && after > 0 && reductionPct < 25) {
+    if (classificationDeltasUsable && gpcOnTracking.length > 0 && after > 0 && reductionPct < 25) {
       return finish(
         "alarm",
         `${domain} still contacted ${plural(gpcOnTracking.length, "tracking company", "tracking companies")} with a privacy signal on.`,
@@ -267,13 +276,16 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
         engineBlocks && engineBlocks.kind === "engine-blocked"
           ? ` The blocker directly stopped ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked, plus run-to-run variance.`
           : "";
+      // "Brave-list blocking", never "Brave Shields on": the blocking arm ran
+      // Brave's ad-block engine and default Shields lists as a block
+      // SIMULATION in this scanner's browser, not a live Brave-browser visit.
       return finish(
         removed >= 30 ? "warn" : "info",
-        `${domain} loaded ${plural(removed, "fewer third-party request")} with Brave Shields on.`,
-        `The visit without Brave Shields (the ad and tracker blocker built into the Brave browser) made ${plural(
+        `${domain} loaded ${plural(removed, "fewer third-party request")} with Brave-list blocking on.`,
+        `The visit with no blocking made ${plural(
           total,
           "request"
-        )}; with Shields on, ${plural(removed, "third-party request")} did not load.${engineNote}${extraNote}`
+        )}; with Brave's ad-block engine and default Shields filter lists actively blocking (a simulation in this scanner's browser, not a live Brave-browser visit), ${plural(removed, "third-party request")} did not load.${engineNote}${extraNote}`
       );
     }
   }

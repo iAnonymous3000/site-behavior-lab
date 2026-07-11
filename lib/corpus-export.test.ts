@@ -11,7 +11,7 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     thirdPartyRequests: 120,
     trackerRequests: 40,
     thirdPartyCookies: 8,
-    shieldsBlocked: 90,
+    shieldsThirdPartyReduction: 90,
     category: "shopping",
     categoryLabel: "Shopping",
     scannedAt: "2026-07-02T00:00:00.000Z",
@@ -42,7 +42,7 @@ test("rows carry absolute report URLs and since-last-scan deltas", () => {
           trackerRequests: -3
         }
       }),
-      makeEntry({ id: "20260625-" + "b".repeat(32), shieldsBlocked: null, comparisonType: undefined, reportType: "single" })
+      makeEntry({ id: "20260625-" + "b".repeat(32), shieldsThirdPartyReduction: null, comparisonType: undefined, reportType: "single" })
     ],
     "https://sitebehavior.org/"
   );
@@ -55,7 +55,7 @@ test("rows carry absolute report URLs and since-last-scan deltas", () => {
   // No delta claimed for a report without a same-kind predecessor.
   assert.equal(rows[1].deltaThirdPartyRequests, null);
   assert.equal(rows[1].comparisonType, null);
-  assert.equal(rows[1].shieldsBlocked, null);
+  assert.equal(rows[1].shieldsThirdPartyReduction, null);
 });
 
 test("the JSON payload embeds the measured-corpus framing", () => {
@@ -91,7 +91,7 @@ test("consent rows expose the dispatched click state so unclicked runs are filte
         comparisonType: "consent",
         consentMode: "accept-all",
         consentClicks: "none",
-        shieldsBlocked: null
+        shieldsThirdPartyReduction: null
       })
     ],
     "https://sitebehavior.org"
@@ -116,7 +116,7 @@ test("CSV pins the header and escapes commas and quotes in headlines", () => {
 
   assert.equal(
     header,
-    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,headline,third_party_requests,tracker_requests,third_party_cookies,shields_blocked,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited"
+    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_reduction,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited"
   );
   assert.match(row, /"shop\.example told Google, Meta ""you were here""\."/);
   assert.match(row, /,desktop,yes,observe,,200,/);

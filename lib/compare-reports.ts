@@ -41,17 +41,21 @@ export function createGpcComparisonReport(baseline: ScanResult, variant: ScanRes
 }
 
 export function createShieldsComparisonReport(baseline: ScanResult, variant: ScanResult): ComparisonScanResult {
+  // "Brave-list blocking", never "Shields on": the blocking arm runs Brave's
+  // ad-block engine and default Shields lists as a block SIMULATION in this
+  // scanner's browser, not a live Brave-browser visit. (The view layer
+  // normalizes the older "Shields off/on" labels on already-stored reports.)
   return createComparisonReport({
     comparisonType: "shields",
-    title: "Brave Shields off/on comparison",
+    title: "Brave-list blocking off/on comparison",
     runLabels: {
-      baseline: "Shields off",
-      variant: "Shields on"
+      baseline: "No blocking",
+      variant: "Brave-list blocking"
     },
     baseline,
     variant,
     warningPrefix:
-      "Brave Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection."
+      "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection."
   });
 }
 

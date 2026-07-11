@@ -118,7 +118,12 @@ function strongestLevel(levels: FindingLevel[]): FindingLevel {
 const GOOGLE_ANALYTICS_HOST = /(^|\.)(google-analytics\.com|googletagmanager\.com|analytics\.google\.com)$/;
 const DOUBLECLICK_REMARKETING_HOST = /(^|\.)stats\.g\.doubleclick\.net$/;
 
-export function buildFindings(view: ReportView, corpus: CorpusStats | null): Finding[] {
+export function buildFindings(view: ReportView, corpusInput: CorpusStats | null): Finding[] {
+  // Benchmark cohort = same methodology generation: the published corpus
+  // distributions are built from v1 reports only, so a v2 view is never
+  // ranked against them and falls back to the fixed reference thresholds
+  // until a matching-methodology cohort exists.
+  const corpus = view.origin === "legacy-derived" ? corpusInput : null;
   const run = displayRunView(view);
   const arms = comparisonArmViews(view);
   const axis = view.comparison?.axis ?? null;
@@ -374,7 +379,7 @@ export function buildFindings(view: ReportView, corpus: CorpusStats | null): Fin
       level: pixelsWithMatching.length > 0 ? "warn" : "info",
       title:
         pixelsWithMatching.length > 0
-          ? "Advertising pixels attached personal identifiers"
+          ? "Advertising pixels carried populated identifier fields"
           : "Advertising pixels reported specific events",
       lead:
         pixelsWithMatching.length > 0
@@ -591,22 +596,27 @@ export function buildFindings(view: ReportView, corpus: CorpusStats | null): Fin
           )
         );
       } else {
+        // "Brave-list blocking", never "Brave Shields on": the blocking arm
+        // ran Brave's ad-block engine and default Shields lists as a block
+        // SIMULATION in this scanner's browser, not a live Brave visit.
         findings.unshift({
           id: "shields-comparison",
           icon: "shield-check",
           level: blockedTotal > 0 ? "ok" : "quiet",
           title:
-            blockedTotal > 0 ? "Fewer tracking signals observed with Brave Shields on" : "No reduction observed with Brave Shields on",
+            blockedTotal > 0
+              ? "Fewer tracking signals observed with Brave-list blocking on"
+              : "No reduction observed with Brave-list blocking on",
           lead:
             blockedTotal > 0
-              ? `With Brave Shields on (the ad and tracker blocker built into the Brave browser), this paired visit showed ${humanList(deltaParts)}.`
-              : `The run with Brave Shields on (the ad and tracker blocker built into the Brave browser) did not show a reduction in the comparable metrics (${humanList(flatLabels, 4)}).`,
+              ? `With Brave's ad-block engine and default Shields filter lists actively blocking (a simulation in this scanner's browser, not a live Brave-browser visit), this paired visit showed ${humanList(deltaParts)}.`
+              : `The blocking visit (Brave's ad-block engine and default Shields lists, simulated in this scanner's browser, not a live Brave visit) did not show a reduction in the comparable metrics (${humanList(flatLabels, 4)}).`,
           detail: `${
-            removedEntityNames.length > 0 ? `Services only seen with Shields off: ${humanList(removedEntityNames)}. ` : ""
+            removedEntityNames.length > 0 ? `Services only seen in the unblocked visit: ${humanList(removedEntityNames)}. ` : ""
           }${engineNote ? `${engineNote.trim()} ` : ""}A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference, not a measured blocking rate.`,
           evidence:
             evidenceParts.length > 0
-              ? `${humanList(evidenceParts)} with Shields on.`
+              ? `${humanList(evidenceParts)} with blocking on.`
               : "See the comparison panel for the families this pair can compare."
         });
       }
@@ -617,7 +627,7 @@ export function buildFindings(view: ReportView, corpus: CorpusStats | null): Fin
     findings.unshift(
       pairGate && !pairGate.allowed
         ? ineligibleComparisonFinding("consent-comparison", "This consent comparison is not conclusive", pairGate)
-        : buildConsentComparisonFinding(arms.baseline, arms.variant, rawCountsAllowed)
+        : buildConsentComparisonFinding(arms.baseline, arms.variant, rawCountsAllowed, classificationAllowed)
     );
   }
 
@@ -690,15 +700,15 @@ export function buildFindings(view: ReportView, corpus: CorpusStats | null): Fin
       title:
         blocked > 0
           ? simulated
-            ? `Brave Shields blocked ${blocked.toLocaleString("en-US")} requests in this visit`
+            ? `Brave's blocking engine stopped ${blocked.toLocaleString("en-US")} requests in this visit`
             : `${blocked.toLocaleString("en-US")} of ${run.counts.totalRequests.toLocaleString("en-US")} requests matched Brave Shields filter lists`
           : simulated
-            ? "Brave Shields blocked nothing in this visit"
+            ? "Brave's blocking engine stopped nothing in this visit"
             : "No requests matched Brave Shields filter lists",
       lead:
         blocked > 0
           ? simulated
-            ? `${plural(blocked, "request")} were aborted by the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, before they could load.`
+            ? `${plural(blocked, "request")} were aborted before they could load by Brave's ad-block engine running Shields' default filter lists, a block simulation in this scanner's browser, not a live Brave-browser visit.`
             : `${plural(blocked, "request")} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, while loading normally.`
           : "No requests matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser.",
       detail: simulated
@@ -752,7 +762,12 @@ function ineligibleComparisonFinding(id: string, title: string, gate: ClaimGate)
  * found is pre-consent, and the card says which run that was instead of
  * pretending the diff measured the choice.
  */
-function buildConsentComparisonFinding(baseline: RunView, variant: RunView, rawCountsAllowed: boolean): Finding {
+function buildConsentComparisonFinding(
+  baseline: RunView,
+  variant: RunView,
+  rawCountsAllowed: boolean,
+  classificationAllowed: boolean
+): Finding {
   const acceptClicked = baseline.consent?.controlActivated === true;
   const rejectClicked = variant.consent?.controlActivated === true;
   const acceptTracking = trackerEntitySummaries(baseline.evidence).filter((entity) => !isOperationalEntity(entity));
@@ -802,11 +817,14 @@ function buildConsentComparisonFinding(baseline: RunView, variant: RunView, rawC
       icon: "cookie",
       level: "warn",
       title: `${plural(rejectTracking.length, "tracking company", "tracking companies")} loaded in the Reject-all visit`,
-      lead: `In the visit where the scanner clicked Reject all, ${humanList(rejectTracking.map((entity) => entity.entity))} received requests (${plural(
-        acceptTracking.length,
-        "tracking company",
-        "tracking companies"
-      )} loaded with Accept all).`,
+      // The cross-arm contrast ("N loaded with Accept all") is a
+      // classification-family juxtaposition; without that family the card
+      // keeps the Reject-all visit's own facts only.
+      lead: `In the visit where the scanner clicked Reject all, ${humanList(rejectTracking.map((entity) => entity.entity))} received requests${
+        classificationAllowed
+          ? ` (${plural(acceptTracking.length, "tracking company", "tracking companies")} loaded with Accept all)`
+          : ""
+      }.`,
       detail:
         "The visit records traffic from before AND after the click, and the scanner can dispatch the click but cannot verify the site registered the choice, so some of this can be pre-click traffic, vendors a site treats as strictly necessary, or processing claimed under legitimate interest. It is a documented observation to review against the banner's promises, not a violation ruling. The diff below lists the services that appeared only in the Accept-all visit.",
       evidence
@@ -819,13 +837,15 @@ function buildConsentComparisonFinding(baseline: RunView, variant: RunView, rawC
     level: "ok",
     title: "The Reject-all visit had no catalogued trackers",
     lead:
-      acceptTracking.length > 0
+      classificationAllowed && acceptTracking.length > 0
         ? `The visit where the scanner clicked Reject all loaded no catalogued tracking company, while the Accept-all visit loaded ${plural(
             acceptTracking.length,
             "tracking company",
             "tracking companies"
           )}.`
-        : "No catalogued tracking company loaded in either visit; on this page the two visits differed little because there was little to consent to.",
+        : classificationAllowed
+          ? "No catalogued tracking company loaded in either visit; on this page the two visits differed little because there was little to consent to."
+          : "The visit where the scanner clicked Reject all loaded no catalogued tracking company.",
     detail:
       "A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), and the scanner cannot verify the site registered the click, so treat this as an observed difference for this pair of visits.",
     evidence

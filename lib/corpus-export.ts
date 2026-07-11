@@ -45,7 +45,7 @@ export type CorpusExportRow = {
   thirdPartyRequests: number;
   trackerRequests: number;
   thirdPartyCookies: number;
-  shieldsBlocked: number | null;
+  shieldsThirdPartyReduction: number | null;
   deltaThirdPartyRequests: number | null;
   deltaTrackerRequests: number | null;
   previousReportId: string | null;
@@ -61,7 +61,7 @@ export type CorpusExportRow = {
 };
 
 export const CORPUS_EXPORT_NOTE =
-  "One row per published report. A single report records one automated, controlled Chromium visit; a comparison report pairs two such visits, one per compared condition. The corpus is a curated set of sites (popular, mostly commercial, plus a diversity seed list), not a random sample of the web, so treat cross-site statistics as describing this corpus only. Counts use the report's lead run (the unprotected baseline on Shields/GPC comparisons, the accept-all run on consent comparisons) and are lower bounds. On consent rows, consent_clicks records which banner choices the scanner dispatched a click for (the click is never verified as registered by the site, and each run's counts include pre-click traffic); rows without accept-and-reject have at least one run still in the pre-consent state (the scanner found no clickable control for that choice), so their diffs do not compare the two choices; an accept-only or reject-only row still mixes one post-click run with one pre-consent run. Rows with a status of 400 or higher reflect an error or block page (the site refusing the automated visit), not the site's normal behavior; exclude them from aggregate statistics, as this project's own percentiles and category medians do. siteCount counts distinct sites with at least one successful load. Delta fields compare a site's newest report against its previous successfully loaded report of the same kind and can reflect run-to-run variance as well as real site changes. schema_version/schema_revision record the report's wire generation, schema_origin marks legacy-derived (v1) rows whose derived facts were never recorded as v2 fact, and limited marks rows whose schema revision supports only descriptive (never causal) claims; every current row is v1, legacy-derived, and limited. Full methodology and per-report evidence are linked from each row.";
+  "One row per published report. A single report records one automated, controlled Chromium visit; a comparison report pairs two such visits, one per compared condition. The corpus is a curated set of sites (popular, mostly commercial, plus a diversity seed list), not a random sample of the web, so treat cross-site statistics as describing this corpus only. Counts use the report's lead run (the unprotected baseline on Shields/GPC comparisons, the accept-all run on consent comparisons) and are lower bounds. On consent rows, consent_clicks records which banner choices the scanner dispatched a click for (the click is never verified as registered by the site, and each run's counts include pre-click traffic); rows without accept-and-reject have at least one run still in the pre-consent state (the scanner found no clickable control for that choice), so their diffs do not compare the two choices; an accept-only or reject-only row still mixes one post-click run with one pre-consent run. Rows with a status of 400 or higher reflect an error or block page (the site refusing the automated visit), not the site's normal behavior; exclude them from aggregate statistics, as this project's own percentiles and category medians do. siteCount counts distinct sites with at least one successful load. Delta fields compare a site's newest report against its previous successfully loaded report of the same kind and can reflect run-to-run variance as well as real site changes. schema_version/schema_revision record the report's wire generation, schema_origin marks legacy-derived (v1) rows whose derived facts were never recorded as v2 fact, and limited marks rows whose schema revision supports only descriptive (never causal) claims; every current row is v1, legacy-derived, and limited. shields_third_party_reduction is the observed drop in third-party requests between the unblocked visit and the paired Brave-list blocking visit (Brave's ad-block engine and default Shields lists, simulated in this scanner's browser, not a live Brave-browser visit) on an eligible pair; it is never a count of individually blocked requests, which each blocking run records separately. Full methodology and per-report evidence are linked from each row.";
 
 export function buildCorpusExportRows(entries: DirectoryEntry[], origin: string): CorpusExportRow[] {
   const base = origin.replace(/\/+$/, "");
@@ -84,7 +84,7 @@ export function buildCorpusExportRows(entries: DirectoryEntry[], origin: string)
     thirdPartyRequests: entry.thirdPartyRequests,
     trackerRequests: entry.trackerRequests,
     thirdPartyCookies: entry.thirdPartyCookies,
-    shieldsBlocked: entry.shieldsBlocked,
+    shieldsThirdPartyReduction: entry.shieldsThirdPartyReduction,
     deltaThirdPartyRequests: entry.sinceLastScan?.thirdPartyRequests ?? null,
     deltaTrackerRequests: entry.sinceLastScan?.trackerRequests ?? null,
     previousReportId: entry.sinceLastScan?.previousId ?? null,
@@ -138,7 +138,7 @@ const CSV_HEADER = [
   "third_party_requests",
   "tracker_requests",
   "third_party_cookies",
-  "shields_blocked",
+  "shields_third_party_reduction",
   "delta_third_party_requests",
   "delta_tracker_requests",
   "previous_report_id",
@@ -169,7 +169,7 @@ export function corpusExportToCsv(rows: CorpusExportRow[]): string {
     row.thirdPartyRequests,
     row.trackerRequests,
     row.thirdPartyCookies,
-    row.shieldsBlocked ?? "",
+    row.shieldsThirdPartyReduction ?? "",
     row.deltaThirdPartyRequests ?? "",
     row.deltaTrackerRequests ?? "",
     row.previousReportId ?? "",

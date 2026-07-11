@@ -170,7 +170,9 @@ test("comparison helpers create Brave-relevant report types", () => {
   const temporal = createTemporalComparisonReport(before, after);
 
   assert.equal(shields.comparisonType, "shields");
-  assert.deepEqual(shields.runLabels, { baseline: "Shields off", variant: "Shields on" });
+  // "Brave-list blocking", never "Shields on": the blocking arm is a
+  // simulation in this scanner's browser, not a live Brave visit.
+  assert.deepEqual(shields.runLabels, { baseline: "No blocking", variant: "Brave-list blocking" });
   assert.equal(shields.diff.removedDomains[0].domain, "tracker.example");
 
   assert.equal(temporal.comparisonType, "temporal");

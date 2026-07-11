@@ -80,7 +80,10 @@ function ComparisonPanel({ view }: { view: ReportView }) {
       suppressed.push({ label: "Known-service and entity deltas", reason: families["tracker-classification"].reasons[0] ?? "" });
     }
     if (!detectorAllowed) {
-      suppressed.push({ label: "Fingerprinting and ad-pixel deltas", reason: families["detector-findings"].reasons[0] ?? "" });
+      suppressed.push({
+        label: "Fingerprinting, ad-pixel, and causal-path deltas",
+        reason: families["detector-findings"].reasons[0] ?? ""
+      });
     }
     if (!shieldsSimAllowed && diff.shieldsBlockedRequests) {
       suppressed.push({ label: "The Shields-number delta", reason: families["shields-simulation"].reasons[0] ?? "" });
@@ -167,7 +170,10 @@ function ComparisonPanel({ view }: { view: ReportView }) {
                 <PixelEventChangeList title={`Ad pixels only with ${labels.baseline}`} changes={removedPixelEvents} tone="removed" />
               </>
             )}
-            {(addedProvenance.length > 0 || removedProvenance.length > 0) && (
+            {/* Provenance is instrumentation-derived (PageGraph initiator
+                attribution), so its cross-arm deltas need the same
+                detector-findings gate as fingerprinting and pixels. */}
+            {detectorAllowed && (addedProvenance.length > 0 || removedProvenance.length > 0) && (
               <>
                 <ProvenanceChangeList title={`Causal paths only with ${labels.variant}`} changes={addedProvenance} tone="added" />
                 <ProvenanceChangeList title={`Causal paths only with ${labels.baseline}`} changes={removedProvenance} tone="removed" />
