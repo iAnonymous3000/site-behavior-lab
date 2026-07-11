@@ -35,7 +35,7 @@ function formatScanDate(value: string): string {
 
 function reportTypeLabel(entry: DirectoryEntry): string {
   if (entry.reportType !== "comparison") return "single scan";
-  if (entry.comparisonType === "shields") return "Brave Shields comparison";
+  if (entry.comparisonType === "shields") return "Brave-list blocking comparison";
   // A consent comparison only compared choices if the scanner dispatched
   // clicks on both banner buttons; otherwise the label must say what actually
   // happened, because an unclicked run observed the pre-consent state.
@@ -155,6 +155,14 @@ export default async function DirectoryPage() {
               <Link href={`${reportPagePath(entry.id)}/`}>
                 <span className="directory-row-top">
                   <span className="directory-domain">{entry.domain}</span>
+                  {entry.capped && (
+                    <span
+                      className="capped-chip"
+                      title="This visit hit the 1,000-request recording cap: its counts are truncated, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+                    >
+                      recording capped
+                    </span>
+                  )}
                   <span className="directory-type">{reportTypeLabel(entry)}</span>
                 </span>
                 <span className="directory-headline">{entry.headline}</span>

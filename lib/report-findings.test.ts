@@ -225,12 +225,20 @@ test("uses measured percentile wording when the corpus is usable, fixed threshol
   });
 
   const withCorpus = buildFindings(viewFromV1Report(result), makeCorpus(60));
-  assert.match(byId(withCorpus, "third-party-services").benchmark ?? "", /about 90% of the 60 sites scanned so far/);
-  assert.match(byId(withCorpus, "bottom-line").detail, /percentiles from the 60 sites/);
+  assert.match(byId(withCorpus, "third-party-services").benchmark ?? "", /about 90% of the 60 fully measured sites/);
+  assert.match(byId(withCorpus, "bottom-line").detail, /percentiles from the 60 fully measured sites/);
+
+  // A corpus that also records its coverage names both concepts: the
+  // measured sample and the larger set of sites scanned.
+  const withCoverage = buildFindings(viewFromV1Report(result), { ...makeCorpus(60), coverageSiteCount: 62 });
+  assert.match(
+    byId(withCoverage, "bottom-line").detail,
+    /60 fully measured sites \(of 62 sites scanned; failed and request-capped visits are excluded from statistics\)/
+  );
 
   const withoutCorpus = buildFindings(viewFromV1Report(result), null);
   const fixedBenchmark = byId(withoutCorpus, "third-party-services").benchmark ?? "";
-  assert.doesNotMatch(fixedBenchmark, /sites scanned so far/);
+  assert.doesNotMatch(fixedBenchmark, /fully measured sites/);
   assert.match(byId(withoutCorpus, "bottom-line").detail, /fixed reference thresholds/);
 });
 
@@ -241,14 +249,14 @@ test("a v2 view is never benchmarked against the v1-only corpus", () => {
   // until a matching cohort exists.
   const view = viewFromV2(makePublicSingleReportV2(), 1);
   const findings = buildFindings(view, makeCorpus(60));
-  assert.doesNotMatch(byId(findings, "third-party-services").benchmark ?? "", /sites scanned so far/);
+  assert.doesNotMatch(byId(findings, "third-party-services").benchmark ?? "", /fully measured sites/);
   assert.match(byId(findings, "bottom-line").detail, /fixed reference thresholds/);
 });
 
 test("small corpora below the honesty gate fall back to fixed thresholds", () => {
   const result = makeResult({ thirdPartyDomains: 40, thirdPartyRequests: 40 });
   const tiny = buildFindings(viewFromV1Report(result), makeCorpus(10));
-  assert.doesNotMatch(byId(tiny, "third-party-services").benchmark ?? "", /sites scanned so far/);
+  assert.doesNotMatch(byId(tiny, "third-party-services").benchmark ?? "", /fully measured sites/);
 });
 
 test("adds a Shields-block card only when ad-block is active", () => {

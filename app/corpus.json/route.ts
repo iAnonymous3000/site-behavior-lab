@@ -8,9 +8,13 @@ import { siteBaseUrl } from "@/lib/site-url";
 export const dynamic = "force-static";
 
 export async function GET(): Promise<Response> {
-  const { entries, siteCount } = await loadCorpusOverview();
+  const { entries, siteCount, coverageSiteCount } = await loadCorpusOverview();
   const rows = buildCorpusExportRows(entries, siteBaseUrl());
-  const payload = buildCorpusExportPayload(rows, { generatedAt: new Date().toISOString(), siteCount });
+  const payload = buildCorpusExportPayload(rows, {
+    generatedAt: new Date().toISOString(),
+    siteCount: coverageSiteCount,
+    measuredSampleSize: siteCount
+  });
   return new Response(`${JSON.stringify(payload, null, 2)}\n`, {
     headers: { "content-type": "application/json; charset=utf-8" }
   });

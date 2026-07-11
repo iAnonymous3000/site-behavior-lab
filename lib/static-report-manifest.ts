@@ -1,5 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { runHitRequestCap } from "./comparison-eligibility";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { readStoredScanReport } from "./scan-report-reader";
 import type { ScanReport, ScanResult, StaticReportManifest, StaticReportManifestEntry } from "./types";
@@ -98,6 +99,7 @@ function toManifestEntry(id: string, report: ScanReport): StaticReportManifestEn
     ...(report.reportType === "comparison" ? { comparisonType: report.comparisonType } : {}),
     device,
     gpcEnabled: report.reportType === "comparison" ? "comparison" : result.conditions.gpcEnabled,
+    ...(runHitRequestCap(result) ? { requestCapped: true } : {}),
     metrics: {
       totalRequests: result.summary.totalRequests,
       thirdPartyRequests: result.summary.thirdPartyRequests,

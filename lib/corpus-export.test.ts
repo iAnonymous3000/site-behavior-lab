@@ -63,13 +63,25 @@ test("rows carry absolute report URLs and since-last-scan deltas", () => {
 
 test("the JSON payload embeds the measured-corpus framing", () => {
   const rows = buildCorpusExportRows([makeEntry({ id: "20260702-" + "a".repeat(32) })], "https://sitebehavior.org");
-  const payload = buildCorpusExportPayload(rows, { generatedAt: "2026-07-02T16:00:00.000Z", siteCount: 104 });
+  const payload = buildCorpusExportPayload(rows, {
+    generatedAt: "2026-07-02T16:00:00.000Z",
+    siteCount: 104,
+    measuredSampleSize: 101
+  });
 
   assert.equal(payload.reportCount, 1);
+  // Coverage and measurement are separate concepts: siteCount is every site
+  // that loaded (capped recordings included), measuredSampleSize the
+  // statistics basis, and the note defines both.
   assert.equal(payload.siteCount, 104);
+  assert.equal(payload.measuredSampleSize, 101);
   assert.equal(payload.note, CORPUS_EXPORT_NOTE);
   assert.match(payload.note, /not a random sample of the web/);
   assert.match(payload.note, /run-to-run variance/);
+  assert.match(payload.note, /measuredSampleSize counts the sites/);
+  // Capped counts are floors/snapshots, never measured behavior.
+  assert.match(payload.note, /floors cut off mid-collection/);
+  assert.match(payload.note, /end-state snapshots of an interrupted visit/);
   // Failed loads are flagged, and the note tells researchers what the flag means.
   assert.match(payload.note, /status of 400 or higher/);
 });

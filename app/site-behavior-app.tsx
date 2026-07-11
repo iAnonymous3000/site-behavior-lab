@@ -1039,8 +1039,8 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
       <p className="eyebrow">Transparency index</p>
       <h2 id="corpus-hero-title">What websites actually load: measured, not claimed.</h2>
       <p className="corpus-hero-lead">
-        We open {plural(highlights.siteCount, "real site")} in a controlled browser and record every request, cookie, and
-        tracker, then run each through <strong>Brave&rsquo;s own ad-block engine</strong> (the open-source{" "}
+        We open {plural(highlights.siteCount, "real site")} in a controlled browser and record the requests, cookies, and
+        trackers each visit observes (unusually heavy visits hit a recording cap and are flagged), then run each through <strong>Brave&rsquo;s own ad-block engine</strong> (the open-source{" "}
         <code>adblock-rust</code>, with Brave&rsquo;s default lists) to show which requests match the filter lists of
         Brave Shields, the ad and tracker blocker built into the Brave browser. Reproducible evidence, not a score.
       </p>

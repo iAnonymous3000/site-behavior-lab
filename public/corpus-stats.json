@@ -1,7 +1,8 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-11T10:03:29.393Z",
+  "generatedAt": "2026-07-11T16:40:38.746Z",
   "sampleSize": 96,
+  "coverageSiteCount": 98,
   "metrics": {
     "thirdPartyRequests": {
       "count": 96,

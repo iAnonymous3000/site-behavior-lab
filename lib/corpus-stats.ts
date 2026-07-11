@@ -34,7 +34,18 @@ export type MetricDistribution = {
 export type CorpusStats = {
   version: number;
   generatedAt: string;
+  /**
+   * Distinct sites in the measured sample: newest lead run loaded (HTTP < 400)
+   * and was not cut off by the request-recording cap. This is the percentile
+   * basis and is smaller than the corpus's coverage.
+   */
   sampleSize: number;
+  /**
+   * Distinct sites with at least one successful load, INCLUDING request-capped
+   * recordings (which are covered but not statistically measured). Optional:
+   * stats files generated before this field existed omit it.
+   */
+  coverageSiteCount?: number;
   metrics: Partial<Record<CorpusMetricKey, MetricDistribution>>;
 };
 
@@ -77,7 +88,9 @@ export function corpusBenchmark(
   if (!distribution) return null;
 
   const label = METRIC_LABELS[key];
-  const sites = `${corpus.sampleSize.toLocaleString("en-US")} sites scanned so far`;
+  // "Fully measured": failed and request-capped visits are excluded from the
+  // distribution, so the cohort is smaller than everything ever scanned.
+  const sites = `${corpus.sampleSize.toLocaleString("en-US")} fully measured sites`;
 
   if (value <= 0) return { level: "ok", label: `No ${label} observed.` };
   if (value >= distribution.p90) return { level: "loud", label: `More ${label} than about 90% of the ${sites}.` };
@@ -89,6 +102,9 @@ export function corpusBenchmark(
 export function isCorpusStats(value: unknown): value is CorpusStats {
   if (!isRecord(value)) return false;
   if (typeof value.version !== "number" || typeof value.generatedAt !== "string" || typeof value.sampleSize !== "number") {
+    return false;
+  }
+  if (value.coverageSiteCount !== undefined && typeof value.coverageSiteCount !== "number") {
     return false;
   }
   if (!isRecord(value.metrics)) return false;

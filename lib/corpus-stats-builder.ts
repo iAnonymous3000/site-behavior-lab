@@ -42,6 +42,10 @@ export type CorpusStatsBuildResult = {
 export async function buildCorpusStats(reportsDir: string, now = new Date()): Promise<CorpusStatsBuildResult> {
   const warnings: string[] = [];
   const bySite = new Map<string, { scannedAt: string; metrics: Record<CorpusMetricKey, number> }>();
+  // Coverage and measurement are different concepts: a request-capped run is
+  // a site the corpus COVERS (it loaded) but not one it statistically
+  // MEASURES, so the two counts are reported separately.
+  const coverageDomains = new Set<string>();
 
   for (const file of await listReportFiles(reportsDir)) {
     let parsed: unknown;
@@ -75,16 +79,18 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // it. The per-report pages already disclose these as failed loads.
     if (typeof result.summary.status === "number" && result.summary.status >= 400) continue;
 
-    // A run that hit the request-recording cap has counts that are floors
-    // cut off mid-collection, not the site's measured behavior: including
+    const domain = normalizeDomain(result.summary.firstPartyDomain);
+    if (!domain || isReservedReportDomain(domain)) continue;
+    coverageDomains.add(domain);
+
+    // A run that hit the request-recording cap has activity counts that are
+    // floors cut off mid-collection (and cookie/storage snapshots of an
+    // interrupted visit), not the site's measured behavior: including
     // them clamps the distribution's tail to the cap (the heaviest sites are
     // exactly the ones that cap) and misranks every real site against a
     // truncated ceiling. The per-report pages disclose capped runs as cut
     // short.
     if (runHitRequestCap(result)) continue;
-
-    const domain = normalizeDomain(result.summary.firstPartyDomain);
-    if (!domain || isReservedReportDomain(domain)) continue;
 
     const scannedAt = result.conditions.scannedAt;
     const existing = bySite.get(domain);
@@ -115,7 +121,13 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
   }
 
   return {
-    stats: { version: 1, generatedAt: now.toISOString(), sampleSize: sites.length, metrics },
+    stats: {
+      version: 1,
+      generatedAt: now.toISOString(),
+      sampleSize: sites.length,
+      coverageSiteCount: coverageDomains.size,
+      metrics
+    },
     warnings
   };
 }

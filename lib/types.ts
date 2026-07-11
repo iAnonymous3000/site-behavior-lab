@@ -53,6 +53,9 @@ export type CnameCloak = {
   tracker: TrackerMatch;
 };
 
+// This docblock is the FROZEN v2 r1/r2 schema description and must not
+// change (see the RFC errata, E1: "never reads" overstates the transient
+// non-emptiness check; the accurate wording lives in lib/pixel-events.ts).
 /**
  * A personal-data category an advertising pixel attached to its events
  * ("advanced matching" in Meta's terms). Detected by parameter-key presence
@@ -540,6 +543,9 @@ export type StaticReportManifestEntry = {
   comparisonType?: ComparisonType | null;
   device: ScanDevice;
   gpcEnabled: boolean | "comparison";
+  // The lead run hit the request-recording cap, so its counts are truncated
+  // (activity floors and interrupted-visit snapshots) and cards must flag it.
+  requestCapped?: boolean;
   metrics: {
     totalRequests: number;
     thirdPartyRequests: number;

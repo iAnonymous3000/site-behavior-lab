@@ -591,7 +591,9 @@ test("a request-capped quiet visit is framed as cut short, never as relatively p
   assert.equal(headline.tone, "info");
   assert.match(headline.headline, /quiet\.example's scan was cut short, so low counts are not the full story\./);
   assert.match(headline.subhead, /request-recording cap/);
-  assert.match(headline.subhead, /floor for this visit/);
+  assert.match(headline.subhead, /floors for this visit/);
+  // Cookie/storage figures are snapshots of an interrupted visit, not floors.
+  assert.match(headline.subhead, /snapshots of an interrupted visit/);
   assert.doesNotMatch(headline.headline, /relatively private/);
 });
 

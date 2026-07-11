@@ -292,7 +292,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       conditionalConflicts.push(
         `the policy says personal information is not sold, and advertising events to ${humanList(
           pixelsWithIdentifiers.map((pixel) => pixel.product)
-        )} carried populated personal-identifier fields in this visit; IF those fields held real visitor data, many regulators treat that as sharing, but the scanner never reads the values`
+        )} carried populated personal-identifier fields in this visit; IF those fields held real visitor data, many regulators treat that as sharing, but the scanner only checks those fields for being non-empty and never stores the values`
       );
       quotes.push(noSelling.quote);
     }
@@ -640,9 +640,15 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       // It is the variant run's OWN recorded measurement, not a pair delta,
       // so it renders regardless of the family gates.
       const engineBlocks = shieldsRunMeasurement(arms.variant);
+      // "The remaining difference" only describes a reduction: on a mixed,
+      // increased, or flat pair the residual sentence must explain how totals
+      // can hold steady or rise despite direct blocks, not imply a reduction
+      // that is not there.
       const engineNote =
         engineBlocks && engineBlocks.kind === "engine-blocked"
-          ? ` The blocking visit's engine directly blocked ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked.`
+          ? direction === "decreased"
+            ? ` The blocking visit's engine directly blocked ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked.`
+            : ` The blocking visit's engine directly blocked ${plural(engineBlocks.count, "request")}; ad rotation, experiments, or caching between the two visits can offset or outweigh what blocking removed, which is how totals can hold steady or rise despite direct blocks.`
           : "";
 
       if (signedDeltas.length === 0) {
@@ -750,16 +756,20 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         ? "Bottom line: few review signals in this visit"
         : "Bottom line: this visit has review-worthy signals",
     lead: censoredQuiet
-      ? `Evidence collection did not finish (${humanList(censorshipNotes, 2)}), so the quiet result is a floor for this visit, not a verdict about the site.`
+      ? `Evidence collection did not finish (${humanList(censorshipNotes, 2)}), so the quiet result reflects an interrupted recording, not a verdict about the site.`
       : overallLevel === "ok"
         ? "The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls."
         : `The scan observed signals a non-expert should not have to decode from raw request tables.${
             censorshipNotes.length > 0
-              ? ` Evidence collection was also cut short (${humanList(censorshipNotes, 2)}), so every count is a floor for this visit.`
+              ? ` Evidence collection was also cut short (${humanList(censorshipNotes, 2)}), so activity counts are floors for this visit and end-state figures are snapshots of an interrupted recording.`
               : ""
           }`,
     detail: corpusIsUsable(corpus)
-      ? `The cards below translate the evidence into plain language. Where a measured distribution exists, severity ranks this visit against percentiles from the ${corpus.sampleSize.toLocaleString("en-US")} sites scanned so far (a curated set of popular, mostly commercial sites, not a random sample of the web) and otherwise uses fixed reference thresholds. The request log, domain table, and methodology remain below for verification.`
+      ? `The cards below translate the evidence into plain language. Where a measured distribution exists, severity ranks this visit against percentiles from the ${corpus.sampleSize.toLocaleString("en-US")} fully measured sites${
+          typeof corpus.coverageSiteCount === "number" && corpus.coverageSiteCount > corpus.sampleSize
+            ? ` (of ${corpus.coverageSiteCount.toLocaleString("en-US")} sites scanned; failed and request-capped visits are excluded from statistics)`
+            : ""
+        }, a curated set of popular, mostly commercial sites, not a random sample of the web, and otherwise uses fixed reference thresholds. The request log, domain table, and methodology remain below for verification.`
       : "The cards below translate the evidence into plain language; severity reflects fixed reference thresholds, not measured population percentiles. The request log, domain table, and methodology remain below for verification.",
     evidence: `${plural(run.counts.totalRequests, "request")} observed in one controlled visit.`
   });

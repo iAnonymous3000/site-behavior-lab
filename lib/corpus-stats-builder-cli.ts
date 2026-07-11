@@ -23,7 +23,9 @@ async function main(): Promise<void> {
 
   await mkdir(path.dirname(outPath), { recursive: true });
   await writeFile(outPath, `${JSON.stringify(stats, null, 2)}\n`);
-  console.log(`Corpus stats written: ${stats.sampleSize} distinct real site${stats.sampleSize === 1 ? "" : "s"}.`);
+  console.log(
+    `Corpus stats written: ${stats.sampleSize} fully measured site${stats.sampleSize === 1 ? "" : "s"} (coverage: ${stats.coverageSiteCount ?? stats.sampleSize} loaded).`
+  );
 }
 
 main().catch((error) => {

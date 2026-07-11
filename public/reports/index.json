@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-11T16:20:41.271Z",
+  "generatedAt": "2026-07-11T16:40:40.046Z",
   "reports": [
     {
       "id": "20260706-9ded9afa956074e84816d56759ba9948",
@@ -515,6 +515,7 @@
       "comparisonType": "shields",
       "device": "desktop",
       "gpcEnabled": "comparison",
+      "requestCapped": true,
       "metrics": {
         "totalRequests": 1000,
         "thirdPartyRequests": 936,
@@ -536,6 +537,7 @@
       "comparisonType": "shields",
       "device": "desktop",
       "gpcEnabled": "comparison",
+      "requestCapped": true,
       "metrics": {
         "totalRequests": 1000,
         "thirdPartyRequests": 954,
@@ -2720,6 +2722,7 @@
       "comparisonType": "consent",
       "device": "desktop",
       "gpcEnabled": "comparison",
+      "requestCapped": true,
       "metrics": {
         "totalRequests": 1000,
         "thirdPartyRequests": 939,
@@ -2741,6 +2744,7 @@
       "comparisonType": "consent",
       "device": "desktop",
       "gpcEnabled": "comparison",
+      "requestCapped": true,
       "metrics": {
         "totalRequests": 1000,
         "thirdPartyRequests": 962,
@@ -4085,6 +4089,7 @@
       "comparisonType": "shields",
       "device": "desktop",
       "gpcEnabled": "comparison",
+      "requestCapped": true,
       "metrics": {
         "totalRequests": 1000,
         "thirdPartyRequests": 970,

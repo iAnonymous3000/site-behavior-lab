@@ -29,7 +29,7 @@ test("corpusBenchmark maps values to percentile bands once the corpus is usable"
   assert.equal(corpusBenchmark(corpus, "thirdPartyDomains", 40)?.level, "loud"); // >= p90
 
   const loud = corpusBenchmark(corpus, "thirdPartyDomains", 50);
-  assert.match(loud?.label ?? "", /90% of the 200 sites scanned so far/);
+  assert.match(loud?.label ?? "", /90% of the 200 fully measured sites/);
 });
 
 test("corpusBenchmark returns null for metrics without a distribution", () => {

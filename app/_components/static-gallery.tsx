@@ -182,6 +182,14 @@ function FeaturedReportCard({
     >
       <span className="featured-card-top">
         <span className="featured-card-site">{site.label}</span>
+        {entry.requestCapped && (
+          <span
+            className="capped-chip"
+            title="This visit hit the 1,000-request recording cap: its counts are truncated, and it is excluded from corpus statistics."
+          >
+            recording capped
+          </span>
+        )}
         <span className="featured-card-dot" aria-hidden="true" />
       </span>
       <span className="featured-card-headline">{headline ? headline.headline : entry.title || site.domain}</span>

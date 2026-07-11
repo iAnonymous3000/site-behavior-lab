@@ -29,5 +29,5 @@ export function runModeHint(mode: RunMode): string {
   if (mode === "consent") {
     return 'Visits the page twice: once clicking "Accept all" on the cookie/consent banner and once clicking "Reject all", to show what differed between the two visits. If no banner control is found, that visit stays pre-consent and the report says so.';
   }
-  return "One controlled visit that records every request, cookie, and script the page loads.";
+  return "One controlled visit that records the requests, cookies, and scripts the page loads, up to a recording cap that is flagged when hit.";
 }

@@ -50,7 +50,7 @@ export type DirectoryEntry = {
   /** Lead run's top-level HTTP status; >= 400 means an error/block page, not the site. */
   status: number | null;
   /**
-   * The lead run hit the request-recording cap: every count is a floor cut
+   * The lead run hit the request-recording cap: its activity counts are floors cut
    * off mid-collection, so the row is excluded from percentiles, rollups,
    * the leaderboard, and since-last-scan pairing, and marked in the exports.
    */
@@ -77,7 +77,16 @@ export type CorpusOverview = {
   entries: DirectoryEntry[];
   rollups: CategoryRollup[];
   heaviest: DirectoryEntry[];
+  /**
+   * Distinct sites in the measured sample (loaded, uncapped): the basis of
+   * the rollups, leaderboard, and since-last-scan pairing.
+   */
   siteCount: number;
+  /**
+   * Distinct sites with at least one successful load, INCLUDING request-capped
+   * recordings: what the corpus covers, as opposed to what it measures.
+   */
+  coverageSiteCount: number;
 };
 
 type CatalogEntry = { domain: string; id: string; label: string };
@@ -93,7 +102,7 @@ export async function loadCorpusOverview(): Promise<CorpusOverview> {
 
   // Failed loads (HTTP >= 400: bot walls, outages) and request-capped runs
   // stay listed with their honest headlines, but neither is measured site
-  // behavior (an error page, or floors cut off mid-collection), so they must
+  // behavior (an error page, or a recording cut off mid-collection), so they must
   // not feed the statistics: no since-last-scan pairing (a delta between two
   // truncated floors reads as a site change), no category medians, no
   // leaderboard.
@@ -134,7 +143,11 @@ export async function loadCorpusOverview(): Promise<CorpusOverview> {
     .sort((a, b) => b.trackerRequests - a.trackerRequests)
     .slice(0, 5);
 
-  return { entries, rollups, heaviest, siteCount: sites.length };
+  // Coverage counts every distinct site that loaded, including capped
+  // recordings the statistics exclude.
+  const coverageDomains = new Set(entries.filter((entry) => !entryLoadFailed(entry)).map((entry) => entry.domain));
+
+  return { entries, rollups, heaviest, siteCount: sites.length, coverageSiteCount: coverageDomains.size };
 }
 
 /**

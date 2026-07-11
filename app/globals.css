@@ -2093,6 +2093,20 @@ a {
   overflow-wrap: anywhere;
 }
 
+/* Truncated-recording marker: the visit hit the request cap, so its counts
+   are floors/snapshots and the site is excluded from corpus statistics. */
+.capped-chip {
+  border: 1px solid var(--sig-warn);
+  border-radius: 999px;
+  color: var(--sig-warn);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  padding: 0 7px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .directory-metrics {
   color: var(--text-subtle);
   display: flex;

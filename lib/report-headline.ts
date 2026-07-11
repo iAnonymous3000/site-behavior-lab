@@ -172,9 +172,10 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   // story than mere pixel presence, so it outranks the platform/comparison
   // framings below. Event-only pixels carry no identifier and fall through to
   // the named-platform line. What the scanner proves is that designated
-  // personal-identifier fields held values; it never reads the values, so the
-  // copy must not assert they WERE personal identifiers, nor that matching
-  // succeeded, only what the fields are designed for.
+  // personal-identifier fields held values; it only ever checks the fields
+  // for being non-empty (never storing the values), so the copy must not
+  // assert they WERE personal identifiers, nor that matching succeeded, only
+  // what the fields are designed for.
   const pixelsWithMatching = run.evidence.pixelEvents.filter((pixel) => pixel.advancedMatching.length > 0);
   if (pixelsWithMatching.length > 0) {
     const products = joinNames(pixelsWithMatching.map((pixel) => pixel.product));
@@ -335,7 +336,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     return finish(
       "info",
       `${domain}'s scan was cut short, so low counts are not the full story.`,
-      `Evidence collection did not finish: ${joinNames(censorshipNotes, 2)}. Every count in this report is a floor for this visit, not the site's full behavior.`,
+      `Evidence collection did not finish: ${joinNames(censorshipNotes, 2)}. Activity counts in this report are floors for this visit, and its cookie and storage figures are snapshots of an interrupted visit, not the site's full behavior.`,
       stats.length > 0 ? stats : [{ label: "third-party requests", value: n(run.counts.thirdPartyRequests), emphasis: true }]
     );
   }
