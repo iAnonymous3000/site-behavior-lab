@@ -68,25 +68,27 @@ function ComparisonPanel({ view }: { view: ReportView }) {
       : [])
   ].filter((item): item is { label: string; metric: ComparisonMetricDelta } => Boolean(item.metric));
 
-  // Families the pair supports in principle but whose deltas are not
-  // comparable across these two visits, with the seam's human-readable reason
-  // so the absence is explained rather than silent.
-  const suppressed: { label: string; reason: string }[] = [];
-  if (pairAllowed && families) {
-    if (!rawCountsAllowed) {
-      suppressed.push({ label: "Request, cookie, and storage deltas", reason: families["raw-counts"].reasons[0] ?? "" });
-    }
-    if (!classificationAllowed) {
-      suppressed.push({ label: "Known-service and entity deltas", reason: families["tracker-classification"].reasons[0] ?? "" });
-    }
-    if (!detectorAllowed) {
-      suppressed.push({
-        label: "Fingerprinting, ad-pixel, and causal-path deltas",
-        reason: families["detector-findings"].reasons[0] ?? ""
-      });
-    }
-    if (!shieldsSimAllowed && diff.shieldsBlockedRequests) {
-      suppressed.push({ label: "The Shields-number delta", reason: families["shields-simulation"].reasons[0] ?? "" });
+  // Families whose deltas are not comparable across these two visits, from
+  // the single reason-bearing decision: the FULL reason list (never just the
+  // first), with the mode distinction spelled out. "raw-only" means each
+  // visit's own evidence still renders below with no comparative framing;
+  // "suppressed" means the family was never measured, so there is nothing to
+  // set side by side at all.
+  const decision = view.claims.decision;
+  const familyNotes: { label: string; mode: "raw-only" | "suppressed"; reasons: string[] }[] = [];
+  if (pairAllowed && decision) {
+    const note = (family: keyof typeof decision.families, label: string) => {
+      const ruling = decision.families[family];
+      if (ruling.mode === "comparable") return;
+      familyNotes.push({ label, mode: ruling.mode === "suppressed" ? "suppressed" : "raw-only", reasons: ruling.reasons });
+    };
+    note("raw-counts", "Request, cookie, and storage deltas");
+    note("tracker-classification", "Known-service and entity deltas");
+    note("detector-findings", "Fingerprinting, ad-pixel, and causal-path deltas");
+    // A shields ruling matters here when there is a number to withhold OR the
+    // family was never measured at all (the suppressed case names why).
+    if (!shieldsSimAllowed && (diff.shieldsBlockedRequests || decision.families["shields-simulation"].mode === "suppressed")) {
+      note("shields-simulation", "The Shields-number delta");
     }
   }
 
@@ -122,13 +124,15 @@ function ComparisonPanel({ view }: { view: ReportView }) {
           </p>
         </div>
       )}
-      {suppressed.length > 0 && (
+      {familyNotes.length > 0 && (
         <div className="comparison-ineligible" role="note">
           <strong>Some deltas are not comparable across these two visits and are not shown.</strong>
           <ul>
-            {suppressed.map((item) => (
+            {familyNotes.map((item) => (
               <li key={item.label}>
-                {item.label}: {item.reason}
+                {item.label}
+                {item.mode === "suppressed" ? " (never measured on this pair)" : " (each visit's own evidence still renders below)"}
+                {item.reasons.length > 0 ? `: ${item.reasons.join(" ")}` : ""}
               </li>
             ))}
           </ul>
@@ -238,7 +242,12 @@ function DiffList<T>({
         <>
           {visible.map(renderItem)}
           {items.length > DIFF_COLLAPSED_COUNT && (
-            <button type="button" className="change-list-toggle" onClick={() => setExpanded((value) => !value)}>
+            <button
+              type="button"
+              className="change-list-toggle"
+              aria-expanded={expanded}
+              onClick={() => setExpanded((value) => !value)}
+            >
               {expanded ? "Show fewer" : `Show all ${items.length}`}
             </button>
           )}

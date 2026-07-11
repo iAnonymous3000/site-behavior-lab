@@ -461,3 +461,32 @@ production build (real scans, GPC comparison, JSON export, share permalink,
 saved-report page). Remaining after this slice: the UI polish slice, then
 exports migration details and v2 production emission with corpus
 regeneration.
+
+## UI polish slice (2026-07-11): the round-8/round-10 accessibility items
+
+DONE except one recorded residual. Landed, browser-verified on the capped
+usatoday and eligible webmd Shields reports with a clean console:
+
+- Cap indicator: the report header eyebrow shows the "recording capped" chip
+  (familyCensoredOnRun on the lead run) with the floors/snapshots tooltip.
+- CSV arm labels: the CSV button reads "CSV · <arm label>" on comparisons and
+  follows the evidence switcher; its tooltip names the visit it exports.
+- Arm-switch announcements: an aria-live status inside the switcher announces
+  "Showing evidence from the <arm> visit." on every switch.
+- Filter reconciliation: a filtered-empty request log says the filters
+  carried over from the previous view and offers a working "Clear filters"
+  reset; a genuinely empty visit says so instead.
+- aria-expanded on the comparison change-list toggles.
+- Full suppression reasons: the panel's family notes consume
+  claims.decision.families: ALL reasons (never just the first), with the mode
+  spelled out ("never measured on this pair" for suppressed vs "each visit's
+  own evidence still renders below" for raw-only), including a suppressed
+  shields family with no number to withhold.
+- Phase identity: the request log gains a Phase column that renders only when
+  rows carry phaseIds (v2), so v1 tables are unchanged.
+
+Residual (recorded, not landed): the headline-focus default arm ("variant-
+focused headlines can open with baseline evidence selected"). Temporal pairs
+already lead with the variant; picking a focus arm for the other headline
+branches needs the headline engine to declare which arm its lead finding
+describes, an engine change deferred to the exports/emission work.

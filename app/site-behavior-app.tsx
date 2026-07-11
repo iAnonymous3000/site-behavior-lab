@@ -74,6 +74,7 @@ import { recoverSavedReport } from "@/lib/saved-report-recovery";
 import {
   comparisonArmViews,
   displayRunView,
+  familyCensoredOnRun,
   runQualitySummary,
   schemaProvenanceLabel,
   viewFromV1Report,
@@ -825,6 +826,7 @@ export function SiteBehaviorApp({
                   share={loaded.wire.share ?? null}
                   view={reportView}
                   run={primaryRun}
+                  csvArmLabel={arms ? armDisplayLabel(reportView, displayedArmLabel) : null}
                   onDownload={() => void downloadReport()}
                   onDownloadCsv={downloadCsv}
                   liveApiServesReportPages={liveApiServesReportPages}
@@ -851,6 +853,11 @@ export function SiteBehaviorApp({
                         {armDisplayLabel(reportView, arm)}
                       </button>
                     ))}
+                    {/* Announce arm switches to assistive technology: the
+                        tables below swap silently otherwise. */}
+                    <p className="visually-hidden" role="status" aria-live="polite">
+                      {`Showing evidence from the ${armDisplayLabel(reportView, displayedArmLabel)} visit.`}
+                    </p>
                   </div>
                 )}
                 <CausalityGraph requests={displayedRun.evidence.requests} />
@@ -1521,6 +1528,7 @@ function ReportHeader({
   share,
   view,
   run,
+  csvArmLabel,
   onDownload,
   onDownloadCsv,
   liveApiServesReportPages
@@ -1529,6 +1537,8 @@ function ReportHeader({
   share: ReportShare | null;
   view: ReportView;
   run: RunView;
+  /** Names the visit the CSV exports on comparisons; null on single reports. */
+  csvArmLabel: string | null;
   onDownload: () => void;
   onDownloadCsv: () => void;
   liveApiServesReportPages: boolean;
@@ -1581,6 +1591,14 @@ function ReportHeader({
           {/* Provenance is always visible, not buried in the sidebar: a
               legacy-derived or limited report says so where the title is. */}
           <span className="report-provenance">{schemaProvenanceLabel(view)}</span>
+          {familyCensoredOnRun(run, "requests") && (
+            <span
+              className="capped-chip"
+              title="This visit hit the request-recording cap: its activity counts are floors cut off mid-collection, and cookie and storage figures are end-state snapshots of an interrupted visit."
+            >
+              recording capped
+            </span>
+          )}
         </p>
         <h2>{title || run.domain}</h2>
         {finalUrl ? (
@@ -1602,9 +1620,18 @@ function ReportHeader({
             <CopyButton value={shareUrl ?? sharePath} label="share link" />
           </>
         )}
-        <button className="secondary-button" type="button" onClick={onDownloadCsv} title="Download the request log as CSV">
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={onDownloadCsv}
+          title={
+            csvArmLabel
+              ? `Download the "${csvArmLabel}" visit's request log as CSV (follows the evidence switcher below)`
+              : "Download the request log as CSV"
+          }
+        >
           <Download size={17} aria-hidden="true" />
-          CSV
+          {csvArmLabel ? `CSV · ${csvArmLabel}` : "CSV"}
         </button>
         <button className="secondary-button" type="button" onClick={onDownload}>
           <Download size={17} aria-hidden="true" />

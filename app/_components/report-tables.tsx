@@ -121,6 +121,16 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
   }, [requests, query, resourceFilter, signalFilter, statusFilter]);
 
   const shown = filtered.slice(0, 80);
+  const filtersActive = signalFilter !== "all" || statusFilter !== "all" || resourceFilter !== "all" || query.trim() !== "";
+  function resetFilters() {
+    setQuery("");
+    setSignalFilter("all");
+    setStatusFilter("all");
+    setResourceFilter("all");
+  }
+  // v2 evidence rows are phase-tagged; the column renders only when at least
+  // one row carries a phase, so v1 tables stay unchanged.
+  const hasPhases = useMemo(() => requests.some((request) => typeof (request as { phaseId?: unknown }).phaseId === "number"), [requests]);
 
   return (
     <details className="data-section disclosure">
@@ -184,6 +194,7 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
           <thead>
             <tr>
               <th>Time</th>
+              {hasPhases && <th title="The recorded visit phase this request belongs to (see the methodology block for phase spans)">Phase</th>}
               <th>Status</th>
               <th>Type</th>
               <th>Domain</th>
@@ -197,6 +208,11 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
             {shown.map((request, index) => (
               <tr key={`${request.id}:${index}`}>
                 <td className="mono" data-label="Time">{request.startedAtMs.toLocaleString()}ms</td>
+                {hasPhases && (
+                  <td className="mono" data-label="Phase">
+                    {requestPhaseId(request) ?? ""}
+                  </td>
+                )}
                 <td data-label="Status">
                   <StatusCell status={request.status} />
                 </td>
@@ -210,13 +226,33 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
             ))}
           </tbody>
         </table>
-        {shown.length === 0 && <p className="table-empty">No requests match the current filter.</p>}
+        {shown.length === 0 && (
+          <p className="table-empty">
+            {filtersActive
+              ? "No requests in this visit match the current filters (they carried over from the previous view)."
+              : "No requests recorded for this visit."}
+            {filtersActive && (
+              <>
+                {" "}
+                <button type="button" className="change-list-toggle" onClick={resetFilters}>
+                  Clear filters
+                </button>
+              </>
+            )}
+          </p>
+        )}
         {filtered.length > shown.length && (
           <p className="row-more">Showing first 80 of {filtered.length} matching requests. Export JSON for the full log.</p>
         )}
       </div>
     </details>
   );
+}
+
+/** The v2 evidence row's phase tag, when present (v1 rows never carry one). */
+function requestPhaseId(request: NetworkRequestRecord): number | null {
+  const phaseId = (request as NetworkRequestRecord & { phaseId?: unknown }).phaseId;
+  return typeof phaseId === "number" ? phaseId : null;
 }
 
 type RequestSignalFilter = "all" | "third-party" | "known-service" | "shields-blocked" | "fingerprinting" | "provenance";
