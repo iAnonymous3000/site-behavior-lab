@@ -143,9 +143,13 @@ image **on Cloudflare instead**, connect the repo under the scanner Worker's
 **Settings → Build**: set the deploy command to `npx wrangler deploy -c wrangler.container.jsonc`,
 leave the build command empty, and trigger a build. Cloudflare builds and stores the image
 server-side, so nothing is uploaded from your machine. Worker secrets set beforehand are
-preserved across Workers Builds deploys. Ignore the dashboard hint to rename `wrangler.jsonc`
-,  this Worker deploys from `wrangler.container.jsonc`, while `wrangler.jsonc` belongs to the
-separate Browser Run GPC worker.
+preserved across Workers Builds deploys. The deploy command must stay explicit: on
+2026-07-11 a Workers Builds settings regression reset it to the default
+(`npx wrangler versions upload`), which loaded the repo-root wrangler config, hit the
+retired Browser Run worker's name, and failed the build. The retired config is therefore
+named `wrangler.browser-run.jsonc` (no root `wrangler.jsonc` exists), so a defaulted
+command now fails with "no config file found" instead of silently targeting the wrong
+Worker; this scanner always deploys with `-c wrangler.container.jsonc`.
 
 ## 5. Point the existing Pages site at it
 

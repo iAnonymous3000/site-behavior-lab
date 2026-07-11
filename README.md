@@ -247,8 +247,8 @@ One-time Cloudflare setup:
 npm run cf:kv:create
 ```
 
-2. Put the returned namespace id in `wrangler.jsonc` under the `REPORTS_KV` binding.
-3. The committed `wrangler.jsonc` ships gated: `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS` and the DNS-rebinding risk flag are both `0`, the safer default for self-hosting. (An intentionally open instance flips both to `1`, see step 5.) For a gated instance, set a scan token:
+2. Put the returned namespace id in `wrangler.browser-run.jsonc` under the `REPORTS_KV` binding.
+3. The committed `wrangler.browser-run.jsonc` ships gated: `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS` and the DNS-rebinding risk flag are both `0`, the safer default for self-hosting. (An intentionally open instance flips both to `1`, see step 5.) For a gated instance, set a scan token:
 
 ```bash
 npx wrangler secret put SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN
