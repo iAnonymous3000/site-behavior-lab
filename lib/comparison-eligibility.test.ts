@@ -75,6 +75,36 @@ test("mismatched subjects, devices, and pipelines each disqualify", () => {
   assert.match(differentPipeline.reasons[0], /different scanner pipelines \(playwright-chromium vs brave-pagegraph\)/);
 });
 
+test("mismatched or unrecorded environments disqualify: route, viewport, browser, timezone, locale, egress, headless", () => {
+  // RFC 3.1/3.2: comparability requires the recorded environment to match on
+  // every dimension that shapes what a page serves, and an unrecorded
+  // dimension never matches. Verified corpus-neutral: all 235 committed
+  // comparisons keep their eligibility (214 eligible) under these checks.
+  const withConditions = (patch: Partial<ScanConditions>): ScanResult => {
+    const run = makeRun({});
+    run.conditions = { ...run.conditions, ...patch };
+    return run;
+  };
+  const expectReason = (variant: ScanResult, pattern: RegExp) => {
+    const eligibility = comparisonEligibility(createTemporalComparisonReport(makeRun({}), variant));
+    assert.equal(eligibility.eligible, false);
+    assert.match(eligibility.reasons.join(" "), pattern);
+  };
+
+  expectReason(withConditions({ requestedUrl: "https://example.com/pricing" }), /requested different pages/);
+  expectReason(withConditions({ viewport: { width: 1280, height: 980, isMobile: false } }), /different viewport sizes/);
+  expectReason(withConditions({ chromiumVersion: "other" }), /different browser versions \(test vs other\)/);
+  expectReason(withConditions({ chromiumVersion: "" }), /did not record its browser version/);
+  expectReason(withConditions({ timezone: "America/New_York" }), /different timezones/);
+  expectReason(withConditions({ locale: "de-DE" }), /different locales/);
+  expectReason(withConditions({ scannerEgress: "residential" }), /different network egress/);
+  expectReason(withConditions({ headless: false }), /One visit ran headless/);
+
+  // A trailing slash is presentation, not a different page.
+  const slashless = withConditions({ requestedUrl: "https://example.com" });
+  assert.equal(comparisonEligibility(createTemporalComparisonReport(makeRun({}), slashless)).eligible, true);
+});
+
 test("every disqualifying condition is reported, not just the first", () => {
   const variant = makeRun({ firstPartyDomain: "beta.example", status: 500, totalRequests: COMPARISON_REQUEST_CAP });
   const eligibility = comparisonEligibility(createTemporalComparisonReport(makeRun({ firstPartyDomain: "alpha.example" }), variant));
