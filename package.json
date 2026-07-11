@@ -32,7 +32,8 @@
     "test:smoke:scanner": "node scripts/smoke-deployed-scanner.mjs",
     "test:unit": "rm -rf .unit-test-dist && tsc -p tsconfig.test.json && node --test --test-concurrency=1 .unit-test-dist/lib/*.test.js",
     "test:smoke": "node scripts/smoke-test.mjs",
-    "typecheck": "next typegen && tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit",
+    "reports:remediation-inventory": "node scripts/remediation-inventory.mjs"
   },
   "dependencies": {
     "aws4fetch": "^1.0.20",

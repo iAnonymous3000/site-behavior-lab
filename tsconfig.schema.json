@@ -22,7 +22,8 @@
     "lib/static-report-manifest-cli.ts",
     "lib/corpus-stats-builder-cli.ts",
     "lib/publish-scan-report-cli.ts",
-    "lib/prune-static-reports-cli.ts"
+    "lib/prune-static-reports-cli.ts",
+    "lib/remediation-inventory-cli.ts"
   ],
   "exclude": ["node_modules", ".next", ".unit-test-dist", "dist"]
 }

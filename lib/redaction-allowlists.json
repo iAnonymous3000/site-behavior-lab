@@ -1,0 +1,48 @@
+{
+  "version": "allowlists-v1",
+  "routeLiterals": {
+    "version": "route-v1",
+    "literals": [
+      "about", "account", "api", "app", "articles", "blog", "business", "careers",
+      "categories", "checkout", "contact", "cookies", "corpus", "developers",
+      "directory", "docs", "download", "downloads", "en", "es", "faq", "fr", "de",
+      "glossary", "health", "help", "home", "index", "legal", "login", "news",
+      "policies", "policy", "press", "pricing", "privacy", "privacy-policy",
+      "products", "reports", "search", "settings", "shop", "signin", "signup",
+      "sitemap", "static", "status", "store", "support", "terms", "us", "wiki"
+    ]
+  },
+  "queryKeys": {
+    "version": "query-v1",
+    "literals": [
+      "cachebuster", "callback", "cb", "cid", "dclid", "dpr", "ev", "fbclid",
+      "format", "gbraid", "gclid", "height", "hl", "id", "lang", "locale",
+      "msclkid", "noscript", "page", "q", "quality", "ref", "rl", "size",
+      "source", "t", "tid", "ttclid", "twclid", "type", "v", "ver", "version",
+      "wbraid", "width"
+    ],
+    "prefixes": ["utm_", "ud["]
+  },
+  "cookieNames": {
+    "version": "cookie-v1",
+    "literals": [
+      "AEC", "AMP_TOKEN", "APISID", "AWSALB", "AWSALBCORS", "DSID", "HSID",
+      "IDE", "JSESSIONID", "MUID", "NID", "OptanonAlertBoxClosed",
+      "OptanonConsent", "PHPSESSID", "SAPISID", "SID", "SSID", "TapAd_DID",
+      "TapAd_TS", "XSRF-TOKEN", "__cf_bm", "__cfruid", "_abck", "_dc_gtm_UA",
+      "_fbp", "_ga", "_gat", "_gcl_au", "_gid", "_hjSession", "_hjSessionUser",
+      "_pinterest_ct_ua", "_scid", "_ttp", "_uetsid", "_uetvid", "ajs_anonymous_id",
+      "bku", "bkdc", "cf_clearance", "cto_bundle", "datadome", "euconsent-v2",
+      "li_gc", "li_sugr", "lidc", "receive-cookie-deprecation", "s_cc", "s_sq",
+      "test_cookie", "uuid2", "usprivacy"
+    ]
+  },
+  "storageKeys": {
+    "version": "storage-v1",
+    "literals": [
+      "OptanonConsent", "ajs_anonymous_id", "amplitude_id", "consent",
+      "cookieConsent", "darkMode", "gpc", "i18n", "language", "locale", "theme",
+      "usprivacy"
+    ]
+  }
+}

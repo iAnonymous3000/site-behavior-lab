@@ -490,3 +490,43 @@ focused headlines can open with baseline evidence selected"). Temporal pairs
 already lead with the variant; picking a focus arm for the other headline
 branches needs the headline engine to declare which arm its lead finding
 describes, an engine change deferred to the exports/emission work.
+
+## Redaction v2 foundation (2026-07-11): sanitizer, digests, sidecars, audit
+
+RFC step 9 groundwork, repo-only (no producer wiring, no corpus rewrite; both
+are separate decisions gated on the dry-run audit below):
+
+- lib/redaction-v2.ts: the default-deny sanitizer. Survival is
+  allowlist-only (lib/redaction-allowlists.json, versioned reviewed data:
+  route literals, query keys incl. utm_/ud[ prefixes, cookie names, storage
+  keys); everything else generalizes ({seg}/{n} paths capped at 6 segments,
+  {label} token-shaped subdomain labels with the registrable domain always
+  surviving and xn-- IDN labels exempt from the entropy heuristic, matrix
+  params stripped, [redacted:*] shape-classed markers for names). Malformed
+  or non-http input becomes {invalid-url}, never a pass-through (the v1
+  report-url defect). Every removal counts through the exact
+  PrivacyStats.redaction vocabulary. Node-side module (tldts).
+- lib/canonical-json.ts: canon-v1 canonicalization (sorted keys, NFC, no
+  whitespace, loud rejection of non-JSON values) + publicReportDigest, so
+  pretty-printed corpus files and compact R2 objects digest identically.
+- lib/redaction-provenance.ts: the 15.8 sidecar contract (entry shape,
+  <id>.provenance.json naming outside the report-id pattern, digest
+  match/mismatch/unknown with every defect resolving toward re-remediation,
+  createdAt/expiresAt carried verbatim and never an input to retention).
+- lib/remediation-inventory.ts + remediation-inventory-cli.ts +
+  scripts/remediation-inventory.mjs (npm run reports:remediation-inventory):
+  the RFC 9.6 step-1 DRY-RUN audit over public/reports. Never writes.
+
+Live dry-run over the 235-report corpus: all 235 would change; 67,161 of
+68,769 URL fields; 251,375 path segments, 991 subdomain labels, 98,283 query
+keys would generalize; 7,735/8,627 cookie names and 4,832/4,846 storage keys
+would redact. Risk signals for the 9.6 step-2 history decision: ZERO
+address-shaped strings (the raw "@" matches are logo@2x.png density suffixes,
+excluded by the tool), 9,329 token-shaped path segments and 991 token-shaped
+subdomain labels that read as asset hashes/build ids, not per-user
+identifiers. Audit conclusion to confirm with the operator: no credentials,
+session tokens, or direct identifiers found, so per 9.6 the git-history
+rewrite is NOT indicated (accept and document the residual); the in-place
+corpus re-redaction plus sidecar backfill remains the pending remediation
+decision, weighed against how much evidence granularity (paths, cookie
+names) the public corpus should keep.
