@@ -80,9 +80,10 @@ test("a request-capped quiet visit gets an incomplete-evidence bottom line, not 
 });
 
 test("absence claims over censored evidence hedge instead of reassuring", () => {
-  // The cap censors the request log, so every requests-family absence card
-  // must drop to "info" and say the absence covers only pre-cutoff evidence;
-  // families the cap does not touch (cookies) keep their normal framing.
+  // The cap aborts subsequent loads, which also suppresses the scripts that
+  // would have set cookies, fired pixels, or called fingerprinting APIs, so
+  // EVERY absence card on a capped run drops to "info" and says the absence
+  // covers only pre-cutoff evidence.
   const result = makeResult({ firstPartyDomain: "quiet.example", totalRequests: 1200 });
 
   const findings = buildFindings(viewFromV1Report(result), null);
@@ -95,9 +96,11 @@ test("absence claims over censored evidence hedge instead of reassuring", () => 
   assert.match(platforms.detail, /covers only what was recorded before the cutoff/);
   const ga = byId(findings, "ga-remarketing");
   assert.equal(ga.level, "info");
+  // The cap aborts subsequent loads, which also suppresses the scripts that
+  // would have set cookies, so the cookie absence hedges too.
   const cookies = byId(findings, "third-party-cookies");
-  assert.equal(cookies.level, "ok", "the v1 cap censors requests, not cookies");
-  assert.doesNotMatch(cookies.detail, /before the cutoff/);
+  assert.equal(cookies.level, "info");
+  assert.match(cookies.detail, /covers only what was recorded before the cutoff/);
 });
 
 test("a v1 Shields card quotes no fingerprint-call delta; detector versions were never recorded", () => {

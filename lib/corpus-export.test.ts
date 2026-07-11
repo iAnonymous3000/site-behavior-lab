@@ -22,6 +22,9 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     consentMode: "observe",
     consentClicks: null,
     status: 200,
+    capped: false,
+    requestedUrl: "https://shop.example/",
+    finalUrl: "https://shop.example/",
     schemaVersion: 1,
     schemaRevision: null,
     schemaOrigin: "legacy-derived",
@@ -116,7 +119,7 @@ test("CSV pins the header and escapes commas and quotes in headlines", () => {
 
   assert.equal(
     header,
-    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_reduction,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited"
+    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,request_capped,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_reduction,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited"
   );
   assert.match(row, /"shop\.example told Google, Meta ""you were here""\."/);
   assert.match(row, /,desktop,yes,observe,,200,/);

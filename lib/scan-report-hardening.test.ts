@@ -329,7 +329,11 @@ test("family censoring reads from recorded v2 quality and the derived v1 cap", (
   v1Capped.summary.totalRequests = 1200;
   const cappedRun = viewFromV1Report(v1Capped).runs[0];
   assert.equal(familyCensoredOnRun(cappedRun, "requests"), true);
-  assert.equal(familyCensoredOnRun(cappedRun, "cookies"), false, "the v1 cap budgets only the request log");
+  // The cap aborts subsequent loads, which also suppresses the scripts that
+  // would have set cookies, written storage, or fired detectors: every
+  // family is censored on a capped v1 run.
+  assert.equal(familyCensoredOnRun(cappedRun, "cookies"), true);
+  assert.equal(familyCensoredOnRun(cappedRun, "detector-output"), true);
 
   const v2 = readStoredScanReport(makePublicSingleReportV2());
   assert.equal(v2.ok, true);

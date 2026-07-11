@@ -97,6 +97,23 @@ test("error/block-page loads and reserved domains stay out of the distribution",
   assert.equal(stats.sampleSize, 0);
 });
 
+test("request-capped runs stay out of the distribution: their counts are floors, not behavior", async () => {
+  const capped = makeResult({ firstPartyDomain: "heavy.example.dev", thirdPartyRequests: 900 });
+  capped.summary.totalRequests = 1200;
+  await writeReport("20260701-dddddddddddddddddddddddddddddddd", capped);
+  await writeReport(
+    "20260701-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    makeResult({ firstPartyDomain: "light.example.dev", thirdPartyRequests: 20 })
+  );
+
+  const { stats, warnings } = await buildCorpusStats(reportsDir);
+  assert.deepEqual(warnings, []);
+  // Only the uncapped site contributes: a capped run's counts were cut off
+  // mid-collection and would clamp the distribution's tail to the cap.
+  assert.equal(stats.sampleSize, 1);
+  assert.equal(stats.metrics.thirdPartyRequests?.max, 20);
+});
+
 test("a missing reports directory yields an empty distribution", async () => {
   const { stats } = await buildCorpusStats(path.join(reportsDir, "missing"));
   assert.equal(stats.sampleSize, 0);

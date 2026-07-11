@@ -1,5 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { runHitRequestCap } from "./comparison-eligibility";
 import type { CorpusMetricKey, CorpusStats, MetricDistribution } from "./corpus-stats";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { readStoredScanReport } from "./scan-report-reader";
@@ -73,6 +74,14 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // the percentile distribution down and misrank every real site against
     // it. The per-report pages already disclose these as failed loads.
     if (typeof result.summary.status === "number" && result.summary.status >= 400) continue;
+
+    // A run that hit the request-recording cap has counts that are floors
+    // cut off mid-collection, not the site's measured behavior: including
+    // them clamps the distribution's tail to the cap (the heaviest sites are
+    // exactly the ones that cap) and misranks every real site against a
+    // truncated ceiling. The per-report pages disclose capped runs as cut
+    // short.
+    if (runHitRequestCap(result)) continue;
 
     const domain = normalizeDomain(result.summary.firstPartyDomain);
     if (!domain || isReservedReportDomain(domain)) continue;

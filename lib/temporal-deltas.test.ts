@@ -8,6 +8,8 @@ function entry(overrides: Partial<TemporalDeltaInput> & { id: string }): Tempora
     scannedAt: "2026-07-01T00:00:00.000Z",
     reportType: "comparison",
     comparisonType: "shields",
+    requestedUrl: "https://shop.example/",
+    finalUrl: "https://shop.example/",
     thirdPartyRequests: 0,
     trackerRequests: 0,
     ...overrides
@@ -54,6 +56,37 @@ test("never pairs a clicked consent run with an unclicked one: the interaction d
     entry({ id: "new", scannedAt: "2026-07-02T00:00:00.000Z", comparisonType: "consent", consentClicks: "none", thirdPartyRequests: 100 })
   ]);
   assert.equal(sameState.get("new")?.thirdPartyRequests, 10);
+});
+
+test("never pairs different subjects: requested and final routes must both match", () => {
+  // A direct scan of my.gov.example/ and a scan that REDIRECTED there from
+  // another domain observed different pages; their count difference is a
+  // subject difference, not a site change.
+  const direct = entry({
+    id: "direct",
+    domain: "my.gov.example",
+    scannedAt: "2026-07-02T00:00:00.000Z",
+    requestedUrl: "https://my.gov.example/",
+    finalUrl: "https://my.gov.example/"
+  });
+  const redirected = entry({
+    id: "redirected",
+    domain: "my.gov.example",
+    scannedAt: "2026-06-20T00:00:00.000Z",
+    requestedUrl: "https://old.gov.example/",
+    finalUrl: "https://my.gov.example/en/services"
+  });
+  assert.equal(computeSinceLastScan([direct, redirected]).size, 0);
+
+  // A trailing slash is presentation, not a different subject.
+  const slashless = entry({
+    id: "slashless",
+    domain: "my.gov.example",
+    scannedAt: "2026-06-20T00:00:00.000Z",
+    requestedUrl: "https://my.gov.example",
+    finalUrl: "https://my.gov.example"
+  });
+  assert.equal(computeSinceLastScan([direct, slashless]).size, 1);
 });
 
 test("separates sites, requires two reports, and skips invalid timestamps", () => {

@@ -34,6 +34,14 @@ export type TemporalDeltaInput = {
   comparisonType?: ComparisonType;
   /** Dispatched consent-click state (see corpus-overview); keeps clicked and unclicked consent runs from pairing. */
   consentClicks?: string | null;
+  /**
+   * Lead run's requested and final URLs. A "since last scan" delta compares
+   * one subject over time, so both must match: a scan of my.gov.au/ and a
+   * scan that REDIRECTED to my.gov.au/en/services observed different pages,
+   * even though their final domains agree.
+   */
+  requestedUrl: string;
+  finalUrl: string;
   thirdPartyRequests: number;
   trackerRequests: number;
 };
@@ -52,7 +60,12 @@ export function computeSinceLastScan(entries: TemporalDeltaInput[]): Map<string,
   for (const entry of entries) {
     if (!entry.domain || !Number.isFinite(Date.parse(entry.scannedAt))) continue;
     const kind = entry.reportType === "comparison" ? entry.comparisonType ?? "comparison" : "single";
-    const key = `${entry.domain.toLowerCase()}|${kind}${entry.consentClicks ? `|${entry.consentClicks}` : ""}`;
+    // The pairing key is the SUBJECT, not just the site: requested and final
+    // routes must both match, so a direct scan never pairs with a scan that
+    // redirected to a different landing page.
+    const key = `${entry.domain.toLowerCase()}|${kind}${entry.consentClicks ? `|${entry.consentClicks}` : ""}|${normalizedRouteKey(
+      entry.requestedUrl
+    )}|${normalizedRouteKey(entry.finalUrl)}`;
     const group = groups.get(key);
     if (group) group.push(entry);
     else groups.set(key, [entry]);
@@ -72,6 +85,11 @@ export function computeSinceLastScan(entries: TemporalDeltaInput[]): Map<string,
   }
 
   return deltas;
+}
+
+/** Trailing-slash-insensitive, case-normalized route key for subject pairing. */
+function normalizedRouteKey(url: string): string {
+  return url.trim().toLowerCase().replace(/\/+$/, "");
 }
 
 /** Signed display string for a delta ("+12", "-3", "no change"). */

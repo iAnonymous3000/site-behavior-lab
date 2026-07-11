@@ -779,12 +779,13 @@ export function runCensorshipNotes(run: RunView): string[] {
  * censored family ("no known services matched") must hedge: nothing proves
  * the absence held after collection stopped.
  */
-export function familyCensoredOnRun(
-  run: RunView,
-  family: "requests" | "cookies" | "storage" | "consent-verification" | "detector-output"
-): boolean {
+export function familyCensoredOnRun(run: RunView, family: string): boolean {
   if (run.quality.byFamily) return run.quality.byFamily[family]?.outcome === "censored";
-  return family === "requests" && run.quality.reasons.includes("budget-exhausted:request-cap");
+  // The v1 request cap aborts every subsequent network load, which also
+  // suppresses the scripts that would have set cookies, written storage,
+  // fired pixels, or called fingerprinting APIs, so a capped v1 run censors
+  // EVERY evidence family, not just the request log.
+  return run.quality.reasons.includes("budget-exhausted:request-cap");
 }
 
 /**

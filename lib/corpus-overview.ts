@@ -5,7 +5,7 @@ import { domainsMatch } from "./featured-sites";
 import { buildReportHeadline, type HeadlineTone } from "./report-headline";
 import { trackingServiceRequests } from "./report-insights";
 import { readStoredReportForId } from "./report-source";
-import { comparisonArmViews, displayRunView, toReportView, type ReportView } from "./scan-report-view";
+import { comparisonArmViews, displayRunView, familyCensoredOnRun, toReportView, type ReportView } from "./scan-report-view";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { listStaticReportIds } from "./static-report-files";
 import { computeSinceLastScan, type SinceLastScan } from "./temporal-deltas";
@@ -49,6 +49,16 @@ export type DirectoryEntry = {
   consentClicks: ConsentClicks | null;
   /** Lead run's top-level HTTP status; >= 400 means an error/block page, not the site. */
   status: number | null;
+  /**
+   * The lead run hit the request-recording cap: every count is a floor cut
+   * off mid-collection, so the row is excluded from percentiles, rollups,
+   * the leaderboard, and since-last-scan pairing, and marked in the exports.
+   */
+  capped: boolean;
+  /** Lead run's requested URL (origin + path); pairs since-last-scan by exact subject. */
+  requestedUrl: string;
+  /** Lead run's final URL after redirects; a different landing page is a different subject. */
+  finalUrl: string;
   /** Wire schema generation of the stored report (rows stay 1 until producers emit v2). */
   schemaVersion: 1 | 2;
   /** v2 schema revision; null on v1 reports. */
@@ -81,12 +91,13 @@ export async function loadCorpusOverview(): Promise<CorpusOverview> {
   const catalog = await loadCategoryCatalog();
   const entries = await loadDirectoryEntries(catalog);
 
-  // Failed loads (HTTP >= 400: bot walls, outages) stay listed with their honest
-  // "did not load" headline, but they are error pages, not measured site
-  // behavior, so they must not feed the statistics: no since-last-scan pairing
-  // (a delta against an error page reads as a site change), no category
-  // medians, no leaderboard.
-  const measured = entries.filter((entry) => !entryLoadFailed(entry));
+  // Failed loads (HTTP >= 400: bot walls, outages) and request-capped runs
+  // stay listed with their honest headlines, but neither is measured site
+  // behavior (an error page, or floors cut off mid-collection), so they must
+  // not feed the statistics: no since-last-scan pairing (a delta between two
+  // truncated floors reads as a site change), no category medians, no
+  // leaderboard.
+  const measured = entries.filter((entry) => !entryLoadFailed(entry) && !entry.capped);
 
   // "Changed since last scan": each site's newest report is paired with its most
   // recent predecessor of the same kind (see lib/temporal-deltas.ts for why kinds
@@ -249,6 +260,9 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
       consentMode: run.conditions.consentMode,
       consentClicks: consentClicksForView(view),
       status: run.status,
+      capped: familyCensoredOnRun(run, "requests"),
+      requestedUrl: run.conditions.requestedUrl,
+      finalUrl: run.conditions.finalUrl,
       schemaVersion: readResult.stored.schemaVersion,
       schemaRevision: view.revision,
       schemaOrigin: view.origin,
