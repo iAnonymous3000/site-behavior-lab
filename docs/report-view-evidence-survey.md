@@ -193,3 +193,48 @@ Remaining per the round-7 order (next slices, in order):
    containing a valid v2 report.
 7. Then: redaction remediation/provenance, verified phased experiments,
    corpus regeneration, r2 producer rollout, durable queue.
+
+## Codex round 8 (2026-07-11): wording leaks, absence gating, gate tightening
+
+Round 8 confirmed the round-7 direction but rejected "methodology blocker
+closed": public wording still exceeded the evidence in places and v2 remains
+unsafe to enable. Landed same day:
+
+- 92b0884: every Shields surface names the block SIMULATION (headline
+  "with Brave-list blocking on" + disclosure; findings, run-mode copy,
+  directory, producer labels for future reports, and a view-level
+  normalization of the legacy "Shields off/on" label pair on stored
+  reports); consent wording never sequences traffic relative to the
+  unverified click; catalog-leaning cross-arm framings (consent contrasts,
+  GPC still-contacted alarm) require tracker-classification; provenance
+  panel lists gate on detector-findings; pixel findings title says
+  populated identifier fields; shields_blocked export column renamed to
+  shields_third_party_reduction with a framing-note definition; buildFindings
+  never benchmarks a v2 view against the v1-only corpus percentiles.
+- 6c86159: familyCensoredOnRun (recorded v2 byFamily censoring, derived v1
+  request cap) gates every absence claim: the no-services / no-platforms /
+  no-GA / no-cookies / no-fingerprinting cards drop to info and hedge when
+  their family was censored; the censored-quiet bottom line covers
+  info-level-only runs.
+- 33b3335: comparisonEligibility tightened to the RFC compatibility rules:
+  exact route, viewport dimensions, browser version, timezone, locale,
+  egress, headless, with the unknown rule (unrecorded never matches).
+  Verified corpus-neutral: 214/235 eligible before AND after, zero flips.
+
+Still open from round 8, all folded into the atomic v2 slice (or the UI
+slice) per Codex's own order:
+
+- Explicit three-state claim policy (raw side-by-side vs comparable vs
+  suppressed) with reusable required-family checks; consent findings
+  consulting consent-verification for choice-dependent claims.
+- Phase-aware counts, cookie/storage mutations, verification observations
+  and reasons, post-choice evidence on ReportView.
+- The atomic LoadedReport migration incl. the corpus-benchmark cohort
+  policy (the v1-only guard is in; a v2 cohort policy comes with v2 rows),
+  then the fixture matrix and manifest/directory/gallery/export migration.
+- UI slice (medium): variant-focused headlines can open with baseline
+  evidence selected; arm changes not announced to assistive technology;
+  the CSV control does not name its selected arm; filters can go silently
+  empty after switching arms; phase identity invisible.
+- Migration debt AFTER the v2 state migration: site-behavior-app.tsx size,
+  duplicated stripShare, readScanReport without production callers.
