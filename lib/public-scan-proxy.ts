@@ -14,7 +14,16 @@ export type ResolvePublicHost = (hostname: string) => Promise<ResolvedHostAddres
 
 export type BlockedProxyTarget = {
   target: string;
-  reason: "invalid-target" | "non-public-address" | "upstream-failed";
+  /**
+   * Why the proxy refused or failed the connection. Consumers word user-facing
+   * copy from this: only "non-public-address" is a private/local-network guard
+   * block. "resolution-failed" is a DNS failure, "upstream-failed" a TCP
+   * connect failure (the host may simply be down), "blocked-port" the
+   * standard-ports policy, "upgrade-blocked" the WebSocket-proxying refusal,
+   * and "invalid-target" a malformed proxy request. None of those prove a
+   * private-network target and must never be described as one.
+   */
+  reason: "invalid-target" | "non-public-address" | "resolution-failed" | "blocked-port" | "upgrade-blocked" | "upstream-failed";
 };
 
 export type PublicScanProxy = {
@@ -122,8 +131,8 @@ async function handleHttpProxyRequest(
   let target: PinnedTarget;
   try {
     target = await getPinnedTarget(targetUrl, state);
-  } catch {
-    recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), "non-public-address");
+  } catch (error) {
+    recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), blockedReasonFromError(error));
     response.destroy();
     return;
   }
@@ -167,8 +176,8 @@ async function handleHttpsConnect(
   let target: PinnedTarget;
   try {
     target = await getPinnedTarget(targetUrl, state);
-  } catch {
-    recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), "non-public-address");
+  } catch (error) {
+    recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), blockedReasonFromError(error));
     closeTunnel(clientSocket, 403);
     return;
   }
@@ -195,8 +204,10 @@ async function handleHttpsConnect(
 }
 
 function handleUpgradeRequest(request: IncomingMessage, socket: Duplex, state: ProxyState): void {
+  // A deliberate policy refusal (plaintext WebSocket proxying is unsupported),
+  // not a malformed request and not a private-network block.
   const targetUrl = parseUpgradeProxyUrl(request);
-  recordBlockedTarget(state.blockedTargets, targetUrl ? safeTargetLabel(targetUrl) : request.url ?? "unknown", "invalid-target");
+  recordBlockedTarget(state.blockedTargets, targetUrl ? safeTargetLabel(targetUrl) : request.url ?? "unknown", "upgrade-blocked");
   closeTunnel(socket, 400);
 }
 
@@ -227,24 +238,56 @@ async function getPinnedTarget(targetUrl: URL, state: ProxyState): Promise<Pinne
   return pinnedTarget;
 }
 
+/**
+ * Typed pin failure, so the recorded block reason distinguishes a private/local
+ * target (a guard block) from a DNS or policy failure (which proves nothing
+ * about the target's network location).
+ */
+class ProxyTargetBlockedError extends Error {
+  constructor(readonly reason: BlockedProxyTarget["reason"]) {
+    super(`Proxy target blocked: ${reason}`);
+  }
+}
+
+function blockedReasonFromError(error: unknown): BlockedProxyTarget["reason"] {
+  return error instanceof ProxyTargetBlockedError ? error.reason : "invalid-target";
+}
+
 async function resolvePinnedTarget(
   targetUrl: URL,
   hostname: string,
   port: number,
   state: ProxyState
 ): Promise<PinnedTarget> {
-  assertPublicHttpUrlShape(state.allowNonStandardPorts ? urlWithoutPort(targetUrl.protocol, hostname) : targetUrl);
+  // The hostname-shape policy (localhost, .local/.internal, private-address
+  // literals) applies to every target; the standard-port rule is checked
+  // separately so its refusal is never recorded as a private-address block.
+  try {
+    assertPublicHttpUrlShape(urlWithoutPort(targetUrl.protocol, hostname));
+  } catch {
+    throw new ProxyTargetBlockedError("non-public-address");
+  }
+  if (!state.allowNonStandardPorts && targetUrl.port) {
+    throw new ProxyTargetBlockedError("blocked-port");
+  }
 
-  const addresses = isIpAddress(hostname)
-    ? [{ address: hostname, family: hostname.includes(":") ? 6 : 4 }]
-    : await state.resolveHost(hostname);
+  let addresses: ResolvedHostAddress[];
+  if (isIpAddress(hostname)) {
+    addresses = [{ address: hostname, family: hostname.includes(":") ? 6 : 4 }];
+  } else {
+    try {
+      addresses = await state.resolveHost(hostname);
+    } catch {
+      throw new ProxyTargetBlockedError("resolution-failed");
+    }
+  }
 
   if (addresses.length === 0) {
-    throw new Error("No DNS addresses returned.");
+    throw new ProxyTargetBlockedError("resolution-failed");
   }
 
   if (!addresses.every(({ address }) => isPublicIpAddress(address))) {
-    throw new Error("Host resolved to a non-public address.");
+    throw new ProxyTargetBlockedError("non-public-address");
   }
 
   const selected = addresses[0];

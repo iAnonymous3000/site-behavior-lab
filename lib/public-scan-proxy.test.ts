@@ -65,7 +65,38 @@ test("public scan proxy cleanly refuses plaintext websocket upgrades", async (t)
   const response = await rawProxyUpgrade(proxy.server, "ws://socket.test/events");
 
   assert.match(response, /^HTTP\/1\.1 400 Bad Request/);
-  assert.deepEqual(proxy.blockedTargets, [{ target: "ws://socket.test/", reason: "invalid-target" }]);
+  assert.deepEqual(proxy.blockedTargets, [{ target: "ws://socket.test/", reason: "upgrade-blocked" }]);
+});
+
+test("public scan proxy records a DNS failure as resolution-failed, not a private-address block", async (t) => {
+  const proxy = await startPublicScanProxy({
+    resolveHost: async () => {
+      throw new Error("getaddrinfo ENOTFOUND dead.test");
+    }
+  });
+
+  t.after(() => proxy.close());
+
+  await assert.rejects(() => proxyGet(proxy.server, "http://dead.test/pixel"));
+
+  assert.deepEqual(proxy.blockedTargets, [{ target: "http://dead.test/", reason: "resolution-failed" }]);
+});
+
+test("public scan proxy records a non-standard port as blocked-port before resolving", async (t) => {
+  let resolveCalls = 0;
+  const proxy = await startPublicScanProxy({
+    resolveHost: async () => {
+      resolveCalls += 1;
+      return [{ address: "1.1.1.1", family: 4 }];
+    }
+  });
+
+  t.after(() => proxy.close());
+
+  await assert.rejects(() => proxyGet(proxy.server, "http://ports.test:8080/admin"));
+
+  assert.equal(resolveCalls, 0);
+  assert.deepEqual(proxy.blockedTargets, [{ target: "http://ports.test:8080/", reason: "blocked-port" }]);
 });
 
 async function proxyGet(proxyServer: string, targetUrl: string): Promise<string> {

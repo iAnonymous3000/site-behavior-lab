@@ -334,6 +334,36 @@ test("scanSite blocks a browser request when the connect-time resolver returns a
   }
 });
 
+test("scanSite reports a DNS-failed target as an honest load failure, never a private-address block", { timeout: 20_000 }, async () => {
+  try {
+    await assert.rejects(
+      () =>
+        scanSite(
+          {
+            url: "http://gone.test/",
+            device: "desktop",
+            gpcEnabled: false,
+            consentMode: "observe"
+          },
+          {
+            publicUrlAlreadyVerified: true,
+            verifyPublicUrl: async () => undefined,
+            resolvePublicHost: async () => {
+              throw new Error("getaddrinfo ENOTFOUND gone.test");
+            }
+          }
+        ),
+      (error) =>
+        error instanceof PublicScanError &&
+        error.status === 502 &&
+        /down, unreachable, or blocking automated visits/.test(error.message) &&
+        !/local or private network address/.test(error.message)
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+  }
+});
+
 test("scanSite forces loopback literals through the connect-time proxy", { timeout: 20_000 }, async () => {
   try {
     await assert.rejects(

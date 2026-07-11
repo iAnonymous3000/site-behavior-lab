@@ -36,6 +36,25 @@ test("findSentinelLeaks detects the plain value in a third-party request URL", (
   assert.deepEqual(leaks[0], { domain: "tracker.example", thirdParty: true, encoding: "plain", location: "url" });
 });
 
+test("sentinelEncodings matches percent-encoded base64 for sentinels with non-URL-safe base64", () => {
+  // The production sentinel's base64 is always URL-safe, so this variant is a
+  // hardening path for other sentinel forms: base64("sb~canaryprobe") contains
+  // "+", which rides a query string as "%2B" and must still match.
+  const sentinel = "sb~canaryprobe";
+  const base64 = Buffer.from(sentinel).toString("base64").replace(/=+$/, "");
+  assert.match(base64, /\+/);
+
+  const requests: CapturedRequest[] = [
+    { domain: "rec.example", thirdParty: true, url: `https://rec.example/c?v=${encodeURIComponent(base64)}`, body: null }
+  ];
+  const leaks = findSentinelLeaks(sentinelEncodings(sentinel), requests);
+  assert.equal(leaks.some((leak) => leak.encoding === "base64" && leak.location === "url"), true);
+
+  // The production sentinel form stays unchanged: URL-safe base64, no variant.
+  const productionEncodings = sentinelEncodings(createSentinel("a1b2c3d4e5f6"));
+  assert.equal(productionEncodings.filter((encoding) => encoding.encoding === "base64").length, 1);
+});
+
 test("findSentinelLeaks detects a base64-encoded value in a POST body", () => {
   const b64 = Buffer.from(SENTINEL).toString("base64");
   const requests: CapturedRequest[] = [

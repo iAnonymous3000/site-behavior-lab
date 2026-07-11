@@ -145,8 +145,8 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       ? "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations."
       : "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     payload.consentMode === "observe"
-      ? "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
-      : "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot."
+      ? "Counts are a lower bound: trackers that load only after interaction or consent, any activity inside Web or Service Workers, and WebSocket traffic are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only."
+      : "Counts are a lower bound: trackers that load only after further interaction, any activity inside Web or Service Workers, and WebSocket traffic are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only."
   ]);
 
   const browser = await getSharedBrowser();
@@ -236,7 +236,10 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         timeout: scanTimeout(started, NAVIGATION_TIMEOUT_MS)
       })
       .catch((error: unknown) => {
-        if (scanProxy.blockedTargets.length > 0) {
+        // Only an actual guard block ("non-public-address") may be described as
+        // one: the proxy also records DNS failures, refused upstream connects,
+        // and policy refusals, none of which prove a private-network target.
+        if (scanProxy.blockedTargets.some((blocked) => blocked.reason === "non-public-address")) {
           throw new PublicScanError("The page could not be loaded because it resolved to a local or private network address.");
         }
         if (isTimeoutError(error)) {
@@ -304,7 +307,12 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         .catch(() => null),
       started
     );
-    if (scanProxy.blockedTargets.length > 0) {
+    // Warn only for actual private/local-address guard blocks. The proxy's
+    // other recorded outcomes (DNS failures, refused upstream connects, policy
+    // refusals) are ordinary load failures already visible in the request log
+    // as requests without a response, and claiming they "resolved to local or
+    // private network addresses" would be false.
+    if (scanProxy.blockedTargets.some((blocked) => blocked.reason === "non-public-address")) {
       warnings.add("Blocked one or more requests that resolved to local or private network addresses at connection time.");
     }
 
@@ -694,7 +702,7 @@ async function probeKeystrokeExfiltration(
   warnings.add(
     `This scan typed a synthetic test value into ${
       typed.count === 1 ? "1 form field" : `${typed.count} form fields`
-    } (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.`
+    } (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.`
   );
 
   return buildKeystrokeExfiltrationDetection(findSentinelLeaks(sentinelEncodings(sentinel), captured), {

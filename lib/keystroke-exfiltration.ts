@@ -55,13 +55,22 @@ export function createSentinel(randomHex: string): string {
  * The forms the sentinel could appear in once a script captures and re-encodes
  * it. Trailing base64 padding is dropped because it is commonly stripped in
  * transit; very short digests are skipped to avoid coincidental matches.
+ * A base64 value containing "+" or "/" is also matched in its percent-encoded
+ * transit form ("%2B"/"%2F"), how it would ride a URL query string or
+ * urlencoded body. The production sentinel (lowercase letters and hex digits)
+ * always base64-encodes to URL-safe characters, so that variant only
+ * materializes for callers passing other sentinel forms; the remaining
+ * encodings are alphanumeric and need no variant.
  */
 export function sentinelEncodings(sentinel: string): SentinelEncoding[] {
   const buffer = Buffer.from(sentinel, "utf8");
+  const base64 = buffer.toString("base64").replace(/=+$/, "");
+  const base64UrlEncoded = encodeURIComponent(base64);
   return [
     { encoding: "plain", value: sentinel, caseSensitive: false },
     { encoding: "hex", value: buffer.toString("hex"), caseSensitive: false },
-    { encoding: "base64", value: buffer.toString("base64").replace(/=+$/, ""), caseSensitive: true },
+    { encoding: "base64", value: base64, caseSensitive: true },
+    ...(base64UrlEncoded !== base64 ? [{ encoding: "base64", value: base64UrlEncoded, caseSensitive: true }] : []),
     { encoding: "base64url", value: buffer.toString("base64url"), caseSensitive: true },
     { encoding: "md5", value: createHash("md5").update(sentinel).digest("hex"), caseSensitive: false },
     { encoding: "sha1", value: createHash("sha1").update(sentinel).digest("hex"), caseSensitive: false },
