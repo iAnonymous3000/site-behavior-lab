@@ -72,8 +72,11 @@ export type RunConditionsView = {
   /** "off" | "classification" | "block-simulation"; null when never recorded. */
   shieldsMode: string | null;
   adblockActive: boolean | null;
+  /** The blocker's list provenance for the methodology block; null when the engine never ran. */
+  adblockLists: { source: string; lists: number; fetchedAt: string } | null;
   consentMode: string;
-  trackerCatalog: { source: string; version: string; entries: number } | null;
+  /** `region` is a v1-only recorded fact; v2 catalogs pin a digest instead. */
+  trackerCatalog: { source: string; version: string; entries: number; region: string | null } | null;
   /** v1's prose scanner disclosure; v2 records structured facts instead. */
   disclosure: string | null;
 };
@@ -101,6 +104,8 @@ export type RunQualityView = {
 export type RunConsentView = {
   mode: "accept-all" | "reject-all";
   controlActivated: boolean;
+  /** Consent platform name when a known CMP control matched (e.g. "OneTrust"). */
+  cmp: string | null;
 };
 
 export type RunView = {
@@ -189,6 +194,14 @@ export type ReportView = {
   limited: boolean;
   reportType: "single" | "comparison";
   domain: string;
+  /** The wire's report title (v1 comparisons only); null when never recorded. */
+  title: string | null;
+  /**
+   * Report-level warnings. v1 carries them on the wire (a comparison's list
+   * already names each run); v2 derives them from the runs, prefixed with the
+   * run label on comparisons so a warning stays attributed to its visit.
+   */
+  warnings: string[];
   /** The lead run's start: the DISPLAY timestamp ("scanned on ..."). */
   scannedAt: string | null;
   /**
@@ -249,17 +262,29 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
       gpcEnabled: run.conditions.gpc,
       shieldsMode: run.conditions.shields,
       adblockActive: run.toolchain.adblock !== null,
+      adblockLists: run.toolchain.adblock
+        ? {
+            source: run.toolchain.adblock.source,
+            lists: run.toolchain.adblock.lists,
+            fetchedAt: run.toolchain.adblock.fetchedAt
+          }
+        : null,
       consentMode: run.conditions.consent,
       trackerCatalog: {
         source: run.toolchain.trackerCatalog.source,
         version: run.toolchain.trackerCatalog.version,
-        entries: run.toolchain.trackerCatalog.entries
+        entries: run.toolchain.trackerCatalog.entries,
+        region: null
       },
       // v2 records structured facts; there is no prose disclosure to quote.
       disclosure: null
     },
     consent: run.evidence.consent
-      ? { mode: run.evidence.consent.mode, controlActivated: run.evidence.consent.controlActivated }
+      ? {
+          mode: run.evidence.consent.mode,
+          controlActivated: run.evidence.consent.controlActivated,
+          cmp: run.evidence.consent.cmp ?? null
+        }
       : null,
     quality: {
       origin: "recorded",
@@ -326,16 +351,28 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
       gpcEnabled: result.conditions.gpcEnabled,
       shieldsMode: result.conditions.shieldsMode ?? null,
       adblockActive: result.conditions.adblock?.active ?? null,
+      adblockLists: result.conditions.adblock
+        ? {
+            source: result.conditions.adblock.source,
+            lists: result.conditions.adblock.lists,
+            fetchedAt: result.conditions.adblock.fetchedAt
+          }
+        : null,
       consentMode: result.conditions.consentMode ?? "observe",
       trackerCatalog: {
         source: result.conditions.trackerCatalog.source,
         version: result.conditions.trackerCatalog.version,
-        entries: result.conditions.trackerCatalog.entries
+        entries: result.conditions.trackerCatalog.entries,
+        region: result.conditions.trackerCatalog.region ?? null
       },
       disclosure: result.conditions.scannerDisclosure || null
     },
     consent: result.consentInteraction
-      ? { mode: result.consentInteraction.mode, controlActivated: result.consentInteraction.clicked }
+      ? {
+          mode: result.consentInteraction.mode,
+          controlActivated: result.consentInteraction.clicked,
+          cmp: result.consentInteraction.cmp ?? null
+        }
       : null,
     quality: {
       origin: "legacy-derived",
@@ -432,6 +469,8 @@ export function viewFromV1Report(report: ScanReport): ReportView {
       limited: true,
       reportType: "comparison",
       domain: report.baseline.summary.firstPartyDomain,
+      title: report.title || null,
+      warnings: [...report.warnings],
       scannedAt: report.scannedAt,
       latestRunAt: latestRunAt(runs),
       runs,
@@ -450,6 +489,8 @@ export function viewFromV1Report(report: ScanReport): ReportView {
     limited: true,
     reportType: "single",
     domain: report.summary.firstPartyDomain,
+    title: null,
+    warnings: [...report.warnings],
     scannedAt: report.conditions.scannedAt,
     latestRunAt: latestRunAt(runs),
     runs,
@@ -498,19 +539,27 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
   if (report.reportType === "comparison") {
     const runs = [runViewFromV2(report.baseline, "baseline"), runViewFromV2(report.variant, "variant")];
     const axis = report.experiment.kind === "intervention" ? report.experiment.axis : null;
+    const runLabels = defaultRunLabels(axis, report.experiment.kind === "temporal");
     return {
       origin: "v2",
       revision,
       limited,
       reportType: "comparison",
       domain: report.baseline.subject.observed.registrableDomain,
+      title: null,
+      // v2 records warnings per run; the report-level list keeps each warning
+      // attributed to its visit (the same shape v1's producer wrote).
+      warnings: [
+        ...report.baseline.warnings.map((warning) => `${runLabels.baseline}: ${warning}`),
+        ...report.variant.warnings.map((warning) => `${runLabels.variant}: ${warning}`)
+      ],
       scannedAt: report.baseline.startedAt,
       latestRunAt: latestRunAt(runs),
       runs,
       comparison: {
         kind: report.experiment.kind,
         axis,
-        runLabels: defaultRunLabels(axis, report.experiment.kind === "temporal")
+        runLabels
       },
       claims: v2Claims(report, limited)
     };
@@ -522,6 +571,8 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
     limited,
     reportType: "single",
     domain: report.run.subject.observed.registrableDomain,
+    title: null,
+    warnings: [...report.run.warnings],
     scannedAt: report.run.startedAt,
     latestRunAt: latestRunAt(runs),
     runs,

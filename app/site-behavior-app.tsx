@@ -71,7 +71,7 @@ import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/l
 import { plural } from "@/lib/text-format";
 import { readRenderableReport } from "@/lib/client-report-reader";
 import { recoverSavedReport } from "@/lib/saved-report-recovery";
-import { displayRunView, toReportView } from "@/lib/scan-report-views";
+import { displayRunView, toReportView, type ReportView, type RunView } from "@/lib/scan-report-views";
 import { REPORT_ID_PATTERN } from "@/lib/report-validation";
 import { toPublicScanReportV1 } from "@/lib/scan-report-v1-projection";
 import type {
@@ -81,7 +81,6 @@ import type {
   ScanJobApiResponse,
   ScanJobSubmissionResponse,
   ScanReport,
-  ScanResult,
   StaticReportManifestEntry
 } from "@/lib/types";
 
@@ -464,7 +463,6 @@ export function SiteBehaviorApp({
   // views module so the deep readers stay out of the first-load bundle.
   const reportView = result ? toReportView({ schemaVersion: 1, report: result }) : null;
   const primaryRun = reportView ? displayRunView(reportView) : null;
-  const primaryResult = result ? displayV1ScanResult(result) : null;
 
   function downloadReport() {
     if (!result || !primaryRun) return;
@@ -786,36 +784,37 @@ export function SiteBehaviorApp({
               }
             />
           )}
-          {result && primaryResult && reportView && primaryRun && (
+          {result && reportView && primaryRun && (
             <section className="report-grid">
               <div className="report-main">
                 <ReportHeader
                   report={result}
-                  result={primaryResult}
+                  view={reportView}
+                  run={primaryRun}
                   onDownload={downloadReport}
                   onDownloadCsv={downloadCsv}
                   liveApiServesReportPages={liveApiServesReportPages}
                 />
                 <HeadlineBanner report={result} view={reportView} liveApiServesReportPages={liveApiServesReportPages} />
                 <FindingsBoard view={reportView} />
-                <CausalityGraph result={primaryResult} />
+                <CausalityGraph requests={primaryRun.evidence.requests} />
                 {isComparisonReport(result) && <ComparisonPanel report={result} view={reportView} />}
                 <MetricGrid run={primaryRun} />
                 <TrafficViz run={primaryRun} />
-                <Warnings warnings={isComparisonReport(result) ? result.warnings : primaryResult.warnings} />
+                <Warnings warnings={reportView.warnings} />
                 <DomainTable domains={primaryRun.evidence.domains} />
                 <RequestTable requests={primaryRun.evidence.requests} />
               </div>
 
               <aside className="report-sidebar">
-                {displayableScreenshot(primaryResult.screenshot) && (
+                {displayableScreenshot(primaryRun.screenshot) && (
                   <section className="side-card screenshot-card">
                     <h2>Viewport</h2>
                     {/* Only inline data URIs render: an uploaded report's
                         screenshot field must never drive a network request. */}
                     <img
-                      src={displayableScreenshot(primaryResult.screenshot)!}
-                      alt={`Screenshot of ${primaryResult.summary.firstPartyDomain}`}
+                      src={displayableScreenshot(primaryRun.screenshot)!}
+                      alt={`Screenshot of ${primaryRun.domain}`}
                       loading="lazy"
                       decoding="async"
                     />
@@ -827,7 +826,7 @@ export function SiteBehaviorApp({
                   <TopThirdParties domains={primaryRun.evidence.domains} />
                 </section>
 
-                {primaryResult.pixelEvents && primaryResult.pixelEvents.length > 0 && (
+                {primaryRun.evidence.pixelEvents.length > 0 && (
                   <section className="side-card">
                     <h2>Advertising Pixels</h2>
                     <PixelEventsList pixels={primaryRun.evidence.pixelEvents} />
@@ -857,37 +856,37 @@ export function SiteBehaviorApp({
                   <dl>
                     <div>
                       <dt>Scanner</dt>
-                      <dd>{primaryResult.conditions.automation}</dd>
+                      <dd>{primaryRun.conditions.automation}</dd>
                     </div>
                     <div>
                       <dt>Browser</dt>
-                      <dd>{primaryResult.conditions.chromiumVersion}</dd>
+                      <dd>{primaryRun.conditions.browserVersion ?? "not recorded"}</dd>
                     </div>
                     <div>
                       <dt>Timezone</dt>
-                      <dd>{primaryResult.conditions.timezone}</dd>
+                      <dd>{primaryRun.conditions.timezone}</dd>
                     </div>
                     <div>
                       <dt>Headless</dt>
-                      <dd>{primaryResult.conditions.headless ? "yes" : "no"}</dd>
+                      <dd>{primaryRun.conditions.headless ? "yes" : "no"}</dd>
                     </div>
                     <div>
                       <dt>Viewport</dt>
                       <dd>
-                        {primaryResult.conditions.viewport.width}×{primaryResult.conditions.viewport.height}
+                        {primaryRun.conditions.viewport.width}×{primaryRun.conditions.viewport.height}
                       </dd>
                     </div>
                     <div>
                       <dt>GPC</dt>
-                      <dd>{primaryResult.conditions.gpcEnabled ? "sent" : "not sent"}</dd>
+                      <dd>{primaryRun.conditions.gpcEnabled ? "sent" : "not sent"}</dd>
                     </div>
-                    {primaryResult.consentInteraction && (
+                    {primaryRun.consent && (
                       <div>
                         <dt>Consent</dt>
                         <dd>
-                          {primaryResult.consentInteraction.clicked
-                            ? `clicked "${consentChoiceLabel(primaryResult.consentInteraction.mode)}"${
-                                primaryResult.consentInteraction.cmp ? ` (${primaryResult.consentInteraction.cmp})` : ""
+                          {primaryRun.consent.controlActivated
+                            ? `clicked "${consentChoiceLabel(primaryRun.consent.mode)}"${
+                                primaryRun.consent.cmp ? ` (${primaryRun.consent.cmp})` : ""
                               }`
                             : "no banner control found; pre-consent"}
                         </dd>
@@ -895,31 +894,36 @@ export function SiteBehaviorApp({
                     )}
                     <div>
                       <dt>Egress</dt>
-                      <dd>{primaryResult.conditions.scannerEgress}</dd>
+                      <dd>{primaryRun.conditions.scannerEgress}</dd>
                     </div>
-                    <div>
-                      <dt>Catalog</dt>
-                      <dd>
-                        {primaryResult.conditions.trackerCatalog.source}
-                        <br />
-                        {primaryResult.conditions.trackerCatalog.region} · {primaryResult.conditions.trackerCatalog.version}
-                        <br />
-                        {primaryResult.conditions.trackerCatalog.entries.toLocaleString()} entries
-                      </dd>
-                    </div>
-                    {primaryResult.conditions.adblock && (
+                    {primaryRun.conditions.trackerCatalog && (
+                      <div>
+                        <dt>Catalog</dt>
+                        <dd>
+                          {primaryRun.conditions.trackerCatalog.source}
+                          <br />
+                          {primaryRun.conditions.trackerCatalog.region
+                            ? `${primaryRun.conditions.trackerCatalog.region} · `
+                            : ""}
+                          {primaryRun.conditions.trackerCatalog.version}
+                          <br />
+                          {primaryRun.conditions.trackerCatalog.entries.toLocaleString()} entries
+                        </dd>
+                      </div>
+                    )}
+                    {primaryRun.conditions.adblockLists && (
                       <div>
                         <dt>Brave Shields lists</dt>
                         <dd>
-                          {primaryResult.conditions.adblock.source}
+                          {primaryRun.conditions.adblockLists.source}
                           <br />
-                          {primaryResult.conditions.adblock.lists.toLocaleString()} lists · fetched{" "}
-                          {new Date(primaryResult.conditions.adblock.fetchedAt).toLocaleDateString()}
+                          {primaryRun.conditions.adblockLists.lists.toLocaleString()} lists · fetched{" "}
+                          {new Date(primaryRun.conditions.adblockLists.fetchedAt).toLocaleDateString()}
                         </dd>
                       </div>
                     )}
                   </dl>
-                  <p>{primaryResult.conditions.scannerDisclosure}</p>
+                  {primaryRun.conditions.disclosure && <p>{primaryRun.conditions.disclosure}</p>}
                 </section>
               </aside>
             </section>
@@ -1175,17 +1179,6 @@ function isComparisonReport(result: ScanReport): result is ComparisonScanResult 
   return result.reportType === "comparison";
 }
 
-/**
- * The wire run the remaining v1-typed components (header, causality graph,
- * sidebar) still render: the baseline (off / unprotected) run for GPC/Shields
- * pairs so the report shows what the site actually did, the newer run for
- * temporal pairs. Mirrors the view seam's displayRunView; goes away when
- * those components migrate onto the view in the v2 render slice.
- */
-function displayV1ScanResult(result: ScanReport): ScanResult {
-  if (result.reportType !== "comparison") return result;
-  return result.comparisonType === "temporal" ? result.variant : result.baseline;
-}
 
 function normalizeScanUrl(value: string): string {
   const trimmed = value.trim();
@@ -1443,13 +1436,16 @@ function LoadingState({ mode }: { mode: "single" | "gpc" | "shields" | "consent"
 
 function ReportHeader({
   report,
-  result,
+  view,
+  run,
   onDownload,
   onDownloadCsv,
   liveApiServesReportPages
 }: {
+  /** The wire report, needed only to resolve the share permalink. */
   report: ScanReport;
-  result: ScanResult;
+  view: ReportView;
+  run: RunView;
   onDownload: () => void;
   onDownloadCsv: () => void;
   liveApiServesReportPages: boolean;
@@ -1462,8 +1458,8 @@ function ReportHeader({
   useEffect(() => {
     setShareUrl(sharePath ? absoluteShareUrl(sharePath) : null);
   }, [sharePath]);
-  const finalUrl = safeHttpUrl(result.conditions.finalUrl);
-  const title = isComparisonReport(report) ? report.title || result.summary.pageTitle : result.summary.pageTitle;
+  const finalUrl = safeHttpUrl(run.conditions.finalUrl);
+  const title = view.title || run.pageTitle;
 
   const [shareCopied, setShareCopied] = useState(false);
   async function handleShare(event: MouseEvent<HTMLAnchorElement>) {
@@ -1473,7 +1469,7 @@ function ReportHeader({
     if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
       event.preventDefault();
       try {
-        await navigator.share({ title: title || result.summary.firstPartyDomain, url });
+        await navigator.share({ title: title || run.domain, url });
       } catch {
         /* the user dismissed the share sheet */
       }
@@ -1495,15 +1491,15 @@ function ReportHeader({
   return (
     <section className="report-header">
       <div>
-        <p className="eyebrow">{isComparisonReport(report) ? "Comparison Report" : "Scan Report"}</p>
-        <h2>{title || result.summary.firstPartyDomain}</h2>
+        <p className="eyebrow">{view.reportType === "comparison" ? "Comparison Report" : "Scan Report"}</p>
+        <h2>{title || run.domain}</h2>
         {finalUrl ? (
           <a href={finalUrl} target="_blank" rel="noreferrer">
-            {result.conditions.finalUrl}
+            {run.conditions.finalUrl}
             <ExternalLink size={14} aria-hidden="true" />
           </a>
         ) : (
-          <span className="report-url">{result.conditions.finalUrl}</span>
+          <span className="report-url">{run.conditions.finalUrl}</span>
         )}
       </div>
       <div className="report-actions">

@@ -60,7 +60,18 @@ fingerprinting, pixel events, provenance), `runLabels`, `comparisonType`,
    favor of `view.claims` everywhere. `RunView` gained the `consent` block
    (v1 `clicked` / v2 `controlActivated`) the consent framings key on.
 5. `app/site-behavior-app.tsx` shell (state holds `LoadedReport`; exports via
-   `publicWireForExportOrPersistence`). SEQUENCING DECISION (2026-07-10,
+   `publicWireForExportOrPersistence`). PARTIAL 2026-07-10 (second slice):
+   every rendering read in the shell is now view-fed. `ReportHeader` takes
+   view + run (title from the new `ReportView.title`, wire report kept only
+   for the share permalink), `CausalityGraph` takes the request slice,
+   `Warnings` renders the new report-level `ReportView.warnings` (v1 wire
+   list; v2 derives run-labeled entries), and the sidebar
+   (screenshot/pixels/methodology incl. the new `conditions.adblockLists`,
+   `trackerCatalog.region`, `consent.cmp`, and `disclosure`) reads the
+   display run's view. No `ScanResult` remains in the shell; what's left is
+   the `ScanReport` STATE plus the seven v1 producer paths, which swap to
+   `LoadedReport` in the v2 render slice per the sequencing decision below.
+   SEQUENCING DECISION (2026-07-10,
    after the claims consolidation): deferred until the v2 render slice. All
    seven producer paths (sync scan, poll, upload, PageGraph, gallery
    comparison, saved-page initialResult, recovery) are v1-only because

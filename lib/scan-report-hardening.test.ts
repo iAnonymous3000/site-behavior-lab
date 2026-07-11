@@ -1180,7 +1180,7 @@ test("run views carry the consent outcome and comparison views carry display lab
   const v1Read = readStoredScanReport(clicked);
   assert.equal(v1Read.ok, true);
   if (v1Read.ok) {
-    assert.deepEqual(toReportView(v1Read.stored).runs[0].consent, { mode: "reject-all", controlActivated: true });
+    assert.deepEqual(toReportView(v1Read.stored).runs[0].consent, { mode: "reject-all", controlActivated: true, cmp: null });
   }
   const v1Plain = readStoredScanReport(makeScanReportV1());
   assert.equal(v1Plain.ok, true);
@@ -1199,7 +1199,7 @@ test("run views carry the consent outcome and comparison views carry display lab
   const v2Read = readStoredScanReport(v2Consent);
   assert.equal(v2Read.ok, true, JSON.stringify(!v2Read.ok ? v2Read.violations : []));
   if (v2Read.ok) {
-    assert.deepEqual(toReportView(v2Read.stored).runs[0].consent, { mode: "reject-all", controlActivated: true });
+    assert.deepEqual(toReportView(v2Read.stored).runs[0].consent, { mode: "reject-all", controlActivated: true, cmp: null });
   }
 
   // Comparison labels: the wire's runLabels win on v1, per-design defaults
@@ -1212,6 +1212,10 @@ test("run views carry the consent outcome and comparison views carry display lab
   if (labeledRead.ok) {
     const view = toReportView(labeledRead.stored);
     assert.deepEqual(view.comparison?.runLabels, { baseline: "Custom off", variant: "Custom on" });
+    // Report-level title and warnings come through for the header and the
+    // warnings card; a v1 comparison carries both on the wire.
+    assert.equal(view.title, "GPC off/on comparison");
+    assert.deepEqual(view.warnings, labeled.warnings);
     // The two-arm accessor returns the runs in wire order.
     const arms = comparisonArmViews(view);
     assert.equal(arms?.baseline, view.runs[0]);
@@ -1221,6 +1225,14 @@ test("run views carry the consent outcome and comparison views carry display lab
   const v2Temporal = readStoredScanReport(makeTemporalComparisonReportV2());
   assert.equal(v2Temporal.ok, true);
   if (v2Temporal.ok) {
-    assert.deepEqual(toReportView(v2Temporal.stored).comparison?.runLabels, { baseline: "Before", variant: "After" });
+    const view = toReportView(v2Temporal.stored);
+    assert.deepEqual(view.comparison?.runLabels, { baseline: "Before", variant: "After" });
+    // v2 records no report title; root warnings derive from the runs with the
+    // run label prefixed so each warning stays attributed to its visit.
+    assert.equal(view.title, null);
+    assert.deepEqual(view.warnings, [
+      ...view.runs[0].warnings.map((warning) => `Before: ${warning}`),
+      ...view.runs[1].warnings.map((warning) => `After: ${warning}`)
+    ]);
   }
 });

@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { plural } from "@/lib/text-format";
-import type { NetworkRequestRecord, ScanResult } from "@/lib/types";
+import type { NetworkRequestRecord } from "@/lib/types";
 
 type CausalEdge = { source: string; dest: string; requests: number; tracker: boolean };
 
@@ -47,8 +47,8 @@ function truncateMiddle(value: string, max = 30): string {
   return `${value.slice(0, keep)}…${value.slice(value.length - keep)}`;
 }
 
-function CausalityGraph({ result }: { result: ScanResult }) {
-  const edges = useMemo(() => buildCausalEdges(result.requests), [result.requests]);
+function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
+  const edges = useMemo(() => buildCausalEdges(requests), [requests]);
   if (edges.length === 0) return null;
 
   const sources = orderedUnique(edges.map((edge) => edge.source));
