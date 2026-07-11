@@ -4,8 +4,11 @@
  * Pure aggregation over one data point per scanned site (already deduped and
  * categorized by the caller), so it stays unit-testable and free of fs/Next deps.
  * Metrics describe the baseline (off / unprotected) run (what the site tried),
- * matching the rest of the report surface; `shieldsThirdPartyReduction` is the third-party
- * requests a Shields comparison removed, when one exists for that site.
+ * matching the rest of the report surface; `shieldsThirdPartyChange` is the
+ * SIGNED third-party change of the site's eligible Shields pair (blocking
+ * visit minus unblocked baseline; negative = fewer with blocking), when one
+ * exists for that site. Increased pairs stay signed: clamping them to zero
+ * would misreport an observed increase as "no change" in the medians.
  */
 
 export type RollupSite = {
@@ -14,7 +17,7 @@ export type RollupSite = {
   trackerRequests: number;
   thirdPartyRequests: number;
   thirdPartyCookies: number;
-  shieldsThirdPartyReduction: number | null;
+  shieldsThirdPartyChange: number | null;
 };
 
 export type CategoryRollup = {
@@ -24,7 +27,16 @@ export type CategoryRollup = {
   medianTrackers: number;
   medianThirdParty: number;
   medianCookies: number;
-  medianShieldsReduction: number | null;
+  /** Signed median of the category's paired-site changes; null with no pairs. */
+  medianShieldsChange: number | null;
+  /** Sites in this category with an eligible Shields pair (the mix's basis). */
+  shieldsPairedSites: number;
+  /** Of the paired sites: how many loaded fewer third-party requests with blocking on. */
+  shieldsDecreased: number;
+  /** Of the paired sites: how many loaded the same number. */
+  shieldsFlat: number;
+  /** Of the paired sites: how many loaded more (a real observation, not clamped away). */
+  shieldsIncreased: number;
 };
 
 /** Integer median of a list of counts. Empty list -> 0. */
@@ -51,7 +63,7 @@ export function buildCategoryRollups(sites: RollupSite[]): CategoryRollup[] {
 
   const rollups: CategoryRollup[] = [];
   for (const [id, list] of byCategory) {
-    const blocked = list.map((site) => site.shieldsThirdPartyReduction).filter((value): value is number => value !== null);
+    const paired = list.map((site) => site.shieldsThirdPartyChange).filter((value): value is number => value !== null);
     rollups.push({
       id,
       label: list[0].categoryLabel,
@@ -59,7 +71,11 @@ export function buildCategoryRollups(sites: RollupSite[]): CategoryRollup[] {
       medianTrackers: median(list.map((site) => site.trackerRequests)),
       medianThirdParty: median(list.map((site) => site.thirdPartyRequests)),
       medianCookies: median(list.map((site) => site.thirdPartyCookies)),
-      medianShieldsReduction: blocked.length > 0 ? median(blocked) : null
+      medianShieldsChange: paired.length > 0 ? median(paired) : null,
+      shieldsPairedSites: paired.length,
+      shieldsDecreased: paired.filter((value) => value < 0).length,
+      shieldsFlat: paired.filter((value) => value === 0).length,
+      shieldsIncreased: paired.filter((value) => value > 0).length
     });
   }
 

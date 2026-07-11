@@ -11,7 +11,7 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     thirdPartyRequests: 120,
     trackerRequests: 40,
     thirdPartyCookies: 8,
-    shieldsThirdPartyReduction: 90,
+    shieldsThirdPartyChange: -90,
     category: "shopping",
     categoryLabel: "Shopping",
     scannedAt: "2026-07-02T00:00:00.000Z",
@@ -45,7 +45,7 @@ test("rows carry absolute report URLs and since-last-scan deltas", () => {
           trackerRequests: -3
         }
       }),
-      makeEntry({ id: "20260625-" + "b".repeat(32), shieldsThirdPartyReduction: null, comparisonType: undefined, reportType: "single" })
+      makeEntry({ id: "20260625-" + "b".repeat(32), shieldsThirdPartyChange: null, comparisonType: undefined, reportType: "single" })
     ],
     "https://sitebehavior.org/"
   );
@@ -58,7 +58,7 @@ test("rows carry absolute report URLs and since-last-scan deltas", () => {
   // No delta claimed for a report without a same-kind predecessor.
   assert.equal(rows[1].deltaThirdPartyRequests, null);
   assert.equal(rows[1].comparisonType, null);
-  assert.equal(rows[1].shieldsThirdPartyReduction, null);
+  assert.equal(rows[1].shieldsThirdPartyChange, null);
 });
 
 test("the JSON payload embeds the measured-corpus framing", () => {
@@ -106,7 +106,7 @@ test("consent rows expose the dispatched click state so unclicked runs are filte
         comparisonType: "consent",
         consentMode: "accept-all",
         consentClicks: "none",
-        shieldsThirdPartyReduction: null
+        shieldsThirdPartyChange: null
       })
     ],
     "https://sitebehavior.org"
@@ -131,13 +131,49 @@ test("CSV pins the header and escapes commas and quotes in headlines", () => {
 
   assert.equal(
     header,
-    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,request_capped,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_reduction,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited"
+    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,request_capped,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_change,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited"
   );
   assert.match(row, /"shop\.example told Google, Meta ""you were here""\."/);
   assert.match(row, /,desktop,yes,observe,,200,/);
   // Schema columns: every current corpus row is v1, legacy-derived, limited.
   assert.match(row, /,1,,legacy-derived,yes$/);
   assert.equal(csv.endsWith("\r\n"), true);
+});
+
+test("signed Shields changes pass through unclamped and the payload publishes the direction mix", () => {
+  // Counterexample pin: an increased pair (more third-party requests with
+  // blocking on) must export its positive signed value, never a clamped zero,
+  // and the payload summary must count it as increased.
+  const rows = buildCorpusExportRows(
+    [
+      makeEntry({ id: "20260702-" + "a".repeat(32), shieldsThirdPartyChange: -77 }),
+      makeEntry({ id: "20260706-" + "b".repeat(32), shieldsThirdPartyChange: 264 }),
+      makeEntry({ id: "20260706-" + "c".repeat(32), shieldsThirdPartyChange: 0 }),
+      makeEntry({ id: "20260706-" + "d".repeat(32), shieldsThirdPartyChange: null, comparisonType: undefined, reportType: "single" })
+    ],
+    "https://sitebehavior.org"
+  );
+
+  assert.equal(rows[0].shieldsThirdPartyChange, -77);
+  assert.equal(rows[1].shieldsThirdPartyChange, 264);
+  assert.equal(rows[2].shieldsThirdPartyChange, 0);
+
+  const payload = buildCorpusExportPayload(rows, {
+    generatedAt: "2026-07-11T00:00:00.000Z",
+    siteCount: 4,
+    measuredSampleSize: 4
+  });
+  assert.deepEqual(payload.shieldsChangeSummary, { pairedReports: 3, decreased: 1, flat: 1, increased: 1 });
+  // The note defines the signed semantics and the summary by name.
+  assert.match(payload.note, /shields_third_party_change is the SIGNED/);
+  assert.match(payload.note, /shieldsChangeSummary/);
+  assert.match(payload.note, /not clamped to zero/);
+
+  // The CSV row keeps the sign.
+  const csv = corpusExportToCsv(rows);
+  const lines = csv.split("\r\n");
+  assert.match(lines[1], /,-77,/);
+  assert.match(lines[2], /,264,/);
 });
 
 test("rows carry the schema generation so researchers can filter by wire version", () => {

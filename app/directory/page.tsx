@@ -50,6 +50,28 @@ function reportTypeLabel(entry: DirectoryEntry): string {
   return "comparison";
 }
 
+/**
+ * Direction-aware label for the category's median signed Shields change
+ * (blocking visit minus unblocked baseline). Negative medians read as the
+ * familiar "fewer with blocking"; a positive median must say "more", never be
+ * clamped or relabeled as a reduction.
+ */
+function shieldsMedianLabel(medianChange: number): string {
+  if (medianChange < 0) return "Fewer with Brave-list blocking";
+  if (medianChange > 0) return "More with Brave-list blocking";
+  return "With Brave-list blocking";
+}
+
+/** Per-category direction mix of the paired sites, so increases are published, not hidden. */
+function shieldsMixText(rollup: { shieldsPairedSites: number; shieldsDecreased: number; shieldsFlat: number; shieldsIncreased: number }): string {
+  const parts: string[] = [];
+  if (rollup.shieldsDecreased > 0) parts.push(`${rollup.shieldsDecreased} fewer`);
+  if (rollup.shieldsFlat > 0) parts.push(`${rollup.shieldsFlat} unchanged`);
+  if (rollup.shieldsIncreased > 0) parts.push(`${rollup.shieldsIncreased} more`);
+  const sites = rollup.shieldsPairedSites === 1 ? "1 paired site" : `${rollup.shieldsPairedSites} paired sites`;
+  return `blocking pairs (${sites}): ${parts.join(", ")}`;
+}
+
 export default async function DirectoryPage() {
   const { entries, rollups, heaviest } = await loadCorpusOverview();
   const maxMedianTrackers = Math.max(1, ...rollups.map((rollup) => rollup.medianTrackers));
@@ -113,13 +135,20 @@ export default async function DirectoryPage() {
                     <dt>3rd-party cookies</dt>
                     <dd>{rollup.medianCookies.toLocaleString()}</dd>
                   </div>
-                  {rollup.medianShieldsReduction !== null && (
+                  {rollup.medianShieldsChange !== null && (
                     <div>
-                      <dt>Fewer with Brave-list blocking</dt>
-                      <dd>{rollup.medianShieldsReduction.toLocaleString()}</dd>
+                      <dt>{shieldsMedianLabel(rollup.medianShieldsChange)}</dt>
+                      <dd>
+                        {rollup.medianShieldsChange === 0
+                          ? "no change"
+                          : Math.abs(rollup.medianShieldsChange).toLocaleString()}
+                      </dd>
                     </div>
                   )}
                 </dl>
+                {rollup.shieldsPairedSites > 0 && (
+                  <span className="rollup-bar-label">{shieldsMixText(rollup)}</span>
+                )}
               </article>
             ))}
           </div>
@@ -140,10 +169,13 @@ export default async function DirectoryPage() {
             Medians from one controlled visit per site, using the curated service catalog (a lower bound). Tracker counts
             exclude operational-only services such as error monitoring. A 0 means no <em>catalogued third-party</em>{" "}
             trackers were seen. Large platforms like Google, YouTube, and X serve much of their own tracking first-party,
-            which is not counted as third-party here. &ldquo;Fewer with Brave-list blocking&rdquo; is the median difference
-            in third-party requests between a normal visit and a paired visit with Brave&apos;s ad-block engine and default
-            Shields lists actively blocking (a simulation in this scanner&apos;s browser, not a live Brave-browser visit):
-            an observed paired-visit difference, not a count of individually blocked requests.
+            which is not counted as third-party here. The Brave-list blocking figure is the median <em>signed</em>{" "}
+            difference in third-party requests between a normal visit and a paired visit with Brave&apos;s ad-block engine
+            and default Shields lists actively blocking (a simulation in this scanner&apos;s browser, not a live
+            Brave-browser visit): an observed paired-visit difference, not a count of individually blocked requests. Each
+            card also counts its paired sites by direction, because some pairs observe <em>more</em> third-party requests
+            with blocking on (ad rotation, fallback loading); those increases are counted as observed, never as
+            &ldquo;no change&rdquo;.
           </p>
         </section>
       )}

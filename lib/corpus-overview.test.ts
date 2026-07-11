@@ -85,7 +85,7 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     thirdPartyRequests: 100,
     trackerRequests: 40,
     thirdPartyCookies: 8,
-    shieldsThirdPartyReduction: 20,
+    shieldsThirdPartyChange: -20,
     category: "shopping",
     categoryLabel: "Shopping",
     scannedAt: "2026-07-01T00:00:00.000Z",

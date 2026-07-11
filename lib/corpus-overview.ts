@@ -29,7 +29,15 @@ export type DirectoryEntry = {
   thirdPartyRequests: number;
   trackerRequests: number;
   thirdPartyCookies: number;
-  shieldsThirdPartyReduction: number | null;
+  /**
+   * Signed change in third-party requests on an eligible Shields pair: the
+   * blocking visit's count minus the unblocked baseline's, so negative means
+   * fewer requests with blocking on and positive means more. Null when the
+   * report is not an eligible Shields comparison. An increase is a real
+   * paired-visit observation (ad rotation, fallback loading), never clamped
+   * away; it is not a claim that blocking causes tracking.
+   */
+  shieldsThirdPartyChange: number | null;
   category: string;
   categoryLabel: string;
   scannedAt: string;
@@ -135,7 +143,7 @@ export async function loadCorpusOverview(): Promise<CorpusOverview> {
       trackerRequests: site.trackerRequests,
       thirdPartyRequests: site.thirdPartyRequests,
       thirdPartyCookies: site.thirdPartyCookies,
-      shieldsThirdPartyReduction: site.shieldsThirdPartyReduction
+      shieldsThirdPartyChange: site.shieldsThirdPartyChange
     }))
   );
   const heaviest = [...sites]
@@ -239,16 +247,19 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
     if (isReservedReportDomain(run.domain)) continue;
     const headline = buildReportHeadline(view);
     const { id: category, label: categoryLabel } = categoryFor(run.domain, catalog);
-    // The observed third-party reduction of an ELIGIBLE Shields pair. A
-    // request-count delta is a raw-counts family claim (RFC 4.4), so it needs
-    // that family's gate on top of pair validity. This is a paired-visit
-    // difference, never a "blocked" count; the directory labels it accordingly.
-    const shieldsThirdPartyReduction =
+    // The observed signed third-party change of an ELIGIBLE Shields pair
+    // (blocking visit minus unblocked baseline; negative = fewer with
+    // blocking). A request-count delta is a raw-counts family claim (RFC 4.4),
+    // so it needs that family's gate on top of pair validity. This is a
+    // paired-visit difference, never a "blocked" count, and an increased pair
+    // stays signed: clamping it to zero would misreport an observed increase
+    // as "no change" in every aggregate built from this field.
+    const shieldsThirdPartyChange =
       arms &&
       view.comparison?.axis === "shields" &&
       view.claims.pairComparison?.allowed === true &&
       view.claims.familyDeltas?.["raw-counts"]?.allowed === true
-        ? Math.max(0, arms.baseline.counts.thirdPartyRequests - arms.variant.counts.thirdPartyRequests)
+        ? arms.variant.counts.thirdPartyRequests - arms.baseline.counts.thirdPartyRequests
         : null;
 
     entries.push({
@@ -262,7 +273,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
       // not rank sites on a surface labeled "tracker".
       trackerRequests: trackingServiceRequests(run.evidence),
       thirdPartyCookies: run.counts.thirdPartyCookies,
-      shieldsThirdPartyReduction,
+      shieldsThirdPartyChange,
       category,
       categoryLabel,
       // Non-null on every v1 report (the loop is v1-gated above).

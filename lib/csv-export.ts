@@ -40,8 +40,11 @@ export function csvCell(value: string | number): string {
   // controls its own request URLs and domains, so a cell like "=cmd|'/c ...'!A1"
   // or "@SUM(...)" would execute as a formula when the exported CSV is opened in
   // Excel/Sheets. Prefix a cell whose first character can start a formula with an
-  // apostrophe so spreadsheet apps treat the whole value as text.
-  if (/^[=+\-@\t\r]/.test(text)) {
+  // apostrophe so spreadsheet apps treat the whole value as text. Numbers are
+  // exempt: a program-generated number's leading "-" is a sign, not page
+  // content, and prefixing it would break numeric parsing of signed columns
+  // (delta and Shields-change fields) in R/pandas.
+  if (typeof value !== "number" && /^[=+\-@\t\r]/.test(text)) {
     text = `'${text}`;
   }
   // RFC 4180 quoting for separators, quotes, and newlines.

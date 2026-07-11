@@ -20,6 +20,12 @@ test("csvCell neutralizes spreadsheet formula injection (CWE-1236)", () => {
   assert.equal(csvCell("@SUM(A1:A9)"), "'@SUM(A1:A9)");
   // A formula trigger combined with a separator is both prefixed and quoted.
   assert.equal(csvCell("=1,2"), '"\'=1,2"');
+  // Program-generated numbers are exempt: a negative count's "-" is a sign,
+  // not page content, and prefixing it would break numeric parsing of the
+  // signed delta and Shields-change columns. A page-controlled STRING with a
+  // leading "-" (above) is still guarded.
+  assert.equal(csvCell(-77), "-77");
+  assert.equal(csvCell(-3), "-3");
 });
 
 test("requestLogToCsv escapes a hostile domain/url without breaking columns", () => {
