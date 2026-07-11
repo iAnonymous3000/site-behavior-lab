@@ -165,12 +165,13 @@ Landed in the compound-gates slice (this commit):
 
 Remaining per the round-7 order (next slices, in order):
 
-1. UI provenance surfacing: legacy-derived / limited badge and run-quality
-   display in the report header/methodology (suppression notes and censored
-   headlines landed; the explicit origin badge did not).
-2. Two-arm evidence switcher or side-by-side view incl. per-arm CSV (the
-   detailed tables, screenshot, methodology, and CSV expose only
-   `displayRunView` today).
+1. UI provenance surfacing: DONE (323ee28): schemaProvenanceLabel chip in
+   the report header, Schema + Run quality methodology rows via
+   runQualitySummary (recorded vs derived basis stated).
+2. Two-arm evidence switcher: DONE (37951af): arm switcher below the panel
+   drives every per-visit surface (tables, sidebar, methodology, causality
+   graph) and the CSV export (filename names the arm); defaults to the lead
+   run, resets per report; pair-level surfaces untouched.
 3. View-contract expansion: phase identity + phase-aware evidence (dedupe
    table row keys, fix API-family counts across phases), cookie/storage
    mutations, consent verification state, safe ephemeral screenshots
