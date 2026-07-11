@@ -172,13 +172,13 @@ Remaining per the round-7 order (next slices, in order):
    drives every per-visit surface (tables, sidebar, methodology, causality
    graph) and the CSV export (filename names the arm); defaults to the lead
    run, resets per report; pair-level surfaces untouched.
-3. View-contract expansion: phase identity + phase-aware evidence (dedupe
-   table row keys, fix API-family counts across phases), cookie/storage
-   mutations, consent verification state, safe ephemeral screenshots
-   (`runViewFromV2` hardcodes null; the v2-ephemeral LoadedReport must carry
-   its screenshot to the view), display-vs-navigation URLs (v2 route shapes
-   are not navigable links), and `adblockActive` from recorded facts instead
-   of `toolchain.adblock !== null`.
+3. View-contract expansion: MOSTLY DONE (a042466): ephemeral screenshots
+   restored onto the view by the transport reader, adblockActive from the
+   recorded shields condition, urlsAreRouteShapes gates the header link,
+   RunConsentView.choiceState (shown in the methodology consent row),
+   distinct-API metric count, index-based row keys for phase-tagged rows.
+   STILL OPEN: cookie/storage MUTATIONS and phase-count UI (need new
+   surfaces; fold into the v2 render slice).
 4. Atomic client migration: `readRenderableReport` returns v2 LoadedReports,
    shell state -> `LoadedReport` across the seven producer paths, drop the
    two v1 render gates (report page + client reader) TOGETHER with the
