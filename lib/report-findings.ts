@@ -14,7 +14,7 @@
  * drift.
  */
 
-import { comparisonEligibility, type ComparisonEligibility } from "./comparison-eligibility";
+import { claimsForV1Report, type ClaimGate } from "./scan-report-views";
 import { detectConsentPlatform } from "./consent-banner";
 import { corpusBenchmark, corpusIsUsable, type CorpusStats } from "./corpus-stats";
 import {
@@ -522,14 +522,16 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
         : `${plural(result.fingerprintEvents.length, "API family", "API families")} recorded.`
   });
 
-  // Every comparison card runs through the SHARED eligibility gate: a failed,
-  // request-capped, or mismatched arm means the pair supports no comparison
-  // claim, and the card must say why instead of quoting the diff.
-  const eligibility = isComparisonReport(report) ? comparisonEligibility(report) : null;
+  // Every comparison card runs through the SHARED claim policy (the seam's
+  // default-deny derivation, the same one the comparison panel's banner and
+  // the headline consult): a failed, request-capped, or mismatched arm means
+  // the pair supports no comparison claim, and the card must say why instead
+  // of quoting the diff.
+  const pairGate = isComparisonReport(report) ? claimsForV1Report(report).pairComparison : null;
 
   if (isComparisonReport(report) && report.comparisonType === "shields") {
-    if (eligibility && !eligibility.eligible) {
-      findings.unshift(ineligibleComparisonFinding("shields-comparison", "This Shields comparison is not conclusive", eligibility));
+    if (pairGate && !pairGate.allowed) {
+      findings.unshift(ineligibleComparisonFinding("shields-comparison", "This Shields comparison is not conclusive", pairGate));
     } else {
       const removedThirdPartyRequests = Math.max(0, -report.diff.thirdPartyRequests.delta);
       const removedTrackerRequests = Math.max(0, -report.diff.knownTrackerRequests.delta);
@@ -566,18 +568,18 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
 
   if (isComparisonReport(report) && report.comparisonType === "consent") {
     findings.unshift(
-      eligibility && !eligibility.eligible
-        ? ineligibleComparisonFinding("consent-comparison", "This consent comparison is not conclusive", eligibility)
+      pairGate && !pairGate.allowed
+        ? ineligibleComparisonFinding("consent-comparison", "This consent comparison is not conclusive", pairGate)
         : buildConsentComparisonFinding(report)
     );
   }
 
-  if (isComparisonReport(report) && report.comparisonType === "gpc" && eligibility && !eligibility.eligible) {
-    findings.unshift(ineligibleComparisonFinding("gpc-comparison", "This GPC comparison is not conclusive", eligibility));
+  if (isComparisonReport(report) && report.comparisonType === "gpc" && pairGate && !pairGate.allowed) {
+    findings.unshift(ineligibleComparisonFinding("gpc-comparison", "This GPC comparison is not conclusive", pairGate));
   }
 
-  if (isComparisonReport(report) && report.comparisonType === "temporal" && eligibility && !eligibility.eligible) {
-    findings.unshift(ineligibleComparisonFinding("temporal-comparison", "This before/after comparison is not conclusive", eligibility));
+  if (isComparisonReport(report) && report.comparisonType === "temporal" && pairGate && !pairGate.allowed) {
+    findings.unshift(ineligibleComparisonFinding("temporal-comparison", "This before/after comparison is not conclusive", pairGate));
   }
 
   // A failed/blocked load (HTTP >= 400) produces low counts that are an artifact
@@ -654,16 +656,16 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
  * The card that replaces a comparison's story when the SHARED eligibility gate
  * fails: it names the disqualifying facts and makes no claim from the diff.
  */
-function ineligibleComparisonFinding(id: string, title: string, eligibility: ComparisonEligibility): Finding {
+function ineligibleComparisonFinding(id: string, title: string, gate: ClaimGate): Finding {
   return {
     id,
     icon: "alert",
     level: "info",
     title,
-    lead: humanList(eligibility.reasons, 3),
+    lead: humanList(gate.reasons, 3),
     detail:
       "The raw request logs of both visits remain below for transparency, but the diff between them supports no claim about what the compared condition changed.",
-    evidence: `${plural(eligibility.reasons.length, "disqualifying condition")} detected by the comparison-eligibility gate.`
+    evidence: `${plural(gate.reasons.length, "disqualifying condition")} named by the report's claim policy.`
   };
 }
 

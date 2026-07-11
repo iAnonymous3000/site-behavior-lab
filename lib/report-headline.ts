@@ -1,4 +1,4 @@
-import { comparisonEligibility } from "./comparison-eligibility";
+import { claimsForV1Report } from "./scan-report-views";
 import {
   HEADLINE_PLATFORMS,
   crossSiteListenerDetection,
@@ -83,7 +83,10 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
   // request-capped, or mismatched arm disqualifies every causal-sounding
   // comparison framing below, and the report falls back to the evidence-led
   // single-visit story (the findings board explains why).
-  const comparisonUsable = isComparison(report) ? comparisonEligibility(report).eligible : false;
+  // The seam's default-deny claim policy: the same derivation the comparison
+  // panel and every view-fed surface consult, so headline framing can never
+  // disagree with the banner beside the deltas.
+  const comparisonUsable = claimsForV1Report(report).pairComparison?.allowed ?? false;
 
   const extras: string[] = [];
   if (inputMonitoring) {

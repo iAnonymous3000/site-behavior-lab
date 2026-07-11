@@ -493,6 +493,16 @@ export function toReportView(stored: StoredScanReport): ReportView {
 }
 
 /**
+ * The claim policy for a v1 wire report without building the full view: the
+ * one derivation the headline and findings engines (which still take the v1
+ * wire) share with every view-fed surface, so a claim gate can never disagree
+ * between the banner, the findings board, and the headline.
+ */
+export function claimsForV1Report(report: ScanReport): ClaimPolicy {
+  return report.reportType === "comparison" ? legacyClaims(report) : deniedClaims();
+}
+
+/**
  * The run a report page leads with: the newer run for temporal pairs, the
  * baseline (off / unprotected) run otherwise. A v1 comparison is always
  * kind "descriptive"; its temporal case is the one with no attempted axis
