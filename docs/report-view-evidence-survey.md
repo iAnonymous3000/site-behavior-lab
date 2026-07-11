@@ -272,3 +272,63 @@ Remaining, unchanged in scope, all recorded above: the explicit three-state
 claim policy, phase/mutation/verification views, the atomic LoadedReport
 migration with cohort-aware statistics and the full fixture matrix, then
 the UI polish slice and transitional-duplication cleanup.
+
+## Codex round 10 (2026-07-11): consent semantics before the reader migration
+
+Round 10's verdict: round 9 was directionally correct and the deployment is
+healthy, but consent-arm semantics had to precede the atomic migration. Its
+lead finding was corpus-verified exactly: 56 of the 59 then-eligible consent
+pairs never dispatched both clicks (55 neither, 1 accept-only), yet every
+surface labeled their arms "Accept all"/"Reject all", producing pages that
+said "no consent banner could be clicked" and "21 with Accept all, 21 with
+Reject all" at once. Landed same day:
+
+- a9c2bc8: consent pairs require BOTH dispatched clicks (missing interaction
+  is unprovable, clicked:false is pre-consent), completing round 9's
+  declared-axis rule; corpus goes 214/235 -> 158/235 eligible with exactly
+  the 3 both-click pairs (bumble, paypal, khanacademy) keeping comparisons.
+  Producer + view derive click-aware titles/labels ("Accept-all
+  click"/"Accept-all attempt", "Consent comparison attempt (no banner
+  clicked)"), mirroring the Shields label normalization for share-store
+  copies; all 66 committed consent reports remediated in place (titles,
+  label blocks, 654 warning prefixes, the procedure sentence); the findings
+  board keeps the informative no-banner/one-click narrative for
+  dispatch-failed pairs and labels counts by what each visit recorded;
+  "Reject-all visit" phrasing became click-descriptive everywhere.
+- 105043a: the gate holds NON-declared experiment dimensions constant
+  (GPC/consent-mode/blocking cross-axis checks), applies the unknown rule to
+  the subject itself (literal-"unknown" hosts and URLs prove nothing), and
+  orders temporal pairs by recorded timestamps (reversed/missing =
+  ineligible; the gallery compare tools auto-order via orderTemporalPair).
+  Corpus-neutral beyond the consent flips.
+- e55deb0: coverage vs measurement split (corpus-stats coverageSiteCount 98
+  alongside the 96-site measured sample; export gains measuredSampleSize and
+  siteCount now matches its own loaded-sites definition; percentile copy
+  says "fully measured sites (of 98 scanned...)"), capped counts reworded
+  (activity floors vs end-state snapshots of an interrupted visit),
+  "recording capped" chips in directory rows and gallery cards (new
+  requestCapped manifest field), direction-aware Shields residual sentence,
+  "Brave-list blocking comparison" directory label, README/hero fixes
+  ("values are never read" -> transient non-emptiness check with the frozen
+  v2 schema docblock kept verbatim under erratum E1 and a guard comment;
+  no "live Shields"; no "record every request").
+
+NOT adopted from round 10: Codex's strict position that v1 comparability is
+generally unprovable (missing methodology/toolchain identity should resolve
+every pair to raw-only). The project's standing position (RFC 10.1) is that
+v1 pairs are DESCRIPTIVE-only by construction, gated on the facts v1 DID
+record; family gates already carry catalog identity. Recorded here so the
+disagreement is explicit rather than silent.
+
+Remaining, order per round 10's own list: the single reason-bearing
+raw-only/comparable/suppressed decision object with a shared compatibility
+fingerprint (folds into the three-state claim policy), the ReportView
+expansion (phases, mutations, detector-ledger, capture loss, toolchain
+identity, attempts/failures, configured-vs-verified), the r1/r2 fixture
+matrix as acceptance gate, the atomic LoadedReport migration across all
+consumers (v2 consent labels move with it: defaultRunLabels still says
+"Accept all"/"Reject all" for a hypothetical v2 consent pair, acceptable
+only while producers emit v1), the UI polish slice (cap indicators,
+arm-switch announcements, CSV arm labels, filter reconciliation,
+aria-expanded, full suppression reasons), and only then v2 production
+emission with a corpus regeneration.
