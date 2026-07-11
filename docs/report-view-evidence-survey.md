@@ -120,3 +120,75 @@ Rules that must not regress during migration:
 - Screenshot display stays data-URI-only (upload beacon fix, 4763242).
 - Fixtures: v1, v2 r1, v2 r2, inconsistent, and future-revision payloads
   must pass through every migrated consumer's tests.
+
+## Codex round 7 (2026-07-11): compound claim gates and the corrected order
+
+Round 7 rejected the "one final unit remains" convergence claim: most of
+`ClaimPolicy` was dead (only `pairComparison` consulted anywhere), so the
+seam SAID familyDeltas-denied while 114/235 committed reports published
+delta wording, `v2Claims` could grant attribution without pair validity, a
+legacy "custom" comparison was misread as temporal, censored/capped runs
+still earned the calm headline, and the pixel headline asserted more than
+field population proves.
+
+Landed in the compound-gates slice (this commit):
+
+- `legacyClaims` now states per family what v1's recorded facts prove
+  (RFC 4.4 enforcement + 10.1 legacy-display continuity): raw-counts behind
+  the whole-pair rule; tracker-classification additionally behind catalog
+  source/version/region equality; shields-simulation behind both arms
+  carrying an active same-mode measurement from the same list snapshot
+  (denies every Shields-axis pair by construction, subsuming the panel's old
+  special case); consent-verification and detector-findings always denied
+  (dispatch is not verification; detector versions were never recorded).
+  All of it supports DESCRIPTIVE wording only.
+- Engines and panel consume the compound gates: count-delta wording needs
+  pair + raw-counts; the findings Shields card composes per allowed family
+  (v1 cards no longer quote fingerprint-call deltas); the panel renders
+  tiles/lists per family with human-readable suppression notes, and a
+  pair-invalid comparison shows NO deltas at all (runs render as
+  independent evidence).
+- `v2Claims` attribution now requires `pairValidity.eligible` on top of
+  `interventionVerified`.
+- The GPC alarm headline is descriptive ("still contacted N tracking
+  companies with a privacy signal on ... versus M without"); "the signal
+  barely changed what loaded" is RFC-4.4 attributed phrasing reserved for
+  `claims.interventionAttribution`, which nothing readable grants yet.
+- `ComparisonView.temporalPair` (explicit design marker) drives lead-run
+  choice, the temporal findings card, and the panel eyebrow; "custom"
+  pairs stay baseline-led with their own labels.
+- `runCensorshipNotes` + quality-gated calm surfaces: a capped/censored run
+  gets "scan was cut short" instead of "relatively private", and the
+  findings bottom line says the quiet result is a floor.
+- Pixel wording: "sent data in personal-identifier fields" (population is
+  proven; values/hashing/matching are not), conditional no-sale conflict.
+
+Remaining per the round-7 order (next slices, in order):
+
+1. UI provenance surfacing: legacy-derived / limited badge and run-quality
+   display in the report header/methodology (suppression notes and censored
+   headlines landed; the explicit origin badge did not).
+2. Two-arm evidence switcher or side-by-side view incl. per-arm CSV (the
+   detailed tables, screenshot, methodology, and CSV expose only
+   `displayRunView` today).
+3. View-contract expansion: phase identity + phase-aware evidence (dedupe
+   table row keys, fix API-family counts across phases), cookie/storage
+   mutations, consent verification state, safe ephemeral screenshots
+   (`runViewFromV2` hardcodes null; the v2-ephemeral LoadedReport must carry
+   its screenshot to the view), display-vs-navigation URLs (v2 route shapes
+   are not navigable links), and `adblockActive` from recorded facts instead
+   of `toolchain.adblock !== null`.
+4. Atomic client migration: `readRenderableReport` returns v2 LoadedReports,
+   shell state -> `LoadedReport` across the seven producer paths, drop the
+   two v1 render gates (report page + client reader) TOGETHER with the
+   fixture matrix, so discoverability (metadata/OG/sitemap already accept
+   v2) never points at a failing page. Note: a committed v2 report today
+   would break the static build (generateStaticParams prerenders a page
+   that throws), so do not commit v2 fixtures to public/reports before this.
+5. Manifest/gallery/directory/exports v2 rows + a deliberate cross-version
+   corpus-statistics policy.
+6. Fixture matrix: v1 / r1 / r2, split-eligibility, censored-quality,
+   custom, ephemeral, malformed, future-revision, plus a static build
+   containing a valid v2 report.
+7. Then: redaction remediation/provenance, verified phased experiments,
+   corpus regeneration, r2 producer rollout, durable queue.

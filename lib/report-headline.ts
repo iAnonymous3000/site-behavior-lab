@@ -1,6 +1,7 @@
 import {
   comparisonArmViews,
   displayRunView,
+  runCensorshipNotes,
   type ReportView,
   type RunView
 } from "./scan-report-views";
@@ -88,11 +89,16 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   const inputMonitoring = Boolean(crossSiteListenerDetection(run.evidence, "input-monitoring"));
   const stats = buildStats(run, trackingEntities.length);
   // Comparison claims are gated on the seam's default-deny claim policy: the
-  // same derivation the findings board and the comparison panel's banner
-  // consult, so a failed, request-capped, or mismatched arm disqualifies every
-  // comparison framing below at once and the report falls back to the
-  // evidence-led single-visit story (the findings board explains why).
+  // same derivation the findings board and the comparison panel consult, so a
+  // failed, request-capped, or mismatched arm disqualifies every comparison
+  // framing below at once and the report falls back to the evidence-led
+  // single-visit story (the findings board explains why). Every branch that
+  // quotes a request-count delta additionally requires the raw-counts family
+  // gate (RFC 4.4: a family delta renders iff its family is eligible), and
+  // no branch below uses intervention-ATTRIBUTED phrasing; that wording needs
+  // claims.interventionAttribution, which no readable report grants yet.
   const comparisonUsable = view.claims.pairComparison?.allowed ?? false;
+  const rawCountDeltasUsable = comparisonUsable && view.claims.familyDeltas?.["raw-counts"]?.allowed === true;
 
   const extras: string[] = [];
   if (inputMonitoring) {
@@ -156,12 +162,13 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
         );
   }
 
-  // An ad pixel that attached personal-identifier fields (advanced matching)
-  // ties this visit to a known person, a stronger story than mere presence, so
-  // it outranks the platform/comparison framings below. Event-only pixels carry
-  // no identifier and fall through to the named-platform line. Field PRESENCE
-  // is what the scanner reads; the platforms document the values as hashed,
-  // but that is never verified, so the copy must not assert it.
+  // An ad pixel whose advanced-matching fields were POPULATED is a stronger
+  // story than mere pixel presence, so it outranks the platform/comparison
+  // framings below. Event-only pixels carry no identifier and fall through to
+  // the named-platform line. What the scanner proves is that designated
+  // personal-identifier fields held values; it never reads the values, so the
+  // copy must not assert they WERE personal identifiers, nor that matching
+  // succeeded, only what the fields are designed for.
   const pixelsWithMatching = run.evidence.pixelEvents.filter((pixel) => pixel.advancedMatching.length > 0);
   if (pixelsWithMatching.length > 0) {
     const products = joinNames(pixelsWithMatching.map((pixel) => pixel.product));
@@ -170,8 +177,8 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     );
     return finish(
       "warn",
-      `${domain} sent personal identifiers to ${products}.`,
-      `An advertising pixel on ${domain} attached personal-identifier fields (${fields}) to the events it reported, which lets the platform tie this visit to a known person.${extraNote}`
+      `${domain} sent data in personal-identifier fields to ${products}.`,
+      `An advertising pixel on ${domain} attached populated personal-identifier fields (${fields}) to the events it reported. These fields exist to match a visit to a known person; the scanner records only that they were filled, never their values, so what they contained is not verified.${extraNote}`
     );
   }
 
@@ -197,7 +204,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
         buildStats(arms.variant, rejectTracking.length)
       );
     }
-    if (arms.baseline.consent?.controlActivated === true && trackingEntities.length > 0) {
+    if (rawCountDeltasUsable && arms.baseline.consent?.controlActivated === true && trackingEntities.length > 0) {
       return finish(
         "info",
         `The Reject-all visit to ${domain} loaded no catalogued trackers.`,
@@ -211,33 +218,28 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     }
   }
 
-  if (comparisonUsable && arms && axis === "gpc") {
+  if (rawCountDeltasUsable && arms && axis === "gpc") {
     const before = arms.baseline.counts.thirdPartyRequests;
     const after = arms.variant.counts.thirdPartyRequests;
     const reductionPct = before > 0 ? Math.round(((before - after) / before) * 100) : 0;
-    // GPC "on" can load as many (or even more) off-site requests than "off",
-    // so phrase the residual instead of emitting "down just -12%".
-    const changePhrase =
-      reductionPct > 0
-        ? `down just ${reductionPct}%`
-        : reductionPct < 0
-          ? `${Math.abs(reductionPct)}% more than without it`
-          : "with no measurable drop";
 
-    // This claim is about the GPC-ON visit, so every number and name in it,
+    // This story is about the GPC-ON visit, so every number and name in it,
     // including the stat chips and share text, must come from the variant run.
     // The report's lead result (and its extras) is the baseline run, which
-    // would mix the two arms' evidence.
+    // would mix the two arms' evidence. The wording stays DESCRIPTIVE (the
+    // two visits' numbers side by side): "the signal changed nothing" is
+    // intervention-attributed phrasing (RFC 4.4) and needs
+    // claims.interventionAttribution, which no readable report grants yet.
     const gpcOnTracking = trackerEntitySummaries(arms.variant.evidence).filter((entity) => !isOperationalEntity(entity));
     if (gpcOnTracking.length > 0 && after > 0 && reductionPct < 25) {
       return finish(
         "alarm",
-        `Your privacy signal barely changed what ${domain} loaded.`,
-        `Even with a "do not sell or share" (GPC) signal switched on, ${domain} still contacted ${plural(
+        `${domain} still contacted ${plural(gpcOnTracking.length, "tracking company", "tracking companies")} with a privacy signal on.`,
+        `The visit with a "do not sell or share" (GPC) signal switched on still contacted ${plural(
           gpcOnTracking.length,
           "tracking company",
           "tracking companies"
-        )}: ${plural(after, "third-party request")}, ${changePhrase}. Request counts cannot show whether data sales stopped, only what loaded.`,
+        )}: ${plural(after, "third-party request")}, versus ${n(before)} in the visit without the signal. An observed difference for this pair of visits; request counts cannot show whether data sales stopped, only what loaded.`,
         buildStats(arms.variant, gpcOnTracking.length)
       );
     }
@@ -250,7 +252,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     }
   }
 
-  if (comparisonUsable && arms && axis === "shields") {
+  if (rawCountDeltasUsable && arms && axis === "shields") {
     const before = arms.baseline.counts.thirdPartyRequests;
     const after = arms.variant.counts.thirdPartyRequests;
     const removed = Math.max(0, before - after);
@@ -310,6 +312,19 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
         2
       )}.`,
       probeStats
+    );
+  }
+
+  // Censored evidence can support the positive stories above (they are lower
+  // bounds), but never the calm one: a truncated visit has low counts because
+  // collection stopped, not because the site was quiet.
+  const censorshipNotes = runCensorshipNotes(run);
+  if (censorshipNotes.length > 0) {
+    return finish(
+      "info",
+      `${domain}'s scan was cut short, so low counts are not the full story.`,
+      `Evidence collection did not finish: ${joinNames(censorshipNotes, 2)}. Every count in this report is a floor for this visit, not the site's full behavior.`,
+      stats.length > 0 ? stats : [{ label: "third-party requests", value: n(run.counts.thirdPartyRequests), emphasis: true }]
     );
   }
 

@@ -14,9 +14,19 @@ import {
 } from "./scan-report-v2-fixtures";
 import { isPublicComparisonReportV2, isPublicScanReportV2, isPublicSingleReportV2 } from "./scan-report-v2-validation";
 import { readStoredScanReport } from "./scan-report-reader";
-import { comparisonArmViews, comparisonDiffView, publicWireForExportOrPersistence, readScanTransportPayload, toReportView } from "./scan-report-view";
+import {
+  comparisonArmViews,
+  comparisonDiffView,
+  displayRunView,
+  publicWireForExportOrPersistence,
+  readScanTransportPayload,
+  toReportView,
+  viewFromV1Report,
+  viewFromV2
+} from "./scan-report-view";
+import { makeGpcInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { evaluateComparability, evaluateQuality } from "./scan-report-v2-evaluators";
-import { createGpcComparisonReport } from "./compare-reports";
+import { createComparisonReport, createGpcComparisonReport, createShieldsComparisonReport, createTemporalComparisonReport } from "./compare-reports";
 import type { ScanResult } from "./types";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { makeScanRunV2 } from "./scan-report-v2-fixtures";
@@ -196,16 +206,22 @@ test("toReportView marks v1 as legacy-derived and v2 as v2", () => {
     assert.equal(view.limited, true);
     assert.equal(view.comparison?.kind, "descriptive");
     assert.equal(view.comparison?.axis, "gpc");
-    // Default-deny claims: a v1 pair may render as a descriptive pairing,
-    // but no family delta, attribution, temporal, or strong-causal claim.
+    // Default-deny claims: a v1 pair may render as a descriptive pairing with
+    // the family deltas its recorded facts prove (same catalog, whole-pair
+    // rule), but never a verification-dependent family, attribution,
+    // temporal, or strong-causal claim.
     assert.equal(view.claims.pairComparison?.allowed, true);
     assert.equal(view.claims.interventionAttribution, false);
     assert.equal(view.claims.temporalChange, false);
     assert.equal(view.claims.strongCausal, false);
-    for (const gate of Object.values(view.claims.familyDeltas ?? {})) {
-      assert.equal(gate.allowed, false);
-      assert.match(gate.reasons.join(" "), /unprovable/);
-    }
+    assert.equal(view.claims.familyDeltas?.["raw-counts"].allowed, true);
+    assert.equal(view.claims.familyDeltas?.["tracker-classification"].allowed, true);
+    // No arm carries an active engine measurement, so there is no Shields delta.
+    assert.equal(view.claims.familyDeltas?.["shields-simulation"].allowed, false);
+    assert.equal(view.claims.familyDeltas?.["consent-verification"].allowed, false);
+    assert.match(view.claims.familyDeltas?.["consent-verification"].reasons.join(" ") ?? "", /never a verified consent state/);
+    assert.equal(view.claims.familyDeltas?.["detector-findings"].allowed, false);
+    assert.match(view.claims.familyDeltas?.["detector-findings"].reasons.join(" ") ?? "", /detector versions/);
   }
 
   const v2 = readStoredScanReport(makeTemporalComparisonReportV2());
@@ -222,6 +238,72 @@ test("toReportView marks v1 as legacy-derived and v2 as v2", () => {
     // Retention/sort must key on the NEWEST run, not the older baseline.
     assert.equal(view.latestRunAt, view.runs[1].startedAt);
   }
+});
+
+test("intervention attribution requires pair validity, never verification alone", () => {
+  // A verified intervention on an invalid pair (subject mismatch, failed run)
+  // supports no pair-level claim at all (RFC 4.4): the runs render as
+  // independent reports, so attribution and strong-causal framing must fall.
+  const report = makeGpcInterventionReportV2R2();
+  assert.equal(report.comparability.interventionVerified, true, "fixture should verify both arms");
+  report.comparability.pairValidity = { eligible: false, reasons: ["subject-mismatch"] };
+  const view = viewFromV2(report, 2);
+  assert.equal(view.claims.pairComparison?.allowed, false);
+  assert.equal(view.claims.interventionAttribution, false);
+  assert.equal(view.claims.strongCausal, false);
+});
+
+test("a legacy custom comparison stays baseline-led and is never labeled temporal", () => {
+  const v1Single = makeScanReportV1() as ScanResult;
+  const custom = createComparisonReport({
+    comparisonType: "custom",
+    title: "Ad-hoc pairing",
+    runLabels: { baseline: "File A", variant: "File B" },
+    baseline: structuredClone(v1Single),
+    variant: structuredClone(v1Single),
+    warningPrefix: "Ad-hoc upload pairing."
+  });
+  const view = viewFromV1Report(custom);
+  // "custom" is axis-less but NOT temporal: it keeps its own labels, leads
+  // with the baseline run, and never gets before/after framing.
+  assert.equal(view.comparison?.axis, null);
+  assert.equal(view.comparison?.temporalPair, false);
+  assert.deepEqual(view.comparison?.runLabels, { baseline: "File A", variant: "File B" });
+  assert.equal(displayRunView(view), view.runs[0]);
+
+  const temporal = createTemporalComparisonReport(structuredClone(v1Single), structuredClone(v1Single));
+  const temporalView = viewFromV1Report(temporal);
+  assert.equal(temporalView.comparison?.temporalPair, true);
+  assert.equal(displayRunView(temporalView), temporalView.runs[1]);
+});
+
+test("legacy family gates follow the recorded facts: catalog and Shields-mode mismatches deny their families", () => {
+  const v1Single = makeScanReportV1() as ScanResult;
+
+  const catalogMismatch = createGpcComparisonReport(structuredClone(v1Single), structuredClone(v1Single));
+  catalogMismatch.variant.conditions.trackerCatalog = {
+    ...catalogMismatch.variant.conditions.trackerCatalog,
+    version: "different-version"
+  };
+  const catalogView = viewFromV1Report(catalogMismatch);
+  assert.equal(catalogView.claims.pairComparison?.allowed, true);
+  assert.equal(catalogView.claims.familyDeltas?.["raw-counts"].allowed, true);
+  assert.equal(catalogView.claims.familyDeltas?.["tracker-classification"].allowed, false);
+  assert.match(catalogView.claims.familyDeltas?.["tracker-classification"].reasons.join(" ") ?? "", /different catalogs/);
+
+  // A Shields-axis pair measures filter matches on one arm and engine blocks
+  // on the other: two different quantities that must never share a delta.
+  const shieldsPair = createShieldsComparisonReport(structuredClone(v1Single), structuredClone(v1Single));
+  const adblock = { active: true, source: "brave", lists: 3, fetchedAt: "2026-01-01T00:00:00Z" };
+  shieldsPair.baseline.conditions.shieldsMode = "classification";
+  shieldsPair.baseline.conditions.adblock = { ...adblock };
+  shieldsPair.baseline.summary.shieldsBlockedRequests = 5;
+  shieldsPair.variant.conditions.shieldsMode = "block-simulation";
+  shieldsPair.variant.conditions.adblock = { ...adblock };
+  shieldsPair.variant.summary.shieldsBlockedRequests = 9;
+  const shieldsView = viewFromV1Report(shieldsPair);
+  assert.equal(shieldsView.claims.familyDeltas?.["shields-simulation"].allowed, false);
+  assert.match(shieldsView.claims.familyDeltas?.["shields-simulation"].reasons.join(" ") ?? "", /different Shields quantities/);
 });
 
 test("run views carry the full evidence surface and honest quality for both generations", () => {

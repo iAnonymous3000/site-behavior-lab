@@ -64,6 +64,37 @@ test("an HTTP error load gets a failed-load bottom line, not a low-signal one", 
   assert.doesNotMatch(bottomLine.title, /few review signals/);
 });
 
+test("a request-capped quiet visit gets an incomplete-evidence bottom line, not a quiet one", () => {
+  const result = makeResult({ firstPartyDomain: "quiet.example", totalRequests: 1200 });
+
+  const findings = buildFindings(viewFromV1Report(result), null);
+
+  const bottomLine = findings[0];
+  assert.equal(bottomLine.id, "bottom-line");
+  assert.equal(bottomLine.level, "info");
+  assert.equal(bottomLine.icon, "alert");
+  assert.match(bottomLine.title, /cut short/);
+  assert.match(bottomLine.lead, /request-recording cap/);
+  assert.doesNotMatch(bottomLine.title, /few review signals/);
+});
+
+test("a v1 Shields card quotes no fingerprint-call delta; detector versions were never recorded", () => {
+  const baseline = makeResult({
+    firstPartyDomain: "heavy.example",
+    domains: [makeTrackerDomain("ads.example", 60, "AdCo", "advertising")],
+    totalRequests: 100,
+    thirdPartyRequests: 60,
+    thirdPartyDomains: 12
+  });
+  const variant = makeResult({ firstPartyDomain: "heavy.example", totalRequests: 45, thirdPartyRequests: 5, thirdPartyDomains: 2 });
+
+  const card = byId(buildFindings(viewFromV1Report(createShieldsComparisonReport(baseline, variant)), null), "shields-comparison");
+  // The detector-findings family is denied on every v1 pair, so the card must
+  // compose its evidence line without a fingerprint-call delta.
+  assert.match(card.evidence, /fewer third-party cookies/);
+  assert.doesNotMatch(card.evidence, /fingerprint-like calls/);
+});
+
 test("names major platforms and escalates the third-party card", () => {
   const result = makeResult({
     firstPartyDomain: "news.example",
@@ -747,7 +778,7 @@ test("a tampered wire diff cannot drive the Shields card; deltas and entity list
   report.diff.removedEntities = [{ entity: "Forged Co", requests: 999, domains: 9 }];
 
   const card = byId(buildFindings(viewFromV1Report(report), null), "shields-comparison");
-  assert.match(card.lead, /55 fewer third-party and 60 fewer known-service requests/);
+  assert.match(card.lead, /55 fewer third-party requests and 60 fewer known-service requests/);
   assert.match(card.detail, /Services only seen with Shields off: AdCo/);
   assert.doesNotMatch(card.detail, /Forged Co/);
 });

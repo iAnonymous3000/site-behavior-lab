@@ -215,12 +215,15 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
     if (isReservedReportDomain(run.domain)) continue;
     const headline = buildReportHeadline(view);
     const { id: category, label: categoryLabel } = categoryFor(run.domain, catalog);
-    // The observed third-party reduction of an ELIGIBLE Shields pair (both arms
-    // loaded, uncapped, matched, per the seam's pair claim gate). This is a
-    // paired-visit difference, never a "blocked" count; the directory labels
-    // it accordingly.
+    // The observed third-party reduction of an ELIGIBLE Shields pair. A
+    // request-count delta is a raw-counts family claim (RFC 4.4), so it needs
+    // that family's gate on top of pair validity. This is a paired-visit
+    // difference, never a "blocked" count; the directory labels it accordingly.
     const shieldsBlocked =
-      arms && view.comparison?.axis === "shields" && view.claims.pairComparison?.allowed === true
+      arms &&
+      view.comparison?.axis === "shields" &&
+      view.claims.pairComparison?.allowed === true &&
+      view.claims.familyDeltas?.["raw-counts"]?.allowed === true
         ? Math.max(0, arms.baseline.counts.thirdPartyRequests - arms.variant.counts.thirdPartyRequests)
         : null;
 

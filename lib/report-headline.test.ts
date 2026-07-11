@@ -115,8 +115,12 @@ test("flags a GPC comparison that barely changed as an alarm", () => {
 
   const headline = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(baseline, variant)));
   assert.equal(headline.tone, "alarm");
-  assert.match(headline.headline, /Your privacy signal barely changed what amazon\.com loaded\./);
+  // DESCRIPTIVE two-visit wording only: "the signal barely changed what
+  // loaded" is intervention-attributed phrasing (RFC 4.4) and would need
+  // claims.interventionAttribution, which no v1 report can grant.
+  assert.match(headline.headline, /amazon\.com still contacted 1 tracking company with a privacy signal on\./);
   assert.match(headline.subhead, /do not sell or share/);
+  assert.match(headline.subhead, /versus 420 in the visit without the signal/);
 });
 
 test("phrases a GPC comparison that loaded more as 'more', not a negative percent", () => {
@@ -135,7 +139,8 @@ test("phrases a GPC comparison that loaded more as 'more', not a negative percen
 
   const headline = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(baseline, variant)));
   assert.equal(headline.tone, "alarm");
-  assert.match(headline.subhead, /10% more than without it/);
+  // Side-by-side numbers, never a computed "down just -10%" phrase.
+  assert.match(headline.subhead, /110 third-party requests, versus 100 in the visit without the signal/);
   assert.doesNotMatch(headline.subhead, /down just/);
   assert.doesNotMatch(headline.subhead, /-\d/);
 });
@@ -436,7 +441,7 @@ test("a plain-text keystroke leak reads as a calmer third-party type-ahead, not 
   assert.match(headline.subhead, /geocode\.arcgis\.com/);
 });
 
-test("a pixel that attached personal identifiers leads over the named-platform story", () => {
+test("a pixel with populated identifier fields leads over the named-platform story", () => {
   const result = makeResult({
     firstPartyDomain: "shop.example",
     domains: [makeTrackerDomain("facebook.net", 4, "Meta", "social / advertising pixel")],
@@ -449,10 +454,13 @@ test("a pixel that attached personal identifiers leads over the named-platform s
 
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /shop\.example sent personal identifiers to Meta Pixel\./);
-  // Field presence is detected; the values' hashing is never validated, so
-  // the copy must not call the observed values hashed.
+  // Field POPULATION is what the detector proves; the values are never read,
+  // so the copy must not assert personal identifiers were sent, must not call
+  // the values hashed, and must not assert matching succeeded.
+  assert.match(headline.headline, /shop\.example sent data in personal-identifier fields to Meta Pixel\./);
+  assert.doesNotMatch(headline.headline, /sent personal identifiers to/);
   assert.match(headline.subhead, /personal-identifier fields \(email and phone\)/);
+  assert.match(headline.subhead, /never their values/);
   assert.doesNotMatch(headline.subhead, /hashed/);
 });
 
@@ -569,6 +577,19 @@ test("a null status (e.g. PageGraph import) is not treated as a failed load", ()
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "calm");
   assert.match(headline.headline, /quiet\.example kept this visit relatively private\./);
+});
+
+test("a request-capped quiet visit is framed as cut short, never as relatively private", () => {
+  // 1,200 recorded requests trips the cap rule; with no catalogued trackers
+  // the old calm story would have read truncation as privacy.
+  const result = makeResult({ firstPartyDomain: "quiet.example", totalRequests: 1200 });
+
+  const headline = buildReportHeadline(viewFromV1Report(result));
+  assert.equal(headline.tone, "info");
+  assert.match(headline.headline, /quiet\.example's scan was cut short, so low counts are not the full story\./);
+  assert.match(headline.subhead, /request-recording cap/);
+  assert.match(headline.subhead, /floor for this visit/);
+  assert.doesNotMatch(headline.headline, /relatively private/);
 });
 
 test("caveat counts one visit on single reports and two on comparisons", () => {

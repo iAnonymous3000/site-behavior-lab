@@ -25,12 +25,11 @@ import type {
   ScanResult,
   StorageRecord
 } from "./types";
-import {
-  METRIC_FAMILIES,
-  type InterventionAxis,
-  type MetricFamily,
-  type PublicScanReportV2,
-  type ScanRunV2
+import type {
+  InterventionAxis,
+  MetricFamily,
+  PublicScanReportV2,
+  ScanRunV2
 } from "./scan-report-v2";
 import type { PublicScanReportV2R2, ScanRunV2R2 } from "./scan-report-v2-r2";
 import type { StoredScanReport } from "./scan-report-reader";
@@ -147,6 +146,14 @@ export type ComparisonView = {
   kind: "intervention" | "temporal" | "descriptive";
   /** The intervention axis the comparison ran or attempted, as metadata. */
   axis: InterventionAxis | null;
+  /**
+   * The pair was DESIGNED as a same-subject before/after observation (v1
+   * comparisonType "temporal", v2 experiment kind "temporal"). Explicit so a
+   * legacy "custom" pairing (also axis-less) is never mistaken for a temporal
+   * one. Drives the lead-run choice and the temporal card label only; the
+   * temporal CLAIM stays behind `claims.temporalChange`.
+   */
+  temporalPair: boolean;
   /**
    * Display labels for the two runs ("Shields off"/"Shields on"). Presentation
    * only, never a claim gate: a label describes what a run ATTEMPTED, and only
@@ -416,24 +423,96 @@ function deniedClaims(): ClaimPolicy {
   };
 }
 
-const LEGACY_FAMILY_REASON =
-  "v1 recorded no per-family environment facts, so family comparability is unprovable (RFC 3.2: unknown never matches).";
-
 /**
- * Claims a v1 comparison can support: at most a descriptive pairing. The
- * pair-level gate reuses the shared v1 eligibility rule (failed, capped, or
- * mismatched arms), and every family delta is refused because v1 never
- * recorded the facts that would prove family comparability. Attribution,
- * temporal, and strong-causal framing are denied by construction.
+ * Claims a v1 comparison can support: at most a descriptive pairing with
+ * per-family DESCRIPTIVE deltas where the facts v1 actually recorded prove
+ * the two arms measured alike. The pair-level gate reuses the shared v1
+ * eligibility rule (failed, capped, or mismatched arms); each family then
+ * adds the recorded-fact checks v1 makes possible:
+ *
+ * - raw-counts: the whole-pair rule (same subject, both loaded, uncapped,
+ *   same device class and pipeline) is the only compatibility v1 can state,
+ *   and it covers what raw counts depend on.
+ * - tracker-classification: additionally requires the SAME tracker catalog
+ *   (source, version, region) on both arms; a different catalog classifies
+ *   differently, so entity/known-service deltas would compare instruments.
+ * - shields-simulation: additionally requires both arms to carry an active
+ *   engine measurement of the SAME kind (equal shieldsMode) from the same
+ *   list snapshot (equal source and fetchedAt); a Shields-axis pair measures
+ *   filter matches on one arm and engine blocks on the other, two different
+ *   quantities that must never share a delta.
+ * - consent-verification: denied; v1 recorded that a click was dispatched,
+ *   never a verified consent state (RFC 6).
+ * - detector-findings: denied; v1 never recorded detector versions, so
+ *   fingerprinting/pixel deltas cannot be proven to come from matching
+ *   instrumentation (RFC 3.2: unknown never matches).
+ *
+ * Everything here supports descriptive wording only (RFC 10.1: v1 pairs are
+ * descriptive at best); attribution, temporal, and strong-causal framing are
+ * denied by construction.
  */
 function legacyClaims(report: Extract<ScanReport, { reportType: "comparison" }>): ClaimPolicy {
   const eligibility = comparisonEligibility(report);
+  const pairReasons = [...eligibility.reasons];
+
+  const familyGate = (extraReasons: string[]): ClaimGate =>
+    eligibility.eligible && extraReasons.length === 0
+      ? { allowed: true, reasons: [] }
+      : { allowed: false, reasons: [...pairReasons, ...extraReasons] };
+
+  const catalogReasons: string[] = [];
+  const baselineCatalog = report.baseline.conditions.trackerCatalog;
+  const variantCatalog = report.variant.conditions.trackerCatalog;
+  if (!baselineCatalog.source || !variantCatalog.source || !baselineCatalog.version || !variantCatalog.version) {
+    catalogReasons.push("A visit did not record its tracker-catalog identity, so classification comparability is unprovable.");
+  } else if (
+    baselineCatalog.source !== variantCatalog.source ||
+    baselineCatalog.version !== variantCatalog.version ||
+    (baselineCatalog.region ?? null) !== (variantCatalog.region ?? null)
+  ) {
+    catalogReasons.push(
+      "The two visits classified trackers with different catalogs, so classification deltas would compare instruments, not the site."
+    );
+  }
+
+  const shieldsReasons: string[] = [];
+  const baselineShields = report.baseline.summary.shieldsBlockedRequests;
+  const variantShields = report.variant.summary.shieldsBlockedRequests;
+  const baselineAdblock = report.baseline.conditions.adblock;
+  const variantAdblock = report.variant.conditions.adblock;
+  if (
+    typeof baselineShields !== "number" ||
+    typeof variantShields !== "number" ||
+    baselineAdblock?.active !== true ||
+    variantAdblock?.active !== true
+  ) {
+    shieldsReasons.push("A Shields measurement exists on at most one visit, so there is no like-for-like Shields delta.");
+  } else if ((report.baseline.conditions.shieldsMode ?? null) !== (report.variant.conditions.shieldsMode ?? null)) {
+    shieldsReasons.push(
+      "The two visits measured different Shields quantities (filter-list matches vs engine-blocked requests), which must never share a delta."
+    );
+  } else if (baselineAdblock.source !== variantAdblock.source || baselineAdblock.fetchedAt !== variantAdblock.fetchedAt) {
+    shieldsReasons.push("The two visits used different filter-list snapshots, so their Shields numbers measure different lists.");
+  }
+
   return {
     ...deniedClaims(),
-    pairComparison: { allowed: eligibility.eligible, reasons: [...eligibility.reasons] },
-    familyDeltas: Object.fromEntries(
-      METRIC_FAMILIES.map((family) => [family, { allowed: false, reasons: [LEGACY_FAMILY_REASON] }])
-    ) as Record<MetricFamily, ClaimGate>
+    pairComparison: { allowed: eligibility.eligible, reasons: pairReasons },
+    familyDeltas: {
+      "raw-counts": familyGate([]),
+      "tracker-classification": familyGate(catalogReasons),
+      "shields-simulation": familyGate(shieldsReasons),
+      "consent-verification": {
+        allowed: false,
+        reasons: ["v1 recorded whether a consent click was dispatched, never a verified consent state, so consent-verification deltas are unprovable."]
+      },
+      "detector-findings": {
+        allowed: false,
+        reasons: [
+          "v1 never recorded detector versions, so fingerprinting and pixel deltas cannot be proven to come from matching instrumentation."
+        ]
+      }
+    }
   };
 }
 
@@ -479,6 +558,7 @@ export function viewFromV1Report(report: ScanReport): ReportView {
       comparison: {
         kind: "descriptive",
         axis,
+        temporalPair: report.comparisonType === "temporal",
         runLabels: report.runLabels ? { ...report.runLabels } : defaultRunLabels(axis, report.comparisonType === "temporal")
       },
       claims: legacyClaims(report)
@@ -511,8 +591,15 @@ export function viewFromV1Report(report: ScanReport): ReportView {
 function v2Claims(report: Extract<PublicScanReportV2 | PublicScanReportV2R2, { reportType: "comparison" }>, limited: boolean): ClaimPolicy {
   const experiment = report.experiment;
   const comparability = report.comparability;
+  // Attribution REQUIRES pair validity: verification proves the intervention
+  // was applied, but an invalid pair (subject mismatch, failed run) supports
+  // no pair-level claim at all (RFC 4.4), so a verified intervention on an
+  // invalid pair must still render as two independent runs.
   const interventionAttribution =
-    !limited && experiment.kind === "intervention" && comparability.interventionVerified === true;
+    !limited &&
+    experiment.kind === "intervention" &&
+    comparability.pairValidity.eligible &&
+    comparability.interventionVerified === true;
   return {
     pairComparison: {
       allowed: comparability.pairValidity.eligible,
@@ -561,6 +648,7 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
       comparison: {
         kind: report.experiment.kind,
         axis,
+        temporalPair: report.experiment.kind === "temporal",
         runLabels
       },
       claims: v2Claims(report, limited)
@@ -612,16 +700,44 @@ export function comparisonDiffView(view: ReportView): ComparisonDiff | null {
   return arms ? compareRunFacts(arms.baseline, arms.variant) : null;
 }
 
+/** Human phrasing for the recorded quality-reason vocabulary (RFC 5.3). */
+const QUALITY_REASON_NOTES: Record<string, string> = {
+  "budget-exhausted:request-cap": "the visit hit the scanner's request-recording cap, so its counts are truncated"
+};
+
 /**
- * The run a report page leads with: the newer run for temporal pairs, the
- * baseline (off / unprotected) run otherwise. A v1 comparison is always
- * kind "descriptive"; its temporal case is the one with no attempted axis
- * (v1 had no other axis-less comparison type).
+ * Human-readable notes on evidence the run did NOT finish collecting: budget
+ * exhaustion and per-family censoring (v2 records them, v1 derives the cap
+ * from its warnings). Empty for a complete run. The HTTP load-failure story
+ * is handled by the run's `status` first and is not repeated here. Consumers
+ * must consult this before any "quiet page" framing: censored evidence makes
+ * low counts a floor, never a calm result.
+ */
+export function runCensorshipNotes(run: RunView): string[] {
+  const notes: string[] = [];
+  for (const reason of run.quality.reasons) {
+    if (reason === "http-error-status") continue;
+    notes.push(QUALITY_REASON_NOTES[reason] ?? `the run recorded a quality limitation (${reason})`);
+  }
+  if (run.quality.byFamily) {
+    for (const [family, entry] of Object.entries(run.quality.byFamily)) {
+      if (entry.outcome !== "censored") continue;
+      notes.push(
+        `${family} evidence was censored before completion${entry.reasons.length > 0 ? ` (${entry.reasons.join(", ")})` : ""}`
+      );
+    }
+  }
+  return notes;
+}
+
+/**
+ * The run a report page leads with: the newer run for pairs DESIGNED as
+ * before/after observations, the baseline (off / unprotected) run otherwise.
+ * Keyed on the explicit `temporalPair` design marker, never on "axis is
+ * null": a legacy "custom" comparison is also axis-less and must stay
+ * baseline-led with its own labels, not be misread as temporal.
  */
 export function displayRunView(view: ReportView): RunView {
   if (view.reportType !== "comparison" || view.runs.length === 0) return view.runs[0];
-  const temporal =
-    view.comparison?.kind === "temporal" ||
-    (view.origin === "legacy-derived" && view.comparison?.axis === null);
-  return temporal ? view.runs[view.runs.length - 1] : view.runs[0];
+  return view.comparison?.temporalPair ? view.runs[view.runs.length - 1] : view.runs[0];
 }

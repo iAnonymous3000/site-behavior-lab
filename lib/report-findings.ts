@@ -41,6 +41,7 @@ import {
 import {
   comparisonArmViews,
   displayRunView,
+  runCensorshipNotes,
   type ClaimGate,
   type ReportView,
   type RunView
@@ -265,10 +266,12 @@ export function buildFindings(view: ReportView, corpus: CorpusStats | null): Fin
     const noSelling = policyClaim("no-selling-or-sharing");
     const pixelsWithIdentifiers = pixelEventSummaries(run.evidence).filter((pixel) => pixel.advancedMatching.length > 0);
     if (noSelling && pixelsWithIdentifiers.length > 0) {
+      // Field POPULATION is what the scanner proves; the values are never
+      // read, so the conflict stays conditional on what the fields held.
       conflicts.push(
-        `the policy says personal information is not sold, but ${humanList(
+        `the policy says personal information is not sold, but advertising events to ${humanList(
           pixelsWithIdentifiers.map((pixel) => pixel.product)
-        )} received personal-identifier fields with advertising events in this visit, which many regulators treat as sharing`
+        )} carried populated personal-identifier fields in this visit, and if those fields held real visitor data, many regulators treat that as sharing`
       );
       quotes.push(noSelling.quote);
     }
@@ -375,13 +378,13 @@ export function buildFindings(view: ReportView, corpus: CorpusStats | null): Fin
           : "Advertising pixels reported specific events",
       lead:
         pixelsWithMatching.length > 0
-          ? `${humanList(pixelsWithMatching.map((pixel) => pixel.product))} attached personal-identifier fields (${humanList(
+          ? `${humanList(pixelsWithMatching.map((pixel) => pixel.product))} attached populated personal-identifier fields (${humanList(
               matchingFields
             )}) to the events fired in this visit.`
           : `${humanList(pixelEvents.map((pixel) => pixel.product))} reported specific named events, not just their presence, during this visit.`,
       detail:
         pixelsWithMatching.length > 0
-          ? "Beyond detecting that a pixel is present, this reads each pixel request's event type and whether it carries advanced-matching parameters that identify you, typically an email or phone the platforms document as hashed, which let the platform tie this visit to a known person. The scanner records only which identifier fields were present, never their values, so the hashing itself is not verified."
+          ? "Beyond detecting that a pixel is present, this reads each pixel request's event type and whether its advanced-matching parameters held values. These are the fields the platforms document as carrying hashed emails or phone numbers so events can be matched to a known person; the scanner records only which fields were populated, never their values, so neither the contents nor the hashing is verified."
           : "This reads each pixel request's event type (such as PageView, ViewContent, or Purchase), not just that the pixel loaded. No advanced-matching identifier fields were observed in this passive visit; interaction-gated events could still carry them for real users.",
       evidence: humanList(pixelEvents.map(pixelEventEvidence), 4)
     });
@@ -533,6 +536,14 @@ export function buildFindings(view: ReportView, corpus: CorpusStats | null): Fin
   // of quoting the two arms' difference.
   const pairGate = view.claims.pairComparison;
 
+  // Each family's numbers may be quoted only through its own gate (RFC 4.4:
+  // a family delta renders iff its family is eligible); the card composes
+  // from whatever families the pair supports.
+  const familyGates = view.claims.familyDeltas;
+  const rawCountsAllowed = familyGates?.["raw-counts"]?.allowed === true;
+  const classificationAllowed = familyGates?.["tracker-classification"]?.allowed === true;
+  const detectorAllowed = familyGates?.["detector-findings"]?.allowed === true;
+
   if (arms && axis === "shields") {
     if (pairGate && !pairGate.allowed) {
       findings.unshift(ineligibleComparisonFinding("shields-comparison", "This Shields comparison is not conclusive", pairGate));
@@ -541,32 +552,64 @@ export function buildFindings(view: ReportView, corpus: CorpusStats | null): Fin
       const removedTrackerRequests = Math.max(0, arms.baseline.counts.knownTrackerRequests - arms.variant.counts.knownTrackerRequests);
       const removedCookies = Math.max(0, arms.baseline.counts.thirdPartyCookies - arms.variant.counts.thirdPartyCookies);
       const removedFingerprintEvents = Math.max(0, arms.baseline.counts.fingerprintEvents - arms.variant.counts.fingerprintEvents);
-      const removedEntityNames = entitiesOnlyIn(arms.baseline, arms.variant);
-      const blockedTotal = removedThirdPartyRequests + removedTrackerRequests + removedCookies + removedFingerprintEvents;
+      const removedEntityNames = classificationAllowed ? entitiesOnlyIn(arms.baseline, arms.variant) : [];
+      const deltaParts: string[] = [];
+      const flatLabels: string[] = [];
+      if (rawCountsAllowed) {
+        deltaParts.push(`${removedThirdPartyRequests.toLocaleString("en-US")} fewer third-party requests`);
+        flatLabels.push("third-party requests", "cookies");
+      }
+      if (classificationAllowed) {
+        deltaParts.push(`${removedTrackerRequests.toLocaleString("en-US")} fewer known-service requests`);
+        flatLabels.push("known-service requests");
+      }
+      if (detectorAllowed) flatLabels.push("fingerprint-like calls");
+      const evidenceParts: string[] = [];
+      if (rawCountsAllowed) evidenceParts.push(`${removedCookies.toLocaleString("en-US")} fewer third-party cookies`);
+      if (detectorAllowed) evidenceParts.push(`${removedFingerprintEvents.toLocaleString("en-US")} fewer fingerprint-like calls`);
+      const blockedTotal =
+        (rawCountsAllowed ? removedThirdPartyRequests + removedCookies : 0) +
+        (classificationAllowed ? removedTrackerRequests : 0) +
+        (detectorAllowed ? removedFingerprintEvents : 0);
       // The direct engine-block count is a different measurement from the total
       // reduction: blocking one script prevents its follow-on requests from
       // ever starting, so the reduction usually exceeds the direct blocks.
+      // It is the variant run's OWN recorded measurement, not a pair delta,
+      // so it renders regardless of the family gates.
       const engineBlocks = shieldsRunMeasurement(arms.variant);
       const engineNote =
         engineBlocks && engineBlocks.kind === "engine-blocked"
           ? ` The Shields-on visit's engine directly blocked ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked.`
           : "";
 
-      findings.unshift({
-        id: "shields-comparison",
-        icon: "shield-check",
-        level: blockedTotal > 0 ? "ok" : "quiet",
-        title:
-          blockedTotal > 0 ? "Fewer tracking signals observed with Brave Shields on" : "No reduction observed with Brave Shields on",
-        lead:
-          blockedTotal > 0
-            ? `With Brave Shields on (the ad and tracker blocker built into the Brave browser), this paired visit showed ${removedThirdPartyRequests.toLocaleString("en-US")} fewer third-party and ${removedTrackerRequests.toLocaleString("en-US")} fewer known-service requests.`
-            : "The run with Brave Shields on (the ad and tracker blocker built into the Brave browser) did not show fewer third-party requests, known-service requests, cookies, or fingerprint-like calls.",
-        detail: `${
-          removedEntityNames.length > 0 ? `Services only seen with Shields off: ${humanList(removedEntityNames)}. ` : ""
-        }${engineNote ? `${engineNote.trim()} ` : ""}A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference, not a measured blocking rate.`,
-        evidence: `${removedCookies.toLocaleString("en-US")} fewer third-party cookies and ${removedFingerprintEvents.toLocaleString("en-US")} fewer fingerprint-like calls with Shields on.`
-      });
+      if (deltaParts.length === 0 && evidenceParts.length === 0) {
+        findings.unshift(
+          ineligibleComparisonFinding(
+            "shields-comparison",
+            "This Shields comparison supports no comparable delta",
+            familyGates?.["raw-counts"] ?? { allowed: false, reasons: ["No metric family is comparable across these two visits."] }
+          )
+        );
+      } else {
+        findings.unshift({
+          id: "shields-comparison",
+          icon: "shield-check",
+          level: blockedTotal > 0 ? "ok" : "quiet",
+          title:
+            blockedTotal > 0 ? "Fewer tracking signals observed with Brave Shields on" : "No reduction observed with Brave Shields on",
+          lead:
+            blockedTotal > 0
+              ? `With Brave Shields on (the ad and tracker blocker built into the Brave browser), this paired visit showed ${humanList(deltaParts)}.`
+              : `The run with Brave Shields on (the ad and tracker blocker built into the Brave browser) did not show a reduction in the comparable metrics (${humanList(flatLabels, 4)}).`,
+          detail: `${
+            removedEntityNames.length > 0 ? `Services only seen with Shields off: ${humanList(removedEntityNames)}. ` : ""
+          }${engineNote ? `${engineNote.trim()} ` : ""}A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference, not a measured blocking rate.`,
+          evidence:
+            evidenceParts.length > 0
+              ? `${humanList(evidenceParts)} with Shields on.`
+              : "See the comparison panel for the families this pair can compare."
+        });
+      }
     }
   }
 
@@ -574,7 +617,7 @@ export function buildFindings(view: ReportView, corpus: CorpusStats | null): Fin
     findings.unshift(
       pairGate && !pairGate.allowed
         ? ineligibleComparisonFinding("consent-comparison", "This consent comparison is not conclusive", pairGate)
-        : buildConsentComparisonFinding(arms.baseline, arms.variant)
+        : buildConsentComparisonFinding(arms.baseline, arms.variant, rawCountsAllowed)
     );
   }
 
@@ -582,12 +625,10 @@ export function buildFindings(view: ReportView, corpus: CorpusStats | null): Fin
     findings.unshift(ineligibleComparisonFinding("gpc-comparison", "This GPC comparison is not conclusive", pairGate));
   }
 
-  // Temporal pairs have no intervention axis: a v1 temporal comparison and a
-  // v2 temporal experiment both land here (a future v2 descriptive pair does
-  // not; its non-conclusive story is the comparison panel's banner).
-  const temporalPair =
-    arms && axis === null && (view.comparison?.kind === "temporal" || view.origin === "legacy-derived");
-  if (temporalPair && pairGate && !pairGate.allowed) {
+  // Keyed on the explicit design marker: a legacy "custom" comparison is also
+  // axis-less and must not receive the before/after card (its non-conclusive
+  // story is the comparison panel's banner).
+  if (arms && view.comparison?.temporalPair === true && pairGate && !pairGate.allowed) {
     findings.unshift(ineligibleComparisonFinding("temporal-comparison", "This before/after comparison is not conclusive", pairGate));
   }
 
@@ -609,16 +650,29 @@ export function buildFindings(view: ReportView, corpus: CorpusStats | null): Fin
     return findings;
   }
 
+  // A quiet result on a censored run is a floor, not a verdict: the bottom
+  // line must lead with the truncation instead of "few review signals".
+  const censorshipNotes = runCensorshipNotes(run);
   const overallLevel = strongestLevel(findings.map((finding) => finding.level));
+  const censoredQuiet = censorshipNotes.length > 0 && overallLevel === "ok";
   findings.unshift({
     id: "bottom-line",
-    icon: overallLevel === "ok" ? "check" : "alert",
-    level: overallLevel,
-    title: overallLevel === "ok" ? "Bottom line: few review signals in this visit" : "Bottom line: this visit has review-worthy signals",
-    lead:
-      overallLevel === "ok"
+    icon: overallLevel === "ok" && !censoredQuiet ? "check" : "alert",
+    level: censoredQuiet ? "info" : overallLevel,
+    title: censoredQuiet
+      ? "Bottom line: the visit was cut short, so few signals is not a verdict"
+      : overallLevel === "ok"
+        ? "Bottom line: few review signals in this visit"
+        : "Bottom line: this visit has review-worthy signals",
+    lead: censoredQuiet
+      ? `Evidence collection did not finish (${humanList(censorshipNotes, 2)}), so the quiet result is a floor for this visit, not a verdict about the site.`
+      : overallLevel === "ok"
         ? "The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls."
-        : "The scan observed signals a non-expert should not have to decode from raw request tables.",
+        : `The scan observed signals a non-expert should not have to decode from raw request tables.${
+            censorshipNotes.length > 0
+              ? ` Evidence collection was also cut short (${humanList(censorshipNotes, 2)}), so every count is a floor for this visit.`
+              : ""
+          }`,
     detail: corpusIsUsable(corpus)
       ? `The cards below translate the evidence into plain language. Where a measured distribution exists, severity ranks this visit against percentiles from the ${corpus.sampleSize.toLocaleString("en-US")} sites scanned so far (a curated set of popular, mostly commercial sites, not a random sample of the web) and otherwise uses fixed reference thresholds. The request log, domain table, and methodology remain below for verification.`
       : "The cards below translate the evidence into plain language; severity reflects fixed reference thresholds, not measured population percentiles. The request log, domain table, and methodology remain below for verification.",
@@ -698,14 +752,19 @@ function ineligibleComparisonFinding(id: string, title: string, gate: ClaimGate)
  * found is pre-consent, and the card says which run that was instead of
  * pretending the diff measured the choice.
  */
-function buildConsentComparisonFinding(baseline: RunView, variant: RunView): Finding {
+function buildConsentComparisonFinding(baseline: RunView, variant: RunView, rawCountsAllowed: boolean): Finding {
   const acceptClicked = baseline.consent?.controlActivated === true;
   const rejectClicked = variant.consent?.controlActivated === true;
   const acceptTracking = trackerEntitySummaries(baseline.evidence).filter((entity) => !isOperationalEntity(entity));
   const rejectTracking = trackerEntitySummaries(variant.evidence).filter((entity) => !isOperationalEntity(entity));
   const requestsBefore = baseline.counts.thirdPartyRequests;
   const requestsAfter = variant.counts.thirdPartyRequests;
-  const evidence = `Third-party requests: ${requestsBefore.toLocaleString("en-US")} with Accept all, ${requestsAfter.toLocaleString("en-US")} with Reject all.`;
+  // The count juxtaposition is a raw-counts family delta; when that family is
+  // not comparable across the two visits, the card keeps its per-visit story
+  // but quotes no numbers side by side.
+  const evidence = rawCountsAllowed
+    ? `Third-party requests: ${requestsBefore.toLocaleString("en-US")} with Accept all, ${requestsAfter.toLocaleString("en-US")} with Reject all.`
+    : "Third-party request totals are not comparable across these two visits, so no count delta is quoted.";
 
   if (!acceptClicked && !rejectClicked) {
     return {
