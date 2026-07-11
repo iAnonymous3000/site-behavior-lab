@@ -136,11 +136,23 @@ async function main() {
     await expectCardCount(page, manifest.reports.length);
     pass("static archive sort keeps report list stable");
 
-    // A deterministic single-scan fixture (example.com) drives the single-report UI
-    // paths the committed comparison-only corpus cannot. It lives under scripts/, not
-    // public/reports/, so it never surfaces in the gallery, directory, or sitemap.
+    // A deterministic single-scan fixture (example.com) plus its later-visit
+    // twin drive the single-report UI paths the committed comparison-only
+    // corpus cannot. They live under scripts/, not public/reports/, so they
+    // never surface in the gallery, directory, or sitemap.
     const singleReportFixture = path.join(rootDir, "scripts", "fixtures", "smoke-single-report.json");
+    const rescanReportFixture = path.join(rootDir, "scripts", "fixtures", "smoke-single-report-rescan.json");
+
+    // The same file in both slots has identical timestamps, which cannot
+    // order a before/after pair: the tool must refuse with the ordering
+    // error, never build a doomed comparison.
     await page.locator(".static-compare-upload input").nth(0).setInputFiles(singleReportFixture);
+    await page.locator(".static-compare-upload input").nth(1).setInputFiles(singleReportFixture);
+    await page.getByRole("button", { name: "Compare files" }).click();
+    await expectText(page.locator(".static-compare-panel"), "cannot order a before/after pair");
+    pass("static archive refuses an unorderable upload pair");
+
+    await page.locator(".static-compare-upload input").nth(0).setInputFiles(rescanReportFixture);
     await page.locator(".static-compare-upload input").nth(1).setInputFiles(singleReportFixture);
     await page.getByRole("button", { name: "Compare files" }).click();
     await page.waitForSelector(".comparison-card", { timeout: 10_000 });
