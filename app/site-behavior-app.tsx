@@ -799,7 +799,7 @@ export function SiteBehaviorApp({
                 <HeadlineBanner report={result} liveApiServesReportPages={liveApiServesReportPages} />
                 <FindingsBoard report={result} result={primaryResult} />
                 <CausalityGraph result={primaryResult} />
-                {isComparisonReport(result) && <ComparisonPanel report={result} />}
+                {isComparisonReport(result) && reportView && <ComparisonPanel report={result} claims={reportView.claims} />}
                 <MetricGrid run={primaryRun} />
                 <TrafficViz run={primaryRun} />
                 <Warnings warnings={isComparisonReport(result) ? result.warnings : primaryResult.warnings} />
