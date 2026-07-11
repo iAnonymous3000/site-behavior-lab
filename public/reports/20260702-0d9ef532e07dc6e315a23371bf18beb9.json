@@ -3,10 +3,10 @@
   "schemaVersion": 1,
   "reportType": "comparison",
   "comparisonType": "consent",
-  "title": "Consent accept/reject comparison",
+  "title": "Consent comparison attempt (no banner clicked)",
   "runLabels": {
-    "baseline": "Accept all",
-    "variant": "Reject all"
+    "baseline": "Accept-all attempt",
+    "variant": "Reject-all attempt"
   },
   "requestedUrl": "https://www.bestbuy.com/",
   "scannedAt": "2026-07-02T14:40:13.254Z",
@@ -9862,21 +9862,21 @@
     }
   },
   "warnings": [
-    "Consent comparison runs are sequential automated visits: one clicking the banner's accept-all choice, one clicking reject-all (first layer only). A run where no control was clicked reflects the pre-consent state instead; see each run's consent note. Differences can also come from timing, experiments, cache state, or bot detection.",
-    "Accept all: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-    "Accept all: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "Accept all: Blocked a request that could not be verified as public: https://x.dlx.addthis.com/e/demdex_sync",
-    "Accept all: Blocked a request that could not be verified as public: https://px.owneriq.net/eucm/p/adpq",
-    "Accept all: The page did not reach network idle before the scan window ended.",
-    "Accept all: This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
-    "Accept all: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Reject all: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-    "Reject all: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "Reject all: Blocked a request that could not be verified as public: https://x.dlx.addthis.com/e/demdex_sync",
-    "Reject all: Blocked a request that could not be verified as public: https://px.owneriq.net/eucm/p/adpq",
-    "Reject all: The page did not reach network idle before the scan window ended.",
-    "Reject all: This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
-    "Reject all: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
+    "Consent comparison runs are sequential automated visits: one asked to click the banner's accept-all choice, one asked to click reject-all (first layer only). A run where no control was clicked reflects the pre-consent state instead; see each run's consent note. Differences can also come from timing, experiments, cache state, or bot detection.",
+    "Accept-all attempt: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Accept-all attempt: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Accept-all attempt: Blocked a request that could not be verified as public: https://x.dlx.addthis.com/e/demdex_sync",
+    "Accept-all attempt: Blocked a request that could not be verified as public: https://px.owneriq.net/eucm/p/adpq",
+    "Accept-all attempt: The page did not reach network idle before the scan window ended.",
+    "Accept-all attempt: This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+    "Accept-all attempt: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+    "Reject-all attempt: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Reject-all attempt: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Reject-all attempt: Blocked a request that could not be verified as public: https://x.dlx.addthis.com/e/demdex_sync",
+    "Reject-all attempt: Blocked a request that could not be verified as public: https://px.owneriq.net/eucm/p/adpq",
+    "Reject-all attempt: The page did not reach network idle before the scan window ended.",
+    "Reject-all attempt: This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+    "Reject-all attempt: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
   ],
   "share": {
     "id": "20260702-0d9ef532e07dc6e315a23371bf18beb9",

@@ -29,7 +29,7 @@ import {
 } from "./scan-report-view";
 import { makeGpcInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { evaluateComparability, evaluateQuality } from "./scan-report-v2-evaluators";
-import { createComparisonReport, createGpcComparisonReport, createShieldsComparisonReport, createTemporalComparisonReport } from "./compare-reports";
+import { createComparisonReport, createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport, createTemporalComparisonReport } from "./compare-reports";
 import type { ScanResult } from "./types";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { makeScanRunV2 } from "./scan-report-v2-fixtures";
@@ -293,6 +293,59 @@ test("legacy Shields wire labels are normalized to the simulation-honest pair", 
   });
   shields.runLabels = { baseline: "Vanilla", variant: "Filtered" };
   assert.deepEqual(viewFromV1Report(shields).comparison?.runLabels, { baseline: "Vanilla", variant: "Filtered" });
+});
+
+test("legacy consent wire labels and title are rewritten from the recorded click dispatch", () => {
+  const v1Single = makeScanReportV1() as ScanResult;
+  const consentArm = (mode: "accept-all" | "reject-all", clicked: boolean): ScanResult => {
+    const run = structuredClone(v1Single);
+    run.conditions.consentMode = mode;
+    run.consentInteraction = { mode, clicked };
+    return run;
+  };
+
+  // Already-stored share-store copies carry the legacy producer labels and
+  // title, which caption a pre-consent recording as a consent choice; display
+  // rewrites exactly those strings from what each visit really dispatched.
+  const unclicked = createConsentComparisonReport(consentArm("accept-all", false), consentArm("reject-all", false));
+  unclicked.title = "Consent accept/reject comparison";
+  unclicked.runLabels = { baseline: "Accept all", variant: "Reject all" };
+  const unclickedView = viewFromV1Report(unclicked);
+  assert.equal(unclickedView.title, "Consent comparison attempt (no banner clicked)");
+  assert.deepEqual(unclickedView.comparison?.runLabels, {
+    baseline: "Accept-all attempt",
+    variant: "Reject-all attempt"
+  });
+
+  const acceptOnly = createConsentComparisonReport(consentArm("accept-all", true), consentArm("reject-all", false));
+  acceptOnly.title = "Consent accept/reject comparison";
+  acceptOnly.runLabels = { baseline: "Accept all", variant: "Reject all" };
+  const acceptOnlyView = viewFromV1Report(acceptOnly);
+  assert.equal(acceptOnlyView.title, "Consent comparison attempt (only Accept all clicked)");
+  assert.deepEqual(acceptOnlyView.comparison?.runLabels, {
+    baseline: "Accept-all click",
+    variant: "Reject-all attempt"
+  });
+
+  // A pair whose clicks both dispatched keeps the comparison title, with the
+  // arms labeled as clicks (dispatched, never verified choices).
+  const bothClicked = createConsentComparisonReport(consentArm("accept-all", true), consentArm("reject-all", true));
+  bothClicked.title = "Consent accept/reject comparison";
+  bothClicked.runLabels = { baseline: "Accept all", variant: "Reject all" };
+  const bothClickedView = viewFromV1Report(bothClicked);
+  assert.equal(bothClickedView.title, "Consent accept/reject comparison");
+  assert.deepEqual(bothClickedView.comparison?.runLabels, {
+    baseline: "Accept-all click",
+    variant: "Reject-all click"
+  });
+
+  // Custom labels and titles pass through untouched.
+  const custom = createConsentComparisonReport(consentArm("accept-all", false), consentArm("reject-all", false));
+  custom.title = "My consent experiment";
+  custom.runLabels = { baseline: "Arm 1", variant: "Arm 2" };
+  const customView = viewFromV1Report(custom);
+  assert.equal(customView.title, "My consent experiment");
+  assert.deepEqual(customView.comparison?.runLabels, { baseline: "Arm 1", variant: "Arm 2" });
 });
 
 test("legacy family gates follow the recorded facts: catalog and Shields-mode mismatches deny their families", () => {

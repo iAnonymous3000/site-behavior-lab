@@ -8,7 +8,7 @@
  * dragging the validators into the first-load bundle (the deep readers live in
  * scan-report-view.ts, which is lazy-loaded via lib/client-report-reader.ts).
  */
-import { compareRunFacts } from "./compare-reports";
+import { compareRunFacts, consentComparisonTitle } from "./compare-reports";
 import { comparisonEligibility, runHitRequestCap } from "./comparison-eligibility";
 import { summarizeDomains } from "./domain-summaries";
 import type {
@@ -437,16 +437,42 @@ function defaultRunLabels(axis: InterventionAxis | null, temporal: boolean): { b
 }
 
 /**
- * Producer-written display labels with one normalization: the legacy Shields
- * producer named its arms "Shields off"/"Shields on", which overstates the
- * simulation as a live Brave visit, so display renames exactly that pair.
- * Any other custom labels pass through untouched.
+ * Consent arm labels derived from what the run recorded: "click" only when
+ * the dispatch really happened, "attempt" when the control was never found,
+ * so a pre-consent recording is never labeled as a consent choice.
+ */
+function consentRunLabels(dispatch: { baseline: boolean; variant: boolean }): { baseline: string; variant: string } {
+  return {
+    baseline: dispatch.baseline ? "Accept-all click" : "Accept-all attempt",
+    variant: dispatch.variant ? "Reject-all click" : "Reject-all attempt"
+  };
+}
+
+/**
+ * Producer-written display labels with two normalizations, both for stored
+ * copies (share store) that cannot be remediated in place the way the
+ * committed corpus was:
+ *
+ * - the legacy Shields producer named its arms "Shields off"/"Shields on",
+ *   which overstates the simulation as a live Brave visit;
+ * - the legacy consent producer named its arms "Accept all"/"Reject all"
+ *   whether or not either click was ever dispatched, which labels a
+ *   pre-consent recording as a consent choice.
+ *
+ * Display renames exactly those producer pairs; any other custom labels pass
+ * through untouched.
  */
 function displayRunLabels(
   wireLabels: { baseline: string; variant: string } | undefined,
   axis: InterventionAxis | null,
-  temporal: boolean
+  temporal: boolean,
+  consentDispatch: { baseline: boolean; variant: boolean } | null = null
 ): { baseline: string; variant: string } {
+  if (axis === "consent" && consentDispatch) {
+    if (!wireLabels || (wireLabels.baseline === "Accept all" && wireLabels.variant === "Reject all")) {
+      return consentRunLabels(consentDispatch);
+    }
+  }
   if (!wireLabels) return defaultRunLabels(axis, temporal);
   if (axis === "shields" && wireLabels.baseline === "Shields off" && wireLabels.variant === "Shields on") {
     return defaultRunLabels(axis, temporal);
@@ -455,14 +481,23 @@ function displayRunLabels(
 }
 
 /**
- * Same normalization for the legacy Shields report TITLE (report header,
- * native share, JSON-LD): the stored runtime copies (share store) cannot be
- * remediated in place the way the committed corpus was, so display renames
- * exactly the legacy producer string and passes anything else through.
+ * Same normalization for legacy report TITLES (report header, native share,
+ * JSON-LD): the stored runtime copies (share store) cannot be remediated in
+ * place the way the committed corpus was, so display renames exactly the
+ * legacy producer strings and passes anything else through. The legacy
+ * consent title claimed an accept/reject comparison even when a click never
+ * dispatched, so it is rewritten from the recorded dispatch facts.
  */
-function displayReportTitle(title: string | null, axis: InterventionAxis | null): string | null {
+function displayReportTitle(
+  title: string | null,
+  axis: InterventionAxis | null,
+  consentDispatch: { baseline: boolean; variant: boolean } | null = null
+): string | null {
   if (axis === "shields" && (title === "Brave Shields off/on comparison" || title === "Shields off/on comparison")) {
     return "Brave-list blocking off/on comparison";
+  }
+  if (axis === "consent" && consentDispatch && title === "Consent accept/reject comparison") {
+    return consentComparisonTitle(consentDispatch);
   }
   return title;
 }
@@ -601,13 +636,22 @@ export function viewFromV1Report(report: ScanReport): ReportView {
       runViewFromV1(report.variant, "variant", report.variant.conditions.scannedAt)
     ];
     const axis = legacyComparisonAxis(report.comparisonType);
+    // Recorded click dispatch, for the consent label/title normalizations: a
+    // pre-consent recording must never surface as an accept/reject choice.
+    const consentDispatch =
+      axis === "consent"
+        ? {
+            baseline: report.baseline.consentInteraction?.clicked === true,
+            variant: report.variant.consentInteraction?.clicked === true
+          }
+        : null;
     return {
       origin: "legacy-derived",
       revision: null,
       limited: true,
       reportType: "comparison",
       domain: report.baseline.summary.firstPartyDomain,
-      title: displayReportTitle(report.title || null, axis),
+      title: displayReportTitle(report.title || null, axis, consentDispatch),
       warnings: [...report.warnings],
       scannedAt: report.scannedAt,
       latestRunAt: latestRunAt(runs),
@@ -616,7 +660,7 @@ export function viewFromV1Report(report: ScanReport): ReportView {
         kind: "descriptive",
         axis,
         temporalPair: report.comparisonType === "temporal",
-        runLabels: displayRunLabels(report.runLabels, axis, report.comparisonType === "temporal")
+        runLabels: displayRunLabels(report.runLabels, axis, report.comparisonType === "temporal", consentDispatch)
       },
       claims: legacyClaims(report)
     };

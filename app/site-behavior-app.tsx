@@ -1462,7 +1462,7 @@ function LoadingState({ mode }: { mode: "single" | "gpc" | "shields" | "consent"
           : mode === "shields"
             ? "Comparing a normal visit against one with Brave Shields (the ad and tracker blocker built into the Brave browser) simulated on, across requests, cookies, storage, and browser API observations."
             : mode === "consent"
-              ? 'Comparing a visit that clicks "Accept all" on the cookie banner against one that clicks "Reject all", across requests, cookies, storage, and browser API observations.'
+              ? 'Comparing a visit asked to click "Accept all" on the cookie banner against one asked to click "Reject all", across requests, cookies, storage, and browser API observations.'
               : "Collecting network requests, cookies, storage, and browser API observations."}
       </p>
       <div className="progress-track" aria-hidden="true">

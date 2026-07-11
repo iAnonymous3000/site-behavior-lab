@@ -688,8 +688,15 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   }
 
   if (arms && axis === "consent") {
+    // A pair that never dispatched both clicks keeps the consent-specific
+    // story: its card explains WHICH click was missed and why that means the
+    // pre-consent state, and (with the family gates denied) quotes no deltas.
+    // The generic ineligible card is for pairs whose clicks both happened but
+    // whose arms are otherwise not comparable.
+    const bothClicksDispatched =
+      arms.baseline.consent?.controlActivated === true && arms.variant.consent?.controlActivated === true;
     findings.unshift(
-      pairGate && !pairGate.allowed
+      pairGate && !pairGate.allowed && bothClicksDispatched
         ? ineligibleComparisonFinding("consent-comparison", "This consent comparison is not conclusive", pairGate)
         : buildConsentComparisonFinding(arms.baseline, arms.variant, rawCountsAllowed, classificationAllowed)
     );
@@ -844,9 +851,15 @@ function buildConsentComparisonFinding(
   const requestsAfter = variant.counts.thirdPartyRequests;
   // The count juxtaposition is a raw-counts family delta; when that family is
   // not comparable across the two visits, the card keeps its per-visit story
-  // but quotes no numbers side by side.
+  // but quotes no numbers side by side. The count labels come from what each
+  // visit RECORDED: "21 with Accept all" on a visit that never clicked
+  // anything would caption the pre-consent state as a consent choice.
   const evidence = rawCountsAllowed
-    ? `Third-party requests: ${requestsBefore.toLocaleString("en-US")} with Accept all, ${requestsAfter.toLocaleString("en-US")} with Reject all.`
+    ? `Third-party requests: ${requestsBefore.toLocaleString("en-US")} ${
+        acceptClicked ? "with the accept-all click" : "in the accept-attempt visit (pre-consent)"
+      }, ${requestsAfter.toLocaleString("en-US")} ${
+        rejectClicked ? "with the reject-all click" : "in the reject-attempt visit (pre-consent)"
+      }.`
     : "Third-party request totals are not comparable across these two visits, so no count delta is quoted.";
 
   if (!acceptClicked && !rejectClicked) {
@@ -884,17 +897,17 @@ function buildConsentComparisonFinding(
       id: "consent-comparison",
       icon: "cookie",
       level: "warn",
-      title: `${plural(rejectTracking.length, "tracking company", "tracking companies")} loaded in the Reject-all visit`,
-      // The cross-arm contrast ("N loaded with Accept all") is a
+      title: `${plural(rejectTracking.length, "tracking company", "tracking companies")} loaded in the visit that clicked Reject all`,
+      // The cross-arm contrast ("N loaded in the accept-click visit") is a
       // classification-family juxtaposition; without that family the card
-      // keeps the Reject-all visit's own facts only.
+      // keeps the reject-click visit's own facts only.
       lead: `In the visit where the scanner clicked Reject all, ${humanList(rejectTracking.map((entity) => entity.entity))} received requests${
         classificationAllowed
-          ? ` (${plural(acceptTracking.length, "tracking company", "tracking companies")} loaded with Accept all)`
+          ? ` (${plural(acceptTracking.length, "tracking company", "tracking companies")} loaded in the visit that clicked Accept all)`
           : ""
       }.`,
       detail:
-        "The visit records traffic from before AND after the click, and the scanner can dispatch the click but cannot verify the site registered the choice, so some of this can be pre-click traffic, vendors a site treats as strictly necessary, or processing claimed under legitimate interest. It is a documented observation to review against the banner's promises, not a violation ruling. The diff below lists the services that appeared only in the Accept-all visit.",
+        "The visit records traffic from before AND after the click, and the scanner can dispatch the click but cannot verify the site registered the choice, so some of this can be pre-click traffic, vendors a site treats as strictly necessary, or processing claimed under legitimate interest. It is a documented observation to review against the banner's promises, not a violation ruling. The diff below lists the services that appeared only in the visit that clicked Accept all.",
       evidence
     };
   }
@@ -907,11 +920,11 @@ function buildConsentComparisonFinding(
     icon: rejectEvidenceCensored ? "alert" : "shield-check",
     level: rejectEvidenceCensored ? "info" : "ok",
     title: rejectEvidenceCensored
-      ? "No catalogued trackers before the Reject-all visit was cut short"
-      : "The Reject-all visit had no catalogued trackers",
+      ? "No catalogued trackers before the reject-click visit was cut short"
+      : "The visit that clicked Reject all had no catalogued trackers",
     lead:
       classificationAllowed && acceptTracking.length > 0
-        ? `The visit where the scanner clicked Reject all loaded no catalogued tracking company, while the Accept-all visit loaded ${plural(
+        ? `The visit where the scanner clicked Reject all loaded no catalogued tracking company, while the visit that clicked Accept all loaded ${plural(
             acceptTracking.length,
             "tracking company",
             "tracking companies"

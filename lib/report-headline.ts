@@ -206,18 +206,18 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     if (rejectTracking.length > 0) {
       return finish(
         "warn",
-        `${domain} still reached ${plural(rejectTracking.length, "tracking company", "tracking companies")} in the Reject-all visit.`,
+        `${domain} still reached ${plural(rejectTracking.length, "tracking company", "tracking companies")} in the visit that clicked Reject all.`,
         `In the visit where the scanner clicked Reject all, ${joinNames(
           rejectTracking.map((entity) => entity.entity)
-        )} received requests. The recording covers traffic from before and after the click, the click's acceptance by the site is never verified, and some vendors may be claimed as strictly necessary; the diff lists the services that appeared only in the Accept-all visit.`,
+        )} received requests. The recording covers traffic from before and after the click, the click's acceptance by the site is never verified, and some vendors may be claimed as strictly necessary; the diff lists the services that appeared only in the visit that clicked Accept all.`,
         buildStats(arms.variant, rejectTracking.length)
       );
     }
     if (rawCountDeltasUsable && arms.baseline.consent?.controlActivated === true && trackingEntities.length > 0) {
       return finish(
         "info",
-        `The Reject-all visit to ${domain} loaded no catalogued trackers.`,
-        `The Reject-all visit loaded no catalogued tracking company, while the Accept-all visit loaded ${plural(
+        `${domain} loaded no catalogued trackers in the visit that clicked Reject all.`,
+        `The visit that clicked Reject all loaded no catalogued tracking company, while the visit that clicked Accept all loaded ${plural(
           trackingEntities.length,
           "tracking company",
           "tracking companies"

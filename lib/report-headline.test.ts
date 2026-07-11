@@ -501,7 +501,7 @@ test("trackers surviving a real Reject all click lead the consent-comparison hea
 
   const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /shop\.example still reached 1 tracking company in the Reject-all visit\./);
+  assert.match(headline.headline, /shop\.example still reached 1 tracking company in the visit that clicked Reject all\./);
   assert.match(headline.subhead, /Google/);
   // The recording covers the full visit and the click is never verified, so
   // no sentence may sequence the traffic relative to the click.
@@ -529,7 +529,7 @@ test("a clean reject run headlines that the consent choice made a difference", (
   assert.equal(headline.tone, "info");
   // The scanner cannot verify the site registered the click, so the headline
   // describes the Reject-all visit, never an effect the rejection caused.
-  assert.match(headline.headline, /The Reject-all visit to shop\.example loaded no catalogued trackers\./);
+  assert.match(headline.headline, /shop\.example loaded no catalogued trackers in the visit that clicked Reject all\./);
   assert.doesNotMatch(headline.headline, /Rejecting|removed/);
 });
 

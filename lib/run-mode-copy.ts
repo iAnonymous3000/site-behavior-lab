@@ -16,7 +16,7 @@ export const RUN_MODE_TITLES: Record<RunMode, string> = {
   single: "One controlled visit.",
   gpc: "Two visits: with and without the Global Privacy Control opt-out signal.",
   shields: "Two visits: one normal, one with Brave's ad-block engine and default Shields lists actively blocking (a simulation, not a live Brave-browser visit).",
-  consent: 'Two visits: one clicking "Accept all" on the cookie banner, one clicking "Reject all".'
+  consent: 'Two visits: one asked to click "Accept all" on the cookie banner, one "Reject all".'
 };
 
 export function runModeHint(mode: RunMode): string {

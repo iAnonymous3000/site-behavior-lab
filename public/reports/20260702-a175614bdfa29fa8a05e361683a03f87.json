@@ -3,10 +3,10 @@
   "schemaVersion": 1,
   "reportType": "comparison",
   "comparisonType": "consent",
-  "title": "Consent accept/reject comparison",
+  "title": "Consent comparison attempt (no banner clicked)",
   "runLabels": {
-    "baseline": "Accept all",
-    "variant": "Reject all"
+    "baseline": "Accept-all attempt",
+    "variant": "Reject-all attempt"
   },
   "requestedUrl": "https://www.etsy.com/",
   "scannedAt": "2026-07-02T14:38:48.651Z",
@@ -541,13 +541,13 @@
     }
   },
   "warnings": [
-    "Consent comparison runs are sequential automated visits: one clicking the banner's accept-all choice, one clicking reject-all (first layer only). A run where no control was clicked reflects the pre-consent state instead; see each run's consent note. Differences can also come from timing, experiments, cache state, or bot detection.",
-    "Accept all: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-    "Accept all: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "Accept all: The page returned HTTP 403; this report reflects an error or block page, not a normal load.",
-    "Reject all: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-    "Reject all: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "Reject all: The page returned HTTP 403; this report reflects an error or block page, not a normal load."
+    "Consent comparison runs are sequential automated visits: one asked to click the banner's accept-all choice, one asked to click reject-all (first layer only). A run where no control was clicked reflects the pre-consent state instead; see each run's consent note. Differences can also come from timing, experiments, cache state, or bot detection.",
+    "Accept-all attempt: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Accept-all attempt: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Accept-all attempt: The page returned HTTP 403; this report reflects an error or block page, not a normal load.",
+    "Reject-all attempt: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Reject-all attempt: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+    "Reject-all attempt: The page returned HTTP 403; this report reflects an error or block page, not a normal load."
   ],
   "share": {
     "id": "20260702-a175614bdfa29fa8a05e361683a03f87",

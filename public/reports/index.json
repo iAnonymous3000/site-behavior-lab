@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-11T10:14:18.956Z",
+  "generatedAt": "2026-07-11T16:20:41.271Z",
   "reports": [
     {
       "id": "20260706-9ded9afa956074e84816d56759ba9948",
@@ -2187,7 +2187,7 @@
     },
     {
       "id": "20260702-01ec5d5bf8e198ade542e392ea70146d",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.nasa.gov",
       "requestedUrl": "https://www.nasa.gov/",
       "scannedAt": "2026-07-02T14:48:32.618Z",
@@ -2208,7 +2208,7 @@
     },
     {
       "id": "20260702-ae82db2e7904aebaec41e7ada062c4fa",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.medicare.gov",
       "requestedUrl": "https://www.medicare.gov/",
       "scannedAt": "2026-07-02T14:48:04.209Z",
@@ -2229,7 +2229,7 @@
     },
     {
       "id": "20260702-8e0fbe3aa3bf6ee432b388f4f019ddda",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.cdc.gov",
       "requestedUrl": "https://www.cdc.gov/",
       "scannedAt": "2026-07-02T14:47:31.470Z",
@@ -2250,7 +2250,7 @@
     },
     {
       "id": "20260702-c66633a783dcaa91ce7e4f76baca598d",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.weather.gov",
       "requestedUrl": "https://www.weather.gov/",
       "scannedAt": "2026-07-02T14:47:10.861Z",
@@ -2271,7 +2271,7 @@
     },
     {
       "id": "20260702-de91aeaf3439e5b39f3253b02eafabb5",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.ssa.gov",
       "requestedUrl": "https://www.ssa.gov/",
       "scannedAt": "2026-07-02T14:46:52.741Z",
@@ -2292,7 +2292,7 @@
     },
     {
       "id": "20260702-968b19d06c0c71b244b3b4f6a44d62a6",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.usa.gov",
       "requestedUrl": "https://www.usa.gov/",
       "scannedAt": "2026-07-02T14:46:35.870Z",
@@ -2313,7 +2313,7 @@
     },
     {
       "id": "20260702-824315cfec401e52f629e4e908a7f6aa",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.irs.gov",
       "requestedUrl": "https://www.irs.gov/",
       "scannedAt": "2026-07-02T14:46:18.769Z",
@@ -2334,7 +2334,7 @@
     },
     {
       "id": "20260702-0514f35028678f6347332abf7a205190",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.twitch.tv",
       "requestedUrl": "https://www.twitch.tv/",
       "scannedAt": "2026-07-02T14:45:54.537Z",
@@ -2355,7 +2355,7 @@
     },
     {
       "id": "20260702-5cae0c6c7e18f0ae4e4df00fcfbe902e",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.pinterest.com",
       "requestedUrl": "https://www.pinterest.com/",
       "scannedAt": "2026-07-02T14:45:29.072Z",
@@ -2376,7 +2376,7 @@
     },
     {
       "id": "20260702-be513e655b868392b559ec18e78a751f",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.facebook.com",
       "requestedUrl": "https://www.facebook.com/",
       "scannedAt": "2026-07-02T14:45:08.620Z",
@@ -2397,7 +2397,7 @@
     },
     {
       "id": "20260702-7612d88bad541fb01dafedc57cef20e8",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.linkedin.com",
       "requestedUrl": "https://www.linkedin.com/",
       "scannedAt": "2026-07-02T14:44:45.992Z",
@@ -2418,7 +2418,7 @@
     },
     {
       "id": "20260702-dd1115649e670d25c50fdd2746785dd6",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "duckduckgo.com",
       "requestedUrl": "https://duckduckgo.com/",
       "scannedAt": "2026-07-02T14:44:27.537Z",
@@ -2439,7 +2439,7 @@
     },
     {
       "id": "20260702-0e72a20e74375e162e5eb28eea0d4758",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.bing.com",
       "requestedUrl": "https://www.bing.com/",
       "scannedAt": "2026-07-02T14:44:08.520Z",
@@ -2460,7 +2460,7 @@
     },
     {
       "id": "20260702-b84aeda1f99a49a6395ad5edf8d6d49f",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "x.com",
       "requestedUrl": "https://x.com/",
       "scannedAt": "2026-07-02T14:43:46.189Z",
@@ -2481,7 +2481,7 @@
     },
     {
       "id": "20260702-968c7a5cf4cd255b3827b8e43e1ddcd1",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.youtube.com",
       "requestedUrl": "https://www.youtube.com/",
       "scannedAt": "2026-07-02T14:43:20.669Z",
@@ -2502,7 +2502,7 @@
     },
     {
       "id": "20260702-7dcfec3377c180df02bce4ca50a43644",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.google.com",
       "requestedUrl": "https://www.google.com/",
       "scannedAt": "2026-07-02T14:43:00.899Z",
@@ -2523,7 +2523,7 @@
     },
     {
       "id": "20260702-4bbfb61a02bca532cf4ebba1e5fb9d20",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.nike.com",
       "requestedUrl": "https://www.nike.com/",
       "scannedAt": "2026-07-02T14:42:35.467Z",
@@ -2544,7 +2544,7 @@
     },
     {
       "id": "20260702-81ab7f82d36208a35151fe12572a9328",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.wayfair.com",
       "requestedUrl": "https://www.wayfair.com/",
       "scannedAt": "2026-07-02T14:41:28.518Z",
@@ -2565,7 +2565,7 @@
     },
     {
       "id": "20260702-60bbdb40503a73a097d7618fb5c5803a",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.homedepot.com",
       "requestedUrl": "https://www.homedepot.com/",
       "scannedAt": "2026-07-02T14:41:05.808Z",
@@ -2586,7 +2586,7 @@
     },
     {
       "id": "20260702-0d9ef532e07dc6e315a23371bf18beb9",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.bestbuy.com",
       "requestedUrl": "https://www.bestbuy.com/",
       "scannedAt": "2026-07-02T14:40:13.254Z",
@@ -2607,7 +2607,7 @@
     },
     {
       "id": "20260702-4059a4dfe8dbd211d47795b3a765750c",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.target.com",
       "requestedUrl": "https://www.target.com/",
       "scannedAt": "2026-07-02T14:39:26.940Z",
@@ -2628,7 +2628,7 @@
     },
     {
       "id": "20260702-5b3dd85327aeb6962ea88044f6780907",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.ebay.com",
       "requestedUrl": "https://www.ebay.com/",
       "scannedAt": "2026-07-02T14:39:06.193Z",
@@ -2649,7 +2649,7 @@
     },
     {
       "id": "20260702-a175614bdfa29fa8a05e361683a03f87",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.etsy.com",
       "requestedUrl": "https://www.etsy.com/",
       "scannedAt": "2026-07-02T14:38:48.651Z",
@@ -2670,7 +2670,7 @@
     },
     {
       "id": "20260702-98de0c0a2c5589f2d12db39f71fae89a",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.walmart.com",
       "requestedUrl": "https://www.walmart.com/",
       "scannedAt": "2026-07-02T14:38:32.273Z",
@@ -2691,7 +2691,7 @@
     },
     {
       "id": "20260702-8cf72f3df751df1a22086b6b3dc0e35c",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.amazon.com",
       "requestedUrl": "https://www.amazon.com/",
       "scannedAt": "2026-07-02T14:38:06.668Z",
@@ -2712,7 +2712,7 @@
     },
     {
       "id": "20260702-3f5a6e84e5855df1ffd486d5f2067bd4",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "apnews.com",
       "requestedUrl": "https://apnews.com/",
       "scannedAt": "2026-07-02T14:37:36.586Z",
@@ -2733,7 +2733,7 @@
     },
     {
       "id": "20260702-b8445483e9b70421d637fc1a38eb6ca4",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.usatoday.com",
       "requestedUrl": "https://www.usatoday.com/",
       "scannedAt": "2026-07-02T14:37:00.816Z",
@@ -2754,7 +2754,7 @@
     },
     {
       "id": "20260702-f1f7d5a9bf424b32fc99d80672956e82",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.theguardian.com",
       "requestedUrl": "https://www.theguardian.com/",
       "scannedAt": "2026-07-02T14:36:31.146Z",
@@ -2775,7 +2775,7 @@
     },
     {
       "id": "20260702-74b79a8d1cc1bd9cffeefab7ea0890bc",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.npr.org",
       "requestedUrl": "https://www.npr.org/",
       "scannedAt": "2026-07-02T14:36:04.063Z",
@@ -2796,7 +2796,7 @@
     },
     {
       "id": "20260702-ab50e4c5dff34e2a6ead631dc6ca2e40",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.reuters.com",
       "requestedUrl": "https://www.reuters.com/",
       "scannedAt": "2026-07-02T14:35:42.638Z",
@@ -2817,7 +2817,7 @@
     },
     {
       "id": "20260702-f70b7cb5993948ad9c3e565d12f53c68",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.bbc.com",
       "requestedUrl": "https://www.bbc.com/",
       "scannedAt": "2026-07-02T14:35:27.996Z",
@@ -2838,7 +2838,7 @@
     },
     {
       "id": "20260702-68f6a5e7c5a72a97ab8d1f44fd284cd4",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.wikipedia.org",
       "requestedUrl": "https://www.wikipedia.org/",
       "scannedAt": "2026-07-02T14:35:06.234Z",
@@ -2859,7 +2859,7 @@
     },
     {
       "id": "20260702-e89ba83ad8f1bb1b4c98aef2ce0a9685",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.nytimes.com",
       "requestedUrl": "https://www.nytimes.com/",
       "scannedAt": "2026-07-02T14:34:44.197Z",
@@ -2880,7 +2880,7 @@
     },
     {
       "id": "20260702-3e528efe85afcd9a3f5c26fbb5f3d327",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.foxnews.com",
       "requestedUrl": "https://www.foxnews.com/",
       "scannedAt": "2026-07-02T14:34:18.402Z",
@@ -2901,7 +2901,7 @@
     },
     {
       "id": "20260702-6f40193eaef9bd6a408ef3add08aa54c",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.starfall.com",
       "requestedUrl": "https://www.starfall.com/",
       "scannedAt": "2026-07-02T14:33:54.961Z",
@@ -2922,7 +2922,7 @@
     },
     {
       "id": "20260702-3a502813adf7e38838845a978be14e29",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.abcya.com",
       "requestedUrl": "https://www.abcya.com/",
       "scannedAt": "2026-07-02T14:33:37.890Z",
@@ -2943,7 +2943,7 @@
     },
     {
       "id": "20260702-72d984851fe81e61aa12211b8347cbab",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.coolmathgames.com",
       "requestedUrl": "https://www.coolmathgames.com/",
       "scannedAt": "2026-07-02T14:33:12.479Z",
@@ -2964,7 +2964,7 @@
     },
     {
       "id": "20260702-9a46b27093a2ee26a085201bbc20bebb",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.scholastic.com",
       "requestedUrl": "https://www.scholastic.com/",
       "scannedAt": "2026-07-02T14:32:51.862Z",
@@ -2985,7 +2985,7 @@
     },
     {
       "id": "20260702-5c7b34424f6d46bea6a0d96d7be53b82",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.nick.com",
       "requestedUrl": "https://www.nick.com/",
       "scannedAt": "2026-07-02T14:32:40.691Z",
@@ -3027,7 +3027,7 @@
     },
     {
       "id": "20260702-271c4a64d7256ea27890e961305e79f1",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "pbskids.org",
       "requestedUrl": "https://pbskids.org/",
       "scannedAt": "2026-07-02T14:32:13.442Z",
@@ -3048,7 +3048,7 @@
     },
     {
       "id": "20260702-991849607107e7dfb6a898339d9733f4",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.duolingo.com",
       "requestedUrl": "https://www.duolingo.com/",
       "scannedAt": "2026-07-02T14:31:54.638Z",
@@ -3069,7 +3069,7 @@
     },
     {
       "id": "20260702-3a74e1c51c172684b5942a12b7106020",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.roblox.com",
       "requestedUrl": "https://www.roblox.com/",
       "scannedAt": "2026-07-02T14:31:29.279Z",
@@ -3090,7 +3090,7 @@
     },
     {
       "id": "20260702-15a72257b0829df0acd3fff98a3ae925",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (only Accept all clicked)",
       "domain": "www.grindr.com",
       "requestedUrl": "https://www.grindr.com/",
       "scannedAt": "2026-07-02T14:31:10.082Z",
@@ -3111,7 +3111,7 @@
     },
     {
       "id": "20260702-037b2fee08bbbab57b9367afd51e7a84",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.eharmony.com",
       "requestedUrl": "https://www.eharmony.com/",
       "scannedAt": "2026-07-02T14:30:50.479Z",
@@ -3132,7 +3132,7 @@
     },
     {
       "id": "20260702-5447f612d08b44033458028e61ed985d",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.pof.com",
       "requestedUrl": "https://www.pof.com/",
       "scannedAt": "2026-07-02T14:30:31.372Z",
@@ -3153,7 +3153,7 @@
     },
     {
       "id": "20260702-55544f46928743aeb3c0c6bcc369e730",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "hinge.co",
       "requestedUrl": "https://hinge.co/",
       "scannedAt": "2026-07-02T14:30:12.783Z",
@@ -3195,7 +3195,7 @@
     },
     {
       "id": "20260702-5afbd0be622f3dee86ad09e8237aa2b1",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "tinder.com",
       "requestedUrl": "https://tinder.com/",
       "scannedAt": "2026-07-02T14:29:36.801Z",
@@ -3216,7 +3216,7 @@
     },
     {
       "id": "20260702-9fd1b6825e86a1ac6b068a853ccf64d8",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.psychologytoday.com",
       "requestedUrl": "https://www.psychologytoday.com/",
       "scannedAt": "2026-07-02T14:29:21.059Z",
@@ -3237,7 +3237,7 @@
     },
     {
       "id": "20260702-3a8bd593ff6a6161d11e0f9a6226500e",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.zocdoc.com",
       "requestedUrl": "https://www.zocdoc.com/",
       "scannedAt": "2026-07-02T14:29:10.223Z",
@@ -3258,7 +3258,7 @@
     },
     {
       "id": "20260702-d5b41068c887c8736bdaa85e77678542",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "my.clevelandclinic.org",
       "requestedUrl": "https://www.clevelandclinic.org/",
       "scannedAt": "2026-07-02T14:29:00.731Z",
@@ -3279,7 +3279,7 @@
     },
     {
       "id": "20260702-acf75b1b9869a41e834643332473be1a",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.everydayhealth.com",
       "requestedUrl": "https://www.everydayhealth.com/",
       "scannedAt": "2026-07-02T14:28:36.501Z",
@@ -3300,7 +3300,7 @@
     },
     {
       "id": "20260702-077d07b495079485dd1262adf80e5eed",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.walgreens.com",
       "requestedUrl": "https://www.walgreens.com/",
       "scannedAt": "2026-07-02T14:28:09.883Z",
@@ -3321,7 +3321,7 @@
     },
     {
       "id": "20260702-ab87778ea4161aad0e66910e16be28b1",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.cvs.com",
       "requestedUrl": "https://www.cvs.com/",
       "scannedAt": "2026-07-02T14:27:31.678Z",
@@ -3342,7 +3342,7 @@
     },
     {
       "id": "20260702-efb168f0fbc2bca515830575e8208fa4",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.healthline.com",
       "requestedUrl": "https://www.healthline.com/",
       "scannedAt": "2026-07-02T14:26:53.983Z",
@@ -3363,7 +3363,7 @@
     },
     {
       "id": "20260702-95994cb474a9257a06affc658d456a61",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.goodrx.com",
       "requestedUrl": "https://www.goodrx.com/",
       "scannedAt": "2026-07-02T14:26:34.735Z",
@@ -3384,7 +3384,7 @@
     },
     {
       "id": "20260702-28a26236878ce23173ab316e2f80fab4",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.webmd.com",
       "requestedUrl": "https://www.webmd.com/",
       "scannedAt": "2026-07-02T14:26:14.790Z",
@@ -3405,7 +3405,7 @@
     },
     {
       "id": "20260702-bbdf9a153a046bf97dedaf5b3ff6460f",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "robinhood.com",
       "requestedUrl": "https://robinhood.com/",
       "scannedAt": "2026-07-02T14:25:52.430Z",
@@ -3426,7 +3426,7 @@
     },
     {
       "id": "20260702-660d24d67a42dc4fa936b6fc377c3acd",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.citi.com",
       "requestedUrl": "https://www.citi.com/",
       "scannedAt": "2026-07-02T14:25:27.727Z",
@@ -3447,7 +3447,7 @@
     },
     {
       "id": "20260702-d925ca67b4559512cbdf640418ce510c",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.discover.com",
       "requestedUrl": "https://www.discover.com/",
       "scannedAt": "2026-07-02T14:25:03.219Z",
@@ -3468,7 +3468,7 @@
     },
     {
       "id": "20260702-98387d6b9c6415184612f97d3f8a9447",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.capitalone.com",
       "requestedUrl": "https://www.capitalone.com/",
       "scannedAt": "2026-07-02T14:24:31.856Z",
@@ -3489,7 +3489,7 @@
     },
     {
       "id": "20260702-af54f6ab4412f2d42ffa797c07985463",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.wellsfargo.com",
       "requestedUrl": "https://www.wellsfargo.com/",
       "scannedAt": "2026-07-02T14:24:10.982Z",
@@ -3510,7 +3510,7 @@
     },
     {
       "id": "20260702-834eb441c22030176eddbf79f467111b",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.creditkarma.com",
       "requestedUrl": "https://www.creditkarma.com/",
       "scannedAt": "2026-07-02T14:23:38.142Z",
@@ -3552,7 +3552,7 @@
     },
     {
       "id": "20260702-9332b5c3739c39fbae4ffe2615c67e2b",
-      "title": "Consent accept/reject comparison",
+      "title": "Consent comparison attempt (no banner clicked)",
       "domain": "www.chase.com",
       "requestedUrl": "https://www.chase.com/",
       "scannedAt": "2026-07-02T14:22:53.388Z",

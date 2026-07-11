@@ -367,7 +367,7 @@ test("a consent comparison flags trackers that survive Reject all", () => {
   assert.equal(findings[0].id, "bottom-line");
   const card = byId(findings, "consent-comparison");
   assert.equal(card.level, "warn");
-  assert.match(card.title, /loaded in the Reject-all visit/);
+  assert.match(card.title, /loaded in the visit that clicked Reject all/);
   assert.match(card.lead, /Google/);
   assert.match(card.detail, /not a violation ruling/);
   // The claim must stay observational: recording spans the whole visit and the
@@ -375,9 +375,9 @@ test("a consent comparison flags trackers that survive Reject all", () => {
   assert.match(card.detail, /before AND after the click/);
   assert.match(card.detail, /cannot verify the site registered the choice/);
   // The diff pointer must describe set membership, not an effect of rejecting.
-  assert.match(card.detail, /appeared only in the Accept-all visit/);
+  assert.match(card.detail, /appeared only in the visit that clicked Accept all/);
   assert.doesNotMatch(card.detail, /did remove/);
-  assert.match(card.evidence, /30 with Accept all, 6 with Reject all/);
+  assert.match(card.evidence, /30 with the accept-all click, 6 with the reject-all click/);
 });
 
 test("a consent comparison with no clickable banner claims nothing", () => {
@@ -414,7 +414,7 @@ test("a clean reject run earns the ok consent card, and a missing reject control
 
   const okCard = byId(buildFindings(viewFromV1Report(consentPair(acceptRun, cleanRejectRun)), null), "consent-comparison");
   assert.equal(okCard.level, "ok");
-  assert.match(okCard.title, /The Reject-all visit had no catalogued trackers/);
+  assert.match(okCard.title, /The visit that clicked Reject all had no catalogued trackers/);
 
   const unclickedRejectRun = {
     ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 19 }),

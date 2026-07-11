@@ -254,7 +254,10 @@ test("runScanRequest can run and persist a consent accept/reject comparison", as
   assert.equal(result.reportType, "comparison");
   if (result.reportType !== "comparison") throw new Error("expected comparison report");
   assert.equal(result.comparisonType, "consent");
-  assert.deepEqual(result.runLabels, { baseline: "Accept all", variant: "Reject all" });
+  // The mock scanner records no consentInteraction, so neither click is
+  // provably dispatched and the producer must label both arms as attempts.
+  assert.equal(result.title, "Consent comparison attempt (no banner clicked)");
+  assert.deepEqual(result.runLabels, { baseline: "Accept-all attempt", variant: "Reject-all attempt" });
   // The accept run comes first as the baseline; both keep the requested GPC state.
   assert.deepEqual(scannedPayloads.map((payload) => payload.consentMode), ["accept-all", "reject-all"]);
   assert.deepEqual(scannedPayloads.map((payload) => payload.gpcEnabled), [true, true]);

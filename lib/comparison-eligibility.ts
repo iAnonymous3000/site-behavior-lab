@@ -131,10 +131,38 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
       reasons.push(
         "A consent comparison requires an accept-all baseline visit and a reject-all variant visit; these visits did not attempt that pairing."
       );
+    } else {
+      // The declared experiment is the pair of CLICKS, not the pair of
+      // intentions: a visit whose control was never found records the
+      // pre-consent state, so the pair compares nothing about the two choices
+      // no matter how well the environments match.
+      reasons.push(...consentDispatchProblem(arms[0].label, "accept-all", report.baseline));
+      reasons.push(...consentDispatchProblem(arms[1].label, "reject-all", report.variant));
     }
   }
 
   return { eligible: reasons.length === 0, reasons };
+}
+
+/**
+ * Whether one consent arm's declared banner click provably happened. A run
+ * that never recorded a consent interaction cannot prove the click was
+ * dispatched (the unknown rule), and a recorded `clicked: false` means the
+ * control was never found, so the recording reflects the pre-consent state.
+ */
+function consentDispatchProblem(label: string, choice: "accept-all" | "reject-all", run: ScanResult): string[] {
+  const interaction = run.consentInteraction;
+  if (!interaction || interaction.mode !== choice) {
+    return [
+      `The "${label}" visit did not record whether the ${choice} click was dispatched, so the compared choice cannot be proven to have happened.`
+    ];
+  }
+  if (interaction.clicked !== true) {
+    return [
+      `The "${label}" visit found no recognizable ${choice} control to click, so it records the pre-consent state, not that choice.`
+    ];
+  }
+  return [];
 }
 
 /** Trailing-slash-insensitive route equality; everything else must match exactly. */

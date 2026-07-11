@@ -59,20 +59,43 @@ export function createShieldsComparisonReport(baseline: ScanResult, variant: Sca
   });
 }
 
+/**
+ * The consent comparison title the recorded dispatch facts support: only a
+ * pair whose accept AND reject clicks really dispatched is an accept/reject
+ * comparison; anything else is an attempt, named for what was missed. Shared
+ * with the view layer, which rewrites the legacy stored title the same way.
+ */
+export function consentComparisonTitle(dispatch: { baseline: boolean; variant: boolean }): string {
+  if (dispatch.baseline && dispatch.variant) return "Consent accept/reject comparison";
+  if (!dispatch.baseline && !dispatch.variant) return "Consent comparison attempt (no banner clicked)";
+  return dispatch.baseline
+    ? "Consent comparison attempt (only Accept all clicked)"
+    : "Consent comparison attempt (only Reject all clicked)";
+}
+
 export function createConsentComparisonReport(acceptRun: ScanResult, rejectRun: ScanResult): ComparisonScanResult {
-  // Baseline = the Accept all run (the maximal, "unprotected" behavior, matching
-  // how GPC/Shields comparisons lead with the off run); variant = Reject all.
+  // Baseline = the accept-all run (the maximal, "unprotected" behavior, matching
+  // how GPC/Shields comparisons lead with the off run); variant = reject-all.
+  // The title and arm labels come from what each run RECORDED: a visit whose
+  // control was never found is a pre-consent recording, and labeling it
+  // "Accept all"/"Reject all" would present run-to-run variance as a
+  // comparison of the two choices. (The view layer applies the same rewrite
+  // to already-stored legacy reports.)
+  const dispatch = {
+    baseline: acceptRun.consentInteraction?.clicked === true,
+    variant: rejectRun.consentInteraction?.clicked === true
+  };
   return createComparisonReport({
     comparisonType: "consent",
-    title: "Consent accept/reject comparison",
+    title: consentComparisonTitle(dispatch),
     runLabels: {
-      baseline: "Accept all",
-      variant: "Reject all"
+      baseline: dispatch.baseline ? "Accept-all click" : "Accept-all attempt",
+      variant: dispatch.variant ? "Reject-all click" : "Reject-all attempt"
     },
     baseline: acceptRun,
     variant: rejectRun,
     warningPrefix:
-      "Consent comparison runs are sequential automated visits: one clicking the banner's accept-all choice, one clicking reject-all (first layer only). A run where no control was clicked reflects the pre-consent state instead; see each run's consent note. Differences can also come from timing, experiments, cache state, or bot detection."
+      "Consent comparison runs are sequential automated visits: one asked to click the banner's accept-all choice, one asked to click reject-all (first layer only). A run where no control was clicked reflects the pre-consent state instead; see each run's consent note. Differences can also come from timing, experiments, cache state, or bot detection."
   });
 }
 
