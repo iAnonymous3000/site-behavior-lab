@@ -803,7 +803,7 @@ export function SiteBehaviorApp({
                 <MetricGrid run={primaryRun} />
                 <TrafficViz run={primaryRun} />
                 <Warnings warnings={isComparisonReport(result) ? result.warnings : primaryResult.warnings} />
-                <DomainTable domains={primaryResult.domains} />
+                <DomainTable domains={primaryRun.evidence.domains} />
                 <RequestTable requests={primaryRun.evidence.requests} />
               </div>
 
@@ -824,7 +824,7 @@ export function SiteBehaviorApp({
 
                 <section className="side-card">
                   <h2>Top Third Parties</h2>
-                  <TopThirdParties domains={primaryResult.domains} />
+                  <TopThirdParties domains={primaryRun.evidence.domains} />
                 </section>
 
                 {primaryResult.pixelEvents && primaryResult.pixelEvents.length > 0 && (

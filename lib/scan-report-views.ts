@@ -9,9 +9,11 @@
  * scan-report-view.ts, which is lazy-loaded via lib/client-report-reader.ts).
  */
 import { comparisonEligibility, runHitRequestCap } from "./comparison-eligibility";
+import { summarizeDomains } from "./domain-summaries";
 import type {
   CnameCloak,
   CookieRecord,
+  DomainSummary,
   FingerprintDetectionSummary,
   FingerprintEventSummary,
   NetworkRequestRecord,
@@ -40,6 +42,8 @@ import type { StoredScanReport } from "./scan-report-reader";
  */
 export type RunEvidenceView = {
   requests: NetworkRequestRecord[];
+  /** Per-domain grouping: v1 carries it on the wire, v2 derives it from requests. */
+  domains: DomainSummary[];
   cookies: CookieRecord[];
   storage: StorageRecord[];
   fingerprintEvents: FingerprintEventSummary[];
@@ -204,6 +208,7 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
     screenshot: null,
     evidence: {
       requests: run.evidence.requests,
+      domains: summarizeDomains(run.evidence.requests),
       cookies: run.evidence.cookiesFinal,
       storage: run.evidence.storageFinal,
       fingerprintEvents: run.evidence.fingerprintEvents,
@@ -277,6 +282,7 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
     screenshot: result.screenshot ?? null,
     evidence: {
       requests: result.requests,
+      domains: result.domains,
       cookies: result.cookies,
       storage: result.storage,
       fingerprintEvents: result.fingerprintEvents,
