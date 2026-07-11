@@ -29,8 +29,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 
   // The headline builds from the version-independent view, so the metadata
-  // works for any readable schema generation even while the page's client
-  // renderer below is still gated to v1.
+  // works for any readable schema generation, matching the view-based client
+  // renderer below.
   const headline = buildReportHeadline(toReportView(result.stored));
   const title = `${headline.domain}: ${headline.headline}`;
   const description = headline.subhead;
@@ -69,12 +69,9 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
         : `Report ${id} exists but its stored data is unreadable (${result.error}).`
     );
   }
-  // The renderer below is the legacy v1 surface; producers still emit v1 only
-  // (asserted in CI). When v2 storage writes begin, this page gains a
-  // view-based renderer first (RFC 14.8 renderer slice).
-  if (result.stored.schemaVersion !== 1) {
-    throw new Error(`Report ${id} uses schemaVersion 2; this page cannot render it yet.`);
-  }
+  // Every readable generation renders through the view-based client below
+  // (RFC 14.8 atomic consumer migration); unreadable and newer-revision
+  // reports were already answered above.
   const dataset = buildReportDataset(toReportView(result.stored), {
     url: `${siteBaseUrl()}/reports/${id}/`,
     jsonUrl: STATIC_EXPORT ? `${siteBaseUrl()}/reports/${id}.json` : `${siteOrigin()}/api/reports/${id}`

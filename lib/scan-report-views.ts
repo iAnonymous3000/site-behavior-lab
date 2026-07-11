@@ -891,7 +891,19 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
     const runs = [runViewFromV2(report.baseline, "baseline"), runViewFromV2(report.variant, "variant")];
     const experiment = report.experiment;
     const axis = experiment.kind === "intervention" ? experiment.axis : null;
-    const runLabels = defaultRunLabels(axis, experiment.kind === "temporal");
+    // Consent labels derive from the recorded dispatch exactly like v1: an
+    // arm whose control was never activated is an "attempt" that recorded the
+    // pre-consent state, and must never be labeled as the choice itself.
+    const consentDispatch =
+      axis === "consent"
+        ? {
+            baseline: report.baseline.evidence.consent?.controlActivated === true,
+            variant: report.variant.evidence.consent?.controlActivated === true
+          }
+        : null;
+    const runLabels = consentDispatch
+      ? consentRunLabels(consentDispatch)
+      : defaultRunLabels(axis, experiment.kind === "temporal");
     // Recorded experiment metadata (RFC 4.2/4.3/15.6): presentation facts
     // only, the claim consequences live in `claims`. Non-intervention designs
     // never carry them; an absent r2 supportingPairs block stays null

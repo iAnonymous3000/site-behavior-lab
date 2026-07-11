@@ -43,9 +43,10 @@ test("a 200 payload that fails the canonical reader throws its named reason", as
   await assert.rejects(recoverSavedReport(response(200, { ok: true, schemaVersion: 1, requests: [null] })), /saved report/i);
 });
 
-test("a 200 payload that reads cleanly returns the report", async () => {
+test("a 200 payload that reads cleanly returns the loaded report", async () => {
   const report = makeScanReportV1();
   const recovered = await recoverSavedReport(response(200, report));
   assert.ok(recovered);
-  assert.equal(recovered.schemaVersion, 1);
+  assert.equal(recovered.source, "v1");
+  assert.equal(recovered.view.reportType, "single");
 });

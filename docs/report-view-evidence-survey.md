@@ -418,3 +418,46 @@ on first run: the version-aware reader stack is ready for the consumer flip.
 Note: a v2 fixture must still never be committed under public/reports (it
 would break the static build until the atomic slice lands); the gallery path
 is therefore covered at the reader level plus the existing v1 static smoke.
+
+## Atomic LoadedReport migration (2026-07-11): the consumer flip
+
+DONE, fourth item of the round-10 remaining order. Every consumer of report
+data now holds/loads the version-independent LoadedReport; producers still
+emit v1 only (unchanged, per the migration order):
+
+- Client seam: readRenderableReport becomes readLoadedReport (lazy transport
+  reader), returning LoadedReport for every readable generation; the v1-only
+  refusal is gone, job envelopes and API-error payloads refuse with their own
+  messages. saved-report-recovery returns LoadedReport.
+- Shell (site-behavior-app.tsx): state is LoadedReport; all seven producer
+  paths land on it (sync scan, poll incl. recovery, report upload with
+  share-stripping across every source shape, PageGraph import and the
+  gallery's client-built temporal comparison via a light v1 wrap, and the
+  permalink page's initialLoaded prop); reportView = loaded.view (the old
+  toReportView v1 wrap is gone); JSON download lazy-imports
+  publicWireForExportOrPersistence (the serialization boundary; the static
+  toPublicScanReportV1 import left the bundle, report page 157 -> 155 kB);
+  ReportHeader/HeadlineBanner take the share pointer instead of the wire.
+- Pages: app/reports/[id]/page.tsx drops its schemaVersion gate; the client
+  page renders any readable generation.
+- Gallery: featured headlines build from the loaded view; the temporal
+  compare tools keep a CONSCIOUS residual gate (the client-side temporal
+  builder composes v1 runs, so v2 singles refuse with "temporal comparison
+  across schema generations is not supported yet").
+- Corpus/manifest: corpus-overview and static-report-manifest drop their v1
+  gates and derive entries from the view (manifest keeps byte parity with the
+  committed corpus: variant-fed requestedUrl/device on comparisons, title
+  fallback, capped chip from familyCensoredOnRun). corpus-stats-builder KEEPS
+  its guard deliberately: that is the measurement-cohort policy (v2 metrics
+  never join the v1 percentile distribution), not a render gate.
+- v2 consent labels moved with the migration: viewFromV2 derives consent arm
+  labels from recorded dispatch (click/attempt) exactly like v1.
+- Matrix updated consciously: the pinned v1-only client-seam refusal flipped
+  to every-generation loading with source tags.
+
+Verified: 560 tests, both typechecks, production build (report page 155 kB),
+11/11 static smoke on a fresh out/, and 16/16 server smoke against the
+production build (real scans, GPC comparison, JSON export, share permalink,
+saved-report page). Remaining after this slice: the UI polish slice, then
+exports migration details and v2 production emission with corpus
+regeneration.

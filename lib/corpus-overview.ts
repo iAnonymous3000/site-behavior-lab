@@ -231,11 +231,13 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
 
   for (const id of ids) {
     // The stored read keeps the schema metadata: the directory and researcher
-    // exports carry schema version/revision/origin/limited per row, so a
-    // future v2 row is distinguishable from today's legacy-derived v1 rows.
+    // exports carry schema version/revision/origin/limited per row, so a v2
+    // row is distinguishable from a legacy-derived v1 row. Every readable
+    // generation joins the directory (RFC 14.8 atomic consumer migration);
+    // the corpus-stats builder keeps its own measurement-cohort policy (v2
+    // metrics never join the v1 percentile distribution).
     const readResult = await readStoredReportForId(id);
-    if (readResult.outcome !== "found" || readResult.stored.schemaVersion !== 1) continue;
-    const report = readResult.stored.report;
+    if (readResult.outcome !== "found") continue;
     const view = toReportView(readResult.stored);
 
     // Lead with the baseline (off / unprotected) run for GPC/Shields so the directory
@@ -291,7 +293,9 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
       schemaRevision: view.revision,
       schemaOrigin: view.origin,
       limited: view.limited,
-      ...(report.reportType === "comparison" ? { comparisonType: report.comparisonType } : {})
+      ...(view.comparison
+        ? { comparisonType: view.comparison.axis ?? (view.comparison.temporalPair ? ("temporal" as const) : ("custom" as const)) }
+        : {})
     });
   }
 

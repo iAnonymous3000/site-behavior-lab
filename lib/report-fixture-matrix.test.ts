@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { readRenderableReport } from "./client-report-reader";
+import { readLoadedReport } from "./client-report-reader";
 import { createGpcComparisonReport } from "./compare-reports";
 import { buildFindings } from "./report-findings";
 import { buildReportHeadline } from "./report-headline";
@@ -40,9 +40,10 @@ import type { ScanReport, ScanResult } from "./types";
  *   original public wire (deep-projected for v1, projection for ephemeral),
  *   never a view or an ephemeral shell.
  *
- * The client seam's v1-only render gate is PINNED here (v2 payloads refuse
- * with the capability message); the atomic migration removes that gate
- * consciously by updating this matrix, never by accident.
+ * The client seam's former v1-only render gate is GONE (the atomic
+ * LoadedReport migration): the matrix now pins that every readable generation
+ * loads through the seam with its LoadedReport source, and that a future
+ * revision stays a named capability gap.
  */
 
 type MatrixRow = {
@@ -177,17 +178,21 @@ test("matrix: ephemeral shells resolve to their public projection for persistenc
   }
 });
 
-test("matrix: the client seam's v1-only render gate refuses v2 with the capability message", async () => {
-  // PINNED ON PURPOSE: the atomic LoadedReport migration removes this gate by
-  // UPDATING this test, so the flip is a conscious matrix change.
-  const v1 = await readRenderableReport(v1Single());
+test("matrix: the client seam loads every readable generation (the v1-only gate is gone)", async () => {
+  // The atomic LoadedReport migration flipped the former v1-only refusal:
+  // every matrix generation now loads through the client seam with its
+  // LoadedReport source, and the renderers consume the view.
+  const v1 = await readLoadedReport(v1Single());
   assert.equal(v1.ok, true);
+  if (v1.ok) assert.equal(v1.loaded.source, "v1");
 
-  for (const payload of [makePublicSingleReportV2(), makePublicSingleReportV2R2()]) {
-    const refused = await readRenderableReport(payload);
-    assert.equal(refused.ok, false);
-    if (!refused.ok) assert.match(refused.message, /cannot render it yet/);
-  }
+  const r1 = await readLoadedReport(makePublicSingleReportV2());
+  assert.equal(r1.ok, true);
+  if (r1.ok) assert.equal(r1.loaded.source, "v2-public");
+
+  const r2 = await readLoadedReport(makePublicSingleReportV2R2());
+  assert.equal(r2.ok, true);
+  if (r2.ok) assert.equal(r2.loaded.source, "v2-r2-public");
 });
 
 test("matrix: a future revision is a named capability gap on every path", async () => {
@@ -201,7 +206,7 @@ test("matrix: a future revision is a named capability gap on every path", async 
   assert.equal(stored.ok, false);
   if (!stored.ok) assert.equal(stored.error, "unsupported-revision");
 
-  const client = await readRenderableReport(future);
+  const client = await readLoadedReport(future);
   assert.equal(client.ok, false);
   if (!client.ok) assert.match(client.message, /newer scanner/);
 });

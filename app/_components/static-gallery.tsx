@@ -9,10 +9,10 @@ import { createTemporalComparisonReport, orderTemporalPair } from "@/lib/compare
 import { domainsMatch, isFeaturedSiteConfig, type FeaturedSite, type FeaturedSiteConfig } from "@/lib/featured-sites";
 import { buildReportHeadline, type ReportHeadline } from "@/lib/report-headline";
 import { committedReportLocation } from "@/lib/report-locator";
-import { readRenderableReport } from "@/lib/client-report-reader";
-import { viewFromV1Report } from "@/lib/scan-report-views";
+import { readLoadedReport } from "@/lib/client-report-reader";
+import type { ReportView } from "@/lib/scan-report-views";
 import { plural } from "@/lib/text-format";
-import type { ComparisonScanResult, ScanDevice, ScanReport, ScanResult, StaticReportManifestEntry } from "@/lib/types";
+import type { ComparisonScanResult, ScanDevice, ScanResult, StaticReportManifestEntry } from "@/lib/types";
 
 /**
  * The committed-report surfaces of the static export: the curated "Start here"
@@ -70,14 +70,14 @@ function buildFeaturedGroups(config: FeaturedSiteConfig, reports: StaticReportMa
   return groups;
 }
 
-async function loadStaticReport(entry: StaticReportManifestEntry): Promise<ScanReport> {
+async function loadStaticReportView(entry: StaticReportManifestEntry): Promise<ReportView> {
   const response = await fetch(committedReportLocation(entry.id, clientReportRuntime()).dataUrl, { cache: "no-store" });
   if (!response.ok) throw new Error(`Could not load ${entry.domain}.`);
 
   const payload = (await response.json()) as unknown;
-  const read = await readRenderableReport(payload, entry.domain);
+  const read = await readLoadedReport(payload, entry.domain);
   if (!read.ok) throw new Error(read.message);
-  return read.report;
+  return read.loaded.view;
 }
 
 function FeaturedGallery({ reports }: { reports: StaticReportManifestEntry[] }) {
@@ -119,7 +119,7 @@ function FeaturedGallery({ reports }: { reports: StaticReportManifestEntry[] }) 
       const resolved = await Promise.all(
         entries.map(async (entry) => {
           try {
-            return [entry.id, buildReportHeadline(viewFromV1Report(await loadStaticReport(entry)))] as const;
+            return [entry.id, buildReportHeadline(await loadStaticReportView(entry))] as const;
           } catch {
             return null;
           }
@@ -539,13 +539,20 @@ async function loadStaticSingleReport(entry: StaticReportManifestEntry): Promise
   }
 
   const payload = (await response.json()) as unknown;
-  const read = await readRenderableReport(payload, entry.domain);
+  const read = await readLoadedReport(payload, entry.domain);
   if (!read.ok) throw new Error(read.message);
-  if (read.report.reportType === "comparison") {
+  // The client-side temporal builder composes v1 runs; a pair mixing schema
+  // generations would compare two different recording contracts, so other
+  // generations are refused honestly here until a cross-generation temporal
+  // design exists.
+  if (read.loaded.source !== "v1") {
+    throw new Error(`${entry.domain} uses the v2 schema; temporal comparison across schema generations is not supported yet.`);
+  }
+  if (read.loaded.wire.reportType === "comparison") {
     throw new Error(`${entry.domain} is not a single-scan report.`);
   }
 
-  return stripShare(read.report);
+  return stripShare(read.loaded.wire);
 }
 
 async function readCompareUpload(file: File | null, slot: "before" | "after"): Promise<UploadedCompareReport> {
@@ -554,15 +561,18 @@ async function readCompareUpload(file: File | null, slot: "before" | "after"): P
   }
 
   const payload = JSON.parse(await file.text()) as unknown;
-  const read = await readRenderableReport(payload, `The ${slot} file`);
+  const read = await readLoadedReport(payload, `The ${slot} file`);
   if (!read.ok) throw new Error(read.message);
-  if (read.report.reportType === "comparison") {
+  if (read.loaded.source !== "v1") {
+    throw new Error(`The ${slot} file uses the v2 schema; temporal comparison across schema generations is not supported yet.`);
+  }
+  if (read.loaded.wire.reportType === "comparison") {
     throw new Error("Choose a single-scan Site Behavior Lab JSON report.");
   }
 
   return {
     name: file.name,
-    report: stripShare(read.report)
+    report: stripShare(read.loaded.wire)
   };
 }
 

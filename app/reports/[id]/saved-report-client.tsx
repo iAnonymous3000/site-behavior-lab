@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { readRenderableReport } from "@/lib/client-report-reader";
+import { readLoadedReport } from "@/lib/client-report-reader";
 import { committedReportLocation } from "@/lib/report-locator";
-import type { ScanReport } from "@/lib/types";
+import type { LoadedReport } from "@/lib/scan-report-view";
 import { clientReportRuntime } from "../../client-runtime";
 import { SiteBehaviorApp } from "../../site-behavior-app";
 
 type LoadState =
   | { status: "loading" }
-  | { status: "loaded"; report: ScanReport }
+  | { status: "loaded"; loaded: LoadedReport }
   | { status: "error"; message: string };
 
 export function SavedReportClient({ id }: { id: string }) {
@@ -32,12 +32,12 @@ export function SavedReportClient({ id }: { id: string }) {
         }
 
         const payload = (await response.json()) as unknown;
-        const read = await readRenderableReport(payload, "This report");
+        const read = await readLoadedReport(payload, "This report");
         if (!read.ok) {
           throw new Error(read.message);
         }
 
-        setState({ status: "loaded", report: read.report });
+        setState({ status: "loaded", loaded: read.loaded });
       } catch (error) {
         if (controller.signal.aborted) return;
         setState({
@@ -52,7 +52,7 @@ export function SavedReportClient({ id }: { id: string }) {
   }, [id]);
 
   if (state.status === "loaded") {
-    return <SiteBehaviorApp key={id} initialResult={state.report} />;
+    return <SiteBehaviorApp key={id} initialLoaded={state.loaded} />;
   }
 
   if (state.status === "error") {

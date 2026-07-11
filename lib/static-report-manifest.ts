@@ -1,18 +1,18 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
-import { runHitRequestCap } from "./comparison-eligibility";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { readStoredScanReport } from "./scan-report-reader";
-import type { ScanReport, ScanResult, StaticReportManifest, StaticReportManifestEntry } from "./types";
+import { familyCensoredOnRun, toReportView, type ReportView } from "./scan-report-views";
+import type { StaticReportManifest, StaticReportManifestEntry } from "./types";
 
 /**
  * Builds the static gallery manifest (public/reports/index.json) from the
- * committed report corpus. Ported from the former MJS script so recognition
- * goes through the canonical version-aware deep reader (RFC 14.8) instead of a
- * duplicated shallow shape check: a malformed report is SKIPPED WITH A WARNING,
- * and its metrics are the validated summary numbers verbatim, never a
- * silently zero-coerced guess (the deep guard already proves every count is a
- * finite number).
+ * committed report corpus. Recognition goes through the canonical
+ * version-aware deep reader (RFC 14.8) and the entry derives from the
+ * version-independent VIEW, so every readable generation joins the gallery: a
+ * malformed report is SKIPPED WITH A WARNING, and its metrics are the
+ * validated summary numbers verbatim, never a silently zero-coerced guess
+ * (the deep guard already proves every count is a finite number).
  *
  * Node-only module (filesystem); used by the CLI wrapper the build scripts and
  * workflows invoke. Never imported by app, worker, or browser code.
@@ -58,15 +58,8 @@ export async function buildStaticReportManifest(reportsDir: string, now = new Da
       warnings.push(`Skipping static report ${file}: ${read.error}${read.violations ? ` (${read.violations[0]})` : ""}`);
       continue;
     }
-    if (read.stored.schemaVersion !== 1) {
-      // The gallery renders v1 only today; a v2 report is a named skip so the
-      // build log shows the capability gap instead of silently thinning the
-      // gallery.
-      warnings.push(`Skipping static report ${file}: schemaVersion 2 is not renderable by the gallery yet.`);
-      continue;
-    }
 
-    const entry = toManifestEntry(id, read.stored.report);
+    const entry = toManifestEntry(id, toReportView(read.stored));
     if (!entry) continue;
     entries.push(entry);
   }
@@ -75,51 +68,48 @@ export async function buildStaticReportManifest(reportsDir: string, now = new Da
   return { manifest: { generatedAt: now.toISOString(), reports: entries }, warnings };
 }
 
-function toManifestEntry(id: string, report: ScanReport): StaticReportManifestEntry | null {
+function toManifestEntry(id: string, view: ReportView): StaticReportManifestEntry | null {
   // Cards summarize the baseline (the plain "off" state) so a Shields card
   // shows what the site tried, not the blocked residual; the blocked count is
-  // surfaced separately.
-  const result: ScanResult = report.reportType === "comparison" ? report.baseline : report;
-  const scannedAt = report.reportType === "comparison" ? report.scannedAt : result.conditions.scannedAt;
-  const requestedUrl = report.reportType === "comparison" ? report.requestedUrl : result.conditions.requestedUrl;
-  const device: StaticReportManifestEntry["device"] =
-    report.reportType === "comparison" ? report.device : result.conditions.viewport.isMobile ? "mobile" : "desktop";
+  // surfaced separately. The v1 producer wrote the comparison root's
+  // requestedUrl/device from the VARIANT arm, so those two stay variant-fed
+  // for byte parity with the committed manifest.
+  const lead = view.runs[0];
+  const tail = view.runs[view.runs.length - 1];
+  if (!lead) return null;
+  const comparison = view.reportType === "comparison";
 
   // Keep reserved/test domains (example.com fixtures, localhost) out of the
   // public gallery.
-  if (isReservedReportDomain(result.summary.firstPartyDomain)) return null;
+  if (isReservedReportDomain(lead.domain)) return null;
 
   return {
     id,
-    title: displayTitle(report, result),
-    domain: result.summary.firstPartyDomain,
-    requestedUrl,
-    scannedAt,
-    reportType: report.reportType === "comparison" ? "comparison" : "single",
-    ...(report.reportType === "comparison" ? { comparisonType: report.comparisonType } : {}),
-    device,
-    gpcEnabled: report.reportType === "comparison" ? "comparison" : result.conditions.gpcEnabled,
-    ...(runHitRequestCap(result) ? { requestCapped: true } : {}),
+    title: (view.title ?? "").trim() || lead.pageTitle || lead.domain,
+    domain: lead.domain,
+    requestedUrl: (comparison ? tail : lead).conditions.requestedUrl,
+    scannedAt: view.scannedAt ?? "",
+    reportType: view.reportType,
+    ...(comparison
+      ? {
+          comparisonType:
+            view.comparison?.axis ?? (view.comparison?.temporalPair ? ("temporal" as const) : ("custom" as const))
+        }
+      : {}),
+    device: (comparison ? tail : lead).conditions.viewport.isMobile ? "mobile" : "desktop",
+    gpcEnabled: comparison ? "comparison" : lead.conditions.gpcEnabled,
+    ...(familyCensoredOnRun(lead, "requests") ? { requestCapped: true } : {}),
     metrics: {
-      totalRequests: result.summary.totalRequests,
-      thirdPartyRequests: result.summary.thirdPartyRequests,
-      knownTrackerRequests: result.summary.knownTrackerRequests,
-      thirdPartyDomains: result.summary.thirdPartyDomains,
-      cookies: result.summary.cookies,
-      thirdPartyCookies: result.summary.thirdPartyCookies,
-      fingerprintEvents: result.summary.fingerprintEvents,
-      ...(result.summary.shieldsBlockedRequests !== undefined
-        ? { shieldsBlockedRequests: result.summary.shieldsBlockedRequests }
-        : {})
+      totalRequests: lead.counts.totalRequests,
+      thirdPartyRequests: lead.counts.thirdPartyRequests,
+      knownTrackerRequests: lead.counts.knownTrackerRequests,
+      thirdPartyDomains: lead.counts.thirdPartyDomains,
+      cookies: lead.counts.cookies,
+      thirdPartyCookies: lead.counts.thirdPartyCookies,
+      fingerprintEvents: lead.counts.fingerprintEvents,
+      ...(lead.counts.shieldsBlockedRequests !== null ? { shieldsBlockedRequests: lead.counts.shieldsBlockedRequests } : {})
     }
   };
-}
-
-function displayTitle(report: ScanReport, result: ScanResult): string {
-  if (report.reportType === "comparison" && report.title.trim()) {
-    return report.title.trim();
-  }
-  return result.summary.pageTitle || result.summary.firstPartyDomain;
 }
 
 function isMissingDirectory(error: unknown): boolean {

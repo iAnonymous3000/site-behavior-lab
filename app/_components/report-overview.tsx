@@ -26,7 +26,7 @@ import { buildReportHeadline } from "@/lib/report-headline";
 import { committedReportLocation, locateReport, type ReportRuntime } from "@/lib/report-locator";
 import { displayRunView, type ReportView, type RunView } from "@/lib/scan-report-views";
 import { plural } from "@/lib/text-format";
-import type { NetworkRequestRecord, ScanReport } from "@/lib/types";
+import type { NetworkRequestRecord, ReportShare } from "@/lib/types";
 
 /**
  * The report page's overview cluster: the plain-language headline banner, the
@@ -36,8 +36,7 @@ import type { NetworkRequestRecord, ScanReport } from "@/lib/types";
  * links through. Moved byte-for-byte out of the app shell.
  */
 
-export function reportSharePath(result: ScanReport, liveApiServesReportPages: boolean): string | null {
-  const share = result.share;
+export function reportSharePath(share: ReportShare | null | undefined, liveApiServesReportPages: boolean): string | null {
   if (!share?.id) return null;
   // The scan API only yields a shareable permalink when it serves its own report
   // pages (the full Node app / container). The JSON-only Browser Run Worker does
@@ -71,12 +70,12 @@ export function absoluteShareUrl(sharePath: string): string {
 }
 
 export function HeadlineBanner({
-  report,
+  share,
   view,
   liveApiServesReportPages
 }: {
-  /** The wire report, needed only to resolve the share permalink. */
-  report: ScanReport;
+  /** The wire report's share pointer, needed only to resolve the permalink. */
+  share: ReportShare | null;
   view: ReportView;
   liveApiServesReportPages: boolean;
 }) {
@@ -92,9 +91,9 @@ export function HeadlineBanner({
     // there is no shareable permalink (a JSON-only scan API has no report page),
     // post the headline with no URL rather than the current app page, which is
     // not this report.
-    const sharePath = reportSharePath(report, liveApiServesReportPages);
+    const sharePath = reportSharePath(share, liveApiServesReportPages);
     setShareLink(sharePath ? absoluteShareUrl(sharePath) : "");
-  }, [report, liveApiServesReportPages]);
+  }, [share, liveApiServesReportPages]);
 
   const postText = shareLink ? `${headline.shareText} ${shareLink}` : headline.shareText;
   const xHref = `https://twitter.com/intent/tweet?${new URLSearchParams({

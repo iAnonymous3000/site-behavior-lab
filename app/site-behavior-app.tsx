@@ -69,21 +69,24 @@ import { committedReportLocation } from "@/lib/report-locator";
 import { isScanRuntimeHealth, type ScanRuntimeHealth } from "@/lib/scan-runtime-health";
 import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/lib/run-mode-copy";
 import { plural } from "@/lib/text-format";
-import { readRenderableReport } from "@/lib/client-report-reader";
+import { readLoadedReport } from "@/lib/client-report-reader";
 import { recoverSavedReport } from "@/lib/saved-report-recovery";
 import {
   comparisonArmViews,
   displayRunView,
   runQualitySummary,
   schemaProvenanceLabel,
-  toReportView,
+  viewFromV1Report,
   type ReportView,
   type RunView
 } from "@/lib/scan-report-views";
+// Type-only: the deep reader module stays lazy-loaded (client-report-reader);
+// a type import is erased at build time and adds nothing to the bundle.
+import type { LoadedReport } from "@/lib/scan-report-view";
 import { REPORT_ID_PATTERN } from "@/lib/report-validation";
-import { toPublicScanReportV1 } from "@/lib/scan-report-v1-projection";
 import type {
   ComparisonScanResult,
+  ReportShare,
   ScanApiResponse,
   ScanDevice,
   ScanJobApiResponse,
@@ -165,20 +168,24 @@ export type CorpusHighlights = {
 };
 
 type SiteBehaviorAppProps = {
-  initialResult?: ScanReport | null;
+  /** A pre-loaded report (the saved-report permalink page's read result). */
+  initialLoaded?: LoadedReport | null;
   initialError?: string | null;
   initialLoading?: boolean;
   corpusHighlights?: CorpusHighlights | null;
 };
 
 export function SiteBehaviorApp({
-  initialResult = null,
+  initialLoaded = null,
   initialError = null,
   initialLoading = false,
   corpusHighlights = null
 }: SiteBehaviorAppProps) {
   const [form, setForm] = useState<ScanFormState>(initialForm);
-  const [result, setResult] = useState<ScanReport | null>(initialResult);
+  // The shell's report state is the version-independent LoadedReport (RFC
+  // 14.8 atomic consumer migration): original wire retained for share links
+  // and exports, the view for every render read.
+  const [loaded, setLoaded] = useState<LoadedReport | null>(initialLoaded);
   const [error, setError] = useState<string | null>(initialError);
   const [loading, setLoading] = useState(initialLoading);
   // Distinguishes an active scan (long, controlled browser visit) from opening a
@@ -211,8 +218,8 @@ export function SiteBehaviorApp({
   }, []);
 
   useEffect(() => {
-    setResult(initialResult);
-  }, [initialResult]);
+    setLoaded(initialLoaded);
+  }, [initialLoaded]);
 
   useEffect(() => {
     setError(initialError);
@@ -321,19 +328,19 @@ export function SiteBehaviorApp({
   async function runScan(targetUrl: string) {
     if (!LIVE_SCAN_ENABLED) {
       setLoading(false);
-      setResult(null);
+      setLoaded(null);
       setError("This published build cannot run live scans. Use an Actions-generated report, upload JSON, or run the Node app locally.");
       return;
     }
     if (scannerUnavailable) {
       setLoading(false);
-      setResult(null);
+      setLoaded(null);
       setError(scannerHealthError || "The public scanner is not available right now. Try again shortly.");
       return;
     }
     if (turnstileUnsupported) {
       setLoading(false);
-      setResult(null);
+      setLoaded(null);
       setError(
         "This scanner requires Turnstile verification, but this site was not built with a Turnstile site key. Rebuild with NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY set to the Worker's site key."
       );
@@ -341,7 +348,7 @@ export function SiteBehaviorApp({
     }
     if (awaitingTurnstile) {
       setLoading(false);
-      setResult(null);
+      setLoaded(null);
       setError("Complete the Turnstile check before scanning.");
       return;
     }
@@ -349,7 +356,7 @@ export function SiteBehaviorApp({
     setLoading(true);
     setScanning(true);
     setError(null);
-    setResult(null);
+    setLoaded(null);
 
     try {
       const headers: Record<string, string> = { "Content-Type": "application/json" };
@@ -375,14 +382,14 @@ export function SiteBehaviorApp({
       const payload = (await response.json()) as ScanApiResponse;
       if (!payload.ok) throw new Error(payload.error);
       if (isScanJobSubmissionResponse(payload)) {
-        setResult(await pollScanJob(payload.statusPath, scannerRequiresAccessKey ? accessKey : "", payload.reportId));
+        setLoaded(await pollScanJob(payload.statusPath, scannerRequiresAccessKey ? accessKey : "", payload.reportId));
         return;
       }
       // A synchronous scan result is untrusted wire data like every other
       // payload: it goes through the canonical reader, never a bare cast.
-      const read = await readRenderableReport(payload, "The scan result");
+      const read = await readLoadedReport(payload, "The scan result");
       if (!read.ok) throw new Error(read.message);
-      setResult(read.report);
+      setLoaded(read.loaded);
     } catch (scanError) {
       setError(scanError instanceof Error ? friendlyError(scanError.message) : "Scan failed.");
     } finally {
@@ -435,15 +442,15 @@ export function SiteBehaviorApp({
     if (!file) return;
     setLoading(false);
     setError(null);
-    setResult(null);
+    setLoaded(null);
 
     try {
       const payload = JSON.parse(await file.text()) as unknown;
-      const read = await readRenderableReport(payload, "This report JSON");
+      const read = await readLoadedReport(payload, "This report JSON");
       if (!read.ok) {
         throw new Error(read.message);
       }
-      setResult(stripShare(read.report));
+      setLoaded(stripShareFromLoaded(read.loaded));
     } catch (readError) {
       setError(readError instanceof Error ? readError.message : "Report JSON could not be opened.");
     }
@@ -453,23 +460,22 @@ export function SiteBehaviorApp({
     if (!file) return;
     setLoading(false);
     setError(null);
-    setResult(null);
+    setLoaded(null);
 
     try {
       const graphml = await file.text();
       // Code-split the PageGraph parser (and its tldts dependency) so it loads
       // only when a GraphML file is actually opened, keeping the main bundle lean.
       const { pageGraphUploadToScanResult } = await import("@/lib/pagegraph-parser");
-      setResult(pageGraphUploadToScanResult(graphml));
+      setLoaded(loadedFromV1Wire(pageGraphUploadToScanResult(graphml)));
     } catch (readError) {
       setError(readError instanceof Error ? readError.message : "PageGraph file could not be parsed.");
     }
   }
 
-  // The version-independent view of the current (v1) report; components
-  // migrate onto this instead of the wire (RFC 14.8). Built from the light
-  // views module so the deep readers stay out of the first-load bundle.
-  const reportView = result ? toReportView({ schemaVersion: 1, report: result }) : null;
+  // The version-independent view every renderer consumes; the wire form stays
+  // on `loaded` for share links and exports only (RFC 14.8).
+  const reportView = loaded ? loaded.view : null;
   const primaryRun = reportView ? displayRunView(reportView) : null;
   const arms = reportView ? comparisonArmViews(reportView) : null;
   // Two-arm evidence audit: on comparisons every per-run surface (tables,
@@ -480,14 +486,18 @@ export function SiteBehaviorApp({
   // A new report must not inherit the previous report's arm selection.
   useEffect(() => {
     setSelectedArm(null);
-  }, [result]);
+  }, [loaded]);
   const displayedRun = arms && selectedArm ? arms[selectedArm] : primaryRun;
   const displayedArmLabel: "baseline" | "variant" =
     selectedArm ?? (reportView?.comparison?.temporalPair ? "variant" : "baseline");
 
-  function downloadReport() {
-    if (!result || !primaryRun) return;
-    const blob = new Blob([JSON.stringify(exportableReport(result), null, 2)], {
+  async function downloadReport() {
+    if (!loaded || !primaryRun) return;
+    // THE serialization boundary (RFC 14.8): the original public wire per
+    // generation (deep-projected v1, projection for ephemeral shells), never a
+    // view. Lazy-loaded with the deep reader so downloads stay off first-load.
+    const { publicWireForExportOrPersistence } = await import("@/lib/scan-report-view");
+    const blob = new Blob([JSON.stringify(publicWireForExportOrPersistence(loaded), null, 2)], {
       type: "application/json"
     });
     const url = URL.createObjectURL(blob);
@@ -499,7 +509,7 @@ export function SiteBehaviorApp({
   }
 
   function downloadCsv() {
-    if (!result || !displayedRun) return;
+    if (!loaded || !displayedRun) return;
     // The CSV is per-visit evidence: it exports the ARM the page is showing,
     // and a comparison's filename names that arm so two exports never mix up.
     const csv = requestLogToCsv(displayedRun.evidence.requests);
@@ -514,7 +524,7 @@ export function SiteBehaviorApp({
   }
 
   const reportReadyMessage =
-    result && primaryRun && !loading && !error
+    loaded && primaryRun && !loading && !error
       ? `Scan report ready for ${primaryRun.domain}: ${plural(primaryRun.counts.totalRequests, "request")} observed.`
       : "";
   const statusLabel = liveScannerStatusLabel(scannerHealth, scannerHealthError);
@@ -736,7 +746,7 @@ export function SiteBehaviorApp({
           </div>
         </header>
 
-        {corpusHighlights && corpusHighlights.siteCount > 0 && !result && !loading && !error && (
+        {corpusHighlights && corpusHighlights.siteCount > 0 && !loaded && !loading && !error && (
           <CorpusHero highlights={corpusHighlights} />
         )}
 
@@ -772,7 +782,7 @@ export function SiteBehaviorApp({
           <p className="visually-hidden" role="status" aria-live="polite">
             {reportReadyMessage}
           </p>
-          {!result && !loading && !error && (
+          {!loaded && !loading && !error && (
             <EmptyState
               onPick={useExample}
               onUploadReport={loadReportFile}
@@ -780,11 +790,11 @@ export function SiteBehaviorApp({
               onCreateComparison={(comparison) => {
                 setLoading(false);
                 setError(null);
-                setResult(comparison);
+                setLoaded(loadedFromV1Wire(comparison));
               }}
               onComparisonError={(message) => {
                 setLoading(false);
-                setResult(null);
+                setLoaded(null);
                 setError(message);
               }}
               liveScanEnabled={LIVE_SCAN_ENABLED}
@@ -808,18 +818,18 @@ export function SiteBehaviorApp({
               }
             />
           )}
-          {result && reportView && primaryRun && displayedRun && (
+          {loaded && reportView && primaryRun && displayedRun && (
             <section className="report-grid">
               <div className="report-main">
                 <ReportHeader
-                  report={result}
+                  share={loaded.wire.share ?? null}
                   view={reportView}
                   run={primaryRun}
-                  onDownload={downloadReport}
+                  onDownload={() => void downloadReport()}
                   onDownloadCsv={downloadCsv}
                   liveApiServesReportPages={liveApiServesReportPages}
                 />
-                <HeadlineBanner report={result} view={reportView} liveApiServesReportPages={liveApiServesReportPages} />
+                <HeadlineBanner share={loaded.wire.share ?? null} view={reportView} liveApiServesReportPages={liveApiServesReportPages} />
                 <FindingsBoard view={reportView} />
                 {reportView.reportType === "comparison" && <ComparisonPanel view={reportView} />}
                 {arms && (
@@ -1151,7 +1161,7 @@ function friendlyError(message: string): string {
   return message;
 }
 
-async function pollScanJob(statusPath: string, accessKey = "", reportId?: string): Promise<ScanReport> {
+async function pollScanJob(statusPath: string, accessKey = "", reportId?: string): Promise<LoadedReport> {
   // The saved report lives under its own ID (distinct from the job ID) so share
   // links can't derive the screenshot-bearing status URL. Older scanners saved
   // under the job ID itself and their submissions carry no reportId, so fall
@@ -1177,8 +1187,8 @@ async function pollScanJob(statusPath: string, accessKey = "", reportId?: string
 
     if (payload.status === "succeeded") {
       if (payload.report) {
-        const read = await readRenderableReport(payload.report, "The completed scan's report");
-        if (read.ok) return read.report;
+        const read = await readLoadedReport(payload.report, "The completed scan's report");
+        if (read.ok) return read.loaded;
         throw new Error(read.message);
       }
       throw new Error("Completed scan did not include a report.");
@@ -1204,7 +1214,7 @@ async function pollScanJob(statusPath: string, accessKey = "", reportId?: string
  * live in lib/saved-report-recovery.ts (unit-tested there): `null` only for a
  * genuine 404, a thrown named reason for unreadable or unservable reports.
  */
-async function readSavedReport(reportId: string): Promise<ScanReport | null> {
+async function readSavedReport(reportId: string): Promise<LoadedReport | null> {
   return recoverSavedReport(await fetch(scannerApiUrl(`/api/reports/${reportId}`), { cache: "no-store" }));
 }
 
@@ -1284,19 +1294,33 @@ function armDisplayLabel(view: ReportView | null, arm: "baseline" | "variant"): 
   return view?.comparison?.runLabels[arm] ?? arm;
 }
 
-function exportableReport(result: ScanReport): unknown {
-  // The deep named-field projector is THE export boundary: the v1 validator
-  // tolerates unknown properties, so spreading an uploaded report here would
-  // carry smuggled fields along into the exported file. The projector copies
-  // known fields only (screenshots dropped per the strip-on-save rule) and
-  // cannot leak what it never copies.
-  return toPublicScanReportV1(result);
+/**
+ * Wrap a locally built v1 wire report (a PageGraph import, the gallery's
+ * client-side temporal comparison) as a LoadedReport, using the LIGHT view
+ * builder so these paths never pull the deep validators into the bundle.
+ */
+function loadedFromV1Wire(report: ScanReport): LoadedReport {
+  return { source: "v1", wire: report, view: viewFromV1Report(report) };
 }
 
-// A locally opened file (or a run pulled into a temporal comparison) has no
-// servable permalink on this origin, so drop any stored share pointer.
-function stripShare<T extends ScanReport>(report: T): T {
-  return { ...report, share: undefined };
+// A locally opened file has no servable permalink on this origin, so drop any
+// stored share pointer from the retained wire (every generation carries the
+// optional share block in the same place); the view carries no share at all.
+function stripShareFromLoaded(loaded: LoadedReport): LoadedReport {
+  if (loaded.source === "v1") {
+    const wire = { ...loaded.wire, share: undefined };
+    return { ...loaded, wire, view: viewFromV1Report(wire) };
+  }
+  if (loaded.source === "v2-public") {
+    return { ...loaded, wire: { ...loaded.wire, share: undefined } };
+  }
+  if (loaded.source === "v2-r2-public") {
+    return { ...loaded, wire: { ...loaded.wire, share: undefined } };
+  }
+  if (loaded.source === "v2-ephemeral") {
+    return { ...loaded, wire: { ...loaded.wire, share: undefined }, public: { ...loaded.public, share: undefined } };
+  }
+  return { ...loaded, wire: { ...loaded.wire, share: undefined }, public: { ...loaded.public, share: undefined } };
 }
 
 function ThemeToggle() {
@@ -1494,22 +1518,22 @@ function LoadingState({ mode }: { mode: "single" | "gpc" | "shields" | "consent"
 }
 
 function ReportHeader({
-  report,
+  share,
   view,
   run,
   onDownload,
   onDownloadCsv,
   liveApiServesReportPages
 }: {
-  /** The wire report, needed only to resolve the share permalink. */
-  report: ScanReport;
+  /** The wire report's share pointer, needed only to resolve the permalink. */
+  share: ReportShare | null;
   view: ReportView;
   run: RunView;
   onDownload: () => void;
   onDownloadCsv: () => void;
   liveApiServesReportPages: boolean;
 }) {
-  const sharePath = reportSharePath(report, liveApiServesReportPages);
+  const sharePath = reportSharePath(share, liveApiServesReportPages);
   // The anchor keeps the origin-relative path (it navigates fine and stays
   // valid during static prerender), but the clipboard needs a complete URL, so
   // resolve it to absolute on the client once mounted.

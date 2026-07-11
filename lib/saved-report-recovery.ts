@@ -1,5 +1,5 @@
-import { readRenderableReport } from "./client-report-reader";
-import type { ScanReport } from "./types";
+import { readLoadedReport } from "./client-report-reader";
+import type { LoadedReport } from "./scan-report-view";
 
 /**
  * Recovery read of a saved report from an `/api/reports/{id}` response.
@@ -21,7 +21,7 @@ export type RecoveryResponse = {
   json(): Promise<unknown>;
 };
 
-export async function recoverSavedReport(response: RecoveryResponse): Promise<ScanReport | null> {
+export async function recoverSavedReport(response: RecoveryResponse): Promise<LoadedReport | null> {
   if (response.status === 404) return null;
   if (!response.ok) {
     const message = await apiErrorMessage(response);
@@ -29,9 +29,9 @@ export async function recoverSavedReport(response: RecoveryResponse): Promise<Sc
   }
 
   const payload = (await response.json()) as unknown;
-  const read = await readRenderableReport(payload, "The saved report");
+  const read = await readLoadedReport(payload, "The saved report");
   if (!read.ok) throw new Error(read.message);
-  return read.report;
+  return read.loaded;
 }
 
 /** The `{ ok: false, error }` message from an API error body, if it has one. */
