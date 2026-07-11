@@ -47,9 +47,18 @@ fingerprinting, pixel events, provenance), `runLabels`, `comparisonType`,
    /pixel tables).
 3. `app/_components/comparison-panel.tsx` (diff tiles + lists; already
    consults `comparisonEligibility`, should consult `view.claims`).
+   DONE 2026-07-10: banner on `view.claims.pairComparison`, run labels on
+   `view.comparison.runLabels`. The diff tiles/lists still read the v1 wire
+   `diff` (raw evidence, not claims); they move to arm-derived deltas in the
+   v2 render slice, since v2 comparisons carry no precomputed diff.
 4. `lib/report-headline.ts` + `lib/report-findings.ts` (claim wording; must
    consult `view.claims` instead of the interim gate; two-arm evidence work
-   lands here).
+   lands here). DONE 2026-07-10: both engines take `ReportView`; every
+   comparison number and entity list derives from the two arms' run views
+   (`comparisonArmViews`), so a tampered wire diff cannot drive wording
+   (pinned in both engine test files), and `claimsForV1Report` is retired in
+   favor of `view.claims` everywhere. `RunView` gained the `consent` block
+   (v1 `clicked` / v2 `controlActivated`) the consent framings key on.
 5. `app/site-behavior-app.tsx` shell (state holds `LoadedReport`; exports via
    `publicWireForExportOrPersistence`). SEQUENCING DECISION (2026-07-10,
    after the claims consolidation): deferred until the v2 render slice. All
@@ -62,6 +71,14 @@ fingerprinting, pixel events, provenance), `runLabels`, `comparisonType`,
    can arrive changes no behavior and risks a broad half-refactor; do it in
    the same slice that teaches `readRenderableReport` to return v2 loads.
 6. Metadata/OG (`lib/report-jsonld.ts`, og image route), directory, sitemap.
+   DONE 2026-07-10 except the sitemap: `generateMetadata`, both OG image
+   routes, the JSON-LD dataset, the gallery headlines, and the directory
+   builder (`corpus-overview`, incl. `consentClicksForView` and the
+   claims-gated Shields reduction) all consume `ReportView`; the metadata/OG
+   surfaces read via `readStoredReportForId` + `toReportView` and so will
+   serve v2 reports the moment the store holds them. The sitemap still uses
+   the v1-narrowing `readReportForId` (it reads only id/scannedAt); fold it
+   into the v2 render slice.
 
 ## Contract sketch (to be refined against the v2 run shapes)
 

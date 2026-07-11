@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { createGpcComparisonReport } from "./compare-reports";
 import { buildReportDataset } from "./report-jsonld";
 import { SCAN_REPORT_SCHEMA_VERSION, type DomainSummary, type ScanResult } from "./types";
+import { viewFromV1Report } from "./scan-report-views";
 
 test("builds a Dataset with metrics, download link, and the scanned site", () => {
   const result = makeResult({
@@ -13,7 +14,7 @@ test("builds a Dataset with metrics, download link, and the scanned site", () =>
     thirdPartyCookies: 2
   });
 
-  const dataset = buildReportDataset(result, {
+  const dataset = buildReportDataset(viewFromV1Report(result), {
     url: "https://example.org/reports/abc/",
     jsonUrl: "https://example.org/reports/abc.json"
   });
@@ -39,7 +40,7 @@ test("builds a Dataset with metrics, download link, and the scanned site", () =>
 });
 
 test("omits the download link when no JSON URL is provided", () => {
-  const dataset = buildReportDataset(makeResult({}), { url: "https://example.org/reports/abc/" });
+  const dataset = buildReportDataset(viewFromV1Report(makeResult({})), { url: "https://example.org/reports/abc/" });
   assert.equal(dataset.distribution, undefined);
 });
 
@@ -48,7 +49,7 @@ test("measures both labeled runs and top-level dates for comparison reports", ()
   const variant = makeResult({ firstPartyDomain: "news.example", thirdPartyRequests: 12, thirdPartyDomains: 5 });
   const comparison = createGpcComparisonReport(baseline, variant);
 
-  const dataset = buildReportDataset(comparison, { url: "https://example.org/reports/cmp/" });
+  const dataset = buildReportDataset(viewFromV1Report(comparison), { url: "https://example.org/reports/cmp/" });
   assert.equal(dataset.name, "Site Behavior Lab scan of news.example");
   assert.equal(dataset.dateCreated, comparison.scannedAt);
 

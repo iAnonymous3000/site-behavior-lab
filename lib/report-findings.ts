@@ -1,11 +1,17 @@
 /**
  * Plain-language findings engine.
  *
- * Turns a {@link ScanReport} into the severity-ranked "findings board" cards
+ * Turns a {@link ReportView} into the severity-ranked "findings board" cards
  * shown at the top of the report UI. This is the methodology core: it decides
  * what each card says and how loud it is, leaning on measured corpus
  * percentiles when available (see `corpus-stats.ts`) and falling back to fixed
  * reference thresholds otherwise.
+ *
+ * It consumes the version-independent view seam, never a wire shape: every
+ * comparison number derives from the two arms' run views (the same counts the
+ * v1 wire's diff was computed from), and every comparison card is gated on
+ * `view.claims` (default-deny), so the board can never disagree with the
+ * headline or the comparison panel's banner.
  *
  * It is intentionally React-free, `icon` is a semantic key the UI maps to a
  * component, so the methodology can be unit-tested directly and reused outside
@@ -14,7 +20,6 @@
  * drift.
  */
 
-import { claimsForV1Report, type ClaimGate } from "./scan-report-views";
 import { detectConsentPlatform } from "./consent-banner";
 import { corpusBenchmark, corpusIsUsable, type CorpusStats } from "./corpus-stats";
 import {
@@ -33,15 +38,15 @@ import {
   shieldsRunMeasurement,
   trackerEntitySummaries
 } from "./report-insights";
+import {
+  comparisonArmViews,
+  displayRunView,
+  type ClaimGate,
+  type ReportView,
+  type RunView
+} from "./scan-report-views";
 import { humanList, plural } from "./text-format";
-import type {
-  ComparisonScanResult,
-  NetworkRequestRecord,
-  PrivacyPolicyClaimKind,
-  ProvenanceChange,
-  ScanReport,
-  ScanResult
-} from "./types";
+import type { NetworkRequestRecord, PrivacyPolicyClaimKind, ProvenanceChange } from "./types";
 
 export type FindingLevel = "ok" | "quiet" | "info" | "warn" | "loud";
 
@@ -106,29 +111,28 @@ function strongestLevel(levels: FindingLevel[]): FindingLevel {
   return levels.reduce((strongest, level) => (order.indexOf(level) > order.indexOf(strongest) ? level : strongest), "ok");
 }
 
-function isComparisonReport(report: ScanReport): report is ComparisonScanResult {
-  return report.reportType === "comparison";
-}
-
 // Blacklight's "GA Remarketing Audiences" signal: Google Analytics present AND the
 // GA->DoubleClick sync host stats.g.doubleclick.net. Other *.g.doubleclick.net hosts
 // (pubads/securepubads = publisher ads, cm = cookie matching) are NOT GA remarketing.
 const GOOGLE_ANALYTICS_HOST = /(^|\.)(google-analytics\.com|googletagmanager\.com|analytics\.google\.com)$/;
 const DOUBLECLICK_REMARKETING_HOST = /(^|\.)stats\.g\.doubleclick\.net$/;
 
-export function buildFindings(report: ScanReport, result: ScanResult, corpus: CorpusStats | null): Finding[] {
-  const entities = trackerEntitySummaries(result);
+export function buildFindings(view: ReportView, corpus: CorpusStats | null): Finding[] {
+  const run = displayRunView(view);
+  const arms = comparisonArmViews(view);
+  const axis = view.comparison?.axis ?? null;
+  const entities = trackerEntitySummaries(run.evidence);
   const trackingEntities = entities.filter((entity) => !isOperationalEntity(entity));
   const operationalEntities = entities.filter((entity) => isOperationalEntity(entity));
   const trackingNames = trackingEntities.map((entity) => entity.entity);
   const operationalNames = operationalEntities.map((entity) => entity.entity);
   const topCategories = Array.from(new Set(trackingEntities.flatMap((entity) => entity.categories))).slice(0, 3);
   // Corpus percentiles when available + large enough; otherwise fixed thresholds.
-  const domainsBenchmark = corpusBenchmark(corpus, "thirdPartyDomains", result.summary.thirdPartyDomains);
-  const cookiesBenchmark = corpusBenchmark(corpus, "thirdPartyCookies", result.summary.thirdPartyCookies);
+  const domainsBenchmark = corpusBenchmark(corpus, "thirdPartyDomains", run.counts.thirdPartyDomains);
+  const cookiesBenchmark = corpusBenchmark(corpus, "thirdPartyCookies", run.counts.thirdPartyCookies);
   const thirdPartyLevel = strongestLevel([
     levelForMetric("trackerEntities", trackingEntities.length),
-    domainsBenchmark ? domainsBenchmark.level : levelForMetric("thirdPartyDomains", result.summary.thirdPartyDomains)
+    domainsBenchmark ? domainsBenchmark.level : levelForMetric("thirdPartyDomains", run.counts.thirdPartyDomains)
   ]);
   const findings: Finding[] = [];
 
@@ -148,14 +152,14 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
   const headlineEntities = entities.filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity));
   const headlineNames = headlineEntities.map((entity) => entity.entity);
   const headlineRequests = headlineEntities.reduce((total, entity) => total + entity.requests, 0);
-  const provenanceHighlights = requestProvenanceHighlights(result);
-  const requestsWithProvenance = result.requests.filter((request) => request.provenance).length;
+  const provenanceHighlights = requestProvenanceHighlights(run.evidence.requests);
+  const requestsWithProvenance = run.evidence.requests.filter((request) => request.provenance).length;
 
-  const googleAnalyticsPresent = result.domains.some((domain) => GOOGLE_ANALYTICS_HOST.test(domain.domain));
+  const googleAnalyticsPresent = run.evidence.domains.some((domain) => GOOGLE_ANALYTICS_HOST.test(domain.domain));
   const gaRemarketingOn =
-    googleAnalyticsPresent && result.domains.some((domain) => DOUBLECLICK_REMARKETING_HOST.test(domain.domain));
+    googleAnalyticsPresent && run.evidence.domains.some((domain) => DOUBLECLICK_REMARKETING_HOST.test(domain.domain));
 
-  const keystrokeDetection = fingerprintDetection(result, "keystroke-exfiltration");
+  const keystrokeDetection = fingerprintDetection(run.evidence, "keystroke-exfiltration");
   if (keystrokeDetection) {
     const recipients = humanList(keystrokeDetection.evidence.recipients);
     const recipientCount = plural(keystrokeDetection.evidence.recipients.length, "third party", "third parties");
@@ -187,7 +191,7 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
     });
   }
 
-  const cnameCloaks = result.cnameCloaks ?? [];
+  const cnameCloaks = run.evidence.cnameCloaks;
   if (cnameCloaks.length > 0) {
     const vendors = humanList(Array.from(new Set(cnameCloaks.map((cloak) => cloak.tracker.entity))));
     findings.push({
@@ -196,7 +200,7 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
       level: "warn",
       title: `${plural(cnameCloaks.length, "tracker")} hidden behind a first-party subdomain`,
       lead: `${humanList(cnameCloaks.map((cloak) => cloak.host))} look like part of ${
-        result.summary.firstPartyDomain
+        run.domain
       }, but DNS shows ${cnameCloaks.length === 1 ? "it is" : "they are"} actually ${vendors} (CNAME cloaking).`,
       detail:
         "CNAME cloaking disguises a third-party tracker as a first-party subdomain, so it slips past request-URL matching (this scanner's default, and Blacklight's) and many third-party-cookie protections. Found by following each first-party subdomain's DNS CNAME chain to a known tracking service.",
@@ -210,7 +214,7 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
   // The pre-consent framing ("the scanner never clicks the banner") only holds
   // for observe-mode runs. Consent-comparison runs clicked a choice, and their
   // story is carried by the dedicated consent-comparison card below instead.
-  const consentPlatform = (result.conditions.consentMode ?? "observe") === "observe" ? detectConsentPlatform(result.domains) : null;
+  const consentPlatform = run.conditions.consentMode === "observe" ? detectConsentPlatform(run.evidence.domains) : null;
   if (consentPlatform) {
     const preConsentTrackers = trackingEntities.length;
     findings.push({
@@ -223,19 +227,19 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
           : "A consent management platform loaded",
       lead:
         preConsentTrackers > 0
-          ? `${result.summary.firstPartyDomain} loaded ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners), yet ${plural(
+          ? `${run.domain} loaded ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners), yet ${plural(
               preConsentTrackers,
               "tracking company",
               "tracking companies"
             )} already loaded before any consent was given.`
-          : `${result.summary.firstPartyDomain} loaded ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners); no catalogued tracking company loaded before consent in this visit.`,
+          : `${run.domain} loaded ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners); no catalogued tracking company loaded before consent in this visit.`,
       detail:
         'A request to the platform\'s loader proves the consent tooling loaded, not that a banner was visibly shown to this scanner (many banners appear only in regions where the law requires them). The scanner never clicks a banner in this mode, so this is the pre-consent state: loading trackers before the visitor accepts is often not permitted under GDPR/ePrivacy, and more trackers can load after "Accept" that this report does not capture. Tracker counts here are a lower bound for users who consent.',
       evidence: `Consent platform detected via a request to ${consentPlatform.domain}.`
     });
   }
 
-  const policy = result.privacyPolicy;
+  const policy = run.evidence.privacyPolicy;
   if (policy) {
     // Each entry pairs a testable statement from the policy with the observed
     // evidence that cuts against it. Quotes come along so a reader can check
@@ -245,21 +249,21 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
     const policyClaim = (kind: PrivacyPolicyClaimKind) => policy.claims.find((claim) => claim.kind === kind);
 
     const noThirdPartyCookies = policyClaim("no-third-party-cookies");
-    if (noThirdPartyCookies && result.summary.thirdPartyCookies > 0) {
+    if (noThirdPartyCookies && run.counts.thirdPartyCookies > 0) {
       conflicts.push(
-        `the policy says third-party cookies are not used, but ${plural(result.summary.thirdPartyCookies, "third-party cookie")} appeared in this visit`
+        `the policy says third-party cookies are not used, but ${plural(run.counts.thirdPartyCookies, "third-party cookie")} appeared in this visit`
       );
       quotes.push(noThirdPartyCookies.quote);
     }
 
     const noCookies = policyClaim("no-cookies");
-    if (noCookies && result.summary.cookies > 0) {
-      conflicts.push(`the policy says cookies are not used, but ${plural(result.summary.cookies, "cookie")} appeared in this visit`);
+    if (noCookies && run.counts.cookies > 0) {
+      conflicts.push(`the policy says cookies are not used, but ${plural(run.counts.cookies, "cookie")} appeared in this visit`);
       quotes.push(noCookies.quote);
     }
 
     const noSelling = policyClaim("no-selling-or-sharing");
-    const pixelsWithIdentifiers = pixelEventSummaries(result).filter((pixel) => pixel.advancedMatching.length > 0);
+    const pixelsWithIdentifiers = pixelEventSummaries(run.evidence).filter((pixel) => pixel.advancedMatching.length > 0);
     if (noSelling && pixelsWithIdentifiers.length > 0) {
       conflicts.push(
         `the policy says personal information is not sold, but ${humanList(
@@ -330,12 +334,12 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
         : operationalEntities.length > 0
           ? "These are monitoring or support tools, not cross-site trackers. Unlabeled third parties may still be present."
           : "There may still be unlabeled third parties, but no known catalog entity was matched.",
-    evidence: `${plural(result.summary.thirdPartyRequests, "third-party request")} across ${plural(result.summary.thirdPartyDomains, "third-party domain")}.`,
+    evidence: `${plural(run.counts.thirdPartyRequests, "third-party request")} across ${plural(run.counts.thirdPartyDomains, "third-party domain")}.`,
     benchmark: domainsBenchmark
       ? domainsBenchmark.label
       : trackingEntities.length > 0
         ? benchmarkLabel("trackerEntities", trackingEntities.length)
-        : benchmarkLabel("thirdPartyDomains", result.summary.thirdPartyDomains)
+        : benchmarkLabel("thirdPartyDomains", run.counts.thirdPartyDomains)
   });
 
   findings.push({
@@ -354,10 +358,10 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
     evidence:
       headlineNames.length > 0
         ? `${plural(headlineRequests, "request")} to these platforms.`
-        : `${plural(result.summary.thirdPartyDomains, "third-party domain")} seen overall.`
+        : `${plural(run.counts.thirdPartyDomains, "third-party domain")} seen overall.`
   });
 
-  const pixelEvents = pixelEventSummaries(result);
+  const pixelEvents = pixelEventSummaries(run.evidence);
   if (pixelEvents.length > 0) {
     const pixelsWithMatching = pixelEvents.filter((pixel) => pixel.advancedMatching.length > 0);
     const matchingFields = Array.from(new Set(pixelsWithMatching.flatMap((pixel) => pixel.advancedMatching))).map(pixelFieldLabel);
@@ -383,7 +387,7 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
     });
   }
 
-  if (result.conditions.automation === "brave-pagegraph") {
+  if (run.conditions.automation === "brave-pagegraph") {
     findings.push({
       id: "pagegraph-provenance",
       icon: "network",
@@ -433,26 +437,26 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
   findings.push({
     id: "third-party-cookies",
     icon: "cookie",
-    level: cookiesBenchmark ? cookiesBenchmark.level : levelForMetric("thirdPartyCookies", result.summary.thirdPartyCookies),
-    title: result.summary.thirdPartyCookies > 0 ? "Third-party cookies were present" : "No third-party cookies observed",
+    level: cookiesBenchmark ? cookiesBenchmark.level : levelForMetric("thirdPartyCookies", run.counts.thirdPartyCookies),
+    title: run.counts.thirdPartyCookies > 0 ? "Third-party cookies were present" : "No third-party cookies observed",
     lead:
-      result.summary.thirdPartyCookies > 0
-        ? `${plural(result.summary.thirdPartyCookies, "third-party cookie")} showed up during the visit.`
+      run.counts.thirdPartyCookies > 0
+        ? `${plural(run.counts.thirdPartyCookies, "third-party cookie")} showed up during the visit.`
         : "The automated visit did not observe third-party cookies.",
     detail:
-      result.summary.thirdPartyCookies > 0
+      run.counts.thirdPartyCookies > 0
         ? "Third-party cookies can help outside services recognize repeat visits across sites when the browser allows them."
         : "This does not prove the site never uses cookies; it means this visit did not observe third-party cookies.",
-    evidence: `${plural(result.summary.cookies, "cookie")} total in this report.`,
-    benchmark: cookiesBenchmark ? cookiesBenchmark.label : benchmarkLabel("thirdPartyCookies", result.summary.thirdPartyCookies)
+    evidence: `${plural(run.counts.cookies, "cookie")} total in this report.`,
+    benchmark: cookiesBenchmark ? cookiesBenchmark.label : benchmarkLabel("thirdPartyCookies", run.counts.thirdPartyCookies)
   });
 
   // Restricted to genuinely cross-site listener origins: the in-page probe's
   // hostname heuristic can misread same-site siblings (verified.example.com vs
   // www.example.com) as third parties, and a same-party listener is normal
   // site behavior, not monitoring by an outside party.
-  const sessionRecordingDetection = crossSiteListenerDetection(result, "session-recording");
-  const inputMonitoringDetection = crossSiteListenerDetection(result, "input-monitoring");
+  const sessionRecordingDetection = crossSiteListenerDetection(run.evidence, "session-recording");
+  const inputMonitoringDetection = crossSiteListenerDetection(run.evidence, "input-monitoring");
   if (sessionRecordingDetection || inputMonitoringDetection || sessionReplayNames.length > 0) {
     const behaviorNotes = [
       sessionRecordingDetection
@@ -489,60 +493,60 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
     });
   }
 
-  const highEntropyDetections = highEntropyFingerprintDetections(result);
+  const highEntropyDetections = highEntropyFingerprintDetections(run.evidence);
   const highEntropyDetectionLabels = highEntropyDetections.map(detectionLabel);
-  const topFingerprintApis = result.fingerprintEvents.slice(0, 3).map((event) => event.api);
+  const topFingerprintApis = run.evidence.fingerprintEvents.slice(0, 3).map((event) => event.api);
   findings.push({
     id: "fingerprint-apis",
     icon: "fingerprint",
-    level: highEntropyDetections.length > 0 ? "warn" : result.summary.fingerprintEvents > 0 ? "info" : "ok",
+    level: highEntropyDetections.length > 0 ? "warn" : run.counts.fingerprintEvents > 0 ? "info" : "ok",
     title:
       highEntropyDetections.length > 0
         ? highEntropyDetections.length === 1
           ? `${highEntropyDetectionLabels[0]} matched`
           : "Behavioral fingerprinting heuristics matched"
-        : result.summary.fingerprintEvents > 0
+        : run.counts.fingerprintEvents > 0
           ? "Fingerprint-like browser APIs were called"
           : "No fingerprint-like API calls observed",
     lead:
       highEntropyDetections.length > 0
         ? `${plural(highEntropyDetections.length, "behavioral heuristic")} matched: ${humanList(highEntropyDetectionLabels, 5)}.`
-        : result.summary.fingerprintEvents > 0
-          ? `${plural(result.summary.fingerprintEvents, "high-entropy API call")} appeared in the instrumentation log.`
+        : run.counts.fingerprintEvents > 0
+          ? `${plural(run.counts.fingerprintEvents, "high-entropy API call")} appeared in the instrumentation log.`
           : "The scan did not observe the instrumented high-entropy browser APIs.",
     detail:
       highEntropyDetections.length > 0
         ? "These heuristics look for behavior patterns such as canvas readback after drawing, repeated canvas font measurement, WebGL entropy reads, offline audio rendering, or WebRTC peer-connection setup. They are review prompts for this visit, not proof of cross-site identity tracking."
-        : result.summary.fingerprintEvents > 0
+        : run.counts.fingerprintEvents > 0
           ? `These calls can be legitimate (charts, graphics, media), so the count is observational, not a severity score, and it excludes Web and Service Workers. Top calls: ${humanList(topFingerprintApis)}.`
           : "This is an observation layer, not proof that fingerprinting is impossible.",
     evidence:
       highEntropyDetections.length > 0
         ? humanList(highEntropyDetections.map(detectionEvidence), 4)
-        : `${plural(result.fingerprintEvents.length, "API family", "API families")} recorded.`
+        : `${plural(run.evidence.fingerprintEvents.length, "API family", "API families")} recorded.`
   });
 
   // Every comparison card runs through the SHARED claim policy (the seam's
   // default-deny derivation, the same one the comparison panel's banner and
   // the headline consult): a failed, request-capped, or mismatched arm means
   // the pair supports no comparison claim, and the card must say why instead
-  // of quoting the diff.
-  const pairGate = isComparisonReport(report) ? claimsForV1Report(report).pairComparison : null;
+  // of quoting the two arms' difference.
+  const pairGate = view.claims.pairComparison;
 
-  if (isComparisonReport(report) && report.comparisonType === "shields") {
+  if (arms && axis === "shields") {
     if (pairGate && !pairGate.allowed) {
       findings.unshift(ineligibleComparisonFinding("shields-comparison", "This Shields comparison is not conclusive", pairGate));
     } else {
-      const removedThirdPartyRequests = Math.max(0, -report.diff.thirdPartyRequests.delta);
-      const removedTrackerRequests = Math.max(0, -report.diff.knownTrackerRequests.delta);
-      const removedCookies = Math.max(0, -report.diff.thirdPartyCookies.delta);
-      const removedFingerprintEvents = Math.max(0, -report.diff.fingerprintEvents.delta);
-      const removedEntityNames = report.diff.removedEntities.map((entity) => entity.entity);
+      const removedThirdPartyRequests = Math.max(0, arms.baseline.counts.thirdPartyRequests - arms.variant.counts.thirdPartyRequests);
+      const removedTrackerRequests = Math.max(0, arms.baseline.counts.knownTrackerRequests - arms.variant.counts.knownTrackerRequests);
+      const removedCookies = Math.max(0, arms.baseline.counts.thirdPartyCookies - arms.variant.counts.thirdPartyCookies);
+      const removedFingerprintEvents = Math.max(0, arms.baseline.counts.fingerprintEvents - arms.variant.counts.fingerprintEvents);
+      const removedEntityNames = entitiesOnlyIn(arms.baseline, arms.variant);
       const blockedTotal = removedThirdPartyRequests + removedTrackerRequests + removedCookies + removedFingerprintEvents;
       // The direct engine-block count is a different measurement from the total
       // reduction: blocking one script prevents its follow-on requests from
       // ever starting, so the reduction usually exceeds the direct blocks.
-      const engineBlocks = shieldsRunMeasurement(report.variant);
+      const engineBlocks = shieldsRunMeasurement(arms.variant);
       const engineNote =
         engineBlocks && engineBlocks.kind === "engine-blocked"
           ? ` The Shields-on visit's engine directly blocked ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked.`
@@ -566,36 +570,41 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
     }
   }
 
-  if (isComparisonReport(report) && report.comparisonType === "consent") {
+  if (arms && axis === "consent") {
     findings.unshift(
       pairGate && !pairGate.allowed
         ? ineligibleComparisonFinding("consent-comparison", "This consent comparison is not conclusive", pairGate)
-        : buildConsentComparisonFinding(report)
+        : buildConsentComparisonFinding(arms.baseline, arms.variant)
     );
   }
 
-  if (isComparisonReport(report) && report.comparisonType === "gpc" && pairGate && !pairGate.allowed) {
+  if (arms && axis === "gpc" && pairGate && !pairGate.allowed) {
     findings.unshift(ineligibleComparisonFinding("gpc-comparison", "This GPC comparison is not conclusive", pairGate));
   }
 
-  if (isComparisonReport(report) && report.comparisonType === "temporal" && pairGate && !pairGate.allowed) {
+  // Temporal pairs have no intervention axis: a v1 temporal comparison and a
+  // v2 temporal experiment both land here (a future v2 descriptive pair does
+  // not; its non-conclusive story is the comparison panel's banner).
+  const temporalPair =
+    arms && axis === null && (view.comparison?.kind === "temporal" || view.origin === "legacy-derived");
+  if (temporalPair && pairGate && !pairGate.allowed) {
     findings.unshift(ineligibleComparisonFinding("temporal-comparison", "This before/after comparison is not conclusive", pairGate));
   }
 
   // A failed/blocked load (HTTP >= 400) produces low counts that are an artifact
   // of the page not loading, not a privacy result. Lead with that so the bottom
   // line never reads an error page as "few review signals".
-  const loadFailureStatus = scanLoadFailureStatus(result);
+  const loadFailureStatus = scanLoadFailureStatus(run.status);
   if (loadFailureStatus !== null) {
     findings.unshift({
       id: "bottom-line",
       icon: "alert",
       level: "info",
-      title: `Bottom line: ${result.summary.firstPartyDomain} did not load (HTTP ${loadFailureStatus})`,
+      title: `Bottom line: ${run.domain} did not load (HTTP ${loadFailureStatus})`,
       lead: `The page responded with HTTP ${loadFailureStatus}, so this report reflects an error or block page, not the site itself.`,
       detail:
         "Low tracker, cookie, and fingerprinting counts here mean the page did not load, not that the site is private. Re-scan when the site is reachable; the request log and methodology below still show exactly what was observed.",
-      evidence: `${plural(result.summary.totalRequests, "request")} observed before or with the error response.`
+      evidence: `${plural(run.counts.totalRequests, "request")} observed before or with the error response.`
     });
     return findings;
   }
@@ -613,10 +622,10 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
     detail: corpusIsUsable(corpus)
       ? `The cards below translate the evidence into plain language. Where a measured distribution exists, severity ranks this visit against percentiles from the ${corpus.sampleSize.toLocaleString("en-US")} sites scanned so far (a curated set of popular, mostly commercial sites, not a random sample of the web) and otherwise uses fixed reference thresholds. The request log, domain table, and methodology remain below for verification.`
       : "The cards below translate the evidence into plain language; severity reflects fixed reference thresholds, not measured population percentiles. The request log, domain table, and methodology remain below for verification.",
-    evidence: `${plural(result.summary.totalRequests, "request")} observed in one controlled visit.`
+    evidence: `${plural(run.counts.totalRequests, "request")} observed in one controlled visit.`
   });
 
-  const shieldsMeasurement = shieldsRunMeasurement(result);
+  const shieldsMeasurement = shieldsRunMeasurement(run);
   if (shieldsMeasurement) {
     const blocked = shieldsMeasurement.count;
     const simulated = shieldsMeasurement.kind === "engine-blocked";
@@ -628,7 +637,7 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
         blocked > 0
           ? simulated
             ? `Brave Shields blocked ${blocked.toLocaleString("en-US")} requests in this visit`
-            : `${blocked.toLocaleString("en-US")} of ${result.summary.totalRequests.toLocaleString("en-US")} requests matched Brave Shields filter lists`
+            : `${blocked.toLocaleString("en-US")} of ${run.counts.totalRequests.toLocaleString("en-US")} requests matched Brave Shields filter lists`
           : simulated
             ? "Brave Shields blocked nothing in this visit"
             : "No requests matched Brave Shields filter lists",
@@ -641,7 +650,7 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
       detail: simulated
         ? "Measured with Brave's own ad-block engine and default filter lists actively blocking (network requests only, so no cosmetic or CNAME-based blocking). Blocked requests are not in this run's totals, and requests a blocked script would have made never started."
         : "Computed with Brave's own ad-block engine and default filter lists in classification mode: matched requests LOADED normally and are counted in this report. Matching shows what Shields would target on this visit's traffic; an actual Shields visit blocks these and also prevents their follow-on requests, so this number is neither a measured block count nor the total effect.",
-      evidence: `${plural(result.summary.knownTrackerRequests, "named-service request")} of them are also in the curated catalog.`
+      evidence: `${plural(run.counts.knownTrackerRequests, "named-service request")} of them are also in the curated catalog.`
     });
   }
 
@@ -653,8 +662,22 @@ export function buildFindings(report: ScanReport, result: ScanResult, corpus: Co
 }
 
 /**
- * The card that replaces a comparison's story when the SHARED eligibility gate
- * fails: it names the disqualifying facts and makes no claim from the diff.
+ * Catalogued tracker entities observed in one arm's domain table and not the
+ * other's, busiest first: the same derivation the v1 wire's added/removed
+ * entity lists were computed from, now taken from the arms directly so v2
+ * comparisons (no precomputed diff) and inconsistent uploads get identical
+ * treatment.
+ */
+function entitiesOnlyIn(run: RunView, other: RunView): string[] {
+  const otherEntities = new Set(trackerEntitySummaries(other.evidence).map((entity) => entity.entity));
+  return trackerEntitySummaries(run.evidence)
+    .filter((entity) => !otherEntities.has(entity.entity))
+    .map((entity) => entity.entity);
+}
+
+/**
+ * The card that replaces a comparison's story when the seam's pair claim gate
+ * fails: it names the disqualifying facts and makes no claim from the pair.
  */
 function ineligibleComparisonFinding(id: string, title: string, gate: ClaimGate): Finding {
   return {
@@ -675,13 +698,13 @@ function ineligibleComparisonFinding(id: string, title: string, gate: ClaimGate)
  * found is pre-consent, and the card says which run that was instead of
  * pretending the diff measured the choice.
  */
-function buildConsentComparisonFinding(report: ComparisonScanResult): Finding {
-  const acceptClicked = report.baseline.consentInteraction?.clicked === true;
-  const rejectClicked = report.variant.consentInteraction?.clicked === true;
-  const acceptTracking = trackerEntitySummaries(report.baseline).filter((entity) => !isOperationalEntity(entity));
-  const rejectTracking = trackerEntitySummaries(report.variant).filter((entity) => !isOperationalEntity(entity));
-  const requestsBefore = report.diff.thirdPartyRequests.before;
-  const requestsAfter = report.diff.thirdPartyRequests.after;
+function buildConsentComparisonFinding(baseline: RunView, variant: RunView): Finding {
+  const acceptClicked = baseline.consent?.controlActivated === true;
+  const rejectClicked = variant.consent?.controlActivated === true;
+  const acceptTracking = trackerEntitySummaries(baseline.evidence).filter((entity) => !isOperationalEntity(entity));
+  const rejectTracking = trackerEntitySummaries(variant.evidence).filter((entity) => !isOperationalEntity(entity));
+  const requestsBefore = baseline.counts.thirdPartyRequests;
+  const requestsAfter = variant.counts.thirdPartyRequests;
   const evidence = `Third-party requests: ${requestsBefore.toLocaleString("en-US")} with Accept all, ${requestsAfter.toLocaleString("en-US")} with Reject all.`;
 
   if (!acceptClicked && !rejectClicked) {
@@ -750,11 +773,11 @@ function buildConsentComparisonFinding(report: ComparisonScanResult): Finding {
   };
 }
 
-function requestProvenanceHighlights(result: ScanResult): string[] {
+function requestProvenanceHighlights(requests: NetworkRequestRecord[]): string[] {
   const seen = new Set<string>();
   const highlights: string[] = [];
 
-  for (const request of result.requests) {
+  for (const request of requests) {
     if (!request.thirdParty || !request.provenance) continue;
     const summary = requestProvenanceSummary(request);
     if (!summary) continue;

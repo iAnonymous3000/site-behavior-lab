@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { buildReportHeadline } from "@/lib/report-headline";
 import { serializeJsonLd } from "@/lib/jsonld-script";
 import { buildReportDataset } from "@/lib/report-jsonld";
-import { readReportForId, readStoredReportForId } from "@/lib/report-source";
+import { readStoredReportForId } from "@/lib/report-source";
+import { toReportView } from "@/lib/scan-report-views";
 import { siteBaseUrl, siteOrigin } from "@/lib/site-url";
 import { listStaticReportIds } from "@/lib/static-report-files";
 import { SavedReportClient } from "./saved-report-client";
@@ -17,9 +18,9 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const report = await readReportForId(id);
+  const result = await readStoredReportForId(id);
 
-  if (!report) {
+  if (result.outcome !== "found") {
     return {
       title: { absolute: "Report not found · Site Behavior Lab" },
       description: "This Site Behavior Lab report is unavailable.",
@@ -27,7 +28,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     };
   }
 
-  const headline = buildReportHeadline(report);
+  // The headline builds from the version-independent view, so the metadata
+  // works for any readable schema generation even while the page's client
+  // renderer below is still gated to v1.
+  const headline = buildReportHeadline(toReportView(result.stored));
   const title = `${headline.domain}: ${headline.headline}`;
   const description = headline.subhead;
 
@@ -71,8 +75,7 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
   if (result.stored.schemaVersion !== 1) {
     throw new Error(`Report ${id} uses schemaVersion 2; this page cannot render it yet.`);
   }
-  const report = result.stored.report;
-  const dataset = buildReportDataset(report, {
+  const dataset = buildReportDataset(toReportView(result.stored), {
     url: `${siteBaseUrl()}/reports/${id}/`,
     jsonUrl: STATIC_EXPORT ? `${siteBaseUrl()}/reports/${id}.json` : `${siteOrigin()}/api/reports/${id}`
   });

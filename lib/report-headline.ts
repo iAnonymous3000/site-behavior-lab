@@ -1,4 +1,9 @@
-import { claimsForV1Report } from "./scan-report-views";
+import {
+  comparisonArmViews,
+  displayRunView,
+  type ReportView,
+  type RunView
+} from "./scan-report-views";
 import {
   HEADLINE_PLATFORMS,
   crossSiteListenerDetection,
@@ -12,26 +17,27 @@ import {
   trackerEntitySummaries
 } from "./report-insights";
 import { plural } from "./text-format";
-import type {
-  ComparisonScanResult,
-  FingerprintDetectionSummary,
-  ScanReport,
-  ScanResult
-} from "./types";
 
 /**
  * Plain-language "headline" layer.
  *
- * This module turns a {@link ScanReport} into the single punchy, shareable
+ * This module turns a {@link ReportView} into the single punchy, shareable
  * takeaway that leads the report UI, the social unfurl metadata, and the
  * generated Open Graph card. It deliberately leads with the most concrete,
  * defensible signal (a privacy-signal that changed little, named platforms,
  * tracking companies) and keeps the rigor in `caveat` so the framing never
  * outruns the evidence.
  *
- * It is intentionally dependency-free (types only) so it can run in the React
- * client, in server-side `generateMetadata`, and inside the `next/og` image
- * route without pulling in browser- or Node-only code.
+ * It consumes the version-independent view seam, never a wire shape: every
+ * comparison number is derived from the two arms' run views (the same counts
+ * the v1 wire's diff was computed from), and every comparison framing is
+ * gated on `view.claims` (default-deny), so the headline can never disagree
+ * with the findings board or the comparison panel's banner.
+ *
+ * It is intentionally dependency-free (types plus the runtime-light views
+ * module) so it can run in the React client, in server-side
+ * `generateMetadata`, and inside the `next/og` image route without pulling in
+ * browser- or Node-only code.
  *
  * The tracker/fingerprint classification it relies on lives in
  * `lib/report-insights.ts`, shared with the report UI so the two cannot drift.
@@ -62,31 +68,31 @@ const COMPARISON_CAVEAT = "Observed in two automated visits: evidence to check, 
 const KICKER = "What this actually means";
 const SHARE_TAGLINE = "See what a site does, not what it says. Open-source and reproducible:";
 
-export function buildReportHeadline(report: ScanReport): ReportHeadline {
-  const result = displayScanResult(report);
-  const domain = friendlyDomain(result);
-  const entities = trackerEntitySummaries(result);
+export function buildReportHeadline(view: ReportView): ReportHeadline {
+  const run = displayRunView(view);
+  const arms = comparisonArmViews(view);
+  const axis = view.comparison?.axis ?? null;
+  const domain = friendlyDomain(run);
+  const entities = trackerEntitySummaries(run.evidence);
   const trackingEntities = entities.filter((entity) => !isOperationalEntity(entity));
   const trackingNames = trackingEntities.map((entity) => entity.entity);
   const platforms = entities.filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity)).map((entity) => entity.entity);
-  const highEntropy = highEntropyDetections(result);
+  const highEntropy = highEntropyDetections(run.evidence);
   const sessionReplay = trackingEntities.some((entity) =>
     entity.categories.some((category) => category.toLowerCase().includes("session replay"))
   );
   // Listener-coverage claims are restricted to genuinely cross-site origins:
   // the in-page probe's hostname heuristic can misread same-site siblings
   // (see crossSiteListenerDetection), and a same-party listener is normal.
-  const sessionRecording = Boolean(crossSiteListenerDetection(result, "session-recording"));
-  const inputMonitoring = Boolean(crossSiteListenerDetection(result, "input-monitoring"));
-  const stats = buildStats(result, trackingEntities.length);
-  // Comparison claims are gated on the SHARED eligibility rule: a failed,
-  // request-capped, or mismatched arm disqualifies every causal-sounding
-  // comparison framing below, and the report falls back to the evidence-led
-  // single-visit story (the findings board explains why).
-  // The seam's default-deny claim policy: the same derivation the comparison
-  // panel and every view-fed surface consult, so headline framing can never
-  // disagree with the banner beside the deltas.
-  const comparisonUsable = claimsForV1Report(report).pairComparison?.allowed ?? false;
+  const sessionRecording = Boolean(crossSiteListenerDetection(run.evidence, "session-recording"));
+  const inputMonitoring = Boolean(crossSiteListenerDetection(run.evidence, "input-monitoring"));
+  const stats = buildStats(run, trackingEntities.length);
+  // Comparison claims are gated on the seam's default-deny claim policy: the
+  // same derivation the findings board and the comparison panel's banner
+  // consult, so a failed, request-capped, or mismatched arm disqualifies every
+  // comparison framing below at once and the report falls back to the
+  // evidence-led single-visit story (the findings board explains why).
+  const comparisonUsable = view.claims.pairComparison?.allowed ?? false;
 
   const extras: string[] = [];
   if (inputMonitoring) {
@@ -106,7 +112,7 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
       kicker: KICKER,
       headline,
       subhead,
-      caveat: isComparison(report) ? COMPARISON_CAVEAT : SINGLE_VISIT_CAVEAT,
+      caveat: view.reportType === "comparison" ? COMPARISON_CAVEAT : SINGLE_VISIT_CAVEAT,
       stats: resolvedStats,
       domain,
       shareText: buildShareText(headline, resolvedStats)
@@ -117,7 +123,7 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
   // did not really load, so its low tracker/cookie/fingerprint counts are an
   // artifact of the failed load, not a privacy result. Lead with that instead
   // of letting it fall through to "kept this visit relatively private".
-  const loadFailureStatus = scanLoadFailureStatus(result);
+  const loadFailureStatus = scanLoadFailureStatus(run.status);
   if (loadFailureStatus !== null) {
     return finish(
       "info",
@@ -133,7 +139,7 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
   // deliberate identity capture and gets the alarm. Plain text or a reversible
   // encoding (base64/hex) reads as a third-party search/autocomplete and gets a
   // calmer warn, though the keystrokes still leave the site.
-  const keystrokeExfil = fingerprintDetection(result, "keystroke-exfiltration");
+  const keystrokeExfil = fingerprintDetection(run.evidence, "keystroke-exfiltration");
   if (keystrokeExfil) {
     const recipientCount = plural(keystrokeExfil.evidence.recipients.length, "third party", "third parties");
     const recipients = joinNames(keystrokeExfil.evidence.recipients);
@@ -156,7 +162,7 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
   // no identifier and fall through to the named-platform line. Field PRESENCE
   // is what the scanner reads; the platforms document the values as hashed,
   // but that is never verified, so the copy must not assert it.
-  const pixelsWithMatching = (result.pixelEvents ?? []).filter((pixel) => pixel.advancedMatching.length > 0);
+  const pixelsWithMatching = run.evidence.pixelEvents.filter((pixel) => pixel.advancedMatching.length > 0);
   if (pixelsWithMatching.length > 0) {
     const products = joinNames(pixelsWithMatching.map((pixel) => pixel.product));
     const fields = joinNames(
@@ -171,13 +177,13 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
 
   // Consent comparison: the story is what changed between the two visits.
   // Claims are gated on the reject click having really been dispatched AND on
-  // the shared eligibility rule; when either fails, the report falls through to
-  // the ordinary evidence-led headline instead of pretending the choice was
+  // the pair claim gate; when either fails, the report falls through to the
+  // ordinary evidence-led headline instead of pretending the choice was
   // measured. The scanner clicks the control but cannot verify the site
   // accepted the choice, and recording covers the whole visit including
   // pre-click traffic, so the wording stays observational.
-  if (comparisonUsable && isComparison(report) && report.comparisonType === "consent" && report.variant.consentInteraction?.clicked === true) {
-    const rejectTracking = trackerEntitySummaries(report.variant).filter((entity) => !isOperationalEntity(entity));
+  if (comparisonUsable && arms && axis === "consent" && arms.variant.consent?.controlActivated === true) {
+    const rejectTracking = trackerEntitySummaries(arms.variant.evidence).filter((entity) => !isOperationalEntity(entity));
     // Both consent headlines describe the Reject-all (variant) visit, so the
     // stat chips and share text must quote that run too, not the Accept-all
     // baseline the report otherwise leads with.
@@ -188,10 +194,10 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
         `After the scanner clicked Reject all, ${joinNames(
           rejectTracking.map((entity) => entity.entity)
         )} still received requests during that visit. The visit records traffic from before and after the click, and some vendors may be claimed as strictly necessary; the diff lists the services that appeared only in the Accept-all visit.`,
-        buildStats(report.variant, rejectTracking.length)
+        buildStats(arms.variant, rejectTracking.length)
       );
     }
-    if (report.baseline.consentInteraction?.clicked === true && trackingEntities.length > 0) {
+    if (arms.baseline.consent?.controlActivated === true && trackingEntities.length > 0) {
       return finish(
         "info",
         `The Reject-all visit to ${domain} loaded no catalogued trackers.`,
@@ -199,15 +205,15 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
           trackingEntities.length,
           "tracking company",
           "tracking companies"
-        )}: ${plural(report.diff.thirdPartyRequests.before, "third-party request")} became ${report.diff.thirdPartyRequests.after.toLocaleString("en-US")}.`,
-        buildStats(report.variant, 0)
+        )}: ${plural(arms.baseline.counts.thirdPartyRequests, "third-party request")} became ${arms.variant.counts.thirdPartyRequests.toLocaleString("en-US")}.`,
+        buildStats(arms.variant, 0)
       );
     }
   }
 
-  if (comparisonUsable && isComparison(report) && report.comparisonType === "gpc") {
-    const before = report.diff.thirdPartyRequests.before;
-    const after = report.diff.thirdPartyRequests.after;
+  if (comparisonUsable && arms && axis === "gpc") {
+    const before = arms.baseline.counts.thirdPartyRequests;
+    const after = arms.variant.counts.thirdPartyRequests;
     const reductionPct = before > 0 ? Math.round(((before - after) / before) * 100) : 0;
     // GPC "on" can load as many (or even more) off-site requests than "off",
     // so phrase the residual instead of emitting "down just -12%".
@@ -222,7 +228,7 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
     // including the stat chips and share text, must come from the variant run.
     // The report's lead result (and its extras) is the baseline run, which
     // would mix the two arms' evidence.
-    const gpcOnTracking = trackerEntitySummaries(report.variant).filter((entity) => !isOperationalEntity(entity));
+    const gpcOnTracking = trackerEntitySummaries(arms.variant.evidence).filter((entity) => !isOperationalEntity(entity));
     if (gpcOnTracking.length > 0 && after > 0 && reductionPct < 25) {
       return finish(
         "alarm",
@@ -232,7 +238,7 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
           "tracking company",
           "tracking companies"
         )}: ${plural(after, "third-party request")}, ${changePhrase}. Request counts cannot show whether data sales stopped, only what loaded.`,
-        buildStats(report.variant, gpcOnTracking.length)
+        buildStats(arms.variant, gpcOnTracking.length)
       );
     }
     if (reductionPct >= 50) {
@@ -244,16 +250,16 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
     }
   }
 
-  if (comparisonUsable && isComparison(report) && report.comparisonType === "shields") {
-    const before = report.diff.thirdPartyRequests.before;
-    const after = report.diff.thirdPartyRequests.after;
+  if (comparisonUsable && arms && axis === "shields") {
+    const before = arms.baseline.counts.thirdPartyRequests;
+    const after = arms.variant.counts.thirdPartyRequests;
     const removed = Math.max(0, before - after);
-    const total = report.diff.totalRequests.before;
+    const total = arms.baseline.counts.totalRequests;
     // The engine-blocked count (block simulation, variant run) and the total
     // third-party reduction are DIFFERENT measurements: blocking one script
     // also prevents its follow-on requests from ever starting, so the
     // reduction usually exceeds the direct blocks. Say both, never blend them.
-    const engineBlocks = shieldsRunMeasurement(report.variant);
+    const engineBlocks = shieldsRunMeasurement(arms.variant);
     if (removed > 0) {
       const engineNote =
         engineBlocks && engineBlocks.kind === "engine-blocked"
@@ -278,7 +284,7 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
         trackingEntities.length > 0
           ? `${plural(trackingEntities.length, "tracking company", "tracking companies")} saw this visit`
           : "Trackers saw this visit"
-      } across ${plural(result.summary.thirdPartyDomains, "third-party domain")}.${extraNote}`
+      } across ${plural(run.counts.thirdPartyDomains, "third-party domain")}.${extraNote}`
     );
   }
 
@@ -287,9 +293,9 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
       trackingEntities.length >= 6 ? "warn" : "info",
       `${domain} shared this visit with ${plural(trackingEntities.length, "tracking company", "tracking companies")}.`,
       `${joinNames(trackingNames)} loaded with the page: ${plural(
-        result.summary.thirdPartyRequests,
+        run.counts.thirdPartyRequests,
         "request"
-      )} went to ${plural(result.summary.thirdPartyDomains, "third-party domain")}.${extraNote}`
+      )} went to ${plural(run.counts.thirdPartyDomains, "third-party domain")}.${extraNote}`
     );
   }
 
@@ -311,9 +317,9 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
   return finish(
     "calm",
     `${domain} kept this visit relatively private.`,
-    result.summary.thirdPartyDomains > 0
+    run.counts.thirdPartyDomains > 0
       ? `${plural(
-          result.summary.thirdPartyDomains,
+          run.counts.thirdPartyDomains,
           "third-party domain"
         )} loaded, but no catalogued tracking company, third-party cookie, or fingerprinting signal showed up in this visit.`
       : "No third-party domains, tracking companies, cookies, or fingerprinting signals showed up in this visit.",
@@ -321,30 +327,30 @@ export function buildReportHeadline(report: ScanReport): ReportHeadline {
   );
 }
 
-function buildStats(result: ScanResult, trackingCount: number): ReportHeadlineStat[] {
+function buildStats(run: RunView, trackingCount: number): ReportHeadlineStat[] {
   const stats: ReportHeadlineStat[] = [];
 
   if (trackingCount > 0) {
     stats.push({ label: trackingCount === 1 ? "tracking company" : "tracking companies", value: n(trackingCount), emphasis: true });
-  } else if (result.summary.thirdPartyDomains > 0) {
+  } else if (run.counts.thirdPartyDomains > 0) {
     stats.push({
-      label: result.summary.thirdPartyDomains === 1 ? "third-party domain" : "third-party domains",
-      value: n(result.summary.thirdPartyDomains),
+      label: run.counts.thirdPartyDomains === 1 ? "third-party domain" : "third-party domains",
+      value: n(run.counts.thirdPartyDomains),
       emphasis: true
     });
   }
 
-  if (result.summary.thirdPartyRequests > 0) {
-    stats.push({ label: "data requests sent off-site", value: n(result.summary.thirdPartyRequests) });
+  if (run.counts.thirdPartyRequests > 0) {
+    stats.push({ label: "data requests sent off-site", value: n(run.counts.thirdPartyRequests) });
   }
-  if (result.summary.thirdPartyCookies > 0) {
+  if (run.counts.thirdPartyCookies > 0) {
     stats.push({
-      label: result.summary.thirdPartyCookies === 1 ? "third-party cookie" : "third-party cookies",
-      value: n(result.summary.thirdPartyCookies)
+      label: run.counts.thirdPartyCookies === 1 ? "third-party cookie" : "third-party cookies",
+      value: n(run.counts.thirdPartyCookies)
     });
   }
 
-  const fingerprintSignals = highEntropyDetections(result).length;
+  const fingerprintSignals = highEntropyDetections(run.evidence).length;
   if (fingerprintSignals > 0) {
     stats.push({ label: fingerprintSignals === 1 ? "fingerprinting signal" : "fingerprinting signals", value: n(fingerprintSignals) });
   }
@@ -360,28 +366,8 @@ function buildShareText(headline: string, stats: ReportHeadlineStat[]): string {
   return top ? `${headline} ${top}. ${SHARE_TAGLINE}` : `${headline} ${SHARE_TAGLINE}`;
 }
 
-function hasDetection(result: ScanResult, kind: FingerprintDetectionSummary["kind"]): boolean {
-  return (result.fingerprintDetections ?? []).some((detection) => detection.kind === kind);
-}
-
-function isComparison(report: ScanReport): report is ComparisonScanResult {
-  return report.reportType === "comparison";
-}
-
-/**
- * The run to display as the report's primary view. Comparison reports lead with
- * the baseline (the off / unprotected run) so the report shows what the site
- * actually did; the GPC/Shields "on" run is the protected state, surfaced in the
- * comparison diff rather than the headline numbers. Temporal diffs lead with the
- * newer "after" run.
- */
-export function displayScanResult(report: ScanReport): ScanResult {
-  if (report.reportType !== "comparison") return report;
-  return report.comparisonType === "temporal" ? report.variant : report.baseline;
-}
-
-function friendlyDomain(result: ScanResult): string {
-  return result.summary.firstPartyDomain.replace(/^www\./, "") || result.summary.firstPartyDomain;
+function friendlyDomain(run: RunView): string {
+  return run.domain.replace(/^www\./, "") || run.domain;
 }
 
 function n(value: number): string {

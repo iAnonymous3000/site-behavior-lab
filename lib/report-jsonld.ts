@@ -1,30 +1,35 @@
-import { buildReportHeadline, displayScanResult } from "./report-headline";
-import type { ScanReport, ScanResult } from "./types";
+import { buildReportHeadline } from "./report-headline";
+import { comparisonArmViews, displayRunView, type ReportView, type RunView } from "./scan-report-views";
 
 /**
  * Builds schema.org `Dataset` JSON-LD for a saved report page. A scan report is
  * a dataset of observed site behavior, so this exposes the lead finding, the
  * scanned site, the headline metrics, and a machine-readable download link to
  * search engines. Reuses {@link buildReportHeadline} so the structured-data
- * name/description match the page title, social card, and on-page headline.
+ * name/description match the page title, social card, and on-page headline,
+ * and consumes the version-independent view so both wire generations serialize
+ * identically.
  */
-export function buildReportDataset(report: ScanReport, options: { url: string; jsonUrl?: string }): Record<string, unknown> {
+export function buildReportDataset(view: ReportView, options: { url: string; jsonUrl?: string }): Record<string, unknown> {
   // A comparison report's headline can describe either arm (the GPC alarm
   // quotes the GPC-on variant), so unlabeled numbers from one run would
   // silently disagree with the description. Comparisons therefore measure BOTH
   // runs with the run label in each variable name; single reports keep the
   // plain names.
-  const result = displayScanResult(report);
-  const headline = buildReportHeadline(report);
-  const requestedUrl = report.reportType === "comparison" ? report.requestedUrl : result.conditions.requestedUrl;
-  const scannedAt = report.reportType === "comparison" ? report.scannedAt : result.conditions.scannedAt;
-  const variableMeasured =
-    report.reportType === "comparison"
-      ? [
-          ...runMeasurements(report.baseline.summary, report.runLabels?.baseline ?? "baseline"),
-          ...runMeasurements(report.variant.summary, report.runLabels?.variant ?? "variant")
-        ]
-      : runMeasurements(result.summary);
+  const run = displayRunView(view);
+  const headline = buildReportHeadline(view);
+  const arms = comparisonArmViews(view);
+  // A v1 comparison's top-level requestedUrl/scannedAt were the variant run's
+  // (see createComparisonReport); the view preserves both.
+  const requestedUrl = arms ? arms.variant.conditions.requestedUrl : run.conditions.requestedUrl;
+  const scannedAt = view.scannedAt;
+  const labels = view.comparison?.runLabels;
+  const variableMeasured = arms
+    ? [
+        ...runMeasurements(arms.baseline.counts, labels?.baseline ?? "baseline"),
+        ...runMeasurements(arms.variant.counts, labels?.variant ?? "variant")
+      ]
+    : runMeasurements(run.counts);
 
   const dataset: Record<string, unknown> = {
     "@context": "https://schema.org",
@@ -54,14 +59,14 @@ export function buildReportDataset(report: ScanReport, options: { url: string; j
   return dataset;
 }
 
-function runMeasurements(summary: ScanResult["summary"], runLabel?: string): Record<string, unknown>[] {
+function runMeasurements(counts: RunView["counts"], runLabel?: string): Record<string, unknown>[] {
   const suffix = runLabel ? ` (${runLabel})` : "";
   return [
-    propertyValue(`Third-party requests${suffix}`, summary.thirdPartyRequests),
-    propertyValue(`Catalogued service requests${suffix}`, summary.knownTrackerRequests),
-    propertyValue(`Third-party domains${suffix}`, summary.thirdPartyDomains),
-    propertyValue(`Third-party cookies${suffix}`, summary.thirdPartyCookies),
-    propertyValue(`Fingerprint-like API calls${suffix}`, summary.fingerprintEvents)
+    propertyValue(`Third-party requests${suffix}`, counts.thirdPartyRequests),
+    propertyValue(`Catalogued service requests${suffix}`, counts.knownTrackerRequests),
+    propertyValue(`Third-party domains${suffix}`, counts.thirdPartyDomains),
+    propertyValue(`Third-party cookies${suffix}`, counts.thirdPartyCookies),
+    propertyValue(`Fingerprint-like API calls${suffix}`, counts.fingerprintEvents)
   ];
 }
 

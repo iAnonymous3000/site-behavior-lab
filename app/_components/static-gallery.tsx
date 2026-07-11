@@ -10,6 +10,7 @@ import { domainsMatch, isFeaturedSiteConfig, type FeaturedSite, type FeaturedSit
 import { buildReportHeadline, type ReportHeadline } from "@/lib/report-headline";
 import { committedReportLocation } from "@/lib/report-locator";
 import { readRenderableReport } from "@/lib/client-report-reader";
+import { viewFromV1Report } from "@/lib/scan-report-views";
 import { plural } from "@/lib/text-format";
 import type { ComparisonScanResult, ScanDevice, ScanReport, ScanResult, StaticReportManifestEntry } from "@/lib/types";
 
@@ -118,7 +119,7 @@ function FeaturedGallery({ reports }: { reports: StaticReportManifestEntry[] }) 
       const resolved = await Promise.all(
         entries.map(async (entry) => {
           try {
-            return [entry.id, buildReportHeadline(await loadStaticReport(entry))] as const;
+            return [entry.id, buildReportHeadline(viewFromV1Report(await loadStaticReport(entry)))] as const;
           } catch {
             return null;
           }

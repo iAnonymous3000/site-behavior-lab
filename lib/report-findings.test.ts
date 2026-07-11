@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { buildFindings, type Finding, type FindingIconKey } from "./report-findings";
 import type { CorpusStats } from "./corpus-stats";
+import { viewFromV1Report } from "./scan-report-views";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
   type DomainSummary,
@@ -37,7 +38,7 @@ test("leads with the bottom line and never caps the cards it emits", () => {
     thirdPartyDomains: 1
   });
 
-  const findings = buildFindings(result, result, null);
+  const findings = buildFindings(viewFromV1Report(result), null);
 
   assert.equal(findings[0].id, "bottom-line");
   const ids = findings.map((finding) => finding.id);
@@ -53,7 +54,7 @@ test("leads with the bottom line and never caps the cards it emits", () => {
 test("an HTTP error load gets a failed-load bottom line, not a low-signal one", () => {
   const result = makeResult({ firstPartyDomain: "blocked.example", status: 403, totalRequests: 1 });
 
-  const findings = buildFindings(result, result, null);
+  const findings = buildFindings(viewFromV1Report(result), null);
 
   const bottomLine = findings[0];
   assert.equal(bottomLine.id, "bottom-line");
@@ -75,7 +76,7 @@ test("names major platforms and escalates the third-party card", () => {
     thirdPartyDomains: 3
   });
 
-  const findings = buildFindings(result, result, null);
+  const findings = buildFindings(viewFromV1Report(result), null);
 
   const platforms = byId(findings, "named-platforms");
   assert.equal(platforms.level, "warn");
@@ -94,14 +95,14 @@ test("flags Google Analytics remarketing only when the DoubleClick sync is prese
     thirdPartyRequests: 5,
     thirdPartyDomains: 2
   });
-  assert.equal(byId(buildFindings(withSync, withSync, null), "ga-remarketing").level, "warn");
+  assert.equal(byId(buildFindings(viewFromV1Report(withSync), null), "ga-remarketing").level, "warn");
 
   const gaOnly = makeResult({
     domains: [makeTrackerDomain("www.google-analytics.com", 4, "Google", "analytics")],
     thirdPartyRequests: 4,
     thirdPartyDomains: 1
   });
-  assert.equal(byId(buildFindings(gaOnly, gaOnly, null), "ga-remarketing").title, "Google Analytics present, no remarketing signal");
+  assert.equal(byId(buildFindings(viewFromV1Report(gaOnly), null), "ga-remarketing").title, "Google Analytics present, no remarketing signal");
 
   // Other *.g.doubleclick.net hosts are publisher ads / cookie matching, not the GA remarketing marker.
   const otherDoubleclick = makeResult({
@@ -112,7 +113,7 @@ test("flags Google Analytics remarketing only when the DoubleClick sync is prese
     thirdPartyRequests: 6,
     thirdPartyDomains: 2
   });
-  assert.equal(byId(buildFindings(otherDoubleclick, otherDoubleclick, null), "ga-remarketing").level, "ok");
+  assert.equal(byId(buildFindings(viewFromV1Report(otherDoubleclick), null), "ga-remarketing").level, "ok");
 });
 
 test("treats operational-only services as not tracking", () => {
@@ -125,7 +126,7 @@ test("treats operational-only services as not tracking", () => {
     thirdPartyDomains: 2
   });
 
-  const services = byId(buildFindings(result, result, null), "third-party-services");
+  const services = byId(buildFindings(viewFromV1Report(result), null), "third-party-services");
   assert.equal(services.title, "Only operational services matched");
   assert.equal(services.level, "ok");
 });
@@ -137,11 +138,11 @@ test("uses measured percentile wording when the corpus is usable, fixed threshol
     thirdPartyDomains: 40
   });
 
-  const withCorpus = buildFindings(result, result, makeCorpus(60));
+  const withCorpus = buildFindings(viewFromV1Report(result), makeCorpus(60));
   assert.match(byId(withCorpus, "third-party-services").benchmark ?? "", /about 90% of the 60 sites scanned so far/);
   assert.match(byId(withCorpus, "bottom-line").detail, /percentiles from the 60 sites/);
 
-  const withoutCorpus = buildFindings(result, result, null);
+  const withoutCorpus = buildFindings(viewFromV1Report(result), null);
   const fixedBenchmark = byId(withoutCorpus, "third-party-services").benchmark ?? "";
   assert.doesNotMatch(fixedBenchmark, /sites scanned so far/);
   assert.match(byId(withoutCorpus, "bottom-line").detail, /fixed reference thresholds/);
@@ -149,13 +150,13 @@ test("uses measured percentile wording when the corpus is usable, fixed threshol
 
 test("small corpora below the honesty gate fall back to fixed thresholds", () => {
   const result = makeResult({ thirdPartyDomains: 40, thirdPartyRequests: 40 });
-  const tiny = buildFindings(result, result, makeCorpus(10));
+  const tiny = buildFindings(viewFromV1Report(result), makeCorpus(10));
   assert.doesNotMatch(byId(tiny, "third-party-services").benchmark ?? "", /sites scanned so far/);
 });
 
 test("adds a Shields-block card only when ad-block is active", () => {
   const base = makeResult({ thirdPartyRequests: 10, thirdPartyDomains: 4, totalRequests: 25 });
-  assert.equal(buildFindings(base, base, null).some((finding) => finding.id === "shields-blocked"), false);
+  assert.equal(buildFindings(viewFromV1Report(base), null).some((finding) => finding.id === "shields-blocked"), false);
 
   const withAdblock: ScanResult = {
     ...base,
@@ -165,7 +166,7 @@ test("adds a Shields-block card only when ad-block is active", () => {
       adblock: { active: true, source: "brave-default", lists: 5, fetchedAt: new Date(0).toISOString() }
     }
   };
-  const blocked = byId(buildFindings(withAdblock, withAdblock, null), "shields-blocked");
+  const blocked = byId(buildFindings(viewFromV1Report(withAdblock), null), "shields-blocked");
   assert.equal(blocked.level, "warn");
   // Classification mode: the number is filter-list MATCHES on a normal load,
   // never presented as a measured block.
@@ -177,7 +178,7 @@ test("adds a Shields-block card only when ad-block is active", () => {
     ...withAdblock,
     conditions: { ...withAdblock.conditions, shieldsMode: "block-simulation" }
   };
-  const simulatedCard = byId(buildFindings(simulated, simulated, null), "shields-blocked");
+  const simulatedCard = byId(buildFindings(viewFromV1Report(simulated), null), "shields-blocked");
   assert.match(simulatedCard.title, /Brave Shields blocked 12 requests in this visit/);
 });
 
@@ -204,7 +205,7 @@ test("a Shields comparison keeps the fingerprinting card alongside session-recor
   });
 
   const report = createShieldsComparisonReport(baseline, variant);
-  const ids = buildFindings(report, baseline, null).map((finding) => finding.id);
+  const ids = buildFindings(viewFromV1Report(report), null).map((finding) => finding.id);
 
   // The historical bug capped the list at eight and dropped the last-pushed
   // fingerprinting card on exactly this shape (Shields comparison + behavioral signal).
@@ -233,7 +234,7 @@ test("the Shields comparison card hedges the residual beyond the direct engine b
     adblock: { active: true, source: "brave-default", lists: 5, fetchedAt: new Date(0).toISOString() }
   };
 
-  const card = byId(buildFindings(createShieldsComparisonReport(baseline, variant), baseline, null), "shields-comparison");
+  const card = byId(buildFindings(viewFromV1Report(createShieldsComparisonReport(baseline, variant)), null), "shields-comparison");
   assert.match(card.detail, /directly blocked 9 requests/);
   // The residual is not established to be follow-on prevention; it can also be
   // run variance, so the attribution must stay hedged.
@@ -264,7 +265,7 @@ test("a consent comparison flags trackers that survive Reject all", () => {
   };
 
   const report = createConsentComparisonReport(acceptRun, rejectRun);
-  const findings = buildFindings(report, acceptRun, null);
+  const findings = buildFindings(viewFromV1Report(report), null);
 
   assert.equal(findings[0].id, "bottom-line");
   const card = byId(findings, "consent-comparison");
@@ -293,7 +294,7 @@ test("a consent comparison with no clickable banner claims nothing", () => {
   };
 
   const report = createConsentComparisonReport(acceptRun, rejectRun);
-  const card = byId(buildFindings(report, acceptRun, null), "consent-comparison");
+  const card = byId(buildFindings(viewFromV1Report(report), null), "consent-comparison");
 
   assert.equal(card.level, "info");
   assert.match(card.title, /No consent banner could be clicked/);
@@ -314,7 +315,7 @@ test("a clean reject run earns the ok consent card, and a missing reject control
     consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "Cookiebot" }
   };
 
-  const okCard = byId(buildFindings(createConsentComparisonReport(acceptRun, cleanRejectRun), acceptRun, null), "consent-comparison");
+  const okCard = byId(buildFindings(viewFromV1Report(createConsentComparisonReport(acceptRun, cleanRejectRun)), null), "consent-comparison");
   assert.equal(okCard.level, "ok");
   assert.match(okCard.title, /The Reject-all visit had no catalogued trackers/);
 
@@ -323,7 +324,7 @@ test("a clean reject run earns the ok consent card, and a missing reject control
     consentInteraction: { mode: "reject-all" as const, clicked: false }
   };
   const partialCard = byId(
-    buildFindings(createConsentComparisonReport(acceptRun, unclickedRejectRun), acceptRun, null),
+    buildFindings(viewFromV1Report(createConsentComparisonReport(acceptRun, unclickedRejectRun)), null),
     "consent-comparison"
   );
   assert.equal(partialCard.level, "info");
@@ -339,14 +340,14 @@ test("the pre-consent CMP card is suppressed on consent-mode runs", () => {
     ],
     thirdPartyRequests: 7
   });
-  const observedIds = buildFindings(observed, observed, null).map((finding) => finding.id);
+  const observedIds = buildFindings(viewFromV1Report(observed), null).map((finding) => finding.id);
   assert.ok(observedIds.includes("consent-banner"), "observe-mode runs keep the pre-consent card");
 
   const consentRun = {
     ...observed,
     conditions: { ...observed.conditions, consentMode: "accept-all" as const }
   };
-  const consentIds = buildFindings(consentRun, consentRun, null).map((finding) => finding.id);
+  const consentIds = buildFindings(viewFromV1Report(consentRun), null).map((finding) => finding.id);
   assert.equal(consentIds.includes("consent-banner"), false, "post-click runs must not claim the pre-consent state");
 });
 
@@ -362,7 +363,7 @@ test("confirmed keystroke exfiltration surfaces a loud finding and drives the bo
     ]
   });
 
-  const findings = buildFindings(result, result, null);
+  const findings = buildFindings(viewFromV1Report(result), null);
   const card = byId(findings, "keystroke-exfiltration");
   assert.equal(card.level, "loud");
   assert.equal(card.icon, "keyboard");
@@ -376,26 +377,26 @@ test("confirmed keystroke exfiltration surfaces a loud finding and drives the bo
 test("keystroke leak severity escalates on one-way hashing, not reversible encodings", () => {
   // Plain-text leak = functional type-ahead/autocomplete → calmer "warn".
   const plain = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["plain"])] });
-  const plainCard = byId(buildFindings(plain, plain, null), "keystroke-exfiltration");
+  const plainCard = byId(buildFindings(viewFromV1Report(plain), null), "keystroke-exfiltration");
   assert.equal(plainCard.level, "warn");
   assert.match(plainCard.title, /Your typing is sent to/);
 
   // Reversible base64/hex is common in legitimate APIs, so it stays "warn", not an alarm.
   const reversible = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["base64"])] });
-  const reversibleCard = byId(buildFindings(reversible, reversible, null), "keystroke-exfiltration");
+  const reversibleCard = byId(buildFindings(viewFromV1Report(reversible), null), "keystroke-exfiltration");
   assert.equal(reversibleCard.level, "warn");
   assert.match(reversibleCard.title, /Your typing is sent to/);
 
   // A one-way hash cannot drive a type-ahead, so it reads as deliberate capture → "loud".
   const hashed = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["sha256"])] });
-  const hashedCard = byId(buildFindings(hashed, hashed, null), "keystroke-exfiltration");
+  const hashedCard = byId(buildFindings(viewFromV1Report(hashed), null), "keystroke-exfiltration");
   assert.equal(hashedCard.level, "loud");
   assert.match(hashedCard.title, /What you type was sent to/);
 });
 
 test("surfaces CNAME-cloaked trackers as their own finding, and omits it when there are none", () => {
   const base = makeResult({ thirdPartyDomains: 2, thirdPartyRequests: 4 });
-  assert.equal(buildFindings(base, base, null).some((finding) => finding.id === "cname-cloaking"), false);
+  assert.equal(buildFindings(viewFromV1Report(base), null).some((finding) => finding.id === "cname-cloaking"), false);
 
   const cloaked: ScanResult = {
     ...base,
@@ -407,7 +408,7 @@ test("surfaces CNAME-cloaked trackers as their own finding, and omits it when th
       }
     ]
   };
-  const card = byId(buildFindings(cloaked, cloaked, null), "cname-cloaking");
+  const card = byId(buildFindings(viewFromV1Report(cloaked), null), "cname-cloaking");
   assert.equal(card.level, "warn");
   assert.match(card.title, /1 tracker hidden behind a first-party subdomain/);
   assert.match(card.lead, /Eulerian/);
@@ -428,7 +429,7 @@ test("surfaces pre-consent tracking when a consent-management platform is presen
     thirdPartyRequests: 7,
     thirdPartyDomains: 2
   });
-  const card = byId(buildFindings(withCmp, withCmp, null), "consent-banner");
+  const card = byId(buildFindings(viewFromV1Report(withCmp), null), "consent-banner");
   assert.equal(card.level, "warn");
   assert.match(card.title, /trackers had already loaded/);
   assert.match(card.lead, /OneTrust/);
@@ -439,7 +440,7 @@ test("surfaces pre-consent tracking when a consent-management platform is presen
     thirdPartyRequests: 5,
     thirdPartyDomains: 1
   });
-  assert.equal(buildFindings(noCmp, noCmp, null).some((finding) => finding.id === "consent-banner"), false);
+  assert.equal(buildFindings(viewFromV1Report(noCmp), null).some((finding) => finding.id === "consent-banner"), false);
 });
 
 function makeKeystrokeDetection(encodings: string[]): FingerprintDetectionSummary {
@@ -483,7 +484,7 @@ test("an ineligible comparison replaces the story card with the disqualifying fa
   });
   const variant = makeResult({ firstPartyDomain: "heavy.example", totalRequests: 45, thirdPartyRequests: 5 });
 
-  const shieldsFindings = buildFindings(createShieldsComparisonReport(cappedBaseline, variant), cappedBaseline, null);
+  const shieldsFindings = buildFindings(viewFromV1Report(createShieldsComparisonReport(cappedBaseline, variant)), null);
   const shieldsCard = byId(shieldsFindings, "shields-comparison");
   assert.match(shieldsCard.title, /not conclusive/);
   assert.match(shieldsCard.lead, /recording cap/);
@@ -498,18 +499,14 @@ test("an ineligible comparison replaces the story card with the disqualifying fa
     consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "OneTrust" }
   };
   const consentCard = byId(
-    buildFindings(createConsentComparisonReport(acceptRun, failedRejectRun), acceptRun, null),
+    buildFindings(viewFromV1Report(createConsentComparisonReport(acceptRun, failedRejectRun)), null),
     "consent-comparison"
   );
   assert.match(consentCard.title, /not conclusive/);
   assert.match(consentCard.lead, /HTTP 503/);
 
   const gpcCard = byId(
-    buildFindings(
-      createGpcComparisonReport(makeResult({ firstPartyDomain: "a.example" }), makeResult({ firstPartyDomain: "b.example" })),
-      makeResult({ firstPartyDomain: "a.example" }),
-      null
-    ),
+    buildFindings(viewFromV1Report(createGpcComparisonReport(makeResult({ firstPartyDomain: "a.example" }), makeResult({ firstPartyDomain: "b.example" }))), null),
     "gpc-comparison"
   );
   assert.match(gpcCard.title, /not conclusive/);
@@ -532,7 +529,7 @@ test("listener-coverage cards are restricted to cross-site origins", () => {
     domains: [sameSiteDomain],
     fingerprintDetections: [makeListenerDetection("input-monitoring", ["https://verified.shop.example"])]
   });
-  const suppressedIds = buildFindings(samePartyOnly, samePartyOnly, null).map((finding) => finding.id);
+  const suppressedIds = buildFindings(viewFromV1Report(samePartyOnly), null).map((finding) => finding.id);
   assert.equal(suppressedIds.includes("session-recording-input-monitoring"), false);
 
   // Mixed origins: the card names only the cross-site one.
@@ -543,7 +540,7 @@ test("listener-coverage cards are restricted to cross-site origins", () => {
       makeListenerDetection("input-monitoring", ["https://recorder.example.net", "https://verified.shop.example"])
     ]
   });
-  const mixedCard = byId(buildFindings(mixed, mixed, null), "session-recording-input-monitoring");
+  const mixedCard = byId(buildFindings(viewFromV1Report(mixed), null), "session-recording-input-monitoring");
   assert.match(mixedCard.evidence, /recorder\.example\.net/);
   assert.doesNotMatch(mixedCard.evidence, /verified\.shop\.example/);
 });
@@ -604,7 +601,7 @@ test("flags a policy contradiction when the policy denies third-party cookies th
     policyTextLength: 5000
   };
 
-  const card = byId(buildFindings(result, result, null), "privacy-policy");
+  const card = byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
   assert.equal(card.level, "warn");
   assert.equal(card.icon, "file-text");
   assert.match(card.lead, /third-party cookies are not used, but 3 third-party cookies/);
@@ -625,7 +622,7 @@ test("flags unnamed tracking companies as an informational disclosure gap", () =
     policyTextLength: 5000
   };
 
-  const card = byId(buildFindings(result, result, null), "privacy-policy");
+  const card = byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
   assert.equal(card.level, "info");
   assert.match(card.title, /never names/);
   assert.match(card.lead, /Criteo/);
@@ -642,7 +639,7 @@ test("reports a clean policy check at ok level", () => {
     policyTextLength: 5000
   };
 
-  const card = byId(buildFindings(result, result, null), "privacy-policy");
+  const card = byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
   assert.equal(card.level, "ok");
   assert.match(card.title, /no checked statement contradicted/);
 });
@@ -670,7 +667,7 @@ test("an honored-GPC claim is never contradicted by request counts", () => {
   });
   const report = createGpcComparisonReport(baseline, variant);
 
-  const card = byId(buildFindings(report, baseline, null), "privacy-policy");
+  const card = byId(buildFindings(viewFromV1Report(report), null), "privacy-policy");
   assert.equal(card.level, "ok");
   assert.doesNotMatch(card.lead, /Global Privacy Control is honored, but/);
   assert.match(card.detail, /never checked against request counts/);
@@ -727,3 +724,30 @@ function makeResult(overrides: ResultOverrides = {}): ScanResult {
     warnings: []
   };
 }
+
+test("a tampered wire diff cannot drive the Shields card; deltas and entity lists derive from the arms", () => {
+  const baseline = makeResult({
+    firstPartyDomain: "heavy.example",
+    domains: [makeTrackerDomain("ads.example", 60, "AdCo", "advertising")],
+    totalRequests: 100,
+    thirdPartyRequests: 60,
+    thirdPartyDomains: 12
+  });
+  const variant = makeResult({
+    firstPartyDomain: "heavy.example",
+    totalRequests: 45,
+    thirdPartyRequests: 5,
+    thirdPartyDomains: 2
+  });
+  const report = createShieldsComparisonReport(baseline, variant);
+  // An uploaded report can carry any diff block it likes; the card must quote
+  // the arms' recorded counts and entities, never the wire's precomputed claim.
+  report.diff.thirdPartyRequests = { before: 9, after: 9, delta: 0 };
+  report.diff.knownTrackerRequests = { before: 9, after: 9, delta: 0 };
+  report.diff.removedEntities = [{ entity: "Forged Co", requests: 999, domains: 9 }];
+
+  const card = byId(buildFindings(viewFromV1Report(report), null), "shields-comparison");
+  assert.match(card.lead, /55 fewer third-party and 60 fewer known-service requests/);
+  assert.match(card.detail, /Services only seen with Shields off: AdCo/);
+  assert.doesNotMatch(card.detail, /Forged Co/);
+});

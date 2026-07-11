@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { buildReportHeadline, type HeadlineTone, type ReportHeadlineStat } from "./report-headline";
-import type { ScanReport } from "./types";
+import type { ReportView } from "./scan-report-views";
 
 /**
  * Shared `next/og` social-card renderers for report and homepage links.
@@ -28,8 +28,8 @@ const MUTED = "#9bb0a6";
 const SUBTLE = "#7a9085";
 const HOME_ACCENT = "#2dd4bf";
 
-export function renderReportCard(report: ScanReport): ImageResponse {
-  const headline = buildReportHeadline(report);
+export function renderReportCard(view: ReportView): ImageResponse {
+  const headline = buildReportHeadline(view);
   const accent = TONE_HEX[headline.tone];
   const stats = headline.stats.slice(0, 3);
   const headlineSize = headline.headline.length > 64 ? 50 : headline.headline.length > 44 ? 58 : 66;

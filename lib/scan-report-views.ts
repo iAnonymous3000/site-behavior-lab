@@ -91,6 +91,18 @@ export type RunQualityView = {
   byFamily: Record<string, { outcome: "complete" | "censored"; reasons: string[] }> | null;
 };
 
+/**
+ * The consent-interaction outcome a run recorded, null when the run never
+ * attempted one (observe mode). `controlActivated` is v1's `clicked` and v2's
+ * `controlActivated`: the scanner dispatched a click on a recognized control.
+ * Dispatch is not verification; v2's verification facts stay on the wire and
+ * gate claims through the claim policy, never through this block.
+ */
+export type RunConsentView = {
+  mode: "accept-all" | "reject-all";
+  controlActivated: boolean;
+};
+
 export type RunView = {
   /** null for a single report's only run. */
   label: "baseline" | "variant" | null;
@@ -119,6 +131,7 @@ export type RunView = {
   screenshot: string | null;
   evidence: RunEvidenceView;
   conditions: RunConditionsView;
+  consent: RunConsentView | null;
   quality: RunQualityView;
 };
 
@@ -127,6 +140,12 @@ export type ComparisonView = {
   kind: "intervention" | "temporal" | "descriptive";
   /** The intervention axis the comparison ran or attempted, as metadata. */
   axis: InterventionAxis | null;
+  /**
+   * Display labels for the two runs ("Shields off"/"Shields on"). Presentation
+   * only, never a claim gate: a label describes what a run ATTEMPTED, and only
+   * `claims` says whether the pair supports comparing them.
+   */
+  runLabels: { baseline: string; variant: string };
 };
 
 /** A gated claim surface: allowed only when the stored facts prove it. */
@@ -239,6 +258,9 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
       // v2 records structured facts; there is no prose disclosure to quote.
       disclosure: null
     },
+    consent: run.evidence.consent
+      ? { mode: run.evidence.consent.mode, controlActivated: run.evidence.consent.controlActivated }
+      : null,
     quality: {
       origin: "recorded",
       outcome: run.quality.run.outcome,
@@ -312,6 +334,9 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
       },
       disclosure: result.conditions.scannerDisclosure || null
     },
+    consent: result.consentInteraction
+      ? { mode: result.consentInteraction.mode, controlActivated: result.consentInteraction.clicked }
+      : null,
     quality: {
       origin: "legacy-derived",
       outcome: reasons.includes("http-error-status") ? "failed" : "complete",
@@ -331,6 +356,14 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
 function legacyComparisonAxis(comparisonType: string): InterventionAxis | null {
   if (comparisonType === "gpc" || comparisonType === "shields" || comparisonType === "consent") return comparisonType;
   return null;
+}
+
+/** Default per-axis display labels, shared by both generations' builders. */
+function defaultRunLabels(axis: InterventionAxis | null, temporal: boolean): { baseline: string; variant: string } {
+  if (axis === "gpc") return { baseline: "GPC off", variant: "GPC on" };
+  if (axis === "shields") return { baseline: "Shields off", variant: "Shields on" };
+  if (axis === "consent") return { baseline: "Accept all", variant: "Reject all" };
+  return temporal ? { baseline: "Before", variant: "After" } : { baseline: "Baseline", variant: "Variant" };
 }
 
 /** The default-deny policy: every claim surface refused. */
@@ -380,12 +413,19 @@ function latestRunAt(runs: RunView[]): string | null {
   return latest;
 }
 
-function viewFromV1(report: ScanReport): ReportView {
+/**
+ * The view for a v1 wire report held OUTSIDE a stored envelope: the shell's
+ * live scan result, the gallery's static loads, and corpus rows. Stored reads
+ * go through {@link toReportView}, which dispatches on the envelope's schema
+ * metadata instead of assuming a generation.
+ */
+export function viewFromV1Report(report: ScanReport): ReportView {
   if (report.reportType === "comparison") {
     const runs = [
       runViewFromV1(report.baseline, "baseline", report.baseline.conditions.scannedAt),
       runViewFromV1(report.variant, "variant", report.variant.conditions.scannedAt)
     ];
+    const axis = legacyComparisonAxis(report.comparisonType);
     return {
       origin: "legacy-derived",
       revision: null,
@@ -397,7 +437,8 @@ function viewFromV1(report: ScanReport): ReportView {
       runs,
       comparison: {
         kind: "descriptive",
-        axis: legacyComparisonAxis(report.comparisonType)
+        axis,
+        runLabels: report.runLabels ? { ...report.runLabels } : defaultRunLabels(axis, report.comparisonType === "temporal")
       },
       claims: legacyClaims(report)
     };
@@ -456,6 +497,7 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
   const limited = revision === 1;
   if (report.reportType === "comparison") {
     const runs = [runViewFromV2(report.baseline, "baseline"), runViewFromV2(report.variant, "variant")];
+    const axis = report.experiment.kind === "intervention" ? report.experiment.axis : null;
     return {
       origin: "v2",
       revision,
@@ -467,7 +509,8 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
       runs,
       comparison: {
         kind: report.experiment.kind,
-        axis: report.experiment.kind === "intervention" ? report.experiment.axis : null
+        axis,
+        runLabels: defaultRunLabels(axis, report.experiment.kind === "temporal")
       },
       claims: v2Claims(report, limited)
     };
@@ -488,18 +531,20 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
 }
 
 export function toReportView(stored: StoredScanReport): ReportView {
-  if (stored.schemaVersion === 1) return viewFromV1(stored.report);
+  if (stored.schemaVersion === 1) return viewFromV1Report(stored.report);
   return viewFromV2(stored.report, stored.schemaRevision);
 }
 
 /**
- * The claim policy for a v1 wire report without building the full view: the
- * one derivation the headline and findings engines (which still take the v1
- * wire) share with every view-fed surface, so a claim gate can never disagree
- * between the banner, the findings board, and the headline.
+ * The two arms of a comparison view in wire order (baseline first), or null
+ * for single reports. Every delta a consumer quotes derives from these two
+ * runs' counts, the same numbers the v1 wire's `diff` block was computed
+ * from, so an inconsistent uploaded diff can never drive wording, and v2
+ * comparisons (which carry no precomputed diff) get identical treatment.
  */
-export function claimsForV1Report(report: ScanReport): ClaimPolicy {
-  return report.reportType === "comparison" ? legacyClaims(report) : deniedClaims();
+export function comparisonArmViews(view: ReportView): { baseline: RunView; variant: RunView } | null {
+  if (view.reportType !== "comparison" || view.runs.length < 2) return null;
+  return { baseline: view.runs[0], variant: view.runs[view.runs.length - 1] };
 }
 
 /**

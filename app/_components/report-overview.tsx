@@ -24,9 +24,9 @@ import { isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
 import { buildFindings, type FindingIconKey } from "@/lib/report-findings";
 import { buildReportHeadline } from "@/lib/report-headline";
 import { committedReportLocation, locateReport, type ReportRuntime } from "@/lib/report-locator";
-import type { RunView } from "@/lib/scan-report-views";
+import { displayRunView, type ReportView, type RunView } from "@/lib/scan-report-views";
 import { plural } from "@/lib/text-format";
-import type { NetworkRequestRecord, ScanReport, ScanResult } from "@/lib/types";
+import type { NetworkRequestRecord, ScanReport } from "@/lib/types";
 
 /**
  * The report page's overview cluster: the plain-language headline banner, the
@@ -70,8 +70,17 @@ export function absoluteShareUrl(sharePath: string): string {
   }
 }
 
-export function HeadlineBanner({ report, liveApiServesReportPages }: { report: ScanReport; liveApiServesReportPages: boolean }) {
-  const headline = useMemo(() => buildReportHeadline(report), [report]);
+export function HeadlineBanner({
+  report,
+  view,
+  liveApiServesReportPages
+}: {
+  /** The wire report, needed only to resolve the share permalink. */
+  report: ScanReport;
+  view: ReportView;
+  liveApiServesReportPages: boolean;
+}) {
+  const headline = useMemo(() => buildReportHeadline(view), [view]);
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -187,9 +196,9 @@ const FINDING_ICONS: Record<FindingIconKey, typeof Eye> = {
   "file-text": FileText
 };
 
-export function FindingsBoard({ report, result }: { report: ScanReport; result: ScanResult }) {
+export function FindingsBoard({ view }: { view: ReportView }) {
   const corpus = useCorpusStats();
-  const findings = buildFindings(report, result, corpus);
+  const findings = buildFindings(view, corpus);
 
   return (
     <section className="findings-board">
@@ -201,7 +210,7 @@ export function FindingsBoard({ report, result }: { report: ScanReport; result: 
             Unfamiliar terms are defined in the glossary
           </a>
         </div>
-        <span>{result.conditions.automation}</span>
+        <span>{displayRunView(view).conditions.automation}</span>
       </div>
       <div className="finding-list">
         {findings.map((finding) => {

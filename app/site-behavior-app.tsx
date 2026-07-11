@@ -64,7 +64,6 @@ import {
 } from "./client-runtime";
 import { consentChoiceLabel } from "@/lib/consent-interaction";
 import { requestLogToCsv } from "@/lib/csv-export";
-import { displayScanResult } from "@/lib/report-headline";
 import { displayableScreenshot } from "@/lib/report-insights";
 import { committedReportLocation } from "@/lib/report-locator";
 import { isScanRuntimeHealth, type ScanRuntimeHealth } from "@/lib/scan-runtime-health";
@@ -460,40 +459,41 @@ export function SiteBehaviorApp({
     }
   }
 
+  // The version-independent view of the current (v1) report; components
+  // migrate onto this instead of the wire (RFC 14.8). Built from the light
+  // views module so the deep readers stay out of the first-load bundle.
+  const reportView = result ? toReportView({ schemaVersion: 1, report: result }) : null;
+  const primaryRun = reportView ? displayRunView(reportView) : null;
+  const primaryResult = result ? displayV1ScanResult(result) : null;
+
   function downloadReport() {
-    if (!result) return;
+    if (!result || !primaryRun) return;
     const blob = new Blob([JSON.stringify(exportableReport(result), null, 2)], {
       type: "application/json"
     });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `site-behavior-lab-${safeFilenamePart(reportDomain(result))}.json`;
+    anchor.download = `site-behavior-lab-${safeFilenamePart(primaryRun.domain)}.json`;
     anchor.click();
     URL.revokeObjectURL(url);
   }
 
   function downloadCsv() {
-    if (!result) return;
-    const csv = requestLogToCsv(primaryScanResult(result).requests);
+    if (!result || !primaryRun) return;
+    const csv = requestLogToCsv(primaryRun.evidence.requests);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `site-behavior-lab-${safeFilenamePart(reportDomain(result))}-requests.csv`;
+    anchor.download = `site-behavior-lab-${safeFilenamePart(primaryRun.domain)}-requests.csv`;
     anchor.click();
     URL.revokeObjectURL(url);
   }
 
-  const primaryResult = result ? primaryScanResult(result) : null;
-  // The version-independent view of the current (v1) report; components
-  // migrate onto this instead of the wire (RFC 14.8). Built from the light
-  // views module so the deep readers stay out of the first-load bundle.
-  const reportView = result ? toReportView({ schemaVersion: 1, report: result }) : null;
-  const primaryRun = reportView ? displayRunView(reportView) : null;
   const reportReadyMessage =
-    result && primaryResult && !loading && !error
-      ? `Scan report ready for ${reportDomain(result)}: ${plural(primaryResult.summary.totalRequests, "request")} observed.`
+    result && primaryRun && !loading && !error
+      ? `Scan report ready for ${primaryRun.domain}: ${plural(primaryRun.counts.totalRequests, "request")} observed.`
       : "";
   const statusLabel = liveScannerStatusLabel(scannerHealth, scannerHealthError);
   const statusClassName = `status-pill${STATIC_EXPORT ? " status-pill-static" : ""}${
@@ -786,7 +786,7 @@ export function SiteBehaviorApp({
               }
             />
           )}
-          {result && primaryResult && primaryRun && (
+          {result && primaryResult && reportView && primaryRun && (
             <section className="report-grid">
               <div className="report-main">
                 <ReportHeader
@@ -796,10 +796,10 @@ export function SiteBehaviorApp({
                   onDownloadCsv={downloadCsv}
                   liveApiServesReportPages={liveApiServesReportPages}
                 />
-                <HeadlineBanner report={result} liveApiServesReportPages={liveApiServesReportPages} />
-                <FindingsBoard report={result} result={primaryResult} />
+                <HeadlineBanner report={result} view={reportView} liveApiServesReportPages={liveApiServesReportPages} />
+                <FindingsBoard view={reportView} />
                 <CausalityGraph result={primaryResult} />
-                {isComparisonReport(result) && reportView && <ComparisonPanel report={result} claims={reportView.claims} />}
+                {isComparisonReport(result) && <ComparisonPanel report={result} view={reportView} />}
                 <MetricGrid run={primaryRun} />
                 <TrafficViz run={primaryRun} />
                 <Warnings warnings={isComparisonReport(result) ? result.warnings : primaryResult.warnings} />
@@ -1175,15 +1175,16 @@ function isComparisonReport(result: ScanReport): result is ComparisonScanResult 
   return result.reportType === "comparison";
 }
 
-function primaryScanResult(result: ScanReport): ScanResult {
-  // Lead with the baseline (off / unprotected) run for GPC/Shields so the report
-  // shows what the site actually did, not the cleaned-up protected residual; the
-  // ComparisonPanel carries the diff. (Temporal diffs lead with "after".)
-  return displayScanResult(result);
-}
-
-function reportDomain(result: ScanReport): string {
-  return primaryScanResult(result).summary.firstPartyDomain;
+/**
+ * The wire run the remaining v1-typed components (header, causality graph,
+ * sidebar) still render: the baseline (off / unprotected) run for GPC/Shields
+ * pairs so the report shows what the site actually did, the newer run for
+ * temporal pairs. Mirrors the view seam's displayRunView; goes away when
+ * those components migrate onto the view in the v2 render slice.
+ */
+function displayV1ScanResult(result: ScanReport): ScanResult {
+  if (result.reportType !== "comparison") return result;
+  return result.comparisonType === "temporal" ? result.variant : result.baseline;
 }
 
 function normalizeScanUrl(value: string): string {

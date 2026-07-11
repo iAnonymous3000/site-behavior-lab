@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
-import type { ClaimPolicy } from "@/lib/scan-report-views";
+import type { ReportView } from "@/lib/scan-report-views";
 import { provenanceChangeText } from "@/lib/report-findings";
 import { pixelFieldLabel } from "@/lib/report-insights";
 import { plural } from "@/lib/text-format";
@@ -18,13 +18,15 @@ import type {
   StorageKeyChange
 } from "@/lib/types";
 
-function ComparisonPanel({ report, claims }: { report: ComparisonScanResult; claims: ClaimPolicy }) {
-  const labels = comparisonRunLabels(report);
+function ComparisonPanel({ report, view }: { report: ComparisonScanResult; view: ReportView }) {
+  // Labels come from the view (wire runLabels or the per-axis defaults), the
+  // same source the JSON-LD dataset names its per-arm variables with.
+  const labels = view.comparison?.runLabels ?? { baseline: "Baseline", variant: "Variant" };
   // The raw deltas stay visible (they are the evidence), but a pair that
   // supports no comparison claim must say so right beside them, not only in
   // the findings board. The gate comes from the view seam's default-deny
   // ClaimPolicy, the same source every other claim surface consults.
-  const pairGate = claims.pairComparison;
+  const pairGate = view.claims.pairComparison;
   const addedCookies = report.diff.addedCookies ?? [];
   const removedCookies = report.diff.removedCookies ?? [];
   const addedStorageKeys = report.diff.addedStorageKeys ?? [];
@@ -119,15 +121,6 @@ function ComparisonPanel({ report, claims }: { report: ComparisonScanResult; cla
       </div>
     </section>
   );
-}
-
-function comparisonRunLabels(report: ComparisonScanResult): { baseline: string; variant: string } {
-  if (report.runLabels) return report.runLabels;
-  if (report.comparisonType === "gpc") return { baseline: "GPC off", variant: "GPC on" };
-  if (report.comparisonType === "shields") return { baseline: "Shields off", variant: "Shields on" };
-  if (report.comparisonType === "consent") return { baseline: "Accept all", variant: "Reject all" };
-  if (report.comparisonType === "temporal") return { baseline: "Before", variant: "After" };
-  return { baseline: "Baseline", variant: "Variant" };
 }
 
 function comparisonEyebrow(report: ComparisonScanResult): string {

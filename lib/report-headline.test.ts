@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { displayableScreenshot } from "./report-insights";
 import { buildReportHeadline } from "./report-headline";
+import { viewFromV1Report } from "./scan-report-views";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
   type DomainSummary,
@@ -39,7 +40,7 @@ test("leads with named platforms and strips the www prefix", () => {
     thirdPartyDomains: 2
   });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
 
   assert.equal(headline.domain, "shop.example");
   assert.equal(headline.tone, "warn");
@@ -60,7 +61,7 @@ test("escalates to alarm when three or more major platforms appear", () => {
     thirdPartyDomains: 4
   });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "alarm");
   assert.match(headline.headline, /news\.example told Google, Meta and TikTok, \+1 more you were here\./);
 });
@@ -76,7 +77,7 @@ test("falls back to a tracking-company count when no major platform matches", ()
     thirdPartyDomains: 2
   });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   assert.match(headline.headline, /store\.example shared this visit with 2 tracking companies\./);
   // Hotjar is a session-replay vendor, so the subhead should flag recording.
   assert.match(headline.subhead, /session-replay vendor can record/);
@@ -93,7 +94,7 @@ test("treats operational-only services as not tracking", () => {
     thirdPartyDomains: 2
   });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "calm");
   assert.match(headline.headline, /app\.example kept this visit relatively private\./);
 });
@@ -112,7 +113,7 @@ test("flags a GPC comparison that barely changed as an alarm", () => {
     thirdPartyDomains: 40
   });
 
-  const headline = buildReportHeadline(createGpcComparisonReport(baseline, variant));
+  const headline = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(baseline, variant)));
   assert.equal(headline.tone, "alarm");
   assert.match(headline.headline, /Your privacy signal barely changed what amazon\.com loaded\./);
   assert.match(headline.subhead, /do not sell or share/);
@@ -132,7 +133,7 @@ test("phrases a GPC comparison that loaded more as 'more', not a negative percen
     thirdPartyDomains: 10
   });
 
-  const headline = buildReportHeadline(createGpcComparisonReport(baseline, variant));
+  const headline = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(baseline, variant)));
   assert.equal(headline.tone, "alarm");
   assert.match(headline.subhead, /10% more than without it/);
   assert.doesNotMatch(headline.subhead, /down just/);
@@ -153,7 +154,7 @@ test("credits a GPC comparison that pulled back as calm", () => {
     thirdPartyDomains: 0
   });
 
-  const headline = buildReportHeadline(createGpcComparisonReport(baseline, variant));
+  const headline = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(baseline, variant)));
   assert.equal(headline.tone, "calm");
   assert.match(headline.headline, /Off-site requests to respectful\.example dropped 100% with a privacy signal on\./);
   assert.match(headline.subhead, /not proof the site honors the signal/);
@@ -179,7 +180,7 @@ test("the GPC alarm counts tracking companies from the GPC-on visit, not the bas
     thirdPartyDomains: 8
   });
 
-  const headline = buildReportHeadline(createGpcComparisonReport(baseline, variant));
+  const headline = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(baseline, variant)));
   assert.equal(headline.tone, "alarm");
   assert.match(headline.subhead, /still contacted 1 tracking company:/);
   assert.doesNotMatch(headline.subhead, /3 tracking companies/);
@@ -207,7 +208,7 @@ test("the GPC alarm is not raised from baseline-only tracking companies", () => 
     thirdPartyDomains: 9
   });
 
-  const headline = buildReportHeadline(createGpcComparisonReport(baseline, variant));
+  const headline = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(baseline, variant)));
   assert.doesNotMatch(headline.subhead, /still contacted/);
 });
 
@@ -227,7 +228,7 @@ test("frames a Shields comparison as the observed paired-visit difference", () =
     thirdPartyDomains: 2
   });
 
-  const headline = buildReportHeadline(createShieldsComparisonReport(baseline, variant));
+  const headline = buildReportHeadline(viewFromV1Report(createShieldsComparisonReport(baseline, variant)));
   assert.equal(headline.tone, "warn");
   assert.match(headline.headline, /heavy\.example loaded 55 fewer third-party requests with Brave Shields on\./);
   assert.doesNotMatch(headline.headline, /would/);
@@ -253,7 +254,7 @@ test("a Shields comparison names the direct engine blocks separately from the re
     adblock: { active: true, source: "brave-default", lists: 5, fetchedAt: new Date(0).toISOString() }
   };
 
-  const headline = buildReportHeadline(createShieldsComparisonReport(baseline, variant));
+  const headline = buildReportHeadline(viewFromV1Report(createShieldsComparisonReport(baseline, variant)));
   assert.match(headline.headline, /55 fewer third-party requests/);
   // The direct-abort count and the total reduction are different measurements
   // and must appear as two separately-labeled numbers, never blended.
@@ -276,13 +277,13 @@ test("comparison framings are refused when an arm failed, is capped, or mismatch
     thirdPartyRequests: 60
   });
   const shieldsVariant = makeResult({ firstPartyDomain: "heavy.example", totalRequests: 45, thirdPartyRequests: 5 });
-  const cappedHeadline = buildReportHeadline(createShieldsComparisonReport(cappedBaseline, shieldsVariant));
+  const cappedHeadline = buildReportHeadline(viewFromV1Report(createShieldsComparisonReport(cappedBaseline, shieldsVariant)));
   assert.doesNotMatch(cappedHeadline.headline, /fewer third-party requests with Brave Shields on/);
 
   // Failed GPC variant: the pair supports no signal story.
   const gpcBaseline = makeResult({ firstPartyDomain: "shop.example", domains: trackerDomains, thirdPartyRequests: 100 });
   const failedVariant = makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 0, status: 403 });
-  const gpcHeadline = buildReportHeadline(createGpcComparisonReport(gpcBaseline, failedVariant));
+  const gpcHeadline = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(gpcBaseline, failedVariant)));
   assert.doesNotMatch(gpcHeadline.headline, /privacy signal/);
 
   // Mismatched consent subject: the click story must not be told across sites.
@@ -298,7 +299,7 @@ test("comparison framings are refused when an arm failed, is capped, or mismatch
     }),
     consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "OneTrust" }
   };
-  const consentHeadline = buildReportHeadline(createConsentComparisonReport(acceptRun, strayRejectRun));
+  const consentHeadline = buildReportHeadline(viewFromV1Report(createConsentComparisonReport(acceptRun, strayRejectRun)));
   assert.doesNotMatch(consentHeadline.headline, /Reject-all visit/);
 });
 
@@ -319,7 +320,7 @@ test("listener detections whose origins are same-site per the request log claim 
     fingerprintDetections: [makeInputMonitoringDetection(["https://verified.shop.example"])]
   });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   assert.doesNotMatch(headline.headline, /probed your browser/);
   assert.doesNotMatch(headline.subhead, /keyboard input/);
   assert.equal(headline.tone, "calm");
@@ -334,7 +335,7 @@ test("cross-site input monitoring keeps the probe headline with listener wording
     fingerprintDetections: [makeInputMonitoringDetection(["https://recorder.example.net"])]
   });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   assert.match(headline.headline, /probed your browser/);
   // The evidence is listener registration, not observed capture, so the
   // wording must not say the script "watched" input.
@@ -351,7 +352,7 @@ test("surfaces browser probing when fingerprinting matches without catalogued tr
     fingerprintDetections: [makeCanvasDetection()]
   });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "warn");
   assert.match(headline.headline, /fp\.example probed your browser, not just served a page\./);
   assert.equal(headline.stats[0].value, "1");
@@ -365,7 +366,7 @@ test("share text combines the headline, top stats, and the reproducibility tagli
     thirdPartyDomains: 1
   });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   assert.match(headline.shareText, /shared this visit with 1 tracking company/);
   assert.match(headline.shareText, /Open-source and reproducible:/);
 });
@@ -387,7 +388,7 @@ test("a hashed keystroke leak leads the headline with alarm", () => {
     ]
   });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   // Confirmed input capture outranks the named-platform (Google) story.
   assert.equal(headline.tone, "alarm");
   assert.match(headline.headline, /shop\.example sent a hashed copy of what you type to 1 third party\./);
@@ -409,7 +410,7 @@ test("a reversible (base64) keystroke leak stays a warn, not an alarm", () => {
     ]
   });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "warn");
   assert.match(headline.headline, /shop\.example sends what you type to 1 third party as you type\./);
 });
@@ -429,7 +430,7 @@ test("a plain-text keystroke leak reads as a calmer third-party type-ahead, not 
     ]
   });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "warn");
   assert.match(headline.headline, /weather\.gov sends what you type to 1 third party as you type\./);
   assert.match(headline.subhead, /geocode\.arcgis\.com/);
@@ -446,7 +447,7 @@ test("a pixel that attached personal identifiers leads over the named-platform s
     ]
   });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "warn");
   assert.match(headline.headline, /shop\.example sent personal identifiers to Meta Pixel\./);
   // Field presence is detected; the values' hashing is never validated, so
@@ -464,7 +465,7 @@ test("an event-only pixel does not trigger the identifier headline", () => {
     pixelEvents: [{ platform: "Meta", product: "Meta Pixel", events: ["PageView"], advancedMatching: [], requests: 1 }]
   });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   // No advanced matching, so it falls through to the named-platform line.
   assert.match(headline.headline, /shop\.example told Meta you were here\./);
 });
@@ -490,7 +491,7 @@ test("trackers surviving a real Reject all click lead the consent-comparison hea
     consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "OneTrust" }
   };
 
-  const headline = buildReportHeadline(createConsentComparisonReport(acceptRun, rejectRun));
+  const headline = buildReportHeadline(viewFromV1Report(createConsentComparisonReport(acceptRun, rejectRun)));
   assert.equal(headline.tone, "warn");
   assert.match(headline.headline, /shop\.example still reached 1 tracking company in the Reject-all visit\./);
   assert.match(headline.subhead, /Google/);
@@ -513,7 +514,7 @@ test("a clean reject run headlines that the consent choice made a difference", (
     consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "Cookiebot" }
   };
 
-  const headline = buildReportHeadline(createConsentComparisonReport(acceptRun, rejectRun));
+  const headline = buildReportHeadline(viewFromV1Report(createConsentComparisonReport(acceptRun, rejectRun)));
   assert.equal(headline.tone, "info");
   // The scanner cannot verify the site registered the click, so the headline
   // describes the Reject-all visit, never an effect the rejection caused.
@@ -535,7 +536,7 @@ test("an un-clicked reject run falls through to the ordinary evidence headline",
     consentInteraction: { mode: "reject-all" as const, clicked: false }
   };
 
-  const headline = buildReportHeadline(createConsentComparisonReport(acceptRun, rejectRun));
+  const headline = buildReportHeadline(viewFromV1Report(createConsentComparisonReport(acceptRun, rejectRun)));
   // No Reject all claim is allowed when the click never happened; the report
   // leads with the ordinary evidence story instead.
   assert.equal(/Reject all/.test(headline.headline), false);
@@ -545,7 +546,7 @@ test("an un-clicked reject run falls through to the ordinary evidence headline",
 test("an HTTP error load is framed as a failed load, not as relatively private", () => {
   const result = makeResult({ firstPartyDomain: "blocked.example", status: 403, totalRequests: 1 });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "info");
   assert.match(headline.headline, /blocked\.example returned an error, so there was little to scan\./);
   assert.match(headline.subhead, /HTTP 403/);
@@ -556,7 +557,7 @@ test("an HTTP error load is framed as a failed load, not as relatively private",
 test("a server-error load with zero requests does not read as private", () => {
   const result = makeResult({ firstPartyDomain: "down.example", status: 503, totalRequests: 0 });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "info");
   assert.match(headline.subhead, /HTTP 503/);
   assert.doesNotMatch(headline.headline, /relatively private/);
@@ -565,18 +566,16 @@ test("a server-error load with zero requests does not read as private", () => {
 test("a null status (e.g. PageGraph import) is not treated as a failed load", () => {
   const result = makeResult({ firstPartyDomain: "quiet.example", status: null });
 
-  const headline = buildReportHeadline(result);
+  const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "calm");
   assert.match(headline.headline, /quiet\.example kept this visit relatively private\./);
 });
 
 test("caveat counts one visit on single reports and two on comparisons", () => {
-  const single = buildReportHeadline(makeResult({ firstPartyDomain: "solo.example" }));
+  const single = buildReportHeadline(viewFromV1Report(makeResult({ firstPartyDomain: "solo.example" })));
   assert.match(single.caveat, /one automated visit/);
 
-  const comparison = buildReportHeadline(
-    createGpcComparisonReport(makeResult({ firstPartyDomain: "pair.example" }), makeResult({ firstPartyDomain: "pair.example" }))
-  );
+  const comparison = buildReportHeadline(viewFromV1Report(createGpcComparisonReport(makeResult({ firstPartyDomain: "pair.example" }), makeResult({ firstPartyDomain: "pair.example" }))));
   assert.match(comparison.caveat, /two automated visits/);
 });
 
@@ -685,3 +684,29 @@ function makeResult(overrides: ResultOverrides = {}): ScanResult {
     warnings: []
   };
 }
+
+test("a tampered wire diff cannot drive the headline; numbers derive from the two arms", () => {
+  const baseline = makeResult({
+    firstPartyDomain: "heavy.example",
+    domains: [makeTrackerDomain("ads.example", 60, "AdCo", "advertising")],
+    totalRequests: 100,
+    thirdPartyRequests: 60,
+    thirdPartyDomains: 12
+  });
+  const variant = makeResult({
+    firstPartyDomain: "heavy.example",
+    domains: [makeTrackerDomain("ads.example", 5, "AdCo", "advertising")],
+    totalRequests: 45,
+    thirdPartyRequests: 5,
+    thirdPartyDomains: 2
+  });
+  const report = createShieldsComparisonReport(baseline, variant);
+  // An uploaded report can carry any diff block it likes; the headline must
+  // quote the arms' recorded counts, never the wire's precomputed claim.
+  report.diff.thirdPartyRequests = { before: 9999, after: 9998, delta: -1 };
+  report.diff.totalRequests = { before: 12345, after: 12345, delta: 0 };
+
+  const headline = buildReportHeadline(viewFromV1Report(report));
+  assert.match(headline.headline, /heavy\.example loaded 55 fewer third-party requests with Brave Shields on\./);
+  assert.match(headline.subhead, /made 100 requests/);
+});

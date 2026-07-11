@@ -92,7 +92,7 @@ export function trackingServiceRequests(result: Pick<ScanResult, "domains">): nu
 }
 
 /** High-entropy fingerprinting detections (canvas/WebGL/audio/WebRTC), excluding listener-coverage signals. */
-export function highEntropyDetections(result: ScanResult): FingerprintDetectionSummary[] {
+export function highEntropyDetections(result: Pick<ScanResult, "fingerprintDetections">): FingerprintDetectionSummary[] {
   return (result.fingerprintDetections ?? []).filter((detection) => HIGH_ENTROPY_FINGERPRINT_KINDS.has(detection.kind));
 }
 
@@ -107,9 +107,10 @@ export function highEntropyDetections(result: ScanResult): FingerprintDetectionS
  * `null` status (e.g. PageGraph/external imports that never carry one) is treated
  * as "unknown", not a failure, to avoid mislabeling reports that legitimately
  * lack a status.
+ *
+ * Takes the run's top-level status value (v1 `summary.status`, view `status`).
  */
-export function scanLoadFailureStatus(result: ScanResult): number | null {
-  const status = result.summary.status;
+export function scanLoadFailureStatus(status: number | null | undefined): number | null {
   return typeof status === "number" && status >= 400 ? status : null;
 }
 
@@ -120,7 +121,7 @@ function isTrackingCategory(category: string): boolean {
 }
 
 /** All fingerprint/behavioral detections on a scan (safe on legacy reports without the field). */
-export function fingerprintDetections(result: ScanResult): FingerprintDetectionSummary[] {
+export function fingerprintDetections(result: Pick<ScanResult, "fingerprintDetections">): FingerprintDetectionSummary[] {
   return result.fingerprintDetections ?? [];
 }
 
@@ -147,7 +148,7 @@ export function crossSiteListenerOrigins(result: Pick<ScanResult, "domains">, or
  * probe attributed; consumers should say so.
  */
 export function crossSiteListenerDetection(
-  result: ScanResult,
+  result: Pick<ScanResult, "domains" | "fingerprintDetections">,
   kind: "session-recording" | "input-monitoring"
 ): Extract<FingerprintDetectionSummary, { kind: "session-recording" | "input-monitoring" }> | undefined {
   const detection = fingerprintDetection(result, kind);
@@ -183,16 +184,24 @@ export type ShieldsRunMeasurement = {
   count: number;
 };
 
-/** The Shields engine measurement a run carries, or null when the engine was off. */
-export function shieldsRunMeasurement(result: Pick<ScanResult, "summary" | "conditions">): ShieldsRunMeasurement | null {
-  const count = result.summary.shieldsBlockedRequests;
-  if (typeof count !== "number" || result.conditions.adblock?.active !== true) return null;
-  return { kind: result.conditions.shieldsMode === "block-simulation" ? "engine-blocked" : "filter-matches", count };
+/**
+ * The Shields engine measurement a run carries, or null when the engine was
+ * off. Takes the view's run shape; a v1 wire caller adapts via
+ * `{ counts: { shieldsBlockedRequests: summary.shieldsBlockedRequests ?? null },
+ *    conditions: { adblockActive: conditions.adblock?.active ?? null, shieldsMode: conditions.shieldsMode ?? null } }`.
+ */
+export function shieldsRunMeasurement(run: {
+  counts: { shieldsBlockedRequests: number | null };
+  conditions: { adblockActive: boolean | null; shieldsMode: string | null };
+}): ShieldsRunMeasurement | null {
+  const count = run.counts.shieldsBlockedRequests;
+  if (typeof count !== "number" || run.conditions.adblockActive !== true) return null;
+  return { kind: run.conditions.shieldsMode === "block-simulation" ? "engine-blocked" : "filter-matches", count };
 }
 
 /** The single detection of a given kind, narrowed to its evidence shape, if present. */
 export function fingerprintDetection<K extends FingerprintDetectionSummary["kind"]>(
-  result: ScanResult,
+  result: Pick<ScanResult, "fingerprintDetections">,
   kind: K
 ): Extract<FingerprintDetectionSummary, { kind: K }> | undefined {
   return fingerprintDetections(result).find((detection) => detection.kind === kind) as
@@ -201,7 +210,7 @@ export function fingerprintDetection<K extends FingerprintDetectionSummary["kind
 }
 
 /** Total instrumented detection occurrences (summed across kinds). */
-export function fingerprintDetectionCount(result: ScanResult): number {
+export function fingerprintDetectionCount(result: Pick<ScanResult, "fingerprintDetections">): number {
   return fingerprintDetections(result).reduce((total, detection) => total + detection.count, 0);
 }
 
@@ -307,7 +316,7 @@ export function pixelFieldLabel(field: PixelMatchField): string {
 }
 
 /** Pixel-level events observed (safe on legacy reports without the field). */
-export function pixelEventSummaries(result: ScanResult): PixelEventSummary[] {
+export function pixelEventSummaries(result: Pick<ScanResult, "pixelEvents">): PixelEventSummary[] {
   return result.pixelEvents ?? [];
 }
 

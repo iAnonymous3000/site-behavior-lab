@@ -41,11 +41,11 @@ export async function readStoredReportForId(id: string, rootDir = process.cwd())
 }
 
 /**
- * v1-narrowing wrapper for render surfaces that still consume the legacy wire
- * type directly (headline metadata, OG images, sitemap, corpus loader). They
- * treat every non-v1 outcome as absent and skip the entry; surfaces that must
- * answer honestly for unreadable reports (the report page, the API route) use
- * {@link readStoredReportForId} instead.
+ * v1-narrowing wrapper for the one surface still consuming the legacy wire
+ * type directly (the sitemap). It treats every non-v1 outcome as absent and
+ * skips the entry; surfaces that must answer honestly for unreadable reports
+ * (the report page, the API route) or that render from the view (metadata,
+ * OG images, corpus loader) use {@link readStoredReportForId} instead.
  */
 export async function readReportForId(id: string, rootDir = process.cwd()): Promise<ScanReport | null> {
   const result = await readStoredReportForId(id, rootDir);

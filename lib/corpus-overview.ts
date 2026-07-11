@@ -1,16 +1,15 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { buildCategoryRollups, type CategoryRollup } from "./category-rollups";
-import { comparisonEligibility } from "./comparison-eligibility";
 import { domainsMatch } from "./featured-sites";
-import { buildReportHeadline, displayScanResult, type HeadlineTone } from "./report-headline";
+import { buildReportHeadline, type HeadlineTone } from "./report-headline";
 import { trackingServiceRequests } from "./report-insights";
 import { readStoredReportForId } from "./report-source";
-import { toReportView } from "./scan-report-view";
+import { comparisonArmViews, displayRunView, toReportView, type ReportView } from "./scan-report-view";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { listStaticReportIds } from "./static-report-files";
 import { computeSinceLastScan, type SinceLastScan } from "./temporal-deltas";
-import type { ComparisonType, ScanReport } from "./types";
+import type { ComparisonType } from "./types";
 
 /**
  * Server-only: loads the committed report corpus and derives the index-level views
@@ -143,25 +142,26 @@ export function preferAsSiteDataPoint(candidate: DirectoryEntry, existing: Direc
 }
 
 /**
- * Derives the dispatched consent-click state from the report's recorded
+ * Derives the dispatched consent-click state from the view's recorded
  * interactions. Classification must come from what the scanner actually
  * clicked, never from the requested mode: most consent runs find no clickable
  * banner and therefore only observed the pre-consent state.
  */
-export function consentClicksForReport(report: ScanReport): ConsentClicks | null {
-  if (report.reportType === "comparison") {
-    if (report.comparisonType !== "consent") return null;
-    const accepted = report.baseline.consentInteraction?.clicked === true;
-    const rejected = report.variant.consentInteraction?.clicked === true;
+export function consentClicksForView(view: ReportView): ConsentClicks | null {
+  const arms = comparisonArmViews(view);
+  if (arms) {
+    if (view.comparison?.axis !== "consent") return null;
+    const accepted = arms.baseline.consent?.controlActivated === true;
+    const rejected = arms.variant.consent?.controlActivated === true;
     if (accepted && rejected) return "accept-and-reject";
     if (accepted) return "accept-only";
     if (rejected) return "reject-only";
     return "none";
   }
 
-  const interaction = report.consentInteraction;
+  const interaction = view.runs[0]?.consent;
   if (!interaction) return null;
-  if (!interaction.clicked) return "none";
+  if (!interaction.controlActivated) return "none";
   return interaction.mode === "accept-all" ? "accept-only" : "reject-only";
 }
 
@@ -208,18 +208,20 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
 
     // Lead with the baseline (off / unprotected) run for GPC/Shields so the directory
     // lists and ranks what each site actually did, not the protected residual.
-    const result = displayScanResult(report);
+    const run = displayRunView(view);
+    const arms = comparisonArmViews(view);
     // Keep reserved/test domains out of the public directory, mirroring the gallery
     // manifest exclusion (a reserved-domain report is reachable by permalink only).
-    if (isReservedReportDomain(result.summary.firstPartyDomain)) continue;
-    const headline = buildReportHeadline(report);
-    const { id: category, label: categoryLabel } = categoryFor(result.summary.firstPartyDomain, catalog);
+    if (isReservedReportDomain(run.domain)) continue;
+    const headline = buildReportHeadline(view);
+    const { id: category, label: categoryLabel } = categoryFor(run.domain, catalog);
     // The observed third-party reduction of an ELIGIBLE Shields pair (both arms
-    // loaded, uncapped, matched). This is a paired-visit difference, never a
-    // "blocked" count; the directory labels it accordingly.
+    // loaded, uncapped, matched, per the seam's pair claim gate). This is a
+    // paired-visit difference, never a "blocked" count; the directory labels
+    // it accordingly.
     const shieldsBlocked =
-      report.reportType === "comparison" && report.comparisonType === "shields" && comparisonEligibility(report).eligible
-        ? Math.max(0, report.baseline.summary.thirdPartyRequests - report.variant.summary.thirdPartyRequests)
+      arms && view.comparison?.axis === "shields" && view.claims.pairComparison?.allowed === true
+        ? Math.max(0, arms.baseline.counts.thirdPartyRequests - arms.variant.counts.thirdPartyRequests)
         : null;
 
     entries.push({
@@ -227,22 +229,23 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
       domain: headline.domain,
       tone: headline.tone,
       headline: headline.headline,
-      thirdPartyRequests: result.summary.thirdPartyRequests,
-      // Tracking services only: summary.knownTrackerRequests also counts
+      thirdPartyRequests: run.counts.thirdPartyRequests,
+      // Tracking services only: counts.knownTrackerRequests also counts
       // operational-only matches (error monitoring, support chat), which must
       // not rank sites on a surface labeled "tracker".
-      trackerRequests: trackingServiceRequests(result),
-      thirdPartyCookies: result.summary.thirdPartyCookies,
+      trackerRequests: trackingServiceRequests(run.evidence),
+      thirdPartyCookies: run.counts.thirdPartyCookies,
       shieldsBlocked,
       category,
       categoryLabel,
-      scannedAt: report.reportType === "comparison" ? report.scannedAt : result.conditions.scannedAt,
-      reportType: report.reportType === "comparison" ? "comparison" : "single",
-      device: result.conditions.viewport.isMobile ? "mobile" : "desktop",
-      gpcEnabled: result.conditions.gpcEnabled,
-      consentMode: result.conditions.consentMode ?? "observe",
-      consentClicks: consentClicksForReport(report),
-      status: typeof result.summary.status === "number" ? result.summary.status : null,
+      // Non-null on every v1 report (the loop is v1-gated above).
+      scannedAt: view.scannedAt ?? "",
+      reportType: view.reportType,
+      device: run.conditions.viewport.isMobile ? "mobile" : "desktop",
+      gpcEnabled: run.conditions.gpcEnabled,
+      consentMode: run.conditions.consentMode,
+      consentClicks: consentClicksForView(view),
+      status: run.status,
       schemaVersion: readResult.stored.schemaVersion,
       schemaRevision: view.revision,
       schemaOrigin: view.origin,

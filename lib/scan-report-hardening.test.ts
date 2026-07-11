@@ -14,7 +14,7 @@ import {
 } from "./scan-report-v2-fixtures";
 import { isPublicComparisonReportV2, isPublicScanReportV2, isPublicSingleReportV2 } from "./scan-report-v2-validation";
 import { readStoredScanReport } from "./scan-report-reader";
-import { publicWireForExportOrPersistence, readScanTransportPayload, toReportView } from "./scan-report-view";
+import { comparisonArmViews, publicWireForExportOrPersistence, readScanTransportPayload, toReportView } from "./scan-report-view";
 import { evaluateComparability, evaluateQuality } from "./scan-report-v2-evaluators";
 import { createGpcComparisonReport } from "./compare-reports";
 import type { ScanResult } from "./types";
@@ -1168,5 +1168,59 @@ test("an omitted v1 screenshot is accepted and canonicalized to null", () => {
     const projected = publicWireForExportOrPersistence(comparisonResult.loaded) as AnyRecord;
     assert.equal(projected.baseline.screenshot, null);
     assert.equal(projected.variant.screenshot, null);
+  }
+});
+
+test("run views carry the consent outcome and comparison views carry display labels", () => {
+  // v1: the recorded consentInteraction maps to the consent view (clicked ->
+  // controlActivated); a run that never attempted one maps to null.
+  const clicked = mutate(makeScanReportV1() as ScanResult, (draft) => {
+    (draft as AnyRecord).consentInteraction = { mode: "reject-all", clicked: true };
+  });
+  const v1Read = readStoredScanReport(clicked);
+  assert.equal(v1Read.ok, true);
+  if (v1Read.ok) {
+    assert.deepEqual(toReportView(v1Read.stored).runs[0].consent, { mode: "reject-all", controlActivated: true });
+  }
+  const v1Plain = readStoredScanReport(makeScanReportV1());
+  assert.equal(v1Plain.ok, true);
+  if (v1Plain.ok) {
+    assert.equal(toReportView(v1Plain.stored).runs[0].consent, null);
+    // Single reports have no arms.
+    assert.equal(comparisonArmViews(toReportView(v1Plain.stored)), null);
+  }
+
+  // v2: evidence.consent.controlActivated comes through unchanged. Dispatch
+  // is not verification; the verification facts stay on the wire and gate
+  // claims through the policy, not through this block.
+  const v2Consent = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run = makeConsentRun("reject-all");
+  });
+  const v2Read = readStoredScanReport(v2Consent);
+  assert.equal(v2Read.ok, true, JSON.stringify(!v2Read.ok ? v2Read.violations : []));
+  if (v2Read.ok) {
+    assert.deepEqual(toReportView(v2Read.stored).runs[0].consent, { mode: "reject-all", controlActivated: true });
+  }
+
+  // Comparison labels: the wire's runLabels win on v1, per-design defaults
+  // otherwise. Labels are presentation only; `claims` stays the only gate.
+  const v1Single = makeScanReportV1() as ScanResult;
+  const labeled = createGpcComparisonReport(structuredClone(v1Single), structuredClone(v1Single));
+  labeled.runLabels = { baseline: "Custom off", variant: "Custom on" };
+  const labeledRead = readStoredScanReport(labeled);
+  assert.equal(labeledRead.ok, true);
+  if (labeledRead.ok) {
+    const view = toReportView(labeledRead.stored);
+    assert.deepEqual(view.comparison?.runLabels, { baseline: "Custom off", variant: "Custom on" });
+    // The two-arm accessor returns the runs in wire order.
+    const arms = comparisonArmViews(view);
+    assert.equal(arms?.baseline, view.runs[0]);
+    assert.equal(arms?.variant, view.runs[1]);
+  }
+
+  const v2Temporal = readStoredScanReport(makeTemporalComparisonReportV2());
+  assert.equal(v2Temporal.ok, true);
+  if (v2Temporal.ok) {
+    assert.deepEqual(toReportView(v2Temporal.stored).comparison?.runLabels, { baseline: "Before", variant: "After" });
   }
 });

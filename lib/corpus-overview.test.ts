@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createConsentComparisonReport } from "./compare-reports";
-import { consentClicksForReport, preferAsSiteDataPoint, type DirectoryEntry } from "./corpus-overview";
+import { consentClicksForView, preferAsSiteDataPoint, type DirectoryEntry } from "./corpus-overview";
 import { SCAN_REPORT_SCHEMA_VERSION, type ConsentInteractionSummary, type ScanResult } from "./types";
+import { viewFromV1Report } from "./scan-report-views";
 
 function makeResult(overrides: { consentInteraction?: ConsentInteractionSummary } = {}): ScanResult {
   return {
@@ -59,21 +60,21 @@ function consentComparison(acceptClicked: boolean, rejectClicked: boolean) {
   );
 }
 
-test("consentClicksForReport classifies by what was actually clicked, not the requested mode", () => {
-  assert.equal(consentClicksForReport(consentComparison(true, true)), "accept-and-reject");
-  assert.equal(consentClicksForReport(consentComparison(true, false)), "accept-only");
-  assert.equal(consentClicksForReport(consentComparison(false, true)), "reject-only");
-  assert.equal(consentClicksForReport(consentComparison(false, false)), "none");
+test("consentClicksForView classifies by what was actually clicked, not the requested mode", () => {
+  assert.equal(consentClicksForView(viewFromV1Report(consentComparison(true, true))), "accept-and-reject");
+  assert.equal(consentClicksForView(viewFromV1Report(consentComparison(true, false))), "accept-only");
+  assert.equal(consentClicksForView(viewFromV1Report(consentComparison(false, true))), "reject-only");
+  assert.equal(consentClicksForView(viewFromV1Report(consentComparison(false, false))), "none");
 });
 
-test("consentClicksForReport returns null when no consent interaction was attempted", () => {
-  assert.equal(consentClicksForReport(makeResult()), null);
+test("consentClicksForView returns null when no consent interaction was attempted", () => {
+  assert.equal(consentClicksForView(viewFromV1Report(makeResult())), null);
 });
 
-test("consentClicksForReport classifies single consent-mode runs", () => {
-  assert.equal(consentClicksForReport(makeResult({ consentInteraction: { mode: "accept-all", clicked: true } })), "accept-only");
-  assert.equal(consentClicksForReport(makeResult({ consentInteraction: { mode: "reject-all", clicked: true } })), "reject-only");
-  assert.equal(consentClicksForReport(makeResult({ consentInteraction: { mode: "reject-all", clicked: false } })), "none");
+test("consentClicksForView classifies single consent-mode runs", () => {
+  assert.equal(consentClicksForView(viewFromV1Report(makeResult({ consentInteraction: { mode: "accept-all", clicked: true } }))), "accept-only");
+  assert.equal(consentClicksForView(viewFromV1Report(makeResult({ consentInteraction: { mode: "reject-all", clicked: true } }))), "reject-only");
+  assert.equal(consentClicksForView(viewFromV1Report(makeResult({ consentInteraction: { mode: "reject-all", clicked: false } }))), "none");
 });
 
 function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): DirectoryEntry {
