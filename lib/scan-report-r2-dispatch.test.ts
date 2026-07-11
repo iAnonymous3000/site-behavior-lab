@@ -56,8 +56,10 @@ test("views are revision-aware: r1 is limited and its causal surface suppressed"
     const view = toReportView(r1.stored);
     assert.equal(view.revision, 1);
     assert.equal(view.limited, true, "RFC 15.7: r1 reports are limited/descriptive");
-    assert.equal(view.comparison!.interventionVerified, null, "causal surface suppressed for r1");
-    assert.notEqual(view.comparison!.familiesEligible, null, "descriptive eligibility still renders");
+    assert.equal(view.claims.interventionAttribution, false, "causal surface suppressed for r1");
+    assert.equal(view.claims.strongCausal, false);
+    assert.notEqual(view.claims.familyDeltas, null, "descriptive eligibility still renders");
+    assert.equal(view.claims.pairComparison?.allowed, true);
   }
 
   const r2 = readStoredScanReport(makeGpcInterventionReportV2R2());
@@ -66,7 +68,10 @@ test("views are revision-aware: r1 is limited and its causal surface suppressed"
     const view = toReportView(r2.stored);
     assert.equal(view.revision, 2);
     assert.equal(view.limited, false);
-    assert.equal(view.comparison!.interventionVerified, true, "r2 carries the verified surface");
+    assert.equal(view.claims.interventionAttribution, true, "r2 carries the verified attribution gate");
+    // One valid pair is observed-difference evidence; strong causal wording
+    // stays denied until replicated counterbalanced evidence exists (RFC 4.2).
+    assert.equal(view.claims.strongCausal, false);
   }
 });
 

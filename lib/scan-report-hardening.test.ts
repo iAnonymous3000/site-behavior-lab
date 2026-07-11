@@ -196,7 +196,16 @@ test("toReportView marks v1 as legacy-derived and v2 as v2", () => {
     assert.equal(view.limited, true);
     assert.equal(view.comparison?.kind, "descriptive");
     assert.equal(view.comparison?.axis, "gpc");
-    assert.equal(view.comparison?.interventionVerified, null);
+    // Default-deny claims: a v1 pair may render as a descriptive pairing,
+    // but no family delta, attribution, temporal, or strong-causal claim.
+    assert.equal(view.claims.pairComparison?.allowed, true);
+    assert.equal(view.claims.interventionAttribution, false);
+    assert.equal(view.claims.temporalChange, false);
+    assert.equal(view.claims.strongCausal, false);
+    for (const gate of Object.values(view.claims.familyDeltas ?? {})) {
+      assert.equal(gate.allowed, false);
+      assert.match(gate.reasons.join(" "), /unprovable/);
+    }
   }
 
   const v2 = readStoredScanReport(makeTemporalComparisonReportV2());
@@ -205,8 +214,13 @@ test("toReportView marks v1 as legacy-derived and v2 as v2", () => {
     const view = toReportView(v2.stored);
     assert.equal(view.origin, "v2");
     assert.equal(view.comparison?.kind, "temporal");
-    assert.equal(view.comparison?.interventionVerified, null);
-    assert.equal(view.comparison?.familiesEligible?.["raw-counts"], true);
+    assert.equal(view.claims.interventionAttribution, false);
+    // r1 is limited (RFC 15.7), so even a valid temporal pair may not claim
+    // "the site changed"; its family deltas still render descriptively.
+    assert.equal(view.claims.temporalChange, false);
+    assert.equal(view.claims.familyDeltas?.["raw-counts"].allowed, true);
+    // Retention/sort must key on the NEWEST run, not the older baseline.
+    assert.equal(view.latestRunAt, view.runs[1].startedAt);
   }
 });
 

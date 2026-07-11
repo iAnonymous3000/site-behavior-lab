@@ -130,7 +130,11 @@ async function readReportRecords(reportsDir: string): Promise<{ records: ReportR
     }
 
     const view = toReportView(read.stored);
-    const scannedAtMs = view.scannedAt === null ? Number.NaN : Date.parse(view.scannedAt);
+    // Retention ages a report by its NEWEST run, not its lead run: a
+    // long-span temporal comparison's baseline can be arbitrarily old, and
+    // keying age on it would make a just-published report look stale.
+    const retainAt = view.latestRunAt ?? view.scannedAt;
+    const scannedAtMs = retainAt === null ? Number.NaN : Date.parse(retainAt);
     if (!Number.isFinite(scannedAtMs)) {
       warnings.push(`Keeping static report without a readable scan time ${entry.name} (never pruned).`);
       continue;

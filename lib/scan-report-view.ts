@@ -8,9 +8,11 @@
  * report), never a view. For an ephemeral result the downloadable/persistable
  * form is LoadedReport.public (the projection), never the ephemeral shell.
  */
+import { comparisonEligibility } from "./comparison-eligibility";
 import { isRecord } from "./guards";
 import type { ScanReport, ScanResult } from "./types";
 import {
+  METRIC_FAMILIES,
   type EphemeralScanReport,
   type InterventionAxis,
   type MetricFamily,
@@ -55,12 +57,37 @@ export type RunView = {
 };
 
 export type ComparisonView = {
+  /** The design label; a LABEL only, never a claim gate (consult `claims`). */
   kind: "intervention" | "temporal" | "descriptive";
+  /** The intervention axis the comparison ran or attempted, as metadata. */
   axis: InterventionAxis | null;
-  /** null = unknown (legacy reports never recorded verification). */
-  interventionVerified: boolean | null;
-  /** null = unknown (legacy reports predate per-metric eligibility). */
-  familiesEligible: Record<MetricFamily, boolean> | null;
+};
+
+/** A gated claim surface: allowed only when the stored facts prove it. */
+export type ClaimGate = { allowed: boolean; reasons: string[] };
+
+/**
+ * Explicit DEFAULT-DENY claim policy (RFC 4.1/4.2 product rules). Renderers
+ * consult THIS block and nothing else: not `comparison.kind`, not `limited`,
+ * not wire fields. Every gate is false unless the stored facts prove the
+ * claim, so a renderer that forgets a check under-claims instead of
+ * over-claiming.
+ */
+export type ClaimPolicy = {
+  /**
+   * Pair-level framing ("these two visits compare one subject"). null on
+   * single reports (there is no pair). Raw per-run evidence is not a claim
+   * and may always render.
+   */
+  pairComparison: ClaimGate | null;
+  /** Per metric family: may this family's delta be quoted as comparable? */
+  familyDeltas: Record<MetricFamily, ClaimGate> | null;
+  /** Intervention-attributed framing ("Shields blocked", "after the Reject click"). */
+  interventionAttribution: boolean;
+  /** Same-subject change-over-time framing ("the site changed since..."). */
+  temporalChange: boolean;
+  /** Strong causal wording; requires replicated counterbalanced evidence (RFC 4.2). */
+  strongCausal: boolean;
 };
 
 export type ReportView = {
@@ -71,14 +98,24 @@ export type ReportView = {
    * RFC 15.7: v1 and v2 r1 reports are limited/descriptive; their
    * intervention-attributed and causal surfaces are suppressed (r1 lacks the
    * structured facts for authoritative verification). Only r2 views may
-   * render causal framing.
+   * render causal framing. A labeling aid; the claim gates in `claims`
+   * already encode its consequences.
    */
   limited: boolean;
   reportType: "single" | "comparison";
   domain: string;
+  /** The lead run's start: the DISPLAY timestamp ("scanned on ..."). */
   scannedAt: string | null;
+  /**
+   * The newest run's start: the SORT/RETENTION timestamp. Distinct from
+   * `scannedAt` because a comparison's lead (baseline) run can be much older
+   * than its newest run (a long-span temporal pair), and retention keyed on
+   * the lead would age a just-published report immediately.
+   */
+  latestRunAt: string | null;
   runs: RunView[];
   comparison: ComparisonView | null;
+  claims: ClaimPolicy;
 };
 
 function runViewFromV2(run: ScanRunV2, label: RunView["label"]): RunView {
@@ -125,8 +162,59 @@ function legacyComparisonAxis(comparisonType: string): InterventionAxis | null {
   return null;
 }
 
+/** The default-deny policy: every claim surface refused. */
+function deniedClaims(): ClaimPolicy {
+  return {
+    pairComparison: null,
+    familyDeltas: null,
+    interventionAttribution: false,
+    temporalChange: false,
+    strongCausal: false
+  };
+}
+
+const LEGACY_FAMILY_REASON =
+  "v1 recorded no per-family environment facts, so family comparability is unprovable (RFC 3.2: unknown never matches).";
+
+/**
+ * Claims a v1 comparison can support: at most a descriptive pairing. The
+ * pair-level gate reuses the shared v1 eligibility rule (failed, capped, or
+ * mismatched arms), and every family delta is refused because v1 never
+ * recorded the facts that would prove family comparability. Attribution,
+ * temporal, and strong-causal framing are denied by construction.
+ */
+function legacyClaims(report: Extract<ScanReport, { reportType: "comparison" }>): ClaimPolicy {
+  const eligibility = comparisonEligibility(report);
+  return {
+    ...deniedClaims(),
+    pairComparison: { allowed: eligibility.eligible, reasons: [...eligibility.reasons] },
+    familyDeltas: Object.fromEntries(
+      METRIC_FAMILIES.map((family) => [family, { allowed: false, reasons: [LEGACY_FAMILY_REASON] }])
+    ) as Record<MetricFamily, ClaimGate>
+  };
+}
+
+/** The newest parseable timestamp among the runs, for sorting and retention. */
+function latestRunAt(runs: RunView[]): string | null {
+  let latest: string | null = null;
+  let latestMs = Number.NEGATIVE_INFINITY;
+  for (const run of runs) {
+    if (run.startedAt === null) continue;
+    const ms = Date.parse(run.startedAt);
+    if (Number.isFinite(ms) && ms > latestMs) {
+      latest = run.startedAt;
+      latestMs = ms;
+    }
+  }
+  return latest;
+}
+
 function viewFromV1(report: ScanReport): ReportView {
   if (report.reportType === "comparison") {
+    const runs = [
+      runViewFromV1(report.baseline, "baseline", report.baseline.conditions.scannedAt),
+      runViewFromV1(report.variant, "variant", report.variant.conditions.scannedAt)
+    ];
     return {
       origin: "legacy-derived",
       revision: null,
@@ -134,18 +222,16 @@ function viewFromV1(report: ScanReport): ReportView {
       reportType: "comparison",
       domain: report.baseline.summary.firstPartyDomain,
       scannedAt: report.scannedAt,
-      runs: [
-        runViewFromV1(report.baseline, "baseline", report.baseline.conditions.scannedAt),
-        runViewFromV1(report.variant, "variant", report.variant.conditions.scannedAt)
-      ],
+      latestRunAt: latestRunAt(runs),
+      runs,
       comparison: {
         kind: "descriptive",
-        axis: legacyComparisonAxis(report.comparisonType),
-        interventionVerified: null,
-        familiesEligible: null
-      }
+        axis: legacyComparisonAxis(report.comparisonType)
+      },
+      claims: legacyClaims(report)
     };
   }
+  const runs = [runViewFromV1(report, null, report.conditions.scannedAt)];
   return {
     origin: "legacy-derived",
     revision: null,
@@ -153,8 +239,42 @@ function viewFromV1(report: ScanReport): ReportView {
     reportType: "single",
     domain: report.summary.firstPartyDomain,
     scannedAt: report.conditions.scannedAt,
-    runs: [runViewFromV1(report, null, report.conditions.scannedAt)],
-    comparison: null
+    latestRunAt: latestRunAt(runs),
+    runs,
+    comparison: null,
+    claims: deniedClaims()
+  };
+}
+
+/**
+ * Claims a v2 comparison supports, straight from its recorded facts (RFC 4.1
+ * product rules): pair framing from pairValidity, family deltas from
+ * perMetric, intervention attribution only for a verified intervention on an
+ * unlimited (r2+) report, temporal framing only for a valid temporal pair,
+ * and strong causal wording only with replicated counterbalanced evidence.
+ */
+function v2Claims(report: Extract<PublicScanReportV2 | PublicScanReportV2R2, { reportType: "comparison" }>, limited: boolean): ClaimPolicy {
+  const experiment = report.experiment;
+  const comparability = report.comparability;
+  const interventionAttribution =
+    !limited && experiment.kind === "intervention" && comparability.interventionVerified === true;
+  return {
+    pairComparison: {
+      allowed: comparability.pairValidity.eligible,
+      reasons: [...comparability.pairValidity.reasons]
+    },
+    familyDeltas: Object.fromEntries(
+      Object.entries(comparability.perMetric).map(([family, entry]) => [
+        family,
+        { allowed: entry.eligible, reasons: [...entry.reasons] }
+      ])
+    ) as Record<MetricFamily, ClaimGate>,
+    interventionAttribution,
+    temporalChange: !limited && experiment.kind === "temporal" && comparability.pairValidity.eligible,
+    strongCausal:
+      interventionAttribution &&
+      experiment.kind === "intervention" &&
+      experiment.evidence.strength === "replicated-difference"
   };
 }
 
@@ -164,6 +284,7 @@ function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, revision:
   // may never be re-derived from asserted r1 strings.
   const limited = revision === 1;
   if (report.reportType === "comparison") {
+    const runs = [runViewFromV2(report.baseline, "baseline"), runViewFromV2(report.variant, "variant")];
     return {
       origin: "v2",
       revision,
@@ -171,17 +292,16 @@ function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, revision:
       reportType: "comparison",
       domain: report.baseline.subject.observed.registrableDomain,
       scannedAt: report.baseline.startedAt,
-      runs: [runViewFromV2(report.baseline, "baseline"), runViewFromV2(report.variant, "variant")],
+      latestRunAt: latestRunAt(runs),
+      runs,
       comparison: {
         kind: report.experiment.kind,
-        axis: report.experiment.kind === "intervention" ? report.experiment.axis : null,
-        interventionVerified: limited ? null : report.comparability.interventionVerified ?? null,
-        familiesEligible: Object.fromEntries(
-          Object.entries(report.comparability.perMetric).map(([family, entry]) => [family, entry.eligible])
-        ) as Record<MetricFamily, boolean>
-      }
+        axis: report.experiment.kind === "intervention" ? report.experiment.axis : null
+      },
+      claims: v2Claims(report, limited)
     };
   }
+  const runs = [runViewFromV2(report.run, null)];
   return {
     origin: "v2",
     revision,
@@ -189,8 +309,10 @@ function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, revision:
     reportType: "single",
     domain: report.run.subject.observed.registrableDomain,
     scannedAt: report.run.startedAt,
-    runs: [runViewFromV2(report.run, null)],
-    comparison: null
+    latestRunAt: latestRunAt(runs),
+    runs,
+    comparison: null,
+    claims: deniedClaims()
   };
 }
 
