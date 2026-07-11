@@ -8,9 +8,20 @@
  * report), never a view. For an ephemeral result the downloadable/persistable
  * form is LoadedReport.public (the projection), never the ephemeral shell.
  */
-import { comparisonEligibility } from "./comparison-eligibility";
+import { comparisonEligibility, runHitRequestCap } from "./comparison-eligibility";
 import { isRecord } from "./guards";
-import type { ScanReport, ScanResult } from "./types";
+import type {
+  CnameCloak,
+  CookieRecord,
+  FingerprintDetectionSummary,
+  FingerprintEventSummary,
+  NetworkRequestRecord,
+  PixelEventSummary,
+  PrivacyPolicySummary,
+  ScanReport,
+  ScanResult,
+  StorageRecord
+} from "./types";
 import {
   METRIC_FAMILIES,
   type EphemeralScanReport,
@@ -26,7 +37,8 @@ import { toPublicScanReportV1 } from "./scan-report-v1-projection";
 import type {
   EphemeralComparisonReportR2,
   EphemeralSingleReportR2,
-  PublicScanReportV2R2
+  PublicScanReportV2R2,
+  ScanRunV2R2
 } from "./scan-report-v2-r2";
 import { isEphemeralScanReportR2, isPublicScanReportV2R2 } from "./scan-report-v2-r2-validation";
 import { scanReportV2R2SemanticViolations } from "./scan-report-v2-r2-evaluators";
@@ -41,6 +53,37 @@ import {
 // Views
 // ---------------------------------------------------------------------------
 
+/**
+ * Per-run evidence, in the record shapes the tables already render. The v2
+ * evidence rows extend the v1 record types (a phase-tagged request is still a
+ * `NetworkRequestRecord`), so one view shape serves both generations and the
+ * components keep their prop types. Raw evidence is not a claim: it always
+ * renders; `claims` gates wording only.
+ */
+export type RunEvidenceView = {
+  requests: NetworkRequestRecord[];
+  cookies: CookieRecord[];
+  storage: StorageRecord[];
+  fingerprintEvents: FingerprintEventSummary[];
+  fingerprintDetections: FingerprintDetectionSummary[];
+  pixelEvents: PixelEventSummary[];
+  cnameCloaks: CnameCloak[];
+  privacyPolicy: PrivacyPolicySummary | null;
+};
+
+/**
+ * Run quality. v2 records this (RFC 5.3: outcome + reasons, per-family
+ * censoring); a v1 run never did, so its quality is DERIVED from status and
+ * cap warnings and marked "legacy-derived", never presented as recorded fact.
+ */
+export type RunQualityView = {
+  origin: "recorded" | "legacy-derived";
+  outcome: "complete" | "failed";
+  reasons: string[];
+  /** Per evidence family; null on v1 (family censoring was never recorded). */
+  byFamily: Record<string, { outcome: "complete" | "censored"; reasons: string[] }> | null;
+};
+
 export type RunView = {
   /** null for a single report's only run. */
   label: "baseline" | "variant" | null;
@@ -51,9 +94,24 @@ export type RunView = {
     totalRequests: number;
     thirdPartyRequests: number;
     knownTrackerRequests: number;
+    thirdPartyDomains: number;
+    cookies: number;
     thirdPartyCookies: number;
+    storageEntries: number;
+    fingerprintEvents: number;
     shieldsBlockedRequests: number | null;
   };
+  pageTitle: string;
+  durationMs: number;
+  warnings: string[];
+  /**
+   * The screenshot as stored. Renderers must keep displaying it only through
+   * the data-URI-only gate (report-insights displayableScreenshot); the view
+   * carries the raw value so exports stay lossless.
+   */
+  screenshot: string | null;
+  evidence: RunEvidenceView;
+  quality: RunQualityView;
 };
 
 export type ComparisonView = {
@@ -118,7 +176,7 @@ export type ReportView = {
   claims: ClaimPolicy;
 };
 
-function runViewFromV2(run: ScanRunV2, label: RunView["label"]): RunView {
+function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): RunView {
   return {
     label,
     domain: run.subject.observed.registrableDomain,
@@ -128,13 +186,49 @@ function runViewFromV2(run: ScanRunV2, label: RunView["label"]): RunView {
       totalRequests: run.summary.counts.totalRequests,
       thirdPartyRequests: run.summary.counts.thirdPartyRequests,
       knownTrackerRequests: run.summary.counts.knownTrackerRequests,
+      thirdPartyDomains: run.summary.counts.thirdPartyDomains,
+      cookies: run.summary.counts.cookies,
       thirdPartyCookies: run.summary.counts.thirdPartyCookies,
+      storageEntries: run.summary.counts.storageEntries,
+      fingerprintEvents: run.summary.counts.fingerprintEvents,
       shieldsBlockedRequests: run.summary.counts.shieldsBlockedRequests ?? null
+    },
+    pageTitle: run.summary.pageTitle,
+    durationMs: run.summary.durationMs,
+    warnings: [...run.warnings],
+    // v2 public runs carry no screenshot; screenshots are ephemeral-only.
+    screenshot: null,
+    evidence: {
+      requests: run.evidence.requests,
+      cookies: run.evidence.cookiesFinal,
+      storage: run.evidence.storageFinal,
+      fingerprintEvents: run.evidence.fingerprintEvents,
+      fingerprintDetections: run.evidence.fingerprintDetections,
+      pixelEvents: run.evidence.pixelEvents,
+      cnameCloaks: run.evidence.cnameCloaks,
+      privacyPolicy: run.evidence.privacyPolicy ?? null
+    },
+    quality: {
+      origin: "recorded",
+      outcome: run.quality.run.outcome,
+      reasons: [...run.quality.run.reasons],
+      byFamily: Object.fromEntries(
+        Object.entries(run.quality.byFamily).map(([family, entry]) => [
+          family,
+          { outcome: entry.outcome, reasons: [...entry.reasons] }
+        ])
+      )
     }
   };
 }
 
 function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: string | null): RunView {
+  // v1 never recorded quality; derive the run-level outcome from the same
+  // facts the interim gate uses (status, cap) and mark it legacy-derived so it
+  // is never presented as recorded fact.
+  const reasons: string[] = [];
+  if (typeof result.summary.status === "number" && result.summary.status >= 400) reasons.push("http-error-status");
+  if (runHitRequestCap(result)) reasons.push("budget-exhausted:request-cap");
   return {
     label,
     domain: result.summary.firstPartyDomain,
@@ -144,8 +238,32 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
       totalRequests: result.summary.totalRequests,
       thirdPartyRequests: result.summary.thirdPartyRequests,
       knownTrackerRequests: result.summary.knownTrackerRequests,
+      thirdPartyDomains: result.summary.thirdPartyDomains,
+      cookies: result.summary.cookies,
       thirdPartyCookies: result.summary.thirdPartyCookies,
+      storageEntries: result.summary.storageEntries,
+      fingerprintEvents: result.summary.fingerprintEvents,
       shieldsBlockedRequests: result.summary.shieldsBlockedRequests ?? null
+    },
+    pageTitle: result.summary.pageTitle,
+    durationMs: result.summary.durationMs,
+    warnings: [...result.warnings],
+    screenshot: result.screenshot ?? null,
+    evidence: {
+      requests: result.requests,
+      cookies: result.cookies,
+      storage: result.storage,
+      fingerprintEvents: result.fingerprintEvents,
+      fingerprintDetections: result.fingerprintDetections ?? [],
+      pixelEvents: result.pixelEvents ?? [],
+      cnameCloaks: result.cnameCloaks ?? [],
+      privacyPolicy: result.privacyPolicy ?? null
+    },
+    quality: {
+      origin: "legacy-derived",
+      outcome: reasons.includes("http-error-status") ? "failed" : "complete",
+      reasons,
+      byFamily: null
     }
   };
 }

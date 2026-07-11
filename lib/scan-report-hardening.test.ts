@@ -224,6 +224,48 @@ test("toReportView marks v1 as legacy-derived and v2 as v2", () => {
   }
 });
 
+test("run views carry the full evidence surface and honest quality for both generations", () => {
+  // v1: evidence rows come through in the shapes the tables render, and the
+  // quality block is derived (status/cap) and marked legacy-derived.
+  const v1 = readStoredScanReport(makeScanReportV1());
+  assert.equal(v1.ok, true);
+  if (v1.ok) {
+    const run = toReportView(v1.stored).runs[0];
+    assert.ok(Array.isArray(run.evidence.requests));
+    assert.ok(Array.isArray(run.evidence.cookies));
+    assert.equal(run.evidence.privacyPolicy, null);
+    assert.equal(run.quality.origin, "legacy-derived");
+    assert.equal(run.quality.byFamily, null, "v1 never recorded family censoring");
+    assert.equal(run.quality.outcome, "complete");
+    assert.equal(typeof run.counts.storageEntries, "number");
+    assert.equal(typeof run.pageTitle, "string");
+  }
+
+  // v1 failed load: derived quality says failed with the named reason.
+  const failed = makeScanReportV1() as ScanResult;
+  failed.summary = { ...failed.summary, status: 403 };
+  const failedRead = readStoredScanReport(failed);
+  assert.equal(failedRead.ok, true);
+  if (failedRead.ok) {
+    const run = toReportView(failedRead.stored).runs[0];
+    assert.equal(run.quality.outcome, "failed");
+    assert.deepEqual(run.quality.reasons, ["http-error-status"]);
+  }
+
+  // v2: quality is the RECORDED block, per-family censoring included, and the
+  // evidence maps cookiesFinal/storageFinal onto the shared view names.
+  const v2 = readStoredScanReport(makeTemporalComparisonReportV2());
+  assert.equal(v2.ok, true);
+  if (v2.ok) {
+    const run = toReportView(v2.stored).runs[0];
+    assert.equal(run.quality.origin, "recorded");
+    assert.notEqual(run.quality.byFamily, null);
+    assert.ok(Array.isArray(run.evidence.cookies));
+    assert.ok(Array.isArray(run.evidence.storage));
+    assert.equal(run.screenshot, null, "v2 public runs never carry a screenshot");
+  }
+});
+
 test("transport: errors, job submissions, and reports are distinguished without payload.ok sniffing", () => {
   assert.deepEqual(readScanTransportPayload({ ok: false, error: "Turnstile verification is required." }), {
     kind: "api-error",
