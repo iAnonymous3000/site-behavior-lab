@@ -454,6 +454,19 @@ function displayRunLabels(
   return { ...wireLabels };
 }
 
+/**
+ * Same normalization for the legacy Shields report TITLE (report header,
+ * native share, JSON-LD): the stored runtime copies (share store) cannot be
+ * remediated in place the way the committed corpus was, so display renames
+ * exactly the legacy producer string and passes anything else through.
+ */
+function displayReportTitle(title: string | null, axis: InterventionAxis | null): string | null {
+  if (axis === "shields" && (title === "Brave Shields off/on comparison" || title === "Shields off/on comparison")) {
+    return "Brave-list blocking off/on comparison";
+  }
+  return title;
+}
+
 /** The default-deny policy: every claim surface refused. */
 function deniedClaims(): ClaimPolicy {
   return {
@@ -592,7 +605,7 @@ export function viewFromV1Report(report: ScanReport): ReportView {
       limited: true,
       reportType: "comparison",
       domain: report.baseline.summary.firstPartyDomain,
-      title: report.title || null,
+      title: displayReportTitle(report.title || null, axis),
       warnings: [...report.warnings],
       scannedAt: report.scannedAt,
       latestRunAt: latestRunAt(runs),

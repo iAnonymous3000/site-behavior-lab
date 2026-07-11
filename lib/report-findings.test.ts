@@ -115,9 +115,39 @@ test("a v1 Shields card quotes no fingerprint-call delta; detector versions were
 
   const card = byId(buildFindings(viewFromV1Report(createShieldsComparisonReport(baseline, variant)), null), "shields-comparison");
   // The detector-findings family is denied on every v1 pair, so the card must
-  // compose its evidence line without a fingerprint-call delta.
-  assert.match(card.evidence, /fewer third-party cookies/);
-  assert.doesNotMatch(card.evidence, /fingerprint-like calls/);
+  // compose without a fingerprint-call delta anywhere.
+  assert.doesNotMatch(`${card.lead} ${card.evidence}`, /fingerprint-like call/);
+  assert.match(card.lead, /55 fewer third-party requests/);
+});
+
+test("a Shields pair with mixed directions never reads as 'fewer tracking signals'", () => {
+  // Khan Academy case: more third-party requests but one fewer known-service
+  // request. Signed per-family reporting, never clamped or summed.
+  const baseline = makeResult({
+    firstPartyDomain: "learn.example",
+    domains: [
+      makeTrackerDomain("ads.example", 3, "AdCo", "advertising"),
+      makeTrackerDomain("pixels.example", 1, "PixelCo", "advertising")
+    ],
+    totalRequests: 60,
+    thirdPartyRequests: 20,
+    thirdPartyDomains: 6
+  });
+  const variant = makeResult({
+    firstPartyDomain: "learn.example",
+    domains: [makeTrackerDomain("ads.example", 3, "AdCo", "advertising")],
+    totalRequests: 70,
+    thirdPartyRequests: 28,
+    thirdPartyDomains: 6
+  });
+
+  const card = byId(buildFindings(viewFromV1Report(createShieldsComparisonReport(baseline, variant)), null), "shields-comparison");
+  assert.equal(card.level, "info");
+  assert.match(card.title, /Mixed changes observed with Brave-list blocking on/);
+  assert.match(card.lead, /8 more third-party requests/);
+  assert.match(card.lead, /1 fewer known-service request/);
+  assert.doesNotMatch(card.title, /Fewer tracking signals/);
+  assert.doesNotMatch(card.lead, /0 fewer/);
 });
 
 test("names major platforms and escalates the third-party card", () => {

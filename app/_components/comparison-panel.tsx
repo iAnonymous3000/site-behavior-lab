@@ -95,9 +95,9 @@ function ComparisonPanel({ view }: { view: ReportView }) {
       <div className="comparison-heading">
         <div>
           <p className="eyebrow">{comparisonEyebrow(view)}</p>
-          <h2>
-            {labels.baseline} → {labels.variant} delta
-          </h2>
+          {/* An ineligible pair has no delta to head: the heading says what
+              the section holds in each state. */}
+          <h2>{pairAllowed ? `${labels.baseline} → ${labels.variant} delta` : `${labels.baseline} and ${labels.variant}: two visits, no comparable delta`}</h2>
         </div>
         <div className="comparison-runs">
           <span>
@@ -117,8 +117,8 @@ function ComparisonPanel({ view }: { view: ReportView }) {
             ))}
           </ul>
           <p className="muted">
-            Each visit&apos;s own evidence still stands: the lead visit&apos;s tables are below, and both visits are in the
-            downloaded JSON.
+            Each visit&apos;s own evidence still stands: use the &ldquo;Evidence shown&rdquo; switcher below to inspect either
+            visit&apos;s tables, and both visits are in the downloaded JSON.
           </p>
         </div>
       )}

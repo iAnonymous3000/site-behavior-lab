@@ -119,6 +119,9 @@ function strongestLevel(levels: FindingLevel[]): FindingLevel {
 const GOOGLE_ANALYTICS_HOST = /(^|\.)(google-analytics\.com|googletagmanager\.com|analytics\.google\.com)$/;
 const DOUBLECLICK_REMARKETING_HOST = /(^|\.)stats\.g\.doubleclick\.net$/;
 
+/** Appended to any absence claim whose evidence family was censored. */
+const CENSORED_ABSENCE_NOTE = " Evidence collection was cut short, so this covers only what was recorded before the cutoff.";
+
 export function buildFindings(view: ReportView, corpusInput: CorpusStats | null): Finding[] {
   // Benchmark cohort = same methodology generation: the published corpus
   // distributions are built from v1 reports only, so a v2 view is never
@@ -171,8 +174,10 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   // and drop to "info" instead of "ok".
   const requestsCensored = familyCensoredOnRun(run, "requests");
   const cookiesCensored = familyCensoredOnRun(run, "cookies");
-  const detectorCensored = familyCensoredOnRun(run, "detector-output");
-  const CENSORED_ABSENCE_NOTE = " Evidence collection was cut short, so this covers only what was recorded before the cutoff.";
+  // Raw fingerprint events live in the "fingerprinting" evidence family;
+  // detector conclusions live in "detector-output". The absence card covers
+  // both, so censoring in either hedges it.
+  const detectorCensored = familyCensoredOnRun(run, "detector-output") || familyCensoredOnRun(run, "fingerprinting");
 
   const keystrokeDetection = fingerprintDetection(run.evidence, "keystroke-exfiltration");
   if (keystrokeDetection) {
@@ -277,15 +282,17 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       quotes.push(noCookies.quote);
     }
 
+    // Field POPULATION is what the scanner proves; the values are never
+    // read, so this observation is CONDITIONAL and must never headline as a
+    // definite contradiction the way the count-based checks above may.
+    const conditionalConflicts: string[] = [];
     const noSelling = policyClaim("no-selling-or-sharing");
     const pixelsWithIdentifiers = pixelEventSummaries(run.evidence).filter((pixel) => pixel.advancedMatching.length > 0);
     if (noSelling && pixelsWithIdentifiers.length > 0) {
-      // Field POPULATION is what the scanner proves; the values are never
-      // read, so the conflict stays conditional on what the fields held.
-      conflicts.push(
-        `the policy says personal information is not sold, but advertising events to ${humanList(
+      conditionalConflicts.push(
+        `the policy says personal information is not sold, and advertising events to ${humanList(
           pixelsWithIdentifiers.map((pixel) => pixel.product)
-        )} carried populated personal-identifier fields in this visit, and if those fields held real visitor data, many regulators treat that as sharing`
+        )} carried populated personal-identifier fields in this visit; IF those fields held real visitor data, many regulators treat that as sharing, but the scanner never reads the values`
       );
       quotes.push(noSelling.quote);
     }
@@ -303,28 +310,42 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         ? `${namedCount} of ${plural(totalObserved, "observed tracking company", "observed tracking companies")} named in the policy`
         : "no catalogued tracking companies observed to check against it";
 
+    // A "nothing contradicted" reassurance is itself an absence claim over
+    // the checked evidence, so censored collection hedges it.
+    const policyEvidenceCensored = requestsCensored || cookiesCensored || detectorCensored;
     findings.push({
       id: "privacy-policy",
       icon: "file-text",
-      level: conflicts.length > 0 ? "warn" : policy.unmentionedEntities.length > 0 ? "info" : "ok",
+      level:
+        conflicts.length > 0
+          ? "warn"
+          : conditionalConflicts.length > 0 || policy.unmentionedEntities.length > 0
+            ? "info"
+            : policyEvidenceCensored
+              ? "info"
+              : "ok",
       title:
         conflicts.length > 0
           ? "The privacy policy says one thing; this visit shows another"
-          : policy.unmentionedEntities.length > 0
-            ? "Tracking companies the privacy policy never names"
-            : "Privacy policy read; no checked statement contradicted",
+          : conditionalConflicts.length > 0
+            ? "A policy statement may conflict with observed advertising events"
+            : policy.unmentionedEntities.length > 0
+              ? "Tracking companies the privacy policy never names"
+              : "Privacy policy read; no checked statement contradicted",
       lead:
         conflicts.length > 0
           ? `Comparing the site's own privacy policy against this visit: ${humanList(conflicts, 3)}.`
-          : policy.unmentionedEntities.length > 0
-            ? `${humanList(policy.unmentionedEntities)} received requests during this visit but ${policy.unmentionedEntities.length === 1 ? "is" : "are"} never named in the privacy policy text.`
-            : `The policy's checkable statements did not contradict this visit's evidence (${coverage}).`,
+          : conditionalConflicts.length > 0
+            ? `Comparing the site's own privacy policy against this visit: ${humanList(conditionalConflicts, 2)}.`
+            : policy.unmentionedEntities.length > 0
+              ? `${humanList(policy.unmentionedEntities)} received requests during this visit but ${policy.unmentionedEntities.length === 1 ? "is" : "are"} never named in the privacy policy text.`
+              : `The policy's checkable statements did not contradict this visit's evidence (${coverage}).`,
       detail:
-        conflicts.length > 0
+        conflicts.length > 0 || conditionalConflicts.length > 0
           ? `Matched policy wording: ${quotes.map((quote) => `"${quote}"`).join(" / ")}. This is an automated sentence match against the policy's own text, quoted so it can be verified in context. Policies can define terms narrowly (such as what counts as selling), so treat this as a documented discrepancy to review, not a legal conclusion.`
           : policy.unmentionedEntities.length > 0
             ? `Policies often disclose vendor categories rather than company names, so an unnamed vendor is a transparency gap worth reviewing, not automatically a violation.${namedCount > 0 ? ` Named in the policy: ${humanList(policy.mentionedEntities)}.` : ""}`
-            : "Statements checked automatically: blanket no-cookie claims, third-party-cookie claims, and do-not-sell claims against advertising-pixel identifiers. Global Privacy Control claims are never checked against request counts, which cannot show whether data sales stopped.",
+            : `Statements checked automatically: blanket no-cookie claims, third-party-cookie claims, and do-not-sell claims against advertising-pixel identifier fields. Global Privacy Control claims are never checked against request counts, which cannot show whether data sales stopped.${policyEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""}`,
       evidence: `Policy at ${policy.url}; ${plural(policy.claims.length, "checkable statement")} matched; ${coverage}.`
     });
   }
@@ -572,29 +593,47 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     if (pairGate && !pairGate.allowed) {
       findings.unshift(ineligibleComparisonFinding("shields-comparison", "This Shields comparison is not conclusive", pairGate));
     } else {
-      const removedThirdPartyRequests = Math.max(0, arms.baseline.counts.thirdPartyRequests - arms.variant.counts.thirdPartyRequests);
-      const removedTrackerRequests = Math.max(0, arms.baseline.counts.knownTrackerRequests - arms.variant.counts.knownTrackerRequests);
-      const removedCookies = Math.max(0, arms.baseline.counts.thirdPartyCookies - arms.variant.counts.thirdPartyCookies);
-      const removedFingerprintEvents = Math.max(0, arms.baseline.counts.fingerprintEvents - arms.variant.counts.fingerprintEvents);
-      const removedEntityNames = classificationAllowed ? entitiesOnlyIn(arms.baseline, arms.variant) : [];
-      const deltaParts: string[] = [];
-      const flatLabels: string[] = [];
+      // SIGNED deltas per allowed family (variant minus baseline; negative =
+      // fewer with blocking on), classified as decreased / increased / mixed
+      // / flat. Never clamped and never summed across families: a pair with
+      // more third-party requests but one fewer known-service request is a
+      // MIXED result, not "fewer tracking signals".
+      const signedDeltas: { label: string; singular: string; value: number }[] = [];
       if (rawCountsAllowed) {
-        deltaParts.push(`${removedThirdPartyRequests.toLocaleString("en-US")} fewer third-party requests`);
-        flatLabels.push("third-party requests", "cookies");
+        signedDeltas.push(
+          {
+            label: "third-party requests",
+            singular: "third-party request",
+            value: arms.variant.counts.thirdPartyRequests - arms.baseline.counts.thirdPartyRequests
+          },
+          {
+            label: "third-party cookies",
+            singular: "third-party cookie",
+            value: arms.variant.counts.thirdPartyCookies - arms.baseline.counts.thirdPartyCookies
+          }
+        );
       }
       if (classificationAllowed) {
-        deltaParts.push(`${removedTrackerRequests.toLocaleString("en-US")} fewer known-service requests`);
-        flatLabels.push("known-service requests");
+        signedDeltas.push({
+          label: "known-service requests",
+          singular: "known-service request",
+          value: arms.variant.counts.knownTrackerRequests - arms.baseline.counts.knownTrackerRequests
+        });
       }
-      if (detectorAllowed) flatLabels.push("fingerprint-like calls");
-      const evidenceParts: string[] = [];
-      if (rawCountsAllowed) evidenceParts.push(`${removedCookies.toLocaleString("en-US")} fewer third-party cookies`);
-      if (detectorAllowed) evidenceParts.push(`${removedFingerprintEvents.toLocaleString("en-US")} fewer fingerprint-like calls`);
-      const blockedTotal =
-        (rawCountsAllowed ? removedThirdPartyRequests + removedCookies : 0) +
-        (classificationAllowed ? removedTrackerRequests : 0) +
-        (detectorAllowed ? removedFingerprintEvents : 0);
+      if (detectorAllowed) {
+        signedDeltas.push({
+          label: "fingerprint-like calls",
+          singular: "fingerprint-like call",
+          value: arms.variant.counts.fingerprintEvents - arms.baseline.counts.fingerprintEvents
+        });
+      }
+      const decreased = signedDeltas.some((delta) => delta.value < 0);
+      const increased = signedDeltas.some((delta) => delta.value > 0);
+      const direction = decreased && increased ? "mixed" : decreased ? "decreased" : increased ? "increased" : "flat";
+      const changedParts = signedDeltas
+        .filter((delta) => delta.value !== 0)
+        .map((delta) => `${Math.abs(delta.value).toLocaleString("en-US")} ${delta.value < 0 ? "fewer" : "more"} ${Math.abs(delta.value) === 1 ? delta.singular : delta.label}`);
+      const removedEntityNames = classificationAllowed ? entitiesOnlyIn(arms.baseline, arms.variant) : [];
       // The direct engine-block count is a different measurement from the total
       // reduction: blocking one script prevents its follow-on requests from
       // ever starting, so the reduction usually exceeds the direct blocks.
@@ -603,10 +642,10 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       const engineBlocks = shieldsRunMeasurement(arms.variant);
       const engineNote =
         engineBlocks && engineBlocks.kind === "engine-blocked"
-          ? ` The Shields-on visit's engine directly blocked ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked.`
+          ? ` The blocking visit's engine directly blocked ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked.`
           : "";
 
-      if (deltaParts.length === 0 && evidenceParts.length === 0) {
+      if (signedDeltas.length === 0) {
         findings.unshift(
           ineligibleComparisonFinding(
             "shields-comparison",
@@ -618,25 +657,31 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         // "Brave-list blocking", never "Brave Shields on": the blocking arm
         // ran Brave's ad-block engine and default Shields lists as a block
         // SIMULATION in this scanner's browser, not a live Brave visit.
+        const simulationNote =
+          "Brave's ad-block engine and default Shields filter lists actively blocking (a simulation in this scanner's browser, not a live Brave-browser visit)";
         findings.unshift({
           id: "shields-comparison",
           icon: "shield-check",
-          level: blockedTotal > 0 ? "ok" : "quiet",
+          level: direction === "decreased" ? "ok" : direction === "flat" ? "quiet" : "info",
           title:
-            blockedTotal > 0
+            direction === "decreased"
               ? "Fewer tracking signals observed with Brave-list blocking on"
-              : "No reduction observed with Brave-list blocking on",
+              : direction === "increased"
+                ? "More third-party activity observed with Brave-list blocking on"
+                : direction === "mixed"
+                  ? "Mixed changes observed with Brave-list blocking on"
+                  : "No change observed with Brave-list blocking on",
           lead:
-            blockedTotal > 0
-              ? `With Brave's ad-block engine and default Shields filter lists actively blocking (a simulation in this scanner's browser, not a live Brave-browser visit), this paired visit showed ${humanList(deltaParts)}.`
-              : `The blocking visit (Brave's ad-block engine and default Shields lists, simulated in this scanner's browser, not a live Brave visit) did not show a reduction in the comparable metrics (${humanList(flatLabels, 4)}).`,
+            direction === "flat"
+              ? `The blocking visit (${simulationNote}) showed no change in the comparable metrics (${humanList(
+                  signedDeltas.map((delta) => delta.label),
+                  4
+                )}).`
+              : `With ${simulationNote}, this paired visit showed ${humanList(changedParts, 4)}.`,
           detail: `${
             removedEntityNames.length > 0 ? `Services only seen in the unblocked visit: ${humanList(removedEntityNames)}. ` : ""
           }${engineNote ? `${engineNote.trim()} ` : ""}A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference, not a measured blocking rate.`,
-          evidence:
-            evidenceParts.length > 0
-              ? `${humanList(evidenceParts)} with blocking on.`
-              : "See the comparison panel for the families this pair can compare."
+          evidence: `Signed per-metric differences between the two visits; nothing is summed across metrics.`
         });
       }
     }
@@ -854,11 +899,16 @@ function buildConsentComparisonFinding(
     };
   }
 
+  // "No catalogued trackers" is an absence claim over the reject visit's
+  // request evidence: censored collection makes it a floor, not reassurance.
+  const rejectEvidenceCensored = familyCensoredOnRun(variant, "requests");
   return {
     id: "consent-comparison",
-    icon: "shield-check",
-    level: "ok",
-    title: "The Reject-all visit had no catalogued trackers",
+    icon: rejectEvidenceCensored ? "alert" : "shield-check",
+    level: rejectEvidenceCensored ? "info" : "ok",
+    title: rejectEvidenceCensored
+      ? "No catalogued trackers before the Reject-all visit was cut short"
+      : "The Reject-all visit had no catalogued trackers",
     lead:
       classificationAllowed && acceptTracking.length > 0
         ? `The visit where the scanner clicked Reject all loaded no catalogued tracking company, while the Accept-all visit loaded ${plural(
@@ -869,8 +919,9 @@ function buildConsentComparisonFinding(
         : classificationAllowed
           ? "No catalogued tracking company loaded in either visit; on this page the two visits differed little because there was little to consent to."
           : "The visit where the scanner clicked Reject all loaded no catalogued tracking company.",
-    detail:
-      "A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), and the scanner cannot verify the site registered the click, so treat this as an observed difference for this pair of visits.",
+    detail: `A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), and the scanner cannot verify the site registered the click, so treat this as an observed difference for this pair of visits.${
+      rejectEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""
+    }`,
     evidence
   };
 }
