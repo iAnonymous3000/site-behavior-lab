@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { clientReportRuntime, staticAssetPath } from "../client-runtime";
 import { FileUploadButton } from "./file-upload-button";
 import { comparableSubjectHosts } from "@/lib/comparison-eligibility";
-import { createTemporalComparisonReport } from "@/lib/compare-reports";
+import { createTemporalComparisonReport, orderTemporalPair } from "@/lib/compare-reports";
 import { domainsMatch, isFeaturedSiteConfig, type FeaturedSite, type FeaturedSiteConfig } from "@/lib/featured-sites";
 import { buildReportHeadline, type ReportHeadline } from "@/lib/report-headline";
 import { committedReportLocation } from "@/lib/report-locator";
@@ -285,7 +285,14 @@ function StaticReportGallery({
 
     try {
       const [beforeReport, afterReport] = await Promise.all([loadStaticSingleReport(before), loadStaticSingleReport(after)]);
-      onCreateComparison(createTemporalComparisonReport(beforeReport, afterReport));
+      // "Before" follows the recorded timestamps, not the pick order: a
+      // temporal pair whose arms are reversed in time records no change.
+      const ordered = orderTemporalPair(beforeReport, afterReport);
+      if (!ordered) {
+        setCompareError("The two reports' recorded timestamps cannot order a before/after pair.");
+        return;
+      }
+      onCreateComparison(createTemporalComparisonReport(ordered[0], ordered[1]));
     } catch (readError) {
       const message = readError instanceof Error ? readError.message : "Saved reports could not be compared.";
       setCompareError(message);
@@ -311,8 +318,14 @@ function StaticReportGallery({
       return;
     }
 
+    const ordered = orderTemporalPair(uploadBefore.report, uploadAfter.report);
+    if (!ordered) {
+      setCompareError("The two reports' recorded timestamps cannot order a before/after pair.");
+      return;
+    }
+
     setCompareError(null);
-    onCreateComparison(createTemporalComparisonReport(uploadBefore.report, uploadAfter.report));
+    onCreateComparison(createTemporalComparisonReport(ordered[0], ordered[1]));
   }
 
   if (reports === null) {

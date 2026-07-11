@@ -99,6 +99,20 @@ export function createConsentComparisonReport(acceptRun: ScanResult, rejectRun: 
   });
 }
 
+/**
+ * Order two single-scan reports by their recorded scannedAt so a temporal
+ * pair's "Before" arm really is the older visit regardless of pick order.
+ * Returns null when the recorded timestamps cannot order the pair (missing,
+ * unparseable, or identical); the eligibility gate rejects such a pair, so
+ * callers should surface the problem instead of building it.
+ */
+export function orderTemporalPair(a: ScanResult, b: ScanResult): [ScanResult, ScanResult] | null {
+  const aMs = Date.parse(a.conditions.scannedAt ?? "");
+  const bMs = Date.parse(b.conditions.scannedAt ?? "");
+  if (!Number.isFinite(aMs) || !Number.isFinite(bMs) || aMs === bMs) return null;
+  return aMs < bMs ? [a, b] : [b, a];
+}
+
 export function createTemporalComparisonReport(before: ScanResult, after: ScanResult): ComparisonScanResult {
   return createComparisonReport({
     comparisonType: "temporal",

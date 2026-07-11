@@ -140,6 +140,98 @@ test("a consent pair requires both clicks to have really dispatched", () => {
   assert.deepEqual(both, { eligible: true, reasons: [] });
 });
 
+test("non-declared experiment dimensions must be held constant", () => {
+  // Codex round-10 counterexamples: a pair that varies a second experiment
+  // dimension alongside (or instead of) its declared axis proves nothing
+  // about the declared condition.
+  const laterAt = new Date(60_000).toISOString();
+
+  const gpcOnVariant = makeRun({});
+  gpcOnVariant.conditions = { ...gpcOnVariant.conditions, scannedAt: laterAt, gpcEnabled: true };
+  assert.match(
+    comparisonEligibility(createTemporalComparisonReport(makeRun({}), gpcOnVariant)).reasons.join(" "),
+    /different Global Privacy Control states, but this comparison does not declare a GPC experiment/
+  );
+
+  const consentModeVariant = makeRun({});
+  consentModeVariant.conditions = { ...consentModeVariant.conditions, scannedAt: laterAt, consentMode: "accept-all" };
+  assert.match(
+    comparisonEligibility(createTemporalComparisonReport(makeRun({}), consentModeVariant)).reasons.join(" "),
+    /different consent-banner modes \(observe vs accept-all\), but this comparison does not declare a consent experiment/
+  );
+
+  const blockingVariant = makeRun({});
+  blockingVariant.conditions = {
+    ...blockingVariant.conditions,
+    scannedAt: laterAt,
+    shieldsMode: "block-simulation",
+    adblock: { active: true, source: "test", lists: 1, fetchedAt: new Date(0).toISOString() }
+  };
+  assert.match(
+    comparisonEligibility(createTemporalComparisonReport(makeRun({}), blockingVariant)).reasons.join(" "),
+    /different blocking configurations, but this comparison does not declare a blocking experiment/
+  );
+
+  // A Shields pair whose axis facts are valid still fails when it ALSO
+  // varies GPC: the blocking condition was not the only difference.
+  const unblocked = makeRun({});
+  const blocked = makeRun({});
+  blocked.conditions = {
+    ...blocked.conditions,
+    gpcEnabled: true,
+    shieldsMode: "block-simulation",
+    adblock: { active: true, source: "test", lists: 1, fetchedAt: new Date(0).toISOString() }
+  };
+  const shieldsCrossAxis = comparisonEligibility(createShieldsComparisonReport(unblocked, blocked));
+  assert.equal(shieldsCrossAxis.eligible, false);
+  assert.match(shieldsCrossAxis.reasons.join(" "), /different Global Privacy Control states/);
+});
+
+test("unknown subjects and unordered temporal pairs are unprovable", () => {
+  // The literal "unknown" is a recorded non-answer: it can never be proven
+  // to name the same site or page, even when both arms carry it.
+  const unknownHostBase = makeRun({ firstPartyDomain: "unknown" });
+  const unknownHostVariant = makeRun({ firstPartyDomain: "unknown" });
+  unknownHostVariant.conditions = { ...unknownHostVariant.conditions, scannedAt: new Date(60_000).toISOString() };
+  const unknownHostPair = comparisonEligibility(createTemporalComparisonReport(unknownHostBase, unknownHostVariant));
+  assert.equal(unknownHostPair.eligible, false);
+  assert.match(unknownHostPair.reasons.join(" "), /not a comparison of one site/);
+
+  const unknownUrlBase = makeRun({});
+  unknownUrlBase.conditions = { ...unknownUrlBase.conditions, requestedUrl: "unknown", finalUrl: "unknown" };
+  const unknownUrlVariant = makeRun({});
+  unknownUrlVariant.conditions = {
+    ...unknownUrlVariant.conditions,
+    scannedAt: new Date(60_000).toISOString(),
+    requestedUrl: "unknown",
+    finalUrl: "unknown"
+  };
+  const unknownUrlPair = comparisonEligibility(createTemporalComparisonReport(unknownUrlBase, unknownUrlVariant));
+  assert.equal(unknownUrlPair.eligible, false);
+  assert.match(unknownUrlPair.reasons.join(" "), /did not record a real subject URL/);
+
+  // Reversed, equal, or unparseable timestamps cannot order a before/after
+  // pair.
+  const earlier = makeRun({});
+  const later = makeRun({});
+  later.conditions = { ...later.conditions, scannedAt: new Date(60_000).toISOString() };
+  const reversed = comparisonEligibility(createTemporalComparisonReport(later, earlier));
+  assert.equal(reversed.eligible, false);
+  assert.match(reversed.reasons.join(" "), /"Before" visit is not older than the "After" visit/);
+
+  const unstamped = makeRun({});
+  unstamped.conditions = { ...unstamped.conditions, scannedAt: "not-a-date" };
+  const unordered = comparisonEligibility(createTemporalComparisonReport(makeRun({}), unstamped));
+  assert.equal(unordered.eligible, false);
+  assert.match(unordered.reasons.join(" "), /cannot be ordered/);
+
+  // A properly ordered temporal pair stays eligible.
+  const before = makeRun({});
+  const after = makeRun({});
+  after.conditions = { ...after.conditions, scannedAt: new Date(60_000).toISOString() };
+  assert.deepEqual(comparisonEligibility(createTemporalComparisonReport(before, after)), { eligible: true, reasons: [] });
+});
+
 test("a request-capped arm disqualifies the comparison", () => {
   const report = createShieldsComparisonReport(makeRun({ totalRequests: COMPARISON_REQUEST_CAP }), makeRun({}));
   const eligibility = comparisonEligibility(report);
@@ -186,10 +278,12 @@ test("mismatched or unrecorded environments disqualify: route, viewport, browser
   // RFC 3.1/3.2: comparability requires the recorded environment to match on
   // every dimension that shapes what a page serves, and an unrecorded
   // dimension never matches. Verified corpus-neutral: all 235 committed
-  // comparisons keep their eligibility (214 eligible) under these checks.
+  // comparisons keep their eligibility (158 eligible) under these checks.
   const withConditions = (patch: Partial<ScanConditions>): ScanResult => {
     const run = makeRun({});
-    run.conditions = { ...run.conditions, ...patch };
+    // The variant arm runs after the baseline, the way a real temporal pair
+    // records it, so only the patched mismatch is under test.
+    run.conditions = { ...run.conditions, scannedAt: new Date(60_000).toISOString(), ...patch };
     return run;
   };
   const expectReason = (variant: ScanResult, pattern: RegExp) => {
@@ -214,6 +308,7 @@ test("mismatched or unrecorded environments disqualify: route, viewport, browser
 
 test("every disqualifying condition is reported, not just the first", () => {
   const variant = makeRun({ firstPartyDomain: "beta.example", status: 500, totalRequests: COMPARISON_REQUEST_CAP });
+  variant.conditions = { ...variant.conditions, scannedAt: new Date(60_000).toISOString() };
   const eligibility = comparisonEligibility(createTemporalComparisonReport(makeRun({ firstPartyDomain: "alpha.example" }), variant));
   assert.equal(eligibility.eligible, false);
   assert.equal(eligibility.reasons.length, 3);

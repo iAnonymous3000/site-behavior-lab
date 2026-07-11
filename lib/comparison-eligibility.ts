@@ -58,6 +58,14 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
       `The two visits landed on different sites (${report.baseline.summary.firstPartyDomain} vs ${report.variant.summary.firstPartyDomain}), so their difference is not a comparison of one site.`
     );
   }
+  // The unknown rule applies to the subject itself: a visit whose recorded
+  // URLs are empty or the literal "unknown" cannot be proven to be OF any
+  // page, so no pair containing it compares one page.
+  for (const { label, run } of arms) {
+    if (unknownSubjectUrl(run.conditions.requestedUrl) || unknownSubjectUrl(run.conditions.finalUrl)) {
+      reasons.push(`The "${label}" visit did not record a real subject URL, so what it visited cannot be proven.`);
+    }
+  }
   if (report.baseline.conditions.viewport.isMobile !== report.variant.conditions.viewport.isMobile) {
     reasons.push("The two visits used different devices (desktop vs mobile), so their difference is not attributable to the compared condition.");
   }
@@ -105,6 +113,46 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
     reasons.push(
       `The two visits ended on different pages (${report.baseline.conditions.finalUrl} vs ${report.variant.conditions.finalUrl}), so their difference is not a comparison of one page.`
     );
+  }
+
+  // Held-constant rule (RFC 4.4): every experiment dimension OTHER than the
+  // declared axis must match across the arms, or the declared condition was
+  // not the only thing that varied. A dimension missing from BOTH arms
+  // compares as the same absence (v1 wrote these fields on every run once
+  // the feature existed); a recorded mismatch always disqualifies.
+  if (report.comparisonType !== "gpc" && report.baseline.conditions.gpcEnabled !== report.variant.conditions.gpcEnabled) {
+    reasons.push(
+      "The two visits ran with different Global Privacy Control states, but this comparison does not declare a GPC experiment, so the compared condition was not the only difference."
+    );
+  }
+  if (report.comparisonType !== "consent" && report.baseline.conditions.consentMode !== report.variant.conditions.consentMode) {
+    reasons.push(
+      `The two visits used different consent-banner modes (${report.baseline.conditions.consentMode} vs ${report.variant.conditions.consentMode}), but this comparison does not declare a consent experiment, so the compared condition was not the only difference.`
+    );
+  }
+  if (
+    report.comparisonType !== "shields" &&
+    ((report.baseline.conditions.adblock?.active === true) !== (report.variant.conditions.adblock?.active === true) ||
+      (report.baseline.conditions.shieldsMode ?? null) !== (report.variant.conditions.shieldsMode ?? null))
+  ) {
+    reasons.push(
+      "The two visits ran different blocking configurations, but this comparison does not declare a blocking experiment, so the compared condition was not the only difference."
+    );
+  }
+
+  // A before/after pair must really record a before and an after: visits
+  // that cannot be ordered in time (missing or reversed timestamps) support
+  // no claim about what changed since the earlier visit.
+  if (report.comparisonType === "temporal") {
+    const beforeMs = Date.parse(report.baseline.conditions.scannedAt ?? "");
+    const afterMs = Date.parse(report.variant.conditions.scannedAt ?? "");
+    if (!Number.isFinite(beforeMs) || !Number.isFinite(afterMs)) {
+      reasons.push("A before/after comparison requires both visits to record when they ran; a visit without a parseable timestamp cannot be ordered.");
+    } else if (beforeMs >= afterMs) {
+      reasons.push(
+        `The "${arms[0].label}" visit is not older than the "${arms[1].label}" visit, so the pair does not record a change over time.`
+      );
+    }
   }
 
   // The DECLARED experiment must actually have happened (RFC 4.4
@@ -208,5 +256,15 @@ export function comparableSubjectHosts(left: string, right: string): boolean {
 }
 
 function normalizeSubjectHost(host: string): string {
-  return host.trim().toLowerCase().replace(/\.$/, "").replace(/^www\./, "");
+  const normalized = host.trim().toLowerCase().replace(/\.$/, "").replace(/^www\./, "");
+  // The literal "unknown" is a recorded non-answer, not a hostname: per the
+  // RFC unknown rule it can never be proven to match anything, including
+  // itself.
+  return normalized === "unknown" ? "" : normalized;
+}
+
+/** A recorded subject URL that is empty or the literal "unknown" proves nothing. */
+function unknownSubjectUrl(url: string): boolean {
+  const normalized = (url ?? "").trim().toLowerCase();
+  return normalized === "" || normalized === "unknown";
 }

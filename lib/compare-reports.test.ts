@@ -4,7 +4,8 @@ import {
   compareScanResults,
   createComparisonReport,
   createShieldsComparisonReport,
-  createTemporalComparisonReport
+  createTemporalComparisonReport,
+  orderTemporalPair
 } from "./compare-reports";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
@@ -178,6 +179,23 @@ test("comparison helpers create Brave-relevant report types", () => {
   assert.equal(temporal.comparisonType, "temporal");
   assert.deepEqual(temporal.runLabels, { baseline: "Before", variant: "After" });
   assert.equal(temporal.diff.removedEntities[0].entity, "TrackerCo");
+});
+
+test("orderTemporalPair follows recorded timestamps, not pick order", () => {
+  const older = makeScanResult([]);
+  older.conditions = { ...older.conditions, scannedAt: "2026-07-01T00:00:00.000Z" };
+  const newer = makeScanResult([]);
+  newer.conditions = { ...newer.conditions, scannedAt: "2026-07-02T00:00:00.000Z" };
+
+  assert.deepEqual(orderTemporalPair(older, newer), [older, newer]);
+  // Reversed pick order still yields the older visit as "Before".
+  assert.deepEqual(orderTemporalPair(newer, older), [older, newer]);
+
+  // Identical or unparseable timestamps cannot order a before/after pair.
+  assert.equal(orderTemporalPair(older, structuredClone(older)) === null, true);
+  const unstamped = makeScanResult([]);
+  unstamped.conditions = { ...unstamped.conditions, scannedAt: "not-a-date" };
+  assert.equal(orderTemporalPair(older, unstamped), null);
 });
 
 function makeDomain(domain: string, requests: number, entity: string): DomainSummary {
