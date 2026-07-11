@@ -7,6 +7,11 @@ on:
   pull_request:
     branches:
       - main
+  # Dispatched by the data workflows (scan, scan-featured, update-brave-lists)
+  # after their GITHUB_TOKEN pushes, which never fire `on: push`: the corpus
+  # commit gets a real CI run, and Promote Production advances the
+  # CI-gated `production` branch from its success.
+  workflow_dispatch:
 
 permissions:
   contents: read

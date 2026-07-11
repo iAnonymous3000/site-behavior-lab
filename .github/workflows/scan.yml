@@ -53,6 +53,8 @@ on:
 
 permissions:
   contents: write
+  # Lets the post-push step dispatch CI (see 'Trigger CI on the pushed commit').
+  actions: write
 
 # All three repo-writing workflows (scan, scan-featured, update-brave-lists)
 # share one concurrency group per ref so their commit+push steps never race;
@@ -140,7 +142,9 @@ jobs:
             public/corpus-stats.json
 
       - name: Commit static report
+        id: commit
         run: |
+          echo "pushed=false" >> "$GITHUB_OUTPUT"
           git config user.name "iAnonymous3000"
           git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
           git add public/reports public/corpus-stats.json
@@ -153,9 +157,21 @@ jobs:
           # push that landed after checkout: rebase and retry.
           for attempt in 1 2 3; do
             if git push; then
+              echo "pushed=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             echo "Push rejected (attempt ${attempt}); rebasing onto the latest ${GITHUB_REF_NAME}."
             git pull --rebase origin "${GITHUB_REF_NAME}"
           done
           git push
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger CI on the pushed commit
+        # Pushes made with GITHUB_TOKEN never fire `on: push` workflows, so the
+        # commit above would stay untested and the CI-gated production branch
+        # would never receive it. Dispatch CI explicitly; the Promote Production
+        # workflow advances `production` once that run passes.
+        if: steps.commit.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ci.yml --ref main

@@ -156,6 +156,29 @@ Either set the `SCAN_ACCESS_TOKEN` secret again, or remove
 Pages without `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE`; the static gallery and
 the committed Shields corpus keep working unchanged.
 
+## Deploy (CI-gated)
+
+Production deploys track the **`production`** branch, never `main`.
+`.github/workflows/promote-production.yml` is the only writer: after a `main`
+CI run succeeds, it fast-forwards `production` to the exact SHA that run
+tested. No force pushes; out-of-order CI completions are skipped (never a
+rewind); a tested SHA missing from `main` hard-fails for human attention. The
+repo-writing workflows dispatch CI after their `GITHUB_TOKEN` pushes so corpus
+and filter-list commits are tested and promoted too.
+
+One-time dashboard setup (no API token needed):
+
+1. Cloudflare Pages project **sitebehavior.org**: Settings > Builds &
+   deployments > production branch = `production`; disable non-production
+   (preview) branch builds.
+2. The scanner's **Workers Builds** (wrangler.container.jsonc project):
+   Settings > Builds > branch = `production`; disable non-production branch
+   builds.
+
+To hold production at a known-good revision during an incident, disable the
+Promote Production workflow in the Actions tab; re-enabling resumes promotion
+at the next green CI run. Never move `production` by hand.
+
 ## Operate
 
 - Watch container compute/egress cost and `max_instances`; lower `sleepAfter` to

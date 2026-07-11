@@ -1,0 +1,90 @@
+name: Promote Production
+
+# CI-gated deployment: Cloudflare Pages and Workers Builds watch the
+# `production` branch, and this workflow is the ONLY thing that moves it. It
+# advances `production` to the EXACT main SHA a successful CI run tested, so a
+# red or untested revision can never publish (the e58e971 incident: Cloudflare
+# built main independently of CI and shipped a red commit).
+#
+# Ordering rules, enforced below:
+# - Fast-forward only, never a force push: the push uses the plain ref update,
+#   which the remote refuses for non-fast-forward, and the ancestor check
+#   refuses it first with a readable reason.
+# - Out-of-order CI completions (an older commit's run finishing after a newer
+#   commit already promoted) are skipped as benign.
+# - A tested SHA that is no longer reachable from main (rewritten history) is
+#   a hard failure: something abnormal happened and a human should look.
+#
+# The three data workflows (scan, scan-featured, update-brave-lists) push
+# corpus commits with GITHUB_TOKEN, which does not trigger `on: push` CI, so
+# each dispatches CI explicitly after its push; that dispatched run lands here
+# like any other and promotes the data commit.
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+permissions:
+  contents: write
+
+# Serialize promotions so two CI completions never race the ref update.
+concurrency:
+  group: promote-production
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Advance production to the tested SHA
+    # Only successful CI runs of THIS repository's main branch promote; PR runs
+    # carry the PR's head branch, and a fork branch named "main" fails the
+    # repository check.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main history
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Fast-forward production to the tested SHA
+        env:
+          CANDIDATE: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git fetch origin production || echo "No production branch yet; this promotion creates it."
+
+          # The tested SHA must still be reachable from main. If it is not,
+          # main's history was rewritten after CI ran, and promoting it would
+          # publish a revision main no longer stands behind: hard failure.
+          if ! git cat-file -e "${CANDIDATE}^{commit}" 2>/dev/null || ! git merge-base --is-ancestor "$CANDIDATE" origin/main; then
+            echo "::error::Tested SHA ${CANDIDATE} is not reachable from main; refusing to promote rewritten or stale history."
+            exit 1
+          fi
+
+          if git rev-parse --verify --quiet origin/production >/dev/null; then
+            CURRENT="$(git rev-parse origin/production)"
+            if [ "$CURRENT" = "$CANDIDATE" ]; then
+              echo "production already points at ${CANDIDATE}; nothing to promote."
+              exit 0
+            fi
+            # Fast-forward only: if the current production head is not an
+            # ancestor of the candidate, a newer promotion already happened and
+            # this is an older CI run finishing late. Benign: skip, never rewind.
+            if ! git merge-base --is-ancestor "$CURRENT" "$CANDIDATE"; then
+              echo "production (${CURRENT}) is ahead of or divergent from tested SHA ${CANDIDATE}; skipping out-of-order promotion."
+              exit 0
+            fi
+          fi
+
+          # Plain ref update: the remote itself refuses non-fast-forward, so
+          # even a race that slipped past the checks above cannot rewind.
+          git push origin "${CANDIDATE}:refs/heads/production"
+          echo "production advanced to ${CANDIDATE}."
