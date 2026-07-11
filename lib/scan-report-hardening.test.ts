@@ -1419,12 +1419,20 @@ test("run views carry the consent outcome and comparison views carry display lab
   const v1Read = readStoredScanReport(clicked);
   assert.equal(v1Read.ok, true);
   if (v1Read.ok) {
-    // choiceState stays null on v1: a dispatched click was never verified.
+    // choiceState stays null on v1: a dispatched click was never verified,
+    // and the verification surface is null ("never ran"), never an empty
+    // recorded ledger. interactionAttempted is true by construction: the v1
+    // producer only wrote the block in the click modes.
     assert.deepEqual(toReportView(v1Read.stored).runs[0].consent, {
       mode: "reject-all",
+      interactionAttempted: true,
       controlActivated: true,
       cmp: null,
-      choiceState: null
+      choiceState: null,
+      verificationObservations: null,
+      reverifiedAfterReload: null,
+      verificationFailureReason: null,
+      bannerTransition: null
     });
   }
   const v1Plain = readStoredScanReport(makeScanReportV1());
@@ -1444,12 +1452,21 @@ test("run views carry the consent outcome and comparison views carry display lab
   const v2Read = readStoredScanReport(v2Consent);
   assert.equal(v2Read.ok, true, JSON.stringify(!v2Read.ok ? v2Read.violations : []));
   if (v2Read.ok) {
-    // v2 carries the evaluator-derived choice state alongside the dispatch fact.
+    // v2 carries the evaluator-derived choice state alongside the dispatch
+    // fact, plus the recorded verification-attempt ledger.
     assert.deepEqual(toReportView(v2Read.stored).runs[0].consent, {
       mode: "reject-all",
+      interactionAttempted: true,
       controlActivated: true,
       cmp: null,
-      choiceState: "verified"
+      choiceState: "verified",
+      verificationObservations: [
+        { phaseId: 1, method: "onetrust-cookie@1", observed: "rejected-all", consistentWithChoice: true },
+        { phaseId: 2, method: "onetrust-cookie@1", observed: "rejected-all", consistentWithChoice: true }
+      ],
+      reverifiedAfterReload: true,
+      verificationFailureReason: null,
+      bannerTransition: null
     });
   }
 

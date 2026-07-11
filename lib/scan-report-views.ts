@@ -31,12 +31,30 @@ import type {
   StorageRecord
 } from "./types";
 import type {
+  ArmVerification,
+  CaptureLossEntry,
+  CookieMutation,
+  DetectorStatus,
+  EvidenceStrength,
+  Fingerprints,
   InterventionAxis,
   MetricFamily,
+  PhaseSpan,
+  Provenance,
   PublicScanReportV2,
-  ScanRunV2
+  RunSummary,
+  ScanRunV2,
+  StorageMutation
 } from "./scan-report-v2";
-import type { PublicScanReportV2R2, ScanRunV2R2 } from "./scan-report-v2-r2";
+import type {
+  BannerTransitionR2,
+  ConsentVerificationObservationR2,
+  GpcVerificationFactsR2,
+  InterventionExperimentR2,
+  PublicScanReportV2R2,
+  ScanRunV2R2,
+  ShieldsVerificationFactsR2
+} from "./scan-report-v2-r2";
 import type { StoredScanReport } from "./scan-report-reader";
 
 export type {
@@ -59,6 +77,13 @@ export type RunEvidenceView = {
   domains: DomainSummary[];
   cookies: CookieRecord[];
   storage: StorageRecord[];
+  /**
+   * Phase-tagged cookie/storage mutation ledgers (v2, RFC 7.2). null on v1,
+   * which only ever recorded the end-of-visit snapshot: null means "never
+   * recorded", distinct from an empty recorded ledger.
+   */
+  cookieMutations: CookieMutation[] | null;
+  storageMutations: StorageMutation[] | null;
   fingerprintEvents: FingerprintEventSummary[];
   fingerprintDetections: FingerprintDetectionSummary[];
   pixelEvents: PixelEventSummary[];
@@ -112,6 +137,17 @@ export type RunQualityView = {
   reasons: string[];
   /** Per evidence family; null on v1 (family censoring was never recorded). */
   byFamily: Record<string, { outcome: "complete" | "censored"; reasons: string[] }> | null;
+  /**
+   * The RECORDED quality facts behind the evaluation (RFC 5.3): bot-wall
+   * match, navigation settlement, exhausted budgets, and the per-family
+   * capture-loss ledger. null on v1, which never recorded them.
+   */
+  facts: {
+    botWallTitleMatched: boolean;
+    navigationSettled: boolean;
+    budgetsExhausted: string[];
+    captureLoss: CaptureLossEntry[];
+  } | null;
 };
 
 /**
@@ -123,6 +159,12 @@ export type RunQualityView = {
  */
 export type RunConsentView = {
   mode: "accept-all" | "reject-all";
+  /**
+   * The scanner attempted a banner interaction on this run. v2 records it;
+   * on v1 it is true by construction (the producer only wrote the interaction
+   * block in the click modes).
+   */
+  interactionAttempted: boolean;
   controlActivated: boolean;
   /** Consent platform name when a known CMP control matched (e.g. "OneTrust"). */
   cmp: string | null;
@@ -132,6 +174,63 @@ export type RunConsentView = {
    * on v1, which never recorded verification facts.
    */
   choiceState: "verified" | "contradicted" | "weak-signal" | "unavailable" | "failed" | null;
+  /**
+   * The recorded verification ATTEMPTS ledger (RFC 6/15.4): each interpreter
+   * read, phase-tagged, with its r2 outcome block when recorded. null on v1
+   * (no interpreter ever ran); an empty recorded list means "attempted
+   * nothing", which the evaluator maps to choiceState "unavailable".
+   */
+  verificationObservations: ConsentVerificationObservationR2[] | null;
+  /** true iff a post-choice-reload observation exists and agrees; null on v1. */
+  reverifiedAfterReload: boolean | null;
+  /** The recorded failure reason when verification failed; null otherwise and on v1. */
+  verificationFailureReason: string | null;
+  /** Banner visibility transitions (r2, RFC 15.5); null on v1 and r1. */
+  bannerTransition: BannerTransitionR2 | null;
+};
+
+/**
+ * The run's detector ledger, normalized for renderers (RFC 5.4): which
+ * detectors ran, at what version, with what outcome. null on v1, which never
+ * recorded detector identity, so a v1 fingerprinting finding can never be
+ * presented as coming from a known instrument version.
+ */
+export type DetectorLedgerView = Record<
+  string,
+  { version: string; status: DetectorStatus; reason: string | null; phaseId: number | null }
+>;
+
+/**
+ * The run's recorded measurement identity (RFC 3.5/5.1): who measured, with
+ * what build and methodology, and the digests that pin the instruments. null
+ * on v1, which recorded only the human-facing catalog/list blocks (those stay
+ * on `conditions`).
+ */
+export type RunProvenanceView = {
+  observer: string;
+  acquisition: string;
+  buildCommit: string;
+  methodologyVersion: string;
+  detectorRegistry: { version: string; digest: string };
+  sourceArtifactDigest: string | null;
+};
+
+/** The digest side of the toolchain (RFC 3.5); the human-facing side stays on `conditions`. */
+export type ToolchainIdentityView = {
+  trackerCatalogDigest: string;
+  adblock: { manifestDigest: string; engineVersion: string } | null;
+  normalizationVersion: string;
+};
+
+/**
+ * The run's CONFIGURED-vs-VERIFIED axis facts (r2, RFC 15.3): what the
+ * scanner read back about the state it was asked to apply. null on v1 and r1
+ * runs, which recorded configuration only; a null here means "never
+ * verified", never "verified off".
+ */
+export type RunVerificationFactsView = {
+  gpc: GpcVerificationFactsR2 | null;
+  shields: ShieldsVerificationFactsR2 | null;
 };
 
 export type RunView = {
@@ -160,6 +259,20 @@ export type RunView = {
    * carries the raw value so exports stay lossless.
    */
   screenshot: string | null;
+  /** The run's recorded phase spans (RFC 7); null on v1 (phases were never recorded). */
+  phases: PhaseSpan[] | null;
+  /** Per-phase request counts (RFC 1.1); null on v1. */
+  countsByPhase: RunSummary["countsByPhase"] | null;
+  /** Detector ledger (RFC 5.4); null on v1. */
+  detectors: DetectorLedgerView | null;
+  /** Recorded fingerprint digests (RFC 3.2); null on v1 (the pair-level DERIVED legacy fingerprint lives on claims.decision). */
+  fingerprints: Fingerprints | null;
+  /** Recorded measurement identity (RFC 5.1); null on v1. */
+  provenance: RunProvenanceView | null;
+  /** Instrument digests (RFC 3.5); null on v1. */
+  toolchainIdentity: ToolchainIdentityView | null;
+  /** Configured-vs-verified axis readbacks (r2, RFC 15.3); null on v1 and r1. */
+  verificationFacts: RunVerificationFactsView | null;
   evidence: RunEvidenceView;
   conditions: RunConditionsView;
   consent: RunConsentView | null;
@@ -185,6 +298,20 @@ export type ComparisonView = {
    * `claims` says whether the pair supports comparing them.
    */
   runLabels: { baseline: string; variant: string };
+  /**
+   * The experiment's recorded arm verification (RFC 4.3): configured-vs-
+   * verified per arm, with the interpreter method and outcome. null on v1 and
+   * on non-intervention designs; a null never reads as "verified".
+   * Presentation metadata: the CLAIM consequence already lives in
+   * `claims.interventionAttribution`.
+   */
+  verification: { baseline: ArmVerification; variant: ArmVerification } | null;
+  /** Recorded arm order (RFC 4.3, counterbalancing); null on v1 and non-intervention designs. */
+  order: "AB" | "BA" | null;
+  /** Recorded evidence strength (RFC 4.2); null on v1 and non-intervention designs. */
+  evidenceStrength: EvidenceStrength | null;
+  /** Count of embedded replication pairs (r2, RFC 15.6); null when the design cannot carry them. */
+  supportingPairs: number | null;
 };
 
 /** A gated claim surface: allowed only when the stored facts prove it. */
@@ -285,11 +412,43 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
     warnings: [...run.warnings],
     // v2 public runs carry no screenshot; screenshots are ephemeral-only.
     screenshot: null,
+    phases: run.phases.map((phase) => ({ ...phase })),
+    countsByPhase: run.summary.countsByPhase.map((entry) => ({ ...entry })),
+    detectors: Object.fromEntries(
+      Object.entries(run.detectors).map(([id, entry]) => [
+        id,
+        { version: entry.version, status: entry.status, reason: entry.reason ?? null, phaseId: entry.phaseId ?? null }
+      ])
+    ),
+    fingerprints: { ...run.fingerprints },
+    provenance: {
+      observer: run.provenance.observer,
+      acquisition: run.provenance.acquisition,
+      buildCommit: run.provenance.buildCommit,
+      methodologyVersion: run.provenance.methodologyVersion,
+      detectorRegistry: { ...run.provenance.detectorRegistry },
+      sourceArtifactDigest: run.provenance.sourceArtifactDigest ?? null
+    },
+    toolchainIdentity: {
+      trackerCatalogDigest: run.toolchain.trackerCatalog.digest,
+      adblock: run.toolchain.adblock
+        ? { manifestDigest: run.toolchain.adblock.manifestDigest, engineVersion: run.toolchain.adblock.engineVersion }
+        : null,
+      normalizationVersion: run.toolchain.normalizationVersion
+    },
+    // r2 runs may carry axis readbacks; r1 runs never do, and a missing block
+    // is "never verified", not a verified-off wrapper.
+    verificationFacts:
+      "verificationFacts" in run && run.verificationFacts
+        ? { gpc: run.verificationFacts.gpc ?? null, shields: run.verificationFacts.shields ?? null }
+        : null,
     evidence: {
       requests: run.evidence.requests,
       domains: summarizeDomains(run.evidence.requests),
       cookies: run.evidence.cookiesFinal,
       storage: run.evidence.storageFinal,
+      cookieMutations: run.evidence.cookieMutations.map((mutation) => ({ ...mutation })),
+      storageMutations: run.evidence.storageMutations.map((mutation) => ({ ...mutation })),
       fingerprintEvents: run.evidence.fingerprintEvents,
       fingerprintDetections: run.evidence.fingerprintDetections,
       pixelEvents: run.evidence.pixelEvents,
@@ -332,9 +491,17 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
     consent: run.evidence.consent
       ? {
           mode: run.evidence.consent.mode,
+          interactionAttempted: run.evidence.consent.interactionAttempted,
           controlActivated: run.evidence.consent.controlActivated,
           cmp: run.evidence.consent.cmp ?? null,
-          choiceState: run.evidence.consent.choiceState
+          choiceState: run.evidence.consent.choiceState,
+          verificationObservations: run.evidence.consent.verificationObservations.map((observation) => ({ ...observation })),
+          reverifiedAfterReload: run.evidence.consent.reverifiedAfterReload,
+          verificationFailureReason: run.evidence.consent.verificationFailureReason ?? null,
+          bannerTransition:
+            "bannerTransition" in run.evidence.consent && run.evidence.consent.bannerTransition
+              ? run.evidence.consent.bannerTransition
+              : null
         }
       : null,
     quality: {
@@ -346,7 +513,13 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
           family,
           { outcome: entry.outcome, reasons: [...entry.reasons] }
         ])
-      )
+      ),
+      facts: {
+        botWallTitleMatched: run.qualityFacts.botWallTitleMatched,
+        navigationSettled: run.qualityFacts.navigationSettled,
+        budgetsExhausted: [...run.qualityFacts.budgetsExhausted],
+        captureLoss: run.qualityFacts.captureLoss.map((entry) => ({ ...entry }))
+      }
     }
   };
 }
@@ -378,11 +551,23 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
     durationMs: result.summary.durationMs,
     warnings: [...result.warnings],
     screenshot: result.screenshot ?? null,
+    // v1 recorded none of the phase, detector-identity, digest, provenance, or
+    // verification facts: every block is null ("never recorded"), and no
+    // renderer may present a derived stand-in as recorded fact.
+    phases: null,
+    countsByPhase: null,
+    detectors: null,
+    fingerprints: null,
+    provenance: null,
+    toolchainIdentity: null,
+    verificationFacts: null,
     evidence: {
       requests: result.requests,
       domains: result.domains,
       cookies: result.cookies,
       storage: result.storage,
+      cookieMutations: null,
+      storageMutations: null,
       fingerprintEvents: result.fingerprintEvents,
       fingerprintDetections: result.fingerprintDetections ?? [],
       pixelEvents: result.pixelEvents ?? [],
@@ -422,18 +607,27 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
     consent: result.consentInteraction
       ? {
           mode: result.consentInteraction.mode,
+          // The v1 producer only wrote this block in the click modes, so an
+          // interaction was attempted by construction.
+          interactionAttempted: true,
           controlActivated: result.consentInteraction.clicked,
           cmp: result.consentInteraction.cmp ?? null,
           // v1 recorded click dispatch only; no interpreter ever verified the
-          // resulting consent state.
-          choiceState: null
+          // resulting consent state, so the verification surface is null
+          // ("never ran"), never an empty recorded ledger.
+          choiceState: null,
+          verificationObservations: null,
+          reverifiedAfterReload: null,
+          verificationFailureReason: null,
+          bannerTransition: null
         }
       : null,
     quality: {
       origin: "legacy-derived",
       outcome: reasons.includes("http-error-status") ? "failed" : "complete",
       reasons,
-      byFamily: null
+      byFamily: null,
+      facts: null
     }
   };
 }
@@ -628,7 +822,13 @@ export function viewFromV1Report(report: ScanReport): ReportView {
         kind: "descriptive",
         axis,
         temporalPair: report.comparisonType === "temporal",
-        runLabels: displayRunLabels(report.runLabels, axis, report.comparisonType === "temporal", consentDispatch)
+        runLabels: displayRunLabels(report.runLabels, axis, report.comparisonType === "temporal", consentDispatch),
+        // v1 never recorded arm verification, ordering, or evidence strength;
+        // null means "never recorded", and no renderer may read it as verified.
+        verification: null,
+        order: null,
+        evidenceStrength: null,
+        supportingPairs: null
       },
       claims: legacyClaims(report)
     };
@@ -689,8 +889,19 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
   const limited = revision === 1;
   if (report.reportType === "comparison") {
     const runs = [runViewFromV2(report.baseline, "baseline"), runViewFromV2(report.variant, "variant")];
-    const axis = report.experiment.kind === "intervention" ? report.experiment.axis : null;
-    const runLabels = defaultRunLabels(axis, report.experiment.kind === "temporal");
+    const experiment = report.experiment;
+    const axis = experiment.kind === "intervention" ? experiment.axis : null;
+    const runLabels = defaultRunLabels(axis, experiment.kind === "temporal");
+    // Recorded experiment metadata (RFC 4.2/4.3/15.6): presentation facts
+    // only, the claim consequences live in `claims`. Non-intervention designs
+    // never carry them; an absent r2 supportingPairs block stays null
+    // ("none recorded"), never a fabricated zero.
+    const intervention = experiment.kind === "intervention" ? experiment : null;
+    // The r1 intervention type has no supportingPairs property, so the `in`
+    // check cannot narrow the union; the r2 name gives the read a type.
+    const supportingPairList =
+      intervention && "supportingPairs" in intervention ? (intervention as InterventionExperimentR2).supportingPairs : undefined;
+    const supportingPairs = supportingPairList ? supportingPairList.length : null;
     return {
       origin: "v2",
       revision,
@@ -708,10 +919,16 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
       latestRunAt: latestRunAt(runs),
       runs,
       comparison: {
-        kind: report.experiment.kind,
+        kind: experiment.kind,
         axis,
-        temporalPair: report.experiment.kind === "temporal",
-        runLabels
+        temporalPair: experiment.kind === "temporal",
+        runLabels,
+        verification: intervention
+          ? { baseline: { ...intervention.verification.baseline }, variant: { ...intervention.verification.variant } }
+          : null,
+        order: intervention ? intervention.order : null,
+        evidenceStrength: intervention ? intervention.evidence.strength : null,
+        supportingPairs
       },
       claims: v2Claims(report, limited)
     };

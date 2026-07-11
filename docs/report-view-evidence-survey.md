@@ -366,3 +366,33 @@ is the single reason-bearing ruling per pair and per metric family:
 - Cost: report page first-load 154 -> 156 kB (the sha256 implementation now
   reaches the client-safe views chain; upload views compute fingerprints in
   the browser).
+
+## ReportView expansion (2026-07-11): the recorded-evidence surface
+
+DONE, second item of the round-10 remaining order. The view now carries every
+recorded v2 surface the migration needs, with v1 nulling each block ("never
+recorded", so no derived stand-in can present as recorded fact):
+
+- RunView: `phases` (RFC 7 spans) + `countsByPhase`; `detectors` (RFC 5.4
+  ledger, reason/phaseId normalized to explicit nulls); `fingerprints` (the
+  run's recorded digests; the pair-level legacy DERIVED digest stays on
+  claims.decision); `provenance` (observer/acquisition/buildCommit/
+  methodology/detector-registry identity); `toolchainIdentity` (catalog and
+  adblock digests + normalizationVersion; the human-facing blocks stay on
+  `conditions`); `verificationFacts` (r2 RFC 15.3 gpc/shields readbacks,
+  null wrapper never fabricated, r1 and v1 stay null).
+- RunQualityView.facts: the RECORDED quality facts (botWallTitleMatched,
+  navigationSettled, budgetsExhausted, captureLoss ledger).
+- RunEvidenceView: `cookieMutations`/`storageMutations` phase-tagged ledgers
+  (null on v1, distinct from an empty recorded ledger).
+- RunConsentView: `interactionAttempted` (v1: true by construction),
+  `verificationObservations` (the attempts ledger, r2 result blocks pass
+  through), `reverifiedAfterReload`, `verificationFailureReason`,
+  `bannerTransition` (r2 15.5).
+- ComparisonView: `verification` (RFC 4.3 configured-vs-verified per arm),
+  `order`, `evidenceStrength`, `supportingPairs` (r2 15.6 count; absent wire
+  block stays null, never a fabricated zero).
+
+Pins in lib/scan-report-views.test.ts (v1 nulls, v2 relational passthrough,
+r2 readbacks/supporting pairs); the hardening consent-view pins extended.
+Report page first-load 157 kB.
