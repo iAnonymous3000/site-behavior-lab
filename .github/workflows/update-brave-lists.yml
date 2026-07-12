@@ -45,6 +45,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Playwright Chromium
+        # The unit suite includes real scanner regressions that launch the
+        # pinned Playwright browser. npm ci installs the client package, not
+        # chromium_headless_shell itself.
+        run: npx playwright install --with-deps chromium
+
       - name: Fetch Brave default filter lists
         run: npm run lists:brave
 
