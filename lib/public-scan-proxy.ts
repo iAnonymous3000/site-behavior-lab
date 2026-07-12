@@ -30,9 +30,9 @@ export type PublicScanProxy = {
   server: string;
   blockedTargets: BlockedProxyTarget[];
   /**
-   * A target-free snapshot of the aggregate downstream byte budget. This is
-   * deliberately shaped so the measurement kernel can turn `captureLoss`
-   * into its request-family quality facts without persisting destination URLs.
+   * Target-free snapshots of the independent downstream and upload budgets.
+   * They are deliberately shaped so the measurement kernel can turn each
+   * `captureLoss` into request-family quality facts without persisting URLs.
    */
   getDiagnostics: () => PublicScanProxyDiagnostics;
   close: () => Promise<void>;
@@ -41,14 +41,21 @@ export type PublicScanProxy = {
 export const PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME = "request-capture" as const;
 export const DEFAULT_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT = 64 * 1024 * 1024;
 export const MAX_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT = 128 * 1024 * 1024;
+export const PUBLIC_SCAN_PROXY_UPLOAD_BYTE_BUDGET_NAME = "request-upload" as const;
+export const DEFAULT_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT = 16 * 1024 * 1024;
+export const MAX_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT = 128 * 1024 * 1024;
 
-export type PublicScanProxyCaptureLoss = {
+type PublicScanProxyByteBudgetName =
+  | typeof PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME
+  | typeof PUBLIC_SCAN_PROXY_UPLOAD_BYTE_BUDGET_NAME;
+
+export type PublicScanProxyCaptureLoss<Name extends PublicScanProxyByteBudgetName = PublicScanProxyByteBudgetName> = {
   family: "requests";
   phaseId: null;
   kind: "cap";
-  /** Number of response streams refused or truncated after the shared cap. */
+  /** Number of streams refused or truncated after this shared cap. */
   count: number;
-  detail: typeof PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME;
+  detail: Name;
 };
 
 export type PublicScanProxyDiagnostics = {
@@ -61,7 +68,18 @@ export type PublicScanProxyDiagnostics = {
     remainingBytes: number;
     /** The cap was reached; capture loss exists only when a stream was cut. */
     limitReached: boolean;
-    captureLoss: PublicScanProxyCaptureLoss | null;
+    captureLoss: PublicScanProxyCaptureLoss<typeof PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME> | null;
+  };
+  uploadByteBudget: {
+    name: typeof PUBLIC_SCAN_PROXY_UPLOAD_BYTE_BUDGET_NAME;
+    family: "requests";
+    limitBytes: number;
+    /** Plain HTTP request-body bytes plus raw client-to-upstream CONNECT bytes. */
+    forwardedBytes: number;
+    remainingBytes: number;
+    /** The cap was reached; capture loss exists only when a stream was cut. */
+    limitReached: boolean;
+    captureLoss: PublicScanProxyCaptureLoss<typeof PUBLIC_SCAN_PROXY_UPLOAD_BYTE_BUDGET_NAME> | null;
   };
 };
 
@@ -81,6 +99,8 @@ type StartPublicScanProxyOptions = {
    * caller to disable the resource bound.
    */
   responseByteLimitBytes?: number;
+  /** Test/deployment override with the same non-disableable bound as responses. */
+  uploadByteLimitBytes?: number;
   resolveHost?: ResolvePublicHost;
   /** Routes an already validated, pinned target in deterministic socket tests. */
   connectUpstreamForTests?: (target: Readonly<PinnedTarget>) => net.Socket;
@@ -94,7 +114,14 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
   const blockedTargets: BlockedProxyTarget[] = [];
   const pinnedTargets = new Map<string, Promise<PinnedTarget>>();
   const sockets = new Set<Duplex>();
-  const responseByteBudget = new AggregateResponseByteBudget(normalizeResponseByteLimit(options.responseByteLimitBytes));
+  const responseByteBudget = new AggregateByteBudget(
+    PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME,
+    normalizeResponseByteLimit(options.responseByteLimitBytes)
+  );
+  const uploadByteBudget = new AggregateByteBudget(
+    PUBLIC_SCAN_PROXY_UPLOAD_BYTE_BUDGET_NAME,
+    normalizeUploadByteLimit(options.uploadByteLimitBytes)
+  );
   const connectUpstream = options.connectUpstreamForTests ?? defaultConnectUpstream;
 
   const server = http.createServer((request, response) => {
@@ -104,6 +131,7 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
       blockedTargets,
       pinnedTargets,
       responseByteBudget,
+      uploadByteBudget,
       connectUpstream
     }).catch(() => {
       if (!response.destroyed) response.destroy();
@@ -117,6 +145,7 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
       blockedTargets,
       pinnedTargets,
       responseByteBudget,
+      uploadByteBudget,
       connectUpstream
     }).catch(() => {
       if (!socket.destroyed) socket.destroy();
@@ -130,6 +159,7 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
       blockedTargets,
       pinnedTargets,
       responseByteBudget,
+      uploadByteBudget,
       connectUpstream
     });
   });
@@ -158,7 +188,10 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
   return {
     server: `http://127.0.0.1:${address.port}`,
     blockedTargets,
-    getDiagnostics: () => responseByteBudget.snapshot(),
+    getDiagnostics: () => ({
+      responseByteBudget: responseByteBudget.snapshot(),
+      uploadByteBudget: uploadByteBudget.snapshot()
+    }),
     close: async () => {
       for (const socket of sockets) socket.destroy();
       await new Promise<void>((resolve) => server.close(() => resolve()));
@@ -215,12 +248,15 @@ async function handleHttpProxyRequest(
     }
   );
 
+  let uploadCapped = false;
   upstream.on("error", () => {
-    recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), "upstream-failed");
+    if (!uploadCapped) recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), "upstream-failed");
     if (!response.destroyed) response.destroy();
   });
 
-  request.pipe(upstream);
+  pipeWithinByteBudget(request, upstream, state.uploadByteBudget, undefined, () => {
+    uploadCapped = true;
+  });
 }
 
 async function handleHttpsConnect(
@@ -252,6 +288,7 @@ async function handleHttpsConnect(
   }
 
   const upstream = state.connectUpstream(target);
+  let uploadCapped = false;
 
   upstream.once("connect", () => {
     if (!state.responseByteBudget.hasCapacity()) {
@@ -261,13 +298,16 @@ async function handleHttpsConnect(
       return;
     }
     clientSocket.write("HTTP/1.1 200 Connection Established\r\nConnection: keep-alive\r\n\r\n");
-    if (head.length > 0) upstream.write(head);
     pipeWithinResponseByteBudget(upstream, clientSocket, state.responseByteBudget);
-    clientSocket.pipe(upstream);
+    // `head` contains tunnel bytes Node read in the same packet as CONNECT.
+    // It must be claimed before forwarding just like later socket data.
+    pipeWithinByteBudget(clientSocket, upstream, state.uploadByteBudget, head, () => {
+      uploadCapped = true;
+    });
   });
 
   upstream.once("error", () => {
-    recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), "upstream-failed");
+    if (!uploadCapped) recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), "upstream-failed");
     closeTunnel(clientSocket, 502);
   });
 
@@ -287,7 +327,8 @@ type ProxyState = {
   resolveHost: ResolvePublicHost;
   blockedTargets: BlockedProxyTarget[];
   pinnedTargets: Map<string, Promise<PinnedTarget>>;
-  responseByteBudget: AggregateResponseByteBudget;
+  responseByteBudget: AggregateByteBudget<typeof PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME>;
+  uploadByteBudget: AggregateByteBudget<typeof PUBLIC_SCAN_PROXY_UPLOAD_BYTE_BUDGET_NAME>;
   connectUpstream: (target: Readonly<PinnedTarget>) => net.Socket;
 };
 
@@ -473,11 +514,21 @@ function defaultConnectUpstream(target: Readonly<PinnedTarget>): net.Socket {
   });
 }
 
-class AggregateResponseByteBudget {
+type ByteBudgetDiagnostics<Name extends PublicScanProxyByteBudgetName> = {
+  name: Name;
+  family: "requests";
+  limitBytes: number;
+  forwardedBytes: number;
+  remainingBytes: number;
+  limitReached: boolean;
+  captureLoss: PublicScanProxyCaptureLoss<Name> | null;
+};
+
+class AggregateByteBudget<Name extends PublicScanProxyByteBudgetName> {
   private forwardedBytes = 0;
   private affectedStreams = 0;
 
-  constructor(readonly limitBytes: number) {}
+  constructor(readonly name: Name, readonly limitBytes: number) {}
 
   hasCapacity(): boolean {
     return this.forwardedBytes < this.limitBytes;
@@ -485,7 +536,7 @@ class AggregateResponseByteBudget {
 
   claim(requestedBytes: number): { allowedBytes: number; exceeded: boolean } {
     if (!Number.isSafeInteger(requestedBytes) || requestedBytes < 0) {
-      throw new Error("Proxy response chunks must have a nonnegative safe-integer byte length.");
+      throw new Error("Proxy byte-budget chunks must have a nonnegative safe-integer byte length.");
     }
     const allowedBytes = Math.min(requestedBytes, this.limitBytes - this.forwardedBytes);
     this.forwardedBytes += allowedBytes;
@@ -496,26 +547,24 @@ class AggregateResponseByteBudget {
     this.affectedStreams += 1;
   }
 
-  snapshot(): PublicScanProxyDiagnostics {
+  snapshot(): ByteBudgetDiagnostics<Name> {
     return {
-      responseByteBudget: {
-        name: PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME,
-        family: "requests",
-        limitBytes: this.limitBytes,
-        forwardedBytes: this.forwardedBytes,
-        remainingBytes: this.limitBytes - this.forwardedBytes,
-        limitReached: !this.hasCapacity(),
-        captureLoss:
-          this.affectedStreams === 0
-            ? null
-            : {
-                family: "requests",
-                phaseId: null,
-                kind: "cap",
-                count: this.affectedStreams,
-                detail: PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME
-              }
-      }
+      name: this.name,
+      family: "requests",
+      limitBytes: this.limitBytes,
+      forwardedBytes: this.forwardedBytes,
+      remainingBytes: this.limitBytes - this.forwardedBytes,
+      limitReached: !this.hasCapacity(),
+      captureLoss:
+        this.affectedStreams === 0
+          ? null
+          : {
+              family: "requests",
+              phaseId: null,
+              kind: "cap",
+              count: this.affectedStreams,
+              detail: this.name
+            }
     };
   }
 }
@@ -528,7 +577,23 @@ class AggregateResponseByteBudget {
 function pipeWithinResponseByteBudget(
   source: Readable,
   destination: Writable,
-  budget: AggregateResponseByteBudget
+  budget: AggregateByteBudget<typeof PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME>
+): void {
+  pipeWithinByteBudget(source, destination, budget);
+}
+
+/**
+ * Forward one direction through an aggregate, synchronously claimed budget.
+ * An optional initial chunk covers CONNECT bytes parsed alongside its headers.
+ * No concurrent stream can oversubscribe because every claim completes before
+ * its corresponding write; at the boundary only the allowed prefix is sent.
+ */
+function pipeWithinByteBudget<Name extends PublicScanProxyByteBudgetName>(
+  source: Readable,
+  destination: Writable,
+  budget: AggregateByteBudget<Name>,
+  initialChunk?: Buffer,
+  onLimit?: () => void
 ): void {
   let terminated = false;
 
@@ -537,7 +602,7 @@ function pipeWithinResponseByteBudget(
     destination.destroy();
   };
 
-  source.on("data", (value: Buffer | string) => {
+  const forward = (value: Buffer | string) => {
     if (terminated) return;
     const chunk = Buffer.isBuffer(value) ? value : Buffer.from(value);
     const claim = budget.claim(chunk.byteLength);
@@ -545,6 +610,7 @@ function pipeWithinResponseByteBudget(
     if (claim.exceeded) {
       terminated = true;
       budget.recordCaptureLoss();
+      onLimit?.();
       source.pause();
       if (claim.allowedBytes === 0) {
         terminateAtLimit();
@@ -560,7 +626,10 @@ function pipeWithinResponseByteBudget(
         if (!terminated && !destination.destroyed) source.resume();
       });
     }
-  });
+  };
+
+  if (initialChunk && initialChunk.length > 0) forward(initialChunk);
+  if (!terminated) source.on("data", forward);
 
   source.once("end", () => {
     if (!terminated && !destination.destroyed) destination.end();
@@ -578,6 +647,16 @@ function normalizeResponseByteLimit(value: number | undefined): number {
   if (!Number.isSafeInteger(limit) || limit <= 0 || limit > MAX_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT) {
     throw new Error(
       `Public scan proxy response-byte limit must be a positive integer no greater than ${MAX_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT}.`
+    );
+  }
+  return limit;
+}
+
+function normalizeUploadByteLimit(value: number | undefined): number {
+  const limit = value ?? DEFAULT_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT;
+  if (!Number.isSafeInteger(limit) || limit <= 0 || limit > MAX_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT) {
+    throw new Error(
+      `Public scan proxy upload-byte limit must be a positive integer no greater than ${MAX_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT}.`
     );
   }
   return limit;

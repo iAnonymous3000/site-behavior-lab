@@ -26,7 +26,8 @@ import {
   publicScanRefusalReasons,
   readRequestBodyWithinLimit,
   scanAccessTokenMatches,
-  scanTokenCost
+  scanTokenCost,
+  withPublicScanAccessCheck
 } from "../lib/edge-scan-gate";
 
 type Env = {
@@ -308,6 +309,7 @@ async function patchHealthResponse(response: Response, env: Env): Promise<Respon
         rateLimitStoreBound: true
       });
       health.scansAvailable = refusals.length === 0;
+      health.checks = withPublicScanAccessCheck(health.checks, gate, refusals);
       if (refusals.length > 0) {
         health.status = "degraded";
         health.warnings = [...(Array.isArray(health.warnings) ? health.warnings : []), ...refusals];

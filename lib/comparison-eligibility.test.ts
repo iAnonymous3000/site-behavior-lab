@@ -7,6 +7,7 @@ import {
   comparisonEligibility,
   runHitRequestCap,
   runHitResponseByteCap,
+  runHitUploadByteCap,
   temporalPairEligibility
 } from "./comparison-eligibility";
 import { MAX_RECORDED_REQUESTS, ScanRequestBudget, ScanWarningCollector } from "./scan-runtime";
@@ -265,6 +266,17 @@ test("an exhausted aggregate response-byte budget censors the visit", () => {
   const eligibility = comparisonEligibility(report);
   assert.equal(eligibility.eligible, false);
   assert.match(eligibility.reasons.join(" "), /response-byte budget/);
+});
+
+test("an exhausted aggregate upload-byte budget censors the visit", () => {
+  const run = makeRun({ totalRequests: 1 });
+  run.warnings = ["The scan stopped forwarding additional request bytes after reaching the 16 MiB aggregate upload-byte budget."];
+  assert.equal(runHitUploadByteCap(run), true);
+
+  const report = createTemporalComparisonReport(makeRun({}), run);
+  const eligibility = comparisonEligibility(report);
+  assert.equal(eligibility.eligible, false);
+  assert.match(eligibility.reasons.join(" "), /upload-byte budget/);
 });
 
 test("mismatched subjects, devices, and pipelines each disqualify", () => {

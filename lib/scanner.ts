@@ -452,12 +452,21 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         }).catch(() => null);
     throwIfScanAborted(options.signal);
 
-    const responseByteBudget = scanProxy.getDiagnostics().responseByteBudget;
+    const proxyDiagnostics = scanProxy.getDiagnostics();
+    const responseByteBudget = proxyDiagnostics.responseByteBudget;
     if (responseByteBudget.captureLoss) {
       warnings.add(
         `The scan stopped loading additional response bytes after reaching the ${Math.round(
           responseByteBudget.limitBytes / 1024 / 1024
         )} MiB aggregate response-byte budget.`
+      );
+    }
+    const uploadByteBudget = proxyDiagnostics.uploadByteBudget;
+    if (uploadByteBudget.captureLoss) {
+      warnings.add(
+        `The scan stopped forwarding additional request bytes after reaching the ${Math.round(
+          uploadByteBudget.limitBytes / 1024 / 1024
+        )} MiB aggregate upload-byte budget.`
       );
     }
 

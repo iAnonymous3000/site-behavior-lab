@@ -335,7 +335,8 @@ export function SiteBehaviorApp({
   const liveApiServesReportPages = reportPage || scannerHealth?.capabilities?.savedReportPages === true;
   const scannerRequiresAccessKey =
     LIVE_SCAN_ENABLED && !openAccessScanner && (!STATIC_LIVE_SCAN_ENABLED || scannerHealth?.authenticated === true);
-  const scannerUnavailable = LIVE_SCAN_ENABLED && Boolean(scannerHealthError);
+  const scannerUnavailable =
+    LIVE_SCAN_ENABLED && (Boolean(scannerHealthError) || scannerHealth?.scansAvailable === false);
   // The Worker advertises whether it enforces Turnstile. Satisfy it only when the
   // static build also carries a public site key; otherwise scanning can only fail.
   const turnstileRequired = LIVE_SCAN_ENABLED && scannerHealth?.turnstile === true;
@@ -1193,12 +1194,14 @@ function liveScannerStatusLabel(health: ScannerHealth | null, error: string | nu
   if (!STATIC_LIVE_SCAN_ENABLED) return "Controlled";
   if (error) return "Offline";
   if (!health) return "Checking";
+  if (health.scansAvailable === false) return "Offline";
   return health.status === "ok" ? "Live" : health.ok ? "Limited" : "Offline";
 }
 
 function scannerStatusText(health: ScannerHealth | null, error: string | null): string {
   if (error) return error;
   if (!health) return "Checking public scanner status...";
+  if (health.scansAvailable === false) return "Scanner temporarily unavailable. Try again later.";
 
   const storage = health.storage ? ` Storage: ${health.storage.toUpperCase()}.` : "";
   const minuteLimit = health.limits?.publicScanRateLimitPerMinute;

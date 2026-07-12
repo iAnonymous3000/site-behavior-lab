@@ -13,6 +13,7 @@ import {
   readRequestBodyWithinLimit,
   scanAccessTokenMatches,
   scanTokenCost,
+  withPublicScanAccessCheck,
   type RateLimitStore
 } from "./edge-scan-gate";
 
@@ -159,6 +160,30 @@ test("publicScanRefusalReasons names every configuration that fails all scans cl
   const noKv = publicScanRefusalReasons({ allowUnauthenticated: "1", turnstileSecret: "secret", rateLimitStoreBound: false });
   assert.equal(noKv.length, 1);
   assert.match(noKv[0], /RATE_LIMITS_KV/);
+});
+
+test("withPublicScanAccessCheck overlays the authoritative edge posture and preserves other checks", () => {
+  const upstream = {
+    adblock: { active: true },
+    scanAccess: "open",
+    reportStore: { kind: "r2" }
+  };
+
+  const authenticatedGate = publicScanGateStatus({ accessToken: "token", allowUnauthenticated: "1" });
+  assert.deepEqual(withPublicScanAccessCheck(upstream, authenticatedGate, []), {
+    adblock: { active: true },
+    scanAccess: "configured",
+    reportStore: { kind: "r2" }
+  });
+  assert.equal(upstream.scanAccess, "open");
+
+  const openGate = publicScanGateStatus({ allowUnauthenticated: "1", turnstileSecret: "secret" });
+  assert.equal(withPublicScanAccessCheck(upstream, openGate, []).scanAccess, "open");
+
+  const refusedGate = publicScanGateStatus({});
+  const refusals = publicScanRefusalReasons({ rateLimitStoreBound: true });
+  assert.equal(withPublicScanAccessCheck(upstream, refusedGate, refusals).scanAccess, "refused");
+  assert.deepEqual(withPublicScanAccessCheck(null, refusedGate, refusals), { scanAccess: "refused" });
 });
 
 test("publicScanRateLimit parses overrides and falls back", () => {

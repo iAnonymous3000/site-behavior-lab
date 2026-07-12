@@ -130,33 +130,75 @@ SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN=<strong secret>     # operator-gated launch 
 ### Migrating retained shares after a redaction revision
 
 Do not deploy a stricter managed-report provenance gate before retained R2
-shares have matching public bytes and sidecars. The one-off operator Worker is
-never deployed: it runs through a remote Wrangler development session bound to
-the production bucket. `GET /` is read-only and returns aggregate counts only.
-`POST /apply` requires an ephemeral bearer token:
+shares have matching public bytes and sidecars. If the stricter reader is
+already live, treat this as an incident: pause promotion and gate scanner writes
+before running inventory. A successful new save may prune metadata-free legacy
+objects, and an old writer left active during remediation can create a report
+outside the preflight worklist.
+
+1. Pause automatic production promotion by setting the repository Actions
+   variable `SITE_BEHAVIOR_LAB_PROMOTION_PAUSED=1`. Do not advance
+   `production` until the final dry run below is clean.
+2. Gate new scans by setting a temporary, strong
+   `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` secret on the scanner (or equivalently
+   block `POST /api/scan` at the edge), then confirm `/api/health` reports
+   `authenticated: true` and `openAccess: false`. Keep the gate in place for
+   this entire procedure. Drain or cancel every scan accepted before the gate;
+   a queued/running async scan can still write R2 after ingress is closed.
+3. Determine the exact `SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS` used by the
+   legacy writer. Its default was `7`. If that value changed while the retained
+   legacy population was being written, stop and establish object-specific
+   evidence instead of applying one guessed lifetime to every object.
+
+The one-off operator Worker is never deployed: it runs through a remote
+Wrangler development session bound to the production bucket. `GET /` is
+read-only and returns aggregate counts only. `POST /apply` requires an ephemeral
+bearer token. Pass the historical max age explicitly (the shown value is the
+legacy default):
 
 ```bash
 TOKEN=$(openssl rand -hex 32)
 npx wrangler dev --remote -c wrangler.r2-remediation.jsonc --port 8791 \
-  --var "SITE_BEHAVIOR_LAB_R2_REMEDIATION_APPLY_TOKEN:$TOKEN" &
+  --var "SITE_BEHAVIOR_LAB_R2_REMEDIATION_APPLY_TOKEN:$TOKEN" \
+  --var "SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS:7" &
 DEV_PID=$!
 
 curl --fail-with-body http://127.0.0.1:8791/
 curl --fail-with-body -X POST \
   -H "Authorization: Bearer $TOKEN" \
   http://127.0.0.1:8791/apply
+curl --fail-with-body http://127.0.0.1:8791/
 
 kill "$DEV_PID"
 unset TOKEN
 ```
 
-Apply preflights the complete `reports/` prefix before writing, refuses missing
-or malformed retention clocks, preserves the exact `createdAt`/`expiresAt` and
-R2 metadata, conditionally replaces changed report bytes, writes the sidecar
-second, and verifies the managed report after readback. Expired shares are
-reported and skipped; this migration never extends their lifetime. Run the dry
-run again after a scanner rollout to catch a share created by the old container
-between the pre-deploy migration and the new revision becoming active.
+For a metadata-free report with no sidecar, the planner derives `createdAt` from
+the R2 object's original `uploaded` (the R2/HTTP Last-Modified clock) and
+computes `expiresAt` using that historical max age. It never derives a clock
+from the report payload or the report ID. Partial, malformed, or conflicting
+retention fields, an absent/invalid upload clock, a future upload clock, or a
+sidecar on a metadata-free report block apply as ambiguous. Already-expired
+legacy shares are reported and skipped without parsing or rewriting, so their
+lifetime cannot restart.
+
+Apply preflights the complete `reports/` prefix, repeats a full inventory and
+object-snapshot barrier before the first write, and runs a complete postflight.
+Every required report PUT retains HTTP/storage metadata, is conditioned on its
+preflight ETag, and for a legacy object attaches the exact derived retention
+clock. The report is always written before the conditionally created/replaced
+sidecar. Managed-reader and redaction fixed-point checks run after readback.
+These checks detect a missed in-flight write; the write gate is what prevents a
+new write in the remaining interval between the barrier and PUTs.
+
+Keep the scan gate in place while the compatible revision passes CI. Then clear
+`SITE_BEHAVIOR_LAB_PROMOTION_PAUSED` and rerun CI on `main`, allowing that exact
+tested SHA to advance `production` and deploy through the normal path. After the
+new live SHA and health are verified, run `GET /` once more and require
+`issues: 0` and `rewrites: 0` (expired legacy objects may still be counted and
+remain skipped). Only then remove the temporary scan token and deliberately
+restore the intended public posture. There must be no ungated old-writer window
+between remediation and rollout.
 
 ## 4. Deploy
 

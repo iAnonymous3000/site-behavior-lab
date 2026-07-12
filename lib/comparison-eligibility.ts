@@ -31,6 +31,7 @@ export const COMPARISON_REQUEST_CAP = 1_000;
 /** Stable fragment of the ScanRequestBudget cap warning (see lib/scan-runtime.ts). */
 const REQUEST_CAP_WARNING_FRAGMENT = "stopped recording or loading additional requests";
 const RESPONSE_BYTE_CAP_WARNING_FRAGMENT = "stopped loading additional response bytes";
+const UPLOAD_BYTE_CAP_WARNING_FRAGMENT = "stopped forwarding additional request bytes";
 
 export function comparisonEligibility(report: ComparisonScanResult): ComparisonEligibility {
   const reasons: string[] = [];
@@ -56,6 +57,9 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
     }
     if (runHitResponseByteCap(run)) {
       reasons.push(`The "${label}" visit exhausted its aggregate response-byte budget, so its request evidence is incomplete.`);
+    }
+    if (runHitUploadByteCap(run)) {
+      reasons.push(`The "${label}" visit exhausted its aggregate upload-byte budget, so its request evidence is incomplete.`);
     }
   }
 
@@ -315,8 +319,12 @@ export function runHitResponseByteCap(run: ScanResult): boolean {
   return run.warnings.some((warning) => warning.includes(RESPONSE_BYTE_CAP_WARNING_FRAGMENT));
 }
 
+export function runHitUploadByteCap(run: ScanResult): boolean {
+  return run.warnings.some((warning) => warning.includes(UPLOAD_BYTE_CAP_WARNING_FRAGMENT));
+}
+
 export function runRequestEvidenceCapped(run: ScanResult): boolean {
-  return runHitRequestCap(run) || runHitResponseByteCap(run);
+  return runHitRequestCap(run) || runHitResponseByteCap(run) || runHitUploadByteCap(run);
 }
 
 /**

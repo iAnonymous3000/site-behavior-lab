@@ -3,6 +3,8 @@
   // One-off local operator tool. Run with `wrangler dev --remote`; do not
   // deploy this Worker. GET / is always dry-run. POST /apply additionally
   // requires SITE_BEHAVIOR_LAB_R2_REMEDIATION_APPLY_TOKEN as a local secret.
+  // Pass the exact historical SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS at launch;
+  // omitting it reproduces the legacy writer's seven-day default.
   "name": "site-behavior-lab-r2-remediation-local",
   "main": "cloudflare/r2-remediation-worker.ts",
   "compatibility_date": "2026-06-19",

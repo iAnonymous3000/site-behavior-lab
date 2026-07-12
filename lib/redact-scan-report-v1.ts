@@ -1002,6 +1002,13 @@ function isScannerWarning(warning: string): boolean {
   ) {
     return true;
   }
+  if (
+    /^The scan stopped forwarding additional request bytes after reaching [0-9]+ MiB aggregate upload-byte budget\.$/.test(
+      warning
+    )
+  ) {
+    return true;
+  }
   if (/^Skipped PageGraph request [0-9]+ because its URL was not HTTP\(S\)\.$/.test(warning)) {
     return true;
   }

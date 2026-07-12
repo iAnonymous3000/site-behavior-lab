@@ -43,12 +43,16 @@ export type ScanRuntimeHealth = {
   authenticated?: boolean;
   openAccess?: boolean;
   turnstile?: boolean;
+  /** False when the runtime is healthy enough to answer but its gate refuses every scan. */
+  scansAvailable?: boolean;
+  warnings?: string[];
   checks?: {
     adblock?: {
       active?: boolean;
       engine?: "loaded" | "unavailable";
     };
     chromiumSandbox?: "enabled" | "disabled";
+    scanAccess?: "configured" | "open" | "refused";
   };
   capabilities?: ScanRuntimeCapabilities;
   limits?: {
@@ -76,6 +80,11 @@ export function isScanRuntimeHealth(value: unknown): value is ScanRuntimeHealth 
   if (value.status !== undefined && !isScanRuntimeStatus(value.status)) return false;
   if (value.error !== undefined && typeof value.error !== "string") return false;
   if (value.deployment !== undefined && typeof value.deployment !== "string") return false;
+  if (value.scansAvailable !== undefined && typeof value.scansAvailable !== "boolean") return false;
+  if (value.warnings !== undefined && (!Array.isArray(value.warnings) || !value.warnings.every((item) => typeof item === "string"))) {
+    return false;
+  }
+  if (value.checks !== undefined && !isChecks(value.checks)) return false;
   if (value.capabilities !== undefined && !isCapabilities(value.capabilities)) return false;
   return true;
 }
@@ -89,4 +98,17 @@ function isCapabilities(value: unknown): value is ScanRuntimeCapabilities {
   return (["singleScan", "gpcComparison", "shieldsComparison", "consentComparison", "savedReports", "savedReportPages"] as const).every(
     (key) => value[key] === undefined || typeof value[key] === "boolean"
   );
+}
+
+function isChecks(value: unknown): value is NonNullable<ScanRuntimeHealth["checks"]> {
+  if (!isRecord(value)) return false;
+  if (
+    value.scanAccess !== undefined &&
+    value.scanAccess !== "configured" &&
+    value.scanAccess !== "open" &&
+    value.scanAccess !== "refused"
+  ) {
+    return false;
+  }
+  return true;
 }

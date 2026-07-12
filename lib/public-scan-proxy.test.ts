@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import http from "node:http";
 import net, { type AddressInfo } from "node:net";
 import { test } from "node:test";
-import { MAX_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT, startPublicScanProxy } from "./public-scan-proxy";
+import {
+  MAX_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT,
+  MAX_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT,
+  startPublicScanProxy
+} from "./public-scan-proxy";
 
 test("public scan proxy refuses private DNS results before opening the upstream socket", async (t) => {
   let privateServerHits = 0;
@@ -105,6 +109,168 @@ test("public scan proxy rejects response-byte overrides that could disable its s
     /positive integer no greater/
   );
   await assert.rejects(() => startPublicScanProxy({ responseByteLimitBytes: 0 }), /positive integer no greater/);
+  await assert.rejects(
+    () => startPublicScanProxy({ uploadByteLimitBytes: MAX_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT + 1 }),
+    /positive integer no greater/
+  );
+  await assert.rejects(() => startPublicScanProxy({ uploadByteLimitBytes: 0 }), /positive integer no greater/);
+});
+
+test("public scan proxy forwards a normal HTTP upload and meters it separately from the response", async (t) => {
+  const upstream = http.createServer((request, response) => {
+    let received = 0;
+    request.on("data", (chunk: Buffer) => {
+      received += chunk.byteLength;
+    });
+    request.on("end", () => {
+      response.setHeader("Connection", "close");
+      response.end(String(received));
+    });
+  });
+  await listen(upstream);
+  const upstreamPort = portOf(upstream);
+  const proxy = await budgetTestProxy(64, 6);
+
+  t.after(async () => {
+    await proxy.close();
+    await closeServer(upstream);
+  });
+
+  const wire = await rawProxyPost(proxy.server, `http://public.test:${upstreamPort}/upload`, Buffer.from("hello"));
+
+  assert.equal(rawResponseBody(wire).toString(), "5");
+  assert.deepEqual(proxy.getDiagnostics().uploadByteBudget, {
+    name: "request-upload",
+    family: "requests",
+    limitBytes: 6,
+    forwardedBytes: 5,
+    remainingBytes: 1,
+    limitReached: false,
+    captureLoss: null
+  });
+  assert.equal(proxy.getDiagnostics().responseByteBudget.forwardedBytes, 1);
+});
+
+test("public scan proxy truncates an oversized HTTP upload before bytes exceed the aggregate cap", async (t) => {
+  let settleObserved!: (bytes: number) => void;
+  const observed = new Promise<number>((resolve) => {
+    settleObserved = resolve;
+  });
+  const upstream = http.createServer((request) => {
+    let received = 0;
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      settleObserved(received);
+    };
+    request.on("data", (chunk: Buffer) => {
+      received += chunk.byteLength;
+    });
+    request.once("end", settle);
+    request.once("close", settle);
+  });
+  await listen(upstream);
+  const upstreamPort = portOf(upstream);
+  const proxy = await budgetTestProxy(64, 16);
+
+  t.after(async () => {
+    await proxy.close();
+    await closeServer(upstream);
+  });
+
+  await rawProxyPost(proxy.server, `http://public.test:${upstreamPort}/oversized`, Buffer.alloc(1024 * 1024)).catch(
+    () => Buffer.alloc(0)
+  );
+
+  assert.equal(await observed, 16);
+  assert.deepEqual(proxy.getDiagnostics().uploadByteBudget, {
+    name: "request-upload",
+    family: "requests",
+    limitBytes: 16,
+    forwardedBytes: 16,
+    remainingBytes: 0,
+    limitReached: true,
+    captureLoss: {
+      family: "requests",
+      phaseId: null,
+      kind: "cap",
+      count: 1,
+      detail: "request-upload"
+    }
+  });
+  assert.equal(proxy.getDiagnostics().responseByteBudget.forwardedBytes, 0);
+  assert.deepEqual(proxy.blockedTargets, []);
+});
+
+test("public scan proxy caps CONNECT client-to-upstream bytes including the parser head", async (t) => {
+  let settleObserved!: (bytes: number) => void;
+  const observed = new Promise<number>((resolve) => {
+    settleObserved = resolve;
+  });
+  const upstream = net.createServer((socket) => {
+    let received = 0;
+    socket.on("data", (chunk: Buffer) => {
+      received += chunk.byteLength;
+    });
+    socket.once("close", () => settleObserved(received));
+  });
+  await listen(upstream);
+  const upstreamPort = portOf(upstream);
+  const proxy = await budgetTestProxy(64, 16);
+
+  t.after(async () => {
+    await proxy.close();
+    await closeServer(upstream);
+  });
+
+  await rawProxyConnectUpload(
+    proxy.server,
+    `tunnel.test:${upstreamPort}`,
+    Buffer.alloc(1024 * 1024)
+  ).catch(() => Buffer.alloc(0));
+
+  assert.equal(await observed, 16);
+  assert.equal(proxy.getDiagnostics().uploadByteBudget.forwardedBytes, 16);
+  assert.equal(proxy.getDiagnostics().uploadByteBudget.captureLoss?.count, 1);
+  assert.equal(proxy.getDiagnostics().responseByteBudget.forwardedBytes, 0);
+  assert.deepEqual(proxy.blockedTargets, []);
+});
+
+test("public scan proxy synchronously aggregates concurrent CONNECT uploads without overshoot", async (t) => {
+  let totalReceived = 0;
+  let closedConnections = 0;
+  let settleObserved!: (bytes: number) => void;
+  const observed = new Promise<number>((resolve) => {
+    settleObserved = resolve;
+  });
+  const upstream = net.createServer((socket) => {
+    socket.on("data", (chunk: Buffer) => {
+      totalReceived += chunk.byteLength;
+    });
+    socket.once("close", () => {
+      closedConnections += 1;
+      if (closedConnections === 2) settleObserved(totalReceived);
+    });
+  });
+  await listen(upstream);
+  const upstreamPort = portOf(upstream);
+  const proxy = await budgetTestProxy(64, 20);
+
+  t.after(async () => {
+    await proxy.close();
+    await closeServer(upstream);
+  });
+
+  await Promise.all(
+    [Buffer.alloc(32, "a"), Buffer.alloc(32, "b")].map((payload) =>
+      rawProxyConnectUpload(proxy.server, `tunnel.test:${upstreamPort}`, payload).catch(() => Buffer.alloc(0))
+    )
+  );
+
+  assert.equal(await observed, 20);
+  assert.equal(proxy.getDiagnostics().uploadByteBudget.forwardedBytes, 20);
+  assert.equal(proxy.getDiagnostics().uploadByteBudget.captureLoss?.count, 2);
 });
 
 test("public scan proxy forwards a socket-level HTTP response below the aggregate byte cap", async (t) => {
@@ -303,10 +469,11 @@ function responseServer(body: () => string): http.Server {
   });
 }
 
-async function budgetTestProxy(responseByteLimitBytes: number) {
+async function budgetTestProxy(responseByteLimitBytes: number, uploadByteLimitBytes?: number) {
   return startPublicScanProxy({
     allowNonStandardPortsForTests: true,
     responseByteLimitBytes,
+    ...(uploadByteLimitBytes === undefined ? {} : { uploadByteLimitBytes }),
     resolveHost: async () => [{ address: "1.1.1.1", family: 4 }],
     connectUpstreamForTests: (target) => net.connect({ host: "127.0.0.1", port: target.port })
   });
@@ -359,7 +526,31 @@ async function rawProxyConnect(proxyServer: string, authority: string): Promise<
   );
 }
 
-function collectSocket(socket: net.Socket, request: string): Promise<Buffer> {
+async function rawProxyPost(proxyServer: string, targetUrl: string, body: Buffer): Promise<Buffer> {
+  const proxy = new URL(proxyServer);
+  const target = new URL(targetUrl);
+  const headers = Buffer.from(
+    [
+      `POST ${target.toString()} HTTP/1.1`,
+      `Host: ${target.host}`,
+      `Content-Length: ${body.byteLength}`,
+      "Connection: close",
+      "",
+      ""
+    ].join("\r\n")
+  );
+  return collectSocket(net.connect({ host: proxy.hostname, port: Number(proxy.port) }), Buffer.concat([headers, body]));
+}
+
+async function rawProxyConnectUpload(proxyServer: string, authority: string, body: Buffer): Promise<Buffer> {
+  const proxy = new URL(proxyServer);
+  const headers = Buffer.from(
+    [`CONNECT ${authority} HTTP/1.1`, `Host: ${authority}`, "Connection: close", "", ""].join("\r\n")
+  );
+  return collectSocket(net.connect({ host: proxy.hostname, port: Number(proxy.port) }), Buffer.concat([headers, body]));
+}
+
+function collectSocket(socket: net.Socket, request: string | Buffer): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     let settled = false;

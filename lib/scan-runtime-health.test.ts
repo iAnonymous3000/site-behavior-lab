@@ -16,6 +16,9 @@ test("isScanRuntimeHealth accepts a full worker-shaped payload", () => {
     authenticated: true,
     openAccess: false,
     turnstile: false,
+    scansAvailable: true,
+    warnings: [],
+    checks: { scanAccess: "configured" },
     capabilities: { singleScan: true, gpcComparison: true, shieldsComparison: false, savedReports: true },
     limits: { publicScanRateLimitPerMinute: 6, publicScanRateLimitPerDay: 120 }
   };
@@ -29,6 +32,9 @@ test("isScanRuntimeHealth rejects malformed payloads", () => {
   assert.equal(isScanRuntimeHealth({ ok: "yes" }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, status: "broken" }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, deployment: 123 }), false);
+  assert.equal(isScanRuntimeHealth({ ok: true, scansAvailable: "yes" }), false);
+  assert.equal(isScanRuntimeHealth({ ok: true, warnings: ["ok", 1] }), false);
+  assert.equal(isScanRuntimeHealth({ ok: true, checks: { scanAccess: "broken" } }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, capabilities: { gpcComparison: "maybe" } }), false);
 });
 

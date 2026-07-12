@@ -70,6 +70,7 @@ const ARM_METHODS: Record<InterventionAxis, Set<string>> = {
  */
 export const BUDGET_FAMILIES: Readonly<Record<string, EvidenceFamily>> = Object.freeze({
   "request-capture": "requests",
+  "request-upload": "requests",
   "cookie-snapshot": "cookies",
   "storage-snapshot": "storage",
   "fingerprint-observer": "fingerprinting",

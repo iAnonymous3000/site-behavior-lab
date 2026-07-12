@@ -50,6 +50,23 @@ export type PublicScanGateStatus = {
   turnstile: boolean;
 };
 
+export type PublicScanAccessMode = "configured" | "open" | "refused";
+
+/**
+ * Replace an upstream health response's scan-access check with the edge gate's
+ * authoritative posture while preserving every unrelated upstream check.
+ */
+export function withPublicScanAccessCheck(
+  checks: unknown,
+  gate: PublicScanGateStatus,
+  refusalReasons: readonly string[]
+): Record<string, unknown> {
+  const upstream = checks !== null && typeof checks === "object" && !Array.isArray(checks) ? checks : {};
+  const scanAccess: PublicScanAccessMode =
+    refusalReasons.length > 0 ? "refused" : gate.authenticated ? "configured" : gate.openAccess ? "open" : "refused";
+  return { ...upstream, scanAccess };
+}
+
 /**
  * The gate's own view of how it admits scans, for `/api/health`. A front Worker
  * is the edge enforcement point, so it, not the upstream Node app, which has no

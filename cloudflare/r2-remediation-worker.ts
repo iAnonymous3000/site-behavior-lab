@@ -1,19 +1,24 @@
 import { readManagedReport, type ManagedReportClock } from "../lib/managed-report-reader";
 import {
+  historicalR2MaxAgeDays,
   planR2RemediationInventory,
-  planR2ReportRemediation
+  planR2ReportRemediation,
+  r2ReportRetentionSource
 } from "../lib/r2-report-remediation";
 
 type Env = {
   REPORTS: R2Bucket;
   /** Local `wrangler dev` secret. Never commit this value. */
   SITE_BEHAVIOR_LAB_R2_REMEDIATION_APPLY_TOKEN?: string;
+  /** Exact max age used by the legacy writer; omitted means its historical default (7). */
+  SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS?: string;
 };
 
 type R2StorageClass = "Standard" | "InfrequentAccess";
 
 type ObjectSnapshot = {
   etag: string;
+  uploadedAt: string;
   httpMetadata?: R2HTTPMetadata;
   customMetadata?: Record<string, string>;
   storageClass: R2StorageClass;
@@ -25,6 +30,8 @@ type PreflightRecord = {
   sidecarKey: string;
   action: "current" | "rewrite" | "expired";
   reportChanged: boolean;
+  reportWriteRequired: boolean;
+  retentionOrigin: "metadata" | "legacy-uploaded";
   retention: { createdAt: string; expiresAt: string };
   report: ObjectSnapshot;
   sidecar: ObjectSnapshot | null;
@@ -34,6 +41,7 @@ type PreflightIssue = { reportId?: string; key?: string; issue: string; detail?:
 
 type Preflight = {
   writtenAt: string;
+  inventoryKeys: string[];
   records: PreflightRecord[];
   issues: PreflightIssue[];
 };
@@ -54,9 +62,11 @@ export default {
     // re-plans each object, so no report can receive a different provenance
     // timestamp because of processing order.
     const writtenAt = new Date().toISOString();
+    let maxAgeDays: number;
     let preflight: Preflight;
     try {
-      preflight = await preflightAll(env.REPORTS, writtenAt);
+      maxAgeDays = historicalR2MaxAgeDays(env.SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS);
+      preflight = await preflightAll(env.REPORTS, writtenAt, maxAgeDays);
     } catch (error) {
       return json({ mode: apply ? "apply" : "dry-run", ready: false, error: safeError(error) }, 500);
     }
@@ -68,10 +78,25 @@ export default {
 
     let applied = 0;
     try {
+      // The runbook requires scanner writes to stay gated throughout apply.
+      // This second full-prefix barrier detects a missed in-flight write or
+      // metadata mutation before the first remediation PUT is attempted.
+      await confirmPreflightUnchanged(env.REPORTS, preflight);
       for (const record of preflight.records) {
         if (record.action !== "rewrite") continue;
-        await applyOne(env.REPORTS, record, writtenAt);
+        await applyOne(env.REPORTS, record, writtenAt, maxAgeDays);
         applied += 1;
+      }
+      // Per-object readback proves every rewrite. A complete postflight also
+      // closes the prefix-level preflight race: no newly arrived legacy share
+      // or unfinished record may hide outside the original worklist.
+      const postflight = await preflightAll(env.REPORTS, writtenAt, maxAgeDays);
+      if (
+        postflight.issues.length > 0 ||
+        postflight.records.some((record) => record.action === "rewrite") ||
+        !sameReportSet(preflight, postflight)
+      ) {
+        throw new RemediationConflictError("postflight");
       }
     } catch (error) {
       // A report is always written before its sidecar. Any interruption or
@@ -86,15 +111,8 @@ export default {
   }
 };
 
-async function preflightAll(bucket: R2Bucket, writtenAt: string): Promise<Preflight> {
-  const keys: string[] = [];
-  let cursor: string | undefined;
-  do {
-    const page = await bucket.list({ prefix: "reports/", ...(cursor ? { cursor } : {}) });
-    keys.push(...page.objects.map((object) => object.key));
-    cursor = page.truncated ? page.cursor : undefined;
-  } while (cursor);
-
+async function preflightAll(bucket: R2Bucket, writtenAt: string, maxAgeDays: number): Promise<Preflight> {
+  const keys = await listReportKeys(bucket);
   const inventory = planR2RemediationInventory(keys);
   const issues: PreflightIssue[] = inventory.issues.map((entry) => ({ key: entry.key, issue: entry.issue }));
   const records: PreflightRecord[] = [];
@@ -108,7 +126,7 @@ async function preflightAll(bucket: R2Bucket, writtenAt: string): Promise<Prefli
       issues.push({ reportId: entry.reportId, issue: "report-disappeared-during-preflight" });
       continue;
     }
-    const retention = retentionFromMetadata(report.customMetadata);
+    const retentionSource = r2ReportRetentionSource(report.customMetadata, uploadedAt(report), maxAgeDays);
     const reportContents = await report.text();
 
     let sidecar: R2ObjectBody | null = null;
@@ -126,7 +144,7 @@ async function preflightAll(bucket: R2Bucket, writtenAt: string): Promise<Prefli
       reportId: entry.reportId,
       reportContents,
       sidecarContents,
-      retention,
+      retentionSource,
       writtenAt,
       now: writtenAt
     });
@@ -140,30 +158,72 @@ async function preflightAll(bucket: R2Bucket, writtenAt: string): Promise<Prefli
       sidecarKey: entry.sidecarKey,
       action: plan.action,
       reportChanged: plan.action === "rewrite" ? plan.reportChanged : false,
+      reportWriteRequired: plan.action === "rewrite" ? plan.reportWriteRequired : false,
+      retentionOrigin: plan.retentionOrigin,
       retention: plan.retention,
       report: snapshot(report),
       sidecar: sidecar ? snapshot(sidecar) : null
     });
   }
-  return { writtenAt, records, issues };
+  return { writtenAt, inventoryKeys: keys, records, issues };
 }
 
-async function applyOne(bucket: R2Bucket, expected: PreflightRecord, writtenAt: string): Promise<void> {
+async function listReportKeys(bucket: R2Bucket): Promise<string[]> {
+  const keys: string[] = [];
+  let cursor: string | undefined;
+  do {
+    const page = await bucket.list({ prefix: "reports/", ...(cursor ? { cursor } : {}) });
+    keys.push(...page.objects.map((object) => object.key));
+    cursor = page.truncated ? page.cursor : undefined;
+  } while (cursor);
+  return keys.sort();
+}
+
+async function confirmPreflightUnchanged(bucket: R2Bucket, expected: Preflight): Promise<void> {
+  const keys = await listReportKeys(bucket);
+  if (JSON.stringify(keys) !== JSON.stringify(expected.inventoryKeys)) {
+    throw new RemediationConflictError("inventory");
+  }
+  for (const record of expected.records) {
+    const [report, sidecar] = await Promise.all([bucket.get(record.reportKey), bucket.get(record.sidecarKey)]);
+    if (!report || !matchesSnapshot(report, record.report)) throw new RemediationConflictError(record.reportId);
+    if (
+      (sidecar === null) !== (record.sidecar === null) ||
+      (sidecar !== null && record.sidecar !== null && !matchesSnapshot(sidecar, record.sidecar))
+    ) {
+      throw new RemediationConflictError(record.reportId);
+    }
+  }
+}
+
+function sameReportSet(left: Preflight, right: Preflight): boolean {
+  const ids = (preflight: Preflight): string[] => preflight.records.map((record) => record.reportId).sort();
+  return JSON.stringify(ids(left)) === JSON.stringify(ids(right));
+}
+
+async function applyOne(
+  bucket: R2Bucket,
+  expected: PreflightRecord,
+  writtenAt: string,
+  maxAgeDays: number
+): Promise<void> {
   const report = await bucket.get(expected.reportKey);
-  if (!report || report.etag !== expected.report.etag) throw new RemediationConflictError(expected.reportId);
+  if (!report || !matchesSnapshot(report, expected.report)) throw new RemediationConflictError(expected.reportId);
   const reportContents = await report.text();
 
   const sidecar = await bucket.get(expected.sidecarKey);
-  if ((sidecar?.etag ?? null) !== (expected.sidecar?.etag ?? null)) {
+  if (
+    (sidecar === null) !== (expected.sidecar === null) ||
+    (sidecar !== null && expected.sidecar !== null && !matchesSnapshot(sidecar, expected.sidecar))
+  ) {
     throw new RemediationConflictError(expected.reportId);
   }
   const sidecarContents = sidecar ? await sidecar.text() : null;
-  const retention = retentionFromMetadata(report.customMetadata);
   const plan = planR2ReportRemediation({
     reportId: expected.reportId,
     reportContents,
     sidecarContents,
-    retention,
+    retentionSource: r2ReportRetentionSource(report.customMetadata, uploadedAt(report), maxAgeDays),
     writtenAt,
     now: writtenAt
   });
@@ -172,16 +232,22 @@ async function applyOne(bucket: R2Bucket, expected: PreflightRecord, writtenAt: 
     plan.action !== "rewrite" ||
     expected.action !== "rewrite" ||
     plan.reportChanged !== expected.reportChanged ||
+    plan.reportWriteRequired !== expected.reportWriteRequired ||
+    plan.retentionOrigin !== expected.retentionOrigin ||
     !sameClock(plan.retention, expected.retention)
   ) {
     throw new RemediationConflictError(expected.reportId);
   }
 
-  if (plan.reportChanged) {
+  if (plan.reportWriteRequired) {
+    const customMetadata =
+      plan.retentionOrigin === "legacy-uploaded"
+        ? withRetentionMetadata(expected.report.customMetadata, plan.retention)
+        : expected.report.customMetadata;
     const reportWrite = await bucket.put(expected.reportKey, plan.reportWire, {
       onlyIf: { etagMatches: expected.report.etag },
       httpMetadata: expected.report.httpMetadata,
-      customMetadata: expected.report.customMetadata,
+      customMetadata,
       storageClass: expected.report.storageClass
     });
     if (reportWrite === null) throw new RemediationConflictError(expected.reportId);
@@ -203,16 +269,25 @@ async function applyOne(bucket: R2Bucket, expected: PreflightRecord, writtenAt: 
   const sidecarWrite = await bucket.put(expected.sidecarKey, plan.sidecarWire, sidecarOptions);
   if (sidecarWrite === null) throw new RemediationConflictError(expected.reportId);
 
-  await verifyReadback(bucket, expected, writtenAt);
+  await verifyReadback(bucket, expected, writtenAt, maxAgeDays);
 }
 
-async function verifyReadback(bucket: R2Bucket, expected: PreflightRecord, writtenAt: string): Promise<void> {
+async function verifyReadback(
+  bucket: R2Bucket,
+  expected: PreflightRecord,
+  writtenAt: string,
+  maxAgeDays: number
+): Promise<void> {
   const report = await bucket.get(expected.reportKey);
   const sidecar = await bucket.get(expected.sidecarKey);
   if (!report || !sidecar) throw new Error(`Readback failed for ${expected.reportId}.`);
+  const expectedReportMetadata =
+    expected.retentionOrigin === "legacy-uploaded"
+      ? withRetentionMetadata(expected.report.customMetadata, expected.retention)
+      : expected.report.customMetadata;
   if (
     !httpMetadataEqual(report.httpMetadata, expected.report.httpMetadata) ||
-    !customMetadataEqual(report.customMetadata, expected.report.customMetadata)
+    !customMetadataEqual(report.customMetadata, expectedReportMetadata)
   ) {
     throw new Error(`Report object metadata changed for ${expected.reportId}.`);
   }
@@ -223,8 +298,11 @@ async function verifyReadback(bucket: R2Bucket, expected: PreflightRecord, writt
   ) {
     throw new Error(`Sidecar object metadata changed for ${expected.reportId}.`);
   }
-  const retention = retentionFromMetadata(report.customMetadata);
-  if (!sameClock(retention, expected.retention)) throw new Error(`Retention clock changed for ${expected.reportId}.`);
+  const retentionSource = r2ReportRetentionSource(report.customMetadata, uploadedAt(report), maxAgeDays);
+  if (retentionSource.kind !== "metadata" || !sameClock(retentionSource.retention, expected.retention)) {
+    throw new Error(`Retention clock changed for ${expected.reportId}.`);
+  }
+  const retention = expected.retention;
   const reportContents = await report.text();
   const sidecarContents = await sidecar.text();
   const managed = readManagedReport({ reportId: expected.reportId, reportContents, sidecarContents, retention });
@@ -236,7 +314,7 @@ async function verifyReadback(bucket: R2Bucket, expected: PreflightRecord, writt
     reportId: expected.reportId,
     reportContents,
     sidecarContents,
-    retention,
+    retentionSource,
     writtenAt,
     now: writtenAt
   });
@@ -245,26 +323,36 @@ async function verifyReadback(bucket: R2Bucket, expected: PreflightRecord, writt
   }
 }
 
-function retentionFromMetadata(metadata: Record<string, string> | undefined): ManagedReportClock | null {
-  if (!metadata) return null;
-  const created = uniqueMetadataValue(metadata["created-at"], metadata.createdAt);
-  const expires = uniqueMetadataValue(metadata["expires-at"], metadata.expiresAt);
-  if (created === null || expires === null) return null;
-  return { createdAt: created, expiresAt: expires };
-}
-
-function uniqueMetadataValue(left: string | undefined, right: string | undefined): string | null {
-  if (left !== undefined && right !== undefined && left !== right) return null;
-  return left ?? right ?? null;
-}
-
 function snapshot(object: R2Object): ObjectSnapshot {
   return {
     etag: object.etag,
+    uploadedAt: uploadedAt(object) ?? "invalid",
     ...(object.httpMetadata ? { httpMetadata: { ...object.httpMetadata } } : {}),
     ...(object.customMetadata ? { customMetadata: { ...object.customMetadata } } : {}),
     storageClass: parseStorageClass(object.storageClass)
   };
+}
+
+function matchesSnapshot(object: R2Object, expected: ObjectSnapshot): boolean {
+  return (
+    object.etag === expected.etag &&
+    uploadedAt(object) === expected.uploadedAt &&
+    httpMetadataEqual(object.httpMetadata, expected.httpMetadata) &&
+    customMetadataEqual(object.customMetadata, expected.customMetadata) &&
+    parseStorageClass(object.storageClass) === expected.storageClass
+  );
+}
+
+function uploadedAt(object: R2Object): string | null {
+  const timestamp = object.uploaded.getTime();
+  return Number.isFinite(timestamp) ? object.uploaded.toISOString() : null;
+}
+
+function withRetentionMetadata(
+  metadata: Record<string, string> | undefined,
+  retention: ManagedReportClock
+): Record<string, string> {
+  return { ...metadata, "created-at": retention.createdAt, "expires-at": retention.expiresAt ?? "" };
 }
 
 function sameClock(left: ManagedReportClock | null, right: ManagedReportClock): boolean {
@@ -328,6 +416,16 @@ function summarize(preflight: Preflight) {
     reports: preflight.records.length + preflight.issues.filter((issue) => issue.reportId).length,
     current: preflight.records.filter((record) => record.action === "current").length,
     rewrites: preflight.records.filter((record) => record.action === "rewrite").length,
+    legacy: preflight.records.filter((record) => record.retentionOrigin === "legacy-uploaded").length,
+    legacyRewrites: preflight.records.filter(
+      (record) => record.retentionOrigin === "legacy-uploaded" && record.action === "rewrite"
+    ).length,
+    legacyExpired: preflight.records.filter(
+      (record) => record.retentionOrigin === "legacy-uploaded" && record.action === "expired"
+    ).length,
+    reportWrites: preflight.records.filter(
+      (record) => record.action === "rewrite" && record.reportWriteRequired
+    ).length,
     reportChanges: preflight.records.filter((record) => record.action === "rewrite" && record.reportChanged).length,
     expired: preflight.records.filter((record) => record.action === "expired").length,
     issues: preflight.issues.length,
