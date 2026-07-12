@@ -110,8 +110,8 @@ export function main(argv = process.argv.slice(2)): number {
     const { summary } = report;
     console.log(
       `Rule impact of ${JSON.stringify(options.rule)}: ${summary.pagesAffected}/${summary.pagesAnalyzed} pages affected, ` +
-        `${summary.directlyBlocked} directly blocked, ${summary.downstreamRequests} downstream requests, ` +
-        `${summary.removedStorageOps} storage writes and ${summary.removedJsCalls} JS calls removed, ` +
+        `${summary.directlyBlocked} directly blocked, ${summary.downstreamRequests} downstream requests reachable from the blocked set (upper bound), ` +
+        `${summary.removedStorageOps} storage writes and ${summary.removedJsCalls} JS calls in that reachable set, ` +
         `${summary.breakageRiskPages} pages with first-party breakage risk.`
     );
   }

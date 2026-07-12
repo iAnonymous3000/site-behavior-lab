@@ -28,6 +28,12 @@ export type PageGraphNetworkRequest = {
   resourceType?: string;
   status?: number | null;
   startedAtMs?: number;
+  /**
+   * PageGraph's own request identity. Deduplication must key on it when
+   * present: two genuinely distinct requests can share method, URL, status,
+   * and timestamp, and collapsing them undercounts real traffic.
+   */
+  requestId?: string;
   provenance?: NetworkRequestProvenance;
 };
 

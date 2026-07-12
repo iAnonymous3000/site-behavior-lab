@@ -4,6 +4,7 @@ import path from "node:path";
 import { test } from "node:test";
 import {
   extractPageGraphRootUrl,
+  normalizePageGraphResourceType,
   pageGraphGraphmlToAdapterInput,
   pageGraphGraphmlToScanResult,
   pageGraphUploadToScanResult,
@@ -189,4 +190,49 @@ test("pageGraphGraphmlToScanResult preserves real-schema provenance through the 
   assert.equal(result.requests[1].provenance?.scriptDomain, "tags.example.net");
   assert.equal(result.requests[1].provenance?.injectedByDomain, "loader.example");
   assert.equal(result.warnings.some((warning) => warning.includes("not script-to-request causality")), false);
+});
+
+test("pageGraphGraphmlToAdapterInput reads the current capture schema (type on the start edge, request-error completions, id-keyed identity)", () => {
+  const graphml = readFileSync(path.join(PAGEGRAPH_FIXTURE_DIR, "schema-current.graphml"), "utf8");
+  const input = pageGraphGraphmlToAdapterInput(graphml, {
+    requestedUrl: "https://news.example/",
+    finalUrl: "https://news.example/",
+    scannedAt: new Date(0).toISOString()
+  });
+
+  // Blink's human-readable names on the "request start" edge fold into the
+  // Playwright vocabulary; the fixture URLs are extensionless so a value of
+  // "image"/"stylesheet" proves the type came from the edge, not URL guessing.
+  const requests = input.requests ?? [];
+  const byId = new Map(requests.map((request) => [request.requestId, request]));
+  assert.equal(byId.get("req-img")?.resourceType, "image");
+  assert.equal(byId.get("req-img")?.status, 200);
+  assert.equal(byId.get("req-css")?.resourceType, "stylesheet");
+  // The failed request's "request error" completion still supplies its status.
+  assert.equal(byId.get("req-css")?.status, 0);
+  assert.equal(byId.get("req-beacon-1")?.resourceType, "xhr");
+
+  // Two distinct requests sharing URL, method, status, and timestamp are kept
+  // apart by the graph's own request id.
+  assert.equal(requests.length, 4);
+  assert.equal(requests.filter((request) => request.url === "https://tracker.example/collect").length, 2);
+});
+
+test("normalizePageGraphResourceType folds Blink names into the Playwright vocabulary", () => {
+  assert.equal(normalizePageGraphResourceType("Image"), "image");
+  assert.equal(normalizePageGraphResourceType("SVG document"), "image");
+  assert.equal(normalizePageGraphResourceType("CSS stylesheet"), "stylesheet");
+  assert.equal(normalizePageGraphResourceType("XSL stylesheet"), "stylesheet");
+  assert.equal(normalizePageGraphResourceType("Script"), "script");
+  assert.equal(normalizePageGraphResourceType("Raw"), "xhr");
+  assert.equal(normalizePageGraphResourceType("Text track"), "texttrack");
+  assert.equal(normalizePageGraphResourceType("Font"), "font");
+  assert.equal(normalizePageGraphResourceType("Audio"), "media");
+  assert.equal(normalizePageGraphResourceType("Video"), "media");
+  assert.equal(normalizePageGraphResourceType("Manifest"), "manifest");
+  assert.equal(normalizePageGraphResourceType("Link prefetch"), "other");
+  // Playwright-native values pass through unchanged.
+  assert.equal(normalizePageGraphResourceType("fetch"), "fetch");
+  assert.equal(normalizePageGraphResourceType("xhr"), "xhr");
+  assert.equal(normalizePageGraphResourceType(""), "other");
 });

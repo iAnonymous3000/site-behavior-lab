@@ -33,8 +33,12 @@ Two consumers sit on top of those queries:
 The reason PageGraph (not just request logs or CDP initiators) is the right
 source: PageGraph is a **causal graph**, so a filter rule reduces to **node
 removal plus transitive closure** over the provenance edges. That gives us
-"what else only loaded *because* the blocked thing loaded" essentially for free,
-which is exactly the downstream-breakage signal a list author needs.
+"what else *could* stop loading because it depended on the blocked thing"
+essentially for free, which is the downstream-breakage signal a list author
+needs. It is an upper bound, not a proven counterfactual: a reachable
+descendant may have another surviving parent that would still create it, and
+proving actual disappearance takes alternate-parent analysis or an
+intervention recrawl.
 
 This is a **separate project**, but it leans hard on `site-behavior-lab`, which
 already ships the PageGraph to normalized-model adapter, the schema-aware GraphML
@@ -121,9 +125,11 @@ Given that graph, a filter-list rule R becomes a graph operation:
    request-type and first/third-party context.
 2. **Remove.** Mark those nodes as directly blocked.
 3. **Close.** Take the transitive closure over provenance edges from the blocked
-   set: every node that exists *only because* a blocked node loaded it (a script
-   that a blocked script injected, a request that a blocked script initiated, a
-   storage write that a removed script made).
+   set: every node *reachable from* a blocked node (a script that a blocked
+   script injected, a request that a blocked script initiated, a storage write
+   that a removed script made). Reachability over-approximates removal: a node
+   with a second, surviving parent stays in the closure even though it might
+   still load.
 4. **Score.** Aggregate the removed subgraph: count downstream requests removed,
    storage writes removed, fingerprinting calls removed, and flag breakage risk
    when the removed subtree contains first-party or functionally-load-bearing

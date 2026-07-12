@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Mirrors CURRENT brave-core PageGraph output: the resource type lives on
+     the "request start" edge under attr.name "resource type" with Blink's
+     human-readable values ("Image", "CSS stylesheet", "Raw"), completion
+     edges carry no type, failed requests end in "request error", and
+     concurrent identical requests are distinguished only by request id.
+     The older schema (type on the completion edge / "request type" on the
+     start edge) is covered by schema-provenance.graphml. -->
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns">
+  <key id="nodeType" for="node" attr.name="node type" attr.type="string"/>
+  <key id="edgeType" for="edge" attr.name="edge type" attr.type="string"/>
+  <key id="url" for="all" attr.name="url" attr.type="string"/>
+  <key id="requestId" for="edge" attr.name="request id" attr.type="string"/>
+  <key id="resourceType" for="edge" attr.name="resource type" attr.type="string"/>
+  <key id="status" for="edge" attr.name="status" attr.type="string"/>
+  <key id="timestamp" for="edge" attr.name="timestamp" attr.type="double"/>
+  <graph id="G" edgedefault="directed">
+    <node id="parser-1">
+      <data key="nodeType">parser</data>
+    </node>
+    <node id="page-root">
+      <data key="nodeType">web page</data>
+      <data key="url">https://news.example/</data>
+    </node>
+    <node id="resource-img">
+      <data key="nodeType">resource</data>
+      <data key="url">https://cdn.example/pic</data>
+    </node>
+    <node id="resource-css">
+      <data key="nodeType">resource</data>
+      <data key="url">https://cdn.example/styles</data>
+    </node>
+    <node id="resource-beacon">
+      <data key="nodeType">resource</data>
+      <data key="url">https://tracker.example/collect</data>
+    </node>
+    <edge id="edge-request-img" source="parser-1" target="resource-img">
+      <data key="edgeType">request start</data>
+      <data key="requestId">req-img</data>
+      <data key="resourceType">Image</data>
+      <data key="timestamp">1</data>
+    </edge>
+    <edge id="edge-complete-img" source="parser-1" target="resource-img">
+      <data key="edgeType">request complete</data>
+      <data key="requestId">req-img</data>
+      <data key="status">200</data>
+      <data key="timestamp">2</data>
+    </edge>
+    <edge id="edge-request-css" source="parser-1" target="resource-css">
+      <data key="edgeType">request start</data>
+      <data key="requestId">req-css</data>
+      <data key="resourceType">CSS stylesheet</data>
+      <data key="timestamp">3</data>
+    </edge>
+    <edge id="edge-error-css" source="parser-1" target="resource-css">
+      <data key="edgeType">request error</data>
+      <data key="requestId">req-css</data>
+      <data key="status">0</data>
+      <data key="timestamp">4</data>
+    </edge>
+    <edge id="edge-request-beacon-1" source="parser-1" target="resource-beacon">
+      <data key="edgeType">request start</data>
+      <data key="requestId">req-beacon-1</data>
+      <data key="resourceType">Raw</data>
+      <data key="timestamp">5</data>
+    </edge>
+    <edge id="edge-request-beacon-2" source="parser-1" target="resource-beacon">
+      <data key="edgeType">request start</data>
+      <data key="requestId">req-beacon-2</data>
+      <data key="resourceType">Raw</data>
+      <data key="timestamp">5</data>
+    </edge>
+    <edge id="edge-complete-beacon-1" source="parser-1" target="resource-beacon">
+      <data key="edgeType">request complete</data>
+      <data key="requestId">req-beacon-1</data>
+      <data key="status">204</data>
+      <data key="timestamp">6</data>
+    </edge>
+    <edge id="edge-complete-beacon-2" source="parser-1" target="resource-beacon">
+      <data key="edgeType">request complete</data>
+      <data key="requestId">req-beacon-2</data>
+      <data key="status">204</data>
+      <data key="timestamp">6</data>
+    </edge>
+  </graph>
+</graphml>

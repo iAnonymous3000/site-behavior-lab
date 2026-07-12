@@ -6,6 +6,7 @@
       "resourceType": "script",
       "status": 200,
       "startedAtMs": 3,
+      "requestId": "req-child-script",
       "provenance": {
         "graphRecordId": "resource-child-script",
         "initiatorId": "element-child-script",
@@ -22,6 +23,7 @@
       "resourceType": "xhr",
       "status": 204,
       "startedAtMs": 6,
+      "requestId": "req-tracker",
       "provenance": {
         "graphRecordId": "resource-tracker",
         "initiatorId": "script-child",

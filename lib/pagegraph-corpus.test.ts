@@ -132,3 +132,30 @@ test("CSV tables and SQL stay value-blind and DuckDB-loadable", () => {
   assert.match(RULE_IMPACT_SQL, /WITH RECURSIVE removed/);
   assert.match(CROSS_SITE_STORAGE_SQL, /GROUP BY 1, 2, 3/);
 });
+
+test("ingests the current capture schema: start-edge resource types, request-error completions, id-keyed rows", () => {
+  const currentFixture = readFileSync(
+    path.join(process.cwd(), "lib", "__fixtures__", "pagegraph", "schema-current.graphml"),
+    "utf8"
+  );
+  const facts = buildCorpusFacts(currentFixture, {
+    pageId: "page-current",
+    pageUrl: "https://news.example/",
+    registrableDomain
+  });
+
+  const byRequestId = new Map(facts.requests.map((request) => [request.requestId, request]));
+  // Blink names on the "request start" edge fold into the Playwright
+  // vocabulary; the extensionless fixture URLs prove the value came from the
+  // edge attribute rather than URL inference.
+  assert.equal(byRequestId.get("req-img")?.resourceType, "image");
+  assert.equal(byRequestId.get("req-img")?.status, 200);
+  assert.equal(byRequestId.get("req-css")?.resourceType, "stylesheet");
+  // "request error" is a completion too: dropping it would lose this status.
+  assert.equal(byRequestId.get("req-css")?.status, 0);
+  assert.equal(byRequestId.get("req-beacon-1")?.resourceType, "xhr");
+
+  // Two concurrent requests to the same URL stay distinct rows via request id.
+  assert.equal(facts.requests.length, 4);
+  assert.equal(facts.requests.filter((request) => request.url === "https://tracker.example/collect").length, 2);
+});

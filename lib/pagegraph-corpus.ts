@@ -1,14 +1,22 @@
 import { csvCell } from "./csv-export";
-import { extractPageGraphRootUrl, parseGraphmlRecords, type GraphRecord } from "./pagegraph-parser";
+import {
+  extractPageGraphRootUrl,
+  normalizePageGraphResourceType,
+  parseGraphmlRecords,
+  type GraphRecord
+} from "./pagegraph-parser";
 
 /**
  * PageGraph corpus Phase 0: normalize PageGraph GraphML into the proposal's
  * fact tables and answer the two flagship queries (see
  * docs/pagegraph-corpus-db-proposal.md).
  *
- * 1. Rule impact (counterfactual): a filter rule reduces to node removal plus
- *    a transitive closure over the causal edges: everything that exists only
- *    because a blocked node loaded it.
+ * 1. Rule impact (downstream reachability): a filter rule reduces to node
+ *    removal plus a transitive closure over the causal edges: everything
+ *    REACHABLE from a blocked node. This is an upper-bound estimate, not a
+ *    proven counterfactual: a reachable descendant may have another surviving
+ *    parent that would still create it, and only alternate-parent analysis or
+ *    an intervention recrawl can prove it would actually disappear.
  * 2. Cross-site persistent-value lookup: which scripts set which storage keys,
  *    corpus-wide (value-blind: key presence and byte counts, never values).
  *
@@ -22,8 +30,8 @@ import { extractPageGraphRootUrl, parseGraphmlRecords, type GraphRecord } from "
  * storage area, the web API) are never treated as removed themselves.
  *
  * Pure: callers inject `registrableDomain` (tldts `getDomain` in the CLI).
- * The counterfactual is structural, not behavioral: it predicts what would
- * not load, not JS error cascades (proposal section 12).
+ * The estimate is structural, not behavioral: it bounds what could stop
+ * loading, and says nothing about JS error cascades (proposal section 12).
  */
 
 export type CorpusPageRow = {
@@ -169,10 +177,17 @@ export function buildCorpusFacts(graphml: string, options: CorpusFactsOptions): 
     timestampMs: numberField(record, "timestamp")
   }));
 
+  // "request error" edges are completions too: dropping them loses the
+  // request's recorded status. A "request complete" still wins when both
+  // exist for one request id.
   const completionsByRequestId = new Map<string, GraphRecord>();
   for (const record of edgeRecords) {
     const requestId = field(record, "request id");
-    if (requestId && field(record, "edge type") === "request complete") {
+    if (!requestId) continue;
+    const type = field(record, "edge type");
+    if (type !== "request complete" && type !== "request error") continue;
+    const existing = completionsByRequestId.get(requestId);
+    if (!existing || type === "request complete") {
       completionsByRequestId.set(requestId, record);
     }
   }
@@ -194,6 +209,15 @@ export function buildCorpusFacts(graphml: string, options: CorpusFactsOptions): 
     const completion = requestId ? completionsByRequestId.get(requestId) : undefined;
     const domain = hostnameOf(url);
     const etld1 = domain ? options.registrableDomain(domain) : null;
+    // Current captures write the type on the "request start" edge as
+    // "resource type"; older captures used "request type" there or carried it
+    // on the completion edge (which stays first: the completion reflects the
+    // final type after redirects). Values are Blink's human-readable names,
+    // folded into the Playwright vocabulary so filter-rule request types match.
+    const rawResourceType =
+      (completion ? field(completion, "resource type") : undefined) ??
+      field(record, "resource type") ??
+      field(record, "request type");
     requests.push({
       pageId: options.pageId,
       nodeId: resource.id,
@@ -201,7 +225,7 @@ export function buildCorpusFacts(graphml: string, options: CorpusFactsOptions): 
       url,
       domain,
       etld1,
-      resourceType: (completion && field(completion, "resource type")) ?? field(record, "request type") ?? "other",
+      resourceType: rawResourceType ? normalizePageGraphResourceType(rawResourceType) : "other",
       status: completion ? numberField(completion, "status") : null,
       thirdParty: etld1 && pageEtld1 ? etld1 !== pageEtld1 : null,
       initiatorNodeId: record.source ?? null
@@ -314,9 +338,11 @@ export type RuleImpactReport = {
 };
 
 /**
- * The flagship counterfactual: mark rule-matched request nodes as blocked,
- * close over the causal edges, and report the removed subgraph per page and
- * corpus-wide.
+ * The flagship reachability estimate: mark rule-matched request nodes as
+ * blocked, close over the causal edges, and report the reachable subgraph per
+ * page and corpus-wide. Reachability is an upper bound on removal: a
+ * descendant with another surviving parent may still load, so "downstream"
+ * here means "could depend on the blocked node", never "proven to disappear".
  */
 export function simulateRuleImpact(corpus: CorpusFacts[], matches: CorpusRuleMatcher): RuleImpactReport {
   const pages: PageRuleImpact[] = [];

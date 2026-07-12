@@ -186,12 +186,21 @@ function extractSchemaRequests(records: GraphRecord[]): PageGraphNetworkRequest[
 
     const requestId = firstField(edge, ["request id"]);
     const completion = requestId ? completionsByRequestId.get(requestId) : undefined;
+    // Current PageGraph captures write the type on the "request start" edge as
+    // "resource type" (Blink's human-readable name); older captures used a
+    // "request type" attribute there or carried the type on the completion
+    // edge (which stays first: the completion reflects the final type after
+    // redirects). Read all three before falling back to URL inference, or
+    // every current capture degrades to extension guessing.
+    const rawResourceType =
+      firstField(completion, ["resource type"]) ?? firstField(edge, ["resource type", "request type"]);
     requests.push({
       url,
       domain: hostnameFromUrl(url),
-      resourceType: firstField(completion, ["resource type"]) ?? firstField(edge, ["request type"]) ?? inferResourceType(url),
+      resourceType: rawResourceType ? normalizePageGraphResourceType(rawResourceType) : inferResourceType(url),
       status: numberField(completion ?? edge, ["status"]),
       startedAtMs: numberField(edge, ["timestamp"]),
+      requestId,
       provenance: extractSchemaRequestProvenance(edge, resource, index)
     });
   }
@@ -502,6 +511,50 @@ function matchingApiLabel(text: string): string | undefined {
   return labels.find((label) => new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i").test(text));
 }
 
+/**
+ * Playwright's resourceType vocabulary, the report contract for request
+ * records. Values already in it pass through unchanged.
+ */
+const PLAYWRIGHT_RESOURCE_TYPES = new Set([
+  "document",
+  "stylesheet",
+  "image",
+  "media",
+  "font",
+  "script",
+  "texttrack",
+  "xhr",
+  "fetch",
+  "eventsource",
+  "websocket",
+  "manifest",
+  "other"
+]);
+
+/**
+ * Fold a PageGraph resource-type value into the report's Playwright
+ * vocabulary. Real captures carry Blink's human-readable names ("Image",
+ * "CSS stylesheet", "SVG document", "Raw", "Text track"); leaving them raw
+ * silently degrades every type-specific consumer (filter-rule request types,
+ * type filters) to "other".
+ */
+export function normalizePageGraphResourceType(value: string): string {
+  const text = value.trim().toLowerCase();
+  if (!text) return "other";
+  if (PLAYWRIGHT_RESOURCE_TYPES.has(text)) return text;
+  if (/stylesheet|^css$/.test(text)) return "stylesheet";
+  if (/svg|image|img|icon/.test(text)) return "image";
+  if (/script/.test(text)) return "script";
+  if (/font/.test(text)) return "font";
+  if (/xhr|ajax|^raw$/.test(text)) return "xhr";
+  if (/audio|video|media/.test(text)) return "media";
+  if (/text ?track|^track$/.test(text)) return "texttrack";
+  if (/manifest/.test(text)) return "manifest";
+  if (/websocket/.test(text)) return "websocket";
+  if (/document|frame|navigation/.test(text)) return "document";
+  return "other";
+}
+
 function inferResourceType(text: string): string {
   if (/script/i.test(text)) return "script";
   if (/image|img/i.test(text)) return "image";
@@ -519,7 +572,12 @@ function dedupeRequests(requests: PageGraphNetworkRequest[]): PageGraphNetworkRe
   const seen = new Set<string>();
   const deduped: PageGraphNetworkRequest[] = [];
   for (const request of requests) {
-    const key = `${request.method ?? "GET"} ${request.url} ${request.status ?? ""} ${request.startedAtMs ?? ""}`;
+    // The graph's own request id is the identity when the capture provides
+    // one: distinct requests can share method, URL, status, and timestamp,
+    // and a field-shape key would silently collapse them.
+    const key = request.requestId
+      ? `id:${request.requestId} ${request.url}`
+      : `${request.method ?? "GET"} ${request.url} ${request.status ?? ""} ${request.startedAtMs ?? ""}`;
     if (seen.has(key)) continue;
     seen.add(key);
     deduped.push(request);
