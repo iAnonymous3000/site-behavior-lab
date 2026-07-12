@@ -1,0 +1,23 @@
+# Security headers for the static Cloudflare Pages front door
+# (https://sitebehavior.org). The Node/container origin gets the equivalent
+# set from next.config.mjs `headers()`, which a static export never serves;
+# Cloudflare Pages reads this file from the build output instead (public/ is
+# copied into out/). Self-hosts that point the static UI at a different scan
+# origin must add that origin to connect-src.
+#
+# CSP notes, mirroring the Node origin's policy:
+# - 'unsafe-inline' script/style: Next emits inline bootstrap scripts plus the
+#   pre-paint theme script; per-request nonces are impossible in a static
+#   export. React output escaping remains the primary XSS defense.
+# - challenges.cloudflare.com: Turnstile widget script + challenge iframe for
+#   the scan form.
+# - scan.sitebehavior.org: the scan API (health, scans, report JSON).
+# - static.cloudflareinsights.com / cloudflareinsights.com: the Cloudflare Web
+#   Analytics beacon Pages injects when enabled on the project.
+/*
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; connect-src 'self' https://scan.sitebehavior.org https://cloudflareinsights.com; form-action 'self'; frame-ancestors 'none'; frame-src https://challenges.cloudflare.com; img-src 'self' data:; object-src 'none'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), serial=(), usb=()

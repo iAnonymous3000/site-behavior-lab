@@ -173,7 +173,7 @@ SITE_BEHAVIOR_LAB_PAGES_BASE_PATH=/
 
 Cloudflare Pages builds and deploys `out/` from the **`production` branch** via its Git integration: in the Pages project set the production branch to `production`, the build command to `npm run build:pages` and the output directory to `out`, with production env vars `SITE_BEHAVIOR_LAB_PAGES_BASE_PATH=/`, `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://sitebehavior.org`, and `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE` pointed at the scan API. `production` is the CI-gated promotion branch (see "CI-gated deployment" above): only the exact `main` SHA a successful CI run tested ever reaches it, so a red revision cannot publish. Any other static host can serve the same `out/` directory.
 
-A static export cannot send the server security headers configured for the Node deployment. Configure CSP/HSTS/custom headers at the CDN/host layer instead. On Cloudflare, via response-header Rules.
+A static export cannot send the server security headers configured for the Node deployment, so the build ships [`public/_headers`](public/_headers) into `out/`: Cloudflare Pages serves its CSP, HSTS, frame, and Permissions-Policy set automatically. The CSP names this deployment's scan origin (`scan.sitebehavior.org`) in `connect-src`; self-hosts pointing the static UI at a different scan API must add their origin there. Hosts that ignore `_headers` (plain static servers, GitHub Pages) need the equivalent headers configured at the CDN/host layer.
 
 ## CI as Scanner
 
