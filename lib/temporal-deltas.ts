@@ -61,18 +61,39 @@ export type SinceLastScan = {
   trackerRequests: number;
 };
 
+type TemporalPairingIdentity = Pick<
+  TemporalDeltaInput,
+  | "domain"
+  | "reportType"
+  | "comparisonType"
+  | "consentClicks"
+  | "requestedUrl"
+  | "finalUrl"
+  | "temporalCohort"
+>;
+
+/**
+ * Exact identity shared by automatic history and retention protection. A
+ * null cohort is unmatchable, so unknown never equals unknown.
+ */
+export function temporalPairingKey(entry: TemporalPairingIdentity): string | null {
+  if (!entry.domain || !entry.temporalCohort) return null;
+  const kind = entry.reportType === "comparison" ? entry.comparisonType ?? "comparison" : "single";
+  return `${entry.temporalCohort}|${entry.domain.toLowerCase()}|${kind}${entry.consentClicks ? `|${entry.consentClicks}` : ""}|${normalizedRouteKey(
+    entry.requestedUrl
+  )}|${normalizedRouteKey(entry.finalUrl)}`;
+}
+
 /** Map of report id (the newest per site and kind) to its since-last-scan delta. */
 export function computeSinceLastScan(entries: TemporalDeltaInput[]): Map<string, SinceLastScan> {
   const groups = new Map<string, TemporalDeltaInput[]>();
   for (const entry of entries) {
-    if (!entry.domain || !entry.temporalCohort || !Number.isFinite(Date.parse(entry.scannedAt))) continue;
-    const kind = entry.reportType === "comparison" ? entry.comparisonType ?? "comparison" : "single";
+    if (!Number.isFinite(Date.parse(entry.scannedAt))) continue;
     // The pairing key is the SUBJECT, not just the site: requested and final
     // routes must both match, so a direct scan never pairs with a scan that
     // redirected to a different landing page.
-    const key = `${entry.temporalCohort}|${entry.domain.toLowerCase()}|${kind}${entry.consentClicks ? `|${entry.consentClicks}` : ""}|${normalizedRouteKey(
-      entry.requestedUrl
-    )}|${normalizedRouteKey(entry.finalUrl)}`;
+    const key = temporalPairingKey(entry);
+    if (!key) continue;
     const group = groups.get(key);
     if (group) group.push(entry);
     else groups.set(key, [entry]);

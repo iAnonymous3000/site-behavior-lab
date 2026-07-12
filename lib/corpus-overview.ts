@@ -1,18 +1,23 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { buildCategoryRollups, type CategoryRollup } from "./category-rollups";
-import { legacyTemporalCohortFingerprint } from "./comparison-decision";
 import { domainsMatch } from "./featured-sites";
 import { buildReportHeadline, type HeadlineTone } from "./report-headline";
 import { trackingServiceRequests } from "./report-insights";
 import { readStoredReportForId } from "./report-source";
-import type { StoredScanReport } from "./scan-report-reader";
 import { comparisonArmViews, displayRunView, familyCensoredOnRun, toReportView, type ReportView } from "./scan-report-view";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { listStaticReportIds } from "./static-report-files";
 import { computeSinceLastScan, type SinceLastScan } from "./temporal-deltas";
-import { safeNavigableHttpUrl } from "./report-url";
+import {
+  consentClicksForView,
+  temporalCohortForStoredReport,
+  type ConsentClicks
+} from "./temporal-report-identity";
 import type { ComparisonType } from "./types";
+
+export { consentClicksForView } from "./temporal-report-identity";
+export type { ConsentClicks } from "./temporal-report-identity";
 
 /**
  * Server-only: loads the committed report corpus and derives the index-level views
@@ -81,8 +86,6 @@ export type DirectoryEntry = {
   /** Set only when an earlier report has the same subject and compatible measurement/condition cohort. */
   sinceLastScan?: SinceLastScan;
 };
-
-export type ConsentClicks = "accept-and-reject" | "accept-only" | "reject-only" | "none";
 
 export type CorpusOverview = {
   entries: DirectoryEntry[];
@@ -178,30 +181,6 @@ export function preferAsSiteDataPoint(candidate: DirectoryEntry, existing: Direc
   const existingShields = existing.comparisonType === "shields";
   if (candidateShields !== existingShields) return candidateShields;
   return Date.parse(candidate.scannedAt) > Date.parse(existing.scannedAt);
-}
-
-/**
- * Derives the dispatched consent-click state from the view's recorded
- * interactions. Classification must come from what the scanner actually
- * clicked, never from the requested mode: most consent runs find no clickable
- * banner and therefore only observed the pre-consent state.
- */
-export function consentClicksForView(view: ReportView): ConsentClicks | null {
-  const arms = comparisonArmViews(view);
-  if (arms) {
-    if (view.comparison?.axis !== "consent") return null;
-    const accepted = arms.baseline.consent?.controlActivated === true;
-    const rejected = arms.variant.consent?.controlActivated === true;
-    if (accepted && rejected) return "accept-and-reject";
-    if (accepted) return "accept-only";
-    if (rejected) return "reject-only";
-    return "none";
-  }
-
-  const interaction = view.runs[0]?.consent;
-  if (!interaction) return null;
-  if (!interaction.controlActivated) return "none";
-  return interaction.mode === "accept-all" ? "accept-only" : "reject-only";
 }
 
 async function loadCategoryCatalog(): Promise<CatalogEntry[]> {
@@ -306,7 +285,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
         ? { comparisonType: view.comparison.axis ?? (view.comparison.temporalPair ? ("temporal" as const) : ("custom" as const)) }
         : {})
     };
-    entries.push({ entry, temporalCohort: temporalCohortForStoredReport(readResult.stored, view, run) });
+    entries.push({ entry, temporalCohort: temporalCohortForStoredReport(readResult.stored, view) });
   }
 
   return entries.sort(
@@ -315,28 +294,4 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
       b.entry.thirdPartyRequests - a.entry.thirdPartyRequests ||
       a.entry.domain.localeCompare(b.entry.domain)
   );
-}
-
-function temporalCohortForStoredReport(stored: StoredScanReport, view: ReportView, run: ReturnType<typeof displayRunView>): string | null {
-  if (stored.schemaVersion === 1) {
-    // The v1 wire once carried exact paths; redaction-v2 intentionally
-    // generalized many of them. A generalized subject cannot prove two scans
-    // visited the same page, so automatic history fails closed for that pair.
-    if (!safeNavigableHttpUrl(run.conditions.requestedUrl) || !safeNavigableHttpUrl(run.conditions.finalUrl)) {
-      return null;
-    }
-    const report = stored.report;
-    const sourceRun =
-      report.reportType === "comparison"
-        ? view.comparison?.temporalPair
-          ? report.variant
-          : report.baseline
-        : report;
-    const cohort = legacyTemporalCohortFingerprint(sourceRun);
-    return cohort ? `v1:${cohort}` : null;
-  }
-
-  const fingerprints = run.fingerprints;
-  if (!fingerprints) return null;
-  return `v2-r${stored.schemaRevision}:${fingerprints.measurementEnvironment}:${fingerprints.condition}`;
 }

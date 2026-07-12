@@ -6,7 +6,8 @@ import { afterEach, beforeEach, test } from "node:test";
 import { pruneStaticReports } from "./prune-static-reports";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
-import { makeScanReportV1 } from "./scan-report-v2-fixtures";
+import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
+import type { PublicScanReportV2 } from "./scan-report-v2";
 import type { ScanReport, ScanResult } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
@@ -27,18 +28,39 @@ function makeResult(domain: string, scannedAt: string): ScanResult {
   return {
     ...base,
     summary: { ...base.summary, firstPartyDomain: domain },
-    conditions: { ...base.conditions, scannedAt }
+    conditions: {
+      ...base.conditions,
+      requestedUrl: `https://${domain}/`,
+      finalUrl: `https://${domain}/`,
+      scannedAt,
+      shieldsMode: "classification",
+      adblock: {
+        active: true,
+        source: "brave-default-lists",
+        lists: 31,
+        fetchedAt: "2026-06-01T00:00:00.000Z"
+      },
+      scannerDisclosure: "Automated test scan under methodology pruning-method-v1."
+    }
   };
 }
 
-async function writeReport(id: string, report: unknown): Promise<void> {
-  const redacted = redactScanReportV1(report as ScanReport).report;
-  await writeFile(path.join(reportsDir, `${id}.json`), `${JSON.stringify(redacted)}\n`);
+type TestReport = ScanReport | PublicScanReportV2;
+
+async function writeReport(id: string, report: TestReport): Promise<void> {
+  const publicReport = report.schemaVersion === 1 ? redactScanReportV1(report).report : structuredClone(report);
+  await writeFile(path.join(reportsDir, `${id}.json`), `${JSON.stringify(publicReport)}\n`);
   const createdAt =
-    redacted.reportType === "comparison" ? redacted.scannedAt : redacted.conditions.scannedAt;
+    publicReport.schemaVersion === 1
+      ? publicReport.reportType === "comparison"
+        ? publicReport.scannedAt
+        : publicReport.conditions.scannedAt
+      : publicReport.reportType === "comparison"
+        ? publicReport.variant.startedAt
+        : publicReport.run.startedAt;
   const sidecar = buildProvenanceEntry({
     reportId: id,
-    publicReport: redacted,
+    publicReport,
     writtenAt: "2026-07-12T00:00:00.000Z",
     createdAt,
     expiresAt: null
@@ -46,7 +68,7 @@ async function writeReport(id: string, report: unknown): Promise<void> {
   await writeFile(path.join(reportsDir, committedSidecarFilename(id)), `${JSON.stringify(sidecar)}\n`);
 }
 
-test("age pruning removes stale reports but keeps each site's newest generations", async () => {
+test("age pruning removes stale reports but keeps each exact cohort's newest generations", async () => {
   const now = Date.parse("2026-07-10T00:00:00.000Z");
   // Three generations for one site: the newest two are protected, the third
   // is stale and prunable.
@@ -71,6 +93,165 @@ test("age pruning removes stale reports but keeps each site's newest generations
     () => access(path.join(reportsDir, "20260101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.provenance.json")),
     /ENOENT/
   );
+});
+
+const COHORT_MISMATCHES: { name: string; mutate: (report: ScanResult) => void }[] = [
+  {
+    name: "methodology",
+    mutate: (report) => {
+      report.conditions.scannerDisclosure = "Automated test scan under methodology pruning-method-v2.";
+    }
+  },
+  {
+    name: "filter-list snapshot",
+    mutate: (report) => {
+      if (!report.conditions.adblock) throw new Error("fixture must carry adblock provenance");
+      report.conditions.adblock.fetchedAt = "2026-06-02T00:00:00.000Z";
+    }
+  },
+  {
+    name: "tracker catalog",
+    mutate: (report) => {
+      report.conditions.trackerCatalog = { ...report.conditions.trackerCatalog, version: "2" };
+    }
+  },
+  {
+    name: "device",
+    mutate: (report) => {
+      report.conditions.viewport = { width: 390, height: 844, isMobile: true };
+    }
+  },
+  {
+    name: "recorded condition",
+    mutate: (report) => {
+      report.conditions.gpcEnabled = true;
+    }
+  },
+  {
+    name: "subject",
+    mutate: (report) => {
+      report.conditions.requestedUrl = "https://one.example.dev/privacy";
+      report.conditions.finalUrl = "https://one.example.dev/privacy";
+    }
+  }
+];
+
+for (const mismatch of COHORT_MISMATCHES) {
+  test(`${mismatch.name} mismatch cannot evict the only compatible predecessor`, async () => {
+    const now = Date.parse("2026-07-10T00:00:00.000Z");
+    const oldestId = "20260101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    await writeReport(oldestId, makeResult("one.example.dev", "2026-01-01T00:00:00.000Z"));
+
+    const incompatible = makeResult("one.example.dev", "2026-03-01T00:00:00.000Z");
+    mismatch.mutate(incompatible);
+    await writeReport("20260301-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", incompatible);
+    await writeReport(
+      "20260501-cccccccccccccccccccccccccccccccc",
+      makeResult("one.example.dev", "2026-05-01T00:00:00.000Z")
+    );
+
+    const { removed, warnings } = await pruneStaticReports(reportsDir, {
+      maxAgeMs: 7 * DAY_MS,
+      maxCount: 1_000,
+      keepPerSite: 2,
+      now
+    });
+
+    assert.deepEqual(warnings, []);
+    assert.deepEqual(removed, []);
+    await access(path.join(reportsDir, `${oldestId}.json`));
+    await access(path.join(reportsDir, committedSidecarFilename(oldestId)));
+  });
+}
+
+test("schema mismatch cannot evict the only compatible predecessor", async () => {
+  const now = Date.parse("2026-07-10T00:00:00.000Z");
+  const oldestId = "20260101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  await writeReport(oldestId, makeResult("example.com", "2026-01-01T00:00:00.000Z"));
+
+  const v2 = makePublicSingleReportV2();
+  v2.run.startedAt = "2026-03-01T00:00:00.000Z";
+  v2.run.subject = {
+    requested: { origin: "https://example.com", registrableDomain: "example.com", routeShape: "/" },
+    observed: { origin: "https://example.com", registrableDomain: "example.com", routeShape: "/" }
+  };
+  v2.run.evidence.requests[0].url = "https://example.com/";
+  await writeReport("20260301-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", v2);
+  await writeReport(
+    "20260501-cccccccccccccccccccccccccccccccc",
+    makeResult("example.com", "2026-05-01T00:00:00.000Z")
+  );
+
+  const { removed, warnings } = await pruneStaticReports(reportsDir, {
+    maxAgeMs: 7 * DAY_MS,
+    maxCount: 1_000,
+    keepPerSite: 2,
+    now
+  });
+
+  assert.deepEqual(warnings, []);
+  assert.deepEqual(removed, []);
+  await access(path.join(reportsDir, `${oldestId}.json`));
+  await access(path.join(reportsDir, committedSidecarFilename(oldestId)));
+});
+
+test("null cohorts never compare, while the newest broad report keeps the site present", async () => {
+  const now = Date.parse("2026-07-10T00:00:00.000Z");
+  const ids = [
+    "20260101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "20260301-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "20260501-cccccccccccccccccccccccccccccccc"
+  ];
+  const dates = ["2026-01-01T00:00:00.000Z", "2026-03-01T00:00:00.000Z", "2026-05-01T00:00:00.000Z"];
+  for (const [index, id] of ids.entries()) {
+    const report = makeResult("unknown.example.dev", dates[index]);
+    report.conditions.scannerEgress = "unknown";
+    await writeReport(id, report);
+  }
+
+  const { removed } = await pruneStaticReports(reportsDir, {
+    maxAgeMs: 7 * DAY_MS,
+    maxCount: 1_000,
+    keepPerSite: 2,
+    now
+  });
+
+  assert.deepEqual(
+    removed.map((file) => path.basename(file)),
+    [`${ids[0]}.json`, `${ids[1]}.json`]
+  );
+  await access(path.join(reportsDir, `${ids[2]}.json`));
+  await access(path.join(reportsDir, committedSidecarFilename(ids[2])));
+});
+
+test("generalized v1 subjects never compare, while the newest broad report keeps the site present", async () => {
+  const now = Date.parse("2026-07-10T00:00:00.000Z");
+  const ids = [
+    "20260101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "20260301-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "20260501-cccccccccccccccccccccccccccccccc"
+  ];
+  const dates = ["2026-01-01T00:00:00.000Z", "2026-03-01T00:00:00.000Z", "2026-05-01T00:00:00.000Z"];
+  for (const [index, id] of ids.entries()) {
+    const report = makeResult("generalized.example.dev", dates[index]);
+    report.conditions.requestedUrl = "https://generalized.example.dev/patient/alice";
+    report.conditions.finalUrl = "https://generalized.example.dev/patient/alice";
+    await writeReport(id, report);
+  }
+
+  const { removed } = await pruneStaticReports(reportsDir, {
+    maxAgeMs: 7 * DAY_MS,
+    maxCount: 1_000,
+    keepPerSite: 2,
+    now
+  });
+
+  assert.deepEqual(
+    removed.map((file) => path.basename(file)),
+    [`${ids[0]}.json`, `${ids[1]}.json`]
+  );
+  await access(path.join(reportsDir, `${ids[2]}.json`));
+  await access(path.join(reportsDir, committedSidecarFilename(ids[2])));
 });
 
 test("a file the reader cannot read is never deleted", async () => {

@@ -9,14 +9,14 @@ import { pruneStaticReports } from "./prune-static-reports";
  * Node-only CLI: never imported by app, worker, or browser code.
  */
 const DEFAULT_MAX_AGE_DAYS = 7;
-// Hard ceiling on committed reports. With per-site-per-kind history retention
-// the protected set alone can approach sites x kinds x 2, so this sits well
-// above it; at ~150 KB per report the ceiling bounds the repo at roughly
-// 150 MB of report JSON.
+// Hard ceiling on committed reports. Exact subject/cohort retention may keep
+// multiple compatible histories per site, so this remains the non-negotiable
+// bound; at ~150 KB per report it caps the repo at roughly 150 MB of JSON.
 const DEFAULT_MAX_COUNT = 1_000;
-// Each site's newest reports PER KIND stay exempt from AGE pruning so the
-// directory's "changed since last scan" view keeps a current and a previous
-// generation. Set to 0 to restore pure age-based pruning.
+// The newest reports per exact site/kind/subject/versioned cohort stay exempt
+// from AGE pruning so "changed since last scan" keeps compatible history.
+// Unknown identities only keep the newest broad site/kind disappearance
+// guard. Set to 0 to restore pure age-based pruning.
 const DEFAULT_KEEP_PER_SITE = 2;
 
 async function main(): Promise<void> {

@@ -1,11 +1,14 @@
 import path from "node:path";
-import { toReportView } from "./scan-report-view";
+import { displayRunView, toReportView, type ReportView } from "./scan-report-view";
 import {
   listDanglingStaticSidecarIds,
   listStaticReportCandidateIds,
   readStaticReportBundle,
   removeStaticReportBundle
 } from "./static-report-files";
+import { temporalPairingKey } from "./temporal-deltas";
+import { consentClicksForView, temporalCohortForStoredReport } from "./temporal-report-identity";
+import type { ComparisonType } from "./types";
 
 /**
  * Retention pruning for the committed report corpus (public/reports/). Ported
@@ -13,13 +16,14 @@ import {
  * version-aware deep reader (RFC 14.8) and the version-agnostic ReportView
  * instead of hand-parsed JSON.
  *
- * Retention policy (unchanged): reports older than the max age are removed
- * unless they are one of a site's newest `keepPerSite` reports of their kind
- * (shields / consent / gpc / temporal / single), so the directory's
- * "changed since last scan" pairing keeps a current and previous generation
- * and a site that stops being re-scanned never silently vanishes. The count
- * cap is the hard ceiling, trimming oldest-first but preferring unprotected
- * reports.
+ * Retention policy: reports older than the max age are removed
+ * unless they are one of the newest `keepPerSite` reports with the same site,
+ * kind, subject, and versioned measurement/condition cohort. That is the same
+ * fail-closed identity used by "changed since last scan", so an incompatible
+ * intervening scan cannot evict the only compatible predecessor. Unknown
+ * identities do not match one another; only the newest report of each broad
+ * site/kind is protected as a disappearance guard. The count cap remains the
+ * hard ceiling, trimming oldest-first but preferring unprotected reports.
  *
  * A file the reader cannot read is NEVER deleted: retention must not destroy
  * evidence it cannot understand. It is skipped with a warning and counts
@@ -47,14 +51,16 @@ type ReportRecord = {
   path: string;
   scannedAtMs: number;
   domain: string | null;
-  kind: string;
+  kind: ComparisonType | "single";
+  /** Null means the subject or complete cohort is unprovable and unmatchable. */
+  temporalPairingKey: string | null;
 };
 
 export async function pruneStaticReports(reportsDir: string, options: PruneOptions): Promise<PruneResult> {
   const { records, warnings } = await readReportRecords(reportsDir);
   const now = options.now ?? Date.now();
 
-  const ageExempt = newestPerSite(records, options.keepPerSite);
+  const ageExempt = protectedGenerations(records, options.keepPerSite);
   const kept: ReportRecord[] = [];
   const removePaths = new Set<string>();
 
@@ -83,27 +89,48 @@ export async function pruneStaticReports(reportsDir: string, options: PruneOptio
   return { removed: [...removePaths].sort(), warnings };
 }
 
-function newestPerSite(records: ReportRecord[], keepPerSite: number): Set<ReportRecord> {
+function protectedGenerations(records: ReportRecord[], keepPerSite: number): Set<ReportRecord> {
   const exempt = new Set<ReportRecord>();
   if (keepPerSite === 0) return exempt;
 
+  // Comparable history is protected only inside its exact subject + complete
+  // versioned cohort. A method/list/catalog/device/condition/schema change is
+  // therefore a new group and cannot displace an older compatible predecessor.
+  const byComparableIdentity = new Map<string, ReportRecord[]>();
   const bySiteAndKind = new Map<string, ReportRecord[]>();
   for (const record of records) {
     if (!record.domain) continue;
-    const key = `${record.domain}|${record.kind}`;
-    const list = bySiteAndKind.get(key);
-    if (list) list.push(record);
-    else bySiteAndKind.set(key, [record]);
+    const siteKey = `${record.domain}|${record.kind}`;
+    const siteList = bySiteAndKind.get(siteKey);
+    if (siteList) siteList.push(record);
+    else bySiteAndKind.set(siteKey, [record]);
+
+    if (record.temporalPairingKey) {
+      const identityList = byComparableIdentity.get(record.temporalPairingKey);
+      if (identityList) identityList.push(record);
+      else byComparableIdentity.set(record.temporalPairingKey, [record]);
+    }
   }
 
-  for (const list of bySiteAndKind.values()) {
-    list.sort((a, b) => b.scannedAtMs - a.scannedAtMs);
+  for (const list of byComparableIdentity.values()) {
+    sortNewestFirst(list);
     for (const record of list.slice(0, keepPerSite)) {
       exempt.add(record);
     }
   }
 
+  // Null identities never group (unknown must not equal unknown), but retain
+  // the newest broad record so a legacy/generalized site does not vanish.
+  for (const list of bySiteAndKind.values()) {
+    sortNewestFirst(list);
+    if (list[0]) exempt.add(list[0]);
+  }
+
   return exempt;
+}
+
+function sortNewestFirst(records: ReportRecord[]): void {
+  records.sort((a, b) => b.scannedAtMs - a.scannedAtMs || a.id.localeCompare(b.id));
 }
 
 async function readReportRecords(reportsDir: string): Promise<{ records: ReportRecord[]; warnings: string[] }> {
@@ -134,12 +161,24 @@ async function readReportRecords(reportsDir: string): Promise<{ records: ReportR
       continue;
     }
 
+    const domain = view.domain ? view.domain.toLowerCase().replace(/^www\./, "") : null;
+    const kind = retentionKind(view);
+    const run = displayRunView(view);
     records.push({
       id,
       path: filePath,
       scannedAtMs,
-      domain: view.domain ? view.domain.toLowerCase().replace(/^www\./, "") : null,
-      kind: retentionKind(read.stored)
+      domain,
+      kind,
+      temporalPairingKey: temporalPairingKey({
+        domain: domain ?? "",
+        reportType: view.reportType,
+        ...(view.reportType === "comparison" ? { comparisonType: kind as ComparisonType } : {}),
+        consentClicks: consentClicksForView(view),
+        requestedUrl: run.conditions.requestedUrl,
+        finalUrl: run.conditions.finalUrl,
+        temporalCohort: temporalCohortForStoredReport(read.stored, view)
+      })
     });
   }
 
@@ -147,19 +186,11 @@ async function readReportRecords(reportsDir: string): Promise<{ records: ReportR
 }
 
 /**
- * Retention grouping key. Deliberately NOT the view's design vocabulary: the
- * seam classifies every v1 comparison as descriptive (RFC 10.1), but the
- * "keep a current and previous generation" pairing groups by what kind of
- * report was PRODUCED (shields / consent / gpc / temporal / single), which is
- * wire-level metadata, not an experiment-validity claim.
+ * The history kind represented by the display run. The descriptive/causal
+ * design vocabulary is irrelevant here; only the produced axis (or temporal /
+ * custom shape) can identify compatible historical observations.
  */
-function retentionKind(stored: Parameters<typeof toReportView>[0]): string {
-  if (stored.schemaVersion === 1) {
-    const report = stored.report;
-    if (report.reportType !== "comparison") return "single";
-    return report.comparisonType || "comparison";
-  }
-  const report = stored.report;
-  if (report.reportType !== "comparison") return "single";
-  return report.experiment.kind === "intervention" ? report.experiment.axis : report.experiment.kind;
+function retentionKind(view: ReportView): ComparisonType | "single" {
+  if (view.reportType !== "comparison") return "single";
+  return view.comparison?.axis ?? (view.comparison?.temporalPair ? "temporal" : "custom");
 }
