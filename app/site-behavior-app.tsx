@@ -85,6 +85,7 @@ import {
 // a type import is erased at build time and adds nothing to the bundle.
 import type { LoadedReport } from "@/lib/scan-report-view";
 import { REPORT_ID_PATTERN } from "@/lib/report-validation";
+import { safeNavigableHttpUrl } from "@/lib/report-url";
 import type {
   ComparisonScanResult,
   ReportShare,
@@ -1571,7 +1572,7 @@ function ReportHeader({
   }, [sharePath]);
   // v2 subject URLs are privacy-generalized route shapes; they parse as URLs
   // but point nowhere real, so they render as text, never as a link.
-  const finalUrl = run.conditions.urlsAreRouteShapes ? null : safeHttpUrl(run.conditions.finalUrl);
+  const finalUrl = run.conditions.urlsAreRouteShapes ? null : safeNavigableHttpUrl(run.conditions.finalUrl);
   const title = view.title || run.pageTitle;
 
   const [shareCopied, setShareCopied] = useState(false);
@@ -1658,15 +1659,6 @@ function ReportHeader({
       </div>
     </section>
   );
-}
-
-function safeHttpUrl(value: string): string | null {
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : null;
-  } catch {
-    return null;
-  }
 }
 
 function loadTurnstileScript(): Promise<void> {

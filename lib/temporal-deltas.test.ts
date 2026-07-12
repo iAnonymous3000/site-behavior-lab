@@ -12,6 +12,7 @@ function entry(overrides: Partial<TemporalDeltaInput> & { id: string }): Tempora
     finalUrl: "https://shop.example/",
     thirdPartyRequests: 0,
     trackerRequests: 0,
+    temporalCohort: "cohort-a",
     ...overrides
   };
 }
@@ -87,6 +88,20 @@ test("never pairs different subjects: requested and final routes must both match
     finalUrl: "https://my.gov.example"
   });
   assert.equal(computeSinceLastScan([direct, slashless]).size, 1);
+});
+
+test("never pairs different or unknown measurement cohorts", () => {
+  const different = computeSinceLastScan([
+    entry({ id: "old", scannedAt: "2026-06-20T00:00:00.000Z", temporalCohort: "method-a" }),
+    entry({ id: "new", scannedAt: "2026-07-02T00:00:00.000Z", temporalCohort: "method-b" })
+  ]);
+  assert.equal(different.size, 0);
+
+  const unknown = computeSinceLastScan([
+    entry({ id: "old", scannedAt: "2026-06-20T00:00:00.000Z", temporalCohort: null }),
+    entry({ id: "new", scannedAt: "2026-07-02T00:00:00.000Z", temporalCohort: null })
+  ]);
+  assert.equal(unknown.size, 0);
 });
 
 test("separates sites, requires two reports, and skips invalid timestamps", () => {

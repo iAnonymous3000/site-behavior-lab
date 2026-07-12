@@ -75,14 +75,22 @@ export default function PrivacyPage() {
         <h2>What is stored, and for how long</h2>
         <ul>
           <li>
-            Each scan is saved as a shareable report so its permalink works. The address stored in the report is{" "}
-            <strong>origin and path only</strong>. Query strings, URL credentials, and fragments are removed
-            before anything is written or shared.
+            A live, user-requested scan can be saved as a shareable report so its permalink works. Before public
+            report bytes are written, URL credentials, fragments, and query values are removed; non-allowlisted
+            path segments become markers such as <code>{"{seg}"}</code>, token-like subdomain labels are
+            generalized, and unrecognized cookie names and storage keys become redaction markers. The scanner uses
+            the exact reduced address to perform the visit; it is not written into the public report. Screenshots
+            can appear in the immediate result, but are not persisted in the share report.
           </li>
           <li>
-            Stored reports <strong>expire after about {RETENTION_DAYS} days</strong> on the reference deployment
+            Live share reports <strong>expire after about {RETENTION_DAYS} days</strong> on the reference deployment
             (configurable by whoever runs the instance): an expired report&apos;s link stops working, any read of it
             removes the stored copy, and routine cleanup deletes expired copies that were never read again.
+          </li>
+          <li>
+            A separate, deliberately published research corpus appears in the public directory. Those curated
+            reports are committed as permanent site artifacts with provenance sidecars; they do not use the
+            live-share expiry policy.
           </li>
           <li>No report is linked to your identity, and reports do not record your IP address.</li>
         </ul>

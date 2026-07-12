@@ -8,6 +8,7 @@ import {
 import {
   legacyComparisonDecision,
   legacyMeasurementEnvironmentFingerprint,
+  legacyTemporalCohortFingerprint,
   v2ComparisonDecision
 } from "./comparison-decision";
 import {
@@ -238,6 +239,36 @@ test("legacy temporal comparisons separate old and initiator-aware methodology c
   assert.equal(sameMethod.mode, "comparable");
   assert.equal(sameMethod.compatibility.matched, true);
   assert.equal(sameMethod.families["raw-counts"].mode, "comparable");
+});
+
+test("automatic v1 history cohorts include methodology, conditions, lists, and catalog identity", () => {
+  const current = makeRun({});
+  current.conditions = {
+    ...current.conditions,
+    shieldsMode: "classification",
+    adblock: { active: true, source: "brave", lists: 31, fetchedAt: "2026-07-12T00:00:00.000Z" },
+    scannerDisclosure: `Automated Chromium scan under methodology ${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}.`
+  };
+  const same = structuredClone(current);
+  assert.equal(legacyTemporalCohortFingerprint(current), legacyTemporalCohortFingerprint(same));
+
+  const mutations: Array<(run: ScanResult) => void> = [
+    (run) => { run.conditions.gpcEnabled = true; },
+    (run) => { run.conditions.consentMode = "accept-all"; },
+    (run) => { run.conditions.viewport.width += 1; },
+    (run) => { if (run.conditions.adblock) run.conditions.adblock.fetchedAt = "2026-07-13T00:00:00.000Z"; },
+    (run) => { run.conditions.trackerCatalog.version = "other"; },
+    (run) => { run.conditions.scannerDisclosure = "legacy unspecified methodology"; }
+  ];
+  for (const mutate of mutations) {
+    const changed = structuredClone(current);
+    mutate(changed);
+    assert.notEqual(legacyTemporalCohortFingerprint(current), legacyTemporalCohortFingerprint(changed));
+  }
+
+  const unknown = structuredClone(current);
+  delete unknown.conditions.shieldsMode;
+  assert.equal(legacyTemporalCohortFingerprint(unknown), null);
 });
 
 test("the fingerprint excludes the intervention axes: a GPC flip does not change it", () => {

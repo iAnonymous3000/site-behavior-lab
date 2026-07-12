@@ -217,7 +217,7 @@ export default async function DirectoryPage() {
                 {entry.sinceLastScan && (
                   <span
                     className="directory-since"
-                    title="Observed difference between two automated visits of the same kind. It can reflect ad rotation, experiments, caching, or bot detection as well as a real site change."
+                    title="Observed difference between successful, uncapped visits of the same subject under a compatible methodology and measurement setup. It can still reflect ad rotation, experiments, caching, or bot detection as well as a real site change."
                   >
                     Since {formatScanDate(entry.sinceLastScan.previousScannedAt)}:{" "}
                     {sinceLastScanText(entry.sinceLastScan)}

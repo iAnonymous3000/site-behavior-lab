@@ -1,14 +1,17 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { buildCategoryRollups, type CategoryRollup } from "./category-rollups";
+import { legacyTemporalCohortFingerprint } from "./comparison-decision";
 import { domainsMatch } from "./featured-sites";
 import { buildReportHeadline, type HeadlineTone } from "./report-headline";
 import { trackingServiceRequests } from "./report-insights";
 import { readStoredReportForId } from "./report-source";
+import type { StoredScanReport } from "./scan-report-reader";
 import { comparisonArmViews, displayRunView, familyCensoredOnRun, toReportView, type ReportView } from "./scan-report-view";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { listStaticReportIds } from "./static-report-files";
 import { computeSinceLastScan, type SinceLastScan } from "./temporal-deltas";
+import { safeNavigableHttpUrl } from "./report-url";
 import type { ComparisonType } from "./types";
 
 /**
@@ -75,7 +78,7 @@ export type DirectoryEntry = {
   schemaOrigin: "v2" | "legacy-derived";
   /** RFC 15.7 limited/descriptive marker (true for every v1 and v2 r1 report). */
   limited: boolean;
-  /** Set on a site's newest report when an earlier report of the same kind exists. */
+  /** Set only when an earlier report has the same subject and compatible measurement/condition cohort. */
   sinceLastScan?: SinceLastScan;
 };
 
@@ -106,7 +109,8 @@ function entryLoadFailed(entry: DirectoryEntry): boolean {
 
 export async function loadCorpusOverview(): Promise<CorpusOverview> {
   const catalog = await loadCategoryCatalog();
-  const entries = await loadDirectoryEntries(catalog);
+  const loadedEntries = await loadDirectoryEntries(catalog);
+  const entries = loadedEntries.map(({ entry }) => entry);
 
   // Failed loads (HTTP >= 400: bot walls, outages) and request-capped runs
   // stay listed with their honest headlines, but neither is measured site
@@ -114,12 +118,15 @@ export async function loadCorpusOverview(): Promise<CorpusOverview> {
   // not feed the statistics: no since-last-scan pairing (a delta between two
   // truncated floors reads as a site change), no category medians, no
   // leaderboard.
-  const measured = entries.filter((entry) => !entryLoadFailed(entry) && !entry.capped);
+  const measuredLoaded = loadedEntries.filter(({ entry }) => !entryLoadFailed(entry) && !entry.capped);
+  const measured = measuredLoaded.map(({ entry }) => entry);
 
-  // "Changed since last scan": each site's newest report is paired with its most
-  // recent predecessor of the same kind (see lib/temporal-deltas.ts for why kinds
-  // never mix), so the directory can show what a re-scan changed.
-  const deltas = computeSinceLastScan(measured);
+  // "Changed since last scan": each site's newest report is paired only with
+  // a predecessor of the same kind, subject, and complete versioned
+  // measurement/condition cohort (see lib/temporal-deltas.ts).
+  const deltas = computeSinceLastScan(
+    measuredLoaded.map(({ entry, temporalCohort }) => ({ ...entry, temporalCohort }))
+  );
   for (const entry of entries) {
     const delta = deltas.get(entry.id);
     if (delta) entry.sinceLastScan = delta;
@@ -225,9 +232,11 @@ function categoryFor(domain: string, catalog: CatalogEntry[]): { id: string; lab
   return hit ? { id: hit.id, label: hit.label } : { id: "", label: "Other" };
 }
 
-async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryEntry[]> {
+type LoadedDirectoryEntry = { entry: DirectoryEntry; temporalCohort: string | null };
+
+async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDirectoryEntry[]> {
   const ids = await listStaticReportIds();
-  const entries: DirectoryEntry[] = [];
+  const entries: LoadedDirectoryEntry[] = [];
 
   for (const id of ids) {
     // The stored read keeps the schema metadata: the directory and researcher
@@ -264,7 +273,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
         ? arms.variant.counts.thirdPartyRequests - arms.baseline.counts.thirdPartyRequests
         : null;
 
-    entries.push({
+    const entry: DirectoryEntry = {
       id,
       domain: headline.domain,
       tone: headline.tone,
@@ -296,13 +305,38 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<DirectoryE
       ...(view.comparison
         ? { comparisonType: view.comparison.axis ?? (view.comparison.temporalPair ? ("temporal" as const) : ("custom" as const)) }
         : {})
-    });
+    };
+    entries.push({ entry, temporalCohort: temporalCohortForStoredReport(readResult.stored, view, run) });
   }
 
   return entries.sort(
     (a, b) =>
-      b.trackerRequests - a.trackerRequests ||
-      b.thirdPartyRequests - a.thirdPartyRequests ||
-      a.domain.localeCompare(b.domain)
+      b.entry.trackerRequests - a.entry.trackerRequests ||
+      b.entry.thirdPartyRequests - a.entry.thirdPartyRequests ||
+      a.entry.domain.localeCompare(b.entry.domain)
   );
+}
+
+function temporalCohortForStoredReport(stored: StoredScanReport, view: ReportView, run: ReturnType<typeof displayRunView>): string | null {
+  if (stored.schemaVersion === 1) {
+    // The v1 wire once carried exact paths; redaction-v2 intentionally
+    // generalized many of them. A generalized subject cannot prove two scans
+    // visited the same page, so automatic history fails closed for that pair.
+    if (!safeNavigableHttpUrl(run.conditions.requestedUrl) || !safeNavigableHttpUrl(run.conditions.finalUrl)) {
+      return null;
+    }
+    const report = stored.report;
+    const sourceRun =
+      report.reportType === "comparison"
+        ? view.comparison?.temporalPair
+          ? report.variant
+          : report.baseline
+        : report;
+    const cohort = legacyTemporalCohortFingerprint(sourceRun);
+    return cohort ? `v1:${cohort}` : null;
+  }
+
+  const fingerprints = run.fingerprints;
+  if (!fingerprints) return null;
+  return `v2-r${stored.schemaRevision}:${fingerprints.measurementEnvironment}:${fingerprints.condition}`;
 }

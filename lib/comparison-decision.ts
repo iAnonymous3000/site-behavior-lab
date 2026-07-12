@@ -148,6 +148,57 @@ export function legacyMeasurementEnvironmentFingerprint(run: ScanResult): string
   return sha256Hex(canonical);
 }
 
+/**
+ * Fail-closed cohort identity for automatic v1 history deltas. Unlike an
+ * intervention comparison, a before/after observation must hold the complete
+ * recorded condition and classification instrument constant. Unknown fields
+ * return null, and two nulls never form a cohort.
+ */
+export function legacyTemporalCohortFingerprint(run: ScanResult): string | null {
+  const environment = legacyMeasurementEnvironmentFingerprint(run);
+  const conditions = run.conditions;
+  const catalog = conditions.trackerCatalog;
+  const shields = knownString(conditions.shieldsMode);
+  const catalogSource = knownString(catalog.source);
+  const catalogVersion = knownString(catalog.version);
+  const catalogRegion = knownString(catalog.region);
+  const catalogLicense = knownString(catalog.license);
+  if (
+    !environment ||
+    !shields ||
+    !catalogSource ||
+    !catalogVersion ||
+    !catalogRegion ||
+    !catalogLicense ||
+    !Number.isInteger(catalog.entries) ||
+    catalog.entries < 0 ||
+    !Number.isInteger(catalog.curatedOverrides) ||
+    catalog.curatedOverrides < 0
+  ) {
+    return null;
+  }
+
+  return sha256Hex(
+    JSON.stringify({
+      version: "legacy-temporal-cohort-v1",
+      environment,
+      conditions: {
+        consent: conditions.consentMode,
+        gpc: conditions.gpcEnabled,
+        shields
+      },
+      trackerCatalog: {
+        source: catalogSource,
+        version: catalogVersion,
+        region: catalogRegion,
+        entries: catalog.entries,
+        curatedOverrides: catalog.curatedOverrides,
+        license: catalogLicense
+      }
+    })
+  );
+}
+
 function legacyCompatibility(report: ComparisonScanResult): CompatibilityFingerprint {
   const baseline = legacyMeasurementEnvironmentFingerprint(report.baseline);
   const variant = legacyMeasurementEnvironmentFingerprint(report.variant);
