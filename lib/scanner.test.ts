@@ -46,6 +46,7 @@ const routePage = {
 
 function routeRequest({
   url,
+  method = "GET",
   resourceType = "script",
   navigation = false,
   frame = mainFrame,
@@ -54,6 +55,7 @@ function routeRequest({
   serviceWorkerUrlThrows = false
 }: {
   url: string;
+  method?: string;
   resourceType?: string;
   navigation?: boolean;
   frame?: TestFrame;
@@ -67,6 +69,7 @@ function routeRequest({
       return frame;
     },
     isNavigationRequest: () => navigation,
+    method: () => method,
     resourceType: () => resourceType,
     serviceWorker: () =>
       serviceWorkerUrl
@@ -340,18 +343,22 @@ test("decideRoutedRequest aborts Shields-blocked subresources but not top-level 
   const publicHostChecks = new Map<string, Promise<void>>();
   let engineCalls = 0;
   const adblockEngine = {
-    check: (url: string, sourceUrl: string, requestType: string) => {
+    check: () => {
+      throw new Error("live routed requests must use method-aware matching");
+    },
+    checkWithMethod: (url: string, sourceUrl: string, requestType: string, method: string) => {
       engineCalls += 1;
       assert.equal(url.startsWith("https://ads.example/"), true);
       assert.equal(sourceUrl, "https://example.com/");
       assert.equal(requestType, "script");
+      assert.equal(method, "POST");
       return true;
     }
   };
 
   assert.deepEqual(
     await decideRoutedRequest({
-      request: routeRequest({ url: "https://ads.example/pixel.js" }),
+      request: routeRequest({ url: "https://ads.example/pixel.js", method: "post" }),
       page: routePage,
       targetUrl: new URL("https://example.com/"),
       warnings,
@@ -401,7 +408,7 @@ test("decideRoutedRequest captures the redirected document source before awaitin
     requestBudget: new ScanRequestBudget(new ScanWarningCollector()),
     publicHostChecks: new Map(),
     adblockEngine: {
-      check: (_url, sourceUrl) => {
+      checkWithMethod: (_url, sourceUrl) => {
         sources.push(sourceUrl);
         return true;
       }
@@ -429,7 +436,7 @@ test("decideRoutedRequest uses child documents and parent documents for their re
     requestBudget: new ScanRequestBudget(new ScanWarningCollector()),
     publicHostChecks: new Map<string, Promise<void>>(),
     adblockEngine: {
-      check: (_url: string, sourceUrl: string, requestType: string) => {
+      checkWithMethod: (_url: string, sourceUrl: string, requestType: string) => {
         calls.push({ sourceUrl, requestType });
         return false;
       }
@@ -477,7 +484,7 @@ test("decideRoutedRequest handles Service Worker and frame-less navigation reque
   const publicHostChecks = new Map<string, Promise<void>>();
   const sources: string[] = [];
   const adblockEngine = {
-    check: (_url: string, sourceUrl: string) => {
+    checkWithMethod: (_url: string, sourceUrl: string) => {
       sources.push(sourceUrl);
       return true;
     }

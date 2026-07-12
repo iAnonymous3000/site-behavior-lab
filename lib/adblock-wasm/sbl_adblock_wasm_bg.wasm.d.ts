@@ -3,6 +3,7 @@
 export const memory: WebAssembly.Memory;
 export const __wbg_adblockengine_free: (a: number, b: number) => void;
 export const adblockengine_check: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
+export const adblockengine_checkWithMethod: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => number;
 export const adblockengine_new: (a: number, b: number) => number;
 export const __wbindgen_externrefs: WebAssembly.Table;
 export const __wbindgen_malloc: (a: number, b: number) => number;

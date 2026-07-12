@@ -560,7 +560,7 @@ disposition after the review:
   replayed into the public record; the raw source URL is transient and never
   enters frozen v1. This removes the old target-at-block-time versus
   final-URL-at-report-time disagreement and is identified in future Node
-  report disclosures as `shields-request-context-v2-adblock-rust-0.13.0`; a future v2 producer must
+  report disclosures as `shields-request-context-v2-adblock-rust-0.13.0-request-method-v1`; a future v2 producer must
   carry that identity in provenance.methodologyVersion. The legacy-derived
   environment fingerprint now reads this disclosure token, so an old/new v1
   temporal pair is raw-only instead of silently comparing methodologies.

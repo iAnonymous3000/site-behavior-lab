@@ -39,6 +39,23 @@ assert.equal(
   "expected the engine to allow an ordinary first-party asset"
 );
 
+const methodEngine = new AdblockEngine("||method-test.invalid^$method=post");
+assert.equal(
+  methodEngine.checkWithMethod("https://method-test.invalid/collect", "https://example.com/", "xmlhttprequest", "POST"),
+  true,
+  "expected a POST-only rule to match POST"
+);
+assert.equal(
+  methodEngine.checkWithMethod("https://method-test.invalid/collect", "https://example.com/", "xmlhttprequest", "GET"),
+  false,
+  "expected a POST-only rule not to match GET"
+);
+assert.equal(
+  methodEngine.check("https://method-test.invalid/collect", "https://example.com/", "xmlhttprequest"),
+  false,
+  "expected the legacy three-argument API to keep GET semantics"
+);
+
 console.log(
-  `Adblock engine OK: ${meta.sourceCount} lists fetched ${meta.fetchedAt}, ${(rules.length / 1024 / 1024).toFixed(1)} MB of rules, block checks pass.`
+  `Adblock engine OK: ${meta.sourceCount} lists fetched ${meta.fetchedAt}, ${(rules.length / 1024 / 1024).toFixed(1)} MB of rules, block and method checks pass.`
 );

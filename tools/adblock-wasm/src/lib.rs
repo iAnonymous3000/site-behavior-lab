@@ -23,12 +23,24 @@ impl AdblockEngine {
     }
 
     /// Returns true if a request to `url` of `request_type`, initiated by
-    /// `source_url`, would be blocked by the loaded lists.
+    /// `source_url`, would be blocked by the loaded lists. Kept for offline
+    /// callers whose historical contract has GET semantics.
     pub fn check(&self, url: &str, source_url: &str, request_type: &str) -> bool {
-        // The public wrapper historically had no method argument. Keep its
-        // GET semantics stable across the adblock 0.13 API migration; a future
-        // methodology revision can plumb the real request method explicitly.
-        match Request::new(url, source_url, request_type, "GET") {
+        self.check_with_method(url, source_url, request_type, "GET")
+    }
+
+    /// Method-aware network match for live routed requests. adblock-rust 0.13
+    /// added `$method=` filters, so the scanner must pass the browser's actual
+    /// method rather than silently treating POST/HEAD as GET.
+    #[wasm_bindgen(js_name = checkWithMethod)]
+    pub fn check_with_method(
+        &self,
+        url: &str,
+        source_url: &str,
+        request_type: &str,
+        method: &str,
+    ) -> bool {
+        match Request::new(url, source_url, request_type, method) {
             Ok(request) => self.inner.check_network_request(&request).should_block(),
             Err(_) => false,
         }

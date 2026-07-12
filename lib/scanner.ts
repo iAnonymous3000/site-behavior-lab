@@ -70,6 +70,7 @@ type RouteWorkerLike = {
 type RoutedRequestLike = {
   frame(): RouteFrameLike;
   isNavigationRequest(): boolean;
+  method?(): string;
   resourceType(): string;
   serviceWorker?(): RouteWorkerLike | null;
   url(): string;
@@ -78,7 +79,7 @@ type RoutePageLike = {
   mainFrame(): RouteFrameLike;
 };
 type RouteAdblockEngine = {
-  check(url: string, sourceUrl: string, requestType: string): boolean;
+  checkWithMethod(url: string, sourceUrl: string, requestType: string, method: string): boolean;
 };
 
 export type ScanRouteDecision = {
@@ -510,6 +511,7 @@ export async function decideRoutedRequest({
   // can navigate or detach while that check is in flight. The raw source URL is
   // used only in memory by adblock-rust and is never logged or persisted.
   const shieldsContext = adblockEngine ? shieldsRequestContext(request, page, targetUrl) : null;
+  const shieldsMethod = adblockEngine ? safeRequestMethod(request) : "GET";
   const decision = await verifyRoutedHttpRequest({
     requestUrl,
     warnings,
@@ -533,7 +535,13 @@ export async function decideRoutedRequest({
 
   const shieldsMatched =
     adblockEngine && shieldsContext
-      ? shieldsContext.eligible && adblockEngine.check(requestUrl, shieldsContext.sourceUrl, mapRequestType(request.resourceType()))
+      ? shieldsContext.eligible &&
+        adblockEngine.checkWithMethod(
+          requestUrl,
+          shieldsContext.sourceUrl,
+          mapRequestType(request.resourceType()),
+          shieldsMethod
+        )
       : undefined;
 
   if (shieldsBlockingEnabled && shieldsMatched) {
@@ -642,6 +650,15 @@ function safeRequestFrame(request: RoutedRequestLike): RouteFrameLike | null {
     return request.frame();
   } catch {
     return null;
+  }
+}
+
+function safeRequestMethod(request: RoutedRequestLike): string {
+  try {
+    const method = request.method?.().trim().toUpperCase();
+    return method || "GET";
+  } catch {
+    return "GET";
   }
 }
 

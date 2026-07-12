@@ -12,6 +12,7 @@ const ADBLOCK_DIR = path.join(process.cwd(), "lib", "adblock-wasm");
 
 type AdblockEngineLike = {
   check(url: string, sourceUrl: string, requestType: string): boolean;
+  checkWithMethod(url: string, sourceUrl: string, requestType: string, method: string): boolean;
 };
 
 export type AdblockListMeta = {
