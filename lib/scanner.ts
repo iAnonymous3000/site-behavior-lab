@@ -59,14 +59,22 @@ import {
 export { redactUrlForReport } from "./report-url";
 export { MAX_RECORDED_REQUESTS, NON_HTTP_WARNING_EXAMPLE_LIMIT, ScanRequestBudget, ScanWarningCollector } from "./scan-runtime";
 
+type RouteFrameLike = {
+  parentFrame(): RouteFrameLike | null;
+  url(): string;
+};
+type RouteWorkerLike = {
+  url(): string;
+};
 type RoutedRequestLike = {
-  frame(): unknown;
+  frame(): RouteFrameLike;
   isNavigationRequest(): boolean;
   resourceType(): string;
+  serviceWorker?(): RouteWorkerLike | null;
   url(): string;
 };
 type RoutePageLike = {
-  mainFrame(): unknown;
+  mainFrame(): RouteFrameLike;
 };
 type RouteAdblockEngine = {
   check(url: string, sourceUrl: string, requestType: string): boolean;
@@ -75,6 +83,8 @@ type RouteAdblockEngine = {
 export type ScanRouteDecision = {
   action: "abort" | "continue";
   blockedByShields: boolean;
+  /** Route-time classifier result, reused when the public request record is built. */
+  shieldsMatched?: boolean;
 };
 
 const DESKTOP_VIEWPORT = { width: 1440, height: 980 };
@@ -193,6 +203,10 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
 
     const requestsBlockedByShields = new WeakSet<Request>();
     const requestsBlockedByGuard = new WeakSet<Request>();
+    // The source document can navigate or detach before report construction.
+    // Keep only the route-time boolean keyed by Playwright's Request identity:
+    // raw frame/worker URLs remain transient and never enter the public wire.
+    const shieldsMatches = new WeakMap<Request, boolean>();
     let shieldsBlockedRequestCount = 0;
     const networkRecorder = new ScanNetworkRecorder<Request>({
       firstPartyHostname: targetUrl.hostname,
@@ -214,6 +228,9 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         adblockEngine,
         verifyPublicUrl
       });
+      if (decision.shieldsMatched !== undefined) {
+        shieldsMatches.set(request, decision.shieldsMatched);
+      }
 
       if (decision.action === "continue") {
         await route.continue();
@@ -354,7 +371,10 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       }
       return {
         ...record,
-        blockedByShields: adblockEngine ? adblockEngine.check(request.url(), finalUrl, mapRequestType(record.resourceType)) : undefined
+        // Reuse the exact route-time decision. Re-evaluating here against the
+        // final top-level URL misclassifies iframe and redirected-document
+        // requests and can disagree with what the blocking arm actually did.
+        blockedByShields: adblockEngine ? shieldsMatches.get(request) : undefined
       };
     });
     const pixelEvents = summarizePixelEvents(pixelEventInputs);
@@ -485,6 +505,10 @@ export async function decideRoutedRequest({
   verifyPublicUrl?: (url: URL) => Promise<void>;
 }): Promise<ScanRouteDecision> {
   const requestUrl = request.url();
+  // Capture synchronously, before DNS/public-host verification awaits: a frame
+  // can navigate or detach while that check is in flight. The raw source URL is
+  // used only in memory by adblock-rust and is never logged or persisted.
+  const shieldsContext = adblockEngine ? shieldsRequestContext(request, page, targetUrl) : null;
   const decision = await verifyRoutedHttpRequest({
     requestUrl,
     warnings,
@@ -506,20 +530,134 @@ export async function decideRoutedRequest({
     return { action: "abort", blockedByShields: false };
   }
 
-  if (
-    shieldsBlockingEnabled &&
-    adblockEngine &&
-    !isTopLevelNavigation(request, page) &&
-    adblockEngine.check(requestUrl, targetUrl.toString(), mapRequestType(request.resourceType()))
-  ) {
-    return { action: "abort", blockedByShields: true };
+  const shieldsMatched =
+    adblockEngine && shieldsContext
+      ? shieldsContext.eligible && adblockEngine.check(requestUrl, shieldsContext.sourceUrl, mapRequestType(request.resourceType()))
+      : undefined;
+
+  if (shieldsBlockingEnabled && shieldsMatched) {
+    return { action: "abort", blockedByShields: true, shieldsMatched: true };
   }
 
-  return { action: "continue", blockedByShields: false };
+  return {
+    action: "continue",
+    blockedByShields: false,
+    ...(shieldsMatched !== undefined ? { shieldsMatched } : {})
+  };
 }
 
-function isTopLevelNavigation(request: RoutedRequestLike, page: RoutePageLike): boolean {
-  return request.isNavigationRequest() && request.frame() === page.mainFrame();
+type ShieldsRequestContext = {
+  /** Whether this request participates in classification/block simulation. */
+  eligible: boolean;
+  /** Raw, transient adblock-rust source_url; never part of a report. */
+  sourceUrl: string;
+};
+
+/**
+ * Resolve adblock-rust's source_url from the document that initiated a request.
+ * Playwright exposes the frame being navigated for a subframe navigation, whose
+ * URL is often empty until commit, so that case uses its parent document. A
+ * Service Worker has no frame and must be checked before calling frame().
+ */
+function shieldsRequestContext(request: RoutedRequestLike, page: RoutePageLike, targetUrl: URL): ShieldsRequestContext {
+  const mainFrame = safeMainFrame(page);
+  const fallback = httpUrlFromFrameChain(mainFrame) ?? targetUrl.toString();
+  const serviceWorker = safeServiceWorker(request);
+  if (serviceWorker) {
+    return {
+      eligible: true,
+      sourceUrl: safeHttpUrl(safeWorkerUrl(serviceWorker)) ?? fallback
+    };
+  }
+
+  const frame = safeRequestFrame(request);
+  if (request.isNavigationRequest()) {
+    // The scanner intentionally never blocks its main document. Playwright can
+    // also expose a navigation before its frame exists; fail open in that
+    // ambiguous case rather than accidentally aborting the page under test.
+    if (!frame || frame === mainFrame) {
+      return { eligible: false, sourceUrl: fallback };
+    }
+    return {
+      eligible: true,
+      sourceUrl: httpUrlFromFrameChain(safeParentFrame(frame)) ?? fallback
+    };
+  }
+
+  return {
+    eligible: true,
+    sourceUrl: httpUrlFromFrameChain(frame) ?? fallback
+  };
+}
+
+function httpUrlFromFrameChain(frame: RouteFrameLike | null): string | null {
+  const seen = new Set<RouteFrameLike>();
+  let current = frame;
+  while (current && !seen.has(current)) {
+    seen.add(current);
+    const url = safeHttpUrl(safeFrameUrl(current));
+    if (url) return url;
+    current = safeParentFrame(current);
+  }
+  return null;
+}
+
+function safeHttpUrl(value: string | null): string | null {
+  if (!value) return null;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "http:" || parsed.protocol === "https:" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function safeFrameUrl(frame: RouteFrameLike): string | null {
+  try {
+    return frame.url();
+  } catch {
+    return null;
+  }
+}
+
+function safeMainFrame(page: RoutePageLike): RouteFrameLike | null {
+  try {
+    return page.mainFrame();
+  } catch {
+    return null;
+  }
+}
+
+function safeParentFrame(frame: RouteFrameLike): RouteFrameLike | null {
+  try {
+    return frame.parentFrame();
+  } catch {
+    return null;
+  }
+}
+
+function safeRequestFrame(request: RoutedRequestLike): RouteFrameLike | null {
+  try {
+    return request.frame();
+  } catch {
+    return null;
+  }
+}
+
+function safeServiceWorker(request: RoutedRequestLike): RouteWorkerLike | null {
+  try {
+    return request.serviceWorker?.() ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function safeWorkerUrl(worker: RouteWorkerLike): string | null {
+  try {
+    return worker.url();
+  } catch {
+    return null;
+  }
 }
 
 async function getSharedBrowser(): Promise<Browser> {

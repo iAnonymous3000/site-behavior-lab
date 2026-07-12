@@ -358,11 +358,16 @@ is the single reason-bearing ruling per pair and per metric family:
   not record.
 - Compatibility fingerprint: per-arm measurementEnvironment digest. v2 arms
   carry the recorded digest; v1 arms get a legacy-derived sha256 (lane-free
-  lib/sha256) over a versioned canonical form ("legacy-env-v1") of the
+  lib/sha256) over a versioned canonical form ("legacy-env-v2") of the
   environment dimensions the legacy gate holds constant, EXCLUDING the
-  intervention axes and the subject, with the unknown rule (any missing or
-  literal-"unknown" dimension makes the fingerprint null, and null never
-  matches). A GPC flip does not change the fingerprint (pinned).
+  intervention axes and the subject. `legacy-env-v2` adds a dependency-light
+  methodology identity derived from frozen v1's scannerDisclosure: reports carrying a
+  `methodology <token>` marker use that token; older reports form the explicit
+  `legacy-v1-methodology-unspecified` cohort. Cross-cohort temporal pairs are
+  raw-only, while same-cohort pairs remain comparable. The unknown rule still
+  applies to recorded environment fields (any missing or literal-"unknown"
+  dimension makes the fingerprint null, and null never matches). A GPC flip
+  does not change the fingerprint (pinned).
 - Cost: report page first-load 154 -> 156 kB (the sha256 implementation now
   reaches the client-safe views chain; upload views compute fingerprints in
   the browser).
@@ -538,22 +543,33 @@ names) the public corpus should keep.
 An external full-stack review (browser isolation, egress, methodology, UX,
 ops). Every finding was verified against the code before acting; four slices
 landed same-day (faf7fe6 container hardening, 3a52d3e PageGraph fidelity,
-2945ac4 honesty/accuracy, 25acde5 Pages front-door headers). Verified but
-deliberately NOT landed, with reasons:
+2945ac4 honesty/accuracy, 25acde5 Pages front-door headers). Follow-up
+disposition after the review:
 
-- **Shields initiator context (the remaining round-11 High).** Confirmed: the
-  live block gate passes the originally submitted target as the adblock
-  engine's source_url (lib/scanner.ts decideRoutedRequest) and post-scan
-  classification uses the final top-level URL (publicRecords callback), so
-  iframe-initiated requests and post-redirect documents get wrong
-  first/third-party and $domain context, and live blocking can disagree with
-  post-scan classification. The fix is per-request initiator capture: use the
-  requesting frame's URL (request.frame().url(), parent frame for subframe
-  navigations, guarded for service-worker requests where frame() throws) at
-  route-decision time, and record it on the request record so post-scan
-  classification replays the same context. It changes what future comparison
-  scans DO (blocking decisions), so it needs its own slice with a
-  methodology-version note and a corpus-neutrality check, not a ride-along.
+- **Shields initiator context (landed as its own methodology slice).** The Node
+  scanner now captures adblock-rust's source context synchronously at route
+  time, before public-host verification can await while a frame navigates or
+  detaches: ordinary subresources use the requesting frame, subframe
+  navigations use the parent document (Playwright exposes the not-yet-committed
+  child with an empty URL), inherited non-HTTP frames walk to the nearest
+  HTTP(S) ancestor, and a Service Worker is guarded before frame() because that
+  API throws for worker-originated requests. Main-frame and frame-less
+  navigations remain deliberately fail-open and are not counted as matches.
+  Only the resulting boolean is retained in a WeakMap keyed by Request and
+  replayed into the public record; the raw source URL is transient and never
+  enters frozen v1. This removes the old target-at-block-time versus
+  final-URL-at-report-time disagreement and is identified in future Node
+  report disclosures as `shields-request-context-v2`; a future v2 producer must
+  carry that identity in provenance.methodologyVersion. The legacy-derived
+  environment fingerprint now reads this disclosure token, so an old/new v1
+  temporal pair is raw-only instead of silently comparing methodologies.
+  Corpus impact was
+  bounded before the change: re-evaluating all 67,588 stored requests across
+  471 runs with requested versus final top-level source changed zero matches
+  under the pinned lists (58 runs redirected, 12 across hostnames), and zero of
+  478 likely top-level document rows matched. Iframe impact cannot be
+  reconstructed because v1 did not retain frame sources, so the 235 committed
+  reports stay legacy/limited and are not retroactively rewritten.
 - **Durable jobs / atomic rate limiting / cancellation.** Known and
   user-sequenced (durability phase, DO SQLite). The KV read-then-write
   overshoot is documented in-code and backstopped by the WAF ceiling.

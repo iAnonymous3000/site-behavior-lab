@@ -26,8 +26,19 @@ test("scan browser launch args contain WebRTC egress containment", () => {
   );
 });
 
-const mainFrame = {};
-const childFrame = {};
+type TestFrame = {
+  parentFrame(): TestFrame | null;
+  url(): string;
+};
+
+function testFrame(url: string, parent: TestFrame | null = null): TestFrame {
+  return {
+    parentFrame: () => parent,
+    url: () => url
+  };
+}
+
+const mainFrame = testFrame("https://example.com/");
 const routePage = {
   mainFrame: () => mainFrame
 };
@@ -36,17 +47,35 @@ function routeRequest({
   url,
   resourceType = "script",
   navigation = false,
-  frame = childFrame
+  frame = mainFrame,
+  frameThrows = false,
+  serviceWorkerUrl = null,
+  serviceWorkerUrlThrows = false
 }: {
   url: string;
   resourceType?: string;
   navigation?: boolean;
-  frame?: object;
+  frame?: TestFrame;
+  frameThrows?: boolean;
+  serviceWorkerUrl?: string | null;
+  serviceWorkerUrlThrows?: boolean;
 }) {
   return {
-    frame: () => frame,
+    frame: () => {
+      if (frameThrows) throw new Error("frame unavailable");
+      return frame;
+    },
     isNavigationRequest: () => navigation,
     resourceType: () => resourceType,
+    serviceWorker: () =>
+      serviceWorkerUrl
+        ? {
+            url: () => {
+              if (serviceWorkerUrlThrows) throw new Error("worker URL unavailable");
+              return serviceWorkerUrl;
+            }
+          }
+        : null,
     url: () => url
   };
 }
@@ -279,8 +308,10 @@ test("decideRoutedRequest aborts Shields-blocked subresources but not top-level 
   const warnings = new ScanWarningCollector();
   const requestBudget = new ScanRequestBudget(warnings);
   const publicHostChecks = new Map<string, Promise<void>>();
+  let engineCalls = 0;
   const adblockEngine = {
     check: (url: string, sourceUrl: string, requestType: string) => {
+      engineCalls += 1;
       assert.equal(url.startsWith("https://ads.example/"), true);
       assert.equal(sourceUrl, "https://example.com/");
       assert.equal(requestType, "script");
@@ -300,7 +331,7 @@ test("decideRoutedRequest aborts Shields-blocked subresources but not top-level 
       adblockEngine,
       verifyPublicUrl: async () => undefined
     }),
-    { action: "abort", blockedByShields: true }
+    { action: "abort", blockedByShields: true, shieldsMatched: true }
   );
 
   assert.deepEqual(
@@ -319,7 +350,160 @@ test("decideRoutedRequest aborts Shields-blocked subresources but not top-level 
       adblockEngine,
       verifyPublicUrl: async () => undefined
     }),
-    { action: "continue", blockedByShields: false }
+    { action: "continue", blockedByShields: false, shieldsMatched: false }
+  );
+  assert.equal(engineCalls, 1, "the deliberately exempt main-frame navigation must not be classified");
+});
+
+test("decideRoutedRequest captures the redirected document source before awaiting host verification", async () => {
+  let frameUrl = "https://final.example/page";
+  const redirectedFrame: TestFrame = {
+    parentFrame: () => null,
+    url: () => frameUrl
+  };
+  const sources: string[] = [];
+
+  const decision = await decideRoutedRequest({
+    request: routeRequest({ url: "https://ads.example/pixel.js", frame: redirectedFrame }),
+    page: { mainFrame: () => redirectedFrame },
+    targetUrl: new URL("https://submitted.example/"),
+    warnings: new ScanWarningCollector(),
+    requestBudget: new ScanRequestBudget(new ScanWarningCollector()),
+    publicHostChecks: new Map(),
+    adblockEngine: {
+      check: (_url, sourceUrl) => {
+        sources.push(sourceUrl);
+        return true;
+      }
+    },
+    verifyPublicUrl: async () => {
+      frameUrl = "https://later-navigation.example/";
+    }
+  });
+
+  assert.deepEqual(decision, { action: "continue", blockedByShields: false, shieldsMatched: true });
+  assert.deepEqual(sources, ["https://final.example/page"]);
+});
+
+test("decideRoutedRequest uses child documents and parent documents for their respective request types", async () => {
+  const parent = testFrame("https://top.example/page");
+  const child = testFrame("https://frame.example/embed", parent);
+  const inheritedBlankChild = testFrame("about:blank", parent);
+  const navigatingChild = testFrame("", parent);
+  const page = { mainFrame: () => parent };
+  const calls: Array<{ sourceUrl: string; requestType: string }> = [];
+  const options = {
+    page,
+    targetUrl: new URL("https://submitted.example/"),
+    warnings: new ScanWarningCollector(),
+    requestBudget: new ScanRequestBudget(new ScanWarningCollector()),
+    publicHostChecks: new Map<string, Promise<void>>(),
+    adblockEngine: {
+      check: (_url: string, sourceUrl: string, requestType: string) => {
+        calls.push({ sourceUrl, requestType });
+        return false;
+      }
+    },
+    verifyPublicUrl: async () => undefined
+  };
+
+  assert.deepEqual(
+    await decideRoutedRequest({
+      ...options,
+      request: routeRequest({ url: "https://cdn.example/frame.js", frame: child })
+    }),
+    { action: "continue", blockedByShields: false, shieldsMatched: false }
+  );
+  assert.deepEqual(
+    await decideRoutedRequest({
+      ...options,
+      request: routeRequest({ url: "https://cdn.example/inherited.png", resourceType: "image", frame: inheritedBlankChild })
+    }),
+    { action: "continue", blockedByShields: false, shieldsMatched: false }
+  );
+  assert.deepEqual(
+    await decideRoutedRequest({
+      ...options,
+      request: routeRequest({
+        url: "https://frame-destination.example/",
+        resourceType: "document",
+        navigation: true,
+        frame: navigatingChild
+      })
+    }),
+    { action: "continue", blockedByShields: false, shieldsMatched: false }
+  );
+
+  assert.deepEqual(calls, [
+    { sourceUrl: "https://frame.example/embed", requestType: "script" },
+    { sourceUrl: "https://top.example/page", requestType: "image" },
+    { sourceUrl: "https://top.example/page", requestType: "document" }
+  ]);
+});
+
+test("decideRoutedRequest handles Service Worker and frame-less navigation requests without throwing", async () => {
+  const warnings = new ScanWarningCollector();
+  const requestBudget = new ScanRequestBudget(warnings);
+  const publicHostChecks = new Map<string, Promise<void>>();
+  const sources: string[] = [];
+  const adblockEngine = {
+    check: (_url: string, sourceUrl: string) => {
+      sources.push(sourceUrl);
+      return true;
+    }
+  };
+  const options = {
+    page: routePage,
+    targetUrl: new URL("https://submitted.example/"),
+    warnings,
+    requestBudget,
+    publicHostChecks,
+    adblockEngine,
+    verifyPublicUrl: async () => undefined
+  };
+
+  assert.deepEqual(
+    await decideRoutedRequest({
+      ...options,
+      request: routeRequest({
+        url: "https://api.example/worker-fetch",
+        resourceType: "fetch",
+        frameThrows: true,
+        serviceWorkerUrl: "https://example.com/sw.js"
+      })
+    }),
+    { action: "continue", blockedByShields: false, shieldsMatched: true }
+  );
+  assert.deepEqual(
+    await decideRoutedRequest({
+      ...options,
+      request: routeRequest({
+        url: "https://api.example/worker-fetch-with-missing-source",
+        resourceType: "fetch",
+        frameThrows: true,
+        serviceWorkerUrl: "https://example.com/sw.js",
+        serviceWorkerUrlThrows: true
+      })
+    }),
+    { action: "continue", blockedByShields: false, shieldsMatched: true }
+  );
+  assert.deepEqual(
+    await decideRoutedRequest({
+      ...options,
+      request: routeRequest({
+        url: "https://navigation.example/",
+        resourceType: "document",
+        navigation: true,
+        frameThrows: true
+      })
+    }),
+    { action: "continue", blockedByShields: false, shieldsMatched: false }
+  );
+
+  assert.deepEqual(
+    sources,
+    ["https://example.com/sw.js", "https://example.com/"],
+    "a missing worker URL falls back to the main document; frame-less navigation makes no engine call"
   );
 });
 

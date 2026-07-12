@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { NODE_SHIELDS_REQUEST_CONTEXT_VERSION } from "./legacy-methodology";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
 import type { NetworkRequestRecord, ScanConditions } from "./types";
 
@@ -35,6 +36,9 @@ test("buildScanConditions owns producer profiles, disclosure text, and nested me
   assert.equal(conditions.trackerCatalog.source, "Hand-curated service catalog");
   assert.match(conditions.scannerDisclosure, /iad-lab-egress/);
   assert.match(conditions.scannerDisclosure, /Brave Shields classification only/);
+  assert.match(conditions.scannerDisclosure, new RegExp(NODE_SHIELDS_REQUEST_CONTEXT_VERSION));
+  assert.match(conditions.scannerDisclosure, /initiating document/);
+  assert.match(conditions.scannerDisclosure, /redirect follow-up URLs/);
   assert.deepEqual(conditions.adblock, {
     active: true,
     source: "Brave default ad-block lists",

@@ -7,6 +7,13 @@
   "main": "cloudflare/container-worker.ts",
   "compatibility_date": "2026-06-19",
   "compatibility_flags": ["nodejs_compat"],
+  // Keep Worker/container invocation logs available after every repo-driven
+  // deployment. Dashboard-only observability is reset when Wrangler uploads a
+  // version unless the desired state is committed here.
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
   // Single ingress: the custom domain (scan.sitebehavior.org). The Turnstile and
   // rate-limit gates live in container-worker.ts so a workers.dev alias would be
   // equally gated, but keeping one hostname means zone-level protections (WAF,

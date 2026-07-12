@@ -26,6 +26,7 @@
  */
 
 import { comparisonEligibility } from "./comparison-eligibility";
+import { legacyV1MethodologyIdentity } from "./legacy-methodology";
 import { sha256Hex } from "./sha256";
 import type { ComparisonScanResult, ScanResult } from "./types";
 import type { MetricFamily, PublicScanReportV2 } from "./scan-report-v2";
@@ -77,7 +78,7 @@ export type ComparisonDecision = {
  * the dimension set below changes the digests instead of silently colliding
  * with older ones.
  */
-const LEGACY_FINGERPRINT_VERSION = "legacy-env-v1";
+const LEGACY_FINGERPRINT_VERSION = "legacy-env-v2";
 
 /** The unknown rule (RFC 3.2): empty or the literal "unknown" proves nothing. */
 function knownString(value: string | undefined): string | null {
@@ -103,6 +104,7 @@ export function legacyMeasurementEnvironmentFingerprint(run: ScanResult): string
   const locale = knownString(conditions.locale);
   const language = knownString(conditions.language);
   const egress = knownString(conditions.scannerEgress);
+  const methodology = legacyV1MethodologyIdentity(conditions.scannerDisclosure);
   if (!automation || !browserVersion || !userAgent || !timezone || !locale || !language || !egress) return null;
 
   // Fixed key order = canonical form; JSON.stringify of this literal is stable.
@@ -114,6 +116,7 @@ export function legacyMeasurementEnvironmentFingerprint(run: ScanResult): string
     headless: conditions.headless,
     language,
     locale,
+    methodology,
     timezone,
     userAgent,
     viewport: {

@@ -1,4 +1,5 @@
 import type { ComparisonScanResult, ScanResult } from "./types";
+import { legacyV1MethodologyIdentity } from "./legacy-methodology";
 
 /**
  * The single comparison-eligibility gate.
@@ -9,8 +10,9 @@ import type { ComparisonScanResult, ScanResult } from "./types";
  * mismatched run can never produce definitive comparison wording in one place
  * while another still shows it.
  *
- * Intentionally dependency-free (types only) so it runs in the React client,
- * in server-side `generateMetadata`, and in the `next/og` route.
+ * Intentionally dependency-light (types plus the tiny v1 methodology-token
+ * parser) so it runs in the React client, in server-side `generateMetadata`,
+ * and in the `next/og` route.
  */
 
 export type ComparisonEligibility = {
@@ -72,6 +74,13 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
   if (report.baseline.conditions.automation !== report.variant.conditions.automation) {
     reasons.push(
       `The two visits came from different scanner pipelines (${report.baseline.conditions.automation} vs ${report.variant.conditions.automation}), which measure differently.`
+    );
+  }
+  const baselineMethodology = legacyV1MethodologyIdentity(report.baseline.conditions.scannerDisclosure);
+  const variantMethodology = legacyV1MethodologyIdentity(report.variant.conditions.scannerDisclosure);
+  if (baselineMethodology !== variantMethodology) {
+    reasons.push(
+      `The two visits used different scanner methodology generations (${baselineMethodology} vs ${variantMethodology}), so their difference can come from how requests were measured, not the site.`
     );
   }
 

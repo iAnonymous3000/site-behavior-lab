@@ -11,6 +11,11 @@ import {
   v2ComparisonDecision
 } from "./comparison-decision";
 import {
+  LEGACY_V1_METHODOLOGY_UNSPECIFIED,
+  legacyV1MethodologyIdentity,
+  NODE_SHIELDS_REQUEST_CONTEXT_VERSION
+} from "./legacy-methodology";
+import {
   makeInterventionComparisonReportV2,
   makeTemporalComparisonReportV2
 } from "./scan-report-v2-fixtures";
@@ -189,6 +194,37 @@ test("the legacy fingerprint matches identical environments and follows the unkn
   const unproven = legacyComparisonDecision(orderedTemporalPair(makeRun({}), unknownRun));
   assert.equal(unproven.compatibility.variant, null);
   assert.equal(unproven.compatibility.matched, null);
+});
+
+test("legacy temporal comparisons separate old and initiator-aware methodology cohorts", () => {
+  const oldRun = makeRun({});
+  oldRun.conditions = {
+    ...oldRun.conditions,
+    scannerDisclosure: "Automated Chromium scan with Brave Shields classification only."
+  };
+  const currentRun = makeRun({});
+  currentRun.conditions = {
+    ...currentRun.conditions,
+    scannerDisclosure: `Automated Chromium scan under methodology ${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}; initiating document context.`
+  };
+
+  assert.equal(legacyV1MethodologyIdentity(oldRun.conditions.scannerDisclosure), LEGACY_V1_METHODOLOGY_UNSPECIFIED);
+  assert.equal(legacyV1MethodologyIdentity(currentRun.conditions.scannerDisclosure), NODE_SHIELDS_REQUEST_CONTEXT_VERSION);
+
+  const crossMethod = legacyComparisonDecision(orderedTemporalPair(oldRun, currentRun));
+  assert.equal(crossMethod.mode, "raw-only");
+  assert.equal(crossMethod.compatibility.matched, false);
+  assert.equal(crossMethod.families["raw-counts"].mode, "raw-only");
+  assert.match(crossMethod.reasons.join(" "), /different scanner methodology generations/);
+
+  const currentBefore = makeRun({});
+  const currentAfter = makeRun({});
+  currentBefore.conditions = { ...currentBefore.conditions, scannerDisclosure: currentRun.conditions.scannerDisclosure };
+  currentAfter.conditions = { ...currentAfter.conditions, scannerDisclosure: currentRun.conditions.scannerDisclosure };
+  const sameMethod = legacyComparisonDecision(orderedTemporalPair(currentBefore, currentAfter));
+  assert.equal(sameMethod.mode, "comparable");
+  assert.equal(sameMethod.compatibility.matched, true);
+  assert.equal(sameMethod.families["raw-counts"].mode, "comparable");
 });
 
 test("the fingerprint excludes the intervention axes: a GPC flip does not change it", () => {
