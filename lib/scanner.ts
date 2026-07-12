@@ -123,6 +123,19 @@ const MAX_POLICY_TEXT_CHARS = 400_000;
 let sharedBrowser: Browser | null = null;
 let browserLaunchPromise: Promise<Browser> | null = null;
 
+/**
+ * Chromium flags every scan browser launches with. WebRTC must not carry
+ * traffic the scan proxy never sees: ICE/STUN speaks UDP directly to arbitrary
+ * hosts (loopback and RFC1918 included), bypassing the connect-time
+ * public-address guard that every HTTP(S) request goes through.
+ * disable_non_proxied_udp confines WebRTC to proxied transports, and because
+ * the scan proxy is HTTP-only (no UDP relay), that disables WebRTC egress
+ * outright rather than merely hiding local IPs.
+ */
+export const SCAN_CHROMIUM_LAUNCH_ARGS = ["--force-webrtc-ip-handling-policy=disable_non_proxied_udp"] as const;
+
+const CHROMIUM_SANDBOX_ENV = "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX";
+
 export type ScanSiteOptions = {
   publicUrlAlreadyVerified?: boolean;
   shieldsBlockingEnabled?: boolean;
@@ -515,7 +528,18 @@ async function getSharedBrowser(): Promise<Browser> {
     return sharedBrowser;
   }
 
-  browserLaunchPromise ??= chromium.launch({ headless: true }).then(
+  // The Chromium sandbox stays opt-in per deployment: it needs kernel features
+  // (unprivileged user namespaces or a setuid helper) the container platform
+  // may not provide, and a launch that fails there would break every scan. Set
+  // the env to "1" only after verifying a deployed scan succeeds with it. The
+  // container process itself runs as a non-root user either way (Dockerfile).
+  browserLaunchPromise ??= chromium
+    .launch({
+      headless: true,
+      args: [...SCAN_CHROMIUM_LAUNCH_ARGS],
+      chromiumSandbox: process.env[CHROMIUM_SANDBOX_ENV] === "1"
+    })
+    .then(
     (browser) => {
       sharedBrowser = browser;
       browser.on("disconnected", () => {

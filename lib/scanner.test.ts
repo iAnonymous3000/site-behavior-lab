@@ -7,11 +7,24 @@ import {
   MAX_RECORDED_REQUESTS,
   NON_HTTP_WARNING_EXAMPLE_LIMIT,
   redactUrlForReport,
+  SCAN_CHROMIUM_LAUNCH_ARGS,
   ScanRequestBudget,
   scanSite,
   scanTimeout,
   ScanWarningCollector
 } from "./scanner";
+
+test("scan browser launch args contain WebRTC egress containment", () => {
+  // ICE/STUN speaks UDP directly to arbitrary hosts, bypassing the HTTP-only
+  // scan proxy and its public-address guard; disable_non_proxied_udp is the
+  // control that closes that channel (verified at runtime: without it a
+  // proxied Chromium still gathers direct-UDP host candidates). Removing this
+  // flag reopens direct scanner egress.
+  assert.ok(
+    SCAN_CHROMIUM_LAUNCH_ARGS.includes("--force-webrtc-ip-handling-policy=disable_non_proxied_udp"),
+    "WebRTC containment flag missing from scan launch args"
+  );
+});
 
 const mainFrame = {};
 const childFrame = {};

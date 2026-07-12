@@ -10,6 +10,7 @@ import {
   publicScanGateStatus,
   publicScanRateLimit,
   publicScanRefusalReasons,
+  readRequestBodyWithinLimit,
   scanAccessTokenMatches,
   scanTokenCost,
   type RateLimitStore
@@ -177,4 +178,67 @@ test("openScanBlockedForMissingTurnstile fails closed unless configured or expli
   assert.equal(openScanBlockedForMissingTurnstile({ acceptNoTurnstileRisk: "1" }), false);
   // Any value other than exactly "1" does not waive.
   assert.equal(openScanBlockedForMissingTurnstile({ acceptNoTurnstileRisk: "true" }), true);
+});
+
+test("readRequestBodyWithinLimit reads bodies within the cap", async () => {
+  const body = JSON.stringify({ url: "https://example.com" });
+  const request = new Request("https://scanner.example/api/scan", { method: "POST", body });
+  assert.equal(await readRequestBodyWithinLimit(request, 4_096), body);
+});
+
+test("readRequestBodyWithinLimit rejects a declared oversize length without reading the body", async () => {
+  // Headers built standalone (guard "none") so content-length survives; the
+  // body stream records whether it was ever pulled.
+  let pulled = false;
+  const stream = new ReadableStream<Uint8Array>(
+    {
+      pull(controller) {
+        pulled = true;
+        controller.enqueue(new TextEncoder().encode("x"));
+        controller.close();
+      }
+    },
+    // Without this, the stream machinery pulls eagerly at construction to
+    // fill its queue and the flag would trip with no consumer at all.
+    { highWaterMark: 0 }
+  );
+  const requestLike = {
+    headers: new Headers({ "content-length": "999999" }),
+    body: stream
+  } as unknown as Request;
+  assert.equal(await readRequestBodyWithinLimit(requestLike, 4_096), null);
+  assert.equal(pulled, false);
+});
+
+test("readRequestBodyWithinLimit caps chunked bodies mid-stream and cancels the reader", async () => {
+  // No content-length: five 2 KiB chunks against a 4 KiB cap must stop the
+  // read at the third chunk instead of buffering all five.
+  let chunksServed = 0;
+  let cancelled = false;
+  const chunk = new Uint8Array(2_048).fill(120);
+  const stream = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      if (chunksServed >= 5) {
+        controller.close();
+        return;
+      }
+      chunksServed += 1;
+      controller.enqueue(chunk);
+    },
+    cancel() {
+      cancelled = true;
+    }
+  });
+  const requestLike = { headers: new Headers(), body: stream } as unknown as Request;
+  assert.equal(await readRequestBodyWithinLimit(requestLike, 4_096), null);
+  assert.equal(cancelled, true);
+  assert.ok(chunksServed <= 3, `served ${chunksServed} chunks; the cap must stop the read early`);
+});
+
+test("readRequestBodyWithinLimit accepts a body at exactly the cap and treats no body as empty", async () => {
+  const exact = "a".repeat(64);
+  const request = new Request("https://scanner.example/api/scan", { method: "POST", body: exact });
+  assert.equal(await readRequestBodyWithinLimit(request, 64), exact);
+  const bodiless = { headers: new Headers(), body: null } as unknown as Request;
+  assert.equal(await readRequestBodyWithinLimit(bodiless, 64), "");
 });

@@ -24,6 +24,7 @@ import {
   publicScanGateStatus,
   publicScanRateLimit,
   publicScanRefusalReasons,
+  readRequestBodyWithinLimit,
   scanAccessTokenMatches,
   scanTokenCost
 } from "../lib/edge-scan-gate";
@@ -131,9 +132,12 @@ export default {
       return forwardToContainer(request, env);
     }
 
-    // Read the scan body once: the gate inspects it, then it is forwarded verbatim.
-    const body = await request.text();
-    if (new Blob([body]).size > MAX_BODY_BYTES) {
+    // Read the scan body once: the gate inspects it, then it is forwarded
+    // verbatim. The size cap is enforced before buffering (declared length
+    // short-circuits, chunked bodies stream through the cap), so a tokenless
+    // caller cannot force a large allocation just by posting one.
+    const body = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES);
+    if (body === null) {
       return gateErrorResponse(new EdgeScanGateError("The scan request is too large.", 413), request, env);
     }
 

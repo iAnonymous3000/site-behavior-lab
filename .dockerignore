@@ -14,3 +14,10 @@ blob-report
 *.tmp
 *.temp
 .DS_Store
+
+# Local operator secrets and assistant state must never enter the build
+# context: the build stage's COPY . . would otherwise expose them to the
+# build daemon, layer caches, and every build-time process.
+.cloudflare-*.local
+CLAUDE.local.md
+.claude

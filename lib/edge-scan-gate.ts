@@ -211,6 +211,41 @@ export function publicScanRateLimit(value: string | undefined, fallback: number)
 }
 
 /**
+ * Read a request body while enforcing the byte cap BEFORE buffering: a
+ * declared Content-Length over the cap rejects outright without reading, and
+ * bodies without one (chunked) stream through the cap, so an unauthenticated
+ * caller can never force an allocation beyond the cap plus one network chunk.
+ * Returns null when the body exceeds the cap.
+ */
+export async function readRequestBodyWithinLimit(request: Request, maxBytes: number): Promise<string | null> {
+  const declared = Number(request.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > maxBytes) return null;
+  if (!request.body) return "";
+
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maxBytes) {
+      await reader.cancel().catch(() => undefined);
+      return null;
+    }
+    chunks.push(value);
+  }
+
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(bytes);
+}
+
+/**
  * Compare two secrets without leaking length or content through timing: both
  * sides are hashed to fixed-length SHA-256 hex first, then diffed byte by byte.
  */

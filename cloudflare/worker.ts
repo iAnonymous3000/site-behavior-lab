@@ -52,6 +52,7 @@ import {
   openScanBlockedForMissingTurnstile,
   publicClientHash,
   publicScanRateLimit,
+  readRequestBodyWithinLimit,
   scanTokenCost
 } from "../lib/edge-scan-gate";
 
@@ -233,8 +234,10 @@ async function runWorkerScanRoute(request: Request, env: Env): Promise<Response>
 }
 
 async function readScanPayload(request: Request): Promise<IncomingScanPayload> {
-  const body = await request.text();
-  if (new Blob([body]).size > MAX_BODY_BYTES) {
+  // Cap enforced before buffering: declared length short-circuits, chunked
+  // bodies stream through the cap (see readRequestBodyWithinLimit).
+  const body = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES);
+  if (body === null) {
     throw new HttpError("The scan request is too large.", 413);
   }
 
