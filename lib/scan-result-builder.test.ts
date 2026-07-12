@@ -34,6 +34,7 @@ test("buildScanConditions owns producer profiles, disclosure text, and nested me
   assert.equal(conditions.viewport.width, 1440);
   assert.equal(conditions.automation, "playwright-chromium");
   assert.equal(conditions.trackerCatalog.source, "Hand-curated service catalog");
+  assert.equal("digest" in conditions.trackerCatalog, false, "v1 tracker catalog wire shape must stay unchanged");
   assert.match(conditions.scannerDisclosure, /iad-lab-egress/);
   assert.match(conditions.scannerDisclosure, /Brave Shields classification only/);
   assert.match(conditions.scannerDisclosure, new RegExp(NODE_SHIELDS_REQUEST_CONTEXT_VERSION));
@@ -45,6 +46,7 @@ test("buildScanConditions owns producer profiles, disclosure text, and nested me
     lists: 31,
     fetchedAt: new Date(0).toISOString()
   });
+  assert.equal("manifestDigest" in conditions.adblock, false, "v1 adblock wire shape must stay unchanged");
   assert.equal(conditions.shieldsMode, "classification");
 
   const workerConditions = buildScanConditions({

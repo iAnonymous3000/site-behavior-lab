@@ -47,9 +47,11 @@ test("runtimeStatus reports degraded status for open local defaults", async () =
     active: true,
     engine: "loaded",
     version: "adblock-rust-0.13.0",
+    engineVersion: "adblock-rust-0.13.0",
     source: "Brave default ad-block lists",
     lists: 31,
-    fetchedAt: new Date(0).toISOString()
+    fetchedAt: new Date(0).toISOString(),
+    manifestDigest: "a".repeat(64)
   });
   assert.equal(status.checks.scanAccess, "open");
   assert.equal(status.authenticated, false);
@@ -141,8 +143,10 @@ async function loadedAdblock() {
     active: true as const,
     engine: "loaded" as const,
     version: "adblock-rust-0.13.0" as const,
+    engineVersion: "adblock-rust-0.13.0" as const,
     source: "Brave default ad-block lists",
     lists: 31,
-    fetchedAt: new Date(0).toISOString()
+    fetchedAt: new Date(0).toISOString(),
+    manifestDigest: "a".repeat(64)
   };
 }

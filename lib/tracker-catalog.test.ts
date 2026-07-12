@@ -1,12 +1,23 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { test } from "node:test";
-import { findTrackerMatch, trackerCatalogMetadata } from "./tracker-catalog";
+import { canonicalTrackerCatalogContents, findTrackerMatch, trackerCatalogMetadata } from "./tracker-catalog";
 
 test("tracker catalog metadata describes the bundled source without third-party provenance claims", () => {
   assert.equal(trackerCatalogMetadata.source, "Hand-curated service catalog");
   assert.equal(trackerCatalogMetadata.version, "hand-curated-2026.06");
   assert.equal(trackerCatalogMetadata.region, "US-biased");
   assert.equal(trackerCatalogMetadata.license, "AGPL-3.0-or-later");
+  assert.match(trackerCatalogMetadata.digest, /^[a-f0-9]{64}$/);
+});
+
+test("tracker catalog digest covers the canonical effective catalog", () => {
+  const canonical = canonicalTrackerCatalogContents();
+  const entries = JSON.parse(canonical) as Array<{ domain: string }>;
+
+  assert.equal(entries.length, trackerCatalogMetadata.entries);
+  assert.deepEqual(entries.map((entry) => entry.domain), [...entries.map((entry) => entry.domain)].sort());
+  assert.equal(createHash("sha256").update(canonical).digest("hex"), trackerCatalogMetadata.digest);
 });
 
 test("findTrackerMatch returns exact curated matches", () => {

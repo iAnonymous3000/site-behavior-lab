@@ -16,6 +16,16 @@ type IndexedCatalogEntry = {
   cookiePrevalence?: number;
 };
 
+type CanonicalCatalogEntry = {
+  domain: string;
+  entity: string;
+  category: string;
+  confidence: TrackerMatch["confidence"];
+  prevalence: number | null;
+  fingerprinting: number | null;
+  cookiePrevalence: number | null;
+};
+
 /*
  * Hand-curated tracker/service seed catalog.
  *
@@ -376,8 +386,33 @@ export const trackerCatalogMetadata = {
   region: "US-biased",
   entries: curatedOverrideCount,
   curatedOverrides: curatedOverrideCount,
-  license: "AGPL-3.0-or-later"
+  license: "AGPL-3.0-or-later",
+  // SHA-256 of canonicalTrackerCatalogContents(). Kept as a checked-in
+  // constant so this shared Node/Cloudflare module does not require a
+  // runtime-specific crypto API merely to expose immutable build metadata.
+  digest: "b7d4991063310a81b56342ca7ad949723e785704326179e1658335d7af2f88cf"
 };
+
+/**
+ * Canonical representation of the effective catalog (after normalization and
+ * duplicate resolution). Domain order and explicit nulls make the digest
+ * stable across source formatting, insertion order, and JSON serializers.
+ */
+export function canonicalTrackerCatalogContents(): string {
+  const entries: CanonicalCatalogEntry[] = [...catalogIndex.values()]
+    .map((entry) => ({
+      domain: entry.domain,
+      entity: entry.entity,
+      category: entry.category,
+      confidence: entry.confidence,
+      prevalence: entry.prevalence ?? null,
+      fingerprinting: entry.fingerprinting ?? null,
+      cookiePrevalence: entry.cookiePrevalence ?? null
+    }))
+    .sort((left, right) => left.domain < right.domain ? -1 : left.domain > right.domain ? 1 : 0);
+
+  return JSON.stringify(entries);
+}
 
 export function findTrackerMatch(domain: string): TrackerMatch | null {
   const normalized = normalizeDomain(domain);

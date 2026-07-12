@@ -5,6 +5,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { gzipSync } from "node:zlib";
 import path from "node:path";
+import { sha256Hex, sourceManifestDigest } from "./brave-list-digests.mjs";
 
 const CATALOG_URL =
   "https://raw.githubusercontent.com/brave/adblock-resources/master/filter_lists/list_catalog.json";
@@ -33,37 +34,47 @@ async function main() {
   console.log(`Default-enabled source lists: ${urls.length}`);
 
   const parts = [];
-  const fetched = [];
+  const sources = [];
+  const failures = [];
   for (const url of urls) {
     try {
       const response = await fetch(url);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const text = await response.text();
+      const bytes = Buffer.from(text, "utf8");
       parts.push(`! ===== source: ${url} =====\n${text}`);
-      fetched.push(url);
-      console.log(`  ok   ${url} (${(text.length / 1024).toFixed(0)} KB)`);
+      sources.push({ url, bytes: bytes.length, sha256: sha256Hex(bytes) });
+      console.log(`  ok   ${url} (${(bytes.length / 1024).toFixed(0)} KB)`);
     } catch (error) {
-      console.warn(`  SKIP ${url}: ${error.message}`);
+      failures.push(`${url}: ${error instanceof Error ? error.message : String(error)}`);
+      console.warn(`  FAIL ${url}: ${error instanceof Error ? error.message : String(error)}`);
     }
+  }
+
+  if (failures.length > 0) {
+    throw new Error(`Refusing to write a partial Brave snapshot:\n${failures.join("\n")}`);
   }
 
   const fetchedAt = new Date().toISOString();
   const header =
     `! Brave default ad-block filters, pinned snapshot\n` +
-    `! Fetched ${fetchedAt} from ${fetched.length}/${urls.length} sources in Brave's catalog\n` +
+    `! Fetched ${fetchedAt} from ${sources.length}/${urls.length} sources in Brave's catalog\n` +
     `! Catalog: ${CATALOG_URL}\n`;
   const combined = `${header}${parts.join("\n")}\n`;
-  const gz = gzipSync(Buffer.from(combined, "utf8"));
+  const combinedBytes = Buffer.from(combined, "utf8");
+  const gz = gzipSync(combinedBytes);
+  const manifestDigest = sourceManifestDigest(sources);
+  const rulesDigest = sha256Hex(combinedBytes);
 
   await mkdir(OUT_DIR, { recursive: true });
   await writeFile(path.join(OUT_DIR, "brave-default-filters.txt.gz"), gz);
   await writeFile(
     path.join(OUT_DIR, "brave-default-filters.meta.json"),
-    `${JSON.stringify({ fetchedAt, catalog: CATALOG_URL, sourceCount: fetched.length, sources: fetched, rawBytes: combined.length, gzipBytes: gz.length }, null, 2)}\n`
+    `${JSON.stringify({ fetchedAt, catalog: CATALOG_URL, sourceCount: sources.length, sources, manifestDigest, rulesDigest, rawBytes: combinedBytes.length, gzipBytes: gz.length }, null, 2)}\n`
   );
 
   console.log(
-    `\nWrote lib/adblock-wasm/brave-default-filters.txt.gz, ${(gz.length / 1024).toFixed(0)} KB gz / ${(combined.length / 1024 / 1024).toFixed(1)} MB raw, from ${fetched.length} sources.`
+    `\nWrote lib/adblock-wasm/brave-default-filters.txt.gz, ${(gz.length / 1024).toFixed(0)} KB gz / ${(combinedBytes.length / 1024 / 1024).toFixed(1)} MB raw, from ${sources.length} sources.`
   );
 }
 

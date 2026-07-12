@@ -19,6 +19,7 @@ export type AdblockListMeta = {
   source: string;
   lists: number;
   fetchedAt: string;
+  manifestDigest: string;
 };
 
 export type AdblockEngineStatus =
@@ -26,6 +27,7 @@ export type AdblockEngineStatus =
       active: true;
       engine: "loaded";
       version: typeof NODE_ADBLOCK_ENGINE_VERSION;
+      engineVersion: typeof NODE_ADBLOCK_ENGINE_VERSION;
     })
   | {
       active: false;
@@ -33,6 +35,7 @@ export type AdblockEngineStatus =
       source?: string;
       lists?: number;
       fetchedAt?: string;
+      manifestDigest?: string;
     };
 
 // Playwright resourceType -> adblock-rust request type.
@@ -98,8 +101,22 @@ export function adblockListMeta(): AdblockListMeta | null {
     const meta = runtimeRequire(path.join(ADBLOCK_DIR, "brave-default-filters.meta.json")) as {
       sourceCount: number;
       fetchedAt: string;
+      manifestDigest: string;
     };
-    return { source: "Brave default ad-block lists", lists: meta.sourceCount, fetchedAt: meta.fetchedAt };
+    if (
+      !Number.isSafeInteger(meta.sourceCount) ||
+      meta.sourceCount <= 0 ||
+      typeof meta.fetchedAt !== "string" ||
+      !/^[a-f0-9]{64}$/.test(meta.manifestDigest)
+    ) {
+      return null;
+    }
+    return {
+      source: "Brave default ad-block lists",
+      lists: meta.sourceCount,
+      fetchedAt: meta.fetchedAt,
+      manifestDigest: meta.manifestDigest
+    };
   } catch {
     return null;
   }
@@ -113,9 +130,11 @@ export async function adblockEngineStatus(): Promise<AdblockEngineStatus> {
       active: true,
       engine: "loaded",
       version: NODE_ADBLOCK_ENGINE_VERSION,
+      engineVersion: NODE_ADBLOCK_ENGINE_VERSION,
       source: meta?.source ?? "Brave default ad-block lists",
       lists: meta?.lists ?? 0,
-      fetchedAt: meta?.fetchedAt ?? "unknown"
+      fetchedAt: meta?.fetchedAt ?? "unknown",
+      manifestDigest: meta?.manifestDigest ?? "unknown"
     };
   }
 
@@ -124,6 +143,7 @@ export async function adblockEngineStatus(): Promise<AdblockEngineStatus> {
     engine: "unavailable",
     source: meta?.source,
     lists: meta?.lists,
-    fetchedAt: meta?.fetchedAt
+    fetchedAt: meta?.fetchedAt,
+    manifestDigest: meta?.manifestDigest
   };
 }
