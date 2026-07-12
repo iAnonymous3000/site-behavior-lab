@@ -8,6 +8,7 @@ const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
 const ALLOW_UNAUTHENTICATED_SCANS_ENV = "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS";
 const REPORT_STORE_BACKEND_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND";
 const CHROMIUM_SANDBOX_ENV = "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX";
+const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
 
 afterEach(() => {
   delete process.env[SCAN_ACCESS_TOKEN_ENV];
@@ -16,6 +17,7 @@ afterEach(() => {
   delete process.env[ALLOW_UNAUTHENTICATED_SCANS_ENV];
   delete process.env[REPORT_STORE_BACKEND_ENV];
   delete process.env[CHROMIUM_SANDBOX_ENV];
+  delete process.env[BUILD_COMMIT_ENV];
 });
 
 test("runtimeStatus degrades instead of throwing when the store backend is misconfigured", async () => {
@@ -88,6 +90,7 @@ test("runtimeStatus reports ok status when production controls are configured", 
   });
   assert.equal(status.checks.scannerEgress, "configured");
   assert.equal(status.checks.chromiumSandbox, "enabled");
+  assert.equal(status.deployment, "unknown");
   assert.deepEqual(status.capabilities, {
     singleScan: true,
     gpcComparison: true,
@@ -97,6 +100,14 @@ test("runtimeStatus reports ok status when production controls are configured", 
     savedReportPages: true
   });
   assert.deepEqual(status.warnings, []);
+});
+
+test("runtimeStatus exposes only a full validated build revision", async () => {
+  process.env[BUILD_COMMIT_ENV] = "A".repeat(40);
+  assert.equal((await runtimeStatus(loadedAdblock)).deployment, "a".repeat(40));
+
+  process.env[BUILD_COMMIT_ENV] = "main";
+  assert.equal((await runtimeStatus(loadedAdblock)).deployment, "unknown");
 });
 
 test("runtimeStatus treats explicit open access as intentional, not a degradation", async () => {

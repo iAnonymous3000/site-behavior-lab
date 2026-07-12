@@ -4,8 +4,8 @@
 > live scanner is the full Containers scanner at `scan.sitebehavior.org`, open to
 > the public behind Turnstile + per-client rate limiting, with shareable report
 > permalinks. This document is now both the runbook and the record of how it was
-> done; the remaining hardening item is the optional WAF rate-limit rule (Step B
-> below) as a ceiling above the in-app KV limiter.
+> done; the WAF rate-limit rule remains a coarse ceiling above the in-app atomic
+> quota.
 
 This runbook takes the full Node/Playwright scanner (the path that runs **live
 Brave Shields**, tried-vs-blocked) from operator-gated to a **public** front door
@@ -15,17 +15,19 @@ rate limiting.
 It assumes the scanner is already deployed on Cloudflare Containers per
 [deploy-cloudflare-containers.md](deploy-cloudflare-containers.md). The Containers
 front Worker (`cloudflare/container-worker.ts`) is the enforcement point: it
-applies the access-token / Turnstile / KV rate-limit gate (shared with the
-Browser Run worker via [`lib/edge-scan-gate.ts`](../lib/edge-scan-gate.ts))
+applies the access-token / Turnstile / atomic rate-limit gate, using primitives
+shared with the Browser Run worker via
+[`lib/edge-scan-gate.ts`](../lib/edge-scan-gate.ts),
 **before** any request reaches the container's real Chromium.
 
 > **Why this needs care.** Each public scan launches a real browser against a
 > caller-chosen URL: it costs container compute/egress and is an abuse magnet.
 > The connect-time DNS proxy in the Node scanner is the SSRF backstop (unlike
 > Browser Run, the container pins DNS at connect time, so opening it does **not**
-> require the DNS-rebinding risk flag). Turnstile + the KV rate limit + a
-> Cloudflare WAF rule are the cost/abuse controls. The KV counter is best-effort
-> (read-then-write, not atomic), so the WAF rate-limit rule is the hard cap.
+> require the DNS-rebinding risk flag). Turnstile + the atomic Durable Object
+> quota + a Cloudflare WAF rule are the cost/abuse controls. The minute and day
+> checks are charged together in one SQLite transaction; the WAF is a coarse
+> outer ceiling.
 
 ## Gating model
 
@@ -34,9 +36,9 @@ The front Worker chooses one of three postures from its config:
 | Posture | Config | Behavior |
 |---|---|---|
 | **Gated** (default) | `SCAN_ACCESS_TOKEN` secret set | Only callers with the token can scan. |
-| **Public** | no token + `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1` + `TURNSTILE_SECRET_KEY` | Anyone can scan; Turnstile **and** the KV rate limit are enforced. |
+| **Public** | no token + `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1` + `TURNSTILE_SECRET_KEY` | Anyone can scan; Turnstile **and** the atomic per-client quota are enforced. |
 | **Refused** | no token + not opened | `/api/scan` returns `503`, an unconfigured scanner is never silently world-open. |
-| **Refused (fail-closed)** | open, but no `TURNSTILE_SECRET_KEY` and no waiver | `/api/scan` returns `503`. Open access without Turnstile is only best-effort rate limiting, so it is refused unless the operator sets `SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK=1` to consciously waive it. |
+| **Refused (fail-closed)** | open, but no `TURNSTILE_SECRET_KEY` and no waiver | `/api/scan` returns `503`. The operator must set `SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK=1` to consciously waive human verification and rely on atomic quota + WAF controls alone. |
 
 ## Pre-flight
 
@@ -57,14 +59,10 @@ The front Worker chooses one of three postures from its config:
    pointed at `sitebehavior.org`). Note the **site key** (public) and **secret
    key**.
 
-2. **Create the rate-limit KV namespace** and wire it in
-   [`wrangler.container.jsonc`](../wrangler.container.jsonc):
-
-   ```bash
-   npx wrangler kv namespace create site-behavior-lab-scanner-rate-limits
-   ```
-
-   Uncomment the `kv_namespaces` binding and paste the returned id.
+2. **Confirm the scanner Durable Object binding and SQLite migration** in
+   [`wrangler.container.jsonc`](../wrangler.container.jsonc). The same singleton
+   object that owns the container also owns the exact per-client quota ledger;
+   no rate-limit KV namespace is required.
 
 3. **Set the open-access vars** in `wrangler.container.jsonc` (uncomment
    `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1` and the optional per-minute /
@@ -83,8 +81,8 @@ The front Worker chooses one of three postures from its config:
    npm run cf:container:deploy
    ```
 
-6. **Add a Cloudflare WAF / rate-limiting rule** on the scanner route as the hard
-   cap (the KV counter is best-effort). Throttle `POST /api/scan` per client IP to
+6. **Add a Cloudflare WAF / rate-limiting rule** on the scanner route as a coarse
+   outer cap. Throttle `POST /api/scan` per client IP to
    a ceiling above the in-app per-minute limit, and consider a managed challenge
    for known-bot ASNs.
 

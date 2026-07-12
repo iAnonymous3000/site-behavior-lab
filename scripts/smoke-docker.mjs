@@ -25,7 +25,10 @@ let containerId = "";
 try {
   await assertDockerAvailable();
   if (!skipBuild) {
-    await run(dockerBin, ["build", "-t", image, "."]);
+    const { stdout } = await execFileAsync("git", ["rev-parse", "HEAD"]);
+    const buildCommit = stdout.trim().toLowerCase();
+    if (!/^[0-9a-f]{40}$/.test(buildCommit)) throw new Error("Could not identify the Docker smoke source revision.");
+    await run(dockerBin, ["build", "--build-arg", `SITE_BEHAVIOR_LAB_BUILD_COMMIT=${buildCommit}`, "-t", image, "."]);
   }
 
   const port = await freePort();

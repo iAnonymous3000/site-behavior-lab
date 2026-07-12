@@ -130,18 +130,19 @@ SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN=<strong secret>     # operator-gated launch 
 ## 4. Deploy
 
 ```bash
-npx wrangler deploy -c wrangler.container.jsonc
+npm run cf:container:deploy
 ```
 
-This builds the Dockerfile, pushes the image to Cloudflare's registry, and deploys the
-Worker + container. Add a custom domain/route (e.g. `scan.sitebehavior.org`) to the Worker.
+The wrapper injects the exact Git SHA into the image, then builds the Dockerfile,
+pushes the image to Cloudflare's registry, and deploys the Worker + container. Add
+a custom domain/route (e.g. `scan.sitebehavior.org`) to the Worker.
 
 ### Building without local Docker (Cloudflare Workers Builds)
 
 `wrangler deploy` builds the image locally and uploads it, which needs a working Docker
 daemon and can stall when a slow or proxied uplink pushes the multi-GB image. To build the
 image **on Cloudflare instead**, connect the repo under the scanner Worker's
-**Settings → Build**: set the deploy command to `npx wrangler deploy -c wrangler.container.jsonc`,
+**Settings → Build**: set the deploy command to `npm run cf:container:deploy`,
 leave the build command empty, and trigger a build. Cloudflare builds and stores the image
 server-side, so nothing is uploaded from your machine. Worker secrets set beforehand are
 preserved across Workers Builds deploys. The deploy command must stay explicit: on
@@ -150,7 +151,10 @@ preserved across Workers Builds deploys. The deploy command must stay explicit: 
 retired Browser Run worker's name, and failed the build. The retired config is therefore
 named `wrangler.browser-run.jsonc` (no root `wrangler.jsonc` exists), so a defaulted
 command now fails with "no config file found" instead of silently targeting the wrong
-Worker; this scanner always deploys with `-c wrangler.container.jsonc`.
+Worker; this scanner always deploys through the wrapper with `-c wrangler.container.jsonc`.
+Workers Builds supplies `WORKERS_CI_COMMIT_SHA`; local deployments fall back to
+the exact local `HEAD`. The Dockerfile rejects an empty or placeholder SHA, and
+`/api/health` exposes the deployed revision for rollout verification.
 
 ## 5. Point the existing Pages site at it
 

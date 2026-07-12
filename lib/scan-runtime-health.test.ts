@@ -28,6 +28,7 @@ test("isScanRuntimeHealth rejects malformed payloads", () => {
   assert.equal(isScanRuntimeHealth({}), false);
   assert.equal(isScanRuntimeHealth({ ok: "yes" }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, status: "broken" }), false);
+  assert.equal(isScanRuntimeHealth({ ok: true, deployment: 123 }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, capabilities: { gpcComparison: "maybe" } }), false);
 });
 

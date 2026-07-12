@@ -279,7 +279,7 @@ async function chargeRateLimitWindow(options: {
   const next = (Number.isFinite(current) ? current : 0) + options.cost;
   if (next > options.limit) {
     throw new EdgeScanGateError(
-      `Too many public scans. Try again in about ${formatRetryAfter(options.retryAfterSeconds)}.`,
+      `Too many public scans. Try again in about ${formatPublicScanRetryAfter(options.retryAfterSeconds)}.`,
       429
     );
   }
@@ -295,7 +295,7 @@ function secondsUntilNextWindow(nowMs: number, windowMs: number): number {
   return Math.max(1, Math.ceil((windowMs - (nowMs % windowMs)) / 1000));
 }
 
-function formatRetryAfter(seconds: number): string {
+export function formatPublicScanRetryAfter(seconds: number): string {
   if (seconds < 90) return `${seconds} seconds`;
   const minutes = Math.ceil(seconds / 60);
   if (minutes < 90) return `${minutes} minutes`;

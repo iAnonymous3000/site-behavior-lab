@@ -27,8 +27,8 @@
 
     // Public scanner (see docs/go-live-public-scanner.md): open to unauthenticated
     // visitors. container-worker.ts enforces Turnstile (the TURNSTILE_SECRET_KEY
-    // secret) plus the KV rate limit below before any request reaches the
-    // container's browser. The scanner stays GATED until the
+    // secret) plus the atomic Durable Object quota before any request reaches
+    // the container's browser. The scanner stays GATED until the
     // SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN secret is removed, these vars are inert
     // while that token is set.
     "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS": "1",
@@ -40,14 +40,17 @@
     "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX": "1"
   },
 
-  // Per-client rate-limit store for public scans (RATE_LIMITS_KV binding).
-  "kv_namespaces": [{ "binding": "RATE_LIMITS_KV", "id": "56a535b602cb44e29ad0178f54cc6897" }],
-
   "containers": [
     {
       "class_name": "ScannerContainer",
       // Builds the repo Dockerfile (Next.js + Playwright Chromium).
       "image": "./Dockerfile",
+      // Replaced by scripts/deploy-container.mjs from WORKERS_CI_COMMIT_SHA
+      // (or the exact local HEAD). The Dockerfile rejects the placeholder, so
+      // a raw wrangler deploy can never publish unverifiable build provenance.
+      "image_vars": {
+        "SITE_BEHAVIOR_LAB_BUILD_COMMIT": "__SITE_BEHAVIOR_LAB_BUILD_COMMIT__"
+      },
       // standard-2 = 6 GiB RAM / 12 GB disk: Chromium needs ~2 GB and the
       // Playwright image (~2-3 GB) must fit the instance disk. standard-1 is the
       // floor; lite/basic are too small. See docs/deploy-cloudflare-containers.md.

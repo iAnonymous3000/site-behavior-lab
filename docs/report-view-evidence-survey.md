@@ -571,9 +571,9 @@ disposition after the review:
   478 likely top-level document rows matched. Iframe impact cannot be
   reconstructed because v1 did not retain frame sources, so the 235 committed
   reports stay legacy/limited and are not retroactively rewritten.
-- **Durable jobs / atomic rate limiting / cancellation.** Known and
-  user-sequenced (durability phase, DO SQLite). The KV read-then-write
-  overshoot is documented in-code and backstopped by the WAF ceiling.
+- **Durable jobs / cancellation.** Known and user-sequenced (durability phase,
+  DO SQLite). Atomic public quota accounting is now landed in the scanner
+  Durable Object; the WAF remains the coarse outer ceiling.
 - **Redaction v2 wiring + corpus remediation.** Foundation landed 499ccc0;
   the wiring order is RFC 14.10 and the remediation/granularity trade is an
   explicit operator decision (see the redaction section above).

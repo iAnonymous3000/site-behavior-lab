@@ -18,7 +18,7 @@ import {
   DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE,
   EdgeScanGateError,
   assertTurnstileToken,
-  enforcePublicScanRateLimit,
+  formatPublicScanRetryAfter,
   openScanBlockedForMissingTurnstile,
   publicClientHash,
   publicScanGateStatus,
@@ -31,9 +31,6 @@ import {
 
 type Env = {
   SCANNER: DurableObjectNamespace<ScannerContainer>;
-  // KV namespace for public-scan rate limiting. Required only when the scanner is
-  // opened to the public (SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1).
-  RATE_LIMITS_KV?: KVNamespace;
   // Non-secret browser CORS allow-list, set via `vars` in wrangler.container.jsonc.
   SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN?: string;
   // "1" opens the scanner to unauthenticated public scans (Turnstile + rate limit
@@ -44,7 +41,7 @@ type Env = {
   // Forwarded to the Node scanner. Only "1" enables Playwright's Chromium
   // sandbox; /api/health exposes the effective state for deployment checks.
   SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX?: string;
-  // "1" waives the Turnstile requirement for open access (KV rate limit only).
+  // "1" waives the Turnstile requirement for open access (atomic rate limit only).
   // Without it, open access with no TURNSTILE_SECRET_KEY fails closed.
   SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK?: string;
   // Set as Worker secrets (`wrangler secret put -c wrangler.container.jsonc <NAME>`)
@@ -65,6 +62,10 @@ type ScanGatePayload = {
 };
 
 const MAX_BODY_BYTES = 4_096;
+
+type AtomicRateLimitResult =
+  | { allowed: true }
+  | { allowed: false; retryAfterSeconds: number };
 
 export class ScannerContainer extends Container<Env> {
   // The Dockerfile serves Next.js on :3000.
@@ -103,6 +104,97 @@ export class ScannerContainer extends Container<Env> {
     SITE_BEHAVIOR_LAB_R2_ENDPOINT: this.env.SITE_BEHAVIOR_LAB_R2_ENDPOINT ?? "",
     SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID: this.env.SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID ?? "",
     SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY: this.env.SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY ?? ""
+  };
+
+  /**
+   * Exact public-scan quota accounting in the same singleton Durable Object
+   * that owns the scanner container. SQLite and transactionSync make the
+   * minute + day check-and-charge one atomic operation, so concurrent requests
+   * cannot overshoot the configured token budget as they could with KV
+   * read-then-write counters.
+   */
+  chargePublicScanRateLimit(input: {
+    clientHash: string;
+    cost: 1 | 2;
+    perMinute: number;
+    perDay: number;
+    now: number;
+  }): AtomicRateLimitResult {
+    if (!/^[a-f0-9]{64}$/.test(input.clientHash)) {
+      throw new Error("Invalid public-scan client hash.");
+    }
+    if ((input.cost !== 1 && input.cost !== 2) || !Number.isSafeInteger(input.now) || input.now < 0) {
+      throw new Error("Invalid public-scan rate-limit charge.");
+    }
+    if (
+      !Number.isSafeInteger(input.perMinute) ||
+      input.perMinute <= 0 ||
+      !Number.isSafeInteger(input.perDay) ||
+      input.perDay <= 0
+    ) {
+      throw new Error("Invalid public-scan rate-limit configuration.");
+    }
+
+    return this.ctx.storage.transactionSync(() => {
+      const sql = this.ctx.storage.sql;
+      sql.exec(
+        "CREATE TABLE IF NOT EXISTS public_scan_rate_limits (bucket TEXT PRIMARY KEY, used INTEGER NOT NULL, expires_at INTEGER NOT NULL)"
+      );
+      sql.exec("DELETE FROM public_scan_rate_limits WHERE expires_at <= ?", input.now);
+
+      const windows = [
+        atomicRateLimitWindow("minute", 60_000, input.perMinute, input),
+        atomicRateLimitWindow("day", 86_400_000, input.perDay, input)
+      ];
+      const exceeded: number[] = [];
+      const charges: Array<{ bucket: string; used: number; expiresAt: number }> = [];
+
+      for (const window of windows) {
+        const row = sql
+          .exec<{ used: number }>(
+            "SELECT used FROM public_scan_rate_limits WHERE bucket = ? AND expires_at > ?",
+            window.bucket,
+            input.now
+          )
+          .toArray()[0];
+        const used = row?.used ?? 0;
+        if (used + input.cost > window.limit) {
+          exceeded.push(window.retryAfterSeconds);
+        } else {
+          charges.push({ bucket: window.bucket, used: used + input.cost, expiresAt: window.expiresAt });
+        }
+      }
+
+      if (exceeded.length > 0) {
+        return { allowed: false, retryAfterSeconds: Math.max(...exceeded) };
+      }
+
+      for (const charge of charges) {
+        sql.exec(
+          "INSERT INTO public_scan_rate_limits (bucket, used, expires_at) VALUES (?, ?, ?) ON CONFLICT(bucket) DO UPDATE SET used = excluded.used, expires_at = excluded.expires_at",
+          charge.bucket,
+          charge.used,
+          charge.expiresAt
+        );
+      }
+      return { allowed: true };
+    });
+  }
+}
+
+function atomicRateLimitWindow(
+  name: "minute" | "day",
+  durationMs: number,
+  limit: number,
+  input: { clientHash: string; now: number }
+): { bucket: string; expiresAt: number; limit: number; retryAfterSeconds: number } {
+  const windowId = Math.floor(input.now / durationMs);
+  const expiresAt = (windowId + 1) * durationMs;
+  return {
+    bucket: `${name}/${windowId}/${input.clientHash}`,
+    expiresAt,
+    limit,
+    retryAfterSeconds: Math.max(1, Math.ceil((expiresAt - input.now) / 1_000))
   };
 }
 
@@ -211,7 +303,9 @@ async function patchHealthResponse(response: Response, env: Env): Promise<Respon
         allowUnauthenticated: env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS,
         turnstileSecret: env.TURNSTILE_SECRET_KEY,
         acceptNoTurnstileRisk: env.SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK,
-        rateLimitStoreBound: Boolean(env.RATE_LIMITS_KV)
+        // The SCANNER binding is required by this Worker and owns an atomic
+        // SQLite quota ledger, so an external KV binding is no longer needed.
+        rateLimitStoreBound: true
       });
       health.scansAvailable = refusals.length === 0;
       if (refusals.length > 0) {
@@ -246,7 +340,7 @@ async function patchHealthResponse(response: Response, env: Env): Promise<Respon
  *
  * - Token configured  → operator-gated: require the matching access token.
  * - No token + opened  → public: require Turnstile (when configured) and charge
- *   the per-client KV rate limit.
+ *   the per-client atomic Durable Object rate limit.
  * - No token + not opened → refuse, so an unconfigured scanner is never silently
  *   world-readable through its workers.dev URL.
  *
@@ -288,13 +382,7 @@ async function gateScanRequest(request: Request, body: string, env: Env): Promis
     );
   }
 
-  const store = env.RATE_LIMITS_KV;
-  if (!store) {
-    throw new EdgeScanGateError("Public scan rate limiting requires the RATE_LIMITS_KV binding.", 503);
-  }
-
-  await enforcePublicScanRateLimit({
-    store,
+  const charge = await getContainer(env.SCANNER).chargePublicScanRateLimit({
     clientHash: await publicClientHash(request.headers),
     cost: scanTokenCost({
       compareGpc: payload.compareGpc === true,
@@ -302,8 +390,15 @@ async function gateScanRequest(request: Request, body: string, env: Env): Promis
       compareConsent: payload.compareConsent === true
     }),
     perMinute: publicScanRateLimit(env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE, DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE),
-    perDay: publicScanRateLimit(env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY, DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY)
+    perDay: publicScanRateLimit(env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY, DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY),
+    now: Date.now()
   });
+  if (!charge.allowed) {
+    throw new EdgeScanGateError(
+      `Too many public scans. Try again in about ${formatPublicScanRetryAfter(charge.retryAfterSeconds)}.`,
+      429
+    );
+  }
 }
 
 function parseScanGatePayload(body: string): ScanGatePayload {

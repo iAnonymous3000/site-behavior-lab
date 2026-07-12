@@ -86,10 +86,10 @@ Open `http://127.0.0.1:3000`.
 | Variable | Default | Purpose |
 |---|---|---|
 | `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | unset | When set, `/api/scan` requires the token in `Authorization: Bearer ...` or `x-site-behavior-lab-access-token`. Leave unset only for trusted local development or intentionally public deployments with external abuse controls. |
-| `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS` | unset | Cloudflare Workers only (Browser Run and Containers). Set to `1` only for an intentionally open public scanner, with no scan token set. On the Browser Run worker it also requires the DNS-rebinding risk flag below; the Containers scanner pins DNS at connect time, so it does not. The Containers front Worker still enforces Turnstile (when configured) and the KV rate limit. See [docs/go-live-public-scanner.md](docs/go-live-public-scanner.md). |
+| `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS` | unset | Cloudflare Workers only (Browser Run and Containers). Set to `1` only for an intentionally open public scanner, with no scan token set. On the Browser Run worker it also requires the DNS-rebinding risk flag below; the Containers scanner pins DNS at connect time, so it does not. The Containers front Worker still enforces Turnstile (when configured) and an atomic Durable Object quota. See [docs/go-live-public-scanner.md](docs/go-live-public-scanner.md). |
 | `SITE_BEHAVIOR_LAB_ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK` | unset | Browser Run worker only. Must be `1` before unauthenticated Browser Run scans are enabled, because Browser Run cannot currently pin the browser connection to the DNS answer verified by the Worker. Not used by the Containers scanner. |
-| `SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK` | unset | Containers front Worker only. Open public scans fail closed with `503` when no `TURNSTILE_SECRET_KEY` is configured, because the KV rate limit alone is best-effort. Set to `1` only to consciously waive Turnstile and run an open scanner on rate limiting alone. See [docs/go-live-public-scanner.md](docs/go-live-public-scanner.md). |
-| `SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE` | `6` | Cloudflare Workers only. Maximum public scan tokens per client per minute. GPC, Shields, and consent comparisons cost two tokens. The Containers front Worker needs a `RATE_LIMITS_KV` binding; the Browser Run worker uses `REPORTS_KV`. |
+| `SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK` | unset | Containers front Worker only. Open public scans fail closed with `503` when no `TURNSTILE_SECRET_KEY` is configured. Set to `1` only to consciously waive human verification and run an open scanner on atomic rate limiting alone. See [docs/go-live-public-scanner.md](docs/go-live-public-scanner.md). |
+| `SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE` | `6` | Cloudflare Workers only. Maximum public scan tokens per client per minute. GPC, Shields, and consent comparisons cost two tokens. The Containers front Worker accounts atomically in the scanner Durable Object's SQLite storage; the retired Browser Run worker uses `REPORTS_KV`. |
 | `SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY` | `120` | Cloudflare Workers only. Maximum public scan tokens per client per day. GPC, Shields, and consent comparisons cost two tokens. |
 | `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | unset | Set to `1` only when traffic reaches the app through a trusted proxy that controls forwarding headers and blocks direct origin access. Rate limiting uses in-memory counters per Node process. |
 | `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` | `*` | Browser CORS allow-list for the `/api` routes (also honored by the Cloudflare Worker). Default `*` lets any site invoke the scanner from a browser, fine for a single-origin (B1) deployment or an intentionally open scanner. Set it to one origin (for example `https://sitebehavior.org`) to allow only that site's cross-origin browser requests; others are denied. The scan API uses no cookies, so `*` is safe by default. |
@@ -136,7 +136,7 @@ For a single-node deployment:
 Docker:
 
 ```bash
-docker build -t site-behavior-lab .
+docker build --build-arg SITE_BEHAVIOR_LAB_BUILD_COMMIT="$(git rev-parse HEAD)" -t site-behavior-lab .
 docker run --rm -p 3000:3000 \
   --env-file .env.production \
   -v site-behavior-lab-reports:/var/lib/site-behavior-lab/reports \
@@ -149,7 +149,7 @@ Validate the container path end to end with:
 npm run test:smoke:docker
 ```
 
-Horizontally scaled deployments should replace or front the filesystem report store with shared durable storage and external rate limiting/queueing. The in-process async scan queue and rate counters protect one Node process, not an entire cluster. Async queued/running job records are not durable across process restarts; only completed reports that reached persistence can be recovered, via the report ID returned at submission.
+Horizontally scaled deployments should replace or front the filesystem report store with shared durable storage and external queueing. The Cloudflare Containers front worker accounts public quotas atomically in its singleton Durable Object, while the Node process retains a second in-process defense. Async queued/running job records are not yet durable across process restarts; only completed reports that reached persistence can be recovered, via the report ID returned at submission.
 
 For the planned queue/worker extraction path, see [docs/scan-job-model.md](docs/scan-job-model.md).
 

@@ -43,7 +43,7 @@ zero open-internet abuse surface, and only then decide whether to open
 ## 1. Build and run the container
 
 ```bash
-docker build -t site-behavior-lab .
+docker build --build-arg SITE_BEHAVIOR_LAB_BUILD_COMMIT="$(git rev-parse HEAD)" -t site-behavior-lab .
 docker run --rm -p 3000:3000 \
   --env-file .env.production \
   -v site-behavior-lab-reports:/var/lib/site-behavior-lab/reports \

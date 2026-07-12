@@ -7,6 +7,7 @@ import { producerCapability } from "./report-producers";
 import { asScanRuntimeHealth, type ScanRuntimeCapabilities } from "./scan-runtime-health";
 
 const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
+const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
 
 // Backend-agnostic public projection: never exposes a filesystem path or an R2
 // bucket/endpoint to /api/health, only the backend kind and shared policy.
@@ -24,6 +25,8 @@ export type RuntimeStatus = {
   ok: boolean;
   status: "ok" | "degraded";
   timestamp: string;
+  /** Full source SHA for production images, otherwise "unknown". */
+  deployment: string;
   authenticated: boolean;
   openAccess: boolean;
   turnstile: boolean;
@@ -62,6 +65,7 @@ export async function runtimeStatus(
     ok: true,
     status: warnings.length === 0 ? "ok" : "degraded",
     timestamp: new Date().toISOString(),
+    deployment: scannerBuildCommit(),
     // The static Pages UI reads these to gate the access-key field and open-access
     // behaviour when it points at this container (Option B two-origin topology).
     // A gated container that omitted `authenticated` would make the UI skip the
@@ -132,6 +136,11 @@ function unauthenticatedScansAllowed(): boolean {
   return process.env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS === "1";
 }
 
+function scannerBuildCommit(): string {
+  const value = process.env[BUILD_COMMIT_ENV]?.trim().toLowerCase() ?? "";
+  return /^[0-9a-f]{40}$/.test(value) ? value : "unknown";
+}
+
 function productionWarnings(reportStore: ReturnType<typeof reportStoreStatus> | null): string[] {
   const warnings: string[] = [];
 
@@ -149,6 +158,10 @@ function productionWarnings(reportStore: ReturnType<typeof reportStoreStatus> | 
 
   if (!process.env[SCANNER_EGRESS_ENV]?.trim()) {
     warnings.push("SITE_BEHAVIOR_LAB_SCANNER_EGRESS is not configured; reports use the generic scanner egress label.");
+  }
+
+  if (process.env.NODE_ENV === "production" && scannerBuildCommit() === "unknown") {
+    warnings.push("SITE_BEHAVIOR_LAB_BUILD_COMMIT is missing; this scanner image cannot identify its source revision.");
   }
 
   return warnings;

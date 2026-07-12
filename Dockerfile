@@ -1,8 +1,17 @@
 ARG PLAYWRIGHT_VERSION=1.61.0
+ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT=""
 FROM mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble AS build
+
+ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT
 
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV SITE_BEHAVIOR_LAB_BUILD_COMMIT=${SITE_BEHAVIOR_LAB_BUILD_COMMIT}
+
+# Every production image must identify the exact source revision that built it.
+# The deploy wrapper supplies Workers Builds' tested commit (or local HEAD);
+# rejecting empty/placeholders keeps health and future v2 provenance honest.
+RUN node -e "const value=process.argv[1]; if(!/^[0-9a-f]{40}$/.test(value)) throw new Error('SITE_BEHAVIOR_LAB_BUILD_COMMIT must be a full lowercase Git SHA')" "${SITE_BEHAVIOR_LAB_BUILD_COMMIT}"
 
 # Public origin baked into the build so shared live-scan report links unfurl with
 # their Open Graph / X card. NEXT_PUBLIC_ vars are inlined by `next build`, so a
@@ -31,11 +40,14 @@ RUN npm run check && npm prune --omit=dev
 
 FROM mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble AS runner
 
+ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT
+
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV SITE_BEHAVIOR_LAB_REPORT_STORE_DIR=/var/lib/site-behavior-lab/reports
+ENV SITE_BEHAVIOR_LAB_BUILD_COMMIT=${SITE_BEHAVIOR_LAB_BUILD_COMMIT}
 
 COPY --from=build /app/package.json /app/package-lock.json ./
 COPY --from=build /app/node_modules ./node_modules

@@ -75,6 +75,7 @@ export function isScanRuntimeHealth(value: unknown): value is ScanRuntimeHealth 
   if (typeof value.ok !== "boolean") return false;
   if (value.status !== undefined && !isScanRuntimeStatus(value.status)) return false;
   if (value.error !== undefined && typeof value.error !== "string") return false;
+  if (value.deployment !== undefined && typeof value.deployment !== "string") return false;
   if (value.capabilities !== undefined && !isCapabilities(value.capabilities)) return false;
   return true;
 }

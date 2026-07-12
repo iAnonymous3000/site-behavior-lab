@@ -67,3 +67,4 @@ CODEX.md
 # Temporary files
 *.tmp
 *.temp
+wrangler.container.generated.*.jsonc
