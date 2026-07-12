@@ -306,6 +306,31 @@ test("mismatched or unrecorded environments disqualify: route, viewport, browser
   assert.equal(comparisonEligibility(createTemporalComparisonReport(makeRun({}), slashless)).eligible, true);
 });
 
+test("Brave-list engine presence and snapshot identity are held constant", () => {
+  const baseline = makeRun({});
+  const variant = makeRun({});
+  variant.conditions = { ...variant.conditions, scannedAt: new Date(60_000).toISOString() };
+
+  const active = { active: true, source: "brave", lists: 31, fetchedAt: "2026-07-12T00:00:00.000Z" };
+  baseline.conditions = { ...baseline.conditions, adblock: { ...active } };
+  let eligibility = comparisonEligibility(createTemporalComparisonReport(baseline, variant));
+  assert.equal(eligibility.eligible, false);
+  assert.match(eligibility.reasons.join(" "), /Only one visit recorded an active Brave-list engine/);
+
+  variant.conditions = { ...variant.conditions, adblock: { ...active, lists: 30 } };
+  eligibility = comparisonEligibility(createTemporalComparisonReport(baseline, variant));
+  assert.equal(eligibility.eligible, false);
+  assert.match(eligibility.reasons.join(" "), /different numbers of Brave filter lists/);
+
+  variant.conditions = {
+    ...variant.conditions,
+    adblock: { ...active, fetchedAt: "2026-07-13T00:00:00.000Z" }
+  };
+  eligibility = comparisonEligibility(createTemporalComparisonReport(baseline, variant));
+  assert.equal(eligibility.eligible, false);
+  assert.match(eligibility.reasons.join(" "), /different Brave filter-list snapshots/);
+});
+
 test("every disqualifying condition is reported, not just the first", () => {
   const variant = makeRun({ firstPartyDomain: "beta.example", status: 500, totalRequests: COMPARISON_REQUEST_CAP });
   variant.conditions = { ...variant.conditions, scannedAt: new Date(60_000).toISOString() };

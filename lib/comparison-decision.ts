@@ -78,7 +78,7 @@ export type ComparisonDecision = {
  * the dimension set below changes the digests instead of silently colliding
  * with older ones.
  */
-const LEGACY_FINGERPRINT_VERSION = "legacy-env-v2";
+const LEGACY_FINGERPRINT_VERSION = "legacy-env-v3";
 
 /** The unknown rule (RFC 3.2): empty or the literal "unknown" proves nothing. */
 function knownString(value: string | undefined): string | null {
@@ -105,11 +105,31 @@ export function legacyMeasurementEnvironmentFingerprint(run: ScanResult): string
   const language = knownString(conditions.language);
   const egress = knownString(conditions.scannerEgress);
   const methodology = legacyV1MethodologyIdentity(conditions.scannerDisclosure);
-  if (!automation || !browserVersion || !userAgent || !timezone || !locale || !language || !egress) return null;
+  const adblock = conditions.adblock?.active
+    ? {
+        active: true,
+        source: knownString(conditions.adblock.source),
+        lists: conditions.adblock.lists,
+        fetchedAt: knownString(conditions.adblock.fetchedAt)
+      }
+    : { active: false as const };
+  if (
+    !automation ||
+    !browserVersion ||
+    !userAgent ||
+    !timezone ||
+    !locale ||
+    !language ||
+    !egress ||
+    (adblock.active && (!adblock.source || !adblock.fetchedAt || !Number.isInteger(adblock.lists) || adblock.lists <= 0))
+  ) {
+    return null;
+  }
 
   // Fixed key order = canonical form; JSON.stringify of this literal is stable.
   const canonical = JSON.stringify({
     version: LEGACY_FINGERPRINT_VERSION,
+    adblock,
     automation,
     browserVersion,
     egress,

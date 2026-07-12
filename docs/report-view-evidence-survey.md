@@ -358,9 +358,10 @@ is the single reason-bearing ruling per pair and per metric family:
   not record.
 - Compatibility fingerprint: per-arm measurementEnvironment digest. v2 arms
   carry the recorded digest; v1 arms get a legacy-derived sha256 (lane-free
-  lib/sha256) over a versioned canonical form ("legacy-env-v2") of the
+  lib/sha256) over a versioned canonical form ("legacy-env-v3") of the
   environment dimensions the legacy gate holds constant, EXCLUDING the
-  intervention axes and the subject. `legacy-env-v2` adds a dependency-light
+  intervention axes and the subject. `legacy-env-v3` includes the active
+  Brave-list source/count/snapshot as well as the dependency-light
   methodology identity derived from frozen v1's scannerDisclosure: reports carrying a
   `methodology <token>` marker use that token; older reports form the explicit
   `legacy-v1-methodology-unspecified` cohort. Cross-cohort temporal pairs are
@@ -559,7 +560,7 @@ disposition after the review:
   replayed into the public record; the raw source URL is transient and never
   enters frozen v1. This removes the old target-at-block-time versus
   final-URL-at-report-time disagreement and is identified in future Node
-  report disclosures as `shields-request-context-v2`; a future v2 producer must
+  report disclosures as `shields-request-context-v2-adblock-rust-0.13.0`; a future v2 producer must
   carry that identity in provenance.methodologyVersion. The legacy-derived
   environment fingerprint now reads this disclosure token, so an old/new v1
   temporal pair is raw-only instead of silently comparing methodologies.

@@ -186,6 +186,19 @@ test("the legacy fingerprint matches identical environments and follows the unkn
   const mismatch = legacyComparisonDecision(orderedTemporalPair(makeRun({}), otherLocale));
   assert.equal(mismatch.compatibility.matched, false);
 
+  const listA = makeRun({});
+  const listB = makeRun({});
+  listA.conditions = {
+    ...listA.conditions,
+    adblock: { active: true, source: "brave", lists: 31, fetchedAt: "2026-07-12T00:00:00.000Z" }
+  };
+  listB.conditions = {
+    ...listB.conditions,
+    adblock: { active: true, source: "brave", lists: 31, fetchedAt: "2026-07-13T00:00:00.000Z" }
+  };
+  const listMismatch = legacyComparisonDecision(orderedTemporalPair(listA, listB));
+  assert.equal(listMismatch.compatibility.matched, false);
+
   // The unknown rule: an arm with a literal-"unknown" dimension has NO
   // fingerprint, and null never matches anything, including itself.
   const unknownRun = makeRun({});

@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
+import { NODE_ADBLOCK_ENGINE_VERSION } from "./legacy-methodology";
 
 // Server-only: loads Brave's adblock engine (vendored WASM) plus the vendored
 // Brave default filter lists, and answers "would Brave Shields block this
@@ -23,6 +24,7 @@ export type AdblockEngineStatus =
   | (AdblockListMeta & {
       active: true;
       engine: "loaded";
+      version: typeof NODE_ADBLOCK_ENGINE_VERSION;
     })
   | {
       active: false;
@@ -109,6 +111,7 @@ export async function adblockEngineStatus(): Promise<AdblockEngineStatus> {
     return {
       active: true,
       engine: "loaded",
+      version: NODE_ADBLOCK_ENGINE_VERSION,
       source: meta?.source ?? "Brave default ad-block lists",
       lists: meta?.lists ?? 0,
       fetchedAt: meta?.fetchedAt ?? "unknown"

@@ -111,6 +111,19 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
   if (report.baseline.conditions.headless !== report.variant.conditions.headless) {
     reasons.push("One visit ran headless and the other did not, which sites can detect and react to differently.");
   }
+  const baselineAdblock = report.baseline.conditions.adblock;
+  const variantAdblock = report.variant.conditions.adblock;
+  if ((baselineAdblock?.active === true) !== (variantAdblock?.active === true)) {
+    reasons.push("Only one visit recorded an active Brave-list engine, so tracker and blocking measurements are not like for like.");
+  } else if (baselineAdblock?.active === true && variantAdblock?.active === true) {
+    reasons.push(...environmentMismatch("Brave filter-list source", baselineAdblock.source, variantAdblock.source));
+    if (baselineAdblock.lists !== variantAdblock.lists) {
+      reasons.push(
+        `The two visits loaded different numbers of Brave filter lists (${baselineAdblock.lists} vs ${variantAdblock.lists}), so their classification instruments differ.`
+      );
+    }
+    reasons.push(...environmentMismatch("Brave filter-list snapshot", baselineAdblock.fetchedAt, variantAdblock.fetchedAt));
+  }
   // Same OBSERVED subject, not just the same requested one: two visits that
   // landed on different final pages (a consent wall, a regional redirect)
   // measured different documents. Consent pairs are exempt from the final-URL
