@@ -2,7 +2,7 @@ import { summarizeDomains } from "./domain-utils";
 import { NODE_SHIELDS_REQUEST_CONTEXT_VERSION } from "./legacy-methodology";
 import { trackerCatalogMetadata } from "./tracker-catalog";
 import { SCAN_REPORT_SCHEMA_VERSION } from "./types";
-import { redactScanResultV1 } from "./redact-scan-report-v1";
+import { redactScanResultV1, type RedactedV1 } from "./redact-scan-report-v1";
 import type {
   CnameCloak,
   ConsentInteractionSummary,
@@ -209,7 +209,7 @@ function scannerDisclosure(
   return `Brave PageGraph-derived scan from ${input.scannerEgress} with browser ${input.chromiumVersion} and the listed viewport. Treat results as reproducible evidence for this crawl configuration, not a universal claim about all visitors.`;
 }
 
-export function buildScanResult(input: BuildScanResultInput): ScanResult {
+export function buildScanResultArtifacts(input: BuildScanResultInput): RedactedV1<ScanResult> {
   const domains = summarizeDomains(input.requests);
   const summary: ScanResult["summary"] = {
     pageTitle: input.pageTitle,
@@ -266,5 +266,9 @@ export function buildScanResult(input: BuildScanResultInput): ScanResult {
   // PageGraph) converges here. Match/classify first, then apply the immutable
   // default-deny public transform once the evidence is complete; comparisons
   // are subsequently built from these already-sanitized arms.
-  return redactScanResultV1(result).report;
+  return redactScanResultV1(result);
+}
+
+export function buildScanResult(input: BuildScanResultInput): ScanResult {
+  return buildScanResultArtifacts(input).report;
 }

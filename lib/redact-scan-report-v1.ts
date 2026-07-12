@@ -287,7 +287,7 @@ export function redactScanResultV1(result: ScanResult): RedactedV1<ScanResult> {
   return { report: redacted, counters: pass.counters };
 }
 
-class RedactionPass {
+export class RedactionPass {
   readonly counters = emptyRedactionCounters();
 
   add(counters: RedactionCounters): void {
@@ -348,7 +348,7 @@ function redactConditions(conditions: ScanConditions, pass: RedactionPass): Scan
   };
 }
 
-function redactRequest(request: NetworkRequestRecord, pass: RedactionPass): NetworkRequestRecord {
+export function redactRequest(request: NetworkRequestRecord, pass: RedactionPass): NetworkRequestRecord {
   return {
     id: request.id,
     url: pass.url(request.url, request.thirdParty),
@@ -408,7 +408,7 @@ function redactTracker(tracker: TrackerMatch | null, pass: RedactionPass): Track
   };
 }
 
-function redactCookie(cookie: CookieRecord, pass: RedactionPass): CookieRecord {
+export function redactCookie(cookie: CookieRecord, pass: RedactionPass): CookieRecord {
   return {
     name: pass.cookieName(cookie.name),
     domain: pass.hostname(cookie.domain),
@@ -421,11 +421,11 @@ function redactCookie(cookie: CookieRecord, pass: RedactionPass): CookieRecord {
   };
 }
 
-function redactStorage(entry: StorageRecord, pass: RedactionPass): StorageRecord {
+export function redactStorage(entry: StorageRecord, pass: RedactionPass): StorageRecord {
   return { area: entry.area, key: pass.storageKey(entry.key), valueBytes: entry.valueBytes };
 }
 
-function redactFingerprintDetection(
+export function redactFingerprintDetection(
   detection: FingerprintDetectionSummary,
   pass: RedactionPass
 ): FingerprintDetectionSummary {
@@ -440,7 +440,7 @@ function redactFingerprintDetection(
   return copied;
 }
 
-function redactPrivacyPolicy(policy: PrivacyPolicySummary, pass: RedactionPass): PrivacyPolicySummary {
+export function redactPrivacyPolicy(policy: PrivacyPolicySummary, pass: RedactionPass): PrivacyPolicySummary {
   return {
     url: pass.url(policy.url, false),
     claims: policy.claims.map((claim) => ({
@@ -453,7 +453,7 @@ function redactPrivacyPolicy(policy: PrivacyPolicySummary, pass: RedactionPass):
   };
 }
 
-function redactConsentInteraction(
+export function redactConsentInteraction(
   interaction: ConsentInteractionSummary,
   pass: RedactionPass
 ): ConsentInteractionSummary {
@@ -513,7 +513,7 @@ function boundedProducerToken(value: string): string {
     : REDACTED_PUBLIC_STRING;
 }
 
-function redactPixelEvents(events: PixelEventSummary[]): PixelEventSummary[] {
+export function redactPixelEvents(events: PixelEventSummary[]): PixelEventSummary[] {
   const redacted: PixelEventSummary[] = [];
 
   for (const event of events) {
