@@ -48,6 +48,13 @@ test("leads with named platforms and strips the www prefix", () => {
   assert.equal(headline.stats[0].value, "2");
 });
 
+test("headlines name the stable site instead of a redacted subdomain marker", () => {
+  const result = makeResult({ firstPartyDomain: "www.{label}.clevelandclinic.org" });
+  const headline = buildReportHeadline(viewFromV1Report(result));
+  assert.equal(headline.domain, "clevelandclinic.org");
+  assert.equal(headline.headline.includes("{label}"), false);
+});
+
 test("escalates to alarm when three or more major platforms appear", () => {
   const result = makeResult({
     firstPartyDomain: "news.example",

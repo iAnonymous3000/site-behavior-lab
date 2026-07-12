@@ -23,7 +23,7 @@
       "totalRequests": 270,
       "thirdPartyRequests": 77,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 10,
+      "thirdPartyDomains": 8,
       "cookies": 6,
       "thirdPartyCookies": 0,
       "storageEntries": 14,
@@ -885,8 +885,8 @@
       },
       {
         "id": 69,
-        "url": "https://spade.twitch.tv/{seg}",
-        "domain": "spade.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -897,8 +897,8 @@
       },
       {
         "id": 70,
-        "url": "https://k.twitchcdn.net/{seg}/{seg}/{seg}",
-        "domain": "k.twitchcdn.net",
+        "url": "https://{label}.twitchcdn.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.twitchcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1089,8 +1089,8 @@
       },
       {
         "id": 86,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1149,8 +1149,8 @@
       },
       {
         "id": 91,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1161,8 +1161,8 @@
       },
       {
         "id": 92,
-        "url": "https://k.twitchcdn.net/{seg}/{seg}/{seg}",
-        "domain": "k.twitchcdn.net",
+        "url": "https://{label}.twitchcdn.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.twitchcdn.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1173,8 +1173,8 @@
       },
       {
         "id": 93,
-        "url": "https://edge.ads.twitch.tv/{seg}/{seg}",
-        "domain": "edge.ads.twitch.tv",
+        "url": "https://{label}.ads.twitch.tv/{seg}/{seg}",
+        "domain": "{label}.ads.twitch.tv",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -1185,8 +1185,8 @@
       },
       {
         "id": 94,
-        "url": "https://k.twitchcdn.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "k.twitchcdn.net",
+        "url": "https://{label}.twitchcdn.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.twitchcdn.net",
         "method": "GET",
         "resourceType": "document",
         "status": 429,
@@ -1557,8 +1557,8 @@
       },
       {
         "id": 125,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1569,8 +1569,8 @@
       },
       {
         "id": 126,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1581,8 +1581,8 @@
       },
       {
         "id": 127,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1593,8 +1593,8 @@
       },
       {
         "id": 128,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1605,8 +1605,8 @@
       },
       {
         "id": 129,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1617,8 +1617,8 @@
       },
       {
         "id": 130,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1629,8 +1629,8 @@
       },
       {
         "id": 131,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1641,8 +1641,8 @@
       },
       {
         "id": 132,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1653,8 +1653,8 @@
       },
       {
         "id": 133,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1665,8 +1665,8 @@
       },
       {
         "id": 134,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1677,8 +1677,8 @@
       },
       {
         "id": 135,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1689,8 +1689,8 @@
       },
       {
         "id": 136,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1701,8 +1701,8 @@
       },
       {
         "id": 137,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1713,8 +1713,8 @@
       },
       {
         "id": 138,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1725,8 +1725,8 @@
       },
       {
         "id": 139,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1737,8 +1737,8 @@
       },
       {
         "id": 140,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1749,8 +1749,8 @@
       },
       {
         "id": 141,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1761,8 +1761,8 @@
       },
       {
         "id": 142,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1773,8 +1773,8 @@
       },
       {
         "id": 143,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1785,8 +1785,8 @@
       },
       {
         "id": 144,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1797,8 +1797,8 @@
       },
       {
         "id": 145,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1809,8 +1809,8 @@
       },
       {
         "id": 146,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1821,8 +1821,8 @@
       },
       {
         "id": 147,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1833,8 +1833,8 @@
       },
       {
         "id": 148,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1845,8 +1845,8 @@
       },
       {
         "id": 149,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1857,8 +1857,8 @@
       },
       {
         "id": 150,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1869,8 +1869,8 @@
       },
       {
         "id": 151,
-        "url": "https://edge.ads.twitch.tv/{seg}",
-        "domain": "edge.ads.twitch.tv",
+        "url": "https://{label}.ads.twitch.tv/{seg}",
+        "domain": "{label}.ads.twitch.tv",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1881,8 +1881,8 @@
       },
       {
         "id": 152,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1893,8 +1893,8 @@
       },
       {
         "id": 153,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2481,8 +2481,8 @@
       },
       {
         "id": 202,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2493,8 +2493,8 @@
       },
       {
         "id": 203,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2505,8 +2505,8 @@
       },
       {
         "id": 204,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2517,8 +2517,8 @@
       },
       {
         "id": 205,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2529,8 +2529,8 @@
       },
       {
         "id": 206,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2541,8 +2541,8 @@
       },
       {
         "id": 207,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2553,8 +2553,8 @@
       },
       {
         "id": 208,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2565,8 +2565,8 @@
       },
       {
         "id": 209,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2697,8 +2697,8 @@
       },
       {
         "id": 220,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2709,8 +2709,8 @@
       },
       {
         "id": 221,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2721,8 +2721,8 @@
       },
       {
         "id": 222,
-        "url": "https://player.stats.live-video.net/",
-        "domain": "player.stats.live-video.net",
+        "url": "https://{label}.{label}.live-video.net/",
+        "domain": "{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2733,8 +2733,8 @@
       },
       {
         "id": 223,
-        "url": "https://usher.ttvnw.net/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&lang=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "usher.ttvnw.net",
+        "url": "https://{label}.ttvnw.net/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&lang=",
+        "domain": "{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2745,8 +2745,8 @@
       },
       {
         "id": 224,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2757,8 +2757,8 @@
       },
       {
         "id": 225,
-        "url": "https://player.stats.live-video.net/",
-        "domain": "player.stats.live-video.net",
+        "url": "https://{label}.{label}.live-video.net/",
+        "domain": "{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2769,8 +2769,8 @@
       },
       {
         "id": 226,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2781,8 +2781,8 @@
       },
       {
         "id": 227,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2793,8 +2793,8 @@
       },
       {
         "id": 228,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2805,8 +2805,8 @@
       },
       {
         "id": 229,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2817,8 +2817,8 @@
       },
       {
         "id": 230,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2829,8 +2829,8 @@
       },
       {
         "id": 231,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2841,8 +2841,8 @@
       },
       {
         "id": 232,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2853,8 +2853,8 @@
       },
       {
         "id": 233,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2865,8 +2865,8 @@
       },
       {
         "id": 234,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2877,8 +2877,8 @@
       },
       {
         "id": 235,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2889,8 +2889,8 @@
       },
       {
         "id": 236,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2901,8 +2901,8 @@
       },
       {
         "id": 237,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2913,8 +2913,8 @@
       },
       {
         "id": 238,
-        "url": "https://global.poe.live-video.net/",
-        "domain": "global.poe.live-video.net",
+        "url": "https://{label}.{label}.live-video.net/",
+        "domain": "{label}.{label}.live-video.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2925,8 +2925,8 @@
       },
       {
         "id": 239,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2937,8 +2937,8 @@
       },
       {
         "id": 240,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2949,8 +2949,8 @@
       },
       {
         "id": 241,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2961,8 +2961,8 @@
       },
       {
         "id": 242,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2973,8 +2973,8 @@
       },
       {
         "id": 243,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2985,8 +2985,8 @@
       },
       {
         "id": 244,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2997,8 +2997,8 @@
       },
       {
         "id": 245,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3009,8 +3009,8 @@
       },
       {
         "id": 246,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3021,8 +3021,8 @@
       },
       {
         "id": 247,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3033,8 +3033,8 @@
       },
       {
         "id": 248,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3045,8 +3045,8 @@
       },
       {
         "id": 249,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -3057,8 +3057,8 @@
       },
       {
         "id": 250,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3069,8 +3069,8 @@
       },
       {
         "id": 251,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3081,8 +3081,8 @@
       },
       {
         "id": 252,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3093,8 +3093,8 @@
       },
       {
         "id": 253,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3105,8 +3105,8 @@
       },
       {
         "id": 254,
-        "url": "https://prod.ivs-device-config.live-video.net/{seg}?version=",
-        "domain": "prod.ivs-device-config.live-video.net",
+        "url": "https://{label}.{label}.live-video.net/{seg}?version=",
+        "domain": "{label}.{label}.live-video.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3117,8 +3117,8 @@
       },
       {
         "id": 255,
-        "url": "https://k.twitchcdn.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "k.twitchcdn.net",
+        "url": "https://{label}.twitchcdn.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.twitchcdn.net",
         "method": "GET",
         "resourceType": "document",
         "status": 429,
@@ -3129,8 +3129,8 @@
       },
       {
         "id": 256,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3141,8 +3141,8 @@
       },
       {
         "id": 257,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3153,8 +3153,8 @@
       },
       {
         "id": 258,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3165,8 +3165,8 @@
       },
       {
         "id": 259,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -3177,8 +3177,8 @@
       },
       {
         "id": 260,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3189,8 +3189,8 @@
       },
       {
         "id": 261,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3201,8 +3201,8 @@
       },
       {
         "id": 262,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -3213,8 +3213,8 @@
       },
       {
         "id": 263,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3225,8 +3225,8 @@
       },
       {
         "id": 264,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3237,8 +3237,8 @@
       },
       {
         "id": 265,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3249,8 +3249,8 @@
       },
       {
         "id": 266,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3261,8 +3261,8 @@
       },
       {
         "id": 267,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3273,8 +3273,8 @@
       },
       {
         "id": 268,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3285,8 +3285,8 @@
       },
       {
         "id": 269,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3297,8 +3297,8 @@
       },
       {
         "id": 270,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3310,7 +3310,7 @@
     ],
     "domains": [
       {
-        "domain": "static-cdn.jtvnw.net",
+        "domain": "{label}.jtvnw.net",
         "requests": 36,
         "thirdParty": true,
         "tracker": null,
@@ -3323,7 +3323,7 @@
         ]
       },
       {
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "requests": 11,
         "thirdParty": true,
         "tracker": null,
@@ -3336,7 +3336,7 @@
         ]
       },
       {
-        "domain": "usw23.playlist.ttvnw.net",
+        "domain": "{label}.{label}.ttvnw.net",
         "requests": 10,
         "thirdParty": true,
         "tracker": null,
@@ -3349,7 +3349,7 @@
         ]
       },
       {
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "requests": 10,
         "thirdParty": true,
         "tracker": null,
@@ -3362,7 +3362,7 @@
         ]
       },
       {
-        "domain": "k.twitchcdn.net",
+        "domain": "{label}.twitchcdn.net",
         "requests": 4,
         "thirdParty": true,
         "tracker": null,
@@ -3378,13 +3378,14 @@
         ]
       },
       {
-        "domain": "player.stats.live-video.net",
-        "requests": 2,
+        "domain": "{label}.{label}.live-video.net",
+        "requests": 4,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
         "statuses": [
-          204
+          204,
+          200
         ],
         "resourceTypes": [
           "fetch"
@@ -3404,33 +3405,7 @@
         ]
       },
       {
-        "domain": "usher.ttvnw.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "global.poe.live-video.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "prod.ivs-device-config.live-video.net",
+        "domain": "{label}.ttvnw.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3461,20 +3436,22 @@
         ]
       },
       {
-        "domain": "gql.twitch.tv",
-        "requests": 16,
+        "domain": "{label}.twitch.tv",
+        "requests": 17,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
         "statuses": [
+          204,
           200
         ],
         "resourceTypes": [
+          "xhr",
           "fetch"
         ]
       },
       {
-        "domain": "edge.ads.twitch.tv",
+        "domain": "{label}.ads.twitch.tv",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -3498,19 +3475,6 @@
         ],
         "resourceTypes": [
           "document"
-        ]
-      },
-      {
-        "domain": "spade.twitch.tv",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       }
     ],
@@ -3713,7 +3677,7 @@
           ],
           "thirdPartyOrigins": [
             "https://assets.twitch.tv/",
-            "https://k.twitchcdn.net/"
+            "https://{label}.twitchcdn.net/"
           ],
           "totalListenerCalls": 325
         }
@@ -3753,7 +3717,7 @@
       "totalRequests": 266,
       "thirdPartyRequests": 77,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 10,
+      "thirdPartyDomains": 8,
       "cookies": 6,
       "thirdPartyCookies": 0,
       "storageEntries": 14,
@@ -4615,8 +4579,8 @@
       },
       {
         "id": 69,
-        "url": "https://spade.twitch.tv/{seg}",
-        "domain": "spade.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -4627,8 +4591,8 @@
       },
       {
         "id": 70,
-        "url": "https://k.twitchcdn.net/{seg}/{seg}/{seg}",
-        "domain": "k.twitchcdn.net",
+        "url": "https://{label}.twitchcdn.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.twitchcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4819,8 +4783,8 @@
       },
       {
         "id": 86,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -4879,8 +4843,8 @@
       },
       {
         "id": 91,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -4891,8 +4855,8 @@
       },
       {
         "id": 92,
-        "url": "https://k.twitchcdn.net/{seg}/{seg}/{seg}",
-        "domain": "k.twitchcdn.net",
+        "url": "https://{label}.twitchcdn.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.twitchcdn.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4903,8 +4867,8 @@
       },
       {
         "id": 94,
-        "url": "https://k.twitchcdn.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "k.twitchcdn.net",
+        "url": "https://{label}.twitchcdn.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.twitchcdn.net",
         "method": "GET",
         "resourceType": "document",
         "status": 429,
@@ -5275,8 +5239,8 @@
       },
       {
         "id": 125,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5287,8 +5251,8 @@
       },
       {
         "id": 126,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5299,8 +5263,8 @@
       },
       {
         "id": 127,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5311,8 +5275,8 @@
       },
       {
         "id": 128,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5323,8 +5287,8 @@
       },
       {
         "id": 129,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5335,8 +5299,8 @@
       },
       {
         "id": 130,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5347,8 +5311,8 @@
       },
       {
         "id": 131,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5359,8 +5323,8 @@
       },
       {
         "id": 132,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5371,8 +5335,8 @@
       },
       {
         "id": 133,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5383,8 +5347,8 @@
       },
       {
         "id": 134,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5395,8 +5359,8 @@
       },
       {
         "id": 135,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5407,8 +5371,8 @@
       },
       {
         "id": 136,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5419,8 +5383,8 @@
       },
       {
         "id": 137,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5431,8 +5395,8 @@
       },
       {
         "id": 138,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5443,8 +5407,8 @@
       },
       {
         "id": 139,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5455,8 +5419,8 @@
       },
       {
         "id": 140,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5467,8 +5431,8 @@
       },
       {
         "id": 141,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5479,8 +5443,8 @@
       },
       {
         "id": 142,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5491,8 +5455,8 @@
       },
       {
         "id": 143,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5503,8 +5467,8 @@
       },
       {
         "id": 144,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5515,8 +5479,8 @@
       },
       {
         "id": 145,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5527,8 +5491,8 @@
       },
       {
         "id": 146,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5539,8 +5503,8 @@
       },
       {
         "id": 147,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5551,8 +5515,8 @@
       },
       {
         "id": 148,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5563,8 +5527,8 @@
       },
       {
         "id": 149,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5575,8 +5539,8 @@
       },
       {
         "id": 150,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5587,8 +5551,8 @@
       },
       {
         "id": 152,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -5599,8 +5563,8 @@
       },
       {
         "id": 153,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5611,8 +5575,8 @@
       },
       {
         "id": 154,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5623,8 +5587,8 @@
       },
       {
         "id": 155,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6091,8 +6055,8 @@
       },
       {
         "id": 194,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6103,8 +6067,8 @@
       },
       {
         "id": 195,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6115,8 +6079,8 @@
       },
       {
         "id": 196,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6127,8 +6091,8 @@
       },
       {
         "id": 197,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6139,8 +6103,8 @@
       },
       {
         "id": 198,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6151,8 +6115,8 @@
       },
       {
         "id": 199,
-        "url": "https://static-cdn.jtvnw.net/{seg}/{seg}",
-        "domain": "static-cdn.jtvnw.net",
+        "url": "https://{label}.jtvnw.net/{seg}/{seg}",
+        "domain": "{label}.jtvnw.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6163,8 +6127,8 @@
       },
       {
         "id": 200,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6175,8 +6139,8 @@
       },
       {
         "id": 201,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6187,8 +6151,8 @@
       },
       {
         "id": 202,
-        "url": "https://player.stats.live-video.net/",
-        "domain": "player.stats.live-video.net",
+        "url": "https://{label}.{label}.live-video.net/",
+        "domain": "{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -6199,8 +6163,8 @@
       },
       {
         "id": 203,
-        "url": "https://usher.ttvnw.net/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&lang=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "usher.ttvnw.net",
+        "url": "https://{label}.ttvnw.net/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&lang=",
+        "domain": "{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6211,8 +6175,8 @@
       },
       {
         "id": 204,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6223,8 +6187,8 @@
       },
       {
         "id": 205,
-        "url": "https://player.stats.live-video.net/",
-        "domain": "player.stats.live-video.net",
+        "url": "https://{label}.{label}.live-video.net/",
+        "domain": "{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -6235,8 +6199,8 @@
       },
       {
         "id": 206,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6247,8 +6211,8 @@
       },
       {
         "id": 207,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -6259,8 +6223,8 @@
       },
       {
         "id": 208,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -6271,8 +6235,8 @@
       },
       {
         "id": 209,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -6283,8 +6247,8 @@
       },
       {
         "id": 210,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -6295,8 +6259,8 @@
       },
       {
         "id": 211,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6307,8 +6271,8 @@
       },
       {
         "id": 212,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6439,8 +6403,8 @@
       },
       {
         "id": 223,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6451,8 +6415,8 @@
       },
       {
         "id": 224,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6583,8 +6547,8 @@
       },
       {
         "id": 235,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6595,8 +6559,8 @@
       },
       {
         "id": 236,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6607,8 +6571,8 @@
       },
       {
         "id": 237,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -6619,8 +6583,8 @@
       },
       {
         "id": 238,
-        "url": "https://global.poe.live-video.net/",
-        "domain": "global.poe.live-video.net",
+        "url": "https://{label}.{label}.live-video.net/",
+        "domain": "{label}.{label}.live-video.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -6631,8 +6595,8 @@
       },
       {
         "id": 239,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -6643,8 +6607,8 @@
       },
       {
         "id": 240,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -6655,8 +6619,8 @@
       },
       {
         "id": 241,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6667,8 +6631,8 @@
       },
       {
         "id": 242,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6679,8 +6643,8 @@
       },
       {
         "id": 243,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6691,8 +6655,8 @@
       },
       {
         "id": 244,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6703,8 +6667,8 @@
       },
       {
         "id": 245,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6715,8 +6679,8 @@
       },
       {
         "id": 246,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6727,8 +6691,8 @@
       },
       {
         "id": 247,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6739,8 +6703,8 @@
       },
       {
         "id": 248,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6751,8 +6715,8 @@
       },
       {
         "id": 249,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6763,8 +6727,8 @@
       },
       {
         "id": 250,
-        "url": "https://prod.ivs-device-config.live-video.net/{seg}?version=",
-        "domain": "prod.ivs-device-config.live-video.net",
+        "url": "https://{label}.{label}.live-video.net/{seg}?version=",
+        "domain": "{label}.{label}.live-video.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6775,8 +6739,8 @@
       },
       {
         "id": 251,
-        "url": "https://k.twitchcdn.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "k.twitchcdn.net",
+        "url": "https://{label}.twitchcdn.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.twitchcdn.net",
         "method": "GET",
         "resourceType": "document",
         "status": 429,
@@ -6787,8 +6751,8 @@
       },
       {
         "id": 252,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6799,8 +6763,8 @@
       },
       {
         "id": 253,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6811,8 +6775,8 @@
       },
       {
         "id": 254,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6823,8 +6787,8 @@
       },
       {
         "id": 255,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -6835,8 +6799,8 @@
       },
       {
         "id": 256,
-        "url": "https://6482c4.rufio.hls.live-video.net/{seg}/{seg}/{seg}",
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "url": "https://{label}.{label}.{label}.live-video.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -6847,8 +6811,8 @@
       },
       {
         "id": 257,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6859,8 +6823,8 @@
       },
       {
         "id": 258,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6871,8 +6835,8 @@
       },
       {
         "id": 259,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6883,8 +6847,8 @@
       },
       {
         "id": 260,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6895,8 +6859,8 @@
       },
       {
         "id": 261,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6907,8 +6871,8 @@
       },
       {
         "id": 262,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -6919,8 +6883,8 @@
       },
       {
         "id": 263,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6931,8 +6895,8 @@
       },
       {
         "id": 264,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6943,8 +6907,8 @@
       },
       {
         "id": 265,
-        "url": "https://gql.twitch.tv/{seg}",
-        "domain": "gql.twitch.tv",
+        "url": "https://{label}.twitch.tv/{seg}",
+        "domain": "{label}.twitch.tv",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6955,8 +6919,8 @@
       },
       {
         "id": 266,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6967,8 +6931,8 @@
       },
       {
         "id": 267,
-        "url": "https://{label}.j.cloudfront.hls.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "url": "https://{label}.{label}.{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6979,8 +6943,8 @@
       },
       {
         "id": 268,
-        "url": "https://usw23.playlist.ttvnw.net/{seg}/{seg}/{seg}",
-        "domain": "usw23.playlist.ttvnw.net",
+        "url": "https://{label}.{label}.ttvnw.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.ttvnw.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -6992,7 +6956,7 @@
     ],
     "domains": [
       {
-        "domain": "static-cdn.jtvnw.net",
+        "domain": "{label}.jtvnw.net",
         "requests": 34,
         "thirdParty": true,
         "tracker": null,
@@ -7005,7 +6969,7 @@
         ]
       },
       {
-        "domain": "{label}.j.cloudfront.hls.ttvnw.net",
+        "domain": "{label}.{label}.{label}.{label}.ttvnw.net",
         "requests": 13,
         "thirdParty": true,
         "tracker": null,
@@ -7018,7 +6982,7 @@
         ]
       },
       {
-        "domain": "usw23.playlist.ttvnw.net",
+        "domain": "{label}.{label}.ttvnw.net",
         "requests": 11,
         "thirdParty": true,
         "tracker": null,
@@ -7031,7 +6995,7 @@
         ]
       },
       {
-        "domain": "6482c4.rufio.hls.live-video.net",
+        "domain": "{label}.{label}.{label}.live-video.net",
         "requests": 9,
         "thirdParty": true,
         "tracker": null,
@@ -7044,7 +7008,7 @@
         ]
       },
       {
-        "domain": "k.twitchcdn.net",
+        "domain": "{label}.twitchcdn.net",
         "requests": 4,
         "thirdParty": true,
         "tracker": null,
@@ -7060,13 +7024,14 @@
         ]
       },
       {
-        "domain": "player.stats.live-video.net",
-        "requests": 2,
+        "domain": "{label}.{label}.live-video.net",
+        "requests": 4,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
         "statuses": [
-          204
+          204,
+          200
         ],
         "resourceTypes": [
           "fetch"
@@ -7086,33 +7051,7 @@
         ]
       },
       {
-        "domain": "usher.ttvnw.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "global.poe.live-video.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "prod.ivs-device-config.live-video.net",
+        "domain": "{label}.ttvnw.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -7143,15 +7082,17 @@
         ]
       },
       {
-        "domain": "gql.twitch.tv",
-        "requests": 14,
+        "domain": "{label}.twitch.tv",
+        "requests": 15,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
         "statuses": [
+          204,
           200
         ],
         "resourceTypes": [
+          "xhr",
           "fetch"
         ]
       },
@@ -7166,19 +7107,6 @@
         ],
         "resourceTypes": [
           "document"
-        ]
-      },
-      {
-        "domain": "spade.twitch.tv",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       }
     ],
@@ -7381,7 +7309,7 @@
           ],
           "thirdPartyOrigins": [
             "https://assets.twitch.tv/",
-            "https://k.twitchcdn.net/"
+            "https://{label}.twitchcdn.net/"
           ],
           "totalListenerCalls": 319
         }
@@ -7427,8 +7355,8 @@
       "delta": 0
     },
     "thirdPartyDomains": {
-      "before": 10,
-      "after": 10,
+      "before": 8,
+      "after": 8,
       "delta": 0
     },
     "cookies": {
@@ -7454,7 +7382,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "edge.ads.twitch.tv",
+        "domain": "{label}.ads.twitch.tv",
         "requests": 2,
         "tracker": null
       }

@@ -23,7 +23,33 @@ import type { CookieRecord, StorageRecord } from "./types";
  * remain derived by the versioned evaluators.
  */
 
-export const DETECTOR_REGISTRY_VERSION = "node-detectors-v1";
+export const DETECTOR_REGISTRY_VERSION = "node-detectors-v2";
+
+export const DETECTOR_REASON_CODES = [
+  "probe-disabled",
+  "budget-unavailable",
+  "not-requested",
+  "unsupported",
+  "load-failed",
+  "engine-unavailable",
+  "scan-failed"
+] as const;
+const DETECTOR_REASON_CODE_SET = new Set<string>(DETECTOR_REASON_CODES);
+
+export const DETECTOR_STATUS_REASON_CODES = Object.freeze({
+  partial: Object.freeze(["budget-unavailable", "load-failed", "scan-failed"]),
+  skipped: Object.freeze(["probe-disabled", "budget-unavailable", "not-requested", "load-failed", "engine-unavailable"]),
+  unsupported: Object.freeze(["unsupported"]),
+  failed: Object.freeze(["load-failed", "engine-unavailable", "scan-failed"])
+} satisfies Readonly<Record<Exclude<DetectorStatus, "complete">, readonly string[]>>);
+
+export function isDetectorReasonCode(value: string): boolean {
+  return DETECTOR_REASON_CODE_SET.has(value);
+}
+
+export function isDetectorReasonForStatus(status: DetectorStatus, reason: string): boolean {
+  return status !== "complete" && (DETECTOR_STATUS_REASON_CODES[status] as readonly string[]).includes(reason);
+}
 
 export const DETECTOR_VERSIONS: Readonly<Record<DetectorId, string>> = {
   "fingerprint-heuristics": "fingerprint-observer@1",
@@ -34,8 +60,73 @@ export const DETECTOR_VERSIONS: Readonly<Record<DetectorId, string>> = {
   "privacy-policy": "policy-text-cross-check@1"
 };
 
+export const FINGERPRINT_EVENT_APIS = [
+  "canvas.getImageData",
+  "canvas.measureText",
+  "canvas.toBlob",
+  "canvas.toDataURL",
+  "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+  "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+  "webgl.readPixels",
+  "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+  "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+  "webgl2.readPixels",
+  "audio.OfflineAudioContext.createAnalyser",
+  "audio.OfflineAudioContext.createDynamicsCompressor",
+  "audio.OfflineAudioContext.createOscillator",
+  "audio.OfflineAudioContext.startRendering",
+  "audio.createAnalyser",
+  "webrtc.RTCPeerConnection",
+  "webrtc.RTCPeerConnection.createDataChannel",
+  "webrtc.RTCPeerConnection.createOffer",
+  "webrtc.RTCPeerConnection.setLocalDescription"
+] as const;
+export const CANVAS_READ_APIS = ["canvas.getImageData", "canvas.toBlob", "canvas.toDataURL"] as const;
+export const WEBGL_READ_APIS = ["webgl.readPixels", "webgl2.readPixels"] as const;
+export const WEBGL_PARAMETERS = [
+  "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+  "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+  "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+  "webgl2.getParameter.UNMASKED_VENDOR_WEBGL"
+] as const;
+export const AUDIO_FINGERPRINT_APIS = [
+  "audio.OfflineAudioContext.createAnalyser",
+  "audio.OfflineAudioContext.createDynamicsCompressor",
+  "audio.OfflineAudioContext.createOscillator",
+  "audio.OfflineAudioContext.startRendering",
+  "audio.createAnalyser"
+] as const;
+export const SESSION_RECORDING_EVENTS = [
+  "click", "input", "keydown", "keyup", "mousedown", "mousemove", "mouseup", "pointerdown", "pointermove",
+  "pointerup", "scroll", "selectionchange", "touchmove", "touchstart", "visibilitychange", "wheel"
+] as const;
+export const INPUT_MONITORING_EVENTS = ["beforeinput", "change", "input", "keydown", "keypress", "keyup", "paste"] as const;
+export const LISTENER_TARGETS = ["body", "contenteditable", "document", "documentElement", "input", "other", "textarea", "window"] as const;
+export const KEYSTROKE_ENCODINGS = ["plain", "hex", "base64", "base64url", "md5", "sha1", "sha256"] as const;
+export const KEYSTROKE_FIELD_TYPES = [
+  "contenteditable", "date", "datetime-local", "email", "month", "number", "password", "search", "tel", "text",
+  "textarea", "time", "url", "week", "other"
+] as const;
+
 export const DETECTOR_REGISTRY_DIGEST = sha256Hex(
-  canonicalJson({ version: DETECTOR_REGISTRY_VERSION, detectors: DETECTOR_VERSIONS })
+  canonicalJson({
+    version: DETECTOR_REGISTRY_VERSION,
+    detectors: DETECTOR_VERSIONS,
+    reasonCodes: [...DETECTOR_REASON_CODES].sort(),
+    statusReasonCodes: DETECTOR_STATUS_REASON_CODES,
+    fingerprintVocabulary: {
+      eventApis: FINGERPRINT_EVENT_APIS,
+      canvasReadApis: CANVAS_READ_APIS,
+      webglReadApis: WEBGL_READ_APIS,
+      webglParameters: WEBGL_PARAMETERS,
+      audioApis: AUDIO_FINGERPRINT_APIS,
+      sessionEvents: SESSION_RECORDING_EVENTS,
+      inputEvents: INPUT_MONITORING_EVENTS,
+      listenerTargets: LISTENER_TARGETS,
+      keystrokeEncodings: KEYSTROKE_ENCODINGS,
+      keystrokeFieldTypes: KEYSTROKE_FIELD_TYPES
+    }
+  })
 );
 
 type Clock = () => number;
@@ -54,7 +145,10 @@ export class MeasurementKernel<RequestT extends object = object> {
     private readonly now: Clock = Date.now
   ) {
     this.detectorState = Object.fromEntries(
-      DETECTOR_IDS.map((id) => [id, { version: DETECTOR_VERSIONS[id], status: "skipped" as const }])
+      DETECTOR_IDS.map((id) => [
+        id,
+        { version: DETECTOR_VERSIONS[id], status: "skipped" as const, reason: "not-requested" }
+      ])
     ) as DetectorLedger;
   }
 
@@ -95,6 +189,10 @@ export class MeasurementKernel<RequestT extends object = object> {
 
   setDetector(id: DetectorId, status: DetectorStatus, input: { reason?: string; phaseId?: PhaseId } = {}): void {
     this.assertOpen();
+    if (input.reason !== undefined && !isDetectorReasonCode(input.reason)) {
+      throw new Error(`Unknown detector reason code: ${input.reason}`);
+    }
+    assertDetectorStatusReason(status, input.reason);
     this.detectorState[id] = {
       version: DETECTOR_VERSIONS[id],
       status,
@@ -168,6 +266,19 @@ export class MeasurementKernel<RequestT extends object = object> {
 
   private assertOpen(): void {
     if (this.finished) throw new Error("Measurement kernel is already finished.");
+  }
+}
+
+function assertDetectorStatusReason(status: DetectorStatus, reason: string | undefined): void {
+  if (status === "complete" && reason !== undefined) {
+    throw new Error("A complete detector cannot carry a failure/skip reason.");
+  }
+  if (status !== "complete" && reason === undefined) {
+    throw new Error(`A ${status} detector must carry a reason code.`);
+  }
+  if (reason === undefined) return;
+  if (!isDetectorReasonForStatus(status, reason)) {
+    throw new Error(`Detector reason ${reason} is incompatible with status ${status}.`);
   }
 }
 

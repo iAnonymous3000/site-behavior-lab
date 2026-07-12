@@ -165,8 +165,8 @@
       },
       {
         "id": 9,
-        "url": "https://ogads-pa.clients6.google.com/{seg}/{seg}/{seg}",
-        "domain": "ogads-pa.clients6.google.com",
+        "url": "https://{label}.{label}.google.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -513,8 +513,8 @@
       },
       {
         "id": 38,
-        "url": "https://play.google.com/{seg}",
-        "domain": "play.google.com",
+        "url": "https://{label}.google.com/{seg}",
+        "domain": "{label}.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -752,7 +752,7 @@
         ]
       },
       {
-        "domain": "ogads-pa.clients6.google.com",
+        "domain": "{label}.{label}.google.com",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -765,7 +765,7 @@
         ]
       },
       {
-        "domain": "play.google.com",
+        "domain": "{label}.google.com",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -889,7 +889,7 @@
       }
     ],
     "privacyPolicy": {
-      "url": "https://policies.google.com/privacy",
+      "url": "https://{label}.google.com/privacy",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [],
@@ -900,7 +900,7 @@
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://policies.google.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.google.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "variant": {
@@ -1045,8 +1045,8 @@
       },
       {
         "id": 9,
-        "url": "https://ogads-pa.clients6.google.com/{seg}/{seg}/{seg}",
-        "domain": "ogads-pa.clients6.google.com",
+        "url": "https://{label}.{label}.google.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1511,7 +1511,7 @@
         ]
       },
       {
-        "domain": "ogads-pa.clients6.google.com",
+        "domain": "{label}.{label}.google.com",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -1635,7 +1635,7 @@
       }
     ],
     "privacyPolicy": {
-      "url": "https://policies.google.com/privacy",
+      "url": "https://{label}.google.com/privacy",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [],
@@ -1647,7 +1647,7 @@
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://policies.google.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.google.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "diff": {
@@ -1694,7 +1694,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "play.google.com",
+        "domain": "{label}.google.com",
         "requests": 1,
         "tracker": null
       }
@@ -1720,12 +1720,12 @@
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "No blocking: Read the site's privacy policy (https://policies.google.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://{label}.google.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
     "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Brave-list blocking: Read the site's privacy policy (https://policies.google.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://{label}.google.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260706-3133cef52c93d31213a752599684fd5f",

@@ -46,7 +46,7 @@ function makeResult(overrides: {
           })),
     summary: {
       ...base.summary,
-      firstPartyDomain: overrides.firstPartyDomain ?? "shop.example.dev",
+      firstPartyDomain: overrides.firstPartyDomain ?? "shop-fixture.dev",
       totalRequests: overrides.thirdPartyRequests === undefined ? base.summary.totalRequests : thirdPartyRequests,
       thirdPartyRequests,
       status: overrides.status ?? base.summary.status
@@ -85,21 +85,21 @@ async function writeReportAndSidecar(id: string, report: unknown): Promise<void>
 test("one data point per site, newest scan wins, percentiles over real sites", async () => {
   await writeReport(
     "20260601-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-    makeResult({ firstPartyDomain: "one.example.dev", thirdPartyRequests: 10, scannedAt: "2026-06-01T00:00:00.000Z" })
+    makeResult({ firstPartyDomain: "one-fixture.dev", thirdPartyRequests: 10, scannedAt: "2026-06-01T00:00:00.000Z" })
   );
   await writeReport(
     "20260701-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-    makeResult({ firstPartyDomain: "one.example.dev", thirdPartyRequests: 40, scannedAt: "2026-07-01T00:00:00.000Z" })
+    makeResult({ firstPartyDomain: "one-fixture.dev", thirdPartyRequests: 40, scannedAt: "2026-07-01T00:00:00.000Z" })
   );
   await writeReport(
     "20260701-cccccccccccccccccccccccccccccccc",
-    makeResult({ firstPartyDomain: "two.example.dev", thirdPartyRequests: 20, scannedAt: "2026-07-01T00:00:00.000Z" })
+    makeResult({ firstPartyDomain: "two-fixture.dev", thirdPartyRequests: 20, scannedAt: "2026-07-01T00:00:00.000Z" })
   );
 
   const { stats, warnings } = await buildCorpusStats(reportsDir);
   assert.deepEqual(warnings, []);
   assert.equal(stats.sampleSize, 2);
-  // one.example.dev contributes its NEWEST scan (40), not the older 10.
+  // one-fixture.dev contributes its NEWEST scan (40), not the older 10.
   assert.equal(stats.metrics.thirdPartyRequests?.max, 40);
   assert.equal(stats.metrics.thirdPartyRequests?.min, 20);
 });
@@ -107,9 +107,9 @@ test("one data point per site, newest scan wins, percentiles over real sites", a
 test("malformed reports fail the managed corpus build, never zero-coerce into the distribution", async () => {
   await writeReport(
     "20260701-dddddddddddddddddddddddddddddddd",
-    makeResult({ firstPartyDomain: "real.example.dev", thirdPartyRequests: 50 })
+    makeResult({ firstPartyDomain: "real-fixture.dev", thirdPartyRequests: 50 })
   );
-  const malformed = makeResult({ firstPartyDomain: "broken.example.dev" }) as unknown as {
+  const malformed = makeResult({ firstPartyDomain: "broken-fixture.dev" }) as unknown as {
     summary: Record<string, unknown>;
   };
   malformed.summary.thirdPartyRequests = "many";
@@ -121,7 +121,7 @@ test("malformed reports fail the managed corpus build, never zero-coerce into th
 test("error/block-page loads and reserved domains stay out of the distribution", async () => {
   await writeReport(
     "20260701-ffffffffffffffffffffffffffffffff",
-    makeResult({ firstPartyDomain: "walled.example.dev", status: 403 })
+    makeResult({ firstPartyDomain: "walled-fixture.dev", status: 403 })
   );
   await writeReport("20260701-abababababababababababababababab", makeResult({ firstPartyDomain: "example.com" }));
 
@@ -131,13 +131,13 @@ test("error/block-page loads and reserved domains stay out of the distribution",
 });
 
 test("request-capped runs stay out of the distribution: their counts are floors, not behavior", async () => {
-  const capped = makeResult({ firstPartyDomain: "heavy.example.dev", thirdPartyRequests: 900 });
+  const capped = makeResult({ firstPartyDomain: "heavy-fixture.dev", thirdPartyRequests: 900 });
   capped.summary.totalRequests = 1200;
   capped.warnings = ["The scan stopped recording or loading additional requests after 1000 requests."];
   await writeReport("20260701-dddddddddddddddddddddddddddddddd", capped);
   await writeReport(
     "20260701-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-    makeResult({ firstPartyDomain: "light.example.dev", thirdPartyRequests: 20 })
+    makeResult({ firstPartyDomain: "light-fixture.dev", thirdPartyRequests: 20 })
   );
 
   const { stats, warnings } = await buildCorpusStats(reportsDir);
@@ -155,9 +155,9 @@ test("a missing reports directory yields an empty distribution", async () => {
 });
 
 test("null-status runs stay out of coverage and measurement: the main document never answered", async () => {
-  const nullStatus = makeResult({ firstPartyDomain: "silent.example.dev" });
+  const nullStatus = makeResult({ firstPartyDomain: "silent-fixture.dev" });
   nullStatus.summary = { ...nullStatus.summary, status: null };
-  await writeReport("20260701-dddddddddddddddddddddddddddddddd", makeResult({ firstPartyDomain: "ok.example.dev" }));
+  await writeReport("20260701-dddddddddddddddddddddddddddddddd", makeResult({ firstPartyDomain: "ok-fixture.dev" }));
   await writeReport("20260701-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", nullStatus);
 
   const { stats } = await buildCorpusStats(reportsDir);
@@ -166,9 +166,9 @@ test("null-status runs stay out of coverage and measurement: the main document n
 });
 
 test("a consent-interaction arm is covered but never measured: accept-all is not a default visit", async () => {
-  const acceptArm = makeResult({ firstPartyDomain: "consent.example.dev" });
+  const acceptArm = makeResult({ firstPartyDomain: "consent-fixture.dev" });
   acceptArm.conditions = { ...acceptArm.conditions, consentMode: "accept-all" };
-  await writeReport("20260701-ffffffffffffffffffffffffffffffff", makeResult({ firstPartyDomain: "ok.example.dev" }));
+  await writeReport("20260701-ffffffffffffffffffffffffffffffff", makeResult({ firstPartyDomain: "ok-fixture.dev" }));
   await writeReport("20260701-abababababababababababababababab", acceptArm);
 
   const { stats } = await buildCorpusStats(reportsDir);

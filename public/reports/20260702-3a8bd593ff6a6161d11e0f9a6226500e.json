@@ -23,7 +23,7 @@
       "totalRequests": 7,
       "thirdPartyRequests": 6,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 3,
+      "thirdPartyDomains": 2,
       "cookies": 1,
       "thirdPartyCookies": 0,
       "storageEntries": 1,
@@ -81,8 +81,8 @@
       },
       {
         "id": 2,
-        "url": "https://ct.captcha-delivery.com/{seg}",
-        "domain": "ct.captcha-delivery.com",
+        "url": "https://{label}.captcha-delivery.com/{seg}",
+        "domain": "{label}.captcha-delivery.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -93,8 +93,8 @@
       },
       {
         "id": 3,
-        "url": "https://geo.captcha-delivery.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&cid=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "geo.captcha-delivery.com",
+        "url": "https://{label}.captcha-delivery.com/{seg}?%5Bredacted%5D=&cid=&t=",
+        "domain": "{label}.captcha-delivery.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -169,8 +169,8 @@
         ]
       },
       {
-        "domain": "ct.captcha-delivery.com",
-        "requests": 1,
+        "domain": "{label}.captcha-delivery.com",
+        "requests": 2,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -178,19 +178,7 @@
           200
         ],
         "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "geo.captcha-delivery.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
+          "script",
           "document"
         ]
       },
@@ -248,7 +236,7 @@
       "totalRequests": 7,
       "thirdPartyRequests": 6,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 3,
+      "thirdPartyDomains": 2,
       "cookies": 1,
       "thirdPartyCookies": 0,
       "storageEntries": 1,
@@ -306,8 +294,8 @@
       },
       {
         "id": 2,
-        "url": "https://ct.captcha-delivery.com/{seg}",
-        "domain": "ct.captcha-delivery.com",
+        "url": "https://{label}.captcha-delivery.com/{seg}",
+        "domain": "{label}.captcha-delivery.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -318,8 +306,8 @@
       },
       {
         "id": 3,
-        "url": "https://geo.captcha-delivery.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&cid=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "geo.captcha-delivery.com",
+        "url": "https://{label}.captcha-delivery.com/{seg}?%5Bredacted%5D=&cid=&t=",
+        "domain": "{label}.captcha-delivery.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -394,8 +382,8 @@
         ]
       },
       {
-        "domain": "ct.captcha-delivery.com",
-        "requests": 1,
+        "domain": "{label}.captcha-delivery.com",
+        "requests": 2,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -403,19 +391,7 @@
           200
         ],
         "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "geo.captcha-delivery.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
+          "script",
           "document"
         ]
       },
@@ -478,8 +454,8 @@
       "delta": 0
     },
     "thirdPartyDomains": {
-      "before": 3,
-      "after": 3,
+      "before": 2,
+      "after": 2,
       "delta": 0
     },
     "cookies": {

@@ -81,8 +81,8 @@
       },
       {
         "id": 2,
-        "url": "https://geo.craigslist.org/",
-        "domain": "geo.craigslist.org",
+        "url": "https://{label}.craigslist.org/",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "document",
         "status": 302,
@@ -165,8 +165,8 @@
       },
       {
         "id": 9,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -177,8 +177,8 @@
       },
       {
         "id": 10,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -189,8 +189,8 @@
       },
       {
         "id": 11,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -201,8 +201,8 @@
       },
       {
         "id": 12,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -225,8 +225,8 @@
       },
       {
         "id": 14,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -261,8 +261,8 @@
       },
       {
         "id": 17,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -285,8 +285,8 @@
       },
       {
         "id": 19,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -309,8 +309,8 @@
       },
       {
         "id": 21,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -321,8 +321,8 @@
       },
       {
         "id": 22,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -333,8 +333,8 @@
       },
       {
         "id": 23,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -345,8 +345,8 @@
       },
       {
         "id": 24,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -357,8 +357,8 @@
       },
       {
         "id": 25,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -369,8 +369,8 @@
       },
       {
         "id": 26,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -381,8 +381,8 @@
       },
       {
         "id": 27,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -393,8 +393,8 @@
       },
       {
         "id": 28,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -406,15 +406,17 @@
     ],
     "domains": [
       {
-        "domain": "sapi.craigslist.org",
-        "requests": 20,
+        "domain": "{label}.craigslist.org",
+        "requests": 21,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
         "statuses": [
+          302,
           200
         ],
         "resourceTypes": [
+          "document",
           "xhr"
         ]
       },
@@ -432,19 +434,6 @@
           "document",
           "script",
           "stylesheet"
-        ]
-      },
-      {
-        "domain": "geo.craigslist.org",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          302
-        ],
-        "resourceTypes": [
-          "document"
         ]
       }
     ],
@@ -574,8 +563,8 @@
       },
       {
         "id": 2,
-        "url": "https://geo.craigslist.org/",
-        "domain": "geo.craigslist.org",
+        "url": "https://{label}.craigslist.org/",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "document",
         "status": 302,
@@ -658,8 +647,8 @@
       },
       {
         "id": 9,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -670,8 +659,8 @@
       },
       {
         "id": 10,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -682,8 +671,8 @@
       },
       {
         "id": 11,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -694,8 +683,8 @@
       },
       {
         "id": 12,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -706,8 +695,8 @@
       },
       {
         "id": 13,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -718,8 +707,8 @@
       },
       {
         "id": 14,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -730,8 +719,8 @@
       },
       {
         "id": 15,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -742,8 +731,8 @@
       },
       {
         "id": 16,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -754,8 +743,8 @@
       },
       {
         "id": 17,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -766,8 +755,8 @@
       },
       {
         "id": 18,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -778,8 +767,8 @@
       },
       {
         "id": 19,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -790,8 +779,8 @@
       },
       {
         "id": 20,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -802,8 +791,8 @@
       },
       {
         "id": 21,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -814,8 +803,8 @@
       },
       {
         "id": 22,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -826,8 +815,8 @@
       },
       {
         "id": 23,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -838,8 +827,8 @@
       },
       {
         "id": 24,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -850,8 +839,8 @@
       },
       {
         "id": 25,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -862,8 +851,8 @@
       },
       {
         "id": 26,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -874,8 +863,8 @@
       },
       {
         "id": 27,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -886,8 +875,8 @@
       },
       {
         "id": 28,
-        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
-        "domain": "sapi.craigslist.org",
+        "url": "https://{label}.craigslist.org/{seg}/{seg}/{seg}/search",
+        "domain": "{label}.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -899,15 +888,17 @@
     ],
     "domains": [
       {
-        "domain": "sapi.craigslist.org",
-        "requests": 20,
+        "domain": "{label}.craigslist.org",
+        "requests": 21,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
         "statuses": [
+          302,
           200
         ],
         "resourceTypes": [
+          "document",
           "xhr"
         ]
       },
@@ -925,19 +916,6 @@
           "document",
           "script",
           "stylesheet"
-        ]
-      },
-      {
-        "domain": "geo.craigslist.org",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          302
-        ],
-        "resourceTypes": [
-          "document"
         ]
       }
     ],

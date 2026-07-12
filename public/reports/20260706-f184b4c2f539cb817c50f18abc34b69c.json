@@ -23,7 +23,7 @@
       "totalRequests": 460,
       "thirdPartyRequests": 399,
       "knownTrackerRequests": 36,
-      "thirdPartyDomains": 42,
+      "thirdPartyDomains": 41,
       "cookies": 46,
       "thirdPartyCookies": 37,
       "storageEntries": 14,
@@ -177,8 +177,8 @@
       },
       {
         "id": 10,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -189,8 +189,8 @@
       },
       {
         "id": 11,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -225,8 +225,8 @@
       },
       {
         "id": 14,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -261,8 +261,8 @@
       },
       {
         "id": 17,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -369,8 +369,8 @@
       },
       {
         "id": 26,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -381,8 +381,8 @@
       },
       {
         "id": 27,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -393,8 +393,8 @@
       },
       {
         "id": 28,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -405,8 +405,8 @@
       },
       {
         "id": 29,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -417,8 +417,8 @@
       },
       {
         "id": 30,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -429,8 +429,8 @@
       },
       {
         "id": 31,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -441,8 +441,8 @@
       },
       {
         "id": 32,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -453,8 +453,8 @@
       },
       {
         "id": 33,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -465,8 +465,8 @@
       },
       {
         "id": 34,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -645,8 +645,8 @@
       },
       {
         "id": 49,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -657,8 +657,8 @@
       },
       {
         "id": 50,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -669,8 +669,8 @@
       },
       {
         "id": 51,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -681,8 +681,8 @@
       },
       {
         "id": 52,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -693,8 +693,8 @@
       },
       {
         "id": 53,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -705,8 +705,8 @@
       },
       {
         "id": 54,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -717,8 +717,8 @@
       },
       {
         "id": 55,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -729,8 +729,8 @@
       },
       {
         "id": 56,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -741,8 +741,8 @@
       },
       {
         "id": 57,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -753,8 +753,8 @@
       },
       {
         "id": 58,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -765,8 +765,8 @@
       },
       {
         "id": 59,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -777,8 +777,8 @@
       },
       {
         "id": 60,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -789,8 +789,8 @@
       },
       {
         "id": 61,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -801,8 +801,8 @@
       },
       {
         "id": 62,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -813,8 +813,8 @@
       },
       {
         "id": 63,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -825,8 +825,8 @@
       },
       {
         "id": 64,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1005,8 +1005,8 @@
       },
       {
         "id": 79,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1017,8 +1017,8 @@
       },
       {
         "id": 80,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1029,8 +1029,8 @@
       },
       {
         "id": 81,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1041,8 +1041,8 @@
       },
       {
         "id": 82,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1053,8 +1053,8 @@
       },
       {
         "id": 83,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1065,8 +1065,8 @@
       },
       {
         "id": 84,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1077,8 +1077,8 @@
       },
       {
         "id": 85,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1089,8 +1089,8 @@
       },
       {
         "id": 86,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1113,8 +1113,8 @@
       },
       {
         "id": 88,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1125,8 +1125,8 @@
       },
       {
         "id": 89,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1137,8 +1137,8 @@
       },
       {
         "id": 90,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1149,8 +1149,8 @@
       },
       {
         "id": 91,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1161,8 +1161,8 @@
       },
       {
         "id": 92,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3261,8 +3261,8 @@
       },
       {
         "id": 267,
-        "url": "https://unagi.amazon.com/{n}/{seg}/{seg}",
-        "domain": "unagi.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -3273,8 +3273,8 @@
       },
       {
         "id": 268,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3285,8 +3285,8 @@
       },
       {
         "id": 269,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3297,8 +3297,8 @@
       },
       {
         "id": 270,
-        "url": "https://unagi.amazon.com/{n}/{seg}/{seg}",
-        "domain": "unagi.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3309,8 +3309,8 @@
       },
       {
         "id": 271,
-        "url": "https://unagi.amazon.com/{n}/{seg}/{seg}",
-        "domain": "unagi.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -3321,8 +3321,8 @@
       },
       {
         "id": 272,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3333,8 +3333,8 @@
       },
       {
         "id": 273,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3345,8 +3345,8 @@
       },
       {
         "id": 274,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3729,8 +3729,8 @@
       },
       {
         "id": 306,
-        "url": "https://unagi.amazon.com/{n}/{seg}/{seg}",
-        "domain": "unagi.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -3741,8 +3741,8 @@
       },
       {
         "id": 307,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3765,8 +3765,8 @@
       },
       {
         "id": 309,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3813,8 +3813,8 @@
       },
       {
         "id": 313,
-        "url": "https://unagi.amazon.com/{n}/{seg}/{seg}",
-        "domain": "unagi.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -3825,8 +3825,8 @@
       },
       {
         "id": 314,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3837,8 +3837,8 @@
       },
       {
         "id": 315,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3849,8 +3849,8 @@
       },
       {
         "id": 316,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3909,8 +3909,8 @@
       },
       {
         "id": 321,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "document",
         "status": 302,
@@ -3926,8 +3926,8 @@
       },
       {
         "id": 322,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3974,8 +3974,8 @@
       },
       {
         "id": 326,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3986,8 +3986,8 @@
       },
       {
         "id": 327,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4010,8 +4010,8 @@
       },
       {
         "id": 329,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cb=&%5Bredacted%5D=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -4027,8 +4027,8 @@
       },
       {
         "id": 330,
-        "url": "https://s.amazon-adsystem.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -4044,8 +4044,8 @@
       },
       {
         "id": 331,
-        "url": "https://ib.adnxs.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ib.adnxs.com",
+        "url": "https://{label}.adnxs.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adnxs.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4056,8 +4056,8 @@
       },
       {
         "id": 332,
-        "url": "https://match.360yield.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.360yield.com",
+        "url": "https://{label}.360yield.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.360yield.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4068,8 +4068,8 @@
       },
       {
         "id": 333,
-        "url": "https://jadserve.postrelease.com/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "jadserve.postrelease.com",
+        "url": "https://{label}.postrelease.com/{seg}/{n}?%5Bredacted%5D=&id=",
+        "domain": "{label}.postrelease.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4080,8 +4080,8 @@
       },
       {
         "id": 334,
-        "url": "https://aa.agkn.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "aa.agkn.com",
+        "url": "https://{label}.agkn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.agkn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4092,8 +4092,8 @@
       },
       {
         "id": 335,
-        "url": "https://rtb-csync.smartadserver.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "rtb-csync.smartadserver.com",
+        "url": "https://{label}.smartadserver.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.smartadserver.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4104,8 +4104,8 @@
       },
       {
         "id": 336,
-        "url": "https://dsum-sec.casalemedia.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&cb=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dsum-sec.casalemedia.com",
+        "url": "https://{label}.casalemedia.com/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.casalemedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4121,8 +4121,8 @@
       },
       {
         "id": 337,
-        "url": "https://x.bidswitch.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "x.bidswitch.net",
+        "url": "https://{label}.bidswitch.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bidswitch.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4133,8 +4133,8 @@
       },
       {
         "id": 338,
-        "url": "https://pbs.yahoo.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pbs.yahoo.com",
+        "url": "https://{label}.yahoo.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.yahoo.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -4145,8 +4145,8 @@
       },
       {
         "id": 339,
-        "url": "https://capi.connatix.com/us/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "capi.connatix.com",
+        "url": "https://{label}.connatix.com/us/{seg}?%5Bredacted%5D=&callback=",
+        "domain": "{label}.connatix.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4157,7 +4157,7 @@
       },
       {
         "id": 340,
-        "url": "https://{label}.dmxleo.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://{label}.dmxleo.com/{seg}?%5Bredacted%5D=&id=",
         "domain": "{label}.dmxleo.com",
         "method": "GET",
         "resourceType": "image",
@@ -4169,8 +4169,8 @@
       },
       {
         "id": 341,
-        "url": "https://geo.ads.audio.thisisdax.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "geo.ads.audio.thisisdax.com",
+        "url": "https://{label}.ads.{label}.thisisdax.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ads.{label}.thisisdax.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4181,8 +4181,8 @@
       },
       {
         "id": 342,
-        "url": "https://spl.zeotap.com/?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "spl.zeotap.com",
+        "url": "https://{label}.zeotap.com/?%5Bredacted%5D=",
+        "domain": "{label}.zeotap.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4193,8 +4193,8 @@
       },
       {
         "id": 343,
-        "url": "https://user-sync.fwmrm.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "user-sync.fwmrm.net",
+        "url": "https://{label}.fwmrm.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.fwmrm.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4217,8 +4217,8 @@
       },
       {
         "id": 345,
-        "url": "https://sync.rfp.fout.jp/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sync.rfp.fout.jp",
+        "url": "https://{label}.{label}.fout.jp/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.fout.jp",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4229,8 +4229,8 @@
       },
       {
         "id": 346,
-        "url": "https://usersync.samplicio.us/{seg}/{seg}?%5Bredacted%5D=&id=",
-        "domain": "usersync.samplicio.us",
+        "url": "https://{label}.samplicio.us/{seg}/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.samplicio.us",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4241,8 +4241,8 @@
       },
       {
         "id": 347,
-        "url": "https://rtb-csync.smartadserver.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "rtb-csync.smartadserver.com",
+        "url": "https://{label}.smartadserver.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.smartadserver.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4265,7 +4265,7 @@
       },
       {
         "id": 349,
-        "url": "https://pixel.rubiconproject.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://pixel.rubiconproject.com/{seg}?%5Bredacted%5D=",
         "domain": "pixel.rubiconproject.com",
         "method": "GET",
         "resourceType": "image",
@@ -4282,8 +4282,8 @@
       },
       {
         "id": 350,
-        "url": "https://user-sync.fwmrm.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "user-sync.fwmrm.net",
+        "url": "https://{label}.fwmrm.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.fwmrm.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4294,8 +4294,8 @@
       },
       {
         "id": 351,
-        "url": "https://ms-cookie-sync.presage.io/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ms-cookie-sync.presage.io",
+        "url": "https://{label}.presage.io/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.presage.io",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4306,8 +4306,8 @@
       },
       {
         "id": 352,
-        "url": "https://dpm.demdex.net/{seg}",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4323,8 +4323,8 @@
       },
       {
         "id": 353,
-        "url": "https://odr.mookie1.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "odr.mookie1.com",
+        "url": "https://{label}.mookie1.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.mookie1.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4335,8 +4335,8 @@
       },
       {
         "id": 354,
-        "url": "https://cookie-matching.mediarithmics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cookie-matching.mediarithmics.com",
+        "url": "https://{label}.mediarithmics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.mediarithmics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 303,
@@ -4347,8 +4347,8 @@
       },
       {
         "id": 355,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4364,8 +4364,8 @@
       },
       {
         "id": 356,
-        "url": "https://sb.scorecardresearch.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4381,8 +4381,8 @@
       },
       {
         "id": 357,
-        "url": "https://csync.loopme.me/?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "csync.loopme.me",
+        "url": "https://{label}.loopme.me/?%5Bredacted%5D=&id=",
+        "domain": "{label}.loopme.me",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -4393,8 +4393,8 @@
       },
       {
         "id": 358,
-        "url": "https://us-u.openx.net/{seg}/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "us-u.openx.net",
+        "url": "https://{label}.openx.net/{seg}/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "{label}.openx.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4410,8 +4410,8 @@
       },
       {
         "id": 359,
-        "url": "https://eb2.3lift.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "eb2.3lift.com",
+        "url": "https://{label}.3lift.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.3lift.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4422,8 +4422,8 @@
       },
       {
         "id": 360,
-        "url": "https://uipglob.semasio.net/{seg}/{n}/{seg}?%5Bredacted%5D=",
-        "domain": "uipglob.semasio.net",
+        "url": "https://{label}.semasio.net/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.semasio.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4434,8 +4434,8 @@
       },
       {
         "id": 361,
-        "url": "https://crb.kargo.com/api/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "crb.kargo.com",
+        "url": "https://{label}.kargo.com/api/{seg}/{seg}/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.kargo.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4446,8 +4446,8 @@
       },
       {
         "id": 362,
-        "url": "https://usersync.gumgum.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "usersync.gumgum.com",
+        "url": "https://{label}.gumgum.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.gumgum.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4458,8 +4458,8 @@
       },
       {
         "id": 363,
-        "url": "https://ib.adnxs.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ib.adnxs.com",
+        "url": "https://{label}.adnxs.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adnxs.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4470,8 +4470,8 @@
       },
       {
         "id": 364,
-        "url": "https://image2.pubmatic.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "image2.pubmatic.com",
+        "url": "https://{label}.pubmatic.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.pubmatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4487,8 +4487,8 @@
       },
       {
         "id": 365,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4504,8 +4504,8 @@
       },
       {
         "id": 366,
-        "url": "https://loadus.exelator.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "loadus.exelator.com",
+        "url": "https://{label}.exelator.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.exelator.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -4516,8 +4516,8 @@
       },
       {
         "id": 367,
-        "url": "https://lciapi.ninthdecimal.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "lciapi.ninthdecimal.com",
+        "url": "https://{label}.ninthdecimal.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ninthdecimal.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4528,8 +4528,8 @@
       },
       {
         "id": 368,
-        "url": "https://pi.ispot.tv/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "pi.ispot.tv",
+        "url": "https://{label}.ispot.tv/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ispot.tv",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4540,8 +4540,8 @@
       },
       {
         "id": 369,
-        "url": "https://ih.adscale.de/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ih.adscale.de",
+        "url": "https://{label}.adscale.de/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.adscale.de",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4552,8 +4552,8 @@
       },
       {
         "id": 370,
-        "url": "https://sync-amazon.ads.yieldmo.com/{seg}?%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sync-amazon.ads.yieldmo.com",
+        "url": "https://{label}.ads.yieldmo.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.ads.yieldmo.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4564,8 +4564,8 @@
       },
       {
         "id": 371,
-        "url": "https://us-u.openx.net/{seg}/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "us-u.openx.net",
+        "url": "https://{label}.openx.net/{seg}/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "{label}.openx.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -4581,8 +4581,8 @@
       },
       {
         "id": 372,
-        "url": "https://us-east-sync.richaudience.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "us-east-sync.richaudience.com",
+        "url": "https://{label}.richaudience.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.richaudience.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4593,8 +4593,8 @@
       },
       {
         "id": 373,
-        "url": "https://sync.taboola.com/{seg}/{seg}/{n}/{seg}",
-        "domain": "sync.taboola.com",
+        "url": "https://{label}.taboola.com/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.taboola.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4610,8 +4610,8 @@
       },
       {
         "id": 374,
-        "url": "https://unagi.amazon.com/{n}/{seg}/{seg}",
-        "domain": "unagi.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -4634,8 +4634,8 @@
       },
       {
         "id": 376,
-        "url": "https://s.amazon-adsystem.com/{seg}?id=&%5Bredacted%5D=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?id=&%5Bredacted%5D=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4651,8 +4651,8 @@
       },
       {
         "id": 377,
-        "url": "https://match.360yield.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.360yield.com",
+        "url": "https://{label}.360yield.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.360yield.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4663,8 +4663,8 @@
       },
       {
         "id": 378,
-        "url": "https://capi.connatix.com/us/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "capi.connatix.com",
+        "url": "https://{label}.connatix.com/us/{seg}?%5Bredacted%5D=&callback=",
+        "domain": "{label}.connatix.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4675,8 +4675,8 @@
       },
       {
         "id": 379,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4692,8 +4692,8 @@
       },
       {
         "id": 380,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4709,8 +4709,8 @@
       },
       {
         "id": 381,
-        "url": "https://x.bidswitch.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "x.bidswitch.net",
+        "url": "https://{label}.bidswitch.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bidswitch.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4721,8 +4721,8 @@
       },
       {
         "id": 382,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=&%5Bredacted%5D=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4738,8 +4738,8 @@
       },
       {
         "id": 383,
-        "url": "https://mwzeom.zeotap.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mwzeom.zeotap.com",
+        "url": "https://{label}.zeotap.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.zeotap.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4750,8 +4750,8 @@
       },
       {
         "id": 384,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4767,8 +4767,8 @@
       },
       {
         "id": 385,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4784,8 +4784,8 @@
       },
       {
         "id": 386,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4801,8 +4801,8 @@
       },
       {
         "id": 387,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4818,8 +4818,8 @@
       },
       {
         "id": 388,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4835,8 +4835,8 @@
       },
       {
         "id": 389,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4852,8 +4852,8 @@
       },
       {
         "id": 390,
-        "url": "https://sb.scorecardresearch.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4869,8 +4869,8 @@
       },
       {
         "id": 391,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4886,8 +4886,8 @@
       },
       {
         "id": 392,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4903,8 +4903,8 @@
       },
       {
         "id": 393,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4920,8 +4920,8 @@
       },
       {
         "id": 394,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5021,8 +5021,8 @@
       },
       {
         "id": 402,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5050,8 +5050,8 @@
       },
       {
         "id": 404,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5067,8 +5067,8 @@
       },
       {
         "id": 405,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5084,8 +5084,8 @@
       },
       {
         "id": 406,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5101,8 +5101,8 @@
       },
       {
         "id": 407,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5118,8 +5118,8 @@
       },
       {
         "id": 408,
-        "url": "https://cookie-matching.mediarithmics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cookie-matching.mediarithmics.com",
+        "url": "https://{label}.mediarithmics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.mediarithmics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 303,
@@ -5130,8 +5130,8 @@
       },
       {
         "id": 409,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5147,8 +5147,8 @@
       },
       {
         "id": 410,
-        "url": "https://ih.adscale.de/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ih.adscale.de",
+        "url": "https://{label}.adscale.de/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.adscale.de",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -5159,8 +5159,8 @@
       },
       {
         "id": 411,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -5176,8 +5176,8 @@
       },
       {
         "id": 412,
-        "url": "https://cookie-matching.mediarithmics.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cookie-matching.mediarithmics.com",
+        "url": "https://{label}.mediarithmics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.mediarithmics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 303,
@@ -5188,8 +5188,8 @@
       },
       {
         "id": 413,
-        "url": "https://ib.adnxs.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ib.adnxs.com",
+        "url": "https://{label}.adnxs.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adnxs.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5200,8 +5200,8 @@
       },
       {
         "id": 414,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5493,8 +5493,8 @@
       },
       {
         "id": 438,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5517,8 +5517,8 @@
       },
       {
         "id": 440,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5649,8 +5649,8 @@
       },
       {
         "id": 451,
-        "url": "https://unagi.amazon.com/{n}/{seg}/{seg}",
-        "domain": "unagi.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -5661,8 +5661,8 @@
       },
       {
         "id": 452,
-        "url": "https://unagi.amazon.com/{n}/{seg}/{seg}",
-        "domain": "unagi.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -5673,8 +5673,8 @@
       },
       {
         "id": 453,
-        "url": "https://unagi.amazon.com/{n}/{seg}/{seg}",
-        "domain": "unagi.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -5685,8 +5685,8 @@
       },
       {
         "id": 454,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": null,
@@ -5697,8 +5697,8 @@
       },
       {
         "id": 455,
-        "url": "https://unagi.amazon.com/{n}/{seg}/{seg}",
-        "domain": "unagi.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -5709,8 +5709,8 @@
       },
       {
         "id": 456,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": null,
@@ -5733,8 +5733,8 @@
       },
       {
         "id": 458,
-        "url": "https://unagi-na.amazon.com/{n}/{seg}/{seg}",
-        "domain": "unagi-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -5745,8 +5745,8 @@
       },
       {
         "id": 459,
-        "url": "https://unagi-na.amazon.com/{n}/{seg}/{seg}",
-        "domain": "unagi-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -5757,8 +5757,8 @@
       },
       {
         "id": 460,
-        "url": "https://unagi.amazon.com/{n}/{seg}/{seg}",
-        "domain": "unagi.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -5770,7 +5770,7 @@
     ],
     "domains": [
       {
-        "domain": "s.amazon-adsystem.com",
+        "domain": "{label}.amazon-adsystem.com",
         "requests": 21,
         "thirdParty": true,
         "tracker": {
@@ -5790,7 +5790,7 @@
         ]
       },
       {
-        "domain": "cm.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 5,
         "thirdParty": true,
         "tracker": {
@@ -5808,7 +5808,7 @@
         ]
       },
       {
-        "domain": "dpm.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -5826,7 +5826,7 @@
         ]
       },
       {
-        "domain": "sb.scorecardresearch.com",
+        "domain": "{label}.scorecardresearch.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -5844,7 +5844,7 @@
         ]
       },
       {
-        "domain": "us-u.openx.net",
+        "domain": "{label}.openx.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -5863,7 +5863,7 @@
         ]
       },
       {
-        "domain": "dsum-sec.casalemedia.com",
+        "domain": "{label}.casalemedia.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -5899,7 +5899,7 @@
         ]
       },
       {
-        "domain": "image2.pubmatic.com",
+        "domain": "{label}.pubmatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -5917,7 +5917,7 @@
         ]
       },
       {
-        "domain": "sync.taboola.com",
+        "domain": "{label}.taboola.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -5955,7 +5955,7 @@
         ]
       },
       {
-        "domain": "images-na.ssl-images-amazon.com",
+        "domain": "{label}.ssl-images-amazon.com",
         "requests": 46,
         "thirdParty": true,
         "tracker": null,
@@ -5969,7 +5969,7 @@
         ]
       },
       {
-        "domain": "ib.adnxs.com",
+        "domain": "{label}.adnxs.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -5982,7 +5982,7 @@
         ]
       },
       {
-        "domain": "cookie-matching.mediarithmics.com",
+        "domain": "{label}.mediarithmics.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -5995,7 +5995,7 @@
         ]
       },
       {
-        "domain": "match.360yield.com",
+        "domain": "{label}.360yield.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -6008,7 +6008,7 @@
         ]
       },
       {
-        "domain": "rtb-csync.smartadserver.com",
+        "domain": "{label}.smartadserver.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -6021,7 +6021,7 @@
         ]
       },
       {
-        "domain": "x.bidswitch.net",
+        "domain": "{label}.bidswitch.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -6034,7 +6034,7 @@
         ]
       },
       {
-        "domain": "capi.connatix.com",
+        "domain": "{label}.connatix.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -6047,7 +6047,20 @@
         ]
       },
       {
-        "domain": "user-sync.fwmrm.net",
+        "domain": "{label}.zeotap.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.fwmrm.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -6060,7 +6073,7 @@
         ]
       },
       {
-        "domain": "ih.adscale.de",
+        "domain": "{label}.adscale.de",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -6073,7 +6086,7 @@
         ]
       },
       {
-        "domain": "jadserve.postrelease.com",
+        "domain": "{label}.postrelease.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6086,7 +6099,7 @@
         ]
       },
       {
-        "domain": "aa.agkn.com",
+        "domain": "{label}.agkn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6099,7 +6112,7 @@
         ]
       },
       {
-        "domain": "pbs.yahoo.com",
+        "domain": "{label}.yahoo.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6125,26 +6138,13 @@
         ]
       },
       {
-        "domain": "geo.ads.audio.thisisdax.com",
+        "domain": "{label}.ads.{label}.thisisdax.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
         "statuses": [
           200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "spl.zeotap.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          302
         ],
         "resourceTypes": [
           "image"
@@ -6164,7 +6164,7 @@
         ]
       },
       {
-        "domain": "sync.rfp.fout.jp",
+        "domain": "{label}.{label}.fout.jp",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6177,7 +6177,7 @@
         ]
       },
       {
-        "domain": "usersync.samplicio.us",
+        "domain": "{label}.samplicio.us",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6201,7 +6201,7 @@
         ]
       },
       {
-        "domain": "ms-cookie-sync.presage.io",
+        "domain": "{label}.presage.io",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6214,7 +6214,7 @@
         ]
       },
       {
-        "domain": "odr.mookie1.com",
+        "domain": "{label}.mookie1.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6227,7 +6227,7 @@
         ]
       },
       {
-        "domain": "csync.loopme.me",
+        "domain": "{label}.loopme.me",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6240,7 +6240,7 @@
         ]
       },
       {
-        "domain": "eb2.3lift.com",
+        "domain": "{label}.3lift.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6253,7 +6253,7 @@
         ]
       },
       {
-        "domain": "uipglob.semasio.net",
+        "domain": "{label}.semasio.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6266,7 +6266,7 @@
         ]
       },
       {
-        "domain": "crb.kargo.com",
+        "domain": "{label}.kargo.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6279,7 +6279,7 @@
         ]
       },
       {
-        "domain": "usersync.gumgum.com",
+        "domain": "{label}.gumgum.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6292,7 +6292,7 @@
         ]
       },
       {
-        "domain": "loadus.exelator.com",
+        "domain": "{label}.exelator.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6305,7 +6305,7 @@
         ]
       },
       {
-        "domain": "lciapi.ninthdecimal.com",
+        "domain": "{label}.ninthdecimal.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6318,7 +6318,7 @@
         ]
       },
       {
-        "domain": "pi.ispot.tv",
+        "domain": "{label}.ispot.tv",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6331,7 +6331,7 @@
         ]
       },
       {
-        "domain": "sync-amazon.ads.yieldmo.com",
+        "domain": "{label}.ads.yieldmo.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6344,20 +6344,7 @@
         ]
       },
       {
-        "domain": "us-east-sync.richaudience.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          302
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "mwzeom.zeotap.com",
+        "domain": "{label}.richaudience.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6385,8 +6372,8 @@
         ]
       },
       {
-        "domain": "fls-na.amazon.com",
-        "requests": 17,
+        "domain": "{label}.amazon.com",
+        "requests": 30,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
@@ -6394,32 +6381,9 @@
           200
         ],
         "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "unagi.amazon.com",
-        "requests": 11,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
+          "image",
           "ping",
           "xhr"
-        ]
-      },
-      {
-        "domain": "unagi-na.amazon.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [],
-        "resourceTypes": [
-          "ping"
         ]
       }
     ],
@@ -6546,7 +6510,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".csync.loopme.me",
+        "domain": ".{label}.loopme.me",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -6576,7 +6540,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".dpm.demdex.net",
+        "domain": ".{label}.demdex.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -6606,7 +6570,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".ih.adscale.de",
+        "domain": ".{label}.adscale.de",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -6636,7 +6600,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".pbs.yahoo.com",
+        "domain": ".{label}.yahoo.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -7186,8 +7150,8 @@
       },
       {
         "id": 8,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7282,8 +7246,8 @@
       },
       {
         "id": 16,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7294,8 +7258,8 @@
       },
       {
         "id": 17,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7306,8 +7270,8 @@
       },
       {
         "id": 18,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7318,8 +7282,8 @@
       },
       {
         "id": 19,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7330,8 +7294,8 @@
       },
       {
         "id": 20,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7342,8 +7306,8 @@
       },
       {
         "id": 21,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7354,8 +7318,8 @@
       },
       {
         "id": 22,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7402,8 +7366,8 @@
       },
       {
         "id": 26,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7414,8 +7378,8 @@
       },
       {
         "id": 27,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7426,8 +7390,8 @@
       },
       {
         "id": 28,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7438,8 +7402,8 @@
       },
       {
         "id": 29,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7450,8 +7414,8 @@
       },
       {
         "id": 30,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7462,8 +7426,8 @@
       },
       {
         "id": 31,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7474,8 +7438,8 @@
       },
       {
         "id": 32,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7486,8 +7450,8 @@
       },
       {
         "id": 33,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7498,8 +7462,8 @@
       },
       {
         "id": 34,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7678,8 +7642,8 @@
       },
       {
         "id": 49,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7690,8 +7654,8 @@
       },
       {
         "id": 50,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7702,8 +7666,8 @@
       },
       {
         "id": 51,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7714,8 +7678,8 @@
       },
       {
         "id": 52,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7726,8 +7690,8 @@
       },
       {
         "id": 53,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7738,8 +7702,8 @@
       },
       {
         "id": 54,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7750,8 +7714,8 @@
       },
       {
         "id": 55,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7762,8 +7726,8 @@
       },
       {
         "id": 56,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7774,8 +7738,8 @@
       },
       {
         "id": 57,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7786,8 +7750,8 @@
       },
       {
         "id": 58,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7798,8 +7762,8 @@
       },
       {
         "id": 59,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7810,8 +7774,8 @@
       },
       {
         "id": 60,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7822,8 +7786,8 @@
       },
       {
         "id": 61,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/home/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/home/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8014,8 +7978,8 @@
       },
       {
         "id": 77,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8026,8 +7990,8 @@
       },
       {
         "id": 78,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8038,8 +8002,8 @@
       },
       {
         "id": 79,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8050,8 +8014,8 @@
       },
       {
         "id": 80,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8062,8 +8026,8 @@
       },
       {
         "id": 81,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8074,8 +8038,8 @@
       },
       {
         "id": 82,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8086,8 +8050,8 @@
       },
       {
         "id": 83,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8098,8 +8062,8 @@
       },
       {
         "id": 84,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8110,8 +8074,8 @@
       },
       {
         "id": 85,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8122,8 +8086,8 @@
       },
       {
         "id": 86,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8134,8 +8098,8 @@
       },
       {
         "id": 87,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8146,8 +8110,8 @@
       },
       {
         "id": 88,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8158,8 +8122,8 @@
       },
       {
         "id": 89,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8170,8 +8134,8 @@
       },
       {
         "id": 90,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8182,8 +8146,8 @@
       },
       {
         "id": 91,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8194,8 +8158,8 @@
       },
       {
         "id": 92,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9634,8 +9598,8 @@
       },
       {
         "id": 212,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -10354,8 +10318,8 @@
       },
       {
         "id": 275,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -10366,8 +10330,8 @@
       },
       {
         "id": 276,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -10378,8 +10342,8 @@
       },
       {
         "id": 279,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -10390,8 +10354,8 @@
       },
       {
         "id": 280,
-        "url": "https://images-na.ssl-images-amazon.com/{seg}/{seg}/{seg}",
-        "domain": "images-na.ssl-images-amazon.com",
+        "url": "https://{label}.ssl-images-amazon.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ssl-images-amazon.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -10402,8 +10366,8 @@
       },
       {
         "id": 281,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -10414,8 +10378,8 @@
       },
       {
         "id": 282,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -10762,8 +10726,8 @@
       },
       {
         "id": 311,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -10774,8 +10738,8 @@
       },
       {
         "id": 313,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -10786,8 +10750,8 @@
       },
       {
         "id": 314,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -10798,8 +10762,8 @@
       },
       {
         "id": 315,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -10810,8 +10774,8 @@
       },
       {
         "id": 316,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -10834,8 +10798,8 @@
       },
       {
         "id": 318,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -11086,8 +11050,8 @@
       },
       {
         "id": 342,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -11218,8 +11182,8 @@
       },
       {
         "id": 353,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -11254,8 +11218,8 @@
       },
       {
         "id": 358,
-        "url": "https://fls-na.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
-        "domain": "fls-na.amazon.com",
+        "url": "https://{label}.amazon.com/{n}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.amazon.com",
         "method": "GET",
         "resourceType": "image",
         "status": null,
@@ -11286,7 +11250,7 @@
         ]
       },
       {
-        "domain": "images-na.ssl-images-amazon.com",
+        "domain": "{label}.ssl-images-amazon.com",
         "requests": 47,
         "thirdParty": true,
         "tracker": null,
@@ -11314,7 +11278,7 @@
         ]
       },
       {
-        "domain": "fls-na.amazon.com",
+        "domain": "{label}.amazon.com",
         "requests": 15,
         "thirdParty": false,
         "tracker": null,
@@ -11596,9 +11560,9 @@
       "delta": -36
     },
     "thirdPartyDomains": {
-      "before": 42,
+      "before": 41,
       "after": 2,
-      "delta": -40
+      "delta": -39
     },
     "cookies": {
       "before": 46,
@@ -11623,7 +11587,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "s.amazon-adsystem.com",
+        "domain": "{label}.amazon-adsystem.com",
         "requests": 21,
         "tracker": {
           "domain": "amazon-adsystem.com",
@@ -11633,12 +11597,7 @@
         }
       },
       {
-        "domain": "unagi.amazon.com",
-        "requests": 11,
-        "tracker": null
-      },
-      {
-        "domain": "cm.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 5,
         "tracker": {
           "domain": "doubleclick.net",
@@ -11648,22 +11607,37 @@
         }
       },
       {
-        "domain": "cookie-matching.mediarithmics.com",
+        "domain": "{label}.adnxs.com",
         "requests": 3,
         "tracker": null
       },
       {
-        "domain": "ib.adnxs.com",
+        "domain": "{label}.mediarithmics.com",
         "requests": 3,
         "tracker": null
       },
       {
-        "domain": "capi.connatix.com",
+        "domain": "{label}.360yield.com",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "dpm.demdex.net",
+        "domain": "{label}.adscale.de",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.bidswitch.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.connatix.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.demdex.net",
         "requests": 2,
         "tracker": {
           "domain": "demdex.net",
@@ -11673,37 +11647,12 @@
         }
       },
       {
-        "domain": "ih.adscale.de",
+        "domain": "{label}.fwmrm.net",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "match.360yield.com",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "rtb-csync.smartadserver.com",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "sb.scorecardresearch.com",
-        "requests": 2,
-        "tracker": {
-          "domain": "scorecardresearch.com",
-          "entity": "Comscore",
-          "category": "audience measurement",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "unagi-na.amazon.com",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "us-u.openx.net",
+        "domain": "{label}.openx.net",
         "requests": 2,
         "tracker": {
           "domain": "openx.net",
@@ -11713,42 +11662,52 @@
         }
       },
       {
-        "domain": "user-sync.fwmrm.net",
+        "domain": "{label}.scorecardresearch.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "scorecardresearch.com",
+          "entity": "Comscore",
+          "category": "audience measurement",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.smartadserver.com",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "x.bidswitch.net",
+        "domain": "{label}.zeotap.com",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "{label}.dmxleo.com",
+        "domain": "{label}.{label}.fout.jp",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "aa.agkn.com",
+        "domain": "{label}.3lift.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "ads.samba.tv",
+        "domain": "{label}.ads.{label}.thisisdax.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "crb.kargo.com",
+        "domain": "{label}.ads.yieldmo.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "csync.loopme.me",
+        "domain": "{label}.agkn.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "dsum-sec.casalemedia.com",
+        "domain": "{label}.casalemedia.com",
         "requests": 1,
         "tracker": {
           "domain": "casalemedia.com",
@@ -11758,17 +11717,57 @@
         }
       },
       {
-        "domain": "eb2.3lift.com",
+        "domain": "{label}.dmxleo.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "geo.ads.audio.thisisdax.com",
+        "domain": "{label}.exelator.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "image2.pubmatic.com",
+        "domain": "{label}.gumgum.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.ispot.tv",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.kargo.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.loopme.me",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.mookie1.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.ninthdecimal.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.postrelease.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.presage.io",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.pubmatic.com",
         "requests": 1,
         "tracker": {
           "domain": "pubmatic.com",
@@ -11778,42 +11777,37 @@
         }
       },
       {
-        "domain": "jadserve.postrelease.com",
+        "domain": "{label}.richaudience.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "lciapi.ninthdecimal.com",
+        "domain": "{label}.samplicio.us",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "loadus.exelator.com",
+        "domain": "{label}.semasio.net",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "ms-cookie-sync.presage.io",
+        "domain": "{label}.taboola.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.yahoo.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "mwzeom.zeotap.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "odr.mookie1.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "pbs.yahoo.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "pi.ispot.tv",
+        "domain": "ads.samba.tv",
         "requests": 1,
         "tracker": null
       },
@@ -11826,51 +11820,6 @@
           "category": "advertising / supply-side platform",
           "confidence": "curated"
         }
-      },
-      {
-        "domain": "spl.zeotap.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "sync-amazon.ads.yieldmo.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "sync.rfp.fout.jp",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "sync.taboola.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "taboola.com",
-          "entity": "Taboola",
-          "category": "advertising / recommendations",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "uipglob.semasio.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "us-east-sync.richaudience.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "usersync.gumgum.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "usersync.samplicio.us",
-        "requests": 1,
-        "tracker": null
       },
       {
         "domain": "www.imdb.com",
@@ -11930,6 +11879,26 @@
     "removedCookies": [
       {
         "name": "[redacted]",
+        "domain": ".{label}.adscale.de",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.loopme.me",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.yahoo.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
         "domain": ".360yield.com",
         "thirdParty": true
       },
@@ -11960,22 +11929,12 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".csync.loopme.me",
-        "thirdParty": true
-      },
-      {
-        "name": "[redacted]",
         "domain": ".demdex.net",
         "thirdParty": true
       },
       {
         "name": "IDE",
         "domain": ".doubleclick.net",
-        "thirdParty": true
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".dpm.demdex.net",
         "thirdParty": true
       },
       {
@@ -11990,22 +11949,12 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".ih.adscale.de",
-        "thirdParty": true
-      },
-      {
-        "name": "[redacted]",
         "domain": ".ispot.tv",
         "thirdParty": true
       },
       {
         "name": "[redacted]",
         "domain": ".ninthdecimal.com",
-        "thirdParty": true
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".pbs.yahoo.com",
         "thirdParty": true
       },
       {

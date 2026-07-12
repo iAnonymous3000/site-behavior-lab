@@ -23,7 +23,7 @@
       "totalRequests": 105,
       "thirdPartyRequests": 41,
       "knownTrackerRequests": 20,
-      "thirdPartyDomains": 15,
+      "thirdPartyDomains": 14,
       "cookies": 8,
       "thirdPartyCookies": 1,
       "storageEntries": 9,
@@ -333,8 +333,8 @@
       },
       {
         "id": 23,
-        "url": "https://cdn.privacy.paramount.com/{seg}/{seg}",
-        "domain": "cdn.privacy.paramount.com",
+        "url": "https://cdn.{label}.paramount.com/{seg}/{seg}",
+        "domain": "cdn.{label}.paramount.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -753,8 +753,8 @@
       },
       {
         "id": 58,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -897,8 +897,8 @@
       },
       {
         "id": 70,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -909,8 +909,8 @@
       },
       {
         "id": 71,
-        "url": "https://at.cbsi.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "at.cbsi.com",
+        "url": "https://{label}.cbsi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cbsi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -921,8 +921,8 @@
       },
       {
         "id": 72,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -933,8 +933,8 @@
       },
       {
         "id": 73,
-        "url": "https://cdn.privacy.paramount.com/{seg}/{seg}",
-        "domain": "cdn.privacy.paramount.com",
+        "url": "https://cdn.{label}.paramount.com/{seg}/{seg}",
+        "domain": "cdn.{label}.paramount.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -945,8 +945,8 @@
       },
       {
         "id": 74,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -962,8 +962,8 @@
       },
       {
         "id": 75,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -974,8 +974,8 @@
       },
       {
         "id": 76,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ketchcdn.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -986,8 +986,8 @@
       },
       {
         "id": 77,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ketchcdn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -998,8 +998,8 @@
       },
       {
         "id": 78,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1010,8 +1010,8 @@
       },
       {
         "id": 79,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1034,8 +1034,8 @@
       },
       {
         "id": 81,
-        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "edge.adobedc.net",
+        "url": "https://{label}.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1046,8 +1046,8 @@
       },
       {
         "id": 82,
-        "url": "https://at.cbsi.com/{seg}/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "at.cbsi.com",
+        "url": "https://{label}.cbsi.com/{seg}/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.cbsi.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1058,8 +1058,8 @@
       },
       {
         "id": 83,
-        "url": "https://ims-v4.paramount.tech/{seg}/{seg}",
-        "domain": "ims-v4.paramount.tech",
+        "url": "https://{label}.paramount.tech/{seg}/{seg}",
+        "domain": "{label}.paramount.tech",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1070,8 +1070,8 @@
       },
       {
         "id": 84,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1087,8 +1087,8 @@
       },
       {
         "id": 85,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1104,8 +1104,8 @@
       },
       {
         "id": 86,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1121,8 +1121,8 @@
       },
       {
         "id": 87,
-        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "edge.adobedc.net",
+        "url": "https://{label}.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1133,8 +1133,8 @@
       },
       {
         "id": 88,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1150,8 +1150,8 @@
       },
       {
         "id": 89,
-        "url": "https://at.cbsi.com/{seg}/api/{seg}",
-        "domain": "at.cbsi.com",
+        "url": "https://{label}.cbsi.com/{seg}/api/{seg}",
+        "domain": "{label}.cbsi.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1162,8 +1162,8 @@
       },
       {
         "id": 90,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1179,8 +1179,8 @@
       },
       {
         "id": 91,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1196,8 +1196,8 @@
       },
       {
         "id": 92,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1213,8 +1213,8 @@
       },
       {
         "id": 93,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1230,8 +1230,8 @@
       },
       {
         "id": 94,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1247,8 +1247,8 @@
       },
       {
         "id": 95,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1264,8 +1264,8 @@
       },
       {
         "id": 96,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1281,8 +1281,8 @@
       },
       {
         "id": 97,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1298,8 +1298,8 @@
       },
       {
         "id": 98,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1315,8 +1315,8 @@
       },
       {
         "id": 99,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1332,8 +1332,8 @@
       },
       {
         "id": 100,
-        "url": "https://bam.nr-data.net/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1349,8 +1349,8 @@
       },
       {
         "id": 101,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1366,8 +1366,8 @@
       },
       {
         "id": 102,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -1383,8 +1383,8 @@
       },
       {
         "id": 103,
-        "url": "https://fundingchoicesmessages.google.com/{seg}/{n}?%5Bredacted%5D=",
-        "domain": "fundingchoicesmessages.google.com",
+        "url": "https://{label}.google.com/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.google.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1395,8 +1395,8 @@
       },
       {
         "id": 104,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1412,8 +1412,8 @@
       },
       {
         "id": 105,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1430,7 +1430,7 @@
     ],
     "domains": [
       {
-        "domain": "js-agent.newrelic.com",
+        "domain": "{label}.newrelic.com",
         "requests": 13,
         "thirdParty": true,
         "tracker": {
@@ -1448,8 +1448,8 @@
         ]
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 3,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 4,
         "thirdParty": true,
         "tracker": {
           "domain": "doubleclick.net",
@@ -1463,11 +1463,12 @@
         ],
         "resourceTypes": [
           "script",
-          "other"
+          "other",
+          "document"
         ]
       },
       {
-        "domain": "bam.nr-data.net",
+        "domain": "{label}.nr-data.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -1485,7 +1486,7 @@
         ]
       },
       {
-        "domain": "dpm.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -1503,25 +1504,7 @@
         ]
       },
       {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "global.ketchcdn.com",
+        "domain": "{label}.ketchcdn.com",
         "requests": 6,
         "thirdParty": true,
         "tracker": null,
@@ -1537,7 +1520,7 @@
         ]
       },
       {
-        "domain": "at.cbsi.com",
+        "domain": "{label}.cbsi.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -1564,7 +1547,7 @@
         ]
       },
       {
-        "domain": "cdn.privacy.paramount.com",
+        "domain": "cdn.{label}.paramount.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1578,7 +1561,7 @@
         ]
       },
       {
-        "domain": "tags.tiqcdn.com",
+        "domain": "{label}.tiqcdn.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1591,7 +1574,7 @@
         ]
       },
       {
-        "domain": "edge.adobedc.net",
+        "domain": "{label}.adobedc.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1630,7 +1613,7 @@
         ]
       },
       {
-        "domain": "ims-v4.paramount.tech",
+        "domain": "{label}.paramount.tech",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1643,7 +1626,7 @@
         ]
       },
       {
-        "domain": "fundingchoicesmessages.google.com",
+        "domain": "{label}.google.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1689,7 +1672,7 @@
     "cookies": [
       {
         "name": "[redacted]",
-        "domain": "at.cbsi.com",
+        "domain": "{label}.cbsi.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2145,8 +2128,8 @@
       },
       {
         "id": 23,
-        "url": "https://cdn.privacy.paramount.com/{seg}/{seg}",
-        "domain": "cdn.privacy.paramount.com",
+        "url": "https://cdn.{label}.paramount.com/{seg}/{seg}",
+        "domain": "cdn.{label}.paramount.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2685,8 +2668,8 @@
       },
       {
         "id": 69,
-        "url": "https://cdn.privacy.paramount.com/{seg}/{seg}",
-        "domain": "cdn.privacy.paramount.com",
+        "url": "https://cdn.{label}.paramount.com/{seg}/{seg}",
+        "domain": "cdn.{label}.paramount.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2697,8 +2680,8 @@
       },
       {
         "id": 70,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2709,8 +2692,8 @@
       },
       {
         "id": 76,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2735,7 +2718,7 @@
         ]
       },
       {
-        "domain": "cdn.privacy.paramount.com",
+        "domain": "cdn.{label}.paramount.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -2749,7 +2732,7 @@
         ]
       },
       {
-        "domain": "tags.tiqcdn.com",
+        "domain": "{label}.tiqcdn.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -2847,9 +2830,9 @@
       "delta": -20
     },
     "thirdPartyDomains": {
-      "before": 15,
+      "before": 14,
       "after": 3,
-      "delta": -12
+      "delta": -11
     },
     "cookies": {
       "before": 8,
@@ -2874,7 +2857,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "js-agent.newrelic.com",
+        "domain": "{label}.newrelic.com",
         "requests": 13,
         "tracker": {
           "domain": "newrelic.com",
@@ -2884,18 +2867,13 @@
         }
       },
       {
-        "domain": "global.ketchcdn.com",
+        "domain": "{label}.ketchcdn.com",
         "requests": 6,
         "tracker": null
       },
       {
-        "domain": "at.cbsi.com",
-        "requests": 3,
-        "tracker": null
-      },
-      {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 3,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 4,
         "tracker": {
           "domain": "doubleclick.net",
           "entity": "Google",
@@ -2904,7 +2882,17 @@
         }
       },
       {
-        "domain": "bam.nr-data.net",
+        "domain": "{label}.cbsi.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.adobedc.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.nr-data.net",
         "requests": 2,
         "tracker": {
           "domain": "nr-data.net",
@@ -2914,32 +2902,7 @@
         }
       },
       {
-        "domain": "edge.adobedc.net",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "cdn.ketchjs.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "cdn1.adoberesources.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "dpm.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 1,
         "tracker": {
           "domain": "demdex.net",
@@ -2949,12 +2912,22 @@
         }
       },
       {
-        "domain": "fundingchoicesmessages.google.com",
+        "domain": "{label}.google.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "ims-v4.paramount.tech",
+        "domain": "{label}.paramount.tech",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.ketchjs.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "cdn1.adoberesources.net",
         "requests": 1,
         "tracker": null
       }
@@ -2969,7 +2942,7 @@
       {
         "entity": "Google",
         "requests": 4,
-        "domains": 2
+        "domains": 1
       },
       {
         "entity": "Adobe",
@@ -2981,7 +2954,7 @@
     "removedCookies": [
       {
         "name": "[redacted]",
-        "domain": "at.cbsi.com",
+        "domain": "{label}.cbsi.com",
         "thirdParty": true
       },
       {

@@ -441,8 +441,8 @@
       },
       {
         "id": 32,
-        "url": "https://videos.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "videos.ctfassets.net",
+        "url": "https://{label}.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ctfassets.net",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -453,8 +453,8 @@
       },
       {
         "id": 33,
-        "url": "https://videos.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "videos.ctfassets.net",
+        "url": "https://{label}.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ctfassets.net",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -489,8 +489,8 @@
       },
       {
         "id": 36,
-        "url": "https://o62437.ingest.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
-        "domain": "o62437.ingest.sentry.io",
+        "url": "https://{label}.{label}.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.sentry.io",
         "method": "POST",
         "resourceType": "other",
         "status": 200,
@@ -566,8 +566,8 @@
       },
       {
         "id": 42,
-        "url": "https://o62437.ingest.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
-        "domain": "o62437.ingest.sentry.io",
+        "url": "https://{label}.{label}.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.sentry.io",
         "method": "POST",
         "resourceType": "other",
         "status": 200,
@@ -583,8 +583,8 @@
       },
       {
         "id": 43,
-        "url": "https://bonfire.robinhood.com/{seg}",
-        "domain": "bonfire.robinhood.com",
+        "url": "https://{label}.robinhood.com/{seg}",
+        "domain": "{label}.robinhood.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -595,8 +595,8 @@
       },
       {
         "id": 44,
-        "url": "https://experience.ninetailed.co/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?locale=",
-        "domain": "experience.ninetailed.co",
+        "url": "https://{label}.ninetailed.co/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?locale=",
+        "domain": "{label}.ninetailed.co",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -655,7 +655,7 @@
       },
       {
         "id": 49,
-        "url": "https://sentry.io/api/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
         "domain": "sentry.io",
         "method": "POST",
         "resourceType": "fetch",
@@ -720,8 +720,8 @@
       },
       {
         "id": 54,
-        "url": "https://aggregator.service.usercentrics.eu/{seg}/en?%5Bredacted%5D=",
-        "domain": "aggregator.service.usercentrics.eu",
+        "url": "https://{label}.{label}.usercentrics.eu/{seg}/en?%5Bredacted%5D=",
+        "domain": "{label}.{label}.usercentrics.eu",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -732,8 +732,8 @@
       },
       {
         "id": 55,
-        "url": "https://consent-api.service.consent.usercentrics.eu/{seg}/{seg}/{n}",
-        "domain": "consent-api.service.consent.usercentrics.eu",
+        "url": "https://{label}.{label}.{label}.usercentrics.eu/{seg}/{seg}/{n}",
+        "domain": "{label}.{label}.{label}.usercentrics.eu",
         "method": "POST",
         "resourceType": "fetch",
         "status": 201,
@@ -745,7 +745,7 @@
     ],
     "domains": [
       {
-        "domain": "o62437.ingest.sentry.io",
+        "domain": "{label}.{label}.sentry.io",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -807,7 +807,7 @@
         ]
       },
       {
-        "domain": "videos.ctfassets.net",
+        "domain": "{label}.ctfassets.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -834,7 +834,7 @@
         ]
       },
       {
-        "domain": "experience.ninetailed.co",
+        "domain": "{label}.ninetailed.co",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -847,7 +847,7 @@
         ]
       },
       {
-        "domain": "aggregator.service.usercentrics.eu",
+        "domain": "{label}.{label}.usercentrics.eu",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -860,7 +860,7 @@
         ]
       },
       {
-        "domain": "consent-api.service.consent.usercentrics.eu",
+        "domain": "{label}.{label}.{label}.usercentrics.eu",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -903,7 +903,7 @@
         ]
       },
       {
-        "domain": "bonfire.robinhood.com",
+        "domain": "{label}.robinhood.com",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -1411,8 +1411,8 @@
       },
       {
         "id": 32,
-        "url": "https://videos.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "videos.ctfassets.net",
+        "url": "https://{label}.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ctfassets.net",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1423,8 +1423,8 @@
       },
       {
         "id": 33,
-        "url": "https://videos.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "videos.ctfassets.net",
+        "url": "https://{label}.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ctfassets.net",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1495,8 +1495,8 @@
       },
       {
         "id": 42,
-        "url": "https://bonfire.robinhood.com/{seg}",
-        "domain": "bonfire.robinhood.com",
+        "url": "https://{label}.robinhood.com/{seg}",
+        "domain": "{label}.robinhood.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1507,8 +1507,8 @@
       },
       {
         "id": 43,
-        "url": "https://experience.ninetailed.co/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?locale=",
-        "domain": "experience.ninetailed.co",
+        "url": "https://{label}.ninetailed.co/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?locale=",
+        "domain": "{label}.ninetailed.co",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1581,7 +1581,7 @@
         ]
       },
       {
-        "domain": "videos.ctfassets.net",
+        "domain": "{label}.ctfassets.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1594,7 +1594,7 @@
         ]
       },
       {
-        "domain": "experience.ninetailed.co",
+        "domain": "{label}.ninetailed.co",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1637,7 +1637,7 @@
         ]
       },
       {
-        "domain": "bonfire.robinhood.com",
+        "domain": "{label}.robinhood.com",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -1755,12 +1755,7 @@
         "tracker": null
       },
       {
-        "domain": "app.usercentrics.eu",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "o62437.ingest.sentry.io",
+        "domain": "{label}.{label}.sentry.io",
         "requests": 2,
         "tracker": {
           "domain": "sentry.io",
@@ -1770,12 +1765,17 @@
         }
       },
       {
-        "domain": "aggregator.service.usercentrics.eu",
+        "domain": "app.usercentrics.eu",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.{label}.usercentrics.eu",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "consent-api.service.consent.usercentrics.eu",
+        "domain": "{label}.{label}.usercentrics.eu",
         "requests": 1,
         "tracker": null
       },

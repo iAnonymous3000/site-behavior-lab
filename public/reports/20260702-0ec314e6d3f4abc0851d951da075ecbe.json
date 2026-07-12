@@ -381,8 +381,8 @@
       },
       {
         "id": 27,
-        "url": "https://piwik.fsf.org/{seg}",
-        "domain": "piwik.fsf.org",
+        "url": "https://{label}.fsf.org/{seg}",
+        "domain": "{label}.fsf.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -393,8 +393,8 @@
       },
       {
         "id": 28,
-        "url": "https://piwik.fsf.org/{seg}",
-        "domain": "piwik.fsf.org",
+        "url": "https://{label}.fsf.org/{seg}",
+        "domain": "{label}.fsf.org",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -446,7 +446,7 @@
         ]
       },
       {
-        "domain": "piwik.fsf.org",
+        "domain": "{label}.fsf.org",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -466,7 +466,7 @@
     "fingerprintEvents": [],
     "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://my.fsf.org/{seg}/{seg}",
+      "url": "https://{label}.fsf.org/{seg}/{seg}",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [],
@@ -477,7 +477,7 @@
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://my.fsf.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.fsf.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "variant": {
@@ -896,7 +896,7 @@
     "fingerprintEvents": [],
     "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://my.fsf.org/{seg}/{seg}",
+      "url": "https://{label}.fsf.org/{seg}/{seg}",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [],
@@ -908,7 +908,7 @@
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://my.fsf.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.fsf.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "diff": {
@@ -955,7 +955,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "piwik.fsf.org",
+        "domain": "{label}.fsf.org",
         "requests": 2,
         "tracker": null
       }
@@ -981,12 +981,12 @@
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "No blocking: Read the site's privacy policy (https://my.fsf.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://{label}.fsf.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
     "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Brave-list blocking: Read the site's privacy policy (https://my.fsf.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://{label}.fsf.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260702-0ec314e6d3f4abc0851d951da075ecbe",

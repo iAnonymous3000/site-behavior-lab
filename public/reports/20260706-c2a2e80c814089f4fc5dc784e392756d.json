@@ -23,7 +23,7 @@
       "totalRequests": 196,
       "thirdPartyRequests": 155,
       "knownTrackerRequests": 1,
-      "thirdPartyDomains": 5,
+      "thirdPartyDomains": 3,
       "cookies": 5,
       "thirdPartyCookies": 0,
       "storageEntries": 5,
@@ -93,8 +93,8 @@
       },
       {
         "id": 3,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -105,8 +105,8 @@
       },
       {
         "id": 4,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -117,8 +117,8 @@
       },
       {
         "id": 5,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -129,8 +129,8 @@
       },
       {
         "id": 6,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -141,8 +141,8 @@
       },
       {
         "id": 7,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -165,8 +165,8 @@
       },
       {
         "id": 9,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -177,8 +177,8 @@
       },
       {
         "id": 10,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -189,8 +189,8 @@
       },
       {
         "id": 11,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -201,8 +201,8 @@
       },
       {
         "id": 12,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -225,8 +225,8 @@
       },
       {
         "id": 14,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -261,8 +261,8 @@
       },
       {
         "id": 17,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -285,8 +285,8 @@
       },
       {
         "id": 19,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -309,8 +309,8 @@
       },
       {
         "id": 21,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -321,8 +321,8 @@
       },
       {
         "id": 22,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -333,8 +333,8 @@
       },
       {
         "id": 23,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -345,8 +345,8 @@
       },
       {
         "id": 24,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -357,8 +357,8 @@
       },
       {
         "id": 25,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -369,8 +369,8 @@
       },
       {
         "id": 26,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -381,8 +381,8 @@
       },
       {
         "id": 27,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -393,8 +393,8 @@
       },
       {
         "id": 28,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -405,8 +405,8 @@
       },
       {
         "id": 29,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -417,8 +417,8 @@
       },
       {
         "id": 30,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -429,8 +429,8 @@
       },
       {
         "id": 31,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -441,8 +441,8 @@
       },
       {
         "id": 32,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -453,8 +453,8 @@
       },
       {
         "id": 33,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -465,8 +465,8 @@
       },
       {
         "id": 34,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -477,8 +477,8 @@
       },
       {
         "id": 35,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -489,8 +489,8 @@
       },
       {
         "id": 36,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -501,8 +501,8 @@
       },
       {
         "id": 37,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -513,8 +513,8 @@
       },
       {
         "id": 38,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -525,8 +525,8 @@
       },
       {
         "id": 39,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -537,8 +537,8 @@
       },
       {
         "id": 40,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -549,8 +549,8 @@
       },
       {
         "id": 41,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -561,8 +561,8 @@
       },
       {
         "id": 42,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -573,8 +573,8 @@
       },
       {
         "id": 43,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -585,8 +585,8 @@
       },
       {
         "id": 44,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -597,8 +597,8 @@
       },
       {
         "id": 45,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -609,8 +609,8 @@
       },
       {
         "id": 46,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -621,8 +621,8 @@
       },
       {
         "id": 47,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -633,8 +633,8 @@
       },
       {
         "id": 48,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -645,8 +645,8 @@
       },
       {
         "id": 49,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -657,8 +657,8 @@
       },
       {
         "id": 50,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -669,8 +669,8 @@
       },
       {
         "id": 51,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -681,8 +681,8 @@
       },
       {
         "id": 52,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -693,8 +693,8 @@
       },
       {
         "id": 53,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -705,8 +705,8 @@
       },
       {
         "id": 54,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -717,8 +717,8 @@
       },
       {
         "id": 55,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -729,8 +729,8 @@
       },
       {
         "id": 56,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -741,8 +741,8 @@
       },
       {
         "id": 57,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -753,8 +753,8 @@
       },
       {
         "id": 58,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -765,8 +765,8 @@
       },
       {
         "id": 59,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -777,8 +777,8 @@
       },
       {
         "id": 60,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -789,8 +789,8 @@
       },
       {
         "id": 61,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -801,8 +801,8 @@
       },
       {
         "id": 62,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -813,8 +813,8 @@
       },
       {
         "id": 63,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -825,8 +825,8 @@
       },
       {
         "id": 64,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -837,8 +837,8 @@
       },
       {
         "id": 65,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -849,8 +849,8 @@
       },
       {
         "id": 66,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -861,8 +861,8 @@
       },
       {
         "id": 67,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -873,8 +873,8 @@
       },
       {
         "id": 68,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -885,8 +885,8 @@
       },
       {
         "id": 69,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -897,8 +897,8 @@
       },
       {
         "id": 70,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -909,8 +909,8 @@
       },
       {
         "id": 71,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -921,8 +921,8 @@
       },
       {
         "id": 72,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -933,8 +933,8 @@
       },
       {
         "id": 73,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -945,8 +945,8 @@
       },
       {
         "id": 74,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -957,8 +957,8 @@
       },
       {
         "id": 75,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -969,8 +969,8 @@
       },
       {
         "id": 76,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -981,8 +981,8 @@
       },
       {
         "id": 77,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -993,8 +993,8 @@
       },
       {
         "id": 78,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1005,8 +1005,8 @@
       },
       {
         "id": 79,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1017,8 +1017,8 @@
       },
       {
         "id": 80,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1029,8 +1029,8 @@
       },
       {
         "id": 81,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1041,8 +1041,8 @@
       },
       {
         "id": 82,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1053,8 +1053,8 @@
       },
       {
         "id": 83,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1065,8 +1065,8 @@
       },
       {
         "id": 84,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1077,8 +1077,8 @@
       },
       {
         "id": 85,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1089,8 +1089,8 @@
       },
       {
         "id": 86,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1101,8 +1101,8 @@
       },
       {
         "id": 87,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1113,8 +1113,8 @@
       },
       {
         "id": 88,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1125,8 +1125,8 @@
       },
       {
         "id": 89,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1137,8 +1137,8 @@
       },
       {
         "id": 90,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1149,8 +1149,8 @@
       },
       {
         "id": 91,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1161,8 +1161,8 @@
       },
       {
         "id": 92,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1173,8 +1173,8 @@
       },
       {
         "id": 93,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1185,8 +1185,8 @@
       },
       {
         "id": 94,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1197,8 +1197,8 @@
       },
       {
         "id": 95,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1209,8 +1209,8 @@
       },
       {
         "id": 96,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1221,8 +1221,8 @@
       },
       {
         "id": 97,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1233,8 +1233,8 @@
       },
       {
         "id": 98,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1245,8 +1245,8 @@
       },
       {
         "id": 99,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1257,8 +1257,8 @@
       },
       {
         "id": 100,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1269,8 +1269,8 @@
       },
       {
         "id": 101,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1281,8 +1281,8 @@
       },
       {
         "id": 102,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1293,8 +1293,8 @@
       },
       {
         "id": 103,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1305,8 +1305,8 @@
       },
       {
         "id": 104,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1317,8 +1317,8 @@
       },
       {
         "id": 105,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1329,8 +1329,8 @@
       },
       {
         "id": 106,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1341,8 +1341,8 @@
       },
       {
         "id": 107,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1353,8 +1353,8 @@
       },
       {
         "id": 108,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1365,8 +1365,8 @@
       },
       {
         "id": 109,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1377,8 +1377,8 @@
       },
       {
         "id": 110,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1389,8 +1389,8 @@
       },
       {
         "id": 111,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1401,8 +1401,8 @@
       },
       {
         "id": 112,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1413,8 +1413,8 @@
       },
       {
         "id": 113,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1425,8 +1425,8 @@
       },
       {
         "id": 114,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1437,8 +1437,8 @@
       },
       {
         "id": 115,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1449,8 +1449,8 @@
       },
       {
         "id": 116,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1461,8 +1461,8 @@
       },
       {
         "id": 117,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1473,8 +1473,8 @@
       },
       {
         "id": 118,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1485,8 +1485,8 @@
       },
       {
         "id": 119,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1497,8 +1497,8 @@
       },
       {
         "id": 120,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1509,8 +1509,8 @@
       },
       {
         "id": 121,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1521,8 +1521,8 @@
       },
       {
         "id": 122,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1533,8 +1533,8 @@
       },
       {
         "id": 123,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1545,8 +1545,8 @@
       },
       {
         "id": 124,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1557,8 +1557,8 @@
       },
       {
         "id": 125,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1569,8 +1569,8 @@
       },
       {
         "id": 126,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1581,8 +1581,8 @@
       },
       {
         "id": 127,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1593,8 +1593,8 @@
       },
       {
         "id": 128,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1605,8 +1605,8 @@
       },
       {
         "id": 129,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1617,8 +1617,8 @@
       },
       {
         "id": 130,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1629,8 +1629,8 @@
       },
       {
         "id": 131,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1641,8 +1641,8 @@
       },
       {
         "id": 132,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1653,8 +1653,8 @@
       },
       {
         "id": 133,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1665,8 +1665,8 @@
       },
       {
         "id": 134,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1677,8 +1677,8 @@
       },
       {
         "id": 135,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1689,8 +1689,8 @@
       },
       {
         "id": 136,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1701,8 +1701,8 @@
       },
       {
         "id": 137,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1713,8 +1713,8 @@
       },
       {
         "id": 138,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1725,8 +1725,8 @@
       },
       {
         "id": 139,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1737,8 +1737,8 @@
       },
       {
         "id": 140,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1749,8 +1749,8 @@
       },
       {
         "id": 141,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1761,8 +1761,8 @@
       },
       {
         "id": 142,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1773,8 +1773,8 @@
       },
       {
         "id": 143,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1797,8 +1797,8 @@
       },
       {
         "id": 145,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1821,8 +1821,8 @@
       },
       {
         "id": 147,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "script",
         "status": 401,
@@ -1833,8 +1833,8 @@
       },
       {
         "id": 148,
-        "url": "https://o293668.ingest.us.sentry.io/api/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "o293668.ingest.us.sentry.io",
+        "url": "https://{label}.{label}.{label}.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.sentry.io",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1850,8 +1850,8 @@
       },
       {
         "id": 149,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1862,8 +1862,8 @@
       },
       {
         "id": 150,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1874,8 +1874,8 @@
       },
       {
         "id": 151,
-        "url": "https://apis.rbxcdn.com/{seg}/{seg}/{seg}",
-        "domain": "apis.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1886,8 +1886,8 @@
       },
       {
         "id": 152,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1898,8 +1898,8 @@
       },
       {
         "id": 153,
-        "url": "https://locale.roblox.com/{seg}/{seg}",
-        "domain": "locale.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1910,8 +1910,8 @@
       },
       {
         "id": 154,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1922,8 +1922,8 @@
       },
       {
         "id": 155,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1934,8 +1934,8 @@
       },
       {
         "id": 156,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2066,8 +2066,8 @@
       },
       {
         "id": 167,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2078,8 +2078,8 @@
       },
       {
         "id": 168,
-        "url": "https://locale.roblox.com/{seg}/{seg}/{seg}",
-        "domain": "locale.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2090,8 +2090,8 @@
       },
       {
         "id": 169,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2102,8 +2102,8 @@
       },
       {
         "id": 170,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2114,8 +2114,8 @@
       },
       {
         "id": 171,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2126,8 +2126,8 @@
       },
       {
         "id": 172,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2138,8 +2138,8 @@
       },
       {
         "id": 173,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2150,8 +2150,8 @@
       },
       {
         "id": 174,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2174,8 +2174,8 @@
       },
       {
         "id": 176,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2186,8 +2186,8 @@
       },
       {
         "id": 177,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2198,8 +2198,8 @@
       },
       {
         "id": 178,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2210,8 +2210,8 @@
       },
       {
         "id": 179,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2222,8 +2222,8 @@
       },
       {
         "id": 180,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2234,8 +2234,8 @@
       },
       {
         "id": 181,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2246,8 +2246,8 @@
       },
       {
         "id": 182,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2258,8 +2258,8 @@
       },
       {
         "id": 183,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2270,8 +2270,8 @@
       },
       {
         "id": 184,
-        "url": "https://locale.roblox.com/{seg}/{seg}/{seg}",
-        "domain": "locale.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2282,8 +2282,8 @@
       },
       {
         "id": 185,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2306,8 +2306,8 @@
       },
       {
         "id": 187,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2318,8 +2318,8 @@
       },
       {
         "id": 188,
-        "url": "https://realtime.roblox.com/{seg}/{seg}",
-        "domain": "realtime.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": null,
@@ -2330,8 +2330,8 @@
       },
       {
         "id": 189,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2342,8 +2342,8 @@
       },
       {
         "id": 190,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2354,8 +2354,8 @@
       },
       {
         "id": 191,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2366,8 +2366,8 @@
       },
       {
         "id": 192,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2378,8 +2378,8 @@
       },
       {
         "id": 193,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2390,8 +2390,8 @@
       },
       {
         "id": 194,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2402,8 +2402,8 @@
       },
       {
         "id": 195,
-        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
-        "domain": "ecsv2.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2414,8 +2414,8 @@
       },
       {
         "id": 196,
-        "url": "https://realtime.roblox.com/{seg}/{seg}",
-        "domain": "realtime.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": null,
@@ -2427,7 +2427,7 @@
     ],
     "domains": [
       {
-        "domain": "o293668.ingest.us.sentry.io",
+        "domain": "{label}.{label}.{label}.sentry.io",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -2445,21 +2445,8 @@
         ]
       },
       {
-        "domain": "js.rbxcdn.com",
-        "requests": 111,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "css.rbxcdn.com",
-        "requests": 31,
+        "domain": "{label}.rbxcdn.com",
+        "requests": 143,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -2468,7 +2455,9 @@
         ],
         "resourceTypes": [
           "stylesheet",
-          "font"
+          "font",
+          "script",
+          "xhr"
         ]
       },
       {
@@ -2485,56 +2474,18 @@
         ]
       },
       {
-        "domain": "apis.rbxcdn.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "ecsv2.roblox.com",
-        "requests": 16,
+        "domain": "{label}.roblox.com",
+        "requests": 36,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
-          200
+          200,
+          401
         ],
         "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "apis.roblox.com",
-        "requests": 15,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          401,
-          200
-        ],
-        "resourceTypes": [
+          "image",
           "script",
-          "xhr"
-        ]
-      },
-      {
-        "domain": "locale.roblox.com",
-        "requests": 3,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
           "xhr"
         ]
       },
@@ -2550,17 +2501,6 @@
         "resourceTypes": [
           "document",
           "script"
-        ]
-      },
-      {
-        "domain": "realtime.roblox.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -2704,7 +2644,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://js.rbxcdn.com/"
+            "https://{label}.rbxcdn.com/"
           ],
           "totalListenerCalls": 87
         }
@@ -2739,7 +2679,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://js.rbxcdn.com/"
+            "https://{label}.rbxcdn.com/"
           ],
           "totalListenerCalls": 199
         }
@@ -2764,7 +2704,7 @@
       "totalRequests": 178,
       "thirdPartyRequests": 154,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 4,
+      "thirdPartyDomains": 2,
       "cookies": 5,
       "thirdPartyCookies": 0,
       "storageEntries": 5,
@@ -2834,8 +2774,8 @@
       },
       {
         "id": 3,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2846,8 +2786,8 @@
       },
       {
         "id": 4,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2858,8 +2798,8 @@
       },
       {
         "id": 5,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2870,8 +2810,8 @@
       },
       {
         "id": 6,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2882,8 +2822,8 @@
       },
       {
         "id": 7,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2894,8 +2834,8 @@
       },
       {
         "id": 8,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2906,8 +2846,8 @@
       },
       {
         "id": 9,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2918,8 +2858,8 @@
       },
       {
         "id": 10,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2930,8 +2870,8 @@
       },
       {
         "id": 11,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2942,8 +2882,8 @@
       },
       {
         "id": 12,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2954,8 +2894,8 @@
       },
       {
         "id": 13,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2966,8 +2906,8 @@
       },
       {
         "id": 14,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2978,8 +2918,8 @@
       },
       {
         "id": 15,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2990,8 +2930,8 @@
       },
       {
         "id": 16,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3002,8 +2942,8 @@
       },
       {
         "id": 17,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3014,8 +2954,8 @@
       },
       {
         "id": 18,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3026,8 +2966,8 @@
       },
       {
         "id": 19,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3038,8 +2978,8 @@
       },
       {
         "id": 20,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3050,8 +2990,8 @@
       },
       {
         "id": 21,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3062,8 +3002,8 @@
       },
       {
         "id": 22,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3074,8 +3014,8 @@
       },
       {
         "id": 23,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3086,8 +3026,8 @@
       },
       {
         "id": 24,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3098,8 +3038,8 @@
       },
       {
         "id": 25,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3110,8 +3050,8 @@
       },
       {
         "id": 26,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3122,8 +3062,8 @@
       },
       {
         "id": 27,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3134,8 +3074,8 @@
       },
       {
         "id": 28,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3146,8 +3086,8 @@
       },
       {
         "id": 29,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3158,8 +3098,8 @@
       },
       {
         "id": 30,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3170,8 +3110,8 @@
       },
       {
         "id": 31,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3182,8 +3122,8 @@
       },
       {
         "id": 32,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3194,8 +3134,8 @@
       },
       {
         "id": 33,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3206,8 +3146,8 @@
       },
       {
         "id": 34,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3218,8 +3158,8 @@
       },
       {
         "id": 35,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3230,8 +3170,8 @@
       },
       {
         "id": 36,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3242,8 +3182,8 @@
       },
       {
         "id": 37,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3254,8 +3194,8 @@
       },
       {
         "id": 38,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3266,8 +3206,8 @@
       },
       {
         "id": 39,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3278,8 +3218,8 @@
       },
       {
         "id": 40,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3290,8 +3230,8 @@
       },
       {
         "id": 41,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3302,8 +3242,8 @@
       },
       {
         "id": 42,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3314,8 +3254,8 @@
       },
       {
         "id": 43,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3326,8 +3266,8 @@
       },
       {
         "id": 44,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3338,8 +3278,8 @@
       },
       {
         "id": 45,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3350,8 +3290,8 @@
       },
       {
         "id": 46,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3362,8 +3302,8 @@
       },
       {
         "id": 47,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3374,8 +3314,8 @@
       },
       {
         "id": 48,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3386,8 +3326,8 @@
       },
       {
         "id": 49,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3398,8 +3338,8 @@
       },
       {
         "id": 50,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3410,8 +3350,8 @@
       },
       {
         "id": 51,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3422,8 +3362,8 @@
       },
       {
         "id": 52,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3434,8 +3374,8 @@
       },
       {
         "id": 53,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3446,8 +3386,8 @@
       },
       {
         "id": 54,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3458,8 +3398,8 @@
       },
       {
         "id": 55,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3470,8 +3410,8 @@
       },
       {
         "id": 56,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3482,8 +3422,8 @@
       },
       {
         "id": 57,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3494,8 +3434,8 @@
       },
       {
         "id": 58,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3506,8 +3446,8 @@
       },
       {
         "id": 59,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3518,8 +3458,8 @@
       },
       {
         "id": 60,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3530,8 +3470,8 @@
       },
       {
         "id": 61,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3542,8 +3482,8 @@
       },
       {
         "id": 62,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3554,8 +3494,8 @@
       },
       {
         "id": 63,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3566,8 +3506,8 @@
       },
       {
         "id": 64,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3578,8 +3518,8 @@
       },
       {
         "id": 65,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3590,8 +3530,8 @@
       },
       {
         "id": 66,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3602,8 +3542,8 @@
       },
       {
         "id": 67,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3614,8 +3554,8 @@
       },
       {
         "id": 68,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3626,8 +3566,8 @@
       },
       {
         "id": 69,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3638,8 +3578,8 @@
       },
       {
         "id": 70,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3650,8 +3590,8 @@
       },
       {
         "id": 71,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3662,8 +3602,8 @@
       },
       {
         "id": 72,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3674,8 +3614,8 @@
       },
       {
         "id": 73,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3686,8 +3626,8 @@
       },
       {
         "id": 74,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3698,8 +3638,8 @@
       },
       {
         "id": 75,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3710,8 +3650,8 @@
       },
       {
         "id": 76,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3722,8 +3662,8 @@
       },
       {
         "id": 77,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3734,8 +3674,8 @@
       },
       {
         "id": 78,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3746,8 +3686,8 @@
       },
       {
         "id": 79,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3758,8 +3698,8 @@
       },
       {
         "id": 80,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3770,8 +3710,8 @@
       },
       {
         "id": 81,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3782,8 +3722,8 @@
       },
       {
         "id": 82,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3794,8 +3734,8 @@
       },
       {
         "id": 83,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3806,8 +3746,8 @@
       },
       {
         "id": 84,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3818,8 +3758,8 @@
       },
       {
         "id": 85,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3830,8 +3770,8 @@
       },
       {
         "id": 86,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3842,8 +3782,8 @@
       },
       {
         "id": 87,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3854,8 +3794,8 @@
       },
       {
         "id": 88,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3866,8 +3806,8 @@
       },
       {
         "id": 89,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3878,8 +3818,8 @@
       },
       {
         "id": 90,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3890,8 +3830,8 @@
       },
       {
         "id": 91,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3902,8 +3842,8 @@
       },
       {
         "id": 92,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3914,8 +3854,8 @@
       },
       {
         "id": 93,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3926,8 +3866,8 @@
       },
       {
         "id": 94,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3938,8 +3878,8 @@
       },
       {
         "id": 95,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3950,8 +3890,8 @@
       },
       {
         "id": 96,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3962,8 +3902,8 @@
       },
       {
         "id": 97,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3974,8 +3914,8 @@
       },
       {
         "id": 98,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3986,8 +3926,8 @@
       },
       {
         "id": 99,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3998,8 +3938,8 @@
       },
       {
         "id": 100,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4010,8 +3950,8 @@
       },
       {
         "id": 101,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4022,8 +3962,8 @@
       },
       {
         "id": 102,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4034,8 +3974,8 @@
       },
       {
         "id": 103,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4046,8 +3986,8 @@
       },
       {
         "id": 104,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4058,8 +3998,8 @@
       },
       {
         "id": 105,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4070,8 +4010,8 @@
       },
       {
         "id": 106,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4082,8 +4022,8 @@
       },
       {
         "id": 107,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4094,8 +4034,8 @@
       },
       {
         "id": 108,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4106,8 +4046,8 @@
       },
       {
         "id": 109,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4118,8 +4058,8 @@
       },
       {
         "id": 110,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4130,8 +4070,8 @@
       },
       {
         "id": 111,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4142,8 +4082,8 @@
       },
       {
         "id": 112,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4154,8 +4094,8 @@
       },
       {
         "id": 113,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4166,8 +4106,8 @@
       },
       {
         "id": 114,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4178,8 +4118,8 @@
       },
       {
         "id": 115,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4190,8 +4130,8 @@
       },
       {
         "id": 116,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4202,8 +4142,8 @@
       },
       {
         "id": 117,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4214,8 +4154,8 @@
       },
       {
         "id": 118,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4226,8 +4166,8 @@
       },
       {
         "id": 119,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4238,8 +4178,8 @@
       },
       {
         "id": 120,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4250,8 +4190,8 @@
       },
       {
         "id": 121,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4262,8 +4202,8 @@
       },
       {
         "id": 122,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4274,8 +4214,8 @@
       },
       {
         "id": 123,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4286,8 +4226,8 @@
       },
       {
         "id": 124,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4298,8 +4238,8 @@
       },
       {
         "id": 125,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4310,8 +4250,8 @@
       },
       {
         "id": 126,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4322,8 +4262,8 @@
       },
       {
         "id": 127,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4334,8 +4274,8 @@
       },
       {
         "id": 128,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4346,8 +4286,8 @@
       },
       {
         "id": 129,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4358,8 +4298,8 @@
       },
       {
         "id": 130,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4370,8 +4310,8 @@
       },
       {
         "id": 131,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4382,8 +4322,8 @@
       },
       {
         "id": 132,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4394,8 +4334,8 @@
       },
       {
         "id": 133,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4406,8 +4346,8 @@
       },
       {
         "id": 134,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4418,8 +4358,8 @@
       },
       {
         "id": 135,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4430,8 +4370,8 @@
       },
       {
         "id": 136,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4442,8 +4382,8 @@
       },
       {
         "id": 137,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4454,8 +4394,8 @@
       },
       {
         "id": 138,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4466,8 +4406,8 @@
       },
       {
         "id": 139,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4478,8 +4418,8 @@
       },
       {
         "id": 140,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4490,8 +4430,8 @@
       },
       {
         "id": 141,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4502,8 +4442,8 @@
       },
       {
         "id": 142,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4514,8 +4454,8 @@
       },
       {
         "id": 143,
-        "url": "https://js.rbxcdn.com/{seg}",
-        "domain": "js.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4538,8 +4478,8 @@
       },
       {
         "id": 147,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "script",
         "status": 401,
@@ -4550,8 +4490,8 @@
       },
       {
         "id": 149,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4562,8 +4502,8 @@
       },
       {
         "id": 151,
-        "url": "https://apis.rbxcdn.com/{seg}/{seg}/{seg}",
-        "domain": "apis.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4574,8 +4514,8 @@
       },
       {
         "id": 152,
-        "url": "https://css.rbxcdn.com/{seg}",
-        "domain": "css.rbxcdn.com",
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -4586,8 +4526,8 @@
       },
       {
         "id": 153,
-        "url": "https://locale.roblox.com/{seg}/{seg}",
-        "domain": "locale.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4598,8 +4538,8 @@
       },
       {
         "id": 154,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4610,8 +4550,8 @@
       },
       {
         "id": 155,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4622,8 +4562,8 @@
       },
       {
         "id": 156,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4754,8 +4694,8 @@
       },
       {
         "id": 168,
-        "url": "https://locale.roblox.com/{seg}/{seg}/{seg}",
-        "domain": "locale.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4766,8 +4706,8 @@
       },
       {
         "id": 169,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -4778,8 +4718,8 @@
       },
       {
         "id": 170,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -4790,8 +4730,8 @@
       },
       {
         "id": 171,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -4802,8 +4742,8 @@
       },
       {
         "id": 172,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4814,8 +4754,8 @@
       },
       {
         "id": 173,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4826,8 +4766,8 @@
       },
       {
         "id": 174,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4850,8 +4790,8 @@
       },
       {
         "id": 176,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -4862,8 +4802,8 @@
       },
       {
         "id": 177,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -4874,8 +4814,8 @@
       },
       {
         "id": 178,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4886,8 +4826,8 @@
       },
       {
         "id": 181,
-        "url": "https://locale.roblox.com/{seg}/{seg}/{seg}",
-        "domain": "locale.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4910,8 +4850,8 @@
       },
       {
         "id": 187,
-        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apis.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4922,8 +4862,8 @@
       },
       {
         "id": 188,
-        "url": "https://realtime.roblox.com/{seg}/{seg}",
-        "domain": "realtime.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": null,
@@ -4934,8 +4874,8 @@
       },
       {
         "id": 197,
-        "url": "https://realtime.roblox.com/{seg}/{seg}",
-        "domain": "realtime.roblox.com",
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": null,
@@ -4947,21 +4887,8 @@
     ],
     "domains": [
       {
-        "domain": "js.rbxcdn.com",
-        "requests": 111,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "css.rbxcdn.com",
-        "requests": 31,
+        "domain": "{label}.rbxcdn.com",
+        "requests": 143,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -4970,7 +4897,9 @@
         ],
         "resourceTypes": [
           "stylesheet",
-          "font"
+          "font",
+          "script",
+          "xhr"
         ]
       },
       {
@@ -4987,21 +4916,8 @@
         ]
       },
       {
-        "domain": "apis.rbxcdn.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "apis.roblox.com",
-        "requests": 15,
+        "domain": "{label}.roblox.com",
+        "requests": 20,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
@@ -5011,19 +4927,6 @@
         ],
         "resourceTypes": [
           "script",
-          "xhr"
-        ]
-      },
-      {
-        "domain": "locale.roblox.com",
-        "requests": 3,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
           "xhr"
         ]
       },
@@ -5039,17 +4942,6 @@
         "resourceTypes": [
           "document",
           "script"
-        ]
-      },
-      {
-        "domain": "realtime.roblox.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -5180,7 +5072,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://js.rbxcdn.com/"
+            "https://{label}.rbxcdn.com/"
           ],
           "totalListenerCalls": 87
         }
@@ -5215,7 +5107,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://js.rbxcdn.com/"
+            "https://{label}.rbxcdn.com/"
           ],
           "totalListenerCalls": 199
         }
@@ -5246,8 +5138,8 @@
       "delta": -1
     },
     "thirdPartyDomains": {
-      "before": 5,
-      "after": 4,
+      "before": 3,
+      "after": 2,
       "delta": -1
     },
     "cookies": {
@@ -5273,17 +5165,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "ecsv2.roblox.com",
-        "requests": 16,
-        "tracker": null
-      },
-      {
-        "domain": "metrics.roblox.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "o293668.ingest.us.sentry.io",
+        "domain": "{label}.{label}.{label}.sentry.io",
         "requests": 1,
         "tracker": {
           "domain": "sentry.io",
@@ -5291,6 +5173,11 @@
           "category": "error monitoring",
           "confidence": "curated"
         }
+      },
+      {
+        "domain": "metrics.roblox.com",
+        "requests": 1,
+        "tracker": null
       }
     ],
     "addedEntities": [],

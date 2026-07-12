@@ -23,7 +23,7 @@
       "totalRequests": 222,
       "thirdPartyRequests": 208,
       "knownTrackerRequests": 32,
-      "thirdPartyDomains": 40,
+      "thirdPartyDomains": 30,
       "cookies": 35,
       "thirdPartyCookies": 8,
       "storageEntries": 20,
@@ -105,8 +105,8 @@
       },
       {
         "id": 4,
-        "url": "https://gn-web-assets.api.bbc.com/{seg}/{seg}/{seg}",
-        "domain": "gn-web-assets.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -129,8 +129,8 @@
       },
       {
         "id": 6,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -141,8 +141,8 @@
       },
       {
         "id": 7,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -182,8 +182,8 @@
       },
       {
         "id": 10,
-        "url": "https://emp.bbci.co.uk/{seg}/{seg}/{seg}",
-        "domain": "emp.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -638,8 +638,8 @@
       },
       {
         "id": 48,
-        "url": "https://ichef.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -722,8 +722,8 @@
       },
       {
         "id": 55,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -734,8 +734,8 @@
       },
       {
         "id": 56,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -746,8 +746,8 @@
       },
       {
         "id": 57,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -758,8 +758,8 @@
       },
       {
         "id": 58,
-        "url": "https://ichef.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -770,8 +770,8 @@
       },
       {
         "id": 59,
-        "url": "https://ichef.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -782,8 +782,8 @@
       },
       {
         "id": 60,
-        "url": "https://ichef.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -794,8 +794,8 @@
       },
       {
         "id": 61,
-        "url": "https://ichef.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -806,8 +806,8 @@
       },
       {
         "id": 62,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -818,8 +818,8 @@
       },
       {
         "id": 63,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -830,8 +830,8 @@
       },
       {
         "id": 64,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -842,8 +842,8 @@
       },
       {
         "id": 65,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -854,8 +854,8 @@
       },
       {
         "id": 66,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -866,8 +866,8 @@
       },
       {
         "id": 67,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -878,8 +878,8 @@
       },
       {
         "id": 68,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -890,8 +890,8 @@
       },
       {
         "id": 69,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -902,8 +902,8 @@
       },
       {
         "id": 70,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -914,8 +914,8 @@
       },
       {
         "id": 71,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -926,8 +926,8 @@
       },
       {
         "id": 72,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -938,8 +938,8 @@
       },
       {
         "id": 73,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1010,8 +1010,8 @@
       },
       {
         "id": 79,
-        "url": "https://web-cdn.api.bbci.co.uk/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "web-cdn.api.bbci.co.uk",
+        "url": "https://{label}.api.bbci.co.uk/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.api.bbci.co.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1039,8 +1039,8 @@
       },
       {
         "id": 81,
-        "url": "https://uk-script.dotmetrics.net/{seg}?%5Bredacted%5D=&t=",
-        "domain": "uk-script.dotmetrics.net",
+        "url": "https://{label}.dotmetrics.net/{seg}?%5Bredacted%5D=&t=",
+        "domain": "{label}.dotmetrics.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1080,8 +1080,8 @@
       },
       {
         "id": 84,
-        "url": "https://mybbc-analytics.files.bbci.co.uk/{seg}/{seg}",
-        "domain": "mybbc-analytics.files.bbci.co.uk",
+        "url": "https://{label}.files.bbci.co.uk/{seg}/{seg}",
+        "domain": "{label}.files.bbci.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1092,8 +1092,8 @@
       },
       {
         "id": 85,
-        "url": "https://scripts.webcontentassessor.com/{seg}/{seg}",
-        "domain": "scripts.webcontentassessor.com",
+        "url": "https://{label}.webcontentassessor.com/{seg}/{seg}",
+        "domain": "{label}.webcontentassessor.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1104,8 +1104,8 @@
       },
       {
         "id": 86,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1133,8 +1133,8 @@
       },
       {
         "id": 88,
-        "url": "https://mybbc-analytics.files.bbci.co.uk/{seg}/{seg}",
-        "domain": "mybbc-analytics.files.bbci.co.uk",
+        "url": "https://{label}.files.bbci.co.uk/{seg}/{seg}",
+        "domain": "{label}.files.bbci.co.uk",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1145,8 +1145,8 @@
       },
       {
         "id": 89,
-        "url": "https://mybbc-analytics.files.bbci.co.uk/{seg}/{seg}",
-        "domain": "mybbc-analytics.files.bbci.co.uk",
+        "url": "https://{label}.files.bbci.co.uk/{seg}/{seg}",
+        "domain": "{label}.files.bbci.co.uk",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1157,8 +1157,8 @@
       },
       {
         "id": 90,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1174,8 +1174,8 @@
       },
       {
         "id": 91,
-        "url": "https://a1.api.bbc.com/{seg}",
-        "domain": "a1.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -1186,8 +1186,8 @@
       },
       {
         "id": 92,
-        "url": "https://a1.api.bbc.com/{seg}",
-        "domain": "a1.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -1198,8 +1198,8 @@
       },
       {
         "id": 93,
-        "url": "https://a1.api.bbc.com/{seg}",
-        "domain": "a1.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -1210,8 +1210,8 @@
       },
       {
         "id": 94,
-        "url": "https://a1.api.bbc.com/{seg}",
-        "domain": "a1.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -1222,8 +1222,8 @@
       },
       {
         "id": 95,
-        "url": "https://a1.api.bbc.com/{seg}",
-        "domain": "a1.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -1234,8 +1234,8 @@
       },
       {
         "id": 96,
-        "url": "https://a1.api.bbc.com/{seg}",
-        "domain": "a1.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -1246,8 +1246,8 @@
       },
       {
         "id": 97,
-        "url": "https://a1.api.bbc.com/{seg}",
-        "domain": "a1.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -1282,7 +1282,7 @@
       },
       {
         "id": 100,
-        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "cdn.privacy-mgmt.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -1294,8 +1294,8 @@
       },
       {
         "id": 101,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1311,7 +1311,7 @@
       },
       {
         "id": 102,
-        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "cdn.privacy-mgmt.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -1323,7 +1323,7 @@
       },
       {
         "id": 103,
-        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "cdn.privacy-mgmt.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -1335,8 +1335,8 @@
       },
       {
         "id": 104,
-        "url": "https://uk-script.dotmetrics.net/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ver=",
-        "domain": "uk-script.dotmetrics.net",
+        "url": "https://{label}.dotmetrics.net/{seg}?id=&%5Bredacted%5D=&ver=",
+        "domain": "{label}.dotmetrics.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1347,8 +1347,8 @@
       },
       {
         "id": 105,
-        "url": "https://rm-script.dotmetrics.net/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "rm-script.dotmetrics.net",
+        "url": "https://{label}.dotmetrics.net/{seg}?id=&%5Bredacted%5D=",
+        "domain": "{label}.dotmetrics.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1359,8 +1359,8 @@
       },
       {
         "id": 106,
-        "url": "https://pub.doubleverify.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1371,8 +1371,8 @@
       },
       {
         "id": 107,
-        "url": "https://gn-web-assets.api.bbc.com/{seg}/{seg}/{seg}",
-        "domain": "gn-web-assets.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1383,8 +1383,8 @@
       },
       {
         "id": 108,
-        "url": "https://gn-web-assets.api.bbc.com/{seg}/{seg}/{seg}",
-        "domain": "gn-web-assets.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1395,7 +1395,7 @@
       },
       {
         "id": 109,
-        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "cdn.privacy-mgmt.com",
         "method": "POST",
         "resourceType": "xhr",
@@ -1419,8 +1419,8 @@
       },
       {
         "id": 111,
-        "url": "https://c2-eu.piano.io/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "c2-eu.piano.io",
+        "url": "https://{label}.piano.io/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.piano.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1431,8 +1431,8 @@
       },
       {
         "id": 112,
-        "url": "https://gn-web-assets.api.bbc.com/{seg}/{seg}/{seg}",
-        "domain": "gn-web-assets.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1443,8 +1443,8 @@
       },
       {
         "id": 113,
-        "url": "https://uk-script.dotmetrics.net/{seg}/{seg}?v=",
-        "domain": "uk-script.dotmetrics.net",
+        "url": "https://{label}.dotmetrics.net/{seg}/{seg}?v=",
+        "domain": "{label}.dotmetrics.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1455,8 +1455,8 @@
       },
       {
         "id": 114,
-        "url": "https://gn-web-assets.api.bbc.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gn-web-assets.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1467,8 +1467,8 @@
       },
       {
         "id": 115,
-        "url": "https://pub.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1479,8 +1479,8 @@
       },
       {
         "id": 116,
-        "url": "https://pub.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1491,8 +1491,8 @@
       },
       {
         "id": 117,
-        "url": "https://pub.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1503,8 +1503,8 @@
       },
       {
         "id": 118,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1532,8 +1532,8 @@
       },
       {
         "id": 120,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -1561,8 +1561,8 @@
       },
       {
         "id": 122,
-        "url": "https://vtrk.dv.tech/?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "vtrk.dv.tech",
+        "url": "https://{label}.dv.tech/?%5Bredacted%5D=&cid=&t=&v=",
+        "domain": "{label}.dv.tech",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -1573,8 +1573,8 @@
       },
       {
         "id": 123,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1590,8 +1590,8 @@
       },
       {
         "id": 124,
-        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1607,8 +1607,8 @@
       },
       {
         "id": 125,
-        "url": "https://buy-eu.piano.io/checkout/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&width=&%5Bredacted%5D=",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/checkout/{seg}/{seg}?%5Bredacted%5D=&width=",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1619,8 +1619,8 @@
       },
       {
         "id": 126,
-        "url": "https://buy-eu.piano.io/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.piano.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1631,8 +1631,8 @@
       },
       {
         "id": 127,
-        "url": "https://buy-eu.piano.io/checkout/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/checkout/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1643,8 +1643,8 @@
       },
       {
         "id": 128,
-        "url": "https://id.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&callback=",
-        "domain": "id.cxense.com",
+        "url": "https://{label}.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&callback=",
+        "domain": "{label}.cxense.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1655,8 +1655,8 @@
       },
       {
         "id": 129,
-        "url": "https://comcluster.cxense.com/{seg}/{seg}?ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&source=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "comcluster.cxense.com",
+        "url": "https://{label}.cxense.com/{seg}/{seg}?ver=&%5Bredacted%5D=&source=&ref=&dpr=",
+        "domain": "{label}.cxense.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1667,8 +1667,8 @@
       },
       {
         "id": 130,
-        "url": "https://buy-eu.piano.io/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1679,8 +1679,8 @@
       },
       {
         "id": 131,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1691,8 +1691,8 @@
       },
       {
         "id": 132,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1703,8 +1703,8 @@
       },
       {
         "id": 133,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1715,8 +1715,8 @@
       },
       {
         "id": 134,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1727,8 +1727,8 @@
       },
       {
         "id": 135,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1739,8 +1739,8 @@
       },
       {
         "id": 136,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1751,8 +1751,8 @@
       },
       {
         "id": 137,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1763,8 +1763,8 @@
       },
       {
         "id": 138,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1775,8 +1775,8 @@
       },
       {
         "id": 139,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1787,8 +1787,8 @@
       },
       {
         "id": 140,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1799,8 +1799,8 @@
       },
       {
         "id": 141,
-        "url": "https://buy-eu.piano.io/{seg}/{seg}/{seg}?%5Bredacted%5D=&version=&%5Bredacted%5D=",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/{seg}/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1811,8 +1811,8 @@
       },
       {
         "id": 142,
-        "url": "https://buy-eu.piano.io/{seg}/{seg}/{seg}/{seg}?version=",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/{seg}/{seg}/{seg}/{seg}?version=",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1823,8 +1823,8 @@
       },
       {
         "id": 143,
-        "url": "https://buy-eu.piano.io/{seg}/{seg}?%5Bredacted%5D=&v=",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1835,8 +1835,8 @@
       },
       {
         "id": 144,
-        "url": "https://buy-eu.piano.io/checkout/{seg}/{seg}",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/checkout/{seg}/{seg}",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 404,
@@ -1847,8 +1847,8 @@
       },
       {
         "id": 145,
-        "url": "https://uk-script.dotmetrics.net/{seg}?%5Bredacted%5D=&v=",
-        "domain": "uk-script.dotmetrics.net",
+        "url": "https://{label}.dotmetrics.net/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.dotmetrics.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1859,8 +1859,8 @@
       },
       {
         "id": 146,
-        "url": "https://logx.optimizely.com/{seg}/{seg}",
-        "domain": "logx.optimizely.com",
+        "url": "https://{label}.optimizely.com/{seg}/{seg}",
+        "domain": "{label}.optimizely.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -1888,8 +1888,8 @@
       },
       {
         "id": 148,
-        "url": "https://buy-eu.piano.io/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1900,8 +1900,8 @@
       },
       {
         "id": 149,
-        "url": "https://ichef.bbc.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbc.co.uk",
+        "url": "https://{label}.bbc.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbc.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1936,8 +1936,8 @@
       },
       {
         "id": 152,
-        "url": "https://pub.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1960,8 +1960,8 @@
       },
       {
         "id": 154,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1977,8 +1977,8 @@
       },
       {
         "id": 155,
-        "url": "https://scripts.webcontentassessor.com/{seg}/{seg}",
-        "domain": "scripts.webcontentassessor.com",
+        "url": "https://{label}.webcontentassessor.com/{seg}/{seg}",
+        "domain": "{label}.webcontentassessor.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1989,8 +1989,8 @@
       },
       {
         "id": 156,
-        "url": "https://tpc.googlesyndication.com/{seg}/{n}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{n}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2006,8 +2006,8 @@
       },
       {
         "id": 157,
-        "url": "https://tpc.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2023,8 +2023,8 @@
       },
       {
         "id": 158,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2040,8 +2040,8 @@
       },
       {
         "id": 159,
-        "url": "https://stats-collector.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=",
-        "domain": "stats-collector.cxense.com",
+        "url": "https://{label}.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&t=",
+        "domain": "{label}.cxense.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2076,7 +2076,7 @@
       },
       {
         "id": 162,
-        "url": "https://ads.undertone.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cb=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://ads.undertone.com/{seg}?%5Bredacted%5D=&cb=&t=",
         "domain": "ads.undertone.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -2088,8 +2088,8 @@
       },
       {
         "id": 163,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2105,8 +2105,8 @@
       },
       {
         "id": 164,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2122,8 +2122,8 @@
       },
       {
         "id": 165,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2139,8 +2139,8 @@
       },
       {
         "id": 166,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2156,8 +2156,8 @@
       },
       {
         "id": 167,
-        "url": "https://buy-eu.piano.io/{seg}/{seg}/{seg}/{seg}",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2168,8 +2168,8 @@
       },
       {
         "id": 168,
-        "url": "https://buy-eu.piano.io/{seg}/{seg}/checkout/{seg}/{seg}",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/{seg}/{seg}/checkout/{seg}/{seg}",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2180,8 +2180,8 @@
       },
       {
         "id": 169,
-        "url": "https://buy-eu.piano.io/checkout/{seg}/{seg}?%5Bredacted%5D=&version=&%5Bredacted%5D=",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/checkout/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2192,8 +2192,8 @@
       },
       {
         "id": 170,
-        "url": "https://buy-eu.piano.io/{seg}/{seg}/{seg}/{seg}?version=",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/{seg}/{seg}/{seg}/{seg}?version=",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2204,8 +2204,8 @@
       },
       {
         "id": 171,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2216,8 +2216,8 @@
       },
       {
         "id": 172,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2228,8 +2228,8 @@
       },
       {
         "id": 173,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2240,8 +2240,8 @@
       },
       {
         "id": 174,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2252,8 +2252,8 @@
       },
       {
         "id": 175,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2264,8 +2264,8 @@
       },
       {
         "id": 176,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2276,8 +2276,8 @@
       },
       {
         "id": 177,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2288,8 +2288,8 @@
       },
       {
         "id": 178,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2300,8 +2300,8 @@
       },
       {
         "id": 179,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2312,8 +2312,8 @@
       },
       {
         "id": 180,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2324,8 +2324,8 @@
       },
       {
         "id": 181,
-        "url": "https://cdnjs.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdnjs.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2336,8 +2336,8 @@
       },
       {
         "id": 182,
-        "url": "https://buy-eu.piano.io/{seg}/{seg}?%5Bredacted%5D=&v=",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2348,8 +2348,8 @@
       },
       {
         "id": 183,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2365,8 +2365,8 @@
       },
       {
         "id": 184,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2406,8 +2406,8 @@
       },
       {
         "id": 187,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2423,8 +2423,8 @@
       },
       {
         "id": 188,
-        "url": "https://tps.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tps.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2435,8 +2435,8 @@
       },
       {
         "id": 189,
-        "url": "https://tps.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tps.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2447,8 +2447,8 @@
       },
       {
         "id": 190,
-        "url": "https://scripts.webcontentassessor.com/{seg}/{seg}",
-        "domain": "scripts.webcontentassessor.com",
+        "url": "https://{label}.webcontentassessor.com/{seg}/{seg}",
+        "domain": "{label}.webcontentassessor.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2459,8 +2459,8 @@
       },
       {
         "id": 191,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2476,8 +2476,8 @@
       },
       {
         "id": 192,
-        "url": "https://stats-collector.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=",
-        "domain": "stats-collector.cxense.com",
+        "url": "https://{label}.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&t=",
+        "domain": "{label}.cxense.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2500,8 +2500,8 @@
       },
       {
         "id": 194,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2517,8 +2517,8 @@
       },
       {
         "id": 195,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2534,8 +2534,8 @@
       },
       {
         "id": 196,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2551,8 +2551,8 @@
       },
       {
         "id": 197,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2592,8 +2592,8 @@
       },
       {
         "id": 200,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2609,8 +2609,8 @@
       },
       {
         "id": 201,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2621,7 +2621,7 @@
       },
       {
         "id": 202,
-        "url": "https://edigitalsurvey.com/{seg}?id=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://edigitalsurvey.com/{seg}?id=&v=&%5Bredacted%5D=",
         "domain": "edigitalsurvey.com",
         "method": "GET",
         "resourceType": "document",
@@ -2633,8 +2633,8 @@
       },
       {
         "id": 203,
-        "url": "https://tps.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tps.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2669,8 +2669,8 @@
       },
       {
         "id": 206,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2681,8 +2681,8 @@
       },
       {
         "id": 207,
-        "url": "https://buy-eu.piano.io/checkout/{seg}/{seg}",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/checkout/{seg}/{seg}",
+        "domain": "{label}.piano.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2693,8 +2693,8 @@
       },
       {
         "id": 208,
-        "url": "https://buy-eu.piano.io/checkout/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/checkout/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.piano.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2705,8 +2705,8 @@
       },
       {
         "id": 209,
-        "url": "https://buy-eu.piano.io/{seg}/{seg}/checkout/{seg}/{seg}/{seg}",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/{seg}/{seg}/checkout/{seg}/{seg}/{seg}",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2717,8 +2717,8 @@
       },
       {
         "id": 210,
-        "url": "https://buy-eu.piano.io/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "buy-eu.piano.io",
+        "url": "https://{label}.piano.io/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.piano.io",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2729,8 +2729,8 @@
       },
       {
         "id": 211,
-        "url": "https://tps-dn-uw1.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tps-dn-uw1.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2741,8 +2741,8 @@
       },
       {
         "id": 212,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2765,8 +2765,8 @@
       },
       {
         "id": 214,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2782,8 +2782,8 @@
       },
       {
         "id": 215,
-        "url": "https://ep2.adtrafficquality.google/{seg}?%5Bredacted%5D=",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2794,8 +2794,8 @@
       },
       {
         "id": 216,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2811,8 +2811,8 @@
       },
       {
         "id": 217,
-        "url": "https://stats-collector.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=",
-        "domain": "stats-collector.cxense.com",
+        "url": "https://{label}.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&t=",
+        "domain": "{label}.cxense.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2823,8 +2823,8 @@
       },
       {
         "id": 218,
-        "url": "https://a1.api.bbc.com/{seg}",
-        "domain": "a1.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -2835,8 +2835,8 @@
       },
       {
         "id": 219,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&id=&v=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2852,8 +2852,8 @@
       },
       {
         "id": 220,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2869,8 +2869,8 @@
       },
       {
         "id": 221,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2881,8 +2881,8 @@
       },
       {
         "id": 222,
-        "url": "https://stats-collector.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=",
-        "domain": "stats-collector.cxense.com",
+        "url": "https://{label}.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&t=",
+        "domain": "{label}.cxense.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": null,
@@ -2894,8 +2894,8 @@
     ],
     "domains": [
       {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 14,
+        "domain": "{label}.googlesyndication.com",
+        "requests": 16,
         "thirdParty": true,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -2910,13 +2910,13 @@
         ],
         "resourceTypes": [
           "fetch",
-          "script",
-          "image"
+          "image",
+          "script"
         ]
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 10,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 11,
         "thirdParty": true,
         "tracker": {
           "domain": "doubleclick.net",
@@ -2930,6 +2930,7 @@
         ],
         "resourceTypes": [
           "script",
+          "document",
           "other",
           "fetch",
           "image"
@@ -2955,25 +2956,6 @@
         ]
       },
       {
-        "domain": "tpc.googlesyndication.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image",
-          "script"
-        ]
-      },
-      {
         "domain": "{label}.cdn.optimizely.com",
         "requests": 1,
         "thirdParty": true,
@@ -2992,25 +2974,7 @@
         ]
       },
       {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.{label}.googlesyndication.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3028,7 +2992,7 @@
         ]
       },
       {
-        "domain": "logx.optimizely.com",
+        "domain": "{label}.optimizely.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3062,8 +3026,8 @@
         ]
       },
       {
-        "domain": "ichef.bbci.co.uk",
-        "requests": 22,
+        "domain": "{label}.bbci.co.uk",
+        "requests": 23,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -3071,11 +3035,12 @@
           200
         ],
         "resourceTypes": [
-          "image"
+          "image",
+          "script"
         ]
       },
       {
-        "domain": "cdnjs.cloudflare.com",
+        "domain": "{label}.cloudflare.com",
         "requests": 21,
         "thirdParty": true,
         "tracker": null,
@@ -3088,8 +3053,8 @@
         ]
       },
       {
-        "domain": "buy-eu.piano.io",
-        "requests": 18,
+        "domain": "{label}.piano.io",
+        "requests": 19,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -3098,11 +3063,26 @@
           404
         ],
         "resourceTypes": [
-          "document",
           "xhr",
+          "document",
           "stylesheet",
           "script",
           "image"
+        ]
+      },
+      {
+        "domain": "{label}.doubleverify.com",
+        "requests": 9,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch"
         ]
       },
       {
@@ -3120,6 +3100,21 @@
         ]
       },
       {
+        "domain": "{label}.cxense.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "image",
+          "fetch"
+        ]
+      },
+      {
         "domain": "cdn.doubleverify.com",
         "requests": 6,
         "thirdParty": true,
@@ -3133,22 +3128,8 @@
         ]
       },
       {
-        "domain": "pub.doubleverify.com",
+        "domain": "{label}.dotmetrics.net",
         "requests": 5,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "fetch"
-        ]
-      },
-      {
-        "domain": "uk-script.dotmetrics.net",
-        "requests": 4,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -3161,16 +3142,20 @@
         ]
       },
       {
-        "domain": "stats-collector.cxense.com",
-        "requests": 4,
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
-          200
+          200,
+          204
         ],
         "resourceTypes": [
-          "fetch"
+          "xhr",
+          "script",
+          "document",
+          "image"
         ]
       },
       {
@@ -3187,7 +3172,7 @@
         ]
       },
       {
-        "domain": "mybbc-analytics.files.bbci.co.uk",
+        "domain": "{label}.files.bbci.co.uk",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -3201,7 +3186,7 @@
         ]
       },
       {
-        "domain": "scripts.webcontentassessor.com",
+        "domain": "{label}.webcontentassessor.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -3211,50 +3196,6 @@
         ],
         "resourceTypes": [
           "script"
-        ]
-      },
-      {
-        "domain": "tps.doubleverify.com",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "ep2.adtrafficquality.google",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200,
-          204
-        ],
-        "resourceTypes": [
-          "script",
-          "document",
-          "image"
-        ]
-      },
-      {
-        "domain": "ep1.adtrafficquality.google",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200,
-          204
-        ],
-        "resourceTypes": [
-          "xhr",
-          "image"
         ]
       },
       {
@@ -3284,19 +3225,6 @@
         ]
       },
       {
-        "domain": "emp.bbci.co.uk",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
         "domain": "www.bbc.co.uk",
         "requests": 1,
         "thirdParty": true,
@@ -3310,7 +3238,7 @@
         ]
       },
       {
-        "domain": "web-cdn.api.bbci.co.uk",
+        "domain": "{label}.api.bbci.co.uk",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3320,32 +3248,6 @@
         ],
         "resourceTypes": [
           "fetch"
-        ]
-      },
-      {
-        "domain": "rm-script.dotmetrics.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "c2-eu.piano.io",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -3362,7 +3264,7 @@
         ]
       },
       {
-        "domain": "vtrk.dv.tech",
+        "domain": "{label}.dv.tech",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3375,33 +3277,7 @@
         ]
       },
       {
-        "domain": "id.cxense.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "comcluster.cxense.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "ichef.bbc.co.uk",
+        "domain": "{label}.bbc.co.uk",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3453,19 +3329,6 @@
         ]
       },
       {
-        "domain": "tps-dn-uw1.doubleverify.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
         "domain": "www.google.com",
         "requests": 1,
         "thirdParty": true,
@@ -3479,29 +3342,18 @@
         ]
       },
       {
-        "domain": "a1.api.bbc.com",
-        "requests": 8,
+        "domain": "{label}.api.bbc.com",
+        "requests": 13,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
+          200,
           204
         ],
         "resourceTypes": [
+          "script",
           "xhr"
-        ]
-      },
-      {
-        "domain": "gn-web-assets.api.bbc.com",
-        "requests": 5,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
         ]
       },
       {
@@ -4008,14 +3860,14 @@
             "https://cdn.doubleverify.com/",
             "https://cdn.speedcurve.com/",
             "https://cdn.tinypass.com/",
-            "https://gn-web-assets.api.bbc.com/",
-            "https://pagead2.googlesyndication.com/",
-            "https://pub.doubleverify.com/",
-            "https://scripts.webcontentassessor.com/",
-            "https://securepubads.g.doubleclick.net/",
+            "https://{label}.api.bbc.com/",
+            "https://{label}.googlesyndication.com/",
+            "https://{label}.doubleverify.com/",
+            "https://{label}.webcontentassessor.com/",
+            "https://{label}.{label}.doubleclick.net/",
             "https://static.files.bbci.co.uk/",
-            "https://tpc.googlesyndication.com/",
-            "https://uk-script.dotmetrics.net/"
+            "https://{label}.googlesyndication.com/",
+            "https://{label}.dotmetrics.net/"
           ],
           "totalListenerCalls": 365
         }
@@ -4043,8 +3895,8 @@
             "https://cdn.doubleverify.com/",
             "https://cdn.speedcurve.com/",
             "https://cdn.tinypass.com/",
-            "https://gn-web-assets.api.bbc.com/",
-            "https://securepubads.g.doubleclick.net/",
+            "https://{label}.api.bbc.com/",
+            "https://{label}.{label}.doubleclick.net/",
             "https://static.files.bbci.co.uk/"
           ],
           "totalListenerCalls": 113
@@ -4053,7 +3905,7 @@
     ],
     "cnameCloaks": [
       {
-        "host": "a1.api.bbc.com",
+        "host": "{label}.api.bbc.com",
         "cname": "{label}.at-o.net",
         "tracker": {
           "domain": "at-o.net",
@@ -4082,7 +3934,7 @@
       "totalRequests": 86,
       "thirdPartyRequests": 80,
       "knownTrackerRequests": 1,
-      "thirdPartyDomains": 9,
+      "thirdPartyDomains": 8,
       "cookies": 8,
       "thirdPartyCookies": 0,
       "storageEntries": 1,
@@ -4164,8 +4016,8 @@
       },
       {
         "id": 4,
-        "url": "https://gn-web-assets.api.bbc.com/{seg}/{seg}/{seg}",
-        "domain": "gn-web-assets.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4188,8 +4040,8 @@
       },
       {
         "id": 6,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4200,8 +4052,8 @@
       },
       {
         "id": 7,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4224,8 +4076,8 @@
       },
       {
         "id": 10,
-        "url": "https://emp.bbci.co.uk/{seg}/{seg}/{seg}",
-        "domain": "emp.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4680,8 +4532,8 @@
       },
       {
         "id": 48,
-        "url": "https://ichef.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4764,8 +4616,8 @@
       },
       {
         "id": 55,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4776,8 +4628,8 @@
       },
       {
         "id": 56,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4788,8 +4640,8 @@
       },
       {
         "id": 57,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4800,8 +4652,8 @@
       },
       {
         "id": 58,
-        "url": "https://ichef.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4812,8 +4664,8 @@
       },
       {
         "id": 59,
-        "url": "https://ichef.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4824,8 +4676,8 @@
       },
       {
         "id": 60,
-        "url": "https://ichef.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4836,8 +4688,8 @@
       },
       {
         "id": 61,
-        "url": "https://ichef.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4848,8 +4700,8 @@
       },
       {
         "id": 62,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4860,8 +4712,8 @@
       },
       {
         "id": 63,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4872,8 +4724,8 @@
       },
       {
         "id": 64,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4884,8 +4736,8 @@
       },
       {
         "id": 65,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4896,8 +4748,8 @@
       },
       {
         "id": 66,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4908,8 +4760,8 @@
       },
       {
         "id": 67,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4920,8 +4772,8 @@
       },
       {
         "id": 68,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4932,8 +4784,8 @@
       },
       {
         "id": 69,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4944,8 +4796,8 @@
       },
       {
         "id": 70,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4956,8 +4808,8 @@
       },
       {
         "id": 71,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4968,8 +4820,8 @@
       },
       {
         "id": 72,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4980,8 +4832,8 @@
       },
       {
         "id": 73,
-        "url": "https://ichef.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ichef.bbci.co.uk",
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5052,8 +4904,8 @@
       },
       {
         "id": 79,
-        "url": "https://web-cdn.api.bbci.co.uk/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "web-cdn.api.bbci.co.uk",
+        "url": "https://{label}.api.bbci.co.uk/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.api.bbci.co.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -5081,8 +4933,8 @@
       },
       {
         "id": 86,
-        "url": "https://mybbc-analytics.files.bbci.co.uk/{seg}/{seg}",
-        "domain": "mybbc-analytics.files.bbci.co.uk",
+        "url": "https://{label}.files.bbci.co.uk/{seg}/{seg}",
+        "domain": "{label}.files.bbci.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5093,8 +4945,8 @@
       },
       {
         "id": 89,
-        "url": "https://gn-web-assets.api.bbc.com/{seg}/{seg}/{seg}",
-        "domain": "gn-web-assets.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5105,8 +4957,8 @@
       },
       {
         "id": 90,
-        "url": "https://gn-web-assets.api.bbc.com/{seg}/{seg}/{seg}",
-        "domain": "gn-web-assets.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5117,8 +4969,8 @@
       },
       {
         "id": 91,
-        "url": "https://gn-web-assets.api.bbc.com/{seg}/{seg}/{seg}",
-        "domain": "gn-web-assets.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5129,8 +4981,8 @@
       },
       {
         "id": 92,
-        "url": "https://mybbc-analytics.files.bbci.co.uk/{seg}/{seg}",
-        "domain": "mybbc-analytics.files.bbci.co.uk",
+        "url": "https://{label}.files.bbci.co.uk/{seg}/{seg}",
+        "domain": "{label}.files.bbci.co.uk",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5141,8 +4993,8 @@
       },
       {
         "id": 93,
-        "url": "https://mybbc-analytics.files.bbci.co.uk/{seg}/{seg}",
-        "domain": "mybbc-analytics.files.bbci.co.uk",
+        "url": "https://{label}.files.bbci.co.uk/{seg}/{seg}",
+        "domain": "{label}.files.bbci.co.uk",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5153,8 +5005,8 @@
       },
       {
         "id": 97,
-        "url": "https://gn-web-assets.api.bbc.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gn-web-assets.api.bbc.com",
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5200,8 +5052,8 @@
         ]
       },
       {
-        "domain": "ichef.bbci.co.uk",
-        "requests": 22,
+        "domain": "{label}.bbci.co.uk",
+        "requests": 23,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -5209,11 +5061,12 @@
           200
         ],
         "resourceTypes": [
-          "image"
+          "image",
+          "script"
         ]
       },
       {
-        "domain": "mybbc-analytics.files.bbci.co.uk",
+        "domain": "{label}.files.bbci.co.uk",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -5253,19 +5106,6 @@
         ]
       },
       {
-        "domain": "emp.bbci.co.uk",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
         "domain": "www.bbc.co.uk",
         "requests": 1,
         "thirdParty": true,
@@ -5279,7 +5119,7 @@
         ]
       },
       {
-        "domain": "web-cdn.api.bbci.co.uk",
+        "domain": "{label}.api.bbci.co.uk",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -5292,7 +5132,7 @@
         ]
       },
       {
-        "domain": "gn-web-assets.api.bbc.com",
+        "domain": "{label}.api.bbc.com",
         "requests": 5,
         "thirdParty": false,
         "tracker": null,
@@ -5428,7 +5268,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://gn-web-assets.api.bbc.com/",
+            "https://{label}.api.bbc.com/",
             "https://static.files.bbci.co.uk/"
           ],
           "totalListenerCalls": 95
@@ -5464,7 +5304,7 @@
           ],
           "thirdPartyOrigins": [
             "https://cdn.tinypass.com/",
-            "https://gn-web-assets.api.bbc.com/",
+            "https://{label}.api.bbc.com/",
             "https://static.files.bbci.co.uk/"
           ],
           "totalListenerCalls": 245
@@ -5495,9 +5335,9 @@
       "delta": -31
     },
     "thirdPartyDomains": {
-      "before": 40,
-      "after": 9,
-      "delta": -31
+      "before": 30,
+      "after": 8,
+      "delta": -22
     },
     "cookies": {
       "before": 35,
@@ -5522,18 +5362,18 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "cdnjs.cloudflare.com",
+        "domain": "{label}.cloudflare.com",
         "requests": 21,
         "tracker": null
       },
       {
-        "domain": "buy-eu.piano.io",
-        "requests": 18,
+        "domain": "{label}.piano.io",
+        "requests": 19,
         "tracker": null
       },
       {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 14,
+        "domain": "{label}.googlesyndication.com",
+        "requests": 16,
         "tracker": {
           "domain": "googlesyndication.com",
           "entity": "Google",
@@ -5542,8 +5382,8 @@
         }
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 10,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 11,
         "tracker": {
           "domain": "doubleclick.net",
           "entity": "Google",
@@ -5552,8 +5392,8 @@
         }
       },
       {
-        "domain": "a1.api.bbc.com",
-        "requests": 8,
+        "domain": "{label}.doubleverify.com",
+        "requests": 9,
         "tracker": null
       },
       {
@@ -5562,23 +5402,28 @@
         "tracker": null
       },
       {
+        "domain": "{label}.cxense.com",
+        "requests": 6,
+        "tracker": null
+      },
+      {
         "domain": "cdn.doubleverify.com",
         "requests": 6,
         "tracker": null
       },
       {
-        "domain": "pub.doubleverify.com",
+        "domain": "{label}.adtrafficquality.google",
         "requests": 5,
         "tracker": null
       },
       {
-        "domain": "stats-collector.cxense.com",
-        "requests": 4,
+        "domain": "{label}.dotmetrics.net",
+        "requests": 5,
         "tracker": null
       },
       {
-        "domain": "uk-script.dotmetrics.net",
-        "requests": 4,
+        "domain": "{label}.webcontentassessor.com",
+        "requests": 3,
         "tracker": null
       },
       {
@@ -5587,34 +5432,19 @@
         "tracker": null
       },
       {
-        "domain": "ep2.adtrafficquality.google",
-        "requests": 3,
-        "tracker": null
-      },
-      {
-        "domain": "scripts.webcontentassessor.com",
-        "requests": 3,
-        "tracker": null
-      },
-      {
-        "domain": "tps.doubleverify.com",
-        "requests": 3,
-        "tracker": null
-      },
-      {
-        "domain": "ep1.adtrafficquality.google",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "tpc.googlesyndication.com",
-        "requests": 2,
+        "domain": "{label}.{label}.googlesyndication.com",
+        "requests": 1,
         "tracker": {
           "domain": "googlesyndication.com",
           "entity": "Google",
           "category": "advertising",
           "confidence": "curated"
         }
+      },
+      {
+        "domain": "{label}.bbc.co.uk",
+        "requests": 1,
+        "tracker": null
       },
       {
         "domain": "{label}.cdn.optimizely.com",
@@ -5627,22 +5457,22 @@
         }
       },
       {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.dv.tech",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.optimizely.com",
         "requests": 1,
         "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
+          "domain": "optimizely.com",
+          "entity": "Optimizely",
+          "category": "experimentation",
           "confidence": "curated"
         }
       },
       {
         "domain": "ads.undertone.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "c2-eu.piano.io",
         "requests": 1,
         "tracker": null
       },
@@ -5657,57 +5487,7 @@
         "tracker": null
       },
       {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "comcluster.cxense.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
         "domain": "edigitalsurvey.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "ichef.bbc.co.uk",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "id.cxense.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "logx.optimizely.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "optimizely.com",
-          "entity": "Optimizely",
-          "category": "experimentation",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "rm-script.dotmetrics.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "tps-dn-uw1.doubleverify.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "vtrk.dv.tech",
         "requests": 1,
         "tracker": null
       },
@@ -5722,7 +5502,7 @@
       {
         "entity": "Google",
         "requests": 28,
-        "domains": 5
+        "domains": 3
       }
     ],
     "addedCookies": [],

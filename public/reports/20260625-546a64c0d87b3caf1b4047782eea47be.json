@@ -23,7 +23,7 @@
       "totalRequests": 106,
       "thirdPartyRequests": 8,
       "knownTrackerRequests": 1,
-      "thirdPartyDomains": 4,
+      "thirdPartyDomains": 3,
       "cookies": 3,
       "thirdPartyCookies": 0,
       "storageEntries": 0,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://use.typekit.net/{seg}",
-        "domain": "use.typekit.net",
+        "url": "https://{label}.typekit.net/{seg}",
+        "domain": "{label}.typekit.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://ltm.scholastic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ltm.scholastic.com",
+        "url": "https://{label}.scholastic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": null,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://p.typekit.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "p.typekit.net",
+        "url": "https://{label}.typekit.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.typekit.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -369,8 +369,8 @@
       },
       {
         "id": 26,
-        "url": "https://ltm.scholastic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ltm.scholastic.com",
+        "url": "https://{label}.scholastic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": null,
@@ -1142,8 +1142,8 @@
       },
       {
         "id": 90,
-        "url": "https://use.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
-        "domain": "use.typekit.net",
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1154,8 +1154,8 @@
       },
       {
         "id": 91,
-        "url": "https://use.typekit.net/{seg}/{n}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
-        "domain": "use.typekit.net",
+        "url": "https://{label}.typekit.net/{seg}/{n}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1166,8 +1166,8 @@
       },
       {
         "id": 92,
-        "url": "https://use.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
-        "domain": "use.typekit.net",
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1178,8 +1178,8 @@
       },
       {
         "id": 93,
-        "url": "https://use.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
-        "domain": "use.typekit.net",
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1365,22 +1365,8 @@
         ]
       },
       {
-        "domain": "use.typekit.net",
-        "requests": 5,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "stylesheet",
-          "font"
-        ]
-      },
-      {
-        "domain": "p.typekit.net",
-        "requests": 1,
+        "domain": "{label}.typekit.net",
+        "requests": 6,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -1388,7 +1374,8 @@
           200
         ],
         "resourceTypes": [
-          "stylesheet"
+          "stylesheet",
+          "font"
         ]
       },
       {
@@ -1428,7 +1415,7 @@
         ]
       },
       {
-        "domain": "ltm.scholastic.com",
+        "domain": "{label}.scholastic.com",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -1695,8 +1682,8 @@
       },
       {
         "id": 12,
-        "url": "https://use.typekit.net/{seg}",
-        "domain": "use.typekit.net",
+        "url": "https://{label}.typekit.net/{seg}",
+        "domain": "{label}.typekit.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1731,8 +1718,8 @@
       },
       {
         "id": 17,
-        "url": "https://ltm.scholastic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ltm.scholastic.com",
+        "url": "https://{label}.scholastic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": null,
@@ -1779,8 +1766,8 @@
       },
       {
         "id": 21,
-        "url": "https://ltm.scholastic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ltm.scholastic.com",
+        "url": "https://{label}.scholastic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": null,
@@ -2535,8 +2522,8 @@
       },
       {
         "id": 86,
-        "url": "https://use.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
-        "domain": "use.typekit.net",
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2547,8 +2534,8 @@
       },
       {
         "id": 87,
-        "url": "https://use.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
-        "domain": "use.typekit.net",
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2631,8 +2618,8 @@
       },
       {
         "id": 94,
-        "url": "https://use.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
-        "domain": "use.typekit.net",
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2643,8 +2630,8 @@
       },
       {
         "id": 95,
-        "url": "https://use.typekit.net/{seg}/{n}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
-        "domain": "use.typekit.net",
+        "url": "https://{label}.typekit.net/{seg}/{n}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2788,7 +2775,7 @@
     ],
     "domains": [
       {
-        "domain": "use.typekit.net",
+        "domain": "{label}.typekit.net",
         "requests": 5,
         "thirdParty": true,
         "tracker": null,
@@ -2824,7 +2811,7 @@
         ]
       },
       {
-        "domain": "ltm.scholastic.com",
+        "domain": "{label}.scholastic.com",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -2895,9 +2882,9 @@
       "delta": -1
     },
     "thirdPartyDomains": {
-      "before": 4,
+      "before": 3,
       "after": 1,
-      "delta": -3
+      "delta": -2
     },
     "cookies": {
       "before": 3,
@@ -2930,11 +2917,6 @@
           "category": "session replay / behavior analytics",
           "confidence": "curated"
         }
-      },
-      {
-        "domain": "p.typekit.net",
-        "requests": 1,
-        "tracker": null
       },
       {
         "domain": "static.cloudflareinsights.com",

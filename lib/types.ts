@@ -534,6 +534,10 @@ export type StaticReportManifestEntry = {
   // manifest stays metadata-only and the path scheme has a single definition.
   id: string;
   title: string;
+  /** Canonical evidence-gated card headline, derived during the managed build. */
+  headline: string;
+  /** Canonical headline tone; never re-inferred from raw counts in the browser. */
+  tone: "alarm" | "warn" | "info" | "calm";
   domain: string;
   requestedUrl: string;
   scannedAt: string;
@@ -546,6 +550,18 @@ export type StaticReportManifestEntry = {
   // The lead run hit the request-recording cap, so its counts are truncated
   // (activity floors and interrupted-visit snapshots) and cards must flag it.
   requestCapped?: boolean;
+  /**
+   * Exact, versioned subject/method/condition identity for temporal history.
+   * Absent means the setup is incomplete or generalized and cannot pair.
+   */
+  historyKey?: string;
+  /**
+   * Versioned identity for successful, uncapped passive-history comparisons.
+   * It holds subject, method, browser/device, conditions, catalog, Brave-list
+   * source and list count constant while permitting the snapshot date to
+   * differ. It never replaces the stricter retention `historyKey` above.
+   */
+  comparisonHistoryKey?: string;
   metrics: {
     totalRequests: number;
     thirdPartyRequests: number;

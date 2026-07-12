@@ -14,7 +14,7 @@ import {
   v2ComparisonDecision,
   type ComparisonDecision
 } from "./comparison-decision";
-import { runHitRequestCap } from "./comparison-eligibility";
+import { runHitRequestCap, runHitResponseByteCap } from "./comparison-eligibility";
 import { summarizeDomains } from "./domain-summaries";
 import type {
   CnameCloak,
@@ -531,6 +531,7 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   const reasons: string[] = [];
   if (typeof result.summary.status === "number" && result.summary.status >= 400) reasons.push("http-error-status");
   if (runHitRequestCap(result)) reasons.push("budget-exhausted:request-cap");
+  if (runHitResponseByteCap(result)) reasons.push("budget-exhausted:response-byte-cap");
   return {
     label,
     domain: result.summary.firstPartyDomain,

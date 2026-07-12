@@ -23,7 +23,7 @@
       "totalRequests": 62,
       "thirdPartyRequests": 23,
       "knownTrackerRequests": 10,
-      "thirdPartyDomains": 7,
+      "thirdPartyDomains": 6,
       "cookies": 6,
       "thirdPartyCookies": 0,
       "storageEntries": 5,
@@ -590,7 +590,7 @@
       },
       {
         "id": 44,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -607,8 +607,8 @@
       },
       {
         "id": 45,
-        "url": "https://resources.digital-cloud-gov.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "resources.digital-cloud-gov.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -619,8 +619,8 @@
       },
       {
         "id": 46,
-        "url": "https://dap.digitalgov.gov/{seg}?%5Bredacted%5D=",
-        "domain": "dap.digitalgov.gov",
+        "url": "https://{label}.digitalgov.gov/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -631,7 +631,7 @@
       },
       {
         "id": 47,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -648,8 +648,8 @@
       },
       {
         "id": 48,
-        "url": "https://dap.digitalgov.gov/{seg}/{seg}/{seg}",
-        "domain": "dap.digitalgov.gov",
+        "url": "https://{label}.digitalgov.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -677,7 +677,7 @@
       },
       {
         "id": 50,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -694,7 +694,7 @@
       },
       {
         "id": 51,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -711,8 +711,8 @@
       },
       {
         "id": 52,
-        "url": "https://resources.digital-cloud-gov.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "resources.digital-cloud-gov.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -723,8 +723,8 @@
       },
       {
         "id": 53,
-        "url": "https://resources.digital-cloud-gov.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "resources.digital-cloud-gov.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -735,8 +735,8 @@
       },
       {
         "id": 54,
-        "url": "https://analytics-fe.digital-cloud-gov.medallia.com/api/{seg}/{seg}",
-        "domain": "analytics-fe.digital-cloud-gov.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -747,7 +747,7 @@
       },
       {
         "id": 55,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -764,7 +764,7 @@
       },
       {
         "id": 56,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -781,7 +781,7 @@
       },
       {
         "id": 57,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -798,7 +798,7 @@
       },
       {
         "id": 58,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -815,7 +815,7 @@
       },
       {
         "id": 59,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -827,7 +827,7 @@
       },
       {
         "id": 60,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -839,7 +839,7 @@
       },
       {
         "id": 61,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -851,7 +851,7 @@
       },
       {
         "id": 62,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -900,6 +900,20 @@
         ]
       },
       {
+        "domain": "{label}.{label}.medallia.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
         "domain": "www.google.com",
         "requests": 4,
         "thirdParty": true,
@@ -925,21 +939,7 @@
         ]
       },
       {
-        "domain": "resources.digital-cloud-gov.medallia.com",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "xhr"
-        ]
-      },
-      {
-        "domain": "dap.digitalgov.gov",
+        "domain": "{label}.digitalgov.gov",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -949,19 +949,6 @@
         ],
         "resourceTypes": [
           "script"
-        ]
-      },
-      {
-        "domain": "analytics-fe.digital-cloud-gov.medallia.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -1091,7 +1078,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://dap.digitalgov.gov/",
+            "https://{label}.digitalgov.gov/",
             "https://static.addtoany.com/",
             "https://www.googletagmanager.com/"
           ],
@@ -1754,9 +1741,9 @@
       "delta": -10
     },
     "thirdPartyDomains": {
-      "before": 7,
+      "before": 6,
       "after": 1,
-      "delta": -6
+      "delta": -5
     },
     "cookies": {
       "before": 6,
@@ -1791,6 +1778,11 @@
         }
       },
       {
+        "domain": "{label}.{label}.medallia.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
         "domain": "www.google.com",
         "requests": 4,
         "tracker": null
@@ -1806,18 +1798,8 @@
         }
       },
       {
-        "domain": "resources.digital-cloud-gov.medallia.com",
-        "requests": 3,
-        "tracker": null
-      },
-      {
-        "domain": "dap.digitalgov.gov",
+        "domain": "{label}.digitalgov.gov",
         "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "analytics-fe.digital-cloud-gov.medallia.com",
-        "requests": 1,
         "tracker": null
       }
     ],

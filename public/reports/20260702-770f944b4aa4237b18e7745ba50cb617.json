@@ -105,8 +105,8 @@
       },
       {
         "id": 4,
-        "url": "https://imgs.xkcd.com/{seg}/{seg}",
-        "domain": "imgs.xkcd.com",
+        "url": "https://{label}.xkcd.com/{seg}/{seg}",
+        "domain": "{label}.xkcd.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -117,8 +117,8 @@
       },
       {
         "id": 5,
-        "url": "https://imgs.xkcd.com/{seg}/{seg}",
-        "domain": "imgs.xkcd.com",
+        "url": "https://{label}.xkcd.com/{seg}/{seg}",
+        "domain": "{label}.xkcd.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -129,8 +129,8 @@
       },
       {
         "id": 6,
-        "url": "https://imgs.xkcd.com/{seg}/{seg}",
-        "domain": "imgs.xkcd.com",
+        "url": "https://{label}.xkcd.com/{seg}/{seg}",
+        "domain": "{label}.xkcd.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -157,7 +157,7 @@
         ]
       },
       {
-        "domain": "imgs.xkcd.com",
+        "domain": "{label}.xkcd.com",
         "requests": 3,
         "thirdParty": false,
         "tracker": null,
@@ -274,8 +274,8 @@
       },
       {
         "id": 4,
-        "url": "https://imgs.xkcd.com/{seg}/{seg}",
-        "domain": "imgs.xkcd.com",
+        "url": "https://{label}.xkcd.com/{seg}/{seg}",
+        "domain": "{label}.xkcd.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -286,8 +286,8 @@
       },
       {
         "id": 5,
-        "url": "https://imgs.xkcd.com/{seg}/{seg}",
-        "domain": "imgs.xkcd.com",
+        "url": "https://{label}.xkcd.com/{seg}/{seg}",
+        "domain": "{label}.xkcd.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -298,8 +298,8 @@
       },
       {
         "id": 6,
-        "url": "https://imgs.xkcd.com/{seg}/{seg}",
-        "domain": "imgs.xkcd.com",
+        "url": "https://{label}.xkcd.com/{seg}/{seg}",
+        "domain": "{label}.xkcd.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -326,7 +326,7 @@
         ]
       },
       {
-        "domain": "imgs.xkcd.com",
+        "domain": "{label}.xkcd.com",
         "requests": 3,
         "thirdParty": false,
         "tracker": null,

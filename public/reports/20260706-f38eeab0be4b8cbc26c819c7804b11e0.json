@@ -23,7 +23,7 @@
       "totalRequests": 18,
       "thirdPartyRequests": 15,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 9,
+      "thirdPartyDomains": 7,
       "cookies": 4,
       "thirdPartyCookies": 0,
       "storageEntries": 4,
@@ -105,7 +105,7 @@
       },
       {
         "id": 4,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -117,8 +117,8 @@
       },
       {
         "id": 5,
-        "url": "https://client.px-cloud.net/{seg}/{seg}",
-        "domain": "client.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}/{seg}",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -129,8 +129,8 @@
       },
       {
         "id": 6,
-        "url": "https://ift.px-cloud.net/{seg}?%5Bredacted%5D=",
-        "domain": "ift.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -165,7 +165,7 @@
       },
       {
         "id": 9,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -189,8 +189,8 @@
       },
       {
         "id": 11,
-        "url": "https://client.px-cloud.net/{seg}/{seg}",
-        "domain": "client.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}/{seg}",
+        "domain": "{label}.px-cloud.net",
         "method": "HEAD",
         "resourceType": "xhr",
         "status": 200,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -237,7 +237,7 @@
       },
       {
         "id": 15,
-        "url": "https://{label}.px-client.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://{label}.px-client.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "{label}.px-client.net",
         "method": "GET",
         "resourceType": "xhr",
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://fst-ec.perimeterx.net/?id=",
-        "domain": "fst-ec.perimeterx.net",
+        "url": "https://{label}.perimeterx.net/?id=",
+        "domain": "{label}.perimeterx.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -261,8 +261,8 @@
       },
       {
         "id": 17,
-        "url": "https://ift.px-cloud.net/{seg}?v=&%5Bredacted%5D=",
-        "domain": "ift.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}?v=&%5Bredacted%5D=",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -286,6 +286,20 @@
     ],
     "domains": [
       {
+        "domain": "{label}.px-cloud.net",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
         "domain": "fonts.googleapis.com",
         "requests": 2,
         "thirdParty": true,
@@ -299,47 +313,7 @@
         ]
       },
       {
-        "domain": "client.px-cloud.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "xhr"
-        ]
-      },
-      {
-        "domain": "ift.px-cloud.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "{label}.px-cloud.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -392,7 +366,7 @@
         ]
       },
       {
-        "domain": "fst-ec.perimeterx.net",
+        "domain": "{label}.perimeterx.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -487,16 +461,12 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "webgl.readPixels",
-        "count": 11
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
       },
       {
         "api": "canvas.toDataURL",
         "count": 3
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
       },
       {
         "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
@@ -505,6 +475,10 @@
       {
         "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
         "count": 1
+      },
+      {
+        "api": "webgl.readPixels",
+        "count": 11
       },
       {
         "api": "webgl2.readPixels",
@@ -527,7 +501,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://client.px-cloud.net/"
+            "https://{label}.px-cloud.net/"
           ],
           "totalListenerCalls": 4
         }
@@ -557,7 +531,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://client.px-cloud.net/"
+            "https://{label}.px-cloud.net/"
           ],
           "totalListenerCalls": 28
         }
@@ -599,7 +573,7 @@
       "totalRequests": 17,
       "thirdPartyRequests": 14,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 8,
+      "thirdPartyDomains": 6,
       "cookies": 4,
       "thirdPartyCookies": 0,
       "storageEntries": 4,
@@ -681,7 +655,7 @@
       },
       {
         "id": 4,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -693,8 +667,8 @@
       },
       {
         "id": 5,
-        "url": "https://client.px-cloud.net/{seg}/{seg}",
-        "domain": "client.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}/{seg}",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -705,8 +679,8 @@
       },
       {
         "id": 6,
-        "url": "https://ift.px-cloud.net/{seg}?%5Bredacted%5D=",
-        "domain": "ift.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -729,8 +703,8 @@
       },
       {
         "id": 8,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -741,7 +715,7 @@
       },
       {
         "id": 9,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -765,8 +739,8 @@
       },
       {
         "id": 11,
-        "url": "https://client.px-cloud.net/{seg}/{seg}",
-        "domain": "client.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}/{seg}",
+        "domain": "{label}.px-cloud.net",
         "method": "HEAD",
         "resourceType": "xhr",
         "status": 200,
@@ -789,8 +763,8 @@
       },
       {
         "id": 13,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -813,7 +787,7 @@
       },
       {
         "id": 15,
-        "url": "https://{label}.px-client.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://{label}.px-client.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "{label}.px-client.net",
         "method": "GET",
         "resourceType": "xhr",
@@ -825,8 +799,8 @@
       },
       {
         "id": 17,
-        "url": "https://ift.px-cloud.net/{seg}?v=&%5Bredacted%5D=",
-        "domain": "ift.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}?v=&%5Bredacted%5D=",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -850,6 +824,20 @@
     ],
     "domains": [
       {
+        "domain": "{label}.px-cloud.net",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
         "domain": "fonts.googleapis.com",
         "requests": 2,
         "thirdParty": true,
@@ -863,47 +851,7 @@
         ]
       },
       {
-        "domain": "client.px-cloud.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "xhr"
-        ]
-      },
-      {
-        "domain": "ift.px-cloud.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "{label}.px-cloud.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1038,16 +986,12 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "webgl.readPixels",
-        "count": 11
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
       },
       {
         "api": "canvas.toDataURL",
         "count": 3
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
       },
       {
         "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
@@ -1056,6 +1000,10 @@
       {
         "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
         "count": 1
+      },
+      {
+        "api": "webgl.readPixels",
+        "count": 11
       },
       {
         "api": "webgl2.readPixels",
@@ -1078,7 +1026,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://client.px-cloud.net/"
+            "https://{label}.px-cloud.net/"
           ],
           "totalListenerCalls": 4
         }
@@ -1108,7 +1056,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://client.px-cloud.net/"
+            "https://{label}.px-cloud.net/"
           ],
           "totalListenerCalls": 28
         }
@@ -1156,8 +1104,8 @@
       "delta": 0
     },
     "thirdPartyDomains": {
-      "before": 9,
-      "after": 8,
+      "before": 7,
+      "after": 6,
       "delta": -1
     },
     "cookies": {
@@ -1183,7 +1131,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "fst-ec.perimeterx.net",
+        "domain": "{label}.perimeterx.net",
         "requests": 1,
         "tracker": null
       }

@@ -23,7 +23,7 @@ The project is open source under the [AGPL-3.0-or-later](LICENSE) so anyone can 
 - SSRF guard that blocks localhost, private networks, link-local addresses, and reserved test ranges, with the Node scanner routing Chromium through a connect-time public-address proxy.
 - Basic server-side guardrails: request body limit, per-client scan and report-read rate limits, scan concurrency cap, scan duration cap, per-scan request cap, and shared Chromium reuse.
 - Optional scan access key enforcement for public or gated deployments.
-- Report URLs omit credentials and fragments. First-party URLs omit query strings; third-party request logs preserve query parameter names with values redacted.
+- Report URLs omit credentials and fragments. First-party URLs omit query strings; third-party request logs keep only reviewed, exact query-key literals and always discard values. Unknown keys, path segments, subdomain labels, cookie names, and storage keys are generalized before a report crosses a public or persistent boundary.
 - Stable report permalinks (date-prefixed random IDs) and JSON endpoints under `/reports/:id` and `/api/reports/:id`. Runtime-saved reports are retained for a configurable window (7 days / 500 reports by default, then pruned); reports committed under `public/reports/` are permanent.
 - Runtime health/readiness metadata under `/api/health`.
 - Static export (deployed on Cloudflare Pages) for the report viewer, generated report gallery, saved-report comparisons, and committed report JSON under `public/reports/`.

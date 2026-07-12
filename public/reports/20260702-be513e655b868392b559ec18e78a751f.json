@@ -93,8 +93,8 @@
       },
       {
         "id": 3,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -105,8 +105,8 @@
       },
       {
         "id": 4,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -117,8 +117,8 @@
       },
       {
         "id": 5,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -129,8 +129,8 @@
       },
       {
         "id": 6,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -141,8 +141,8 @@
       },
       {
         "id": 7,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -165,8 +165,8 @@
       },
       {
         "id": 9,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -177,8 +177,8 @@
       },
       {
         "id": 10,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -189,8 +189,8 @@
       },
       {
         "id": 11,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -201,8 +201,8 @@
       },
       {
         "id": 12,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -225,8 +225,8 @@
       },
       {
         "id": 14,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -261,8 +261,8 @@
       },
       {
         "id": 17,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -285,8 +285,8 @@
       },
       {
         "id": 19,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -309,8 +309,8 @@
       },
       {
         "id": 21,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -321,8 +321,8 @@
       },
       {
         "id": 22,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -333,8 +333,8 @@
       },
       {
         "id": 23,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -345,8 +345,8 @@
       },
       {
         "id": 24,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -393,8 +393,8 @@
       },
       {
         "id": 28,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -430,7 +430,7 @@
     ],
     "domains": [
       {
-        "domain": "static.xx.fbcdn.net",
+        "domain": "static.{label}.fbcdn.net",
         "requests": 23,
         "thirdParty": true,
         "tracker": null,
@@ -549,16 +549,16 @@
         "count": 74
       },
       {
+        "api": "canvas.toDataURL",
+        "count": 1
+      },
+      {
         "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
         "count": 2
       },
       {
         "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
         "count": 2
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 1
       },
       {
         "api": "webgl.readPixels",
@@ -596,7 +596,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://static.xx.fbcdn.net/"
+            "https://static.{label}.fbcdn.net/"
           ],
           "totalListenerCalls": 21
         }
@@ -631,7 +631,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://static.xx.fbcdn.net/"
+            "https://static.{label}.fbcdn.net/"
           ],
           "totalListenerCalls": 62
         }
@@ -760,8 +760,8 @@
       },
       {
         "id": 3,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -772,8 +772,8 @@
       },
       {
         "id": 4,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -784,8 +784,8 @@
       },
       {
         "id": 5,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -796,8 +796,8 @@
       },
       {
         "id": 6,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -808,8 +808,8 @@
       },
       {
         "id": 7,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -820,8 +820,8 @@
       },
       {
         "id": 8,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -832,8 +832,8 @@
       },
       {
         "id": 9,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -844,8 +844,8 @@
       },
       {
         "id": 10,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -856,8 +856,8 @@
       },
       {
         "id": 11,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -868,8 +868,8 @@
       },
       {
         "id": 12,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -880,8 +880,8 @@
       },
       {
         "id": 13,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -892,8 +892,8 @@
       },
       {
         "id": 14,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -904,8 +904,8 @@
       },
       {
         "id": 15,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -916,8 +916,8 @@
       },
       {
         "id": 16,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -928,8 +928,8 @@
       },
       {
         "id": 17,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -940,8 +940,8 @@
       },
       {
         "id": 18,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -952,8 +952,8 @@
       },
       {
         "id": 19,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -964,8 +964,8 @@
       },
       {
         "id": 20,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -976,8 +976,8 @@
       },
       {
         "id": 21,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -988,8 +988,8 @@
       },
       {
         "id": 22,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1000,8 +1000,8 @@
       },
       {
         "id": 23,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1012,8 +1012,8 @@
       },
       {
         "id": 24,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1060,8 +1060,8 @@
       },
       {
         "id": 28,
-        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "static.xx.fbcdn.net",
+        "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.{label}.fbcdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1097,7 +1097,7 @@
     ],
     "domains": [
       {
-        "domain": "static.xx.fbcdn.net",
+        "domain": "static.{label}.fbcdn.net",
         "requests": 23,
         "thirdParty": true,
         "tracker": null,
@@ -1216,16 +1216,16 @@
         "count": 74
       },
       {
+        "api": "canvas.toDataURL",
+        "count": 1
+      },
+      {
         "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
         "count": 2
       },
       {
         "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
         "count": 2
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 1
       },
       {
         "api": "webgl.readPixels",
@@ -1263,7 +1263,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://static.xx.fbcdn.net/"
+            "https://static.{label}.fbcdn.net/"
           ],
           "totalListenerCalls": 21
         }
@@ -1298,7 +1298,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://static.xx.fbcdn.net/"
+            "https://static.{label}.fbcdn.net/"
           ],
           "totalListenerCalls": 62
         }

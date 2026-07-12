@@ -8,6 +8,7 @@ import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-prov
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { buildStaticReportManifest } from "./static-report-manifest";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
+import { NODE_SHIELDS_REQUEST_CONTEXT_VERSION } from "./legacy-methodology";
 import type { ScanReport, ScanResult } from "./types";
 
 let reportsDir = "";
@@ -20,7 +21,7 @@ afterEach(async () => {
   await rm(reportsDir, { recursive: true, force: true });
 });
 
-function makeResult(overrides: { firstPartyDomain?: string; totalRequests?: number } = {}): ScanResult {
+function makeResult(overrides: { firstPartyDomain?: string; totalRequests?: number; status?: number | null } = {}): ScanResult {
   const base = makeScanReportV1();
   if (base.reportType === "comparison") throw new Error("fixture must be a single report");
   const totalRequests = overrides.totalRequests ?? base.summary.totalRequests;
@@ -43,6 +44,7 @@ function makeResult(overrides: { firstPartyDomain?: string; totalRequests?: numb
     summary: {
       ...base.summary,
       firstPartyDomain: overrides.firstPartyDomain ?? "shop.example.org",
+      status: overrides.status ?? base.summary.status,
       totalRequests
     }
   };
@@ -78,7 +80,18 @@ function reportCreationTime(report: unknown): string {
 }
 
 test("builds entries for valid v1 reports and ignores non-report files", async () => {
-  await writeReport("20260618-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", makeResult());
+  const report = makeResult();
+  report.conditions.requestedUrl = "https://shop.example.org/";
+  report.conditions.finalUrl = report.conditions.requestedUrl;
+  report.conditions.shieldsMode = "classification";
+  report.conditions.adblock = {
+    active: true,
+    source: "Brave default ad-block lists",
+    lists: 31,
+    fetchedAt: "2026-07-01T00:00:00.000Z"
+  };
+  report.conditions.scannerDisclosure = `test scanner under methodology ${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}`;
+  await writeReport("20260618-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", report);
   await writeFile(path.join(reportsDir, "index.json"), "{}\n");
   await writeFile(path.join(reportsDir, "notes.txt"), "not a report\n");
   await mkdir(path.join(reportsDir, "subdir"));
@@ -90,7 +103,81 @@ test("builds entries for valid v1 reports and ignores non-report files", async (
   assert.equal(entry.id, "20260618-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
   assert.equal(entry.domain, "shop.example.org");
   assert.equal(entry.reportType, "single");
+  assert.equal(typeof entry.headline, "string");
+  assert.ok(["alarm", "warn", "info", "calm"].includes(entry.tone));
+  assert.equal(typeof entry.historyKey, "string");
+  assert.equal(typeof entry.comparisonHistoryKey, "string");
   assert.equal(typeof entry.metrics.totalRequests, "number");
+});
+
+test("comparison history permits only snapshot-date drift in successful passive visits", async () => {
+  const before = makeResult();
+  before.conditions.requestedUrl = "https://shop.example.org/news";
+  before.conditions.finalUrl = before.conditions.requestedUrl;
+  before.conditions.scannedAt = "2026-07-01T00:00:00.000Z";
+  before.conditions.shieldsMode = "classification";
+  before.conditions.scannerDisclosure = `test scanner under methodology ${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}`;
+  before.conditions.adblock = {
+    active: true,
+    source: "Brave default ad-block lists",
+    lists: 31,
+    fetchedAt: "2026-07-01T00:00:00.000Z"
+  };
+  const after = structuredClone(before);
+  after.conditions.scannedAt = "2026-07-02T00:00:00.000Z";
+  after.conditions.adblock!.fetchedAt = "2026-07-02T00:00:00.000Z";
+
+  await writeReport("20260701-11111111111111111111111111111111", before);
+  await writeReport("20260702-22222222222222222222222222222222", after);
+  const { manifest } = await buildStaticReportManifest(reportsDir);
+  const [latest, earlier] = manifest.reports;
+  assert.notEqual(latest.historyKey, earlier.historyKey);
+  assert.equal(latest.comparisonHistoryKey, earlier.comparisonHistoryKey);
+
+  const listMismatch = structuredClone(after);
+  listMismatch.conditions.scannedAt = "2026-07-03T00:00:00.000Z";
+  listMismatch.conditions.adblock!.lists = 30;
+  await writeReport("20260703-33333333333333333333333333333333", listMismatch);
+  const rebuilt = await buildStaticReportManifest(reportsDir);
+  assert.notEqual(rebuilt.manifest.reports[0].comparisonHistoryKey, latest.comparisonHistoryKey);
+});
+
+test("comparison history excludes failed, capped, and block-simulation visits", async () => {
+  const failed = makeResult({ status: 403 });
+  failed.conditions.shieldsMode = "classification";
+  const capped = makeResult({ totalRequests: 1_000 });
+  capped.conditions.shieldsMode = "classification";
+  const simulated = makeResult();
+  simulated.conditions.shieldsMode = "block-simulation";
+  await writeReport("20260701-44444444444444444444444444444444", failed);
+  await writeReport("20260702-55555555555555555555555555555555", capped);
+  await writeReport("20260703-66666666666666666666666666666666", simulated);
+
+  const { manifest } = await buildStaticReportManifest(reportsDir);
+  assert.equal(manifest.reports.length, 3);
+  assert.equal(manifest.reports.every((entry) => entry.comparisonHistoryKey === undefined), true);
+});
+
+test("manifest headlines preserve failed-load evidence instead of inferring calm from counts", async () => {
+  await writeReport(
+    "20260618-99999999999999999999999999999999",
+    makeResult({ firstPartyDomain: "blocked.example.org", totalRequests: 1, status: 403 })
+  );
+
+  const { manifest } = await buildStaticReportManifest(reportsDir);
+  assert.equal(manifest.reports.length, 1);
+  assert.match(manifest.reports[0].headline, /error|block|HTTP 403/i);
+  assert.notEqual(manifest.reports[0].tone, "calm");
+});
+
+test("history identity is omitted when redaction generalized the measured route", async () => {
+  const report = makeResult();
+  report.conditions.requestedUrl = "https://shop.example.org/alice-private-route";
+  report.conditions.finalUrl = report.conditions.requestedUrl;
+  await writeReport("20260618-88888888888888888888888888888888", report);
+
+  const { manifest } = await buildStaticReportManifest(reportsDir);
+  assert.equal(manifest.reports[0].historyKey, undefined);
 });
 
 test("comparison reports lead with the baseline and carry the comparison type", async () => {

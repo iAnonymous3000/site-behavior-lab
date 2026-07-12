@@ -23,7 +23,7 @@
       "totalRequests": 82,
       "thirdPartyRequests": 25,
       "knownTrackerRequests": 16,
-      "thirdPartyDomains": 9,
+      "thirdPartyDomains": 8,
       "cookies": 4,
       "thirdPartyCookies": 0,
       "storageEntries": 1,
@@ -422,8 +422,8 @@
       },
       {
         "id": 30,
-        "url": "https://s.go-mpulse.net/{seg}/{seg}",
-        "domain": "s.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/{seg}/{seg}",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -811,8 +811,8 @@
       },
       {
         "id": 62,
-        "url": "https://c.go-mpulse.net/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
@@ -823,7 +823,7 @@
       },
       {
         "id": 63,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -840,7 +840,7 @@
       },
       {
         "id": 64,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -857,8 +857,8 @@
       },
       {
         "id": 65,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -874,8 +874,8 @@
       },
       {
         "id": 66,
-        "url": "https://dap.digitalgov.gov/{seg}",
-        "domain": "dap.digitalgov.gov",
+        "url": "https://{label}.digitalgov.gov/{seg}",
+        "domain": "{label}.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -886,8 +886,8 @@
       },
       {
         "id": 67,
-        "url": "https://bam.nr-data.net/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -903,8 +903,8 @@
       },
       {
         "id": 68,
-        "url": "https://dap.digitalgov.gov/{seg}/{seg}/{seg}",
-        "domain": "dap.digitalgov.gov",
+        "url": "https://{label}.digitalgov.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -932,7 +932,7 @@
       },
       {
         "id": 70,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -949,8 +949,8 @@
       },
       {
         "id": 71,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -966,7 +966,7 @@
       },
       {
         "id": 72,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -983,7 +983,7 @@
       },
       {
         "id": 73,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1000,7 +1000,7 @@
       },
       {
         "id": 74,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1017,8 +1017,8 @@
       },
       {
         "id": 75,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -1034,8 +1034,8 @@
       },
       {
         "id": 76,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -1051,7 +1051,7 @@
       },
       {
         "id": 77,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1068,7 +1068,7 @@
       },
       {
         "id": 78,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1085,7 +1085,7 @@
       },
       {
         "id": 79,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1097,7 +1097,7 @@
       },
       {
         "id": 80,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1109,7 +1109,7 @@
       },
       {
         "id": 81,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1121,7 +1121,7 @@
       },
       {
         "id": 82,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1170,7 +1170,7 @@
         ]
       },
       {
-        "domain": "bam.nr-data.net",
+        "domain": "{label}.nr-data.net",
         "requests": 4,
         "thirdParty": true,
         "tracker": {
@@ -1189,7 +1189,7 @@
         ]
       },
       {
-        "domain": "js-agent.newrelic.com",
+        "domain": "{label}.newrelic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -1218,7 +1218,22 @@
         ]
       },
       {
-        "domain": "dap.digitalgov.gov",
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1241,32 +1256,6 @@
         ],
         "resourceTypes": [
           "script"
-        ]
-      },
-      {
-        "domain": "s.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "c.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -1355,8 +1344,8 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://js-agent.newrelic.com/",
-            "https://s.go-mpulse.net/"
+            "https://{label}.newrelic.com/",
+            "https://{label}.go-mpulse.net/"
           ],
           "totalListenerCalls": 4
         }
@@ -1379,8 +1368,8 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://js-agent.newrelic.com/",
-            "https://s.go-mpulse.net/",
+            "https://{label}.newrelic.com/",
+            "https://{label}.go-mpulse.net/",
             "https://www.googletagmanager.com/"
           ],
           "totalListenerCalls": 26
@@ -2215,9 +2204,9 @@
       "delta": -16
     },
     "thirdPartyDomains": {
-      "before": 9,
+      "before": 8,
       "after": 1,
-      "delta": -8
+      "delta": -7
     },
     "cookies": {
       "before": 4,
@@ -2262,7 +2251,7 @@
         }
       },
       {
-        "domain": "bam.nr-data.net",
+        "domain": "{label}.nr-data.net",
         "requests": 4,
         "tracker": {
           "domain": "nr-data.net",
@@ -2277,17 +2266,17 @@
         "tracker": null
       },
       {
-        "domain": "dap.digitalgov.gov",
+        "domain": "{label}.digitalgov.gov",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "c.go-mpulse.net",
-        "requests": 1,
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
         "tracker": null
       },
       {
-        "domain": "js-agent.newrelic.com",
+        "domain": "{label}.newrelic.com",
         "requests": 1,
         "tracker": {
           "domain": "newrelic.com",
@@ -2295,11 +2284,6 @@
           "category": "performance monitoring",
           "confidence": "curated"
         }
-      },
-      {
-        "domain": "s.go-mpulse.net",
-        "requests": 1,
-        "tracker": null
       }
     ],
     "addedEntities": [],

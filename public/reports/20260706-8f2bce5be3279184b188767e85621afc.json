@@ -23,7 +23,7 @@
       "totalRequests": 102,
       "thirdPartyRequests": 31,
       "knownTrackerRequests": 3,
-      "thirdPartyDomains": 14,
+      "thirdPartyDomains": 11,
       "cookies": 22,
       "thirdPartyCookies": 4,
       "storageEntries": 23,
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://portal.discover.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "portal.discover.com",
+        "url": "https://{label}.discover.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -434,8 +434,8 @@
       },
       {
         "id": 31,
-        "url": "https://portal.discover.com/{seg}/{seg}/login/{seg}",
-        "domain": "portal.discover.com",
+        "url": "https://{label}.discover.com/{seg}/{seg}/login/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -458,8 +458,8 @@
       },
       {
         "id": 33,
-        "url": "https://s.go-mpulse.net/{seg}/{seg}",
-        "domain": "s.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/{seg}/{seg}",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -602,8 +602,8 @@
       },
       {
         "id": 45,
-        "url": "https://portal.discover.com/{seg}/{seg}/login/{seg}",
-        "domain": "portal.discover.com",
+        "url": "https://{label}.discover.com/{seg}/{seg}/login/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -626,8 +626,8 @@
       },
       {
         "id": 47,
-        "url": "https://content.discover.com/{seg}/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -638,8 +638,8 @@
       },
       {
         "id": 48,
-        "url": "https://cdnssl.clicktale.net/{seg}/{seg}/{seg}",
-        "domain": "cdnssl.clicktale.net",
+        "url": "https://{label}.clicktale.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -667,8 +667,8 @@
       },
       {
         "id": 50,
-        "url": "https://adobedc.demdex.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "adobedc.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -684,7 +684,7 @@
       },
       {
         "id": 51,
-        "url": "https://app.link/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&callback=",
+        "url": "https://app.link/{seg}?%5Bredacted%5D=&callback=",
         "domain": "app.link",
         "method": "GET",
         "resourceType": "script",
@@ -696,8 +696,8 @@
       },
       {
         "id": 52,
-        "url": "https://c.go-mpulse.net/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
@@ -708,8 +708,8 @@
       },
       {
         "id": 53,
-        "url": "https://cdnssl.clicktale.net/{seg}/{seg}",
-        "domain": "cdnssl.clicktale.net",
+        "url": "https://{label}.clicktale.net/{seg}/{seg}",
+        "domain": "{label}.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -720,8 +720,8 @@
       },
       {
         "id": 54,
-        "url": "https://cdnssl.clicktale.net/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "cdnssl.clicktale.net",
+        "url": "https://{label}.clicktale.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.clicktale.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -732,8 +732,8 @@
       },
       {
         "id": 55,
-        "url": "https://smetrics.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.discover.com",
+        "url": "https://{label}.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.discover.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -744,8 +744,8 @@
       },
       {
         "id": 56,
-        "url": "https://cdnssl.clicktale.net/{seg}/{seg}/{seg}",
-        "domain": "cdnssl.clicktale.net",
+        "url": "https://{label}.clicktale.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -756,8 +756,8 @@
       },
       {
         "id": 57,
-        "url": "https://smetrics.discover.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.discover.com",
+        "url": "https://{label}.discover.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.discover.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -768,8 +768,8 @@
       },
       {
         "id": 58,
-        "url": "https://cdnssl.clicktale.net/{seg}/{seg}?%5Bredacted%5D=&Version=",
-        "domain": "cdnssl.clicktale.net",
+        "url": "https://{label}.clicktale.net/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -780,8 +780,8 @@
       },
       {
         "id": 59,
-        "url": "https://cdnssl.clicktale.net/{seg}/{seg}",
-        "domain": "cdnssl.clicktale.net",
+        "url": "https://{label}.clicktale.net/{seg}/{seg}",
+        "domain": "{label}.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -792,8 +792,8 @@
       },
       {
         "id": 60,
-        "url": "https://api2.branch.io/{seg}/{seg}",
-        "domain": "api2.branch.io",
+        "url": "https://{label}.branch.io/{seg}/{seg}",
+        "domain": "{label}.branch.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -804,7 +804,7 @@
       },
       {
         "id": 61,
-        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -816,7 +816,7 @@
       },
       {
         "id": 62,
-        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -828,7 +828,7 @@
       },
       {
         "id": 63,
-        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -840,8 +840,8 @@
       },
       {
         "id": 64,
-        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.clicktale.net",
+        "url": "https://{label}.clicktale.net/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.clicktale.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -852,8 +852,8 @@
       },
       {
         "id": 65,
-        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.clicktale.net",
+        "url": "https://{label}.clicktale.net/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -912,8 +912,8 @@
       },
       {
         "id": 70,
-        "url": "https://smetrics.discover.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.discover.com",
+        "url": "https://{label}.discover.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.discover.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -924,8 +924,8 @@
       },
       {
         "id": 71,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -936,8 +936,8 @@
       },
       {
         "id": 72,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -948,8 +948,8 @@
       },
       {
         "id": 73,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -960,8 +960,8 @@
       },
       {
         "id": 74,
-        "url": "https://api2.branch.io/{seg}/{seg}",
-        "domain": "api2.branch.io",
+        "url": "https://{label}.branch.io/{seg}/{seg}",
+        "domain": "{label}.branch.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -972,8 +972,8 @@
       },
       {
         "id": 75,
-        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.clicktale.net",
+        "url": "https://{label}.clicktale.net/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -984,8 +984,8 @@
       },
       {
         "id": 76,
-        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.clicktale.net",
+        "url": "https://{label}.clicktale.net/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -996,7 +996,7 @@
       },
       {
         "id": 77,
-        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1008,8 +1008,8 @@
       },
       {
         "id": 78,
-        "url": "https://content.discover.com/{seg}/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1020,8 +1020,8 @@
       },
       {
         "id": 79,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -1032,8 +1032,8 @@
       },
       {
         "id": 80,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1044,8 +1044,8 @@
       },
       {
         "id": 81,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1056,8 +1056,8 @@
       },
       {
         "id": 82,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1068,8 +1068,8 @@
       },
       {
         "id": 83,
-        "url": "https://h.online-metrix.net/{seg}?%5Bredacted%5D=",
-        "domain": "h.online-metrix.net",
+        "url": "https://{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.online-metrix.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1080,8 +1080,8 @@
       },
       {
         "id": 84,
-        "url": "https://h64.online-metrix.net/{seg}?%5Bredacted%5D=",
-        "domain": "h64.online-metrix.net",
+        "url": "https://{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.online-metrix.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1092,8 +1092,8 @@
       },
       {
         "id": 85,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1104,8 +1104,8 @@
       },
       {
         "id": 86,
-        "url": "https://{label}.d.aa.online-metrix.net/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.d.aa.online-metrix.net",
+        "url": "https://{label}.{label}.{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.online-metrix.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1116,8 +1116,8 @@
       },
       {
         "id": 87,
-        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.clicktale.net",
+        "url": "https://{label}.clicktale.net/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1128,8 +1128,8 @@
       },
       {
         "id": 88,
-        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.clicktale.net",
+        "url": "https://{label}.clicktale.net/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1140,8 +1140,8 @@
       },
       {
         "id": 89,
-        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.clicktale.net",
+        "url": "https://{label}.clicktale.net/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1152,8 +1152,8 @@
       },
       {
         "id": 90,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -1164,8 +1164,8 @@
       },
       {
         "id": 91,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -1176,8 +1176,8 @@
       },
       {
         "id": 92,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1188,8 +1188,8 @@
       },
       {
         "id": 93,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1200,8 +1200,8 @@
       },
       {
         "id": 94,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1212,8 +1212,8 @@
       },
       {
         "id": 95,
-        "url": "https://c.clicktale.net/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.clicktale.net",
+        "url": "https://{label}.clicktale.net/{seg}?v=&%5Bredacted%5D=",
+        "domain": "{label}.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1224,8 +1224,8 @@
       },
       {
         "id": 96,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1236,8 +1236,8 @@
       },
       {
         "id": 97,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -1248,8 +1248,8 @@
       },
       {
         "id": 98,
-        "url": "https://h.online-metrix.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "h.online-metrix.net",
+        "url": "https://{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.online-metrix.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1272,8 +1272,8 @@
       },
       {
         "id": 100,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1284,8 +1284,8 @@
       },
       {
         "id": 101,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1296,8 +1296,8 @@
       },
       {
         "id": 102,
-        "url": "https://content.discover.com/{seg}",
-        "domain": "content.discover.com",
+        "url": "https://{label}.discover.com/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -1345,7 +1345,7 @@
         ]
       },
       {
-        "domain": "adobedc.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -1363,31 +1363,20 @@
         ]
       },
       {
-        "domain": "c.clicktale.net",
-        "requests": 8,
+        "domain": "{label}.clicktale.net",
+        "requests": 14,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
+          200,
           204
         ],
         "resourceTypes": [
+          "script",
+          "document",
           "xhr",
           "image"
-        ]
-      },
-      {
-        "domain": "cdnssl.clicktale.net",
-        "requests": 6,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "document"
         ]
       },
       {
@@ -1404,7 +1393,37 @@
         ]
       },
       {
-        "domain": "api2.branch.io",
+        "domain": "{label}.online-metrix.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.branch.io",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1417,34 +1436,7 @@
         ]
       },
       {
-        "domain": "h.online-metrix.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document",
-          "image"
-        ]
-      },
-      {
         "domain": "cdn.branch.io",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "s.go-mpulse.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1470,33 +1462,7 @@
         ]
       },
       {
-        "domain": "c.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "h64.online-metrix.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "{label}.d.aa.online-metrix.net",
+        "domain": "{label}.{label}.{label}.online-metrix.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1528,8 +1494,8 @@
         ]
       },
       {
-        "domain": "content.discover.com",
-        "requests": 20,
+        "domain": "{label}.discover.com",
+        "requests": 26,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
@@ -1539,36 +1505,10 @@
         ],
         "resourceTypes": [
           "script",
+          "fetch",
           "image",
           "xhr",
           "document"
-        ]
-      },
-      {
-        "domain": "portal.discover.com",
-        "requests": 3,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "fetch"
-        ]
-      },
-      {
-        "domain": "smetrics.discover.com",
-        "requests": 3,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
         ]
       }
     ],
@@ -1585,7 +1525,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".cdnssl.clicktale.net",
+        "domain": ".{label}.clicktale.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -1595,7 +1535,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".cdnssl.clicktale.net",
+        "domain": ".{label}.clicktale.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -1745,7 +1685,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "content.discover.com",
+        "domain": "{label}.discover.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -1755,7 +1695,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "content.discover.com",
+        "domain": "{label}.discover.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -1765,7 +1705,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "portal.discover.com",
+        "domain": "{label}.discover.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -1913,24 +1853,12 @@
     ],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
         "api": "canvas.getImageData",
         "count": 5
-      },
-      {
-        "api": "webgl2.readPixels",
-        "count": 5
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.createDataChannel",
-        "count": 4
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.createOffer",
-        "count": 4
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.setLocalDescription",
-        "count": 4
       },
       {
         "api": "canvas.toDataURL",
@@ -1945,20 +1873,32 @@
         "count": 3
       },
       {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 2
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
         "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
         "count": 1
       },
       {
         "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
         "count": 1
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 5
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 4
       }
     ],
     "fingerprintDetections": [
@@ -2024,10 +1964,10 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://cdnssl.clicktale.net/",
-            "https://content.discover.com/",
-            "https://portal.discover.com/",
-            "https://s.go-mpulse.net/",
+            "https://{label}.clicktale.net/",
+            "https://{label}.discover.com/",
+            "https://{label}.discover.com/",
+            "https://{label}.go-mpulse.net/",
             "https://www.datadoghq-browser-agent.com/"
           ],
           "totalListenerCalls": 23
@@ -2064,9 +2004,9 @@
           "thirdPartyOrigins": [
             "https://assets.adobedtm.com/",
             "https://cdn.branch.io/",
-            "https://cdnssl.clicktale.net/",
-            "https://content.discover.com/",
-            "https://s.go-mpulse.net/",
+            "https://{label}.clicktale.net/",
+            "https://{label}.discover.com/",
+            "https://{label}.go-mpulse.net/",
             "https://www.datadoghq-browser-agent.com/"
           ],
           "totalListenerCalls": 73
@@ -2075,8 +2015,8 @@
     ],
     "cnameCloaks": [
       {
-        "host": "content.discover.com",
-        "cname": "h-discover.online-metrix.net",
+        "host": "{label}.discover.com",
+        "cname": "{label}.online-metrix.net",
         "tracker": {
           "domain": "online-metrix.net",
           "entity": "online-metrix.net",
@@ -2085,8 +2025,8 @@
         }
       },
       {
-        "host": "smetrics.discover.com",
-        "cname": "discover.com.ssl.d1.sc.omtrdc.net",
+        "host": "{label}.discover.com",
+        "cname": "{label}.{label}.{label}.{label}.{label}.omtrdc.net",
         "tracker": {
           "domain": "omtrdc.net",
           "entity": "Adobe",
@@ -2339,8 +2279,8 @@
       },
       {
         "id": 16,
-        "url": "https://portal.discover.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "portal.discover.com",
+        "url": "https://{label}.discover.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2524,8 +2464,8 @@
       },
       {
         "id": 31,
-        "url": "https://portal.discover.com/{seg}/{seg}/login/{seg}",
-        "domain": "portal.discover.com",
+        "url": "https://{label}.discover.com/{seg}/{seg}/login/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2668,8 +2608,8 @@
       },
       {
         "id": 46,
-        "url": "https://portal.discover.com/{seg}/{seg}/login/{seg}",
-        "domain": "portal.discover.com",
+        "url": "https://{label}.discover.com/{seg}/{seg}/login/{seg}",
+        "domain": "{label}.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2730,7 +2670,7 @@
         ]
       },
       {
-        "domain": "portal.discover.com",
+        "domain": "{label}.discover.com",
         "requests": 3,
         "thirdParty": false,
         "tracker": null,
@@ -2787,7 +2727,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "portal.discover.com",
+        "domain": "{label}.discover.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -2875,6 +2815,10 @@
     ],
     "fingerprintEvents": [
       {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      },
+      {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
         "count": 2
       },
@@ -2885,10 +2829,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 2
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -2939,9 +2879,9 @@
       "delta": -2
     },
     "thirdPartyDomains": {
-      "before": 14,
+      "before": 11,
       "after": 1,
-      "delta": -13
+      "delta": -10
     },
     "cookies": {
       "before": 22,
@@ -2966,18 +2906,8 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "content.discover.com",
-        "requests": 20,
-        "tracker": null
-      },
-      {
-        "domain": "c.clicktale.net",
-        "requests": 8,
-        "tracker": null
-      },
-      {
-        "domain": "cdnssl.clicktale.net",
-        "requests": 6,
+        "domain": "{label}.clicktale.net",
+        "requests": 14,
         "tracker": null
       },
       {
@@ -2986,27 +2916,27 @@
         "tracker": null
       },
       {
-        "domain": "smetrics.discover.com",
+        "domain": "{label}.online-metrix.net",
         "requests": 3,
         "tracker": null
       },
       {
-        "domain": "api2.branch.io",
+        "domain": "{label}.branch.io",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "h.online-metrix.net",
+        "domain": "{label}.go-mpulse.net",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "{label}.d.aa.online-metrix.net",
+        "domain": "{label}.{label}.{label}.online-metrix.net",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "adobedc.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 1,
         "tracker": {
           "domain": "demdex.net",
@@ -3021,22 +2951,7 @@
         "tracker": null
       },
       {
-        "domain": "c.go-mpulse.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
         "domain": "cdn.branch.io",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "h64.online-metrix.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "s.go-mpulse.net",
         "requests": 1,
         "tracker": null
       },
@@ -3063,12 +2978,12 @@
     "removedCookies": [
       {
         "name": "[redacted]",
-        "domain": ".app.link",
+        "domain": ".{label}.clicktale.net",
         "thirdParty": true
       },
       {
         "name": "[redacted]",
-        "domain": ".cdnssl.clicktale.net",
+        "domain": ".app.link",
         "thirdParty": true
       },
       {
@@ -3079,11 +2994,6 @@
       {
         "name": "[redacted:long-token]",
         "domain": ".discover.com",
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": "content.discover.com",
         "thirdParty": false
       }
     ],

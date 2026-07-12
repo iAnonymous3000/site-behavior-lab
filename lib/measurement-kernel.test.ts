@@ -104,6 +104,6 @@ test("boundary snapshots derive added, changed, and removed cookie/storage recor
 });
 
 test("detector registry identity is stable and non-empty", () => {
-  assert.equal(DETECTOR_REGISTRY_VERSION, "node-detectors-v1");
+  assert.equal(DETECTOR_REGISTRY_VERSION, "node-detectors-v2");
   assert.match(DETECTOR_REGISTRY_DIGEST, /^[0-9a-f]{64}$/);
 });

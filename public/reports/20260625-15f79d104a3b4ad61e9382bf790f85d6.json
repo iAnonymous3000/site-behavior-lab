@@ -81,8 +81,8 @@
       },
       {
         "id": 2,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -129,8 +129,8 @@
       },
       {
         "id": 6,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -177,8 +177,8 @@
       },
       {
         "id": 10,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -189,8 +189,8 @@
       },
       {
         "id": 11,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -266,8 +266,8 @@
       },
       {
         "id": 17,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -278,7 +278,7 @@
       },
       {
         "id": 18,
-        "url": "https://www.youtube-nocookie.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.youtube-nocookie.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube-nocookie.com",
         "method": "GET",
         "resourceType": "document",
@@ -290,7 +290,7 @@
       },
       {
         "id": 19,
-        "url": "https://www.youtube-nocookie.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.youtube-nocookie.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube-nocookie.com",
         "method": "GET",
         "resourceType": "document",
@@ -302,8 +302,8 @@
       },
       {
         "id": 20,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -314,8 +314,8 @@
       },
       {
         "id": 21,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -326,8 +326,8 @@
       },
       {
         "id": 22,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -350,8 +350,8 @@
       },
       {
         "id": 24,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -362,8 +362,8 @@
       },
       {
         "id": 25,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -374,8 +374,8 @@
       },
       {
         "id": 26,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -386,8 +386,8 @@
       },
       {
         "id": 27,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -398,8 +398,8 @@
       },
       {
         "id": 28,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -410,8 +410,8 @@
       },
       {
         "id": 29,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -422,8 +422,8 @@
       },
       {
         "id": 30,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -434,8 +434,8 @@
       },
       {
         "id": 31,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -446,8 +446,8 @@
       },
       {
         "id": 32,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -458,8 +458,8 @@
       },
       {
         "id": 33,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -470,8 +470,8 @@
       },
       {
         "id": 34,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -482,8 +482,8 @@
       },
       {
         "id": 35,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -506,8 +506,8 @@
       },
       {
         "id": 37,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -518,8 +518,8 @@
       },
       {
         "id": 38,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -530,8 +530,8 @@
       },
       {
         "id": 39,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -542,8 +542,8 @@
       },
       {
         "id": 40,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -554,8 +554,8 @@
       },
       {
         "id": 41,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -614,7 +614,7 @@
       },
       {
         "id": 46,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -631,8 +631,8 @@
       },
       {
         "id": 47,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -667,8 +667,8 @@
       },
       {
         "id": 50,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -679,8 +679,8 @@
       },
       {
         "id": 51,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -727,8 +727,8 @@
       },
       {
         "id": 55,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ketchcdn.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -751,8 +751,8 @@
       },
       {
         "id": 57,
-        "url": "https://i.ytimg.com/{seg}/{seg}/{seg}",
-        "domain": "i.ytimg.com",
+        "url": "https://{label}.ytimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ytimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -763,8 +763,8 @@
       },
       {
         "id": 58,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ketchcdn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -775,8 +775,8 @@
       },
       {
         "id": 59,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -787,8 +787,8 @@
       },
       {
         "id": 60,
-        "url": "https://i.ytimg.com/{seg}/{seg}/{seg}",
-        "domain": "i.ytimg.com",
+        "url": "https://{label}.ytimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ytimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -799,8 +799,8 @@
       },
       {
         "id": 61,
-        "url": "https://yt3.ggpht.com/{seg}",
-        "domain": "yt3.ggpht.com",
+        "url": "https://{label}.ggpht.com/{seg}",
+        "domain": "{label}.ggpht.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -823,8 +823,8 @@
       },
       {
         "id": 63,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -835,7 +835,7 @@
       },
       {
         "id": 64,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -864,8 +864,8 @@
       },
       {
         "id": 66,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -973,7 +973,7 @@
         ]
       },
       {
-        "domain": "cdn.prod.website-files.com",
+        "domain": "cdn.{label}.website-files.com",
         "requests": 20,
         "thirdParty": true,
         "tracker": null,
@@ -1006,7 +1006,7 @@
         ]
       },
       {
-        "domain": "global.ketchcdn.com",
+        "domain": "{label}.ketchcdn.com",
         "requests": 7,
         "thirdParty": true,
         "tracker": null,
@@ -1022,7 +1022,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 7,
         "thirdParty": true,
         "tracker": null,
@@ -1076,7 +1076,7 @@
         ]
       },
       {
-        "domain": "i.ytimg.com",
+        "domain": "{label}.ytimg.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1154,7 +1154,7 @@
         ]
       },
       {
-        "domain": "yt3.ggpht.com",
+        "domain": "{label}.ggpht.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1387,7 +1387,7 @@
           ],
           "thirdPartyOrigins": [
             "https://cdn.ketchjs.com/",
-            "https://cdn.prod.website-files.com/",
+            "https://cdn.{label}.website-files.com/",
             "https://d3e54v103j8qbb.cloudfront.net/",
             "https://www.google.com/",
             "https://www.googletagmanager.com/"
@@ -1425,7 +1425,7 @@
           ],
           "thirdPartyOrigins": [
             "https://cdn.ketchjs.com/",
-            "https://cdn.prod.website-files.com/",
+            "https://cdn.{label}.website-files.com/",
             "https://d3e54v103j8qbb.cloudfront.net/",
             "https://www.google.com/",
             "https://www.googletagmanager.com/"
@@ -1523,8 +1523,8 @@
       },
       {
         "id": 2,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1571,8 +1571,8 @@
       },
       {
         "id": 6,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1595,8 +1595,8 @@
       },
       {
         "id": 8,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1607,8 +1607,8 @@
       },
       {
         "id": 9,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1631,8 +1631,8 @@
       },
       {
         "id": 11,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1691,7 +1691,7 @@
       },
       {
         "id": 18,
-        "url": "https://www.youtube-nocookie.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.youtube-nocookie.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube-nocookie.com",
         "method": "GET",
         "resourceType": "document",
@@ -1703,7 +1703,7 @@
       },
       {
         "id": 19,
-        "url": "https://www.youtube-nocookie.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.youtube-nocookie.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube-nocookie.com",
         "method": "GET",
         "resourceType": "document",
@@ -1715,8 +1715,8 @@
       },
       {
         "id": 20,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1727,8 +1727,8 @@
       },
       {
         "id": 21,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1739,8 +1739,8 @@
       },
       {
         "id": 22,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1763,8 +1763,8 @@
       },
       {
         "id": 24,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1775,8 +1775,8 @@
       },
       {
         "id": 25,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1787,8 +1787,8 @@
       },
       {
         "id": 26,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1799,8 +1799,8 @@
       },
       {
         "id": 27,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1811,8 +1811,8 @@
       },
       {
         "id": 28,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1823,8 +1823,8 @@
       },
       {
         "id": 29,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1835,8 +1835,8 @@
       },
       {
         "id": 30,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1847,8 +1847,8 @@
       },
       {
         "id": 31,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1859,8 +1859,8 @@
       },
       {
         "id": 32,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1871,8 +1871,8 @@
       },
       {
         "id": 33,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1883,8 +1883,8 @@
       },
       {
         "id": 34,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1895,8 +1895,8 @@
       },
       {
         "id": 35,
-        "url": "https://cdn.prod.website-files.com/{seg}/{seg}",
-        "domain": "cdn.prod.website-files.com",
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1955,8 +1955,8 @@
       },
       {
         "id": 40,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1967,8 +1967,8 @@
       },
       {
         "id": 41,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1979,8 +1979,8 @@
       },
       {
         "id": 42,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1991,8 +1991,8 @@
       },
       {
         "id": 43,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2003,8 +2003,8 @@
       },
       {
         "id": 44,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2015,8 +2015,8 @@
       },
       {
         "id": 45,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2075,8 +2075,8 @@
       },
       {
         "id": 50,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2111,8 +2111,8 @@
       },
       {
         "id": 53,
-        "url": "https://i.ytimg.com/{seg}/{seg}/{seg}",
-        "domain": "i.ytimg.com",
+        "url": "https://{label}.ytimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ytimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2123,8 +2123,8 @@
       },
       {
         "id": 54,
-        "url": "https://i.ytimg.com/{seg}/{seg}/{seg}",
-        "domain": "i.ytimg.com",
+        "url": "https://{label}.ytimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ytimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2135,8 +2135,8 @@
       },
       {
         "id": 55,
-        "url": "https://yt3.ggpht.com/{seg}",
-        "domain": "yt3.ggpht.com",
+        "url": "https://{label}.ggpht.com/{seg}",
+        "domain": "{label}.ggpht.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2208,7 +2208,7 @@
     ],
     "domains": [
       {
-        "domain": "cdn.prod.website-files.com",
+        "domain": "cdn.{label}.website-files.com",
         "requests": 20,
         "thirdParty": true,
         "tracker": null,
@@ -2239,7 +2239,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 7,
         "thirdParty": true,
         "tracker": null,
@@ -2293,7 +2293,7 @@
         ]
       },
       {
-        "domain": "i.ytimg.com",
+        "domain": "{label}.ytimg.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -2358,7 +2358,7 @@
         ]
       },
       {
-        "domain": "yt3.ggpht.com",
+        "domain": "{label}.ggpht.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2467,7 +2467,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://cdn.prod.website-files.com/",
+            "https://cdn.{label}.website-files.com/",
             "https://d3e54v103j8qbb.cloudfront.net/",
             "https://www.google.com/"
           ],
@@ -2561,7 +2561,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "global.ketchcdn.com",
+        "domain": "{label}.ketchcdn.com",
         "requests": 7,
         "tracker": null
       },

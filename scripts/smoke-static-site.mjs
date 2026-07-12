@@ -15,6 +15,8 @@ const basePath = normalizeBasePath(
 );
 const liveScanApiBase = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE?.trim() || "";
 const openAccessScanner = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_OPEN_ACCESS === "1";
+const archivePageSize = 24;
+const maxReportHtmlBytes = 4 * 1024 * 1024;
 
 function pass(message) {
   console.log(`PASS ${message}`);
@@ -112,29 +114,34 @@ async function main() {
     }
 
     const cardCount = await page.locator(".static-report-card").count();
-    if (cardCount !== manifest.reports.length) {
-      fail(`static archive rendered ${cardCount} report cards for ${manifest.reports.length} manifest entries`);
+    if (cardCount !== Math.min(archivePageSize, manifest.reports.length)) {
+      fail(`static archive rendered ${cardCount} initial report cards for ${manifest.reports.length} manifest entries`);
     }
-    pass("static archive renders every manifest report");
+    pass("static archive bounds its initial DOM");
 
     const firstReport = manifest.reports[0];
+    if (typeof firstReport.headline !== "string" || !firstReport.headline) fail("manifest report lacks its canonical headline");
     await page.getByLabel("Search reports").fill(firstReport.domain);
     const matchingDomainCount = manifest.reports.filter((report) => searchableReportText(report).includes(firstReport.domain.toLowerCase())).length;
-    await expectCardCount(page, matchingDomainCount);
+    await expectCardCount(page, Math.min(archivePageSize, matchingDomainCount));
     pass("static archive search filters reports");
 
     await page.getByLabel("Report type").selectOption("comparison");
     const matchingComparisonCount = manifest.reports.filter(
       (report) => report.reportType === "comparison" && searchableReportText(report).includes(firstReport.domain.toLowerCase())
     ).length;
-    await expectCardCount(page, matchingComparisonCount);
+    await expectCardCount(page, Math.min(archivePageSize, matchingComparisonCount));
     pass("static archive type filter combines with search");
 
     await page.getByLabel("Search reports").fill("");
     await page.getByLabel("Report type").selectOption("all");
     await page.getByLabel("Sort reports").selectOption("thirdParty");
+    await expectCardCount(page, Math.min(archivePageSize, manifest.reports.length));
+    while ((await page.getByRole("button", { name: /Show \d+ more reports/ }).count()) > 0) {
+      await page.getByRole("button", { name: /Show \d+ more reports/ }).click();
+    }
     await expectCardCount(page, manifest.reports.length);
-    pass("static archive sort keeps report list stable");
+    pass("static archive progressively reveals every manifest report");
 
     // A deterministic single-scan fixture (example.com) plus its later-visit
     // twin drive the single-report UI paths the committed comparison-only
@@ -163,7 +170,37 @@ async function main() {
     await page.locator(".static-report-card").first().click();
     await page.waitForSelector(".report-header", { timeout: 10_000 });
     await expectText(page.locator(".report-header"), "https://");
-    pass("static report permalink renders saved report");
+    if ((await page.locator(".scan-workbench").count()) !== 0) fail("saved report permalink must not put the scanner before evidence");
+    await expectText(page.locator("h1"), firstReport.headline);
+
+    const reportHtmlPath = path.join(outDir, "reports", firstReport.id, "index.html");
+    const reportHtml = await readFile(reportHtmlPath, "utf8");
+    if (!reportHtml.includes("report-page-shell") || !reportHtml.includes(firstReport.headline)) {
+      fail("saved report evidence is absent from the generated initial HTML");
+    }
+    if (reportHtml.includes("scan-workbench")) fail("generated report HTML contains the scanner workbench");
+    if (Buffer.byteLength(reportHtml, "utf8") > maxReportHtmlBytes) {
+      fail(`saved report HTML exceeds the ${maxReportHtmlBytes}-byte evidence-page budget`);
+    }
+    const noScriptContext = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1440, height: 1000 } });
+    const noScriptPage = await noScriptContext.newPage();
+    await noScriptPage.goto(`${baseUrl}/reports/${firstReport.id}/`, { waitUntil: "domcontentloaded" });
+    await expectText(noScriptPage.locator(".report-header"), "https://");
+    await expectText(noScriptPage.locator("h1"), firstReport.headline);
+    await noScriptContext.close();
+    pass("static report permalink ships bounded evidence in initial HTML without JavaScript");
+
+    const profileKey = firstReport.domain.toLowerCase().replace(/\.$/, "").replace(/^www\./, "");
+    await page.goto(`${baseUrl}/sites/${encodeURIComponent(profileKey)}/`, { waitUntil: "networkidle" });
+    await expectText(page.locator("h1"), profileKey);
+    await expectText(page.locator(".site-profile-page"), "Curated public corpus");
+    const latestEvidenceHref = await page.getByRole("link", { name: "Open latest evidence" }).getAttribute("href");
+    if (!latestEvidenceHref?.includes(`/reports/${firstReport.id}/`)) fail("site profile latest-evidence link is stale");
+    const rescanHref = await page.getByRole("link", { name: "Scan this exact route again" }).getAttribute("href");
+    if (!rescanHref || !decodeURIComponent(rescanHref).includes(firstReport.requestedUrl)) {
+      fail("site profile rescan link does not preserve the latest requested route");
+    }
+    pass("static site profile links exact evidence and rescan subject");
 
     // Render the single-scan fixture through the "Open report file" upload path and
     // exercise the request-log filters: the fixture has 2 third-party requests, one a
@@ -189,6 +226,9 @@ async function main() {
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
     if (await hasHorizontalOverflow(page)) fail("static mobile archive has page-level horizontal overflow");
     pass("static mobile archive fits viewport");
+    await page.goto(`${baseUrl}/sites/${encodeURIComponent(profileKey)}/`, { waitUntil: "networkidle" });
+    if (await hasHorizontalOverflow(page)) fail("static mobile site profile has page-level horizontal overflow");
+    pass("static mobile site profile fits viewport");
   } finally {
     await browser.close();
     await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));

@@ -4,9 +4,10 @@ import { compareScanResults, createGpcComparisonReport } from "./compare-reports
 import { redactScanReportV1, redactScanResultV1 } from "./redact-scan-report-v1";
 import { readStoredScanReport } from "./scan-report-reader";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
+import { findTrackerMatch } from "./tracker-catalog";
 import type { ScanResult } from "./types";
 
-const TOKEN_HOST = "a8f3c9d2e1b4f6a7.telemetry.example.net";
+const TOKEN_HOST = "a8f3c9d2e1b4f6a7.google-analytics.com";
 
 function sensitiveSingle(): ScanResult {
   const report = makeScanReportV1() as ScanResult;
@@ -27,9 +28,9 @@ function sensitiveSingle(): ScanResult {
       status: 200,
       thirdParty: true,
       tracker: {
-        domain: TOKEN_HOST,
-        entity: "Example Analytics",
-        category: "analytics",
+        domain: "google-analytics.com",
+        entity: "Google",
+        category: "analytics / tag management",
         confidence: "curated"
       },
       provenance: {
@@ -90,9 +91,9 @@ function sensitiveSingle(): ScanResult {
       host: "patient-a8f3c9d2e1b4f6a7.example.com",
       cname: TOKEN_HOST,
       tracker: {
-        domain: TOKEN_HOST,
-        entity: "Example Analytics",
-        category: "analytics",
+        domain: "google-analytics.com",
+        entity: "Google",
+        category: "analytics / tag management",
         confidence: "curated"
       }
     }
@@ -100,7 +101,7 @@ function sensitiveSingle(): ScanResult {
   report.privacyPolicy = {
     url: "https://example.com/legal/anna-policy?patient=secret",
     claims: [{ kind: "no-cookies", quote: "We do not use cookies.\u0000" }],
-    mentionedEntities: ["Example Analytics"],
+    mentionedEntities: ["Google"],
     unmentionedEntities: [],
     policyTextLength: 1_000
   };
@@ -136,6 +137,7 @@ function sensitiveSingle(): ScanResult {
   report.screenshot = "data:image/jpeg;base64,submitter-only";
   report.warnings = [
     "  The page did not reach network idle before the scan window ended.\u0000  ",
+    "The scan stopped loading additional response bytes after reaching 64 MiB aggregate response-byte budget.",
     `Blocked a request that could not be verified as public: https://${TOKEN_HOST}/users/anna?token=secret`,
     "Patient Anna's private warning"
   ];
@@ -154,29 +156,30 @@ test("the v1 transform sanitizes every page-controlled field without mutating it
   assert.equal(report.summary.pageTitle, "Anna Schmidt's private dashboard");
   assert.equal(report.conditions.requestedUrl, "https://{label}.example.com/{seg}/{seg}");
   assert.equal(report.conditions.finalUrl, "https://{label}.example.com/account/{n}");
-  assert.equal(report.requests[0].url, "https://{label}.telemetry.example.net/{seg}/{seg}?%5Bredacted%5D=&utm_source=");
-  assert.equal(report.requests[0].domain, "{label}.telemetry.example.net");
-  assert.equal(report.requests[0].provenance?.graphRecordId, "{invalid-id}");
-  assert.equal(report.requests[0].provenance?.initiatorId, "element-1");
-  assert.equal(report.requests[0].provenance?.scriptId, "script-1");
-  assert.equal(report.requests[0].provenance?.injectedById, "{invalid-id}");
-  assert.equal(report.requests[0].provenance?.scriptUrl, "https://{label}.telemetry.example.net/{seg}/{seg}/{seg}");
+  assert.equal(report.requests[0].url, "https://{label}.google-analytics.com/{seg}/{seg}?%5Bredacted%5D=&utm_source=");
+  assert.equal(report.requests[0].domain, "{label}.google-analytics.com");
+  assert.equal(report.requests[0].provenance?.graphRecordId, "id-000001");
+  assert.equal(report.requests[0].provenance?.initiatorId, "id-000002");
+  assert.equal(report.requests[0].provenance?.initiatorType, "[redacted]");
+  assert.equal(report.requests[0].provenance?.scriptId, "id-000003");
+  assert.equal(report.requests[0].provenance?.injectedById, "id-000004");
+  assert.equal(report.requests[0].provenance?.scriptUrl, "https://{label}.google-analytics.com/{seg}/{seg}/{seg}");
   assert.equal(report.cookies[0].name, "[redacted:long-token]");
-  assert.equal(report.cookies[0].domain, ".{label}.telemetry.example.net");
+  assert.equal(report.cookies[0].domain, ".{label}.google-analytics.com");
   assert.equal(report.cookies[0].path, "/{seg}/{seg}");
   assert.equal(report.storage[0].key, "[redacted]");
   assert.equal(report.domains.length, 1);
-  assert.equal(report.domains[0].domain, "{label}.telemetry.example.net");
+  assert.equal(report.domains[0].domain, "{label}.google-analytics.com");
   assert.equal(report.summary.totalRequests, 1);
   assert.equal(report.summary.thirdPartyDomains, 1);
   assert.equal(report.summary.cookies, 1);
   assert.equal(report.summary.storageEntries, 1);
-  assert.equal(report.cnameCloaks?.[0].cname, "{label}.telemetry.example.net");
+  assert.equal(report.cnameCloaks?.[0].cname, "{label}.google-analytics.com");
   assert.equal(report.privacyPolicy?.url, "https://example.com/legal/{seg}");
   assert.equal(report.consentInteraction?.cmp, "[redacted]");
   assert.equal(report.consentInteraction?.selector, "[redacted]");
   assert.equal(report.consentInteraction?.matchedText, "reject all");
-  assert.equal(report.consentInteraction?.frameUrl, "https://{label}.telemetry.example.net/{seg}/{seg}");
+  assert.equal(report.consentInteraction?.frameUrl, "https://{label}.google-analytics.com/{seg}/{seg}");
   assert.deepEqual(report.pixelEvents, [
     {
       platform: "Meta",
@@ -190,7 +193,8 @@ test("the v1 transform sanitizes every page-controlled field without mutating it
   assert.equal(report.screenshot, "data:image/jpeg;base64,submitter-only");
   assert.deepEqual(report.warnings, [
     "The page did not reach network idle before the scan window ended.",
-    "Blocked a request that could not be verified as public: https://{label}.telemetry.example.net/{seg}/{seg}",
+    "The scan stopped loading additional response bytes after reaching 64 MiB aggregate response-byte budget.",
+    "Blocked a request that could not be verified as public: https://{label}.google-analytics.com/{seg}/{seg}",
     "[redacted warning]"
   ]);
   assert.ok(counters.pathSegmentsGeneralized > 0);
@@ -262,4 +266,57 @@ test("the full report transform is byte-idempotent and rebuilds comparison diffs
     malformedUrlsDropped: 0
   });
   assert.equal(readStoredScanReport(first.report).ok, true);
+});
+
+test("subdomain-specific curated tracker matches survive an idempotent public boundary", () => {
+  const input = sensitiveSingle();
+  const tracker = findTrackerMatch("connect.facebook.net");
+  assert.notEqual(tracker, null);
+  input.requests[0].url = "https://connect.facebook.net/en_US/fbevents.js";
+  input.requests[0].domain = "connect.facebook.net";
+  input.requests[0].tracker = tracker;
+  input.cnameCloaks = [{ host: "pixel.example.com", cname: "connect.facebook.net", tracker: tracker! }];
+  input.privacyPolicy!.mentionedEntities = [tracker!.entity];
+
+  const first = redactScanResultV1(input).report;
+  const second = redactScanResultV1(first).report;
+  assert.equal(first.requests[0].tracker?.entity, "Meta");
+  assert.equal(first.requests[0].tracker?.domain, "{label}.facebook.net");
+  assert.equal(first.cnameCloaks?.[0].tracker.entity, "Meta");
+  assert.deepEqual(first.privacyPolicy?.mentionedEntities, ["Meta"]);
+  assert.equal(JSON.stringify(second), JSON.stringify(first));
+});
+
+test("legacy fingerprint sanitization drops detections that become structurally invalid", () => {
+  const input = sensitiveSingle();
+  input.fingerprintDetections?.push(
+    {
+      kind: "audio-fingerprinting",
+      heuristic: "audio-rendering-v1",
+      count: 1,
+      evidence: {
+        apis: ["AlicePrivateAudio", "BobPrivateAudio"],
+        offlineRenderCalls: 1,
+        oscillatorCalls: 1,
+        compressorCalls: 1,
+        analyserCalls: 1
+      }
+    },
+    {
+      kind: "session-recording",
+      heuristic: "interaction-listener-coverage-v1",
+      count: 1,
+      evidence: {
+        eventTypes: ["input"],
+        listenerTargets: ["document"],
+        thirdPartyOrigins: ["https://alice.internal/"],
+        totalListenerCalls: 1
+      }
+    }
+  );
+  const first = redactScanResultV1(input).report;
+  const second = redactScanResultV1(first).report;
+  assert.equal(first.fingerprintDetections?.length, 2, "only the two valid original detections remain");
+  assert.equal(readStoredScanReport(first).ok, true);
+  assert.equal(JSON.stringify(second), JSON.stringify(first));
 });

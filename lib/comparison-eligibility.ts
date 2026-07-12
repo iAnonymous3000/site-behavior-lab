@@ -30,6 +30,7 @@ export const COMPARISON_REQUEST_CAP = 1_000;
 
 /** Stable fragment of the ScanRequestBudget cap warning (see lib/scan-runtime.ts). */
 const REQUEST_CAP_WARNING_FRAGMENT = "stopped recording or loading additional requests";
+const RESPONSE_BYTE_CAP_WARNING_FRAGMENT = "stopped loading additional response bytes";
 
 export function comparisonEligibility(report: ComparisonScanResult): ComparisonEligibility {
   const reasons: string[] = [];
@@ -52,6 +53,9 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
       reasons.push(
         `The "${label}" visit hit the ${COMPARISON_REQUEST_CAP.toLocaleString("en-US")}-request recording cap, so its counts are truncated.`
       );
+    }
+    if (runHitResponseByteCap(run)) {
+      reasons.push(`The "${label}" visit exhausted its aggregate response-byte budget, so its request evidence is incomplete.`);
     }
   }
 
@@ -215,6 +219,50 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
 }
 
 /**
+ * Structural eligibility for a descriptive before/after comparison.
+ *
+ * The strict gate above continues to require an identical Brave-list snapshot
+ * for every comparison. A passive temporal visit is narrower: when BOTH arms
+ * explicitly ran classification (never block simulation), and the active
+ * engine, source, and list count are all known and equal, raw request and
+ * tracker-catalog observations may be compared across snapshot dates. Only
+ * the snapshot timestamp is omitted; every other strict reason survives.
+ * Unknown provenance and every non-temporal pair stay on the strict gate.
+ */
+export function temporalPairEligibility(report: ComparisonScanResult): ComparisonEligibility {
+  const strict = comparisonEligibility(report);
+  if (!passiveTemporalSnapshotsMayDiffer(report)) return strict;
+
+  const reasons = strict.reasons.filter(
+    (reason) => !reason.startsWith("The two visits ran with different Brave filter-list snapshots (")
+  );
+  return { eligible: reasons.length === 0, reasons };
+}
+
+function passiveTemporalSnapshotsMayDiffer(report: ComparisonScanResult): boolean {
+  if (report.comparisonType !== "temporal") return false;
+  const baseline = report.baseline.conditions;
+  const variant = report.variant.conditions;
+  if (baseline.shieldsMode !== "classification" || variant.shieldsMode !== "classification") return false;
+
+  const a = baseline.adblock;
+  const b = variant.adblock;
+  if (a?.active !== true || b?.active !== true) return false;
+  const sourceA = knownEnvironmentValue(a.source);
+  const sourceB = knownEnvironmentValue(b.source);
+  const snapshotA = knownEnvironmentValue(a.fetchedAt);
+  const snapshotB = knownEnvironmentValue(b.fetchedAt);
+  if (!sourceA || !sourceB || sourceA !== sourceB || !snapshotA || !snapshotB) return false;
+  if (!Number.isFinite(Date.parse(snapshotA)) || !Number.isFinite(Date.parse(snapshotB))) return false;
+  return Number.isInteger(a.lists) && a.lists > 0 && a.lists === b.lists;
+}
+
+function knownEnvironmentValue(value: string | undefined): string | null {
+  const normalized = (value ?? "").trim();
+  return normalized !== "" && normalized.toLowerCase() !== "unknown" ? normalized : null;
+}
+
+/**
  * Whether one consent arm's declared banner click provably happened. A run
  * that never recorded a consent interaction cannot prove the click was
  * dispatched (the unknown rule), and a recorded `clicked: false` means the
@@ -261,6 +309,14 @@ function environmentMismatch(label: string, left: string | undefined, right: str
 export function runHitRequestCap(run: ScanResult): boolean {
   if (run.summary.totalRequests >= COMPARISON_REQUEST_CAP) return true;
   return run.warnings.some((warning) => warning.includes(REQUEST_CAP_WARNING_FRAGMENT));
+}
+
+export function runHitResponseByteCap(run: ScanResult): boolean {
+  return run.warnings.some((warning) => warning.includes(RESPONSE_BYTE_CAP_WARNING_FRAGMENT));
+}
+
+export function runRequestEvidenceCapped(run: ScanResult): boolean {
+  return runHitRequestCap(run) || runHitResponseByteCap(run);
 }
 
 /**

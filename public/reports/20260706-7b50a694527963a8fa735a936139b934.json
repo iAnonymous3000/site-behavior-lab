@@ -23,7 +23,7 @@
       "totalRequests": 272,
       "thirdPartyRequests": 52,
       "knownTrackerRequests": 14,
-      "thirdPartyDomains": 17,
+      "thirdPartyDomains": 16,
       "cookies": 34,
       "thirdPartyCookies": 12,
       "storageEntries": 21,
@@ -321,8 +321,8 @@
       },
       {
         "id": 22,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}/{seg}",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -345,8 +345,8 @@
       },
       {
         "id": 24,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -357,8 +357,8 @@
       },
       {
         "id": 25,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1005,8 +1005,8 @@
       },
       {
         "id": 79,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}/{seg}",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1209,8 +1209,8 @@
       },
       {
         "id": 96,
-        "url": "https://t.nc0.co/{seg}/{seg}/privacy?%5Bredacted%5D=&%5Bredacted%5D=&format=&%5Bredacted%5D=",
-        "domain": "t.nc0.co",
+        "url": "https://{label}.nc0.co/{seg}/{seg}/privacy?%5Bredacted%5D=&format=",
+        "domain": "{label}.nc0.co",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1365,8 +1365,8 @@
       },
       {
         "id": 109,
-        "url": "https://data.privacy.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "data.privacy.ensighten.com",
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1509,8 +1509,8 @@
       },
       {
         "id": 121,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1521,8 +1521,8 @@
       },
       {
         "id": 122,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1545,8 +1545,8 @@
       },
       {
         "id": 124,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1557,8 +1557,8 @@
       },
       {
         "id": 125,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1569,8 +1569,8 @@
       },
       {
         "id": 126,
-        "url": "https://streams.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "streams.bestbuy.com",
+        "url": "https://{label}.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -1581,8 +1581,8 @@
       },
       {
         "id": 127,
-        "url": "https://streams.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "streams.bestbuy.com",
+        "url": "https://{label}.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1593,8 +1593,8 @@
       },
       {
         "id": 128,
-        "url": "https://streams.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "streams.bestbuy.com",
+        "url": "https://{label}.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1605,8 +1605,8 @@
       },
       {
         "id": 129,
-        "url": "https://streams.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "streams.bestbuy.com",
+        "url": "https://{label}.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1617,8 +1617,8 @@
       },
       {
         "id": 130,
-        "url": "https://streams.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "streams.bestbuy.com",
+        "url": "https://{label}.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -1629,8 +1629,8 @@
       },
       {
         "id": 131,
-        "url": "https://streams.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "streams.bestbuy.com",
+        "url": "https://{label}.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -1641,8 +1641,8 @@
       },
       {
         "id": 132,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 302,
@@ -1706,8 +1706,8 @@
       },
       {
         "id": 137,
-        "url": "https://dpm.demdex.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1891,8 +1891,8 @@
       },
       {
         "id": 152,
-        "url": "https://bestbuy.demdex.net/{seg}?%5Bredacted%5D=",
-        "domain": "bestbuy.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1920,8 +1920,8 @@
       },
       {
         "id": 154,
-        "url": "https://streams.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "streams.bestbuy.com",
+        "url": "https://{label}.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1944,8 +1944,8 @@
       },
       {
         "id": 156,
-        "url": "https://bf26528hhp.bf.dynatrace.com/{seg}?type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bf26528hhp.bf.dynatrace.com",
+        "url": "https://{label}.{label}.dynatrace.com/{seg}?type=&%5Bredacted%5D=",
+        "domain": "{label}.{label}.dynatrace.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1956,8 +1956,8 @@
       },
       {
         "id": 157,
-        "url": "https://bf26528hhp.bf.dynatrace.com/{seg}?type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bf26528hhp.bf.dynatrace.com",
+        "url": "https://{label}.{label}.dynatrace.com/{seg}?type=&%5Bredacted%5D=",
+        "domain": "{label}.{label}.dynatrace.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1968,8 +1968,8 @@
       },
       {
         "id": 158,
-        "url": "https://bf26528hhp.bf.dynatrace.com/{seg}?type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bf26528hhp.bf.dynatrace.com",
+        "url": "https://{label}.{label}.dynatrace.com/{seg}?type=&%5Bredacted%5D=",
+        "domain": "{label}.{label}.dynatrace.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1992,8 +1992,8 @@
       },
       {
         "id": 160,
-        "url": "https://aa.agkn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "aa.agkn.com",
+        "url": "https://{label}.agkn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.agkn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -2004,8 +2004,8 @@
       },
       {
         "id": 161,
-        "url": "https://fel-api.prod.browse.bestbuy.com/{seg}",
-        "domain": "fel-api.prod.browse.bestbuy.com",
+        "url": "https://{label}.{label}.{label}.bestbuy.com/{seg}",
+        "domain": "{label}.{label}.{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2064,8 +2064,8 @@
       },
       {
         "id": 166,
-        "url": "https://idsync.rlcdn.com/{seg}?%5Bredacted%5D=",
-        "domain": "idsync.rlcdn.com",
+        "url": "https://{label}.rlcdn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.rlcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2081,8 +2081,8 @@
       },
       {
         "id": 167,
-        "url": "https://dpm.demdex.net/{seg}",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2098,8 +2098,8 @@
       },
       {
         "id": 168,
-        "url": "https://token.rubiconproject.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "token.rubiconproject.com",
+        "url": "https://{label}.rubiconproject.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.rubiconproject.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2139,8 +2139,8 @@
       },
       {
         "id": 171,
-        "url": "https://fel-api.prod.browse.bestbuy.com/{seg}",
-        "domain": "fel-api.prod.browse.bestbuy.com",
+        "url": "https://{label}.{label}.{label}.bestbuy.com/{seg}",
+        "domain": "{label}.{label}.{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2151,8 +2151,8 @@
       },
       {
         "id": 173,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -2168,8 +2168,8 @@
       },
       {
         "id": 174,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -2185,8 +2185,8 @@
       },
       {
         "id": 175,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2202,8 +2202,8 @@
       },
       {
         "id": 176,
-        "url": "https://c.bing.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.bing.com",
+        "url": "https://{label}.bing.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -2219,8 +2219,8 @@
       },
       {
         "id": 177,
-        "url": "https://dpm.demdex.net/{seg}",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2236,8 +2236,8 @@
       },
       {
         "id": 178,
-        "url": "https://ums.acuityplatform.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ums.acuityplatform.com",
+        "url": "https://{label}.acuityplatform.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.acuityplatform.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2248,8 +2248,8 @@
       },
       {
         "id": 179,
-        "url": "https://fei.pro-market.net/{seg}?%5Bredacted%5D=",
-        "domain": "fei.pro-market.net",
+        "url": "https://{label}.pro-market.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.pro-market.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2284,8 +2284,8 @@
       },
       {
         "id": 183,
-        "url": "https://sync.crwdcntrl.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "sync.crwdcntrl.net",
+        "url": "https://{label}.crwdcntrl.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.crwdcntrl.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -2301,8 +2301,8 @@
       },
       {
         "id": 184,
-        "url": "https://sync.crwdcntrl.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "sync.crwdcntrl.net",
+        "url": "https://{label}.crwdcntrl.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.crwdcntrl.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -2318,8 +2318,8 @@
       },
       {
         "id": 185,
-        "url": "https://dpm.demdex.net/{seg}",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2335,8 +2335,8 @@
       },
       {
         "id": 186,
-        "url": "https://data.privacy.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "data.privacy.ensighten.com",
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2347,8 +2347,8 @@
       },
       {
         "id": 187,
-        "url": "https://bf26528hhp.bf.dynatrace.com/{seg}?type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bf26528hhp.bf.dynatrace.com",
+        "url": "https://{label}.{label}.dynatrace.com/{seg}?type=&%5Bredacted%5D=",
+        "domain": "{label}.{label}.dynatrace.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2371,8 +2371,8 @@
       },
       {
         "id": 189,
-        "url": "https://bf26528hhp.bf.dynatrace.com/{seg}?type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bf26528hhp.bf.dynatrace.com",
+        "url": "https://{label}.{label}.dynatrace.com/{seg}?type=&%5Bredacted%5D=",
+        "domain": "{label}.{label}.dynatrace.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2431,8 +2431,8 @@
       },
       {
         "id": 194,
-        "url": "https://streams.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "streams.bestbuy.com",
+        "url": "https://{label}.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -2671,8 +2671,8 @@
       },
       {
         "id": 214,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2683,8 +2683,8 @@
       },
       {
         "id": 215,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2695,8 +2695,8 @@
       },
       {
         "id": 216,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2707,8 +2707,8 @@
       },
       {
         "id": 217,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2719,8 +2719,8 @@
       },
       {
         "id": 218,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2731,8 +2731,8 @@
       },
       {
         "id": 219,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2743,8 +2743,8 @@
       },
       {
         "id": 220,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2755,8 +2755,8 @@
       },
       {
         "id": 221,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2767,8 +2767,8 @@
       },
       {
         "id": 222,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2779,8 +2779,8 @@
       },
       {
         "id": 223,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2791,8 +2791,8 @@
       },
       {
         "id": 224,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2803,8 +2803,8 @@
       },
       {
         "id": 225,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2815,8 +2815,8 @@
       },
       {
         "id": 226,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2827,8 +2827,8 @@
       },
       {
         "id": 227,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2983,8 +2983,8 @@
       },
       {
         "id": 240,
-        "url": "https://bf26528hhp.bf.dynatrace.com/{seg}?type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bf26528hhp.bf.dynatrace.com",
+        "url": "https://{label}.{label}.dynatrace.com/{seg}?type=&%5Bredacted%5D=",
+        "domain": "{label}.{label}.dynatrace.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3007,8 +3007,8 @@
       },
       {
         "id": 242,
-        "url": "https://fel-api.prod.browse.bestbuy.com/{seg}",
-        "domain": "fel-api.prod.browse.bestbuy.com",
+        "url": "https://{label}.{label}.{label}.bestbuy.com/{seg}",
+        "domain": "{label}.{label}.{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3367,8 +3367,8 @@
       },
       {
         "id": 272,
-        "url": "https://data.privacy.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "data.privacy.ensighten.com",
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -3379,8 +3379,8 @@
       },
       {
         "id": 273,
-        "url": "https://beacon.speedcurve.com/store",
-        "domain": "beacon.speedcurve.com",
+        "url": "https://{label}.speedcurve.com/store",
+        "domain": "{label}.speedcurve.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -3391,8 +3391,8 @@
       },
       {
         "id": 274,
-        "url": "https://bf26528hhp.bf.dynatrace.com/{seg}?type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bf26528hhp.bf.dynatrace.com",
+        "url": "https://{label}.{label}.dynatrace.com/{seg}?type=&%5Bredacted%5D=",
+        "domain": "{label}.{label}.dynatrace.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -3404,8 +3404,8 @@
     ],
     "domains": [
       {
-        "domain": "dpm.demdex.net",
-        "requests": 6,
+        "domain": "{label}.demdex.net",
+        "requests": 7,
         "thirdParty": true,
         "tracker": {
           "domain": "demdex.net",
@@ -3420,11 +3420,12 @@
         ],
         "resourceTypes": [
           "xhr",
+          "document",
           "image"
         ]
       },
       {
-        "domain": "cm.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -3442,7 +3443,7 @@
         ]
       },
       {
-        "domain": "sync.crwdcntrl.net",
+        "domain": "{label}.crwdcntrl.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -3460,25 +3461,7 @@
         ]
       },
       {
-        "domain": "bestbuy.demdex.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "idsync.rlcdn.com",
+        "domain": "{label}.rlcdn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3496,7 +3479,7 @@
         ]
       },
       {
-        "domain": "token.rubiconproject.com",
+        "domain": "{label}.rubiconproject.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3514,7 +3497,7 @@
         ]
       },
       {
-        "domain": "c.bing.com",
+        "domain": "{label}.bing.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3532,7 +3515,7 @@
         ]
       },
       {
-        "domain": "pisces.bbystatic.com",
+        "domain": "{label}.bbystatic.com",
         "requests": 20,
         "thirdParty": true,
         "tracker": null,
@@ -3545,7 +3528,7 @@
         ]
       },
       {
-        "domain": "bf26528hhp.bf.dynatrace.com",
+        "domain": "{label}.{label}.dynatrace.com",
         "requests": 7,
         "thirdParty": true,
         "tracker": null,
@@ -3558,7 +3541,7 @@
         ]
       },
       {
-        "domain": "data.privacy.ensighten.com",
+        "domain": "{label}.{label}.ensighten.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -3571,7 +3554,7 @@
         ]
       },
       {
-        "domain": "nexus.ensighten.com",
+        "domain": "{label}.ensighten.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -3597,7 +3580,7 @@
         ]
       },
       {
-        "domain": "t.nc0.co",
+        "domain": "{label}.nc0.co",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3610,7 +3593,7 @@
         ]
       },
       {
-        "domain": "aa.agkn.com",
+        "domain": "{label}.agkn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3623,7 +3606,7 @@
         ]
       },
       {
-        "domain": "ums.acuityplatform.com",
+        "domain": "{label}.acuityplatform.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3636,7 +3619,7 @@
         ]
       },
       {
-        "domain": "fei.pro-market.net",
+        "domain": "{label}.pro-market.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3649,7 +3632,7 @@
         ]
       },
       {
-        "domain": "beacon.speedcurve.com",
+        "domain": "{label}.speedcurve.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3679,7 +3662,7 @@
         ]
       },
       {
-        "domain": "streams.bestbuy.com",
+        "domain": "{label}.bestbuy.com",
         "requests": 8,
         "thirdParty": false,
         "tracker": null,
@@ -3692,7 +3675,7 @@
         ]
       },
       {
-        "domain": "fel-api.prod.browse.bestbuy.com",
+        "domain": "{label}.{label}.{label}.bestbuy.com",
         "requests": 3,
         "thirdParty": false,
         "tracker": null,
@@ -3739,7 +3722,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".c.bing.com",
+        "domain": ".{label}.bing.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -3799,7 +3782,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".dpm.demdex.net",
+        "domain": ".{label}.demdex.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -4157,6 +4140,14 @@
     ],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      },
+      {
         "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
         "count": 3
       },
@@ -4171,14 +4162,6 @@
       {
         "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
         "count": 2
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -4217,8 +4200,8 @@
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Blocked a request that could not be verified as public: https://x.dlx.addthis.com/{seg}/{seg}",
-      "Blocked a request that could not be verified as public: https://px.owneriq.net/{seg}/{seg}/{seg}",
+      "Blocked a request that could not be verified as public: https://{label}.{label}.addthis.com/{seg}/{seg}",
+      "Blocked a request that could not be verified as public: https://{label}.owneriq.net/{seg}/{seg}/{seg}",
       "The page did not reach network idle before the scan window ended.",
       "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
     ]
@@ -4533,8 +4516,8 @@
       },
       {
         "id": 22,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}/{seg}",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4557,8 +4540,8 @@
       },
       {
         "id": 24,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4569,8 +4552,8 @@
       },
       {
         "id": 25,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5217,8 +5200,8 @@
       },
       {
         "id": 79,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}/{seg}",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5505,8 +5488,8 @@
       },
       {
         "id": 126,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5517,8 +5500,8 @@
       },
       {
         "id": 127,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5613,8 +5596,8 @@
       },
       {
         "id": 135,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5625,8 +5608,8 @@
       },
       {
         "id": 136,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5649,8 +5632,8 @@
       },
       {
         "id": 138,
-        "url": "https://streams.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "streams.bestbuy.com",
+        "url": "https://{label}.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -5781,8 +5764,8 @@
       },
       {
         "id": 157,
-        "url": "https://fel-api.prod.browse.bestbuy.com/{seg}",
-        "domain": "fel-api.prod.browse.bestbuy.com",
+        "url": "https://{label}.{label}.{label}.bestbuy.com/{seg}",
+        "domain": "{label}.{label}.{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -5793,8 +5776,8 @@
       },
       {
         "id": 161,
-        "url": "https://streams.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "streams.bestbuy.com",
+        "url": "https://{label}.bestbuy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -5877,8 +5860,8 @@
       },
       {
         "id": 168,
-        "url": "https://fel-api.prod.browse.bestbuy.com/{seg}",
-        "domain": "fel-api.prod.browse.bestbuy.com",
+        "url": "https://{label}.{label}.{label}.bestbuy.com/{seg}",
+        "domain": "{label}.{label}.{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -5913,8 +5896,8 @@
       },
       {
         "id": 171,
-        "url": "https://fel-api.prod.browse.bestbuy.com/{seg}",
-        "domain": "fel-api.prod.browse.bestbuy.com",
+        "url": "https://{label}.{label}.{label}.bestbuy.com/{seg}",
+        "domain": "{label}.{label}.{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6213,8 +6196,8 @@
       },
       {
         "id": 199,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6225,8 +6208,8 @@
       },
       {
         "id": 200,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6237,8 +6220,8 @@
       },
       {
         "id": 201,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6249,8 +6232,8 @@
       },
       {
         "id": 202,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6261,8 +6244,8 @@
       },
       {
         "id": 203,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6273,8 +6256,8 @@
       },
       {
         "id": 204,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6297,8 +6280,8 @@
       },
       {
         "id": 206,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6309,8 +6292,8 @@
       },
       {
         "id": 207,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6321,8 +6304,8 @@
       },
       {
         "id": 208,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6333,8 +6316,8 @@
       },
       {
         "id": 209,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6345,8 +6328,8 @@
       },
       {
         "id": 210,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6357,8 +6340,8 @@
       },
       {
         "id": 211,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6369,8 +6352,8 @@
       },
       {
         "id": 212,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6381,8 +6364,8 @@
       },
       {
         "id": 213,
-        "url": "https://pisces.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pisces.bbystatic.com",
+        "url": "https://{label}.bbystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6549,8 +6532,8 @@
       },
       {
         "id": 229,
-        "url": "https://fel-api.prod.browse.bestbuy.com/{seg}",
-        "domain": "fel-api.prod.browse.bestbuy.com",
+        "url": "https://{label}.{label}.{label}.bestbuy.com/{seg}",
+        "domain": "{label}.{label}.{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -6897,8 +6880,8 @@
       },
       {
         "id": 258,
-        "url": "https://fel-api.prod.browse.bestbuy.com/{seg}",
-        "domain": "fel-api.prod.browse.bestbuy.com",
+        "url": "https://{label}.{label}.{label}.bestbuy.com/{seg}",
+        "domain": "{label}.{label}.{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -6909,8 +6892,8 @@
       },
       {
         "id": 259,
-        "url": "https://fel-api.prod.browse.bestbuy.com/{seg}",
-        "domain": "fel-api.prod.browse.bestbuy.com",
+        "url": "https://{label}.{label}.{label}.bestbuy.com/{seg}",
+        "domain": "{label}.{label}.{label}.bestbuy.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -6934,7 +6917,7 @@
     ],
     "domains": [
       {
-        "domain": "pisces.bbystatic.com",
+        "domain": "{label}.bbystatic.com",
         "requests": 20,
         "thirdParty": true,
         "tracker": null,
@@ -6947,7 +6930,7 @@
         ]
       },
       {
-        "domain": "nexus.ensighten.com",
+        "domain": "{label}.ensighten.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -6992,7 +6975,7 @@
         ]
       },
       {
-        "domain": "fel-api.prod.browse.bestbuy.com",
+        "domain": "{label}.{label}.{label}.bestbuy.com",
         "requests": 6,
         "thirdParty": false,
         "tracker": null,
@@ -7006,7 +6989,7 @@
         ]
       },
       {
-        "domain": "streams.bestbuy.com",
+        "domain": "{label}.bestbuy.com",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -7310,6 +7293,14 @@
     ],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      },
+      {
         "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
         "count": 3
       },
@@ -7324,14 +7315,6 @@
       {
         "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
         "count": 2
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -7392,9 +7375,9 @@
       "delta": -14
     },
     "thirdPartyDomains": {
-      "before": 17,
+      "before": 16,
       "after": 3,
-      "delta": -14
+      "delta": -13
     },
     "cookies": {
       "before": 34,
@@ -7419,13 +7402,13 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "bf26528hhp.bf.dynatrace.com",
+        "domain": "{label}.{label}.dynatrace.com",
         "requests": 7,
         "tracker": null
       },
       {
-        "domain": "dpm.demdex.net",
-        "requests": 6,
+        "domain": "{label}.demdex.net",
+        "requests": 7,
         "tracker": {
           "domain": "demdex.net",
           "entity": "Adobe",
@@ -7434,12 +7417,12 @@
         }
       },
       {
-        "domain": "data.privacy.ensighten.com",
+        "domain": "{label}.{label}.ensighten.com",
         "requests": 3,
         "tracker": null
       },
       {
-        "domain": "cm.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 2,
         "tracker": {
           "domain": "doubleclick.net",
@@ -7449,7 +7432,7 @@
         }
       },
       {
-        "domain": "sync.crwdcntrl.net",
+        "domain": "{label}.crwdcntrl.net",
         "requests": 2,
         "tracker": {
           "domain": "crwdcntrl.net",
@@ -7459,27 +7442,17 @@
         }
       },
       {
-        "domain": "aa.agkn.com",
+        "domain": "{label}.acuityplatform.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "beacon.speedcurve.com",
+        "domain": "{label}.agkn.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "bestbuy.demdex.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "c.bing.com",
+        "domain": "{label}.bing.com",
         "requests": 1,
         "tracker": {
           "domain": "bing.com",
@@ -7489,12 +7462,17 @@
         }
       },
       {
-        "domain": "fei.pro-market.net",
+        "domain": "{label}.nc0.co",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "idsync.rlcdn.com",
+        "domain": "{label}.pro-market.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.rlcdn.com",
         "requests": 1,
         "tracker": {
           "domain": "rlcdn.com",
@@ -7504,12 +7482,7 @@
         }
       },
       {
-        "domain": "t.nc0.co",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "token.rubiconproject.com",
+        "domain": "{label}.rubiconproject.com",
         "requests": 1,
         "tracker": {
           "domain": "rubiconproject.com",
@@ -7519,7 +7492,7 @@
         }
       },
       {
-        "domain": "ums.acuityplatform.com",
+        "domain": "{label}.speedcurve.com",
         "requests": 1,
         "tracker": null
       }
@@ -7529,7 +7502,7 @@
       {
         "entity": "Adobe",
         "requests": 7,
-        "domains": 2
+        "domains": 1
       },
       {
         "entity": "Google",
@@ -7561,6 +7534,16 @@
     "removedCookies": [
       {
         "name": "[redacted]",
+        "domain": ".{label}.bing.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
         "domain": ".acuityplatform.com",
         "thirdParty": true
       },
@@ -7576,11 +7559,6 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".c.bing.com",
-        "thirdParty": true
-      },
-      {
-        "name": "[redacted]",
         "domain": ".crwdcntrl.net",
         "thirdParty": true
       },
@@ -7592,11 +7570,6 @@
       {
         "name": "IDE",
         "domain": ".doubleclick.net",
-        "thirdParty": true
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".dpm.demdex.net",
         "thirdParty": true
       },
       {
@@ -7626,8 +7599,8 @@
     "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "No blocking: Blocked a request that could not be verified as public: https://x.dlx.addthis.com/{seg}/{seg}",
-    "No blocking: Blocked a request that could not be verified as public: https://px.owneriq.net/{seg}/{seg}/{seg}",
+    "No blocking: Blocked a request that could not be verified as public: https://{label}.{label}.addthis.com/{seg}/{seg}",
+    "No blocking: Blocked a request that could not be verified as public: https://{label}.owneriq.net/{seg}/{seg}/{seg}",
     "No blocking: The page did not reach network idle before the scan window ended.",
     "No blocking: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",

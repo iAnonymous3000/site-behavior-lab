@@ -1,9 +1,9 @@
 {
   "reportId": "20260706-d5c7435c0b47655e162ffb31f66413fc",
-  "publicDigest": "0970ca159ddacc03598a260fc5785d1cb5773b574ea0ff9f3af6f556e36e5991",
+  "publicDigest": "a3040eafdc2f475994ba813bb1acbf3039d0eb72f6cb288a6e149f4c1ef496a6",
   "canonicalizationVersion": "canon-v1",
-  "redactionVersion": 2,
-  "writtenAt": "2026-07-12T16:08:34.826Z",
+  "redactionVersion": 3,
+  "writtenAt": "2026-07-12T20:07:32.821Z",
   "createdAt": "2026-07-06T09:26:05.887Z",
   "expiresAt": null
 }

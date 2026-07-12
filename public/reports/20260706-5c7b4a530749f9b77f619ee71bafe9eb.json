@@ -23,7 +23,7 @@
       "totalRequests": 113,
       "thirdPartyRequests": 39,
       "knownTrackerRequests": 29,
-      "thirdPartyDomains": 16,
+      "thirdPartyDomains": 15,
       "cookies": 28,
       "thirdPartyCookies": 10,
       "storageEntries": 9,
@@ -81,8 +81,8 @@
       },
       {
         "id": 2,
-        "url": "https://consent.bumble.com/{seg}/{seg}",
-        "domain": "consent.bumble.com",
+        "url": "https://{label}.bumble.com/{seg}/{seg}",
+        "domain": "{label}.bumble.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -338,7 +338,7 @@
       },
       {
         "id": 23,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -367,8 +367,8 @@
       },
       {
         "id": 25,
-        "url": "https://consent.bumble.com/{seg}/{seg}/{seg}",
-        "domain": "consent.bumble.com",
+        "url": "https://{label}.bumble.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bumble.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -379,8 +379,8 @@
       },
       {
         "id": 26,
-        "url": "https://consent.bumble.com/{seg}/{seg}/{seg}",
-        "domain": "consent.bumble.com",
+        "url": "https://{label}.bumble.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bumble.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -391,8 +391,8 @@
       },
       {
         "id": 27,
-        "url": "https://consent.bumble.com/{seg}/{seg}/{seg}",
-        "domain": "consent.bumble.com",
+        "url": "https://{label}.bumble.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bumble.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -403,8 +403,8 @@
       },
       {
         "id": 28,
-        "url": "https://consent.bumble.com/{seg}/{seg}/{seg}",
-        "domain": "consent.bumble.com",
+        "url": "https://{label}.bumble.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bumble.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -415,8 +415,8 @@
       },
       {
         "id": 29,
-        "url": "https://consent.bumble.com/{seg}/{seg}/{seg}",
-        "domain": "consent.bumble.com",
+        "url": "https://{label}.bumble.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bumble.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -571,7 +571,7 @@
       },
       {
         "id": 42,
-        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "ad.doubleclick.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -600,7 +600,7 @@
       },
       {
         "id": 44,
-        "url": "https://analytics.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://analytics.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "analytics.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -617,8 +617,8 @@
       },
       {
         "id": 45,
-        "url": "https://stats.g.doubleclick.net/{seg}/{seg}?v=&tid=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "stats.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?v=&tid=&cid=&%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -634,8 +634,8 @@
       },
       {
         "id": 46,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -663,7 +663,7 @@
       },
       {
         "id": 48,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -687,7 +687,7 @@
       },
       {
         "id": 50,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -711,7 +711,7 @@
       },
       {
         "id": 52,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -723,8 +723,8 @@
       },
       {
         "id": 53,
-        "url": "https://consent.bumble.com/{seg}/{seg}/{seg}",
-        "domain": "consent.bumble.com",
+        "url": "https://{label}.bumble.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bumble.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -735,8 +735,8 @@
       },
       {
         "id": 54,
-        "url": "https://consent.bumble.com/{seg}",
-        "domain": "consent.bumble.com",
+        "url": "https://{label}.bumble.com/{seg}",
+        "domain": "{label}.bumble.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -747,7 +747,7 @@
       },
       {
         "id": 55,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
@@ -759,8 +759,8 @@
       },
       {
         "id": 56,
-        "url": "https://consent.bumble.com/{seg}",
-        "domain": "consent.bumble.com",
+        "url": "https://{label}.bumble.com/{seg}",
+        "domain": "{label}.bumble.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -771,8 +771,8 @@
       },
       {
         "id": 57,
-        "url": "https://consent.bumble.com/{seg}",
-        "domain": "consent.bumble.com",
+        "url": "https://{label}.bumble.com/{seg}",
+        "domain": "{label}.bumble.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -783,8 +783,8 @@
       },
       {
         "id": 58,
-        "url": "https://consent.bumble.com/{seg}",
-        "domain": "consent.bumble.com",
+        "url": "https://{label}.bumble.com/{seg}",
+        "domain": "{label}.bumble.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -795,7 +795,7 @@
       },
       {
         "id": 59,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -819,8 +819,8 @@
       },
       {
         "id": 61,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -855,7 +855,7 @@
       },
       {
         "id": 64,
-        "url": "https://analytics.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://analytics.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "analytics.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1009,7 +1009,7 @@
       },
       {
         "id": 76,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1038,8 +1038,8 @@
       },
       {
         "id": 78,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1050,14 +1050,14 @@
       },
       {
         "id": 79,
-        "url": "https://ct.pinterest.com/{seg}?tid=&noscript=",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}?tid=&noscript=",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1067,14 +1067,14 @@
       },
       {
         "id": 80,
-        "url": "https://snap.licdn.com/{seg}/{seg}",
-        "domain": "snap.licdn.com",
+        "url": "https://{label}.licdn.com/{seg}/{seg}",
+        "domain": "{label}.licdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "snap.licdn.com",
+          "domain": "{label}.licdn.com",
           "entity": "LinkedIn",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1084,8 +1084,8 @@
       },
       {
         "id": 81,
-        "url": "https://px.ads.linkedin.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "px.ads.linkedin.com",
+        "url": "https://{label}.ads.linkedin.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ads.linkedin.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1130,14 +1130,14 @@
       },
       {
         "id": 84,
-        "url": "https://connect.facebook.net/{seg}/{seg}",
-        "domain": "connect.facebook.net",
+        "url": "https://{label}.facebook.net/{seg}/{seg}",
+        "domain": "{label}.facebook.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "connect.facebook.net",
+          "domain": "{label}.facebook.net",
           "entity": "Meta",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1164,8 +1164,8 @@
       },
       {
         "id": 86,
-        "url": "https://s.pinimg.com/{seg}/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1200,14 +1200,14 @@
       },
       {
         "id": 89,
-        "url": "https://ct.pinterest.com/{seg}?tid=&cb=&%5Bredacted%5D=",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}?tid=&cb=&%5Bredacted%5D=",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1229,14 +1229,14 @@
       },
       {
         "id": 91,
-        "url": "https://ct.pinterest.com/{seg}?%5Bredacted%5D=&tid=&cb=&%5Bredacted%5D=",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}?%5Bredacted%5D=&tid=&cb=",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1258,14 +1258,14 @@
       },
       {
         "id": 93,
-        "url": "https://ct.pinterest.com/{seg}?tid=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}?tid=&%5Bredacted%5D=&cb=",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1275,8 +1275,8 @@
       },
       {
         "id": 94,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1304,7 +1304,7 @@
       },
       {
         "id": 96,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1316,8 +1316,8 @@
       },
       {
         "id": 97,
-        "url": "https://px.ads.linkedin.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "px.ads.linkedin.com",
+        "url": "https://{label}.ads.linkedin.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ads.linkedin.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1345,7 +1345,7 @@
       },
       {
         "id": 99,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1369,14 +1369,14 @@
       },
       {
         "id": 101,
-        "url": "https://ct.pinterest.com/{seg}?%5Bredacted%5D=&tid=&cb=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}?%5Bredacted%5D=&tid=&cb=",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1386,14 +1386,14 @@
       },
       {
         "id": 102,
-        "url": "https://snap.licdn.com/{seg}/{seg}",
-        "domain": "snap.licdn.com",
+        "url": "https://{label}.licdn.com/{seg}/{seg}",
+        "domain": "{label}.licdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "snap.licdn.com",
+          "domain": "{label}.licdn.com",
           "entity": "LinkedIn",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1415,14 +1415,14 @@
       },
       {
         "id": 104,
-        "url": "https://connect.facebook.net/{seg}/{seg}/{n}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "connect.facebook.net",
+        "url": "https://{label}.facebook.net/{seg}/{seg}/{n}?v=&%5Bredacted%5D=",
+        "domain": "{label}.facebook.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "connect.facebook.net",
+          "domain": "{label}.facebook.net",
           "entity": "Meta",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1432,8 +1432,8 @@
       },
       {
         "id": 105,
-        "url": "https://px.ads.linkedin.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "px.ads.linkedin.com",
+        "url": "https://{label}.ads.linkedin.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ads.linkedin.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1461,8 +1461,8 @@
       },
       {
         "id": 107,
-        "url": "https://px.ads.linkedin.com/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "px.ads.linkedin.com",
+        "url": "https://{label}.ads.linkedin.com/{seg}?v=&%5Bredacted%5D=",
+        "domain": "{label}.ads.linkedin.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1495,8 +1495,8 @@
       },
       {
         "id": 109,
-        "url": "https://px.ads.linkedin.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "px.ads.linkedin.com",
+        "url": "https://{label}.ads.linkedin.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ads.linkedin.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1524,8 +1524,8 @@
       },
       {
         "id": 111,
-        "url": "https://px.ads.linkedin.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "px.ads.linkedin.com",
+        "url": "https://{label}.ads.linkedin.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ads.linkedin.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -1541,14 +1541,14 @@
       },
       {
         "id": 112,
-        "url": "https://ct.pinterest.com/{seg}",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1571,11 +1571,11 @@
     ],
     "domains": [
       {
-        "domain": "ct.pinterest.com",
+        "domain": "{label}.pinterest.com",
         "requests": 6,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1592,7 +1592,7 @@
         ]
       },
       {
-        "domain": "px.ads.linkedin.com",
+        "domain": "{label}.ads.linkedin.com",
         "requests": 6,
         "thirdParty": true,
         "tracker": {
@@ -1632,6 +1632,26 @@
         ]
       },
       {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204,
+          200
+        ],
+        "resourceTypes": [
+          "ping",
+          "script"
+        ]
+      },
+      {
         "domain": "analytics.google.com",
         "requests": 2,
         "thirdParty": true,
@@ -1650,29 +1670,11 @@
         ]
       },
       {
-        "domain": "googleads.g.doubleclick.net",
+        "domain": "{label}.licdn.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "snap.licdn.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "snap.licdn.com",
+          "domain": "{label}.licdn.com",
           "entity": "LinkedIn",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1686,11 +1688,11 @@
         ]
       },
       {
-        "domain": "connect.facebook.net",
+        "domain": "{label}.facebook.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "connect.facebook.net",
+          "domain": "{label}.facebook.net",
           "entity": "Meta",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1719,24 +1721,6 @@
         ],
         "resourceTypes": [
           "fetch"
-        ]
-      },
-      {
-        "domain": "stats.g.doubleclick.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "ping"
         ]
       },
       {
@@ -1808,7 +1792,7 @@
         ]
       },
       {
-        "domain": "s.pinimg.com",
+        "domain": "{label}.pinimg.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1834,7 +1818,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1866,7 +1850,7 @@
         ]
       },
       {
-        "domain": "consent.bumble.com",
+        "domain": "{label}.bumble.com",
         "requests": 11,
         "thirdParty": false,
         "tracker": null,
@@ -1885,7 +1869,7 @@
     "cookies": [
       {
         "name": "_pinterest_ct_ua",
-        "domain": ".ct.pinterest.com",
+        "domain": ".{label}.pinterest.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2873,9 +2857,9 @@
       "delta": -29
     },
     "thirdPartyDomains": {
-      "before": 16,
+      "before": 15,
       "after": 0,
-      "delta": -16
+      "delta": -15
     },
     "cookies": {
       "before": 28,
@@ -2900,26 +2884,26 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "consent.bumble.com",
+        "domain": "{label}.bumble.com",
         "requests": 11,
         "tracker": null
       },
       {
-        "domain": "ct.pinterest.com",
+        "domain": "{label}.ads.linkedin.com",
         "requests": 6,
         "tracker": {
-          "domain": "ct.pinterest.com",
-          "entity": "Pinterest",
+          "domain": "ads.linkedin.com",
+          "entity": "LinkedIn",
           "category": "social / advertising pixel",
           "confidence": "curated"
         }
       },
       {
-        "domain": "px.ads.linkedin.com",
+        "domain": "{label}.pinterest.com",
         "requests": 6,
         "tracker": {
-          "domain": "ads.linkedin.com",
-          "entity": "LinkedIn",
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
         }
@@ -2940,6 +2924,41 @@
         }
       },
       {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 3,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.licdn.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "{label}.licdn.com",
+          "entity": "LinkedIn",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.pinimg.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
         "domain": "analytics.google.com",
         "requests": 2,
         "tracker": {
@@ -2950,39 +2969,9 @@
         }
       },
       {
-        "domain": "connect.facebook.net",
-        "requests": 2,
-        "tracker": {
-          "domain": "connect.facebook.net",
-          "entity": "Meta",
-          "category": "social / advertising pixel",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "googleads.g.doubleclick.net",
-        "requests": 2,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "s.pinimg.com",
-        "requests": 2,
+        "domain": "{label}.gstatic.com",
+        "requests": 1,
         "tracker": null
-      },
-      {
-        "domain": "snap.licdn.com",
-        "requests": 2,
-        "tracker": {
-          "domain": "snap.licdn.com",
-          "entity": "LinkedIn",
-          "category": "social / advertising pixel",
-          "confidence": "curated"
-        }
       },
       {
         "domain": "ad.doubleclick.net",
@@ -3010,21 +2999,6 @@
         "tracker": null
       },
       {
-        "domain": "fonts.gstatic.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "stats.g.doubleclick.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
         "domain": "www.facebook.com",
         "requests": 1,
         "tracker": {
@@ -3050,7 +3024,7 @@
       {
         "entity": "Google",
         "requests": 10,
-        "domains": 5
+        "domains": 4
       },
       {
         "entity": "LinkedIn",
@@ -3077,7 +3051,7 @@
     "removedCookies": [
       {
         "name": "_pinterest_ct_ua",
-        "domain": ".ct.pinterest.com",
+        "domain": ".{label}.pinterest.com",
         "thirdParty": true
       },
       {

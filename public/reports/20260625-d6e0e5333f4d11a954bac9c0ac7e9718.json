@@ -23,7 +23,7 @@
       "totalRequests": 198,
       "thirdPartyRequests": 169,
       "knownTrackerRequests": 23,
-      "thirdPartyDomains": 38,
+      "thirdPartyDomains": 29,
       "cookies": 24,
       "thirdPartyCookies": 8,
       "storageEntries": 24,
@@ -93,7 +93,7 @@
       },
       {
         "id": 3,
-        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&callback=",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
@@ -165,8 +165,8 @@
       },
       {
         "id": 9,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -177,8 +177,8 @@
       },
       {
         "id": 10,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -189,8 +189,8 @@
       },
       {
         "id": 11,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -201,8 +201,8 @@
       },
       {
         "id": 12,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -225,7 +225,7 @@
       },
       {
         "id": 14,
-        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&callback=",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -261,8 +261,8 @@
       },
       {
         "id": 17,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -285,8 +285,8 @@
       },
       {
         "id": 19,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -309,8 +309,8 @@
       },
       {
         "id": 21,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -321,8 +321,8 @@
       },
       {
         "id": 22,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -345,8 +345,8 @@
       },
       {
         "id": 24,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -357,8 +357,8 @@
       },
       {
         "id": 25,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -369,8 +369,8 @@
       },
       {
         "id": 26,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -453,8 +453,8 @@
       },
       {
         "id": 33,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -465,8 +465,8 @@
       },
       {
         "id": 34,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -477,8 +477,8 @@
       },
       {
         "id": 35,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -489,8 +489,8 @@
       },
       {
         "id": 36,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -501,8 +501,8 @@
       },
       {
         "id": 37,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -513,8 +513,8 @@
       },
       {
         "id": 38,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -525,8 +525,8 @@
       },
       {
         "id": 39,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -537,8 +537,8 @@
       },
       {
         "id": 40,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -549,8 +549,8 @@
       },
       {
         "id": 41,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -561,8 +561,8 @@
       },
       {
         "id": 42,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -573,8 +573,8 @@
       },
       {
         "id": 43,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -765,8 +765,8 @@
       },
       {
         "id": 59,
-        "url": "https://ophan.theguardian.com/{seg}/{n}",
-        "domain": "ophan.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{n}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -777,8 +777,8 @@
       },
       {
         "id": 60,
-        "url": "https://ophan.theguardian.com/{seg}/{n}",
-        "domain": "ophan.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{n}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -789,8 +789,8 @@
       },
       {
         "id": 61,
-        "url": "https://ophan.theguardian.com/{seg}/{n}",
-        "domain": "ophan.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{n}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -801,8 +801,8 @@
       },
       {
         "id": 62,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -813,8 +813,8 @@
       },
       {
         "id": 63,
-        "url": "https://ophan.theguardian.com/{seg}/{n}",
-        "domain": "ophan.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{n}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -969,8 +969,8 @@
       },
       {
         "id": 76,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -981,8 +981,8 @@
       },
       {
         "id": 77,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -993,8 +993,8 @@
       },
       {
         "id": 78,
-        "url": "https://ophan.theguardian.com/{seg}/{n}",
-        "domain": "ophan.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{n}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -1005,8 +1005,8 @@
       },
       {
         "id": 79,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1029,8 +1029,8 @@
       },
       {
         "id": 81,
-        "url": "https://ophan.theguardian.com/{seg}/{n}",
-        "domain": "ophan.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{n}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -1041,8 +1041,8 @@
       },
       {
         "id": 82,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1053,8 +1053,8 @@
       },
       {
         "id": 83,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1065,8 +1065,8 @@
       },
       {
         "id": 84,
-        "url": "https://ophan.theguardian.com/{seg}/{n}",
-        "domain": "ophan.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{n}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -1149,8 +1149,8 @@
       },
       {
         "id": 91,
-        "url": "https://ophan.theguardian.com/{seg}/{n}",
-        "domain": "ophan.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{n}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -1161,8 +1161,8 @@
       },
       {
         "id": 92,
-        "url": "https://contributions.guardianapis.com/{seg}",
-        "domain": "contributions.guardianapis.com",
+        "url": "https://{label}.guardianapis.com/{seg}",
+        "domain": "{label}.guardianapis.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1173,8 +1173,8 @@
       },
       {
         "id": 93,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1185,7 +1185,7 @@
       },
       {
         "id": 94,
-        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "cdn.privacy-mgmt.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1197,8 +1197,8 @@
       },
       {
         "id": 95,
-        "url": "https://sourcepoint.theguardian.com/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1209,8 +1209,8 @@
       },
       {
         "id": 96,
-        "url": "https://sourcepoint.theguardian.com/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1221,8 +1221,8 @@
       },
       {
         "id": 97,
-        "url": "https://sourcepoint.theguardian.com/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1233,8 +1233,8 @@
       },
       {
         "id": 98,
-        "url": "https://www3.doubleclick.net/",
-        "domain": "www3.doubleclick.net",
+        "url": "https://{label}.doubleclick.net/",
+        "domain": "{label}.doubleclick.net",
         "method": "HEAD",
         "resourceType": "fetch",
         "status": 301,
@@ -1274,8 +1274,8 @@
       },
       {
         "id": 101,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1298,8 +1298,8 @@
       },
       {
         "id": 103,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1315,8 +1315,8 @@
       },
       {
         "id": 104,
-        "url": "https://marketingplatform.google.com/about/{seg}",
-        "domain": "marketingplatform.google.com",
+        "url": "https://{label}.google.com/about/{seg}",
+        "domain": "{label}.google.com",
         "method": "HEAD",
         "resourceType": "fetch",
         "status": 200,
@@ -1459,7 +1459,7 @@
       },
       {
         "id": 116,
-        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&callback=",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
@@ -1507,7 +1507,7 @@
       },
       {
         "id": 120,
-        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/categories?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/categories?%5Bredacted%5D=",
         "domain": "cdn.privacy-mgmt.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1519,8 +1519,8 @@
       },
       {
         "id": 121,
-        "url": "https://ophan.theguardian.com/{seg}/{n}",
-        "domain": "ophan.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{n}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -1531,8 +1531,8 @@
       },
       {
         "id": 122,
-        "url": "https://contributions.guardianapis.com/{seg}",
-        "domain": "contributions.guardianapis.com",
+        "url": "https://{label}.guardianapis.com/{seg}",
+        "domain": "{label}.guardianapis.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1543,8 +1543,8 @@
       },
       {
         "id": 123,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1584,8 +1584,8 @@
       },
       {
         "id": 126,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -1601,8 +1601,8 @@
       },
       {
         "id": 127,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1635,8 +1635,8 @@
       },
       {
         "id": 129,
-        "url": "https://dmp.im-apps.net/{seg}/{seg}",
-        "domain": "dmp.im-apps.net",
+        "url": "https://{label}.im-apps.net/{seg}/{seg}",
+        "domain": "{label}.im-apps.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1647,8 +1647,8 @@
       },
       {
         "id": 130,
-        "url": "https://oa.openxcdn.net/{seg}",
-        "domain": "oa.openxcdn.net",
+        "url": "https://{label}.openxcdn.net/{seg}",
+        "domain": "{label}.openxcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1659,8 +1659,8 @@
       },
       {
         "id": 131,
-        "url": "https://tags.crwdcntrl.net/{seg}/{seg}/{n}/{seg}",
-        "domain": "tags.crwdcntrl.net",
+        "url": "https://{label}.crwdcntrl.net/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.crwdcntrl.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1700,8 +1700,8 @@
       },
       {
         "id": 134,
-        "url": "https://connectid.analytics.yahoo.com/{seg}",
-        "domain": "connectid.analytics.yahoo.com",
+        "url": "https://{label}.analytics.yahoo.com/{seg}",
+        "domain": "{label}.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1741,8 +1741,8 @@
       },
       {
         "id": 137,
-        "url": "https://interactive.guim.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "interactive.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1753,8 +1753,8 @@
       },
       {
         "id": 138,
-        "url": "https://sync6.im-apps.net/{n}/{seg}?ref=&page=",
-        "domain": "sync6.im-apps.net",
+        "url": "https://{label}.im-apps.net/{n}/{seg}?ref=&page=",
+        "domain": "{label}.im-apps.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1765,8 +1765,8 @@
       },
       {
         "id": 139,
-        "url": "https://bcp.crwdcntrl.net/{n}/{seg}?%5Bredacted%5D=",
-        "domain": "bcp.crwdcntrl.net",
+        "url": "https://{label}.crwdcntrl.net/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.crwdcntrl.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1794,8 +1794,8 @@
       },
       {
         "id": 141,
-        "url": "https://ups.analytics.yahoo.com/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=",
-        "domain": "ups.analytics.yahoo.com",
+        "url": "https://{label}.analytics.yahoo.com/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1806,8 +1806,8 @@
       },
       {
         "id": 142,
-        "url": "https://ident.mygaru.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "ident.mygaru.com",
+        "url": "https://{label}.mygaru.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.mygaru.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1818,8 +1818,8 @@
       },
       {
         "id": 143,
-        "url": "https://oajs.openx.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "oajs.openx.net",
+        "url": "https://{label}.openx.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.openx.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 302,
@@ -1871,8 +1871,8 @@
       },
       {
         "id": 147,
-        "url": "https://ophan.theguardian.com/{seg}/{n}",
-        "domain": "ophan.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{n}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -1883,8 +1883,8 @@
       },
       {
         "id": 148,
-        "url": "https://ophan.theguardian.com/{seg}/{n}",
-        "domain": "ophan.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{n}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -1895,8 +1895,8 @@
       },
       {
         "id": 149,
-        "url": "https://ophan.theguardian.com/{seg}/{n}",
-        "domain": "ophan.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{n}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -1907,8 +1907,8 @@
       },
       {
         "id": 150,
-        "url": "https://oajs.openx.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "oajs.openx.net",
+        "url": "https://{label}.openx.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.openx.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1924,8 +1924,8 @@
       },
       {
         "id": 151,
-        "url": "https://google-bidout-d.openx.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "google-bidout-d.openx.net",
+        "url": "https://{label}.openx.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.openx.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1941,8 +1941,8 @@
       },
       {
         "id": 152,
-        "url": "https://ophan.theguardian.com/{seg}/{n}",
-        "domain": "ophan.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{n}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -1953,8 +1953,8 @@
       },
       {
         "id": 153,
-        "url": "https://ophan.theguardian.com/{seg}/{n}",
-        "domain": "ophan.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{n}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -1965,8 +1965,8 @@
       },
       {
         "id": 154,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1977,8 +1977,8 @@
       },
       {
         "id": 155,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1994,8 +1994,8 @@
       },
       {
         "id": 156,
-        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2011,8 +2011,8 @@
       },
       {
         "id": 157,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2028,8 +2028,8 @@
       },
       {
         "id": 158,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2040,8 +2040,8 @@
       },
       {
         "id": 159,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2064,8 +2064,8 @@
       },
       {
         "id": 161,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2081,8 +2081,8 @@
       },
       {
         "id": 162,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2098,8 +2098,8 @@
       },
       {
         "id": 163,
-        "url": "https://ep2.adtrafficquality.google/{seg}?%5Bredacted%5D=",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2110,8 +2110,8 @@
       },
       {
         "id": 164,
-        "url": "https://gum.criteo.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gum.criteo.com",
+        "url": "https://{label}.criteo.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.criteo.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2199,8 +2199,8 @@
       },
       {
         "id": 171,
-        "url": "https://protected-by.clarium.io/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&cb=&%5Bredacted%5D=&id=",
-        "domain": "protected-by.clarium.io",
+        "url": "https://{label}.clarium.io/{seg}?%5Bredacted%5D=&v=&cb=&id=",
+        "domain": "{label}.clarium.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2211,8 +2211,8 @@
       },
       {
         "id": 172,
-        "url": "https://tpc.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2228,8 +2228,8 @@
       },
       {
         "id": 173,
-        "url": "https://tpc.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2245,8 +2245,8 @@
       },
       {
         "id": 174,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&cid=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": null,
@@ -2262,8 +2262,8 @@
       },
       {
         "id": 175,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2274,8 +2274,8 @@
       },
       {
         "id": 176,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2286,8 +2286,8 @@
       },
       {
         "id": 177,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2298,8 +2298,8 @@
       },
       {
         "id": 178,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2310,8 +2310,8 @@
       },
       {
         "id": 179,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2322,8 +2322,8 @@
       },
       {
         "id": 180,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2334,8 +2334,8 @@
       },
       {
         "id": 181,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2346,8 +2346,8 @@
       },
       {
         "id": 182,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2358,8 +2358,8 @@
       },
       {
         "id": 183,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2370,8 +2370,8 @@
       },
       {
         "id": 184,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2382,8 +2382,8 @@
       },
       {
         "id": 185,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2394,8 +2394,8 @@
       },
       {
         "id": 186,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2406,8 +2406,8 @@
       },
       {
         "id": 187,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2418,8 +2418,8 @@
       },
       {
         "id": 188,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2430,8 +2430,8 @@
       },
       {
         "id": 189,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2442,8 +2442,8 @@
       },
       {
         "id": 190,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2454,8 +2454,8 @@
       },
       {
         "id": 191,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2466,8 +2466,8 @@
       },
       {
         "id": 192,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2478,8 +2478,8 @@
       },
       {
         "id": 193,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2490,8 +2490,8 @@
       },
       {
         "id": 194,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2502,8 +2502,8 @@
       },
       {
         "id": 195,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
@@ -2526,8 +2526,8 @@
       },
       {
         "id": 197,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": null,
@@ -2543,8 +2543,8 @@
       },
       {
         "id": 198,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&cid=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": null,
@@ -2561,8 +2561,8 @@
     ],
     "domains": [
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 6,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 8,
         "thirdParty": true,
         "tracker": {
           "domain": "doubleclick.net",
@@ -2577,13 +2577,14 @@
         "resourceTypes": [
           "script",
           "other",
+          "document",
           "fetch",
           "image"
         ]
       },
       {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 3,
+        "domain": "{label}.googlesyndication.com",
+        "requests": 5,
         "thirdParty": true,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -2603,8 +2604,8 @@
         ]
       },
       {
-        "domain": "oajs.openx.net",
-        "requests": 2,
+        "domain": "{label}.openx.net",
+        "requests": 3,
         "thirdParty": true,
         "tracker": {
           "domain": "openx.net",
@@ -2618,17 +2619,18 @@
           200
         ],
         "resourceTypes": [
-          "fetch"
+          "fetch",
+          "document"
         ]
       },
       {
-        "domain": "tpc.googlesyndication.com",
+        "domain": "{label}.crwdcntrl.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
+          "domain": "crwdcntrl.net",
+          "entity": "Lotame",
+          "category": "advertising / data management",
           "confidence": "curated"
         },
         "blockedByShields": true,
@@ -2636,11 +2638,12 @@
           200
         ],
         "resourceTypes": [
-          "image"
+          "script",
+          "xhr"
         ]
       },
       {
-        "domain": "www3.doubleclick.net",
+        "domain": "{label}.doubleclick.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -2658,24 +2661,6 @@
         ]
       },
       {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
         "domain": "ads.pubmatic.com",
         "requests": 1,
         "thirdParty": true,
@@ -2683,24 +2668,6 @@
           "domain": "pubmatic.com",
           "entity": "PubMatic",
           "category": "advertising / supply-side platform",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "tags.crwdcntrl.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "crwdcntrl.net",
-          "entity": "Lotame",
-          "category": "advertising / data management",
           "confidence": "curated"
         },
         "blockedByShields": true,
@@ -2730,43 +2697,7 @@
         ]
       },
       {
-        "domain": "bcp.crwdcntrl.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "crwdcntrl.net",
-          "entity": "Lotame",
-          "category": "advertising / data management",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "google-bidout-d.openx.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "openx.net",
-          "entity": "OpenX",
-          "category": "advertising / exchange",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.{label}.googlesyndication.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -2784,7 +2715,7 @@
         ]
       },
       {
-        "domain": "gum.criteo.com",
+        "domain": "{label}.criteo.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -2799,22 +2730,6 @@
         ],
         "resourceTypes": [
           "document"
-        ]
-      },
-      {
-        "domain": "googleads.g.doubleclick.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [],
-        "resourceTypes": [
-          "image"
         ]
       },
       {
@@ -2834,8 +2749,8 @@
         ]
       },
       {
-        "domain": "i.guim.co.uk",
-        "requests": 26,
+        "domain": "{label}.guim.co.uk",
+        "requests": 27,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -2843,11 +2758,12 @@
           200
         ],
         "resourceTypes": [
-          "image"
+          "image",
+          "font"
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 20,
         "thirdParty": true,
         "tracker": null,
@@ -2855,6 +2771,23 @@
         "statuses": [],
         "resourceTypes": [
           "font"
+        ]
+      },
+      {
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "document",
+          "image"
         ]
       },
       {
@@ -2884,23 +2817,7 @@
         ]
       },
       {
-        "domain": "ep2.adtrafficquality.google",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200,
-          204
-        ],
-        "resourceTypes": [
-          "script",
-          "document",
-          "image"
-        ]
-      },
-      {
-        "domain": "contributions.guardianapis.com",
+        "domain": "{label}.guardianapis.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -2926,18 +2843,31 @@
         ]
       },
       {
-        "domain": "ep1.adtrafficquality.google",
+        "domain": "{label}.im-apps.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
-          200,
-          204
+          200
         ],
         "resourceTypes": [
-          "xhr",
-          "image"
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.analytics.yahoo.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
         ]
       },
       {
@@ -2956,7 +2886,7 @@
         ]
       },
       {
-        "domain": "marketingplatform.google.com",
+        "domain": "{label}.google.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2969,20 +2899,7 @@
         ]
       },
       {
-        "domain": "dmp.im-apps.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "oa.openxcdn.net",
+        "domain": "{label}.openxcdn.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3021,19 +2938,6 @@
         ]
       },
       {
-        "domain": "connectid.analytics.yahoo.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
         "domain": "cdn.mgaru.dev",
         "requests": 1,
         "thirdParty": true,
@@ -3044,32 +2948,6 @@
         ],
         "resourceTypes": [
           "script"
-        ]
-      },
-      {
-        "domain": "interactive.guim.co.uk",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "font"
-        ]
-      },
-      {
-        "domain": "sync6.im-apps.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -3086,20 +2964,7 @@
         ]
       },
       {
-        "domain": "ups.analytics.yahoo.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "ident.mygaru.com",
+        "domain": "{label}.mygaru.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3125,7 +2990,7 @@
         ]
       },
       {
-        "domain": "protected-by.clarium.io",
+        "domain": "{label}.clarium.io",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3138,31 +3003,19 @@
         ]
       },
       {
-        "domain": "ophan.theguardian.com",
-        "requests": 14,
+        "domain": "{label}.theguardian.com",
+        "requests": 25,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "sourcepoint.theguardian.com",
-        "requests": 11,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
+          204,
           200
         ],
         "resourceTypes": [
+          "fetch",
           "script",
           "xhr",
-          "fetch",
           "document",
           "stylesheet"
         ]
@@ -3568,7 +3421,7 @@
           "thirdPartyOrigins": [
             "https://assets.guim.co.uk/",
             "https://cdn.ampproject.org/",
-            "https://securepubads.g.doubleclick.net/"
+            "https://{label}.{label}.doubleclick.net/"
           ],
           "totalListenerCalls": 24
         }
@@ -3601,7 +3454,7 @@
           "thirdPartyOrigins": [
             "https://assets.guim.co.uk/",
             "https://cdn.ampproject.org/",
-            "https://securepubads.g.doubleclick.net/"
+            "https://{label}.{label}.doubleclick.net/"
           ],
           "totalListenerCalls": 57
         }
@@ -3625,7 +3478,7 @@
       "totalRequests": 113,
       "thirdPartyRequests": 99,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 5,
+      "thirdPartyDomains": 4,
       "cookies": 3,
       "thirdPartyCookies": 0,
       "storageEntries": 3,
@@ -3695,7 +3548,7 @@
       },
       {
         "id": 3,
-        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&callback=",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
@@ -3767,8 +3620,8 @@
       },
       {
         "id": 9,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3779,8 +3632,8 @@
       },
       {
         "id": 10,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3791,8 +3644,8 @@
       },
       {
         "id": 11,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3803,8 +3656,8 @@
       },
       {
         "id": 12,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3815,8 +3668,8 @@
       },
       {
         "id": 13,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3827,7 +3680,7 @@
       },
       {
         "id": 14,
-        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&callback=",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
@@ -3851,8 +3704,8 @@
       },
       {
         "id": 16,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3863,8 +3716,8 @@
       },
       {
         "id": 17,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3875,8 +3728,8 @@
       },
       {
         "id": 18,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3887,8 +3740,8 @@
       },
       {
         "id": 19,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3911,8 +3764,8 @@
       },
       {
         "id": 21,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3923,8 +3776,8 @@
       },
       {
         "id": 22,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3935,8 +3788,8 @@
       },
       {
         "id": 23,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3947,8 +3800,8 @@
       },
       {
         "id": 24,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3959,8 +3812,8 @@
       },
       {
         "id": 25,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3983,8 +3836,8 @@
       },
       {
         "id": 27,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4007,8 +3860,8 @@
       },
       {
         "id": 29,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4019,8 +3872,8 @@
       },
       {
         "id": 30,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4031,8 +3884,8 @@
       },
       {
         "id": 31,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4043,8 +3896,8 @@
       },
       {
         "id": 32,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4055,8 +3908,8 @@
       },
       {
         "id": 33,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4115,8 +3968,8 @@
       },
       {
         "id": 38,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4127,8 +3980,8 @@
       },
       {
         "id": 39,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4139,8 +3992,8 @@
       },
       {
         "id": 40,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4151,8 +4004,8 @@
       },
       {
         "id": 41,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4163,8 +4016,8 @@
       },
       {
         "id": 42,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4175,8 +4028,8 @@
       },
       {
         "id": 43,
-        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4367,8 +4220,8 @@
       },
       {
         "id": 62,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4523,8 +4376,8 @@
       },
       {
         "id": 77,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4535,8 +4388,8 @@
       },
       {
         "id": 78,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4547,8 +4400,8 @@
       },
       {
         "id": 79,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4559,8 +4412,8 @@
       },
       {
         "id": 80,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4643,8 +4496,8 @@
       },
       {
         "id": 91,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -4667,7 +4520,7 @@
       },
       {
         "id": 93,
-        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "cdn.privacy-mgmt.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -4679,8 +4532,8 @@
       },
       {
         "id": 94,
-        "url": "https://sourcepoint.theguardian.com/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -4691,8 +4544,8 @@
       },
       {
         "id": 95,
-        "url": "https://sourcepoint.theguardian.com/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4703,8 +4556,8 @@
       },
       {
         "id": 96,
-        "url": "https://sourcepoint.theguardian.com/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4739,8 +4592,8 @@
       },
       {
         "id": 100,
-        "url": "https://contributions.guardianapis.com/{seg}",
-        "domain": "contributions.guardianapis.com",
+        "url": "https://{label}.guardianapis.com/{seg}",
+        "domain": "{label}.guardianapis.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -4751,8 +4604,8 @@
       },
       {
         "id": 103,
-        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
-        "domain": "sourcepoint.theguardian.com",
+        "url": "https://{label}.theguardian.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4763,7 +4616,7 @@
       },
       {
         "id": 104,
-        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&callback=",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
@@ -4943,8 +4796,8 @@
       },
       {
         "id": 122,
-        "url": "https://contributions.guardianapis.com/{seg}",
-        "domain": "contributions.guardianapis.com",
+        "url": "https://{label}.guardianapis.com/{seg}",
+        "domain": "{label}.guardianapis.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -4955,7 +4808,7 @@
       },
       {
         "id": 124,
-        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/categories?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/categories?%5Bredacted%5D=",
         "domain": "cdn.privacy-mgmt.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -4979,8 +4832,8 @@
       },
       {
         "id": 126,
-        "url": "https://interactive.guim.co.uk/{seg}/{seg}/{seg}/{seg}",
-        "domain": "interactive.guim.co.uk",
+        "url": "https://{label}.guim.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -5044,8 +4897,8 @@
         ]
       },
       {
-        "domain": "i.guim.co.uk",
-        "requests": 26,
+        "domain": "{label}.guim.co.uk",
+        "requests": 27,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -5053,7 +4906,8 @@
           200
         ],
         "resourceTypes": [
-          "image"
+          "image",
+          "font"
         ]
       },
       {
@@ -5070,7 +4924,7 @@
         ]
       },
       {
-        "domain": "contributions.guardianapis.com",
+        "domain": "{label}.guardianapis.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -5083,20 +4937,7 @@
         ]
       },
       {
-        "domain": "interactive.guim.co.uk",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "font"
-        ]
-      },
-      {
-        "domain": "sourcepoint.theguardian.com",
+        "domain": "{label}.theguardian.com",
         "requests": 10,
         "thirdParty": false,
         "tracker": null,
@@ -5254,9 +5095,9 @@
       "delta": -23
     },
     "thirdPartyDomains": {
-      "before": 38,
-      "after": 5,
-      "delta": -33
+      "before": 29,
+      "after": 4,
+      "delta": -25
     },
     "cookies": {
       "before": 24,
@@ -5281,20 +5122,30 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 20,
         "tracker": null
       },
       {
-        "domain": "ophan.theguardian.com",
-        "requests": 14,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 8,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
         "tracker": null
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 6,
+        "domain": "{label}.googlesyndication.com",
+        "requests": 5,
         "tracker": {
-          "domain": "doubleclick.net",
+          "domain": "googlesyndication.com",
           "entity": "Google",
           "category": "advertising",
           "confidence": "curated"
@@ -5306,33 +5157,8 @@
         "tracker": null
       },
       {
-        "domain": "ep2.adtrafficquality.google",
+        "domain": "{label}.openx.net",
         "requests": 3,
-        "tracker": null
-      },
-      {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 3,
-        "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "cdn.confiant-integrations.net",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "ep1.adtrafficquality.google",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "oajs.openx.net",
-        "requests": 2,
         "tracker": {
           "domain": "openx.net",
           "entity": "OpenX",
@@ -5341,8 +5167,38 @@
         }
       },
       {
-        "domain": "tpc.googlesyndication.com",
+        "domain": "{label}.analytics.yahoo.com",
         "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.crwdcntrl.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "crwdcntrl.net",
+          "entity": "Lotame",
+          "category": "advertising / data management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.im-apps.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.confiant-integrations.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.googlesyndication.com",
+        "requests": 1,
         "tracker": {
           "domain": "googlesyndication.com",
           "entity": "Google",
@@ -5351,8 +5207,8 @@
         }
       },
       {
-        "domain": "www.google.com",
-        "requests": 2,
+        "domain": "{label}.clarium.io",
+        "requests": 1,
         "tracker": null
       },
       {
@@ -5361,14 +5217,39 @@
         "tracker": null
       },
       {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.criteo.com",
         "requests": 1,
         "tracker": {
-          "domain": "googlesyndication.com",
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
           "entity": "Google",
           "category": "advertising",
           "confidence": "curated"
         }
+      },
+      {
+        "domain": "{label}.google.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.mygaru.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.openxcdn.net",
+        "requests": 1,
+        "tracker": null
       },
       {
         "domain": "ads.pubmatic.com",
@@ -5377,16 +5258,6 @@
           "domain": "pubmatic.com",
           "entity": "PubMatic",
           "category": "advertising / supply-side platform",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "bcp.crwdcntrl.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "crwdcntrl.net",
-          "entity": "Lotame",
-          "category": "advertising / data management",
           "confidence": "curated"
         }
       },
@@ -5401,82 +5272,12 @@
         "tracker": null
       },
       {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "connectid.analytics.yahoo.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "dmp.im-apps.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
         "domain": "fonts.googleapis.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "google-bidout-d.openx.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "openx.net",
-          "entity": "OpenX",
-          "category": "advertising / exchange",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "googleads.g.doubleclick.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "gum.criteo.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "criteo.com",
-          "entity": "Criteo",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
         "domain": "id5-sync.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "ident.mygaru.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "marketingplatform.google.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "oa.openxcdn.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "protected-by.clarium.io",
         "requests": 1,
         "tracker": null
       },
@@ -5489,36 +5290,6 @@
           "category": "advertising",
           "confidence": "curated"
         }
-      },
-      {
-        "domain": "sync6.im-apps.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "tags.crwdcntrl.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "crwdcntrl.net",
-          "entity": "Lotame",
-          "category": "advertising / data management",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "ups.analytics.yahoo.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "www3.doubleclick.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
       }
     ],
     "addedEntities": [],
@@ -5526,12 +5297,12 @@
       {
         "entity": "Google",
         "requests": 15,
-        "domains": 7
+        "domains": 4
       },
       {
         "entity": "OpenX",
         "requests": 3,
-        "domains": 2
+        "domains": 1
       },
       {
         "entity": "Criteo",
@@ -5541,7 +5312,7 @@
       {
         "entity": "Lotame",
         "requests": 2,
-        "domains": 2
+        "domains": 1
       },
       {
         "entity": "PubMatic",

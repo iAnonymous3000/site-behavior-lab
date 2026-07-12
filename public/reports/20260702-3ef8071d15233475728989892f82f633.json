@@ -350,8 +350,8 @@
       },
       {
         "id": 24,
-        "url": "https://cc.cdn.civiccomputing.com/{n}/{seg}?ver=",
-        "domain": "cc.cdn.civiccomputing.com",
+        "url": "https://{label}.cdn.civiccomputing.com/{n}/{seg}?ver=",
+        "domain": "{label}.cdn.civiccomputing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -362,8 +362,8 @@
       },
       {
         "id": 25,
-        "url": "https://js.stripe.com/{seg}/{seg}?ver=",
-        "domain": "js.stripe.com",
+        "url": "https://{label}.stripe.com/{seg}/{seg}?ver=",
+        "domain": "{label}.stripe.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -422,8 +422,8 @@
       },
       {
         "id": 30,
-        "url": "https://e.infogram.com/{seg}/{seg}/{seg}",
-        "domain": "e.infogram.com",
+        "url": "https://{label}.infogram.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.infogram.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -590,8 +590,8 @@
       },
       {
         "id": 44,
-        "url": "https://apikeys.civiccomputing.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&format=",
-        "domain": "apikeys.civiccomputing.com",
+        "url": "https://{label}.civiccomputing.com/{seg}/{seg}?%5Bredacted%5D=&v=&format=",
+        "domain": "{label}.civiccomputing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -602,7 +602,7 @@
       },
       {
         "id": 45,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -619,8 +619,8 @@
       },
       {
         "id": 46,
-        "url": "https://cdn-eu.pagesense.io/{seg}/{seg}/{seg}",
-        "domain": "cdn-eu.pagesense.io",
+        "url": "https://{label}.pagesense.io/{seg}/{seg}/{seg}",
+        "domain": "{label}.pagesense.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -631,8 +631,8 @@
       },
       {
         "id": 47,
-        "url": "https://pagesense-collect.zoho.eu/{seg}?type=",
-        "domain": "pagesense-collect.zoho.eu",
+        "url": "https://{label}.zoho.eu/{seg}?type=",
+        "domain": "{label}.zoho.eu",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -643,8 +643,8 @@
       },
       {
         "id": 48,
-        "url": "https://cdn-eu.pagesense.io/{seg}/{seg}/{seg}",
-        "domain": "cdn-eu.pagesense.io",
+        "url": "https://{label}.pagesense.io/{seg}/{seg}/{seg}",
+        "domain": "{label}.pagesense.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -655,8 +655,8 @@
       },
       {
         "id": 49,
-        "url": "https://pagesense-collect.zoho.eu/{seg}?%5Bredacted%5D=&type=&%5Bredacted%5D=",
-        "domain": "pagesense-collect.zoho.eu",
+        "url": "https://{label}.zoho.eu/{seg}?%5Bredacted%5D=&type=",
+        "domain": "{label}.zoho.eu",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -667,8 +667,8 @@
       },
       {
         "id": 50,
-        "url": "https://js.stripe.com/{seg}/{seg}",
-        "domain": "js.stripe.com",
+        "url": "https://{label}.stripe.com/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -679,8 +679,8 @@
       },
       {
         "id": 51,
-        "url": "https://js.stripe.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "js.stripe.com",
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -746,7 +746,7 @@
         ]
       },
       {
-        "domain": "js.stripe.com",
+        "domain": "{label}.stripe.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -760,7 +760,7 @@
         ]
       },
       {
-        "domain": "cdn-eu.pagesense.io",
+        "domain": "{label}.pagesense.io",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -773,7 +773,7 @@
         ]
       },
       {
-        "domain": "pagesense-collect.zoho.eu",
+        "domain": "{label}.zoho.eu",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -800,7 +800,7 @@
         ]
       },
       {
-        "domain": "cc.cdn.civiccomputing.com",
+        "domain": "{label}.cdn.civiccomputing.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -813,7 +813,7 @@
         ]
       },
       {
-        "domain": "e.infogram.com",
+        "domain": "{label}.infogram.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -826,7 +826,7 @@
         ]
       },
       {
-        "domain": "apikeys.civiccomputing.com",
+        "domain": "{label}.civiccomputing.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -882,7 +882,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "pagesense-collect.zoho.eu",
+        "domain": "{label}.zoho.eu",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -1027,9 +1027,9 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://cc.cdn.civiccomputing.com/",
-            "https://cdn-eu.pagesense.io/",
-            "https://e.infogram.com/"
+            "https://{label}.cdn.civiccomputing.com/",
+            "https://{label}.pagesense.io/",
+            "https://{label}.infogram.com/"
           ],
           "totalListenerCalls": 10
         }
@@ -1378,8 +1378,8 @@
       },
       {
         "id": 25,
-        "url": "https://js.stripe.com/{seg}/{seg}?ver=",
-        "domain": "js.stripe.com",
+        "url": "https://{label}.stripe.com/{seg}/{seg}?ver=",
+        "domain": "{label}.stripe.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1426,8 +1426,8 @@
       },
       {
         "id": 29,
-        "url": "https://e.infogram.com/{seg}/{seg}/{seg}",
-        "domain": "e.infogram.com",
+        "url": "https://{label}.infogram.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.infogram.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1607,7 +1607,7 @@
     ],
     "domains": [
       {
-        "domain": "js.stripe.com",
+        "domain": "{label}.stripe.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1620,7 +1620,7 @@
         ]
       },
       {
-        "domain": "e.infogram.com",
+        "domain": "{label}.infogram.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1729,17 +1729,17 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "cdn-eu.pagesense.io",
+        "domain": "{label}.pagesense.io",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.zoho.eu",
         "requests": 2,
         "tracker": null
       },
       {
         "domain": "m.stripe.network",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "pagesense-collect.zoho.eu",
         "requests": 2,
         "tracker": null
       },
@@ -1754,12 +1754,12 @@
         }
       },
       {
-        "domain": "apikeys.civiccomputing.com",
+        "domain": "{label}.cdn.civiccomputing.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "cc.cdn.civiccomputing.com",
+        "domain": "{label}.civiccomputing.com",
         "requests": 1,
         "tracker": null
       },
@@ -1781,12 +1781,12 @@
     "removedCookies": [
       {
         "name": "[redacted]",
-        "domain": "m.stripe.com",
+        "domain": "{label}.zoho.eu",
         "thirdParty": true
       },
       {
         "name": "[redacted]",
-        "domain": "pagesense-collect.zoho.eu",
+        "domain": "m.stripe.com",
         "thirdParty": true
       },
       {

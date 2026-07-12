@@ -3,6 +3,7 @@ import Link from "next/link";
 import { loadCorpusOverview, type DirectoryEntry } from "@/lib/corpus-overview";
 import { reportPagePath } from "@/lib/report-locator";
 import { sitePagesBasePath } from "@/lib/site-url";
+import { siteProfilePath } from "@/lib/site-profile";
 import { formatDelta, type SinceLastScan } from "@/lib/temporal-deltas";
 
 export const dynamic = "force-static";
@@ -163,7 +164,7 @@ export default async function DirectoryPage() {
               <ol>
                 {heaviest.map((site) => (
                   <li key={site.id}>
-                    <Link href={`${reportPagePath(site.id)}/`}>{site.domain}</Link>
+                    <Link href={`${siteProfilePath(site.domain) ?? reportPagePath(site.id)}/`}>{site.domain}</Link>
                     <b>{site.trackerRequests.toLocaleString()}</b>
                   </li>
                 ))}
@@ -186,10 +187,19 @@ export default async function DirectoryPage() {
       )}
 
       {entries.length > 0 && (
+        <>
+        {entries.some((entry) => entry.sinceLastScan) && (
+          <p className="directory-history-note">
+            History deltas are observed differences between compatible visits, not proof that the site changed. Ad
+            rotation, experiments, caching, and bot detection can also change what a visit sees.
+          </p>
+        )}
         <ul className="directory-list">
-          {entries.map((entry) => (
+          {entries.map((entry) => {
+            const profilePath = siteProfilePath(entry.domain);
+            return (
             <li key={entry.id} className={`directory-row tone-${entry.tone}`}>
-              <Link href={`${reportPagePath(entry.id)}/`}>
+              <Link className="directory-report-link" href={`${reportPagePath(entry.id)}/`}>
                 <span className="directory-row-top">
                   <span className="directory-domain">{entry.domain}</span>
                   {entry.capped && (
@@ -219,14 +229,21 @@ export default async function DirectoryPage() {
                     className="directory-since"
                     title="Observed difference between successful, uncapped visits of the same subject under a compatible methodology and measurement setup. It can still reflect ad rotation, experiments, caching, or bot detection as well as a real site change."
                   >
-                    Since {formatScanDate(entry.sinceLastScan.previousScannedAt)}:{" "}
+                    Observed difference vs {formatScanDate(entry.sinceLastScan.previousScannedAt)}:{" "}
                     {sinceLastScanText(entry.sinceLastScan)}
                   </span>
                 )}
               </Link>
+              {profilePath && (
+                <Link className="directory-profile-link" href={`${profilePath}/`}>
+                  View {entry.domain} history
+                </Link>
+              )}
             </li>
-          ))}
+            );
+          })}
         </ul>
+        </>
       )}
     </main>
   );

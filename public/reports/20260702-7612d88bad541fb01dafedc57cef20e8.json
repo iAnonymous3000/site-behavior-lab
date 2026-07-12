@@ -559,7 +559,7 @@
       },
       {
         "id": 31,
-        "url": "https://accounts.google.com/{seg}/status?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://accounts.google.com/{seg}/status?%5Bredacted%5D=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -571,7 +571,7 @@
       },
       {
         "id": 32,
-        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&size=&%5Bredacted%5D=&%5Bredacted%5D=&type=&width=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&size=&type=&width=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -583,7 +583,7 @@
       },
       {
         "id": 33,
-        "url": "https://accounts.google.com/{seg}/status?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://accounts.google.com/{seg}/status?%5Bredacted%5D=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -595,7 +595,7 @@
       },
       {
         "id": 34,
-        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&size=&%5Bredacted%5D=&%5Bredacted%5D=&type=&width=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&size=&type=&width=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -607,7 +607,7 @@
       },
       {
         "id": 35,
-        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&size=&%5Bredacted%5D=&%5Bredacted%5D=&type=&width=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&size=&type=&width=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -619,7 +619,7 @@
       },
       {
         "id": 36,
-        "url": "https://accounts.google.com/{seg}/status?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://accounts.google.com/{seg}/status?%5Bredacted%5D=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -631,7 +631,7 @@
       },
       {
         "id": 37,
-        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&size=&%5Bredacted%5D=&%5Bredacted%5D=&type=&width=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&size=&type=&width=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -643,8 +643,8 @@
       },
       {
         "id": 38,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -702,7 +702,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -826,6 +826,10 @@
     "storage": [],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
         "api": "canvas.toDataURL",
         "count": 2
       },
@@ -838,6 +842,10 @@
         "count": 2
       },
       {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      },
+      {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
         "count": 2
       },
@@ -848,14 +856,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 2
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -990,7 +990,7 @@
       "totalRequests": 50,
       "thirdPartyRequests": 35,
       "knownTrackerRequests": 25,
-      "thirdPartyDomains": 7,
+      "thirdPartyDomains": 4,
       "cookies": 10,
       "thirdPartyCookies": 3,
       "storageEntries": 0,
@@ -1247,8 +1247,8 @@
       },
       {
         "id": 14,
-        "url": "https://platform.linkedin.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "platform.linkedin.com",
+        "url": "https://{label}.linkedin.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.linkedin.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1458,8 +1458,8 @@
       },
       {
         "id": 28,
-        "url": "https://li.protechts.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "li.protechts.net",
+        "url": "https://{label}.protechts.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.protechts.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1521,7 +1521,7 @@
       },
       {
         "id": 32,
-        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&size=&%5Bredacted%5D=&%5Bredacted%5D=&type=&width=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&size=&type=&width=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -1533,7 +1533,7 @@
       },
       {
         "id": 33,
-        "url": "https://accounts.google.com/{seg}/status?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://accounts.google.com/{seg}/status?%5Bredacted%5D=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -1545,8 +1545,8 @@
       },
       {
         "id": 34,
-        "url": "https://client.protechts.net/{seg}/{seg}",
-        "domain": "client.protechts.net",
+        "url": "https://{label}.protechts.net/{seg}/{seg}",
+        "domain": "{label}.protechts.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1593,8 +1593,8 @@
       },
       {
         "id": 38,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1617,8 +1617,8 @@
       },
       {
         "id": 40,
-        "url": "https://tzm.protechts.net/{seg}?%5Bredacted%5D=",
-        "domain": "tzm.protechts.net",
+        "url": "https://{label}.protechts.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.protechts.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1784,7 +1784,7 @@
       },
       {
         "domain": "{label}.protechts.net",
-        "requests": 4,
+        "requests": 7,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -1792,6 +1792,8 @@
           200
         ],
         "resourceTypes": [
+          "document",
+          "script",
           "xhr"
         ]
       },
@@ -1810,33 +1812,7 @@
         ]
       },
       {
-        "domain": "li.protechts.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "client.protechts.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1846,19 +1822,6 @@
         ],
         "resourceTypes": [
           "font"
-        ]
-      },
-      {
-        "domain": "tzm.protechts.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -1877,7 +1840,7 @@
         ]
       },
       {
-        "domain": "platform.linkedin.com",
+        "domain": "{label}.linkedin.com",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -1995,6 +1958,10 @@
     "storage": [],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 2
+      },
+      {
         "api": "canvas.toDataURL",
         "count": 4
       },
@@ -2007,6 +1974,10 @@
         "count": 4
       },
       {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 2
+      },
+      {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
         "count": 4
       },
@@ -2017,14 +1988,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 4
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 2
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 2
       }
     ],
     "fingerprintDetections": [
@@ -2059,7 +2022,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://client.protechts.net/",
+            "https://{label}.protechts.net/",
             "https://static.licdn.com/"
           ],
           "totalListenerCalls": 18
@@ -2092,7 +2055,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://client.protechts.net/",
+            "https://{label}.protechts.net/",
             "https://static.licdn.com/"
           ],
           "totalListenerCalls": 72
@@ -2141,7 +2104,7 @@
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Blocked a request that could not be verified as public: https://ponf.linkedin.com/{seg}/{seg}",
+      "Blocked a request that could not be verified as public: https://{label}.linkedin.com/{seg}/{seg}",
       "The page did not reach network idle before the scan window ended.",
       "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
       "Read the site's privacy policy (https://www.linkedin.com/legal/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
@@ -2165,8 +2128,8 @@
     },
     "thirdPartyDomains": {
       "before": 3,
-      "after": 7,
-      "delta": 4
+      "after": 4,
+      "delta": 1
     },
     "cookies": {
       "before": 9,
@@ -2191,26 +2154,11 @@
     "addedDomains": [
       {
         "domain": "{label}.protechts.net",
-        "requests": 4,
+        "requests": 7,
         "tracker": null
       },
       {
-        "domain": "client.protechts.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "li.protechts.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "platform.linkedin.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "tzm.protechts.net",
+        "domain": "{label}.linkedin.com",
         "requests": 1,
         "tracker": null
       }
@@ -2246,7 +2194,7 @@
     "Accept-all attempt: Read the site's privacy policy (https://www.linkedin.com/legal/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Reject-all attempt: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Reject-all attempt: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "Reject-all attempt: Blocked a request that could not be verified as public: https://ponf.linkedin.com/{seg}/{seg}",
+    "Reject-all attempt: Blocked a request that could not be verified as public: https://{label}.linkedin.com/{seg}/{seg}",
     "Reject-all attempt: The page did not reach network idle before the scan window ended.",
     "Reject-all attempt: This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
     "Reject-all attempt: Read the site's privacy policy (https://www.linkedin.com/legal/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."

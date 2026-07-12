@@ -23,7 +23,7 @@
       "totalRequests": 75,
       "thirdPartyRequests": 14,
       "knownTrackerRequests": 1,
-      "thirdPartyDomains": 4,
+      "thirdPartyDomains": 3,
       "cookies": 9,
       "thirdPartyCookies": 0,
       "storageEntries": 1,
@@ -765,8 +765,8 @@
       },
       {
         "id": 59,
-        "url": "https://2.api.pof.com/{seg}/{seg}",
-        "domain": "2.api.pof.com",
+        "url": "https://{label}.api.pof.com/{seg}/{seg}",
+        "domain": "{label}.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -806,8 +806,8 @@
       },
       {
         "id": 62,
-        "url": "https://2.api.pof.com/{seg}/{seg}",
-        "domain": "2.api.pof.com",
+        "url": "https://{label}.api.pof.com/{seg}/{seg}",
+        "domain": "{label}.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -842,8 +842,8 @@
       },
       {
         "id": 65,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -878,8 +878,8 @@
       },
       {
         "id": 68,
-        "url": "https://privacyportal-de.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "privacyportal-de.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1009,24 +1009,11 @@
         ]
       },
       {
-        "domain": "geolocation.onetrust.com",
-        "requests": 1,
+        "domain": "{label}.onetrust.com",
+        "requests": 2,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "privacyportal-de.onetrust.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
         "statuses": [
           200
         ],
@@ -1052,7 +1039,7 @@
         ]
       },
       {
-        "domain": "2.api.pof.com",
+        "domain": "{label}.api.pof.com",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -1948,8 +1935,8 @@
       },
       {
         "id": 59,
-        "url": "https://2.api.pof.com/{seg}/{seg}",
-        "domain": "2.api.pof.com",
+        "url": "https://{label}.api.pof.com/{seg}/{seg}",
+        "domain": "{label}.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1972,8 +1959,8 @@
       },
       {
         "id": 62,
-        "url": "https://2.api.pof.com/{seg}/{seg}",
-        "domain": "2.api.pof.com",
+        "url": "https://{label}.api.pof.com/{seg}/{seg}",
+        "domain": "{label}.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2002,7 +1989,7 @@
         ]
       },
       {
-        "domain": "2.api.pof.com",
+        "domain": "{label}.api.pof.com",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -2121,9 +2108,9 @@
       "delta": -1
     },
     "thirdPartyDomains": {
-      "before": 4,
+      "before": 3,
       "after": 0,
-      "delta": -4
+      "delta": -3
     },
     "cookies": {
       "before": 9,
@@ -2153,13 +2140,8 @@
         "tracker": null
       },
       {
-        "domain": "geolocation.onetrust.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "privacyportal-de.onetrust.com",
-        "requests": 1,
+        "domain": "{label}.onetrust.com",
+        "requests": 2,
         "tracker": null
       },
       {

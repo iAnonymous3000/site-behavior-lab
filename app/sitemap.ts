@@ -5,6 +5,8 @@ import { displayRunView, toReportView } from "@/lib/scan-report-views";
 import { isReservedReportDomain } from "@/lib/reserved-report-domains";
 import { listStaticReportIds } from "@/lib/static-report-files";
 import { siteBaseUrl } from "@/lib/site-url";
+import { siteProfilePath } from "@/lib/site-profile";
+import { loadCorpusOverview } from "@/lib/corpus-overview";
 
 export const dynamic = "force-static";
 
@@ -20,6 +22,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/glossary/`, lastModified, changeFrequency: "monthly", priority: 0.4 },
     { url: `${base}/privacy/`, lastModified, changeFrequency: "yearly", priority: 0.3 }
   ];
+
+  const profilePaths = new Set(
+    (await loadCorpusOverview()).entries
+      .map((entry) => siteProfilePath(entry.domain))
+      .filter((profilePath): profilePath is string => profilePath !== null)
+  );
+  for (const profilePath of profilePaths) {
+    entries.push({ url: `${base}${profilePath}/`, lastModified, changeFrequency: "weekly", priority: 0.85 });
+  }
 
   // Only the static export serves committed report pages at /reports/:id/; the
   // Node app's share permalinks are random-ID and short-lived, so they are not

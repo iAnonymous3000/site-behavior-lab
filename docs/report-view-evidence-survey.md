@@ -501,16 +501,18 @@ describes, an engine change deferred to the exports/emission work.
 
 ## Redaction v2 foundation (2026-07-11): sanitizer, digests, sidecars, audit
 
-RFC step 9 groundwork, repo-only (no producer wiring, no corpus rewrite; both
-are separate decisions gated on the dry-run audit below):
+RFC step 9 began as repo-only groundwork. It is now wired at every v1 public
+and persistence boundary, has an isolated fail-closed Node r2 builder, and the
+committed corpus has been rewritten through sanitizer revision 3:
 
 - lib/redaction-v2.ts: the default-deny sanitizer. Survival is
   allowlist-only (lib/redaction-allowlists.json, versioned reviewed data:
-  route literals, query keys incl. utm_/ud[ prefixes, cookie names, storage
-  keys); everything else generalizes ({seg}/{n} paths capped at 6 segments,
-  {label} token-shaped subdomain labels with the registrable domain always
-  surviving and xn-- IDN labels exempt from the entropy heuristic, matrix
-  params stripped, [redacted:*] shape-classed markers for names). Malformed
+  route literals, exact query-key literals, exact subdomain-label literals,
+  cookie names, storage keys); everything else generalizes ({seg}/{n} paths
+  capped at 6 segments, {label} subdomain labels, matrix params stripped,
+  [redacted:*] shape-classed markers for names). The registrable domain is
+  derived by a pinned public-suffix engine; special-use/suffix-less hosts fail
+  closed, and terminal markers make repeated public passes byte-idempotent. Malformed
   or non-http input becomes {invalid-url}, never a pass-through (the v1
   report-url defect). Every removal counts through the exact
   PrivacyStats.redaction vocabulary. Node-side module (tldts).
@@ -525,19 +527,18 @@ are separate decisions gated on the dry-run audit below):
   scripts/remediation-inventory.mjs (npm run reports:remediation-inventory):
   the RFC 9.6 step-1 DRY-RUN audit over public/reports. Never writes.
 
-Live dry-run over the 235-report corpus: all 235 would change; 67,161 of
-68,769 URL fields; 251,375 path segments, 991 subdomain labels, 98,283 query
-keys would generalize; 7,735/8,627 cookie names and 4,832/4,846 storage keys
-would redact. Risk signals for the 9.6 step-2 history decision: ZERO
-address-shaped strings (the raw "@" matches are logo@2x.png density suffixes,
-excluded by the tool), 9,329 token-shaped path segments and 991 token-shaped
-subdomain labels that read as asset hashes/build ids, not per-user
-identifiers. Audit conclusion to confirm with the operator: no credentials,
-session tokens, or direct identifiers found, so per 9.6 the git-history
-rewrite is NOT indicated (accept and document the residual); the in-place
-corpus re-redaction plus sidecar backfill remains the pending remediation
-decision, weighed against how much evidence granularity (paths, cookie
-names) the public corpus should keep.
+The revision-3 dry-run over the already revision-2-remediated 235-report corpus
+found URL/name changes in 219 reports: 32,744 of 68,769 URL fields, entirely
+from 32,802 non-allowlisted subdomain labels plus six malformed URLs. It found
+zero additional path/query/cookie/storage-key removals, zero email-like strings,
+and zero token-shaped path segments. The broad subdomain count is not a token
+risk count: revision 3 generalizes every label absent from the reviewed literal
+allowlist. The exact full-transform dry-run also reported 219 rewrites after
+valid Playwright `ping`, `cspreport`, and `beacon` resource types were added to
+the closed producer vocabulary. The rewrite and all 235 provenance sidecars
+were then applied. The earlier history decision remains unchanged: the audit
+found no credentials, session tokens, or direct identifiers that justify a git
+history rewrite.
 
 ## Codex round 11 (2026-07-12): the production-readiness review
 
@@ -571,27 +572,29 @@ disposition after the review:
   478 likely top-level document rows matched. Iframe impact cannot be
   reconstructed because v1 did not retain frame sources, so the 235 committed
   reports stay legacy/limited and are not retroactively rewritten.
-- **Durable jobs / cancellation.** Known and user-sequenced (durability phase,
-  DO SQLite). Atomic public quota accounting is now landed in the scanner
-  Durable Object; the WAF remains the coarse outer ceiling.
-- **Redaction v2 wiring + corpus remediation.** Foundation landed 499ccc0;
-  the wiring order is RFC 14.10 and the remediation/granularity trade is an
-  explicit operator decision (see the redaction section above).
-- **Proxy aggregate byte budget.** Real gap (per-request-count and duration
-  budgets exist, no byte cap). Queued with the durability slice, where
-  resource metering lands anyway.
-- **v2 detector-findings dependency registry.** Confirmed incomplete:
-  METRIC_EVIDENCE maps detector-findings to [detector-output] only, so
-  censored request/fingerprint evidence leaves detector metrics eligible.
-  Fix belongs to the v2 emission slice (no producer emits v2 yet; the
-  registry can be corrected before first emission without a version bump).
+- **Durable jobs / cancellation.** Cooperative cancellation and atomic public
+  quota accounting are landed. Queued/running status remains process memory;
+  restart-safe jobs still require a privacy-safe bounded shared queue design.
+- **Redaction v2 wiring + corpus remediation.** Public-boundary wiring,
+  revision-3 exact-literal policy, provenance sidecars, and the corpus rewrite
+  are complete (see the redaction section above). Controlled r2 producer
+  wiring remains separate.
+- **Proxy aggregate byte budget.** Landed: the egress proxy now enforces a
+  per-scan aggregate response-byte ceiling in addition to request and duration
+  budgets.
+- **v2 detector-findings dependency registry.** Fixed before first emission:
+  detector findings bind request/fingerprint evidence and also the Brave-list
+  identity whenever list-backed CNAME fallback is enabled.
 - **Product/UX restructure** (permalink buries evidence below the scanner,
   235-card unpaginated gallery, featured cards fetching 12 full reports,
   archive compare accepting only the corpus's zero singles, directory as
   report dump, 27,800px mobile reports, no scan cancellation): all real, all
   deferred to the product-loop work (the reviewer's "/sites/<domain>
   longitudinal loop" framing matches the deferred multi-browser/monitoring
-  direction). The headline-focus default arm residual was already recorded.
+  direction). Evidence-first report pages, bounded/lazy tables, paginated
+  archive rendering, manifest-backed featured cards, descriptive compatible
+  history, and registrable-domain `/sites/<domain>` profiles are now landed in
+  the product-loop slice. The headline-focus default arm residual remains.
 
 Operator-side items surfaced to the user (not repo-fixable):
 R2 lifecycle rule for the 7-day promise (prune is opportunistic:

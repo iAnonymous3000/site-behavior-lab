@@ -23,7 +23,7 @@
       "totalRequests": 147,
       "thirdPartyRequests": 68,
       "knownTrackerRequests": 15,
-      "thirdPartyDomains": 21,
+      "thirdPartyDomains": 18,
       "cookies": 48,
       "thirdPartyCookies": 5,
       "storageEntries": 42,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://idsync.rlcdn.com/{seg}?%5Bredacted%5D=",
-        "domain": "idsync.rlcdn.com",
+        "url": "https://{label}.rlcdn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.rlcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -290,8 +290,8 @@
       },
       {
         "id": 19,
-        "url": "https://p11.techlab-cdn.com/{seg}/{seg}",
-        "domain": "p11.techlab-cdn.com",
+        "url": "https://{label}.techlab-cdn.com/{seg}/{seg}",
+        "domain": "{label}.techlab-cdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -302,8 +302,8 @@
       },
       {
         "id": 20,
-        "url": "https://p11.techlab-cdn.com/{seg}/{seg}",
-        "domain": "p11.techlab-cdn.com",
+        "url": "https://{label}.techlab-cdn.com/{seg}/{seg}",
+        "domain": "{label}.techlab-cdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -314,8 +314,8 @@
       },
       {
         "id": 21,
-        "url": "https://p11.techlab-cdn.com/{seg}/{seg}",
-        "domain": "p11.techlab-cdn.com",
+        "url": "https://{label}.techlab-cdn.com/{seg}/{seg}",
+        "domain": "{label}.techlab-cdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -326,8 +326,8 @@
       },
       {
         "id": 22,
-        "url": "https://p11.techlab-cdn.com/{seg}/{seg}",
-        "domain": "p11.techlab-cdn.com",
+        "url": "https://{label}.techlab-cdn.com/{seg}/{seg}",
+        "domain": "{label}.techlab-cdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -350,7 +350,7 @@
       },
       {
         "id": 24,
-        "url": "https://api.rlcdn.com/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://api.rlcdn.com/api/{seg}?%5Bredacted%5D=",
         "domain": "api.rlcdn.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -391,8 +391,8 @@
       },
       {
         "id": 27,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -403,8 +403,8 @@
       },
       {
         "id": 28,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -415,8 +415,8 @@
       },
       {
         "id": 29,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}/{seg}",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -439,8 +439,8 @@
       },
       {
         "id": 31,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -475,8 +475,8 @@
       },
       {
         "id": 34,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -487,8 +487,8 @@
       },
       {
         "id": 35,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -499,8 +499,8 @@
       },
       {
         "id": 36,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -511,8 +511,8 @@
       },
       {
         "id": 37,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -523,8 +523,8 @@
       },
       {
         "id": 38,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -535,8 +535,8 @@
       },
       {
         "id": 39,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -559,8 +559,8 @@
       },
       {
         "id": 41,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -576,8 +576,8 @@
       },
       {
         "id": 42,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -588,8 +588,8 @@
       },
       {
         "id": 43,
-        "url": "https://contents2.{label}.citi.com/{seg}/{seg}",
-        "domain": "contents2.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -600,8 +600,8 @@
       },
       {
         "id": 44,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -612,8 +612,8 @@
       },
       {
         "id": 45,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -624,8 +624,8 @@
       },
       {
         "id": 46,
-        "url": "https://data.privacy.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "data.privacy.ensighten.com",
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -636,8 +636,8 @@
       },
       {
         "id": 47,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -648,8 +648,8 @@
       },
       {
         "id": 48,
-        "url": "https://citi.demdex.net/{seg}?%5Bredacted%5D=",
-        "domain": "citi.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -665,8 +665,8 @@
       },
       {
         "id": 49,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -677,8 +677,8 @@
       },
       {
         "id": 50,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -689,8 +689,8 @@
       },
       {
         "id": 51,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -701,8 +701,8 @@
       },
       {
         "id": 52,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -713,8 +713,8 @@
       },
       {
         "id": 53,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -725,8 +725,8 @@
       },
       {
         "id": 54,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -737,8 +737,8 @@
       },
       {
         "id": 55,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -749,8 +749,8 @@
       },
       {
         "id": 56,
-        "url": "https://contents2.{label}.citi.com/{seg}/{seg}",
-        "domain": "contents2.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -761,8 +761,8 @@
       },
       {
         "id": 57,
-        "url": "https://1.a79ab95c1589a13f8a4cab612bc71f9f7.com/{seg}/{seg}/{seg}",
-        "domain": "1.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "url": "https://{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -773,8 +773,8 @@
       },
       {
         "id": 58,
-        "url": "https://1.b406929acabac9b095f124c81bdfcf57f.com/{seg}/{seg}/{seg}",
-        "domain": "1.b406929acabac9b095f124c81bdfcf57f.com",
+        "url": "https://{label}.b406929acabac9b095f124c81bdfcf57f.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.b406929acabac9b095f124c81bdfcf57f.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -785,8 +785,8 @@
       },
       {
         "id": 59,
-        "url": "https://1.c81358859121583b7adf2ace89cb39f44.com/{seg}/{seg}/{seg}",
-        "domain": "1.c81358859121583b7adf2ace89cb39f44.com",
+        "url": "https://{label}.c81358859121583b7adf2ace89cb39f44.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.c81358859121583b7adf2ace89cb39f44.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -797,8 +797,8 @@
       },
       {
         "id": 60,
-        "url": "https://contents3.{label}.citi.com/api/{seg}/{seg}",
-        "domain": "contents3.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": null,
@@ -809,8 +809,8 @@
       },
       {
         "id": 61,
-        "url": "https://1.b406929acabac9b095f124c81bdfcf57f.com/{seg}/{seg}/{seg}",
-        "domain": "1.b406929acabac9b095f124c81bdfcf57f.com",
+        "url": "https://{label}.b406929acabac9b095f124c81bdfcf57f.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.b406929acabac9b095f124c81bdfcf57f.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -821,8 +821,8 @@
       },
       {
         "id": 62,
-        "url": "https://1.a79ab95c1589a13f8a4cab612bc71f9f7.com/{seg}/{seg}/{seg}",
-        "domain": "1.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "url": "https://{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -833,8 +833,8 @@
       },
       {
         "id": 63,
-        "url": "https://1.c81358859121583b7adf2ace89cb39f44.com/{seg}/{seg}/{seg}",
-        "domain": "1.c81358859121583b7adf2ace89cb39f44.com",
+        "url": "https://{label}.c81358859121583b7adf2ace89cb39f44.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.c81358859121583b7adf2ace89cb39f44.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -845,8 +845,8 @@
       },
       {
         "id": 64,
-        "url": "https://contents3.{label}.citi.com/api/{seg}/{seg}",
-        "domain": "contents3.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": null,
@@ -857,8 +857,8 @@
       },
       {
         "id": 65,
-        "url": "https://content22.online.citi.com/{seg}/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -869,8 +869,8 @@
       },
       {
         "id": 66,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -881,8 +881,8 @@
       },
       {
         "id": 67,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -893,8 +893,8 @@
       },
       {
         "id": 68,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -905,8 +905,8 @@
       },
       {
         "id": 69,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -917,8 +917,8 @@
       },
       {
         "id": 70,
-        "url": "https://h.online-metrix.net/{seg}?%5Bredacted%5D=",
-        "domain": "h.online-metrix.net",
+        "url": "https://{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.online-metrix.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -929,8 +929,8 @@
       },
       {
         "id": 71,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -941,8 +941,8 @@
       },
       {
         "id": 72,
-        "url": "https://h64.online-metrix.net/{seg}?%5Bredacted%5D=",
-        "domain": "h64.online-metrix.net",
+        "url": "https://{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.online-metrix.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -953,8 +953,8 @@
       },
       {
         "id": 73,
-        "url": "https://{label}.d.aa.online-metrix.net/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.d.aa.online-metrix.net",
+        "url": "https://{label}.{label}.{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.online-metrix.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1025,8 +1025,8 @@
       },
       {
         "id": 79,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1037,8 +1037,8 @@
       },
       {
         "id": 80,
-        "url": "https://contents2.{label}.citi.com/{seg}/{seg}",
-        "domain": "contents2.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1049,8 +1049,8 @@
       },
       {
         "id": 81,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1061,8 +1061,8 @@
       },
       {
         "id": 82,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1073,8 +1073,8 @@
       },
       {
         "id": 83,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -1085,8 +1085,8 @@
       },
       {
         "id": 84,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1097,8 +1097,8 @@
       },
       {
         "id": 85,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -1109,8 +1109,8 @@
       },
       {
         "id": 86,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1121,8 +1121,8 @@
       },
       {
         "id": 87,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1133,8 +1133,8 @@
       },
       {
         "id": 88,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1145,8 +1145,8 @@
       },
       {
         "id": 89,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1169,8 +1169,8 @@
       },
       {
         "id": 91,
-        "url": "https://online.citi.com/{seg}/{seg}/{seg}",
-        "domain": "online.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1181,8 +1181,8 @@
       },
       {
         "id": 92,
-        "url": "https://h.online-metrix.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "h.online-metrix.net",
+        "url": "https://{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.online-metrix.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1205,8 +1205,8 @@
       },
       {
         "id": 94,
-        "url": "https://{label}.siteintercept.qualtrics.com/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1234,8 +1234,8 @@
       },
       {
         "id": 96,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1251,8 +1251,8 @@
       },
       {
         "id": 97,
-        "url": "https://citicorpcreditservic.tt.omtrdc.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&version=",
-        "domain": "citicorpcreditservic.tt.omtrdc.net",
+        "url": "https://{label}.{label}.omtrdc.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.{label}.omtrdc.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1280,8 +1280,8 @@
       },
       {
         "id": 99,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1292,8 +1292,8 @@
       },
       {
         "id": 100,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1321,7 +1321,7 @@
       },
       {
         "id": 102,
-        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "ad.doubleclick.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -1338,7 +1338,7 @@
       },
       {
         "id": 103,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1355,7 +1355,7 @@
       },
       {
         "id": 104,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1372,7 +1372,7 @@
       },
       {
         "id": 105,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1389,7 +1389,7 @@
       },
       {
         "id": 106,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1406,7 +1406,7 @@
       },
       {
         "id": 107,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1418,8 +1418,8 @@
       },
       {
         "id": 108,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1442,8 +1442,8 @@
       },
       {
         "id": 110,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1454,8 +1454,8 @@
       },
       {
         "id": 111,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1466,7 +1466,7 @@
       },
       {
         "id": 112,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1478,7 +1478,7 @@
       },
       {
         "id": 113,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1490,7 +1490,7 @@
       },
       {
         "id": 114,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1502,7 +1502,7 @@
       },
       {
         "id": 115,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1514,8 +1514,8 @@
       },
       {
         "id": 116,
-        "url": "https://contents2.{label}.citi.com/{seg}/{seg}",
-        "domain": "contents2.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1526,8 +1526,8 @@
       },
       {
         "id": 117,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1538,8 +1538,8 @@
       },
       {
         "id": 118,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1550,8 +1550,8 @@
       },
       {
         "id": 119,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1562,8 +1562,8 @@
       },
       {
         "id": 120,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1574,8 +1574,8 @@
       },
       {
         "id": 121,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1598,8 +1598,8 @@
       },
       {
         "id": 123,
-        "url": "https://siteintercept.qualtrics.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1622,8 +1622,8 @@
       },
       {
         "id": 125,
-        "url": "https://data.privacy.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "data.privacy.ensighten.com",
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1634,8 +1634,8 @@
       },
       {
         "id": 126,
-        "url": "https://data.privacy.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "data.privacy.ensighten.com",
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1646,8 +1646,8 @@
       },
       {
         "id": 127,
-        "url": "https://data.privacy.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "data.privacy.ensighten.com",
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1670,8 +1670,8 @@
       },
       {
         "id": 129,
-        "url": "https://prod.report.nacustomerexperience.citi.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "prod.report.nacustomerexperience.citi.com",
+        "url": "https://{label}.{label}.{label}.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1682,8 +1682,8 @@
       },
       {
         "id": 130,
-        "url": "https://contents1.{label}.citi.com/api/{seg}/{seg}",
-        "domain": "contents1.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1694,8 +1694,8 @@
       },
       {
         "id": 131,
-        "url": "https://contents2.{label}.citi.com/{seg}/{seg}",
-        "domain": "contents2.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1706,8 +1706,8 @@
       },
       {
         "id": 132,
-        "url": "https://data.privacy.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "data.privacy.ensighten.com",
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1718,8 +1718,8 @@
       },
       {
         "id": 133,
-        "url": "https://contents2.{label}.citi.com/{seg}/{seg}",
-        "domain": "contents2.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1730,8 +1730,8 @@
       },
       {
         "id": 134,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}?%5Bredacted%5D=&cid=",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1742,8 +1742,8 @@
       },
       {
         "id": 135,
-        "url": "https://mboxedge34.tt.omtrdc.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&version=",
-        "domain": "mboxedge34.tt.omtrdc.net",
+        "url": "https://{label}.{label}.omtrdc.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.{label}.omtrdc.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1759,8 +1759,8 @@
       },
       {
         "id": 136,
-        "url": "https://data.privacy.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "data.privacy.ensighten.com",
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1783,8 +1783,8 @@
       },
       {
         "id": 138,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -1795,8 +1795,8 @@
       },
       {
         "id": 139,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -1819,8 +1819,8 @@
       },
       {
         "id": 141,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -1831,8 +1831,8 @@
       },
       {
         "id": 142,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -1843,8 +1843,8 @@
       },
       {
         "id": 143,
-        "url": "https://contents2.{label}.citi.com/{seg}/{seg}",
-        "domain": "contents2.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1855,8 +1855,8 @@
       },
       {
         "id": 144,
-        "url": "https://data.privacy.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "data.privacy.ensighten.com",
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1867,8 +1867,8 @@
       },
       {
         "id": 145,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -1879,8 +1879,8 @@
       },
       {
         "id": 146,
-        "url": "https://content22.online.citi.com/{seg}",
-        "domain": "content22.online.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -1927,6 +1927,25 @@
         ]
       },
       {
+        "domain": "{label}.demdex.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "document"
+        ]
+      },
+      {
         "domain": "ad.doubleclick.net",
         "requests": 3,
         "thirdParty": true,
@@ -1946,16 +1965,16 @@
         ]
       },
       {
-        "domain": "dpm.demdex.net",
+        "domain": "{label}.{label}.omtrdc.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "demdex.net",
+          "domain": "omtrdc.net",
           "entity": "Adobe",
           "category": "analytics / advertising",
           "confidence": "curated"
         },
-        "blockedByShields": true,
+        "blockedByShields": false,
         "statuses": [
           200
         ],
@@ -1964,7 +1983,7 @@
         ]
       },
       {
-        "domain": "idsync.rlcdn.com",
+        "domain": "{label}.rlcdn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -2000,61 +2019,7 @@
         ]
       },
       {
-        "domain": "citi.demdex.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "citicorpcreditservic.tt.omtrdc.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "omtrdc.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "mboxedge34.tt.omtrdc.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "omtrdc.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "nexus.ensighten.com",
+        "domain": "{label}.ensighten.com",
         "requests": 10,
         "thirdParty": true,
         "tracker": null,
@@ -2070,7 +2035,7 @@
         ]
       },
       {
-        "domain": "siteintercept.qualtrics.com",
+        "domain": "{label}.qualtrics.com",
         "requests": 10,
         "thirdParty": true,
         "tracker": null,
@@ -2084,7 +2049,7 @@
         ]
       },
       {
-        "domain": "data.privacy.ensighten.com",
+        "domain": "{label}.{label}.ensighten.com",
         "requests": 7,
         "thirdParty": true,
         "tracker": null,
@@ -2123,7 +2088,7 @@
         ]
       },
       {
-        "domain": "p11.techlab-cdn.com",
+        "domain": "{label}.techlab-cdn.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": null,
@@ -2136,50 +2101,8 @@
         ]
       },
       {
-        "domain": "1.a79ab95c1589a13f8a4cab612bc71f9f7.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document",
-          "script"
-        ]
-      },
-      {
-        "domain": "1.b406929acabac9b095f124c81bdfcf57f.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document",
-          "script"
-        ]
-      },
-      {
-        "domain": "1.c81358859121583b7adf2ace89cb39f44.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document",
-          "script"
-        ]
-      },
-      {
-        "domain": "h.online-metrix.net",
-        "requests": 2,
+        "domain": "{label}.online-metrix.net",
+        "requests": 3,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -2188,24 +2111,54 @@
         ],
         "resourceTypes": [
           "document",
+          "script",
           "image"
         ]
       },
       {
-        "domain": "h64.online-metrix.net",
-        "requests": 1,
+        "domain": "{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "requests": 2,
         "thirdParty": true,
         "tracker": null,
-        "blockedByShields": true,
+        "blockedByShields": false,
         "statuses": [
           200
         ],
         "resourceTypes": [
+          "document",
           "script"
         ]
       },
       {
-        "domain": "{label}.d.aa.online-metrix.net",
+        "domain": "{label}.b406929acabac9b095f124c81bdfcf57f.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.c81358859121583b7adf2ace89cb39f44.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.{label}.online-metrix.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2218,7 +2171,7 @@
         ]
       },
       {
-        "domain": "{label}.siteintercept.qualtrics.com",
+        "domain": "{label}.{label}.qualtrics.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2228,6 +2181,24 @@
         ],
         "resourceTypes": [
           "script"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.citi.com",
+        "requests": 33,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "image",
+          "document",
+          "ping"
         ]
       },
       {
@@ -2250,93 +2221,26 @@
         ]
       },
       {
-        "domain": "content22.online.citi.com",
-        "requests": 23,
+        "domain": "{label}.citi.com",
+        "requests": 13,
         "thirdParty": false,
         "tracker": null,
-        "blockedByShields": true,
+        "blockedByShields": false,
         "statuses": [
-          200,
-          204
+          200
         ],
         "resourceTypes": [
-          "script",
+          "xhr",
           "image",
-          "xhr",
-          "document",
-          "ping"
-        ]
-      },
-      {
-        "domain": "aemapi.citi.com",
-        "requests": 12,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
-          "image"
-        ]
-      },
-      {
-        "domain": "contents2.{label}.citi.com",
-        "requests": 7,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "contents3.{label}.citi.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "online.citi.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
           "script"
         ]
       },
       {
-        "domain": "prod.report.nacustomerexperience.citi.com",
+        "domain": "{label}.{label}.{label}.citi.com",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "contents1.{label}.citi.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
         "statuses": [
           200
         ],
@@ -2348,7 +2252,7 @@
     "cookies": [
       {
         "name": "[redacted]",
-        "domain": ".citicorpcreditservic.tt.omtrdc.net",
+        "domain": ".{label}.{label}.omtrdc.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2358,7 +2262,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".citicorpcreditservic.tt.omtrdc.net",
+        "domain": ".{label}.{label}.omtrdc.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2378,7 +2282,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".tt.omtrdc.net",
+        "domain": ".{label}.omtrdc.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2388,7 +2292,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".tt.omtrdc.net",
+        "domain": ".{label}.omtrdc.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2738,7 +2642,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "content22.online.citi.com",
+        "domain": "{label}.{label}.citi.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2748,7 +2652,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "content22.online.citi.com",
+        "domain": "{label}.{label}.citi.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2758,7 +2662,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "prod.report.nacustomerexperience.citi.com",
+        "domain": "{label}.{label}.{label}.citi.com",
         "path": "/{seg}/{seg}/{seg}",
         "sameSite": "None",
         "secure": true,
@@ -2768,7 +2672,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "prod.report.nacustomerexperience.citi.com",
+        "domain": "{label}.{label}.{label}.citi.com",
         "path": "/{seg}/{seg}/{seg}",
         "sameSite": "None",
         "secure": true,
@@ -2778,7 +2682,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "prod.report.nacustomerexperience.citi.com",
+        "domain": "{label}.{label}.{label}.citi.com",
         "path": "/{seg}/{seg}/{seg}",
         "sameSite": "None",
         "secure": true,
@@ -2788,7 +2692,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "prod.report.nacustomerexperience.citi.com",
+        "domain": "{label}.{label}.{label}.citi.com",
         "path": "/{seg}/{seg}/{seg}",
         "sameSite": "None",
         "secure": true,
@@ -2798,7 +2702,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "prod.report.nacustomerexperience.citi.com",
+        "domain": "{label}.{label}.{label}.citi.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
@@ -3041,24 +2945,44 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "canvas.measureText",
-        "count": 163
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 7
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
       },
       {
         "api": "canvas.getImageData",
         "count": 5
       },
       {
+        "api": "canvas.measureText",
+        "count": 163
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 3
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 7
+      },
+      {
         "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
         "count": 5
       },
       {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      },
+      {
         "api": "webgl2.readPixels",
         "count": 5
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 2
       },
       {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
@@ -3071,26 +2995,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 4
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 3
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 2
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -3152,8 +3056,8 @@
     ],
     "cnameCloaks": [
       {
-        "host": "content22.online.citi.com",
-        "cname": "h-online.citi.online-metrix.net",
+        "host": "{label}.{label}.citi.com",
+        "cname": "{label}.{label}.online-metrix.net",
         "tracker": {
           "domain": "online-metrix.net",
           "entity": "online-metrix.net",
@@ -3162,8 +3066,8 @@
         }
       },
       {
-        "host": "contents2.{label}.citi.com",
-        "cname": "{label}.us.v2.we-stats.com",
+        "host": "{label}.{label}.citi.com",
+        "cname": "{label}.{label}.{label}.we-stats.com",
         "tracker": {
           "domain": "we-stats.com",
           "entity": "we-stats.com",
@@ -3172,8 +3076,8 @@
         }
       },
       {
-        "host": "contents3.{label}.citi.com",
-        "cname": "{label}.us.v2.we-stats.com",
+        "host": "{label}.{label}.citi.com",
+        "cname": "{label}.{label}.{label}.we-stats.com",
         "tracker": {
           "domain": "we-stats.com",
           "entity": "we-stats.com",
@@ -3182,8 +3086,8 @@
         }
       },
       {
-        "host": "contents1.{label}.citi.com",
-        "cname": "{label}.us.v2.we-stats.com",
+        "host": "{label}.{label}.citi.com",
+        "cname": "{label}.{label}.{label}.we-stats.com",
         "tracker": {
           "domain": "we-stats.com",
           "entity": "we-stats.com",
@@ -3488,8 +3392,8 @@
       },
       {
         "id": 27,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3500,8 +3404,8 @@
       },
       {
         "id": 29,
-        "url": "https://nexus.ensighten.com/{seg}/{seg}/{seg}",
-        "domain": "nexus.ensighten.com",
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ensighten.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3524,8 +3428,8 @@
       },
       {
         "id": 31,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3560,8 +3464,8 @@
       },
       {
         "id": 34,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3572,8 +3476,8 @@
       },
       {
         "id": 35,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3584,8 +3488,8 @@
       },
       {
         "id": 36,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3596,8 +3500,8 @@
       },
       {
         "id": 37,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3608,8 +3512,8 @@
       },
       {
         "id": 38,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3620,8 +3524,8 @@
       },
       {
         "id": 39,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3644,8 +3548,8 @@
       },
       {
         "id": 43,
-        "url": "https://contents2.{label}.citi.com/{seg}/{seg}",
-        "domain": "contents2.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3656,8 +3560,8 @@
       },
       {
         "id": 47,
-        "url": "https://contents2.{label}.citi.com/{seg}/{seg}",
-        "domain": "contents2.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3668,8 +3572,8 @@
       },
       {
         "id": 48,
-        "url": "https://1.a79ab95c1589a13f8a4cab612bc71f9f7.com/{seg}/{seg}/{seg}",
-        "domain": "1.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "url": "https://{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -3680,8 +3584,8 @@
       },
       {
         "id": 49,
-        "url": "https://1.b406929acabac9b095f124c81bdfcf57f.com/{seg}/{seg}/{seg}",
-        "domain": "1.b406929acabac9b095f124c81bdfcf57f.com",
+        "url": "https://{label}.b406929acabac9b095f124c81bdfcf57f.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.b406929acabac9b095f124c81bdfcf57f.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -3692,8 +3596,8 @@
       },
       {
         "id": 50,
-        "url": "https://1.c81358859121583b7adf2ace89cb39f44.com/{seg}/{seg}/{seg}",
-        "domain": "1.c81358859121583b7adf2ace89cb39f44.com",
+        "url": "https://{label}.c81358859121583b7adf2ace89cb39f44.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.c81358859121583b7adf2ace89cb39f44.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -3704,8 +3608,8 @@
       },
       {
         "id": 51,
-        "url": "https://contents3.{label}.citi.com/api/{seg}/{seg}",
-        "domain": "contents3.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": null,
@@ -3716,8 +3620,8 @@
       },
       {
         "id": 52,
-        "url": "https://1.a79ab95c1589a13f8a4cab612bc71f9f7.com/{seg}/{seg}/{seg}",
-        "domain": "1.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "url": "https://{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3728,8 +3632,8 @@
       },
       {
         "id": 53,
-        "url": "https://1.b406929acabac9b095f124c81bdfcf57f.com/{seg}/{seg}/{seg}",
-        "domain": "1.b406929acabac9b095f124c81bdfcf57f.com",
+        "url": "https://{label}.b406929acabac9b095f124c81bdfcf57f.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.b406929acabac9b095f124c81bdfcf57f.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3740,8 +3644,8 @@
       },
       {
         "id": 54,
-        "url": "https://1.c81358859121583b7adf2ace89cb39f44.com/{seg}/{seg}/{seg}",
-        "domain": "1.c81358859121583b7adf2ace89cb39f44.com",
+        "url": "https://{label}.c81358859121583b7adf2ace89cb39f44.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.c81358859121583b7adf2ace89cb39f44.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3800,8 +3704,8 @@
       },
       {
         "id": 59,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3812,8 +3716,8 @@
       },
       {
         "id": 60,
-        "url": "https://contents3.{label}.citi.com/api/{seg}/{seg}",
-        "domain": "contents3.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": null,
@@ -3824,8 +3728,8 @@
       },
       {
         "id": 61,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3836,8 +3740,8 @@
       },
       {
         "id": 62,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3848,8 +3752,8 @@
       },
       {
         "id": 63,
-        "url": "https://aemapi.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "aemapi.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3884,8 +3788,8 @@
       },
       {
         "id": 66,
-        "url": "https://contents2.{label}.citi.com/{seg}/{seg}",
-        "domain": "contents2.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3896,8 +3800,8 @@
       },
       {
         "id": 67,
-        "url": "https://online.citi.com/{seg}/{seg}/{seg}",
-        "domain": "online.citi.com",
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3908,8 +3812,8 @@
       },
       {
         "id": 68,
-        "url": "https://contents2.{label}.citi.com/{seg}/{seg}",
-        "domain": "contents2.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3920,8 +3824,8 @@
       },
       {
         "id": 70,
-        "url": "https://contents1.{label}.citi.com/api/{seg}/{seg}",
-        "domain": "contents1.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3932,8 +3836,8 @@
       },
       {
         "id": 71,
-        "url": "https://contents2.{label}.citi.com/{seg}/{seg}",
-        "domain": "contents2.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3944,8 +3848,8 @@
       },
       {
         "id": 72,
-        "url": "https://contents2.{label}.citi.com/{seg}/{seg}",
-        "domain": "contents2.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3980,8 +3884,8 @@
       },
       {
         "id": 76,
-        "url": "https://contents2.{label}.citi.com/{seg}/{seg}",
-        "domain": "contents2.{label}.citi.com",
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3993,7 +3897,7 @@
     ],
     "domains": [
       {
-        "domain": "1.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "domain": "{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -4007,7 +3911,7 @@
         ]
       },
       {
-        "domain": "1.b406929acabac9b095f124c81bdfcf57f.com",
+        "domain": "{label}.b406929acabac9b095f124c81bdfcf57f.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -4021,7 +3925,7 @@
         ]
       },
       {
-        "domain": "1.c81358859121583b7adf2ace89cb39f44.com",
+        "domain": "{label}.c81358859121583b7adf2ace89cb39f44.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -4035,7 +3939,7 @@
         ]
       },
       {
-        "domain": "nexus.ensighten.com",
+        "domain": "{label}.ensighten.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4067,8 +3971,8 @@
         ]
       },
       {
-        "domain": "aemapi.citi.com",
-        "requests": 12,
+        "domain": "{label}.citi.com",
+        "requests": 13,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
@@ -4077,49 +3981,13 @@
         ],
         "resourceTypes": [
           "xhr",
-          "image"
-        ]
-      },
-      {
-        "domain": "contents2.{label}.citi.com",
-        "requests": 7,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "contents3.{label}.citi.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "online.citi.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
+          "image",
           "script"
         ]
       },
       {
-        "domain": "contents1.{label}.citi.com",
-        "requests": 1,
+        "domain": "{label}.{label}.citi.com",
+        "requests": 10,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
@@ -4515,18 +4383,6 @@
         "count": 4
       },
       {
-        "api": "webrtc.RTCPeerConnection.createDataChannel",
-        "count": 2
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.createOffer",
-        "count": 2
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.setLocalDescription",
-        "count": 2
-      },
-      {
         "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
         "count": 1
       },
@@ -4537,6 +4393,18 @@
       {
         "api": "webrtc.RTCPeerConnection",
         "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 2
       }
     ],
     "fingerprintDetections": [
@@ -4570,8 +4438,8 @@
     ],
     "cnameCloaks": [
       {
-        "host": "contents2.{label}.citi.com",
-        "cname": "{label}.us.v2.we-stats.com",
+        "host": "{label}.{label}.citi.com",
+        "cname": "{label}.{label}.{label}.we-stats.com",
         "tracker": {
           "domain": "we-stats.com",
           "entity": "we-stats.com",
@@ -4580,8 +4448,8 @@
         }
       },
       {
-        "host": "contents3.{label}.citi.com",
-        "cname": "{label}.us.v2.we-stats.com",
+        "host": "{label}.{label}.citi.com",
+        "cname": "{label}.{label}.{label}.we-stats.com",
         "tracker": {
           "domain": "we-stats.com",
           "entity": "we-stats.com",
@@ -4590,8 +4458,8 @@
         }
       },
       {
-        "host": "contents1.{label}.citi.com",
-        "cname": "{label}.us.v2.we-stats.com",
+        "host": "{label}.{label}.citi.com",
+        "cname": "{label}.{label}.{label}.we-stats.com",
         "tracker": {
           "domain": "we-stats.com",
           "entity": "we-stats.com",
@@ -4601,7 +4469,7 @@
       }
     ],
     "privacyPolicy": {
-      "url": "https://online.citi.com/us/{seg}/{seg}/{seg}",
+      "url": "https://{label}.citi.com/us/{seg}/{seg}/{seg}",
       "claims": [
         {
           "kind": "no-selling-or-sharing",
@@ -4625,7 +4493,7 @@
       "One or more requests were blocked or failed at connection time. This scan did not record whether that was a private-address guard block or an ordinary connection failure (a DNS or connect error), so no private-network claim is made.",
       "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
       "Resolved 3 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
-      "Read the site's privacy policy (https://online.citi.com/us/{seg}/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.citi.com/us/{seg}/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "diff": {
@@ -4645,9 +4513,9 @@
       "delta": -15
     },
     "thirdPartyDomains": {
-      "before": 21,
+      "before": 18,
       "after": 4,
-      "delta": -17
+      "delta": -14
     },
     "cookies": {
       "before": 48,
@@ -4672,17 +4540,12 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "content22.online.citi.com",
-        "requests": 23,
-        "tracker": null
-      },
-      {
-        "domain": "siteintercept.qualtrics.com",
+        "domain": "{label}.qualtrics.com",
         "requests": 10,
         "tracker": null
       },
       {
-        "domain": "data.privacy.ensighten.com",
+        "domain": "{label}.{label}.ensighten.com",
         "requests": 7,
         "tracker": null
       },
@@ -4707,8 +4570,23 @@
         }
       },
       {
-        "domain": "p11.techlab-cdn.com",
+        "domain": "{label}.techlab-cdn.com",
         "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 3,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.online-metrix.net",
+        "requests": 3,
         "tracker": null
       },
       {
@@ -4722,29 +4600,39 @@
         }
       },
       {
-        "domain": "dpm.demdex.net",
+        "domain": "{label}.{label}.omtrdc.net",
         "requests": 2,
         "tracker": {
-          "domain": "demdex.net",
+          "domain": "omtrdc.net",
           "entity": "Adobe",
           "category": "analytics / advertising",
           "confidence": "curated"
         }
       },
       {
-        "domain": "h.online-metrix.net",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "{label}.d.aa.online-metrix.net",
+        "domain": "{label}.{label}.{label}.citi.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "{label}.siteintercept.qualtrics.com",
+        "domain": "{label}.{label}.{label}.online-metrix.net",
         "requests": 1,
         "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.qualtrics.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.rlcdn.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        }
       },
       {
         "domain": "api.rlcdn.com",
@@ -4755,56 +4643,6 @@
           "category": "identity / advertising",
           "confidence": "curated"
         }
-      },
-      {
-        "domain": "citi.demdex.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "citicorpcreditservic.tt.omtrdc.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "omtrdc.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "h64.online-metrix.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "idsync.rlcdn.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "rlcdn.com",
-          "entity": "LiveRamp",
-          "category": "identity / advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "mboxedge34.tt.omtrdc.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "omtrdc.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "prod.report.nacustomerexperience.citi.com",
-        "requests": 1,
-        "tracker": null
       }
     ],
     "addedEntities": [],
@@ -4817,7 +4655,7 @@
       {
         "entity": "Adobe",
         "requests": 5,
-        "domains": 4
+        "domains": 2
       },
       {
         "entity": "LiveRamp",
@@ -4829,17 +4667,17 @@
     "removedCookies": [
       {
         "name": "[redacted]",
-        "domain": ".citicorpcreditservic.tt.omtrdc.net",
+        "domain": ".{label}.{label}.omtrdc.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.omtrdc.net",
         "thirdParty": true
       },
       {
         "name": "[redacted]",
         "domain": ".demdex.net",
-        "thirdParty": true
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".tt.omtrdc.net",
         "thirdParty": true
       },
       {
@@ -4854,17 +4692,17 @@
       },
       {
         "name": "[redacted]",
-        "domain": "content22.online.citi.com",
+        "domain": "{label}.{label}.{label}.citi.com",
         "thirdParty": false
       },
       {
         "name": "[redacted]",
-        "domain": "prod.report.nacustomerexperience.citi.com",
+        "domain": "{label}.{label}.{label}.citi.com",
         "thirdParty": false
       },
       {
         "name": "[redacted]",
-        "domain": "prod.report.nacustomerexperience.citi.com",
+        "domain": "{label}.{label}.citi.com",
         "thirdParty": false
       }
     ],
@@ -4906,7 +4744,7 @@
     "Brave-list blocking: One or more requests were blocked or failed at connection time. This scan did not record whether that was a private-address guard block or an ordinary connection failure (a DNS or connect error), so no private-network claim is made.",
     "Brave-list blocking: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
     "Brave-list blocking: Resolved 3 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
-    "Brave-list blocking: Read the site's privacy policy (https://online.citi.com/us/{seg}/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://{label}.citi.com/us/{seg}/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260706-3dd9e6b15ce2b886500550190f47dff0",

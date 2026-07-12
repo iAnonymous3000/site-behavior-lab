@@ -23,7 +23,7 @@
       "totalRequests": 176,
       "thirdPartyRequests": 148,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 9,
+      "thirdPartyDomains": 6,
       "cookies": 8,
       "thirdPartyCookies": 0,
       "storageEntries": 2,
@@ -81,8 +81,8 @@
       },
       {
         "id": 2,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -93,8 +93,8 @@
       },
       {
         "id": 3,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -105,8 +105,8 @@
       },
       {
         "id": 4,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -117,8 +117,8 @@
       },
       {
         "id": 5,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -129,8 +129,8 @@
       },
       {
         "id": 6,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -141,8 +141,8 @@
       },
       {
         "id": 7,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -165,8 +165,8 @@
       },
       {
         "id": 9,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -177,8 +177,8 @@
       },
       {
         "id": 10,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -189,8 +189,8 @@
       },
       {
         "id": 11,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -201,8 +201,8 @@
       },
       {
         "id": 12,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -225,8 +225,8 @@
       },
       {
         "id": 14,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -261,8 +261,8 @@
       },
       {
         "id": 17,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -285,8 +285,8 @@
       },
       {
         "id": 19,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -309,8 +309,8 @@
       },
       {
         "id": 21,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -321,8 +321,8 @@
       },
       {
         "id": 22,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -333,8 +333,8 @@
       },
       {
         "id": 23,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -345,8 +345,8 @@
       },
       {
         "id": 24,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -357,8 +357,8 @@
       },
       {
         "id": 25,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -369,8 +369,8 @@
       },
       {
         "id": 26,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -381,8 +381,8 @@
       },
       {
         "id": 27,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -393,8 +393,8 @@
       },
       {
         "id": 28,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -405,8 +405,8 @@
       },
       {
         "id": 29,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -417,8 +417,8 @@
       },
       {
         "id": 30,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -429,8 +429,8 @@
       },
       {
         "id": 31,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -441,8 +441,8 @@
       },
       {
         "id": 32,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -453,8 +453,8 @@
       },
       {
         "id": 33,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -465,8 +465,8 @@
       },
       {
         "id": 34,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -477,8 +477,8 @@
       },
       {
         "id": 35,
-        "url": "https://s.pinimg.com/{seg}/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -489,8 +489,8 @@
       },
       {
         "id": 36,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -501,8 +501,8 @@
       },
       {
         "id": 37,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -513,8 +513,8 @@
       },
       {
         "id": 38,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -525,8 +525,8 @@
       },
       {
         "id": 39,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -537,8 +537,8 @@
       },
       {
         "id": 40,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -549,8 +549,8 @@
       },
       {
         "id": 41,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -561,8 +561,8 @@
       },
       {
         "id": 42,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -573,8 +573,8 @@
       },
       {
         "id": 43,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -585,8 +585,8 @@
       },
       {
         "id": 44,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -597,8 +597,8 @@
       },
       {
         "id": 45,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -609,8 +609,8 @@
       },
       {
         "id": 46,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -621,8 +621,8 @@
       },
       {
         "id": 47,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -633,8 +633,8 @@
       },
       {
         "id": 48,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -645,8 +645,8 @@
       },
       {
         "id": 49,
-        "url": "https://s.pinimg.com/{seg}/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -657,8 +657,8 @@
       },
       {
         "id": 50,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -669,8 +669,8 @@
       },
       {
         "id": 51,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -681,8 +681,8 @@
       },
       {
         "id": 52,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -693,8 +693,8 @@
       },
       {
         "id": 53,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -705,8 +705,8 @@
       },
       {
         "id": 54,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -717,8 +717,8 @@
       },
       {
         "id": 55,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -729,8 +729,8 @@
       },
       {
         "id": 56,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -741,8 +741,8 @@
       },
       {
         "id": 57,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -789,8 +789,8 @@
       },
       {
         "id": 61,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -801,8 +801,8 @@
       },
       {
         "id": 62,
-        "url": "https://ct.pinterest.com/{seg}",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -813,8 +813,8 @@
       },
       {
         "id": 63,
-        "url": "https://i1-e.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i1-e.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -885,8 +885,8 @@
       },
       {
         "id": 69,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -897,8 +897,8 @@
       },
       {
         "id": 70,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -921,8 +921,8 @@
       },
       {
         "id": 72,
-        "url": "https://i1-e.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i1-e.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -933,8 +933,8 @@
       },
       {
         "id": 73,
-        "url": "https://v1.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "v1.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -945,8 +945,8 @@
       },
       {
         "id": 74,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -957,8 +957,8 @@
       },
       {
         "id": 75,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -969,8 +969,8 @@
       },
       {
         "id": 76,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -981,8 +981,8 @@
       },
       {
         "id": 77,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -993,8 +993,8 @@
       },
       {
         "id": 78,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1005,8 +1005,8 @@
       },
       {
         "id": 79,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1017,8 +1017,8 @@
       },
       {
         "id": 80,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1029,8 +1029,8 @@
       },
       {
         "id": 81,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1041,8 +1041,8 @@
       },
       {
         "id": 82,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1053,8 +1053,8 @@
       },
       {
         "id": 83,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1065,8 +1065,8 @@
       },
       {
         "id": 84,
-        "url": "https://i.pinimg.com/{seg}/de/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/de/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1077,8 +1077,8 @@
       },
       {
         "id": 85,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1089,8 +1089,8 @@
       },
       {
         "id": 86,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1101,8 +1101,8 @@
       },
       {
         "id": 87,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1113,8 +1113,8 @@
       },
       {
         "id": 88,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1125,8 +1125,8 @@
       },
       {
         "id": 89,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1137,8 +1137,8 @@
       },
       {
         "id": 90,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1149,8 +1149,8 @@
       },
       {
         "id": 91,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1161,8 +1161,8 @@
       },
       {
         "id": 92,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1173,8 +1173,8 @@
       },
       {
         "id": 93,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1185,8 +1185,8 @@
       },
       {
         "id": 94,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1197,8 +1197,8 @@
       },
       {
         "id": 95,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1209,8 +1209,8 @@
       },
       {
         "id": 96,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1221,8 +1221,8 @@
       },
       {
         "id": 97,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1233,8 +1233,8 @@
       },
       {
         "id": 98,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1245,8 +1245,8 @@
       },
       {
         "id": 99,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1257,8 +1257,8 @@
       },
       {
         "id": 100,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1269,8 +1269,8 @@
       },
       {
         "id": 101,
-        "url": "https://v1.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "v1.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1281,8 +1281,8 @@
       },
       {
         "id": 102,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1293,8 +1293,8 @@
       },
       {
         "id": 103,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1305,8 +1305,8 @@
       },
       {
         "id": 104,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1317,8 +1317,8 @@
       },
       {
         "id": 105,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1329,8 +1329,8 @@
       },
       {
         "id": 106,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1341,8 +1341,8 @@
       },
       {
         "id": 107,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1353,8 +1353,8 @@
       },
       {
         "id": 108,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1365,8 +1365,8 @@
       },
       {
         "id": 109,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1377,8 +1377,8 @@
       },
       {
         "id": 110,
-        "url": "https://v1.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "v1.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1389,8 +1389,8 @@
       },
       {
         "id": 111,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1401,8 +1401,8 @@
       },
       {
         "id": 112,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1413,8 +1413,8 @@
       },
       {
         "id": 113,
-        "url": "https://v1.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "v1.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1425,8 +1425,8 @@
       },
       {
         "id": 114,
-        "url": "https://v1.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "v1.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1437,8 +1437,8 @@
       },
       {
         "id": 115,
-        "url": "https://s.pinimg.com/{seg}/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1449,8 +1449,8 @@
       },
       {
         "id": 116,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1461,8 +1461,8 @@
       },
       {
         "id": 117,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1473,8 +1473,8 @@
       },
       {
         "id": 118,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1485,8 +1485,8 @@
       },
       {
         "id": 119,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1497,8 +1497,8 @@
       },
       {
         "id": 120,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1509,8 +1509,8 @@
       },
       {
         "id": 121,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1521,8 +1521,8 @@
       },
       {
         "id": 122,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1533,8 +1533,8 @@
       },
       {
         "id": 123,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1545,8 +1545,8 @@
       },
       {
         "id": 124,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1557,8 +1557,8 @@
       },
       {
         "id": 125,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1569,8 +1569,8 @@
       },
       {
         "id": 126,
-        "url": "https://s.pinimg.com/{seg}/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1581,8 +1581,8 @@
       },
       {
         "id": 127,
-        "url": "https://v1.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "v1.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1605,8 +1605,8 @@
       },
       {
         "id": 129,
-        "url": "https://v1.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "v1.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1617,8 +1617,8 @@
       },
       {
         "id": 130,
-        "url": "https://v1.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "v1.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1641,8 +1641,8 @@
       },
       {
         "id": 132,
-        "url": "https://okra.pinterest.com/{seg}/{seg}/{seg}",
-        "domain": "okra.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1653,7 +1653,7 @@
       },
       {
         "id": 133,
-        "url": "https://www.recaptcha.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "script",
@@ -1665,7 +1665,7 @@
       },
       {
         "id": 134,
-        "url": "https://accounts.google.com/{seg}/{seg}?size=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&width=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?size=&%5Bredacted%5D=&width=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -1677,8 +1677,8 @@
       },
       {
         "id": 135,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1689,8 +1689,8 @@
       },
       {
         "id": 136,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1701,8 +1701,8 @@
       },
       {
         "id": 137,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1713,8 +1713,8 @@
       },
       {
         "id": 138,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1725,8 +1725,8 @@
       },
       {
         "id": 139,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1737,8 +1737,8 @@
       },
       {
         "id": 140,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1749,8 +1749,8 @@
       },
       {
         "id": 141,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1761,8 +1761,8 @@
       },
       {
         "id": 142,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1773,8 +1773,8 @@
       },
       {
         "id": 143,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1785,8 +1785,8 @@
       },
       {
         "id": 144,
-        "url": "https://v1.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "v1.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1797,8 +1797,8 @@
       },
       {
         "id": 145,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1833,7 +1833,7 @@
       },
       {
         "id": 148,
-        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "document",
@@ -1893,8 +1893,8 @@
       },
       {
         "id": 153,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1917,8 +1917,8 @@
       },
       {
         "id": 155,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1929,8 +1929,8 @@
       },
       {
         "id": 156,
-        "url": "https://play.google.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&format=",
-        "domain": "play.google.com",
+        "url": "https://{label}.google.com/{seg}?%5Bredacted%5D=&format=",
+        "domain": "{label}.google.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -1941,8 +1941,8 @@
       },
       {
         "id": 157,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1977,7 +1977,7 @@
       },
       {
         "id": 160,
-        "url": "https://accounts.google.com/{seg}/{seg}?size=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&width=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?size=&%5Bredacted%5D=&width=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -2013,8 +2013,8 @@
       },
       {
         "id": 163,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2097,8 +2097,8 @@
       },
       {
         "id": 170,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": null,
@@ -2169,8 +2169,8 @@
       },
       {
         "id": 176,
-        "url": "https://play.google.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&format=",
-        "domain": "play.google.com",
+        "url": "https://{label}.google.com/{seg}?%5Bredacted%5D=&format=",
+        "domain": "{label}.google.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2182,44 +2182,21 @@
     ],
     "domains": [
       {
-        "domain": "s.pinimg.com",
-        "requests": 79,
+        "domain": "{label}.pinimg.com",
+        "requests": 131,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
         "statuses": [
-          200
+          200,
+          206
         ],
         "resourceTypes": [
           "script",
           "font",
+          "image",
+          "media",
           "stylesheet"
-        ]
-      },
-      {
-        "domain": "i.pinimg.com",
-        "requests": 41,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "v1.pinimg.com",
-        "requests": 9,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          206
-        ],
-        "resourceTypes": [
-          "media"
         ]
       },
       {
@@ -2268,7 +2245,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -2281,20 +2258,7 @@
         ]
       },
       {
-        "domain": "i1-e.pinimg.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "play.google.com",
+        "domain": "{label}.google.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -2322,8 +2286,8 @@
         ]
       },
       {
-        "domain": "ct.pinterest.com",
-        "requests": 1,
+        "domain": "{label}.pinterest.com",
+        "requests": 2,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
@@ -2331,19 +2295,7 @@
           200
         ],
         "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "okra.pinterest.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
+          "document",
           "script"
         ]
       }
@@ -2381,7 +2333,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "okra.pinterest.com",
+        "domain": "{label}.pinterest.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -2444,12 +2396,12 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "canvas.toDataURL",
-        "count": 3
-      },
-      {
         "api": "audio.OfflineAudioContext.startRendering",
         "count": 1
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 3
       }
     ],
     "fingerprintDetections": [
@@ -2488,8 +2440,8 @@
           ],
           "thirdPartyOrigins": [
             "https://accounts.google.com/",
-            "https://okra.pinterest.com/",
-            "https://s.pinimg.com/",
+            "https://{label}.pinterest.com/",
+            "https://{label}.pinimg.com/",
             "https://www.gstatic.com/"
           ],
           "totalListenerCalls": 43
@@ -2526,8 +2478,8 @@
           ],
           "thirdPartyOrigins": [
             "https://accounts.google.com/",
-            "https://okra.pinterest.com/",
-            "https://s.pinimg.com/",
+            "https://{label}.pinterest.com/",
+            "https://{label}.pinimg.com/",
             "https://www.gstatic.com/"
           ],
           "totalListenerCalls": 113
@@ -2571,7 +2523,7 @@
       "totalRequests": 242,
       "thirdPartyRequests": 216,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 8,
+      "thirdPartyDomains": 6,
       "cookies": 8,
       "thirdPartyCookies": 0,
       "storageEntries": 2,
@@ -2629,8 +2581,8 @@
       },
       {
         "id": 2,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2641,8 +2593,8 @@
       },
       {
         "id": 3,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2653,8 +2605,8 @@
       },
       {
         "id": 4,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2665,8 +2617,8 @@
       },
       {
         "id": 5,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2677,8 +2629,8 @@
       },
       {
         "id": 6,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2689,8 +2641,8 @@
       },
       {
         "id": 7,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2701,8 +2653,8 @@
       },
       {
         "id": 8,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2713,8 +2665,8 @@
       },
       {
         "id": 9,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2725,8 +2677,8 @@
       },
       {
         "id": 10,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2737,8 +2689,8 @@
       },
       {
         "id": 11,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2749,8 +2701,8 @@
       },
       {
         "id": 12,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2761,8 +2713,8 @@
       },
       {
         "id": 13,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2773,8 +2725,8 @@
       },
       {
         "id": 14,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2785,8 +2737,8 @@
       },
       {
         "id": 15,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2797,8 +2749,8 @@
       },
       {
         "id": 16,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2809,8 +2761,8 @@
       },
       {
         "id": 17,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2821,8 +2773,8 @@
       },
       {
         "id": 18,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2833,8 +2785,8 @@
       },
       {
         "id": 19,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2845,8 +2797,8 @@
       },
       {
         "id": 20,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2857,8 +2809,8 @@
       },
       {
         "id": 21,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2869,8 +2821,8 @@
       },
       {
         "id": 22,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2881,8 +2833,8 @@
       },
       {
         "id": 23,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2893,8 +2845,8 @@
       },
       {
         "id": 24,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2905,8 +2857,8 @@
       },
       {
         "id": 25,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2917,8 +2869,8 @@
       },
       {
         "id": 26,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2929,8 +2881,8 @@
       },
       {
         "id": 27,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2941,8 +2893,8 @@
       },
       {
         "id": 28,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2953,8 +2905,8 @@
       },
       {
         "id": 29,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2965,8 +2917,8 @@
       },
       {
         "id": 30,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2977,8 +2929,8 @@
       },
       {
         "id": 31,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2989,8 +2941,8 @@
       },
       {
         "id": 32,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3001,8 +2953,8 @@
       },
       {
         "id": 33,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3013,8 +2965,8 @@
       },
       {
         "id": 34,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3025,8 +2977,8 @@
       },
       {
         "id": 35,
-        "url": "https://s.pinimg.com/{seg}/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3037,8 +2989,8 @@
       },
       {
         "id": 36,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3049,8 +3001,8 @@
       },
       {
         "id": 37,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3061,8 +3013,8 @@
       },
       {
         "id": 38,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3073,8 +3025,8 @@
       },
       {
         "id": 39,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3085,8 +3037,8 @@
       },
       {
         "id": 40,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3097,8 +3049,8 @@
       },
       {
         "id": 41,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3109,8 +3061,8 @@
       },
       {
         "id": 42,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3121,8 +3073,8 @@
       },
       {
         "id": 43,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3133,8 +3085,8 @@
       },
       {
         "id": 44,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3145,8 +3097,8 @@
       },
       {
         "id": 45,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3157,8 +3109,8 @@
       },
       {
         "id": 46,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3169,8 +3121,8 @@
       },
       {
         "id": 47,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3181,8 +3133,8 @@
       },
       {
         "id": 48,
-        "url": "https://s.pinimg.com/{seg}/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3193,8 +3145,8 @@
       },
       {
         "id": 49,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3205,8 +3157,8 @@
       },
       {
         "id": 50,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3217,8 +3169,8 @@
       },
       {
         "id": 51,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3229,8 +3181,8 @@
       },
       {
         "id": 52,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3241,8 +3193,8 @@
       },
       {
         "id": 53,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3253,8 +3205,8 @@
       },
       {
         "id": 54,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3265,8 +3217,8 @@
       },
       {
         "id": 55,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3277,8 +3229,8 @@
       },
       {
         "id": 56,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3325,8 +3277,8 @@
       },
       {
         "id": 60,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3337,8 +3289,8 @@
       },
       {
         "id": 61,
-        "url": "https://ct.pinterest.com/{seg}",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -3349,8 +3301,8 @@
       },
       {
         "id": 62,
-        "url": "https://i1-e.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i1-e.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3421,8 +3373,8 @@
       },
       {
         "id": 68,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3433,8 +3385,8 @@
       },
       {
         "id": 69,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3457,8 +3409,8 @@
       },
       {
         "id": 71,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3469,8 +3421,8 @@
       },
       {
         "id": 72,
-        "url": "https://i1-e.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i1-e.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3481,8 +3433,8 @@
       },
       {
         "id": 73,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3493,8 +3445,8 @@
       },
       {
         "id": 74,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3505,8 +3457,8 @@
       },
       {
         "id": 75,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3517,8 +3469,8 @@
       },
       {
         "id": 76,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3529,8 +3481,8 @@
       },
       {
         "id": 77,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3541,8 +3493,8 @@
       },
       {
         "id": 78,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3553,8 +3505,8 @@
       },
       {
         "id": 79,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3565,8 +3517,8 @@
       },
       {
         "id": 80,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3577,8 +3529,8 @@
       },
       {
         "id": 81,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3589,8 +3541,8 @@
       },
       {
         "id": 82,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3601,8 +3553,8 @@
       },
       {
         "id": 83,
-        "url": "https://i.pinimg.com/{seg}/de/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/de/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3613,8 +3565,8 @@
       },
       {
         "id": 84,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3625,8 +3577,8 @@
       },
       {
         "id": 85,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3637,8 +3589,8 @@
       },
       {
         "id": 86,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3649,8 +3601,8 @@
       },
       {
         "id": 87,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3661,8 +3613,8 @@
       },
       {
         "id": 88,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3673,8 +3625,8 @@
       },
       {
         "id": 89,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3685,8 +3637,8 @@
       },
       {
         "id": 90,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3697,8 +3649,8 @@
       },
       {
         "id": 91,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3709,8 +3661,8 @@
       },
       {
         "id": 92,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3721,8 +3673,8 @@
       },
       {
         "id": 93,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3733,8 +3685,8 @@
       },
       {
         "id": 94,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3745,8 +3697,8 @@
       },
       {
         "id": 95,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3757,8 +3709,8 @@
       },
       {
         "id": 96,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3769,8 +3721,8 @@
       },
       {
         "id": 97,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3781,8 +3733,8 @@
       },
       {
         "id": 98,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3793,8 +3745,8 @@
       },
       {
         "id": 99,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3805,8 +3757,8 @@
       },
       {
         "id": 100,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3817,8 +3769,8 @@
       },
       {
         "id": 101,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3829,8 +3781,8 @@
       },
       {
         "id": 102,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3841,8 +3793,8 @@
       },
       {
         "id": 103,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3853,8 +3805,8 @@
       },
       {
         "id": 104,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3865,8 +3817,8 @@
       },
       {
         "id": 105,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3877,8 +3829,8 @@
       },
       {
         "id": 106,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3889,8 +3841,8 @@
       },
       {
         "id": 107,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3901,8 +3853,8 @@
       },
       {
         "id": 108,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3925,8 +3877,8 @@
       },
       {
         "id": 110,
-        "url": "https://i1-e.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i1-e.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3937,8 +3889,8 @@
       },
       {
         "id": 111,
-        "url": "https://i1-e.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i1-e.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3949,8 +3901,8 @@
       },
       {
         "id": 112,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3961,8 +3913,8 @@
       },
       {
         "id": 113,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3973,8 +3925,8 @@
       },
       {
         "id": 114,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3985,8 +3937,8 @@
       },
       {
         "id": 115,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3997,8 +3949,8 @@
       },
       {
         "id": 116,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4009,8 +3961,8 @@
       },
       {
         "id": 117,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4021,8 +3973,8 @@
       },
       {
         "id": 118,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4033,8 +3985,8 @@
       },
       {
         "id": 119,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4045,8 +3997,8 @@
       },
       {
         "id": 120,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4057,8 +4009,8 @@
       },
       {
         "id": 121,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4069,8 +4021,8 @@
       },
       {
         "id": 122,
-        "url": "https://i.pinimg.com/{seg}/de/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/de/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4081,8 +4033,8 @@
       },
       {
         "id": 123,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4093,8 +4045,8 @@
       },
       {
         "id": 124,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4105,8 +4057,8 @@
       },
       {
         "id": 125,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4117,8 +4069,8 @@
       },
       {
         "id": 126,
-        "url": "https://i1-e.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i1-e.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4129,8 +4081,8 @@
       },
       {
         "id": 127,
-        "url": "https://i1-e.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i1-e.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4141,8 +4093,8 @@
       },
       {
         "id": 128,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4153,8 +4105,8 @@
       },
       {
         "id": 129,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4165,8 +4117,8 @@
       },
       {
         "id": 130,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4177,8 +4129,8 @@
       },
       {
         "id": 131,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4189,8 +4141,8 @@
       },
       {
         "id": 132,
-        "url": "https://s.pinimg.com/{seg}/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -4201,8 +4153,8 @@
       },
       {
         "id": 133,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4213,8 +4165,8 @@
       },
       {
         "id": 134,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4225,8 +4177,8 @@
       },
       {
         "id": 135,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4237,8 +4189,8 @@
       },
       {
         "id": 136,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4249,8 +4201,8 @@
       },
       {
         "id": 137,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4261,8 +4213,8 @@
       },
       {
         "id": 138,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4273,8 +4225,8 @@
       },
       {
         "id": 139,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4285,8 +4237,8 @@
       },
       {
         "id": 140,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4297,8 +4249,8 @@
       },
       {
         "id": 141,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4309,8 +4261,8 @@
       },
       {
         "id": 142,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4321,8 +4273,8 @@
       },
       {
         "id": 143,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4333,8 +4285,8 @@
       },
       {
         "id": 144,
-        "url": "https://s.pinimg.com/{seg}/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4345,8 +4297,8 @@
       },
       {
         "id": 145,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4357,8 +4309,8 @@
       },
       {
         "id": 146,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4369,8 +4321,8 @@
       },
       {
         "id": 147,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4381,8 +4333,8 @@
       },
       {
         "id": 148,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4393,8 +4345,8 @@
       },
       {
         "id": 149,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4405,8 +4357,8 @@
       },
       {
         "id": 150,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4417,8 +4369,8 @@
       },
       {
         "id": 151,
-        "url": "https://i.pinimg.com/{seg}/de/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/de/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4429,8 +4381,8 @@
       },
       {
         "id": 152,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4441,8 +4393,8 @@
       },
       {
         "id": 153,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4453,8 +4405,8 @@
       },
       {
         "id": 154,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4465,8 +4417,8 @@
       },
       {
         "id": 155,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4477,8 +4429,8 @@
       },
       {
         "id": 156,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4489,8 +4441,8 @@
       },
       {
         "id": 157,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4501,8 +4453,8 @@
       },
       {
         "id": 158,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4513,8 +4465,8 @@
       },
       {
         "id": 159,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4525,8 +4477,8 @@
       },
       {
         "id": 160,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4537,8 +4489,8 @@
       },
       {
         "id": 161,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4549,8 +4501,8 @@
       },
       {
         "id": 162,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4561,8 +4513,8 @@
       },
       {
         "id": 163,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4573,8 +4525,8 @@
       },
       {
         "id": 164,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4597,8 +4549,8 @@
       },
       {
         "id": 166,
-        "url": "https://i1-e.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i1-e.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4609,8 +4561,8 @@
       },
       {
         "id": 167,
-        "url": "https://i1-e.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i1-e.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4621,8 +4573,8 @@
       },
       {
         "id": 168,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4633,8 +4585,8 @@
       },
       {
         "id": 169,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4645,8 +4597,8 @@
       },
       {
         "id": 170,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4657,8 +4609,8 @@
       },
       {
         "id": 171,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4669,8 +4621,8 @@
       },
       {
         "id": 172,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4681,8 +4633,8 @@
       },
       {
         "id": 173,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4693,8 +4645,8 @@
       },
       {
         "id": 174,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4705,8 +4657,8 @@
       },
       {
         "id": 175,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4717,8 +4669,8 @@
       },
       {
         "id": 176,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4729,8 +4681,8 @@
       },
       {
         "id": 177,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4741,8 +4693,8 @@
       },
       {
         "id": 178,
-        "url": "https://i.pinimg.com/{seg}/de/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/de/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4753,8 +4705,8 @@
       },
       {
         "id": 179,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4765,8 +4717,8 @@
       },
       {
         "id": 180,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4777,8 +4729,8 @@
       },
       {
         "id": 181,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4789,8 +4741,8 @@
       },
       {
         "id": 182,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4801,8 +4753,8 @@
       },
       {
         "id": 183,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4813,8 +4765,8 @@
       },
       {
         "id": 184,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4825,8 +4777,8 @@
       },
       {
         "id": 185,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4837,8 +4789,8 @@
       },
       {
         "id": 186,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4849,8 +4801,8 @@
       },
       {
         "id": 187,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4861,8 +4813,8 @@
       },
       {
         "id": 188,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4873,8 +4825,8 @@
       },
       {
         "id": 189,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4885,8 +4837,8 @@
       },
       {
         "id": 190,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4897,8 +4849,8 @@
       },
       {
         "id": 191,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4921,8 +4873,8 @@
       },
       {
         "id": 193,
-        "url": "https://okra.pinterest.com/{seg}/{seg}/{seg}",
-        "domain": "okra.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4933,7 +4885,7 @@
       },
       {
         "id": 194,
-        "url": "https://www.recaptcha.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "script",
@@ -4945,7 +4897,7 @@
       },
       {
         "id": 195,
-        "url": "https://accounts.google.com/{seg}/{seg}?size=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&width=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?size=&%5Bredacted%5D=&width=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -4957,8 +4909,8 @@
       },
       {
         "id": 196,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4969,8 +4921,8 @@
       },
       {
         "id": 197,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4981,8 +4933,8 @@
       },
       {
         "id": 198,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4993,8 +4945,8 @@
       },
       {
         "id": 199,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5005,8 +4957,8 @@
       },
       {
         "id": 200,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5017,8 +4969,8 @@
       },
       {
         "id": 201,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5029,8 +4981,8 @@
       },
       {
         "id": 202,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5041,8 +4993,8 @@
       },
       {
         "id": 203,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5053,8 +5005,8 @@
       },
       {
         "id": 204,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5065,8 +5017,8 @@
       },
       {
         "id": 205,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5077,8 +5029,8 @@
       },
       {
         "id": 206,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5089,8 +5041,8 @@
       },
       {
         "id": 207,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5101,8 +5053,8 @@
       },
       {
         "id": 208,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5113,8 +5065,8 @@
       },
       {
         "id": 209,
-        "url": "https://i.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5125,8 +5077,8 @@
       },
       {
         "id": 210,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5137,8 +5089,8 @@
       },
       {
         "id": 211,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5149,8 +5101,8 @@
       },
       {
         "id": 212,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5161,8 +5113,8 @@
       },
       {
         "id": 213,
-        "url": "https://i.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5173,8 +5125,8 @@
       },
       {
         "id": 214,
-        "url": "https://i.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "i.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5197,8 +5149,8 @@
       },
       {
         "id": 216,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -5209,7 +5161,7 @@
       },
       {
         "id": 217,
-        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "document",
@@ -5269,8 +5221,8 @@
       },
       {
         "id": 222,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -5293,8 +5245,8 @@
       },
       {
         "id": 224,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5305,8 +5257,8 @@
       },
       {
         "id": 225,
-        "url": "https://play.google.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&format=",
-        "domain": "play.google.com",
+        "url": "https://{label}.google.com/{seg}?%5Bredacted%5D=&format=",
+        "domain": "{label}.google.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -5317,8 +5269,8 @@
       },
       {
         "id": 226,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5353,7 +5305,7 @@
       },
       {
         "id": 229,
-        "url": "https://accounts.google.com/{seg}/{seg}?size=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&width=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?size=&%5Bredacted%5D=&width=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -5389,8 +5341,8 @@
       },
       {
         "id": 232,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -5509,8 +5461,8 @@
       },
       {
         "id": 242,
-        "url": "https://play.google.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&format=",
-        "domain": "play.google.com",
+        "url": "https://{label}.google.com/{seg}?%5Bredacted%5D=&format=",
+        "domain": "{label}.google.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -5522,21 +5474,8 @@
     ],
     "domains": [
       {
-        "domain": "i.pinimg.com",
-        "requests": 113,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "s.pinimg.com",
-        "requests": 78,
+        "domain": "{label}.pinimg.com",
+        "requests": 199,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -5546,20 +5485,8 @@
         "resourceTypes": [
           "script",
           "font",
+          "image",
           "stylesheet"
-        ]
-      },
-      {
-        "domain": "i1-e.pinimg.com",
-        "requests": 8,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
         ]
       },
       {
@@ -5608,7 +5535,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -5621,7 +5548,7 @@
         ]
       },
       {
-        "domain": "play.google.com",
+        "domain": "{label}.google.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -5649,8 +5576,8 @@
         ]
       },
       {
-        "domain": "ct.pinterest.com",
-        "requests": 1,
+        "domain": "{label}.pinterest.com",
+        "requests": 2,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
@@ -5658,19 +5585,7 @@
           200
         ],
         "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "okra.pinterest.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
+          "document",
           "script"
         ]
       }
@@ -5708,7 +5623,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "okra.pinterest.com",
+        "domain": "{label}.pinterest.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -5771,12 +5686,12 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "canvas.toDataURL",
-        "count": 3
-      },
-      {
         "api": "audio.OfflineAudioContext.startRendering",
         "count": 1
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 3
       }
     ],
     "fingerprintDetections": [
@@ -5815,8 +5730,8 @@
           ],
           "thirdPartyOrigins": [
             "https://accounts.google.com/",
-            "https://okra.pinterest.com/",
-            "https://s.pinimg.com/",
+            "https://{label}.pinterest.com/",
+            "https://{label}.pinimg.com/",
             "https://www.gstatic.com/"
           ],
           "totalListenerCalls": 42
@@ -5853,8 +5768,8 @@
           ],
           "thirdPartyOrigins": [
             "https://accounts.google.com/",
-            "https://okra.pinterest.com/",
-            "https://s.pinimg.com/",
+            "https://{label}.pinterest.com/",
+            "https://{label}.pinimg.com/",
             "https://www.gstatic.com/"
           ],
           "totalListenerCalls": 108
@@ -5903,9 +5818,9 @@
       "delta": 0
     },
     "thirdPartyDomains": {
-      "before": 9,
-      "after": 8,
-      "delta": -1
+      "before": 6,
+      "after": 6,
+      "delta": 0
     },
     "cookies": {
       "before": 8,
@@ -5928,13 +5843,7 @@
       "delta": 0
     },
     "addedDomains": [],
-    "removedDomains": [
-      {
-        "domain": "v1.pinimg.com",
-        "requests": 9,
-        "tracker": null
-      }
-    ],
+    "removedDomains": [],
     "addedEntities": [],
     "removedEntities": [],
     "addedCookies": [],

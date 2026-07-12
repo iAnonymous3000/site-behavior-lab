@@ -103,10 +103,10 @@ function ComparisonPanel({ view }: { view: ReportView }) {
         </div>
         <div className="comparison-runs">
           <span>
-            {labels.baseline}: {arms.baseline.durationMs.toLocaleString()}ms
+            {labels.baseline}: {arms.baseline.durationMs.toLocaleString("en-US")}ms
           </span>
           <span>
-            {labels.variant}: {arms.variant.durationMs.toLocaleString()}ms
+            {labels.variant}: {arms.variant.durationMs.toLocaleString("en-US")}ms
           </span>
         </div>
       </div>
@@ -203,13 +203,13 @@ function comparisonEyebrow(view: ReportView): string {
 
 function DeltaTile({ label, metric }: { label: string; metric: ComparisonMetricDelta }) {
   const direction = metric.delta > 0 ? "up" : metric.delta < 0 ? "down" : "flat";
-  const formattedDelta = `${metric.delta > 0 ? "+" : ""}${metric.delta.toLocaleString()}`;
+  const formattedDelta = `${metric.delta > 0 ? "+" : ""}${metric.delta.toLocaleString("en-US")}`;
   return (
     <div className={`delta-tile delta-${direction}`}>
       <span>{label}</span>
       <strong>{formattedDelta}</strong>
       <small>
-        {metric.before.toLocaleString()} → {metric.after.toLocaleString()}
+        {metric.before.toLocaleString("en-US")} → {metric.after.toLocaleString("en-US")}
       </small>
     </div>
   );

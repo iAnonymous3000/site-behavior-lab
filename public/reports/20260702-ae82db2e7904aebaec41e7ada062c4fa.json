@@ -23,7 +23,7 @@
       "totalRequests": 227,
       "thirdPartyRequests": 162,
       "knownTrackerRequests": 47,
-      "thirdPartyDomains": 34,
+      "thirdPartyDomains": 30,
       "cookies": 43,
       "thirdPartyCookies": 14,
       "storageEntries": 21,
@@ -93,8 +93,8 @@
       },
       {
         "id": 3,
-        "url": "https://tealium-tags.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-tags.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -105,8 +105,8 @@
       },
       {
         "id": 4,
-        "url": "https://frontend.medicare.gov/{seg}/{seg}",
-        "domain": "frontend.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -285,8 +285,8 @@
       },
       {
         "id": 19,
-        "url": "https://frontend.medicare.gov/{seg}/{seg}",
-        "domain": "frontend.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -501,8 +501,8 @@
       },
       {
         "id": 37,
-        "url": "https://tealium-tags.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-tags.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -525,8 +525,8 @@
       },
       {
         "id": 39,
-        "url": "https://clientsdk.launchdarkly.us/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "clientsdk.launchdarkly.us",
+        "url": "https://{label}.launchdarkly.us/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.launchdarkly.us",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -537,8 +537,8 @@
       },
       {
         "id": 40,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -578,8 +578,8 @@
       },
       {
         "id": 43,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -590,8 +590,8 @@
       },
       {
         "id": 44,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -602,8 +602,8 @@
       },
       {
         "id": 45,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -614,8 +614,8 @@
       },
       {
         "id": 46,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -626,8 +626,8 @@
       },
       {
         "id": 47,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -638,8 +638,8 @@
       },
       {
         "id": 48,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -650,8 +650,8 @@
       },
       {
         "id": 49,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -662,8 +662,8 @@
       },
       {
         "id": 50,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -674,8 +674,8 @@
       },
       {
         "id": 51,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -686,8 +686,8 @@
       },
       {
         "id": 52,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -698,8 +698,8 @@
       },
       {
         "id": 53,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -710,8 +710,8 @@
       },
       {
         "id": 54,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -722,8 +722,8 @@
       },
       {
         "id": 55,
-        "url": "https://bam.nr-data.net/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -751,8 +751,8 @@
       },
       {
         "id": 57,
-        "url": "https://{label}.gov1.siteintercept.qualtrics.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "{label}.gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.{label}.qualtrics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -763,8 +763,8 @@
       },
       {
         "id": 58,
-        "url": "https://dap.digitalgov.gov/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dap.digitalgov.gov",
+        "url": "https://{label}.digitalgov.gov/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -775,8 +775,8 @@
       },
       {
         "id": 59,
-        "url": "https://insight.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "insight.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -792,8 +792,8 @@
       },
       {
         "id": 60,
-        "url": "https://insight.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "insight.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -809,8 +809,8 @@
       },
       {
         "id": 61,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}/{n}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -838,8 +838,8 @@
       },
       {
         "id": 63,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -867,8 +867,8 @@
       },
       {
         "id": 65,
-        "url": "https://insight.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "insight.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -884,14 +884,14 @@
       },
       {
         "id": 66,
-        "url": "https://bat.bing.com/{seg}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -913,8 +913,8 @@
       },
       {
         "id": 68,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -949,8 +949,8 @@
       },
       {
         "id": 71,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -961,8 +961,8 @@
       },
       {
         "id": 72,
-        "url": "https://frontend.medicare.gov/{seg}/{seg}",
-        "domain": "frontend.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -973,8 +973,8 @@
       },
       {
         "id": 73,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -990,7 +990,7 @@
       },
       {
         "id": 74,
-        "url": "https://pixel.rubiconproject.com/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://pixel.rubiconproject.com/{seg}?v=&%5Bredacted%5D=",
         "domain": "pixel.rubiconproject.com",
         "method": "GET",
         "resourceType": "image",
@@ -1007,8 +1007,8 @@
       },
       {
         "id": 75,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1024,8 +1024,8 @@
       },
       {
         "id": 76,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1041,8 +1041,8 @@
       },
       {
         "id": 77,
-        "url": "https://frontend.medicare.gov/{seg}/{seg}",
-        "domain": "frontend.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1065,8 +1065,8 @@
       },
       {
         "id": 79,
-        "url": "https://adobedc.demdex.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "adobedc.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1082,8 +1082,8 @@
       },
       {
         "id": 80,
-        "url": "https://datacloud.tealiumiq.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=",
-        "domain": "datacloud.tealiumiq.com",
+        "url": "https://{label}.tealiumiq.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tealiumiq.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1099,8 +1099,8 @@
       },
       {
         "id": 81,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1116,8 +1116,8 @@
       },
       {
         "id": 82,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&ref=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1133,8 +1133,8 @@
       },
       {
         "id": 83,
-        "url": "https://dap.digitalgov.gov/{seg}/{seg}/{seg}",
-        "domain": "dap.digitalgov.gov",
+        "url": "https://{label}.digitalgov.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1162,8 +1162,8 @@
       },
       {
         "id": 85,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1179,8 +1179,8 @@
       },
       {
         "id": 86,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1196,7 +1196,7 @@
       },
       {
         "id": 87,
-        "url": "https://pixel.rubiconproject.com/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://pixel.rubiconproject.com/{seg}?v=&%5Bredacted%5D=",
         "domain": "pixel.rubiconproject.com",
         "method": "GET",
         "resourceType": "image",
@@ -1213,7 +1213,7 @@
       },
       {
         "id": 88,
-        "url": "https://analytics-sm.com/?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://analytics-sm.com/?%5Bredacted%5D=",
         "domain": "analytics-sm.com",
         "method": "GET",
         "resourceType": "image",
@@ -1225,14 +1225,14 @@
       },
       {
         "id": 89,
-        "url": "https://bat.bing.com/{seg}/{seg}/{seg}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -1242,8 +1242,8 @@
       },
       {
         "id": 90,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1259,8 +1259,8 @@
       },
       {
         "id": 91,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1276,7 +1276,7 @@
       },
       {
         "id": 92,
-        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "ad.doubleclick.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -1310,8 +1310,8 @@
       },
       {
         "id": 94,
-        "url": "https://{label}.fls.doubleclick.net/{seg}",
-        "domain": "{label}.fls.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 302,
@@ -1327,7 +1327,7 @@
       },
       {
         "id": 95,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1344,7 +1344,7 @@
       },
       {
         "id": 96,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1356,8 +1356,8 @@
       },
       {
         "id": 97,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1373,8 +1373,8 @@
       },
       {
         "id": 98,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1390,14 +1390,14 @@
       },
       {
         "id": 99,
-        "url": "https://bat.bing.com/{seg}/{n}?%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&msclkid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{n}?%5Bredacted%5D=&ver=&msclkid=",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -1407,8 +1407,8 @@
       },
       {
         "id": 100,
-        "url": "https://{label}.fls.doubleclick.net/{seg}",
-        "domain": "{label}.fls.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1424,7 +1424,7 @@
       },
       {
         "id": 101,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1441,8 +1441,8 @@
       },
       {
         "id": 102,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1453,8 +1453,8 @@
       },
       {
         "id": 103,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1465,14 +1465,14 @@
       },
       {
         "id": 104,
-        "url": "https://adservice.google.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "adservice.google.com",
+        "url": "https://{label}.google.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.google.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "adservice.google.com",
+          "domain": "{label}.google.com",
           "entity": "Google",
           "category": "advertising",
           "confidence": "curated"
@@ -1482,8 +1482,8 @@
       },
       {
         "id": 105,
-        "url": "https://tealium-visitor-service.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-visitor-service.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1494,8 +1494,8 @@
       },
       {
         "id": 106,
-        "url": "https://api-cdn.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "api-cdn.use2.us-gov-pure.cloud",
+        "url": "https://{label}.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1506,8 +1506,8 @@
       },
       {
         "id": 107,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1518,8 +1518,8 @@
       },
       {
         "id": 108,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1542,8 +1542,8 @@
       },
       {
         "id": 110,
-        "url": "https://flask.nextdoor.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&ev=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "flask.nextdoor.com",
+        "url": "https://{label}.nextdoor.com/{seg}?%5Bredacted%5D=&ev=&v=",
+        "domain": "{label}.nextdoor.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -1554,8 +1554,8 @@
       },
       {
         "id": 111,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1566,8 +1566,8 @@
       },
       {
         "id": 112,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1583,8 +1583,8 @@
       },
       {
         "id": 113,
-        "url": "https://gov-bam.nr-data.net/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov-bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1612,8 +1612,8 @@
       },
       {
         "id": 115,
-        "url": "https://api-cdn.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "api-cdn.use2.us-gov-pure.cloud",
+        "url": "https://{label}.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1624,8 +1624,8 @@
       },
       {
         "id": 116,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1636,8 +1636,8 @@
       },
       {
         "id": 117,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1648,8 +1648,8 @@
       },
       {
         "id": 118,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1660,8 +1660,8 @@
       },
       {
         "id": 119,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1672,8 +1672,8 @@
       },
       {
         "id": 120,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1684,8 +1684,8 @@
       },
       {
         "id": 121,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1696,8 +1696,8 @@
       },
       {
         "id": 122,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1708,8 +1708,8 @@
       },
       {
         "id": 123,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1720,8 +1720,8 @@
       },
       {
         "id": 124,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1732,8 +1732,8 @@
       },
       {
         "id": 125,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1744,8 +1744,8 @@
       },
       {
         "id": 126,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1756,8 +1756,8 @@
       },
       {
         "id": 127,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1768,8 +1768,8 @@
       },
       {
         "id": 128,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1780,8 +1780,8 @@
       },
       {
         "id": 129,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1792,8 +1792,8 @@
       },
       {
         "id": 130,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1804,8 +1804,8 @@
       },
       {
         "id": 131,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1816,8 +1816,8 @@
       },
       {
         "id": 132,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1828,8 +1828,8 @@
       },
       {
         "id": 133,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1840,8 +1840,8 @@
       },
       {
         "id": 134,
-        "url": "https://gov-bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "gov-bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1857,8 +1857,8 @@
       },
       {
         "id": 135,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1869,8 +1869,8 @@
       },
       {
         "id": 136,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1881,8 +1881,8 @@
       },
       {
         "id": 137,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1893,8 +1893,8 @@
       },
       {
         "id": 138,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1905,8 +1905,8 @@
       },
       {
         "id": 139,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1917,8 +1917,8 @@
       },
       {
         "id": 140,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1929,8 +1929,8 @@
       },
       {
         "id": 141,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1941,8 +1941,8 @@
       },
       {
         "id": 142,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1953,8 +1953,8 @@
       },
       {
         "id": 143,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1965,8 +1965,8 @@
       },
       {
         "id": 144,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1977,8 +1977,8 @@
       },
       {
         "id": 145,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1989,8 +1989,8 @@
       },
       {
         "id": 146,
-        "url": "https://gov1.sr.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.sr.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2013,8 +2013,8 @@
       },
       {
         "id": 148,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2025,8 +2025,8 @@
       },
       {
         "id": 149,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2037,8 +2037,8 @@
       },
       {
         "id": 150,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2049,8 +2049,8 @@
       },
       {
         "id": 151,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}/{n}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2061,8 +2061,8 @@
       },
       {
         "id": 152,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}/{n}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2073,8 +2073,8 @@
       },
       {
         "id": 153,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 307,
@@ -2085,8 +2085,8 @@
       },
       {
         "id": 154,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 307,
@@ -2097,8 +2097,8 @@
       },
       {
         "id": 155,
-        "url": "https://gov1.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "gov1.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2109,8 +2109,8 @@
       },
       {
         "id": 156,
-        "url": "https://adobe-ep.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "adobe-ep.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2121,8 +2121,8 @@
       },
       {
         "id": 157,
-        "url": "https://adobe-ep.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "adobe-ep.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2133,8 +2133,8 @@
       },
       {
         "id": 158,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2145,8 +2145,8 @@
       },
       {
         "id": 159,
-        "url": "https://surveys.cms.gov/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.cms.gov",
         "method": "POST",
         "resourceType": "document",
         "status": 200,
@@ -2157,8 +2157,8 @@
       },
       {
         "id": 160,
-        "url": "https://tealium-visitor-service.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-visitor-service.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2169,8 +2169,8 @@
       },
       {
         "id": 161,
-        "url": "https://tealium-visitor-service.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-visitor-service.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2181,8 +2181,8 @@
       },
       {
         "id": 162,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 307,
@@ -2193,8 +2193,8 @@
       },
       {
         "id": 163,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 301,
@@ -2205,8 +2205,8 @@
       },
       {
         "id": 164,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 301,
@@ -2217,8 +2217,8 @@
       },
       {
         "id": 165,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2229,8 +2229,8 @@
       },
       {
         "id": 166,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2241,8 +2241,8 @@
       },
       {
         "id": 167,
-        "url": "https://surveys.cms.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2253,8 +2253,8 @@
       },
       {
         "id": 168,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2265,8 +2265,8 @@
       },
       {
         "id": 169,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2301,8 +2301,8 @@
       },
       {
         "id": 172,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2313,8 +2313,8 @@
       },
       {
         "id": 173,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2325,8 +2325,8 @@
       },
       {
         "id": 174,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2337,8 +2337,8 @@
       },
       {
         "id": 175,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2349,8 +2349,8 @@
       },
       {
         "id": 176,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2361,8 +2361,8 @@
       },
       {
         "id": 177,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2373,8 +2373,8 @@
       },
       {
         "id": 178,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2385,8 +2385,8 @@
       },
       {
         "id": 179,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2397,8 +2397,8 @@
       },
       {
         "id": 180,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2409,8 +2409,8 @@
       },
       {
         "id": 181,
-        "url": "https://surveys.cms.gov/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2421,8 +2421,8 @@
       },
       {
         "id": 182,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2433,8 +2433,8 @@
       },
       {
         "id": 183,
-        "url": "https://surveys.cms.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2445,8 +2445,8 @@
       },
       {
         "id": 184,
-        "url": "https://fonts.cdnfonts.com/{seg}/{seg}",
-        "domain": "fonts.cdnfonts.com",
+        "url": "https://{label}.cdnfonts.com/{seg}/{seg}",
+        "domain": "{label}.cdnfonts.com",
         "method": "GET",
         "resourceType": "font",
         "status": 404,
@@ -2457,8 +2457,8 @@
       },
       {
         "id": 185,
-        "url": "https://fonts.cdnfonts.com/{seg}/{seg}",
-        "domain": "fonts.cdnfonts.com",
+        "url": "https://{label}.cdnfonts.com/{seg}/{seg}",
+        "domain": "{label}.cdnfonts.com",
         "method": "GET",
         "resourceType": "font",
         "status": 404,
@@ -2469,8 +2469,8 @@
       },
       {
         "id": 186,
-        "url": "https://surveys.cms.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2481,8 +2481,8 @@
       },
       {
         "id": 187,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2493,8 +2493,8 @@
       },
       {
         "id": 188,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 307,
@@ -2505,8 +2505,8 @@
       },
       {
         "id": 189,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 307,
@@ -2517,8 +2517,8 @@
       },
       {
         "id": 190,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 307,
@@ -2529,8 +2529,8 @@
       },
       {
         "id": 191,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 307,
@@ -2541,8 +2541,8 @@
       },
       {
         "id": 192,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 301,
@@ -2553,8 +2553,8 @@
       },
       {
         "id": 193,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 301,
@@ -2565,8 +2565,8 @@
       },
       {
         "id": 194,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2577,8 +2577,8 @@
       },
       {
         "id": 195,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2589,8 +2589,8 @@
       },
       {
         "id": 196,
-        "url": "https://gov1.sr.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.sr.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "PUT",
         "resourceType": "fetch",
         "status": 200,
@@ -2601,8 +2601,8 @@
       },
       {
         "id": 197,
-        "url": "https://datacloud.tealiumiq.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=",
-        "domain": "datacloud.tealiumiq.com",
+        "url": "https://{label}.tealiumiq.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tealiumiq.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2618,8 +2618,8 @@
       },
       {
         "id": 198,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2630,7 +2630,7 @@
       },
       {
         "id": 199,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2659,8 +2659,8 @@
       },
       {
         "id": 201,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}/{n}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2671,8 +2671,8 @@
       },
       {
         "id": 202,
-        "url": "https://adobe-ep.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "adobe-ep.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2683,8 +2683,8 @@
       },
       {
         "id": 203,
-        "url": "https://tealium-visitor-service.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-visitor-service.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2695,8 +2695,8 @@
       },
       {
         "id": 204,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}/{n}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2707,8 +2707,8 @@
       },
       {
         "id": 205,
-        "url": "https://adobe-ep.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "adobe-ep.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2719,8 +2719,8 @@
       },
       {
         "id": 206,
-        "url": "https://tealium-visitor-service.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-visitor-service.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2731,8 +2731,8 @@
       },
       {
         "id": 207,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}/{n}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2743,8 +2743,8 @@
       },
       {
         "id": 208,
-        "url": "https://adobe-ep.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "adobe-ep.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2755,8 +2755,8 @@
       },
       {
         "id": 209,
-        "url": "https://tealium-visitor-service.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-visitor-service.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2767,8 +2767,8 @@
       },
       {
         "id": 210,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}/{n}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2779,8 +2779,8 @@
       },
       {
         "id": 211,
-        "url": "https://adobe-ep.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "adobe-ep.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2791,8 +2791,8 @@
       },
       {
         "id": 212,
-        "url": "https://tealium-visitor-service.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-visitor-service.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2803,8 +2803,8 @@
       },
       {
         "id": 213,
-        "url": "https://gov1.sr.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.sr.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "PUT",
         "resourceType": "fetch",
         "status": 200,
@@ -2815,8 +2815,8 @@
       },
       {
         "id": 214,
-        "url": "https://gov1.sr.qualtrics.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.sr.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2827,8 +2827,8 @@
       },
       {
         "id": 215,
-        "url": "https://surveys.cms.gov/{seg}/{seg}/{seg}/{seg}?tid=",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/{seg}/{seg}/{seg}?tid=",
+        "domain": "{label}.cms.gov",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2839,8 +2839,8 @@
       },
       {
         "id": 216,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2856,14 +2856,14 @@
       },
       {
         "id": 217,
-        "url": "https://bat.bing.com/{seg}/{n}?%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&msclkid=&%5Bredacted%5D=",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{n}?%5Bredacted%5D=&ver=&msclkid=",
+        "domain": "{label}.bing.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -2873,7 +2873,7 @@
       },
       {
         "id": 218,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2890,7 +2890,7 @@
       },
       {
         "id": 219,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2907,7 +2907,7 @@
       },
       {
         "id": 220,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2924,8 +2924,8 @@
       },
       {
         "id": 221,
-        "url": "https://gov-bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "gov-bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2941,8 +2941,8 @@
       },
       {
         "id": 222,
-        "url": "https://gov-bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "gov-bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2958,8 +2958,8 @@
       },
       {
         "id": 223,
-        "url": "https://gov-bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "gov-bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2975,7 +2975,7 @@
       },
       {
         "id": 224,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2987,7 +2987,7 @@
       },
       {
         "id": 225,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2999,7 +2999,7 @@
       },
       {
         "id": 226,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -3029,27 +3029,28 @@
     ],
     "domains": [
       {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 6,
+        "domain": "{label}.nr-data.net",
+        "requests": 8,
         "thirdParty": true,
         "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
           "confidence": "curated"
         },
         "blockedByShields": true,
         "statuses": [
-          302,
           200
         ],
         "resourceTypes": [
-          "image"
+          "script",
+          "xhr",
+          "ping"
         ]
       },
       {
-        "domain": "match.adsrvr.org",
-        "requests": 5,
+        "domain": "{label}.adsrvr.org",
+        "requests": 8,
         "thirdParty": true,
         "tracker": {
           "domain": "adsrvr.org",
@@ -3063,6 +3064,26 @@
         ],
         "resourceTypes": [
           "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 8,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "document"
         ]
       },
       {
@@ -3084,30 +3105,11 @@
         ]
       },
       {
-        "domain": "gov-bam.nr-data.net",
-        "requests": 5,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "nr-data.net",
-          "entity": "New Relic",
-          "category": "performance monitoring",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
-          "ping"
-        ]
-      },
-      {
-        "domain": "bat.bing.com",
+        "domain": "{label}.bing.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -3121,44 +3123,6 @@
           "script",
           "image",
           "ping"
-        ]
-      },
-      {
-        "domain": "bam.nr-data.net",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "nr-data.net",
-          "entity": "New Relic",
-          "category": "performance monitoring",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "xhr",
-          "ping"
-        ]
-      },
-      {
-        "domain": "insight.adsrvr.org",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          302
-        ],
-        "resourceTypes": [
-          "image"
         ]
       },
       {
@@ -3199,7 +3163,7 @@
         ]
       },
       {
-        "domain": "js-agent.newrelic.com",
+        "domain": "{label}.newrelic.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -3236,7 +3200,7 @@
         ]
       },
       {
-        "domain": "datacloud.tealiumiq.com",
+        "domain": "{label}.tealiumiq.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -3255,26 +3219,7 @@
         ]
       },
       {
-        "domain": "{label}.fls.doubleclick.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "adobedc.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3292,11 +3237,11 @@
         ]
       },
       {
-        "domain": "adservice.google.com",
+        "domain": "{label}.google.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
-          "domain": "adservice.google.com",
+          "domain": "{label}.google.com",
           "entity": "Google",
           "category": "advertising",
           "confidence": "curated"
@@ -3310,8 +3255,8 @@
         ]
       },
       {
-        "domain": "gov1.siteintercept.qualtrics.com",
-        "requests": 31,
+        "domain": "{label}.{label}.qualtrics.com",
+        "requests": 35,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -3323,11 +3268,13 @@
         "resourceTypes": [
           "script",
           "xhr",
-          "image"
+          "fetch",
+          "image",
+          "ping"
         ]
       },
       {
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "requests": 25,
         "thirdParty": true,
         "tracker": null,
@@ -3342,7 +3289,7 @@
         ]
       },
       {
-        "domain": "surveys.cms.gov",
+        "domain": "{label}.cms.gov",
         "requests": 17,
         "thirdParty": true,
         "tracker": null,
@@ -3360,7 +3307,7 @@
         ]
       },
       {
-        "domain": "tags.tiqcdn.com",
+        "domain": "{label}.tiqcdn.com",
         "requests": 13,
         "thirdParty": true,
         "tracker": null,
@@ -3383,20 +3330,6 @@
         ],
         "resourceTypes": [
           "fetch"
-        ]
-      },
-      {
-        "domain": "gov1.sr.qualtrics.com",
-        "requests": 4,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch",
-          "ping"
         ]
       },
       {
@@ -3440,7 +3373,7 @@
         ]
       },
       {
-        "domain": "dap.digitalgov.gov",
+        "domain": "{label}.digitalgov.gov",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -3467,7 +3400,7 @@
         ]
       },
       {
-        "domain": "api-cdn.use2.us-gov-pure.cloud",
+        "domain": "{label}.{label}.us-gov-pure.cloud",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -3480,7 +3413,7 @@
         ]
       },
       {
-        "domain": "fonts.cdnfonts.com",
+        "domain": "{label}.cdnfonts.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -3493,7 +3426,7 @@
         ]
       },
       {
-        "domain": "clientsdk.launchdarkly.us",
+        "domain": "{label}.launchdarkly.us",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3519,7 +3452,7 @@
         ]
       },
       {
-        "domain": "{label}.gov1.siteintercept.qualtrics.com",
+        "domain": "{label}.{label}.{label}.qualtrics.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3532,7 +3465,7 @@
         ]
       },
       {
-        "domain": "flask.nextdoor.com",
+        "domain": "{label}.nextdoor.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3545,7 +3478,7 @@
         ]
       },
       {
-        "domain": "gov1.qualtrics.com",
+        "domain": "{label}.qualtrics.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3588,8 +3521,8 @@
         ]
       },
       {
-        "domain": "tealium-collect.medicare.gov",
-        "requests": 8,
+        "domain": "{label}.medicare.gov",
+        "requests": 27,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
@@ -3597,64 +3530,13 @@
           200
         ],
         "resourceTypes": [
-          "xhr",
-          "ping",
-          "image"
-        ]
-      },
-      {
-        "domain": "tealium-visitor-service.medicare.gov",
-        "requests": 7,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "adobe-ep.medicare.gov",
-        "requests": 6,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "frontend.medicare.gov",
-        "requests": 4,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "stylesheet",
           "script",
+          "stylesheet",
+          "xhr",
           "image",
-          "font"
-        ]
-      },
-      {
-        "domain": "tealium-tags.medicare.gov",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
+          "font",
+          "ping",
+          "fetch"
         ]
       },
       {
@@ -3696,7 +3578,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".bat.bing.com",
+        "domain": ".{label}.bing.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -4016,7 +3898,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".tealium-collect.medicare.gov",
+        "domain": ".{label}.medicare.gov",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -4026,7 +3908,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".tealium-collect.medicare.gov",
+        "domain": ".{label}.medicare.gov",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -4036,7 +3918,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".tealium-collect.medicare.gov",
+        "domain": ".{label}.medicare.gov",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -4046,7 +3928,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".tealium-collect.medicare.gov",
+        "domain": ".{label}.medicare.gov",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -4289,7 +4171,7 @@
       "totalRequests": 226,
       "thirdPartyRequests": 161,
       "knownTrackerRequests": 46,
-      "thirdPartyDomains": 35,
+      "thirdPartyDomains": 31,
       "cookies": 43,
       "thirdPartyCookies": 14,
       "storageEntries": 21,
@@ -4359,8 +4241,8 @@
       },
       {
         "id": 3,
-        "url": "https://tealium-tags.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-tags.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4371,8 +4253,8 @@
       },
       {
         "id": 4,
-        "url": "https://frontend.medicare.gov/{seg}/{seg}",
-        "domain": "frontend.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -4551,8 +4433,8 @@
       },
       {
         "id": 19,
-        "url": "https://frontend.medicare.gov/{seg}/{seg}",
-        "domain": "frontend.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4779,8 +4661,8 @@
       },
       {
         "id": 38,
-        "url": "https://tealium-tags.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-tags.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4803,8 +4685,8 @@
       },
       {
         "id": 40,
-        "url": "https://clientsdk.launchdarkly.us/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "clientsdk.launchdarkly.us",
+        "url": "https://{label}.launchdarkly.us/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.launchdarkly.us",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4827,8 +4709,8 @@
       },
       {
         "id": 42,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4839,8 +4721,8 @@
       },
       {
         "id": 43,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4851,8 +4733,8 @@
       },
       {
         "id": 44,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4863,8 +4745,8 @@
       },
       {
         "id": 45,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4875,8 +4757,8 @@
       },
       {
         "id": 46,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4887,8 +4769,8 @@
       },
       {
         "id": 47,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4899,8 +4781,8 @@
       },
       {
         "id": 48,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4911,8 +4793,8 @@
       },
       {
         "id": 49,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4923,8 +4805,8 @@
       },
       {
         "id": 50,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4935,8 +4817,8 @@
       },
       {
         "id": 51,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4947,8 +4829,8 @@
       },
       {
         "id": 52,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4959,8 +4841,8 @@
       },
       {
         "id": 53,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4983,8 +4865,8 @@
       },
       {
         "id": 55,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}/{n}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -5007,8 +4889,8 @@
       },
       {
         "id": 57,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5019,8 +4901,8 @@
       },
       {
         "id": 58,
-        "url": "https://frontend.medicare.gov/{seg}/{seg}",
-        "domain": "frontend.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5031,8 +4913,8 @@
       },
       {
         "id": 59,
-        "url": "https://frontend.medicare.gov/{seg}/{seg}",
-        "domain": "frontend.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -5055,8 +4937,8 @@
       },
       {
         "id": 61,
-        "url": "https://dap.digitalgov.gov/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dap.digitalgov.gov",
+        "url": "https://{label}.digitalgov.gov/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5067,8 +4949,8 @@
       },
       {
         "id": 62,
-        "url": "https://insight.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "insight.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -5084,8 +4966,8 @@
       },
       {
         "id": 63,
-        "url": "https://insight.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "insight.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -5118,14 +5000,14 @@
       },
       {
         "id": 65,
-        "url": "https://bat.bing.com/{seg}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -5147,8 +5029,8 @@
       },
       {
         "id": 67,
-        "url": "https://insight.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "insight.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -5164,8 +5046,8 @@
       },
       {
         "id": 68,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -5193,8 +5075,8 @@
       },
       {
         "id": 70,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5217,8 +5099,8 @@
       },
       {
         "id": 72,
-        "url": "https://adobedc.demdex.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "adobedc.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -5234,8 +5116,8 @@
       },
       {
         "id": 73,
-        "url": "https://dap.digitalgov.gov/{seg}/{seg}/{seg}",
-        "domain": "dap.digitalgov.gov",
+        "url": "https://{label}.digitalgov.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5263,8 +5145,8 @@
       },
       {
         "id": 75,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -5280,8 +5162,8 @@
       },
       {
         "id": 76,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -5297,7 +5179,7 @@
       },
       {
         "id": 77,
-        "url": "https://pixel.rubiconproject.com/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://pixel.rubiconproject.com/{seg}?v=&%5Bredacted%5D=",
         "domain": "pixel.rubiconproject.com",
         "method": "GET",
         "resourceType": "image",
@@ -5314,8 +5196,8 @@
       },
       {
         "id": 78,
-        "url": "https://tealium-visitor-service.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-visitor-service.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5326,14 +5208,14 @@
       },
       {
         "id": 79,
-        "url": "https://bat.bing.com/{seg}/{seg}/{seg}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -5343,8 +5225,8 @@
       },
       {
         "id": 80,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -5360,8 +5242,8 @@
       },
       {
         "id": 81,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -5377,14 +5259,14 @@
       },
       {
         "id": 82,
-        "url": "https://bat.bing.com/{seg}/{n}?%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&msclkid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{n}?%5Bredacted%5D=&ver=&msclkid=",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -5394,8 +5276,8 @@
       },
       {
         "id": 83,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -5411,8 +5293,8 @@
       },
       {
         "id": 84,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -5428,7 +5310,7 @@
       },
       {
         "id": 85,
-        "url": "https://analytics-sm.com/?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://analytics-sm.com/?%5Bredacted%5D=",
         "domain": "analytics-sm.com",
         "method": "GET",
         "resourceType": "image",
@@ -5440,7 +5322,7 @@
       },
       {
         "id": 86,
-        "url": "https://pixel.rubiconproject.com/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://pixel.rubiconproject.com/{seg}?v=&%5Bredacted%5D=",
         "domain": "pixel.rubiconproject.com",
         "method": "GET",
         "resourceType": "image",
@@ -5457,8 +5339,8 @@
       },
       {
         "id": 87,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -5474,8 +5356,8 @@
       },
       {
         "id": 88,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -5491,8 +5373,8 @@
       },
       {
         "id": 89,
-        "url": "https://datacloud.tealiumiq.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=",
-        "domain": "datacloud.tealiumiq.com",
+        "url": "https://{label}.tealiumiq.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tealiumiq.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5508,8 +5390,8 @@
       },
       {
         "id": 90,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5525,8 +5407,8 @@
       },
       {
         "id": 91,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5542,7 +5424,7 @@
       },
       {
         "id": 92,
-        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "ad.doubleclick.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -5576,8 +5458,8 @@
       },
       {
         "id": 94,
-        "url": "https://{label}.fls.doubleclick.net/{seg}",
-        "domain": "{label}.fls.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 302,
@@ -5593,7 +5475,7 @@
       },
       {
         "id": 95,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -5610,7 +5492,7 @@
       },
       {
         "id": 96,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -5622,7 +5504,7 @@
       },
       {
         "id": 97,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -5639,8 +5521,8 @@
       },
       {
         "id": 98,
-        "url": "https://api-cdn.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "api-cdn.use2.us-gov-pure.cloud",
+        "url": "https://{label}.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5651,8 +5533,8 @@
       },
       {
         "id": 99,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -5663,8 +5545,8 @@
       },
       {
         "id": 100,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5675,8 +5557,8 @@
       },
       {
         "id": 101,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5687,8 +5569,8 @@
       },
       {
         "id": 102,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5704,8 +5586,8 @@
       },
       {
         "id": 103,
-        "url": "https://gov-bam.nr-data.net/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov-bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -5733,8 +5615,8 @@
       },
       {
         "id": 105,
-        "url": "https://flask.nextdoor.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&ev=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "flask.nextdoor.com",
+        "url": "https://{label}.nextdoor.com/{seg}?%5Bredacted%5D=&ev=&v=",
+        "domain": "{label}.nextdoor.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -5745,8 +5627,8 @@
       },
       {
         "id": 106,
-        "url": "https://api-cdn.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "api-cdn.use2.us-gov-pure.cloud",
+        "url": "https://{label}.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5757,8 +5639,8 @@
       },
       {
         "id": 107,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5769,8 +5651,8 @@
       },
       {
         "id": 108,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -5781,8 +5663,8 @@
       },
       {
         "id": 109,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -5793,8 +5675,8 @@
       },
       {
         "id": 110,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -5805,8 +5687,8 @@
       },
       {
         "id": 111,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5817,8 +5699,8 @@
       },
       {
         "id": 112,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5829,8 +5711,8 @@
       },
       {
         "id": 113,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5853,8 +5735,8 @@
       },
       {
         "id": 115,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5865,8 +5747,8 @@
       },
       {
         "id": 116,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5877,8 +5759,8 @@
       },
       {
         "id": 117,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5889,8 +5771,8 @@
       },
       {
         "id": 118,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5901,8 +5783,8 @@
       },
       {
         "id": 119,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5913,8 +5795,8 @@
       },
       {
         "id": 120,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5925,8 +5807,8 @@
       },
       {
         "id": 121,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5937,8 +5819,8 @@
       },
       {
         "id": 122,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5949,8 +5831,8 @@
       },
       {
         "id": 123,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5961,8 +5843,8 @@
       },
       {
         "id": 124,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5973,8 +5855,8 @@
       },
       {
         "id": 125,
-        "url": "https://gov-bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "gov-bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -5990,8 +5872,8 @@
       },
       {
         "id": 126,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6002,8 +5884,8 @@
       },
       {
         "id": 127,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6014,8 +5896,8 @@
       },
       {
         "id": 128,
-        "url": "https://apps.use2.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}",
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "url": "https://apps.{label}.us-gov-pure.cloud/{seg}/{seg}/{seg}/{seg}",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6038,8 +5920,8 @@
       },
       {
         "id": 130,
-        "url": "https://{label}.fls.doubleclick.net/{seg}",
-        "domain": "{label}.fls.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -6055,14 +5937,14 @@
       },
       {
         "id": 131,
-        "url": "https://adservice.google.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "adservice.google.com",
+        "url": "https://{label}.google.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.google.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "adservice.google.com",
+          "domain": "{label}.google.com",
           "entity": "Google",
           "category": "advertising",
           "confidence": "curated"
@@ -6072,8 +5954,8 @@
       },
       {
         "id": 132,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6101,8 +5983,8 @@
       },
       {
         "id": 134,
-        "url": "https://{label}.gov1.siteintercept.qualtrics.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "{label}.gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.{label}.qualtrics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6113,8 +5995,8 @@
       },
       {
         "id": 135,
-        "url": "https://bam.nr-data.net/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6130,7 +6012,7 @@
       },
       {
         "id": 136,
-        "url": "https://ds-aksb-a.akamaihd.net/{n}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://ds-aksb-a.akamaihd.net/{n}/{n}/{seg}?%5Bredacted%5D=&t=",
         "domain": "ds-aksb-a.akamaihd.net",
         "method": "GET",
         "resourceType": "image",
@@ -6142,8 +6024,8 @@
       },
       {
         "id": 137,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6154,8 +6036,8 @@
       },
       {
         "id": 138,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6166,8 +6048,8 @@
       },
       {
         "id": 139,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -6178,8 +6060,8 @@
       },
       {
         "id": 140,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6190,8 +6072,8 @@
       },
       {
         "id": 141,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6202,8 +6084,8 @@
       },
       {
         "id": 142,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6214,8 +6096,8 @@
       },
       {
         "id": 143,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6226,8 +6108,8 @@
       },
       {
         "id": 144,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6238,8 +6120,8 @@
       },
       {
         "id": 145,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6250,8 +6132,8 @@
       },
       {
         "id": 146,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6262,8 +6144,8 @@
       },
       {
         "id": 147,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6274,8 +6156,8 @@
       },
       {
         "id": 148,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6286,8 +6168,8 @@
       },
       {
         "id": 149,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6298,8 +6180,8 @@
       },
       {
         "id": 150,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6310,8 +6192,8 @@
       },
       {
         "id": 151,
-        "url": "https://gov1.sr.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.sr.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6322,8 +6204,8 @@
       },
       {
         "id": 152,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}/{n}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -6334,8 +6216,8 @@
       },
       {
         "id": 153,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}/{n}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -6346,8 +6228,8 @@
       },
       {
         "id": 154,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 307,
@@ -6358,8 +6240,8 @@
       },
       {
         "id": 155,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 307,
@@ -6370,8 +6252,8 @@
       },
       {
         "id": 156,
-        "url": "https://gov1.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "gov1.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6382,8 +6264,8 @@
       },
       {
         "id": 157,
-        "url": "https://adobe-ep.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "adobe-ep.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6394,8 +6276,8 @@
       },
       {
         "id": 158,
-        "url": "https://adobe-ep.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "adobe-ep.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6406,8 +6288,8 @@
       },
       {
         "id": 159,
-        "url": "https://surveys.cms.gov/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.cms.gov",
         "method": "POST",
         "resourceType": "document",
         "status": 200,
@@ -6418,8 +6300,8 @@
       },
       {
         "id": 160,
-        "url": "https://tealium-visitor-service.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-visitor-service.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6430,8 +6312,8 @@
       },
       {
         "id": 161,
-        "url": "https://tealium-visitor-service.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-visitor-service.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6442,8 +6324,8 @@
       },
       {
         "id": 162,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 301,
@@ -6454,8 +6336,8 @@
       },
       {
         "id": 163,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 307,
@@ -6466,8 +6348,8 @@
       },
       {
         "id": 164,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6478,8 +6360,8 @@
       },
       {
         "id": 165,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 301,
@@ -6490,8 +6372,8 @@
       },
       {
         "id": 166,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -6502,8 +6384,8 @@
       },
       {
         "id": 167,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6514,8 +6396,8 @@
       },
       {
         "id": 168,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -6538,8 +6420,8 @@
       },
       {
         "id": 170,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6550,8 +6432,8 @@
       },
       {
         "id": 171,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6562,8 +6444,8 @@
       },
       {
         "id": 172,
-        "url": "https://surveys.cms.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -6586,8 +6468,8 @@
       },
       {
         "id": 174,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6598,8 +6480,8 @@
       },
       {
         "id": 175,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6610,8 +6492,8 @@
       },
       {
         "id": 176,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6622,8 +6504,8 @@
       },
       {
         "id": 177,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6634,8 +6516,8 @@
       },
       {
         "id": 178,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6646,8 +6528,8 @@
       },
       {
         "id": 179,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6658,8 +6540,8 @@
       },
       {
         "id": 180,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6670,8 +6552,8 @@
       },
       {
         "id": 181,
-        "url": "https://surveys.cms.gov/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6682,8 +6564,8 @@
       },
       {
         "id": 182,
-        "url": "https://surveys.cms.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6694,8 +6576,8 @@
       },
       {
         "id": 183,
-        "url": "https://fonts.cdnfonts.com/{seg}/{seg}",
-        "domain": "fonts.cdnfonts.com",
+        "url": "https://{label}.cdnfonts.com/{seg}/{seg}",
+        "domain": "{label}.cdnfonts.com",
         "method": "GET",
         "resourceType": "font",
         "status": 404,
@@ -6706,8 +6588,8 @@
       },
       {
         "id": 184,
-        "url": "https://fonts.cdnfonts.com/{seg}/{seg}",
-        "domain": "fonts.cdnfonts.com",
+        "url": "https://{label}.cdnfonts.com/{seg}/{seg}",
+        "domain": "{label}.cdnfonts.com",
         "method": "GET",
         "resourceType": "font",
         "status": 404,
@@ -6718,8 +6600,8 @@
       },
       {
         "id": 185,
-        "url": "https://surveys.cms.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -6730,8 +6612,8 @@
       },
       {
         "id": 186,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6742,8 +6624,8 @@
       },
       {
         "id": 187,
-        "url": "https://surveys.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.cms.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6754,8 +6636,8 @@
       },
       {
         "id": 188,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 307,
@@ -6766,8 +6648,8 @@
       },
       {
         "id": 189,
-        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 307,
@@ -6778,8 +6660,8 @@
       },
       {
         "id": 190,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 307,
@@ -6790,8 +6672,8 @@
       },
       {
         "id": 191,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 307,
@@ -6802,8 +6684,8 @@
       },
       {
         "id": 192,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 301,
@@ -6814,8 +6696,8 @@
       },
       {
         "id": 193,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 301,
@@ -6826,8 +6708,8 @@
       },
       {
         "id": 194,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6838,8 +6720,8 @@
       },
       {
         "id": 195,
-        "url": "https://gov1.siteintercept.qualtrics.com/static/{seg}/{seg}/{seg}",
-        "domain": "gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6850,8 +6732,8 @@
       },
       {
         "id": 196,
-        "url": "https://datacloud.tealiumiq.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=",
-        "domain": "datacloud.tealiumiq.com",
+        "url": "https://{label}.tealiumiq.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tealiumiq.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6867,8 +6749,8 @@
       },
       {
         "id": 197,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6879,7 +6761,7 @@
       },
       {
         "id": 198,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -6896,8 +6778,8 @@
       },
       {
         "id": 199,
-        "url": "https://gov1.sr.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.sr.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "PUT",
         "resourceType": "fetch",
         "status": 200,
@@ -6920,8 +6802,8 @@
       },
       {
         "id": 201,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}/{n}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -6932,8 +6814,8 @@
       },
       {
         "id": 202,
-        "url": "https://adobe-ep.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "adobe-ep.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6944,8 +6826,8 @@
       },
       {
         "id": 203,
-        "url": "https://tealium-visitor-service.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-visitor-service.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6956,8 +6838,8 @@
       },
       {
         "id": 204,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}/{n}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -6968,8 +6850,8 @@
       },
       {
         "id": 205,
-        "url": "https://adobe-ep.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "adobe-ep.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6980,8 +6862,8 @@
       },
       {
         "id": 206,
-        "url": "https://tealium-visitor-service.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-visitor-service.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6992,8 +6874,8 @@
       },
       {
         "id": 207,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}/{n}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -7004,8 +6886,8 @@
       },
       {
         "id": 208,
-        "url": "https://adobe-ep.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "adobe-ep.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -7016,8 +6898,8 @@
       },
       {
         "id": 209,
-        "url": "https://tealium-visitor-service.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-visitor-service.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7028,8 +6910,8 @@
       },
       {
         "id": 210,
-        "url": "https://tealium-collect.medicare.gov/{seg}/{seg}/{n}/{seg}",
-        "domain": "tealium-collect.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -7040,8 +6922,8 @@
       },
       {
         "id": 211,
-        "url": "https://adobe-ep.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "adobe-ep.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -7052,8 +6934,8 @@
       },
       {
         "id": 212,
-        "url": "https://tealium-visitor-service.medicare.gov/{seg}/{seg}/{seg}",
-        "domain": "tealium-visitor-service.medicare.gov",
+        "url": "https://{label}.medicare.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.medicare.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7064,8 +6946,8 @@
       },
       {
         "id": 213,
-        "url": "https://gov1.sr.qualtrics.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gov1.sr.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -7076,8 +6958,8 @@
       },
       {
         "id": 214,
-        "url": "https://surveys.cms.gov/{seg}/{seg}/{seg}/{seg}?tid=",
-        "domain": "surveys.cms.gov",
+        "url": "https://{label}.cms.gov/{seg}/{seg}/{seg}/{seg}?tid=",
+        "domain": "{label}.cms.gov",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -7088,14 +6970,14 @@
       },
       {
         "id": 215,
-        "url": "https://bat.bing.com/{seg}/{n}?%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&msclkid=&%5Bredacted%5D=",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{n}?%5Bredacted%5D=&ver=&msclkid=",
+        "domain": "{label}.bing.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -7105,7 +6987,7 @@
       },
       {
         "id": 216,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -7122,8 +7004,8 @@
       },
       {
         "id": 217,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -7139,7 +7021,7 @@
       },
       {
         "id": 218,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -7156,7 +7038,7 @@
       },
       {
         "id": 219,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -7173,8 +7055,8 @@
       },
       {
         "id": 220,
-        "url": "https://gov-bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "gov-bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -7190,8 +7072,8 @@
       },
       {
         "id": 221,
-        "url": "https://gov-bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "gov-bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -7207,8 +7089,8 @@
       },
       {
         "id": 222,
-        "url": "https://gov-bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "gov-bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -7224,7 +7106,7 @@
       },
       {
         "id": 223,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -7236,7 +7118,7 @@
       },
       {
         "id": 224,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -7248,7 +7130,7 @@
       },
       {
         "id": 225,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -7278,27 +7160,8 @@
     ],
     "domains": [
       {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 6,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "match.adsrvr.org",
-        "requests": 5,
+        "domain": "{label}.adsrvr.org",
+        "requests": 8,
         "thirdParty": true,
         "tracker": {
           "domain": "adsrvr.org",
@@ -7312,6 +7175,46 @@
         ],
         "resourceTypes": [
           "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 8,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.nr-data.net",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "ping"
         ]
       },
       {
@@ -7333,30 +7236,11 @@
         ]
       },
       {
-        "domain": "gov-bam.nr-data.net",
-        "requests": 5,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "nr-data.net",
-          "entity": "New Relic",
-          "category": "performance monitoring",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
-          "ping"
-        ]
-      },
-      {
-        "domain": "bat.bing.com",
+        "domain": "{label}.bing.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -7370,24 +7254,6 @@
           "script",
           "image",
           "ping"
-        ]
-      },
-      {
-        "domain": "insight.adsrvr.org",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          302
-        ],
-        "resourceTypes": [
-          "image"
         ]
       },
       {
@@ -7447,7 +7313,7 @@
         ]
       },
       {
-        "domain": "datacloud.tealiumiq.com",
+        "domain": "{label}.tealiumiq.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -7466,26 +7332,7 @@
         ]
       },
       {
-        "domain": "{label}.fls.doubleclick.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "js-agent.newrelic.com",
+        "domain": "{label}.newrelic.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -7503,26 +7350,7 @@
         ]
       },
       {
-        "domain": "bam.nr-data.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "nr-data.net",
-          "entity": "New Relic",
-          "category": "performance monitoring",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "ping"
-        ]
-      },
-      {
-        "domain": "adobedc.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -7540,11 +7368,11 @@
         ]
       },
       {
-        "domain": "adservice.google.com",
+        "domain": "{label}.google.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
-          "domain": "adservice.google.com",
+          "domain": "{label}.google.com",
           "entity": "Google",
           "category": "advertising",
           "confidence": "curated"
@@ -7558,8 +7386,8 @@
         ]
       },
       {
-        "domain": "gov1.siteintercept.qualtrics.com",
-        "requests": 31,
+        "domain": "{label}.{label}.qualtrics.com",
+        "requests": 34,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -7571,11 +7399,13 @@
         "resourceTypes": [
           "script",
           "xhr",
-          "image"
+          "fetch",
+          "image",
+          "ping"
         ]
       },
       {
-        "domain": "apps.use2.us-gov-pure.cloud",
+        "domain": "apps.{label}.us-gov-pure.cloud",
         "requests": 24,
         "thirdParty": true,
         "tracker": null,
@@ -7590,7 +7420,7 @@
         ]
       },
       {
-        "domain": "surveys.cms.gov",
+        "domain": "{label}.cms.gov",
         "requests": 17,
         "thirdParty": true,
         "tracker": null,
@@ -7608,7 +7438,7 @@
         ]
       },
       {
-        "domain": "tags.tiqcdn.com",
+        "domain": "{label}.tiqcdn.com",
         "requests": 13,
         "thirdParty": true,
         "tracker": null,
@@ -7648,20 +7478,6 @@
         ]
       },
       {
-        "domain": "gov1.sr.qualtrics.com",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch",
-          "ping"
-        ]
-      },
-      {
         "domain": "ds-aksb-a.akamaihd.net",
         "requests": 2,
         "thirdParty": true,
@@ -7690,7 +7506,7 @@
         ]
       },
       {
-        "domain": "dap.digitalgov.gov",
+        "domain": "{label}.digitalgov.gov",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -7717,7 +7533,7 @@
         ]
       },
       {
-        "domain": "api-cdn.use2.us-gov-pure.cloud",
+        "domain": "{label}.{label}.us-gov-pure.cloud",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -7743,7 +7559,7 @@
         ]
       },
       {
-        "domain": "fonts.cdnfonts.com",
+        "domain": "{label}.cdnfonts.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -7756,7 +7572,7 @@
         ]
       },
       {
-        "domain": "clientsdk.launchdarkly.us",
+        "domain": "{label}.launchdarkly.us",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -7782,7 +7598,7 @@
         ]
       },
       {
-        "domain": "flask.nextdoor.com",
+        "domain": "{label}.nextdoor.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -7795,7 +7611,7 @@
         ]
       },
       {
-        "domain": "{label}.gov1.siteintercept.qualtrics.com",
+        "domain": "{label}.{label}.{label}.qualtrics.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -7808,7 +7624,7 @@
         ]
       },
       {
-        "domain": "gov1.qualtrics.com",
+        "domain": "{label}.qualtrics.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -7851,8 +7667,8 @@
         ]
       },
       {
-        "domain": "tealium-collect.medicare.gov",
-        "requests": 8,
+        "domain": "{label}.medicare.gov",
+        "requests": 27,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
@@ -7860,64 +7676,13 @@
           200
         ],
         "resourceTypes": [
-          "xhr",
-          "ping",
-          "image"
-        ]
-      },
-      {
-        "domain": "tealium-visitor-service.medicare.gov",
-        "requests": 7,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "adobe-ep.medicare.gov",
-        "requests": 6,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "frontend.medicare.gov",
-        "requests": 4,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "stylesheet",
           "script",
+          "stylesheet",
+          "xhr",
           "image",
-          "font"
-        ]
-      },
-      {
-        "domain": "tealium-tags.medicare.gov",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
+          "font",
+          "ping",
+          "fetch"
         ]
       },
       {
@@ -7959,7 +7724,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".bat.bing.com",
+        "domain": ".{label}.bing.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -8279,7 +8044,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".tealium-collect.medicare.gov",
+        "domain": ".{label}.medicare.gov",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -8289,7 +8054,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".tealium-collect.medicare.gov",
+        "domain": ".{label}.medicare.gov",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -8299,7 +8064,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".tealium-collect.medicare.gov",
+        "domain": ".{label}.medicare.gov",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -8309,7 +8074,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".tealium-collect.medicare.gov",
+        "domain": ".{label}.medicare.gov",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -8557,8 +8322,8 @@
       "delta": -1
     },
     "thirdPartyDomains": {
-      "before": 34,
-      "after": 35,
+      "before": 30,
+      "after": 31,
       "delta": 1
     },
     "cookies": {

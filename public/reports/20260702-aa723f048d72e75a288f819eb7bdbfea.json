@@ -381,7 +381,7 @@
       },
       {
         "id": 27,
-        "url": "https://analytics.ietf.org/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://analytics.ietf.org/{seg}?%5Bredacted%5D=",
         "domain": "analytics.ietf.org",
         "method": "POST",
         "resourceType": "ping",
@@ -417,7 +417,7 @@
       },
       {
         "id": 30,
-        "url": "https://analytics.ietf.org/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://analytics.ietf.org/{seg}?%5Bredacted%5D=",
         "domain": "analytics.ietf.org",
         "method": "POST",
         "resourceType": "ping",
@@ -429,7 +429,7 @@
       },
       {
         "id": 31,
-        "url": "https://analytics.ietf.org/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://analytics.ietf.org/{seg}?%5Bredacted%5D=",
         "domain": "analytics.ietf.org",
         "method": "POST",
         "resourceType": "ping",

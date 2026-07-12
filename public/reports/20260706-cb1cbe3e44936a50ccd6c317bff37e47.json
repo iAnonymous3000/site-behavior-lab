@@ -23,7 +23,7 @@
       "totalRequests": 56,
       "thirdPartyRequests": 4,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 3,
+      "thirdPartyDomains": 2,
       "cookies": 16,
       "thirdPartyCookies": 0,
       "storageEntries": 61,
@@ -81,8 +81,8 @@
       },
       {
         "id": 2,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -93,8 +93,8 @@
       },
       {
         "id": 3,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -105,8 +105,8 @@
       },
       {
         "id": 4,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -117,8 +117,8 @@
       },
       {
         "id": 5,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -129,8 +129,8 @@
       },
       {
         "id": 6,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -141,8 +141,8 @@
       },
       {
         "id": 7,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -225,8 +225,8 @@
       },
       {
         "id": 14,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -393,8 +393,8 @@
       },
       {
         "id": 28,
-        "url": "https://s2.go-mpulse.net/{seg}/{seg}",
-        "domain": "s2.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/{seg}/{seg}",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -465,8 +465,8 @@
       },
       {
         "id": 34,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -477,8 +477,8 @@
       },
       {
         "id": 35,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{n}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -489,8 +489,8 @@
       },
       {
         "id": 36,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -705,8 +705,8 @@
       },
       {
         "id": 54,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -717,8 +717,8 @@
       },
       {
         "id": 55,
-        "url": "https://c.go-mpulse.net/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
@@ -729,8 +729,8 @@
       },
       {
         "id": 57,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -741,6 +741,21 @@
       }
     ],
     "domains": [
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
       {
         "domain": "static.chasecdn.com",
         "requests": 2,
@@ -753,32 +768,6 @@
         "resourceTypes": [
           "fetch",
           "script"
-        ]
-      },
-      {
-        "domain": "s2.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "c.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -799,7 +788,7 @@
         ]
       },
       {
-        "domain": "asset.chase.com",
+        "domain": "{label}.chase.com",
         "requests": 14,
         "thirdParty": false,
         "tracker": null,
@@ -1288,12 +1277,16 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "canvas.measureText",
-        "count": 218
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
       },
       {
         "api": "canvas.getImageData",
         "count": 57
+      },
+      {
+        "api": "canvas.measureText",
+        "count": 218
       },
       {
         "api": "canvas.toDataURL",
@@ -1308,6 +1301,14 @@
         "count": 2
       },
       {
+        "api": "webgl2.readPixels",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      },
+      {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
         "count": 2
       },
@@ -1318,18 +1319,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 2
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "webgl2.readPixels",
-        "count": 1
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -1377,8 +1366,8 @@
             "other"
           ],
           "thirdPartyOrigins": [
-            "https://asset.chase.com/",
-            "https://s2.go-mpulse.net/"
+            "https://{label}.chase.com/",
+            "https://{label}.go-mpulse.net/"
           ],
           "totalListenerCalls": 25
         }
@@ -1409,8 +1398,8 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://asset.chase.com/",
-            "https://s2.go-mpulse.net/"
+            "https://{label}.chase.com/",
+            "https://{label}.go-mpulse.net/"
           ],
           "totalListenerCalls": 35
         }
@@ -1454,7 +1443,7 @@
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Blocked a request that could not be verified as public: https://securej.chase.com/{seg}/api/{seg}/{seg}/{seg}",
+      "Blocked a request that could not be verified as public: https://{label}.chase.com/{seg}/api/{seg}/{seg}/{seg}",
       "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
       "Read the site's privacy policy (https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
@@ -1529,8 +1518,8 @@
       },
       {
         "id": 2,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1541,8 +1530,8 @@
       },
       {
         "id": 3,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1553,8 +1542,8 @@
       },
       {
         "id": 4,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1565,8 +1554,8 @@
       },
       {
         "id": 5,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1577,8 +1566,8 @@
       },
       {
         "id": 6,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1589,8 +1578,8 @@
       },
       {
         "id": 7,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1601,8 +1590,8 @@
       },
       {
         "id": 8,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1673,8 +1662,8 @@
       },
       {
         "id": 14,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1685,8 +1674,8 @@
       },
       {
         "id": 15,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -1901,8 +1890,8 @@
       },
       {
         "id": 35,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1913,8 +1902,8 @@
       },
       {
         "id": 36,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{n}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1925,8 +1914,8 @@
       },
       {
         "id": 37,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2165,8 +2154,8 @@
       },
       {
         "id": 57,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2177,8 +2166,8 @@
       },
       {
         "id": 59,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2189,8 +2178,8 @@
       },
       {
         "id": 60,
-        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "asset.chase.com",
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2233,7 +2222,7 @@
         ]
       },
       {
-        "domain": "asset.chase.com",
+        "domain": "{label}.chase.com",
         "requests": 15,
         "thirdParty": false,
         "tracker": null,
@@ -2722,12 +2711,16 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "canvas.measureText",
-        "count": 162
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
       },
       {
         "api": "canvas.getImageData",
         "count": 57
+      },
+      {
+        "api": "canvas.measureText",
+        "count": 162
       },
       {
         "api": "canvas.toDataURL",
@@ -2742,6 +2735,14 @@
         "count": 2
       },
       {
+        "api": "webgl2.readPixels",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      },
+      {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
         "count": 2
       },
@@ -2752,18 +2753,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 2
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "webgl2.readPixels",
-        "count": 1
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -2810,7 +2799,7 @@
             "input"
           ],
           "thirdPartyOrigins": [
-            "https://asset.chase.com/"
+            "https://{label}.chase.com/"
           ],
           "totalListenerCalls": 24
         }
@@ -2840,7 +2829,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://asset.chase.com/"
+            "https://{label}.chase.com/"
           ],
           "totalListenerCalls": 33
         }
@@ -2885,7 +2874,7 @@
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-      "Blocked a request that could not be verified as public: https://securej.chase.com/{seg}/api/{seg}/{seg}/{seg}",
+      "Blocked a request that could not be verified as public: https://{label}.chase.com/{seg}/api/{seg}/{seg}/{seg}",
       "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
       "Read the site's privacy policy (https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
@@ -2907,9 +2896,9 @@
       "delta": 0
     },
     "thirdPartyDomains": {
-      "before": 3,
+      "before": 2,
       "after": 1,
-      "delta": -2
+      "delta": -1
     },
     "cookies": {
       "before": 16,
@@ -2934,13 +2923,8 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "c.go-mpulse.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "s2.go-mpulse.net",
-        "requests": 1,
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
         "tracker": null
       }
     ],
@@ -2964,13 +2948,13 @@
     "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "No blocking: Blocked a request that could not be verified as public: https://securej.chase.com/{seg}/api/{seg}/{seg}/{seg}",
+    "No blocking: Blocked a request that could not be verified as public: https://{label}.chase.com/{seg}/api/{seg}/{seg}/{seg}",
     "No blocking: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
     "No blocking: Read the site's privacy policy (https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-    "Brave-list blocking: Blocked a request that could not be verified as public: https://securej.chase.com/{seg}/api/{seg}/{seg}/{seg}",
+    "Brave-list blocking: Blocked a request that could not be verified as public: https://{label}.chase.com/{seg}/api/{seg}/{seg}/{seg}",
     "Brave-list blocking: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
     "Brave-list blocking: Read the site's privacy policy (https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],

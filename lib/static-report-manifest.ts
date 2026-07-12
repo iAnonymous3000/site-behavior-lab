@@ -1,5 +1,6 @@
 import { isReservedReportDomain } from "./reserved-report-domains";
-import { familyCensoredOnRun, toReportView, type ReportView } from "./scan-report-views";
+import { buildReportHeadline } from "./report-headline";
+import { familyCensoredOnRun, displayRunView, toReportView, type ReportView } from "./scan-report-views";
 import {
   listDanglingStaticSidecarIds,
   listStaticReportCandidateIds,
@@ -7,6 +8,13 @@ import {
   StaticReportBundleError
 } from "./static-report-files";
 import type { StaticReportManifest, StaticReportManifestEntry } from "./types";
+import { comparisonHistoryPairingKey, temporalPairingKey } from "./temporal-deltas";
+import {
+  comparisonHistoryCohortForStoredReport,
+  consentClicksForView,
+  temporalCohortForStoredReport
+} from "./temporal-report-identity";
+import type { StoredScanReport } from "./scan-report-reader";
 
 /**
  * Builds the static gallery manifest (public/reports/index.json) from the
@@ -40,7 +48,8 @@ export async function buildStaticReportManifest(reportsDir: string, now = new Da
       throw new StaticReportBundleError(id, read.outcome === "not-found" ? "missing-report" : read.reason);
     }
 
-    const entry = toManifestEntry(id, toReportView(read.stored));
+    const view = toReportView(read.stored);
+    const entry = toManifestEntry(id, read.stored, view);
     if (!entry) continue;
     entries.push(entry);
   }
@@ -49,13 +58,13 @@ export async function buildStaticReportManifest(reportsDir: string, now = new Da
   return { manifest: { generatedAt: now.toISOString(), reports: entries }, warnings };
 }
 
-function toManifestEntry(id: string, view: ReportView): StaticReportManifestEntry | null {
+function toManifestEntry(id: string, stored: StoredScanReport, view: ReportView): StaticReportManifestEntry | null {
   // Cards summarize the baseline (the plain "off" state) so a Shields card
   // shows what the site tried, not the blocked residual; the blocked count is
   // surfaced separately. The v1 producer wrote the comparison root's
   // requestedUrl/device from the VARIANT arm, so those two stay variant-fed
   // for byte parity with the committed manifest.
-  const lead = view.runs[0];
+  const lead = displayRunView(view);
   const tail = view.runs[view.runs.length - 1];
   if (!lead) return null;
   const comparison = view.reportType === "comparison";
@@ -64,22 +73,48 @@ function toManifestEntry(id: string, view: ReportView): StaticReportManifestEntr
   // public gallery.
   if (isReservedReportDomain(lead.domain)) return null;
 
+  const comparisonType = comparison
+    ? view.comparison?.axis ?? (view.comparison?.temporalPair ? ("temporal" as const) : ("custom" as const))
+    : undefined;
+  const historyKey = temporalPairingKey({
+    domain: lead.domain,
+    reportType: view.reportType,
+    comparisonType,
+    consentClicks: consentClicksForView(view),
+    requestedUrl: lead.conditions.requestedUrl,
+    finalUrl: lead.conditions.finalUrl,
+    temporalCohort: temporalCohortForStoredReport(stored, view)
+  });
+  const comparisonHistoryKey = comparisonHistoryPairingKey({
+    domain: lead.domain,
+    reportType: view.reportType,
+    comparisonType,
+    consentClicks: consentClicksForView(view),
+    requestedUrl: lead.conditions.requestedUrl,
+    finalUrl: lead.conditions.finalUrl,
+    comparisonHistoryCohort: comparisonHistoryCohortForStoredReport(stored, view)
+  });
+  const headline = buildReportHeadline(view);
+
   return {
     id,
     title: (view.title ?? "").trim() || lead.pageTitle || lead.domain,
-    domain: lead.domain,
+    headline: headline.headline,
+    tone: headline.tone,
+    domain: headline.domain,
     requestedUrl: (comparison ? tail : lead).conditions.requestedUrl,
     scannedAt: view.scannedAt ?? "",
     reportType: view.reportType,
     ...(comparison
       ? {
-          comparisonType:
-            view.comparison?.axis ?? (view.comparison?.temporalPair ? ("temporal" as const) : ("custom" as const))
+          comparisonType
         }
       : {}),
     device: (comparison ? tail : lead).conditions.viewport.isMobile ? "mobile" : "desktop",
     gpcEnabled: comparison ? "comparison" : lead.conditions.gpcEnabled,
     ...(familyCensoredOnRun(lead, "requests") ? { requestCapped: true } : {}),
+    ...(historyKey ? { historyKey } : {}),
+    ...(comparisonHistoryKey ? { comparisonHistoryKey } : {}),
     metrics: {
       totalRequests: lead.counts.totalRequests,
       thirdPartyRequests: lead.counts.thirdPartyRequests,

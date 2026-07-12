@@ -136,8 +136,8 @@ type SubjectIdentity = {
 };
 type SubjectKey = {
   origin: string;                    // normalized privacy-safe origin (sections 9.1/9.2 host policy):
-                                     // lowercase, IDN as punycode A-label, default port stripped,
-                                     // token-like subdomain labels generalized
+                                     // lowercase, IDN as punycode A-label, default port/trailing dot stripped,
+                                     // non-allowlisted subdomain labels generalized
   registrableDomain: string;         // eTLD+1 ("example.com")
   routeShape: string;                // section 9.1 ("/products/{seg}")
 };
@@ -718,12 +718,13 @@ fails to parse is **returned unmodified** (`report-url.ts:26`), which v2 forbids
 
 ### 9.1 URL policy, default-deny
 
-- **Host**: lowercase, IDN to punycode A-label, default port stripped. The registrable
-  domain (public-suffix data) always survives. Each subdomain label left of it is
-  screened: labels that are long, high-entropy, hex/UUID/base64-shaped, or exceed a
-  length cap generalize to `{label}` (`privacy.redaction.subdomainLabelsGeneralized`).
-  Tracker evidence keeps its value (`telemetry.example.com` survives;
-  `a8f3c9d2e1.telemetry.example.com` becomes `{label}.telemetry.example.com`).
+- **Host**: lowercase, IDN to punycode A-label, default port and trailing dot stripped.
+  The registrable domain survives only when the pinned public-suffix engine identifies
+  an ICANN or private suffix; special-use and suffix-less hosts fail closed. Every
+  subdomain label left of the registrable domain survives only through the versioned
+  exact-literal allowlist; every other label becomes `{label}`
+  (`privacy.redaction.subdomainLabelsGeneralized`). Existing `{label}` markers are
+  terminal so repeated public-boundary passes are byte-idempotent.
 - **Path**: at most N segments (proposal: 6). A segment survives literally **only** if
   it appears in the versioned literal allowlist `routeLiteralAllowlist@<version>`
   (common route words: `products`, `privacy`, `search`, `api`, `docs`; shipped as a
@@ -733,9 +734,10 @@ fails to parse is **returned unmodified** (`report-url.ts:26`), which v2 forbids
 - **Matrix parameters**: everything from the first `;` in each segment is stripped
   before classification; the parameter name survives only via
   `queryKeyAllowlist@<version>`.
-- **Query**: values always dropped; a key survives only via
-  `queryKeyAllowlist@<version>` (exact literals plus a small set of reviewed prefix
-  rules such as `utm_`), else it becomes `[redacted]`.
+- **Query**: values always dropped; a key survives only via an exact literal in
+  `queryKeyAllowlist@<version>`, else it becomes `[redacted]`. Prefix rules are
+  forbidden because an open-ended namespace can carry page- or operator-controlled
+  identifiers.
 - **Malformed input redacts, never passes through**: an unparseable URL becomes
   `{invalid-url}` and increments `privacy.redaction.malformedUrlsDropped`.
 - **No public unsalted hashes for token-like values**, anywhere: a hash of a
@@ -750,6 +752,12 @@ URLs and subject origins, `consent.frameUrl`, `privacyPolicy.url`, PageGraph
 fact-table rows ([lib/pagegraph-corpus.ts](../lib/pagegraph-corpus.ts)), corpus
 exports, share links surfaced in UI, server logs, and any future queued job payload.
 One sanitizer, one version number, one test suite.
+
+Bounded page titles and bounded privacy-policy quotes are deliberate page-derived
+evidence, not producer vocabulary. They remain public only in their documented
+evidence fields; condition metadata, detector labels, tracker associations, enums,
+methodology disclosures, and provenance identities are closed producer-owned
+vocabularies and may not inherit arbitrary page strings.
 
 ### 9.3 Names and keys: versioned literal allowlists, no patterns
 

@@ -765,8 +765,8 @@
       },
       {
         "id": 59,
-        "url": "https://2.api.pof.com/{seg}/{seg}",
-        "domain": "2.api.pof.com",
+        "url": "https://{label}.api.pof.com/{seg}/{seg}",
+        "domain": "{label}.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -806,8 +806,8 @@
       },
       {
         "id": 62,
-        "url": "https://2.api.pof.com/{seg}/{seg}",
-        "domain": "2.api.pof.com",
+        "url": "https://{label}.api.pof.com/{seg}/{seg}",
+        "domain": "{label}.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -842,8 +842,8 @@
       },
       {
         "id": 65,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -997,7 +997,7 @@
         ]
       },
       {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1027,7 +1027,7 @@
         ]
       },
       {
-        "domain": "2.api.pof.com",
+        "domain": "{label}.api.pof.com",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -1163,7 +1163,7 @@
       }
     ],
     "privacyPolicy": {
-      "url": "https://policies.pof.com/{seg}",
+      "url": "https://{label}.pof.com/{seg}",
       "claims": [],
       "mentionedEntities": [
         "Google"
@@ -1176,7 +1176,7 @@
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://policies.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "variant": {
@@ -1933,8 +1933,8 @@
       },
       {
         "id": 59,
-        "url": "https://2.api.pof.com/{seg}/{seg}",
-        "domain": "2.api.pof.com",
+        "url": "https://{label}.api.pof.com/{seg}/{seg}",
+        "domain": "{label}.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1957,8 +1957,8 @@
       },
       {
         "id": 62,
-        "url": "https://2.api.pof.com/{seg}/{seg}",
-        "domain": "2.api.pof.com",
+        "url": "https://{label}.api.pof.com/{seg}/{seg}",
+        "domain": "{label}.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1987,7 +1987,7 @@
         ]
       },
       {
-        "domain": "2.api.pof.com",
+        "domain": "{label}.api.pof.com",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -2082,7 +2082,7 @@
     "fingerprintEvents": [],
     "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://policies.pof.com/{seg}",
+      "url": "https://{label}.pof.com/{seg}",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [],
@@ -2094,7 +2094,7 @@
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://policies.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "diff": {
@@ -2146,7 +2146,7 @@
         "tracker": null
       },
       {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "tracker": null
       },
@@ -2205,12 +2205,12 @@
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "No blocking: Read the site's privacy policy (https://policies.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://{label}.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
     "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Brave-list blocking: Read the site's privacy policy (https://policies.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://{label}.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260706-f8735f85c28bf8a8ef0e5152649c8570",

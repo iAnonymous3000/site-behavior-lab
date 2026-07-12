@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -501,8 +501,8 @@
       },
       {
         "id": 37,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -525,8 +525,8 @@
       },
       {
         "id": 39,
-        "url": "https://o260369.ingest.us.sentry.io/api/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "o260369.ingest.us.sentry.io",
+        "url": "https://{label}.{label}.{label}.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.sentry.io",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -542,8 +542,8 @@
       },
       {
         "id": 40,
-        "url": "https://o260369.ingest.us.sentry.io/api/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "o260369.ingest.us.sentry.io",
+        "url": "https://{label}.{label}.{label}.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.sentry.io",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -559,8 +559,8 @@
       },
       {
         "id": 41,
-        "url": "https://o260369.ingest.us.sentry.io/api/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "o260369.ingest.us.sentry.io",
+        "url": "https://{label}.{label}.{label}.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.sentry.io",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -593,8 +593,8 @@
       },
       {
         "id": 43,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -605,8 +605,8 @@
       },
       {
         "id": 44,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -617,8 +617,8 @@
       },
       {
         "id": 45,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -629,8 +629,8 @@
       },
       {
         "id": 46,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -641,8 +641,8 @@
       },
       {
         "id": 47,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -653,8 +653,8 @@
       },
       {
         "id": 48,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1193,8 +1193,8 @@
       },
       {
         "id": 93,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1217,8 +1217,8 @@
       },
       {
         "id": 95,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1229,8 +1229,8 @@
       },
       {
         "id": 96,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1241,8 +1241,8 @@
       },
       {
         "id": 97,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1253,8 +1253,8 @@
       },
       {
         "id": 98,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1265,8 +1265,8 @@
       },
       {
         "id": 99,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1277,8 +1277,8 @@
       },
       {
         "id": 100,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1301,7 +1301,7 @@
       },
       {
         "id": 102,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1330,7 +1330,7 @@
       },
       {
         "id": 104,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1479,8 +1479,8 @@
       },
       {
         "id": 116,
-        "url": "https://graph.services.pbskids.org/",
-        "domain": "graph.services.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1491,7 +1491,7 @@
       },
       {
         "id": 117,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1581,7 +1581,7 @@
     ],
     "domains": [
       {
-        "domain": "o260369.ingest.us.sentry.io",
+        "domain": "{label}.{label}.{label}.sentry.io",
         "requests": 3,
         "thirdParty": true,
         "tracker": {
@@ -1654,8 +1654,8 @@
         ]
       },
       {
-        "domain": "cms-assets.prod.pbskids.org",
-        "requests": 15,
+        "domain": "{label}.{label}.pbskids.org",
+        "requests": 16,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
@@ -1664,19 +1664,6 @@
         ],
         "resourceTypes": [
           "image",
-          "fetch"
-        ]
-      },
-      {
-        "domain": "graph.services.pbskids.org",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
           "fetch"
         ]
       }
@@ -1945,8 +1932,8 @@
       },
       {
         "id": 13,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2233,8 +2220,8 @@
       },
       {
         "id": 37,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2257,8 +2244,8 @@
       },
       {
         "id": 43,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2269,8 +2256,8 @@
       },
       {
         "id": 44,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2281,8 +2268,8 @@
       },
       {
         "id": 45,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2293,8 +2280,8 @@
       },
       {
         "id": 46,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2305,8 +2292,8 @@
       },
       {
         "id": 47,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2317,8 +2304,8 @@
       },
       {
         "id": 48,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2869,8 +2856,8 @@
       },
       {
         "id": 94,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2881,8 +2868,8 @@
       },
       {
         "id": 95,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2893,8 +2880,8 @@
       },
       {
         "id": 96,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2905,8 +2892,8 @@
       },
       {
         "id": 97,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2917,8 +2904,8 @@
       },
       {
         "id": 98,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2929,8 +2916,8 @@
       },
       {
         "id": 99,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2941,8 +2928,8 @@
       },
       {
         "id": 100,
-        "url": "https://cms-assets.prod.pbskids.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cms-assets.prod.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3109,8 +3096,8 @@
       },
       {
         "id": 114,
-        "url": "https://graph.services.pbskids.org/",
-        "domain": "graph.services.pbskids.org",
+        "url": "https://{label}.{label}.pbskids.org/",
+        "domain": "{label}.{label}.pbskids.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3213,8 +3200,8 @@
         ]
       },
       {
-        "domain": "cms-assets.prod.pbskids.org",
-        "requests": 15,
+        "domain": "{label}.{label}.pbskids.org",
+        "requests": 16,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
@@ -3223,19 +3210,6 @@
         ],
         "resourceTypes": [
           "image",
-          "fetch"
-        ]
-      },
-      {
-        "domain": "graph.services.pbskids.org",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
           "fetch"
         ]
       }
@@ -3325,7 +3299,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "o260369.ingest.us.sentry.io",
+        "domain": "{label}.{label}.{label}.sentry.io",
         "requests": 3,
         "tracker": {
           "domain": "sentry.io",

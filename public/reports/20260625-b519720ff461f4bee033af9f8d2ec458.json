@@ -23,7 +23,7 @@
       "totalRequests": 265,
       "thirdPartyRequests": 67,
       "knownTrackerRequests": 42,
-      "thirdPartyDomains": 19,
+      "thirdPartyDomains": 14,
       "cookies": 22,
       "thirdPartyCookies": 3,
       "storageEntries": 24,
@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://static-assets.nike.com/{seg}/{seg}/{seg}",
-        "domain": "static-assets.nike.com",
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://static-assets.nike.com/{seg}/{seg}/{seg}",
-        "domain": "static-assets.nike.com",
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -585,8 +585,8 @@
       },
       {
         "id": 44,
-        "url": "https://s.go-mpulse.net/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "s.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1209,8 +1209,8 @@
       },
       {
         "id": 96,
-        "url": "https://reporting.cdndex.io/{seg}",
-        "domain": "reporting.cdndex.io",
+        "url": "https://{label}.cdndex.io/{seg}",
+        "domain": "{label}.cdndex.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1233,8 +1233,8 @@
       },
       {
         "id": 98,
-        "url": "https://c.go-mpulse.net/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
@@ -1341,8 +1341,8 @@
       },
       {
         "id": 107,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1353,8 +1353,8 @@
       },
       {
         "id": 108,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1365,8 +1365,8 @@
       },
       {
         "id": 109,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1377,8 +1377,8 @@
       },
       {
         "id": 110,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1389,8 +1389,8 @@
       },
       {
         "id": 111,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1401,8 +1401,8 @@
       },
       {
         "id": 112,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1413,8 +1413,8 @@
       },
       {
         "id": 113,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1425,8 +1425,8 @@
       },
       {
         "id": 114,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1437,8 +1437,8 @@
       },
       {
         "id": 115,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1449,8 +1449,8 @@
       },
       {
         "id": 116,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1461,8 +1461,8 @@
       },
       {
         "id": 117,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1473,8 +1473,8 @@
       },
       {
         "id": 118,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1485,8 +1485,8 @@
       },
       {
         "id": 119,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1497,8 +1497,8 @@
       },
       {
         "id": 120,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1526,8 +1526,8 @@
       },
       {
         "id": 122,
-        "url": "https://consumersignals.services.nike.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "consumersignals.services.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -1538,8 +1538,8 @@
       },
       {
         "id": 123,
-        "url": "https://insights-collector.newrelic.com/{seg}/{seg}/{n}/{seg}",
-        "domain": "insights-collector.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1555,8 +1555,8 @@
       },
       {
         "id": 124,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1567,8 +1567,8 @@
       },
       {
         "id": 125,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1579,8 +1579,8 @@
       },
       {
         "id": 126,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1591,8 +1591,8 @@
       },
       {
         "id": 127,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1603,8 +1603,8 @@
       },
       {
         "id": 128,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1615,8 +1615,8 @@
       },
       {
         "id": 129,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1627,8 +1627,8 @@
       },
       {
         "id": 130,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1639,8 +1639,8 @@
       },
       {
         "id": 131,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1651,8 +1651,8 @@
       },
       {
         "id": 132,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1663,8 +1663,8 @@
       },
       {
         "id": 133,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1675,8 +1675,8 @@
       },
       {
         "id": 134,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1687,8 +1687,8 @@
       },
       {
         "id": 135,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1711,8 +1711,8 @@
       },
       {
         "id": 137,
-        "url": "https://clickstream.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "clickstream.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1723,8 +1723,8 @@
       },
       {
         "id": 138,
-        "url": "https://clickstream.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "clickstream.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1735,8 +1735,8 @@
       },
       {
         "id": 139,
-        "url": "https://clickstream.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "clickstream.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1759,8 +1759,8 @@
       },
       {
         "id": 141,
-        "url": "https://clickstream.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "clickstream.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1783,8 +1783,8 @@
       },
       {
         "id": 143,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1795,8 +1795,8 @@
       },
       {
         "id": 144,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1831,8 +1831,8 @@
       },
       {
         "id": 147,
-        "url": "https://abt.nike.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "abt.nike.com",
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1843,8 +1843,8 @@
       },
       {
         "id": 148,
-        "url": "https://abt.nike.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "abt.nike.com",
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1855,8 +1855,8 @@
       },
       {
         "id": 149,
-        "url": "https://abt.nike.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "abt.nike.com",
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1867,8 +1867,8 @@
       },
       {
         "id": 150,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1879,8 +1879,8 @@
       },
       {
         "id": 151,
-        "url": "https://nikeconsumerservices.my.salesforce-scrt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "nikeconsumerservices.my.salesforce-scrt.com",
+        "url": "https://{label}.{label}.salesforce-scrt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.salesforce-scrt.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1891,8 +1891,8 @@
       },
       {
         "id": 152,
-        "url": "https://nikeconsumerservices.my.salesforce-scrt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "nikeconsumerservices.my.salesforce-scrt.com",
+        "url": "https://{label}.{label}.salesforce-scrt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.salesforce-scrt.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
@@ -1903,7 +1903,7 @@
       },
       {
         "id": 153,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1920,8 +1920,8 @@
       },
       {
         "id": 154,
-        "url": "https://js.adsrvr.org/{seg}",
-        "domain": "js.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1937,8 +1937,8 @@
       },
       {
         "id": 155,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1954,8 +1954,8 @@
       },
       {
         "id": 156,
-        "url": "https://experimentation.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "experimentation.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1966,8 +1966,8 @@
       },
       {
         "id": 157,
-        "url": "https://abt.nike.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "abt.nike.com",
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1978,7 +1978,7 @@
       },
       {
         "id": 158,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1995,7 +1995,7 @@
       },
       {
         "id": 159,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -2012,7 +2012,7 @@
       },
       {
         "id": 160,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -2029,8 +2029,8 @@
       },
       {
         "id": 161,
-        "url": "https://consumersignals.services.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "consumersignals.services.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2041,8 +2041,8 @@
       },
       {
         "id": 162,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2065,8 +2065,8 @@
       },
       {
         "id": 164,
-        "url": "https://experimentation.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "experimentation.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2089,8 +2089,8 @@
       },
       {
         "id": 166,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2101,8 +2101,8 @@
       },
       {
         "id": 167,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
         "method": "HEAD",
         "resourceType": "xhr",
         "status": 200,
@@ -2113,8 +2113,8 @@
       },
       {
         "id": 168,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2125,8 +2125,8 @@
       },
       {
         "id": 169,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2137,8 +2137,8 @@
       },
       {
         "id": 170,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2149,8 +2149,8 @@
       },
       {
         "id": 171,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2161,8 +2161,8 @@
       },
       {
         "id": 172,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2173,8 +2173,8 @@
       },
       {
         "id": 173,
-        "url": "https://abt.nike.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "abt.nike.com",
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2185,8 +2185,8 @@
       },
       {
         "id": 174,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2197,8 +2197,8 @@
       },
       {
         "id": 175,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2209,8 +2209,8 @@
       },
       {
         "id": 176,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2221,8 +2221,8 @@
       },
       {
         "id": 177,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2233,8 +2233,8 @@
       },
       {
         "id": 178,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2245,8 +2245,8 @@
       },
       {
         "id": 179,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2257,8 +2257,8 @@
       },
       {
         "id": 180,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2269,8 +2269,8 @@
       },
       {
         "id": 181,
-        "url": "https://ade.googlesyndication.com/{seg}/{seg}/{seg}",
-        "domain": "ade.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -2286,8 +2286,8 @@
       },
       {
         "id": 182,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2303,8 +2303,8 @@
       },
       {
         "id": 183,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2320,8 +2320,8 @@
       },
       {
         "id": 184,
-        "url": "https://ade.googlesyndication.com/{seg}/{seg}/{seg}",
-        "domain": "ade.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2337,8 +2337,8 @@
       },
       {
         "id": 185,
-        "url": "https://abt.nike.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "abt.nike.com",
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2361,8 +2361,8 @@
       },
       {
         "id": 187,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2378,8 +2378,8 @@
       },
       {
         "id": 188,
-        "url": "https://insight.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=",
-        "domain": "insight.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&ref=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "document",
         "status": 302,
@@ -2407,8 +2407,8 @@
       },
       {
         "id": 190,
-        "url": "https://experimentation.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "experimentation.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2419,8 +2419,8 @@
       },
       {
         "id": 191,
-        "url": "https://bam.nr-data.net/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2652,8 +2652,8 @@
       },
       {
         "id": 210,
-        "url": "https://match.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&ref=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2669,8 +2669,8 @@
       },
       {
         "id": 211,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -2686,8 +2686,8 @@
       },
       {
         "id": 212,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -2703,8 +2703,8 @@
       },
       {
         "id": 213,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -2720,8 +2720,8 @@
       },
       {
         "id": 214,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -2737,8 +2737,8 @@
       },
       {
         "id": 215,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -2754,8 +2754,8 @@
       },
       {
         "id": 216,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2771,8 +2771,8 @@
       },
       {
         "id": 217,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2788,8 +2788,8 @@
       },
       {
         "id": 218,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2805,8 +2805,8 @@
       },
       {
         "id": 219,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2822,8 +2822,8 @@
       },
       {
         "id": 220,
-        "url": "https://bam.nr-data.net/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2839,8 +2839,8 @@
       },
       {
         "id": 221,
-        "url": "https://js.adsrvr.org/{seg}",
-        "domain": "js.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2856,8 +2856,8 @@
       },
       {
         "id": 222,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -2897,8 +2897,8 @@
       },
       {
         "id": 225,
-        "url": "https://abt.nike.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "abt.nike.com",
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2909,8 +2909,8 @@
       },
       {
         "id": 226,
-        "url": "https://ib.adnxs.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ib.adnxs.com",
+        "url": "https://{label}.adnxs.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adnxs.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2921,8 +2921,8 @@
       },
       {
         "id": 227,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 302,
@@ -2938,7 +2938,7 @@
       },
       {
         "id": 228,
-        "url": "https://pixel.rubiconproject.com/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://pixel.rubiconproject.com/{seg}?v=&%5Bredacted%5D=",
         "domain": "pixel.rubiconproject.com",
         "method": "GET",
         "resourceType": "document",
@@ -3039,8 +3039,8 @@
       },
       {
         "id": 236,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 302,
@@ -3068,8 +3068,8 @@
       },
       {
         "id": 238,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -3085,8 +3085,8 @@
       },
       {
         "id": 239,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -3102,8 +3102,8 @@
       },
       {
         "id": 240,
-        "url": "https://abt.nike.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "abt.nike.com",
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3138,8 +3138,8 @@
       },
       {
         "id": 243,
-        "url": "https://abt.nike.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "abt.nike.com",
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3162,8 +3162,8 @@
       },
       {
         "id": 245,
-        "url": "https://experimentation.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "experimentation.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3186,8 +3186,8 @@
       },
       {
         "id": 247,
-        "url": "https://insight.adsrvr.org/{seg}/{seg}",
-        "domain": "insight.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}",
+        "domain": "{label}.adsrvr.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3215,8 +3215,8 @@
       },
       {
         "id": 249,
-        "url": "https://clickstream.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "clickstream.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3239,8 +3239,8 @@
       },
       {
         "id": 251,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -3268,8 +3268,8 @@
       },
       {
         "id": 253,
-        "url": "https://clickstream.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "clickstream.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3292,8 +3292,8 @@
       },
       {
         "id": 255,
-        "url": "https://clickstream.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "clickstream.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3316,7 +3316,7 @@
       },
       {
         "id": 257,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -3333,7 +3333,7 @@
       },
       {
         "id": 258,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -3350,8 +3350,8 @@
       },
       {
         "id": 259,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -3367,8 +3367,8 @@
       },
       {
         "id": 260,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -3384,8 +3384,8 @@
       },
       {
         "id": 261,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -3401,8 +3401,8 @@
       },
       {
         "id": 262,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -3418,8 +3418,8 @@
       },
       {
         "id": 263,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -3435,7 +3435,7 @@
       },
       {
         "id": 264,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -3447,7 +3447,7 @@
       },
       {
         "id": 265,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -3460,7 +3460,7 @@
     ],
     "domains": [
       {
-        "domain": "bam.nr-data.net",
+        "domain": "{label}.nr-data.net",
         "requests": 18,
         "thirdParty": true,
         "tracker": {
@@ -3477,6 +3477,27 @@
         "resourceTypes": [
           "xhr",
           "ping"
+        ]
+      },
+      {
+        "domain": "{label}.adsrvr.org",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "xhr"
         ]
       },
       {
@@ -3498,8 +3519,8 @@
         ]
       },
       {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 3,
+        "domain": "{label}.googlesyndication.com",
+        "requests": 5,
         "thirdParty": true,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -3509,89 +3530,35 @@
         },
         "blockedByShields": true,
         "statuses": [
-          200
+          200,
+          302
         ],
         "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "match.adsrvr.org",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "js.adsrvr.org",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "ade.googlesyndication.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
+          "fetch",
           "image"
         ]
       },
       {
-        "domain": "insight.adsrvr.org",
+        "domain": "{label}.newrelic.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
           "confidence": "curated"
         },
         "blockedByShields": true,
         "statuses": [
-          302,
           200
         ],
         "resourceTypes": [
-          "document",
-          "xhr"
+          "fetch",
+          "script"
         ]
       },
       {
-        "domain": "cm.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -3625,42 +3592,6 @@
         ]
       },
       {
-        "domain": "insights-collector.newrelic.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "newrelic.com",
-          "entity": "New Relic",
-          "category": "performance monitoring",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "js-agent.newrelic.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "newrelic.com",
-          "entity": "New Relic",
-          "category": "performance monitoring",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
         "domain": "pixel.rubiconproject.com",
         "requests": 1,
         "thirdParty": true,
@@ -3679,7 +3610,7 @@
         ]
       },
       {
-        "domain": "nikeconsumerservices.my.site.com",
+        "domain": "{label}.{label}.site.com",
         "requests": 17,
         "thirdParty": true,
         "tracker": null,
@@ -3695,7 +3626,22 @@
         ]
       },
       {
-        "domain": "nikeconsumerservices.my.salesforce-scrt.com",
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.salesforce-scrt.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -3720,20 +3666,7 @@
         ]
       },
       {
-        "domain": "s.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "reporting.cdndex.io",
+        "domain": "{label}.cdndex.io",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3746,20 +3679,7 @@
         ]
       },
       {
-        "domain": "c.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "ib.adnxs.com",
+        "domain": "{label}.adnxs.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3791,7 +3711,7 @@
         ]
       },
       {
-        "domain": "assets.nmp.nike.com",
+        "domain": "assets.{label}.nike.com",
         "requests": 27,
         "thirdParty": false,
         "tracker": null,
@@ -3833,21 +3753,8 @@
         ]
       },
       {
-        "domain": "abt.nike.com",
-        "requests": 9,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "analytics.nike.com",
-        "requests": 8,
+        "domain": "{label}.{label}.nike.com",
+        "requests": 13,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
@@ -3860,48 +3767,23 @@
         ]
       },
       {
-        "domain": "clickstream.halfpipe.nike.com",
-        "requests": 7,
+        "domain": "{label}.nike.com",
+        "requests": 11,
         "thirdParty": false,
         "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "experimentation.halfpipe.nike.com",
-        "requests": 4,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "static-assets.nike.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
+        "blockedByShields": true,
         "statuses": [
           200
         ],
         "resourceTypes": [
           "stylesheet",
-          "script"
+          "script",
+          "fetch"
         ]
       },
       {
-        "domain": "consumersignals.services.nike.com",
-        "requests": 2,
+        "domain": "analytics.nike.com",
+        "requests": 8,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
@@ -4067,7 +3949,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".services.nike.com",
+        "domain": ".{label}.nike.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
@@ -4077,7 +3959,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".services.nike.com",
+        "domain": ".{label}.nike.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -4262,8 +4144,8 @@
     "fingerprintDetections": [],
     "cnameCloaks": [
       {
-        "host": "abt.nike.com",
-        "cname": "nike.tt.omtrdc.net",
+        "host": "{label}.nike.com",
+        "cname": "{label}.{label}.omtrdc.net",
         "tracker": {
           "domain": "omtrdc.net",
           "entity": "Adobe",
@@ -4422,8 +4304,8 @@
       },
       {
         "id": 8,
-        "url": "https://static-assets.nike.com/{seg}/{seg}/{seg}",
-        "domain": "static-assets.nike.com",
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -4566,8 +4448,8 @@
       },
       {
         "id": 20,
-        "url": "https://static-assets.nike.com/{seg}/{seg}/{seg}",
-        "domain": "static-assets.nike.com",
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5478,8 +5360,8 @@
       },
       {
         "id": 100,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5490,8 +5372,8 @@
       },
       {
         "id": 101,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5502,8 +5384,8 @@
       },
       {
         "id": 102,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5514,8 +5396,8 @@
       },
       {
         "id": 103,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5562,8 +5444,8 @@
       },
       {
         "id": 107,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5574,8 +5456,8 @@
       },
       {
         "id": 108,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5586,8 +5468,8 @@
       },
       {
         "id": 109,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5598,8 +5480,8 @@
       },
       {
         "id": 110,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5622,8 +5504,8 @@
       },
       {
         "id": 112,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5634,8 +5516,8 @@
       },
       {
         "id": 113,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5646,8 +5528,8 @@
       },
       {
         "id": 114,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5658,8 +5540,8 @@
       },
       {
         "id": 115,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5670,8 +5552,8 @@
       },
       {
         "id": 116,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5682,8 +5564,8 @@
       },
       {
         "id": 117,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5694,8 +5576,8 @@
       },
       {
         "id": 118,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5718,8 +5600,8 @@
       },
       {
         "id": 120,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5730,8 +5612,8 @@
       },
       {
         "id": 121,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5754,8 +5636,8 @@
       },
       {
         "id": 123,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5766,8 +5648,8 @@
       },
       {
         "id": 124,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5778,8 +5660,8 @@
       },
       {
         "id": 125,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5790,8 +5672,8 @@
       },
       {
         "id": 126,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5802,8 +5684,8 @@
       },
       {
         "id": 127,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5814,8 +5696,8 @@
       },
       {
         "id": 128,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5826,8 +5708,8 @@
       },
       {
         "id": 129,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5838,8 +5720,8 @@
       },
       {
         "id": 130,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5850,8 +5732,8 @@
       },
       {
         "id": 131,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5874,8 +5756,8 @@
       },
       {
         "id": 134,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5886,8 +5768,8 @@
       },
       {
         "id": 135,
-        "url": "https://assets.nmp.nike.com/{seg}/{seg}/{seg}",
-        "domain": "assets.nmp.nike.com",
+        "url": "https://assets.{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nike.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5910,8 +5792,8 @@
       },
       {
         "id": 137,
-        "url": "https://clickstream.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "clickstream.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -5922,8 +5804,8 @@
       },
       {
         "id": 138,
-        "url": "https://clickstream.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "clickstream.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -5934,8 +5816,8 @@
       },
       {
         "id": 139,
-        "url": "https://clickstream.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "clickstream.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -5946,8 +5828,8 @@
       },
       {
         "id": 141,
-        "url": "https://clickstream.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "clickstream.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -5982,8 +5864,8 @@
       },
       {
         "id": 148,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -5994,8 +5876,8 @@
       },
       {
         "id": 149,
-        "url": "https://nikeconsumerservices.my.salesforce-scrt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "nikeconsumerservices.my.salesforce-scrt.com",
+        "url": "https://{label}.{label}.salesforce-scrt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.salesforce-scrt.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6006,8 +5888,8 @@
       },
       {
         "id": 150,
-        "url": "https://nikeconsumerservices.my.salesforce-scrt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "nikeconsumerservices.my.salesforce-scrt.com",
+        "url": "https://{label}.{label}.salesforce-scrt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.salesforce-scrt.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
@@ -6030,8 +5912,8 @@
       },
       {
         "id": 153,
-        "url": "https://experimentation.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "experimentation.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6258,8 +6140,8 @@
       },
       {
         "id": 173,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -6270,8 +6152,8 @@
       },
       {
         "id": 174,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6282,8 +6164,8 @@
       },
       {
         "id": 175,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
         "method": "HEAD",
         "resourceType": "xhr",
         "status": 200,
@@ -6294,8 +6176,8 @@
       },
       {
         "id": 176,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6306,8 +6188,8 @@
       },
       {
         "id": 177,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6318,8 +6200,8 @@
       },
       {
         "id": 178,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6330,8 +6212,8 @@
       },
       {
         "id": 179,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6342,8 +6224,8 @@
       },
       {
         "id": 180,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6354,8 +6236,8 @@
       },
       {
         "id": 181,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6366,8 +6248,8 @@
       },
       {
         "id": 182,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6378,8 +6260,8 @@
       },
       {
         "id": 183,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6390,8 +6272,8 @@
       },
       {
         "id": 184,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6402,8 +6284,8 @@
       },
       {
         "id": 185,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6414,8 +6296,8 @@
       },
       {
         "id": 186,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -6426,8 +6308,8 @@
       },
       {
         "id": 187,
-        "url": "https://nikeconsumerservices.my.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "nikeconsumerservices.my.site.com",
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -6594,8 +6476,8 @@
       },
       {
         "id": 204,
-        "url": "https://clickstream.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "clickstream.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6630,8 +6512,8 @@
       },
       {
         "id": 207,
-        "url": "https://clickstream.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "clickstream.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6642,8 +6524,8 @@
       },
       {
         "id": 209,
-        "url": "https://clickstream.halfpipe.nike.com/{seg}/{seg}",
-        "domain": "clickstream.halfpipe.nike.com",
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -6655,7 +6537,7 @@
     ],
     "domains": [
       {
-        "domain": "nikeconsumerservices.my.site.com",
+        "domain": "{label}.{label}.site.com",
         "requests": 17,
         "thirdParty": true,
         "tracker": null,
@@ -6671,7 +6553,7 @@
         ]
       },
       {
-        "domain": "nikeconsumerservices.my.salesforce-scrt.com",
+        "domain": "{label}.{label}.salesforce-scrt.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -6704,7 +6586,7 @@
         ]
       },
       {
-        "domain": "assets.nmp.nike.com",
+        "domain": "assets.{label}.nike.com",
         "requests": 27,
         "thirdParty": false,
         "tracker": null,
@@ -6746,8 +6628,8 @@
         ]
       },
       {
-        "domain": "clickstream.halfpipe.nike.com",
-        "requests": 7,
+        "domain": "{label}.{label}.nike.com",
+        "requests": 8,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
@@ -6759,7 +6641,7 @@
         ]
       },
       {
-        "domain": "static-assets.nike.com",
+        "domain": "{label}.nike.com",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -6770,19 +6652,6 @@
         "resourceTypes": [
           "stylesheet",
           "script"
-        ]
-      },
-      {
-        "domain": "experimentation.halfpipe.nike.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
         ]
       }
     ],
@@ -7062,9 +6931,9 @@
       "delta": -42
     },
     "thirdPartyDomains": {
-      "before": 19,
+      "before": 14,
       "after": 2,
-      "delta": -17
+      "delta": -12
     },
     "cookies": {
       "before": 22,
@@ -7089,7 +6958,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "bam.nr-data.net",
+        "domain": "{label}.nr-data.net",
         "requests": 18,
         "tracker": {
           "domain": "nr-data.net",
@@ -7099,14 +6968,29 @@
         }
       },
       {
-        "domain": "abt.nike.com",
-        "requests": 9,
-        "tracker": null
-      },
-      {
         "domain": "analytics.nike.com",
         "requests": 8,
         "tracker": null
+      },
+      {
+        "domain": "{label}.adsrvr.org",
+        "requests": 7,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.googlesyndication.com",
+        "requests": 5,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
       },
       {
         "domain": "www.googletagmanager.com",
@@ -7119,37 +7003,7 @@
         }
       },
       {
-        "domain": "match.adsrvr.org",
-        "requests": 3,
-        "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 3,
-        "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "ade.googlesyndication.com",
-        "requests": 2,
-        "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "cm.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 2,
         "tracker": {
           "domain": "doubleclick.net",
@@ -7159,27 +7013,17 @@
         }
       },
       {
-        "domain": "consumersignals.services.nike.com",
+        "domain": "{label}.go-mpulse.net",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "insight.adsrvr.org",
+        "domain": "{label}.newrelic.com",
         "requests": 2,
         "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "js.adsrvr.org",
-        "requests": 2,
-        "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
           "confidence": "curated"
         }
       },
@@ -7199,34 +7043,14 @@
         "tracker": null
       },
       {
-        "domain": "c.go-mpulse.net",
+        "domain": "{label}.adnxs.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "ib.adnxs.com",
+        "domain": "{label}.cdndex.io",
         "requests": 1,
         "tracker": null
-      },
-      {
-        "domain": "insights-collector.newrelic.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "newrelic.com",
-          "entity": "New Relic",
-          "category": "performance monitoring",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "js-agent.newrelic.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "newrelic.com",
-          "entity": "New Relic",
-          "category": "performance monitoring",
-          "confidence": "curated"
-        }
       },
       {
         "domain": "pixel.rubiconproject.com",
@@ -7237,16 +7061,6 @@
           "category": "advertising / supply-side platform",
           "confidence": "curated"
         }
-      },
-      {
-        "domain": "reporting.cdndex.io",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "s.go-mpulse.net",
-        "requests": 1,
-        "tracker": null
       }
     ],
     "addedEntities": [],
@@ -7254,17 +7068,17 @@
       {
         "entity": "New Relic",
         "requests": 20,
-        "domains": 3
+        "domains": 2
       },
       {
         "entity": "Google",
         "requests": 14,
-        "domains": 5
+        "domains": 4
       },
       {
         "entity": "The Trade Desk",
         "requests": 7,
-        "domains": 3
+        "domains": 1
       },
       {
         "entity": "Magnite",
@@ -7286,7 +7100,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".services.nike.com",
+        "domain": ".{label}.nike.com",
         "thirdParty": false
       }
     ],

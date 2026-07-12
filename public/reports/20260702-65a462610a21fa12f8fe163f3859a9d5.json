@@ -117,7 +117,7 @@
       },
       {
         "id": 5,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -357,8 +357,8 @@
       },
       {
         "id": 25,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -465,8 +465,8 @@
       },
       {
         "id": 34,
-        "url": "https://adobeedge.my.gov.au/{seg}/{seg}/{seg}/{seg}",
-        "domain": "adobeedge.my.gov.au",
+        "url": "https://{label}.my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.my.gov.au",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -633,8 +633,8 @@
       },
       {
         "id": 48,
-        "url": "https://adobeedge.my.gov.au/{seg}/{seg}/{seg}/{seg}",
-        "domain": "adobeedge.my.gov.au",
+        "url": "https://{label}.my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.my.gov.au",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -803,7 +803,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -833,7 +833,7 @@
         ]
       },
       {
-        "domain": "adobeedge.my.gov.au",
+        "domain": "{label}.my.gov.au",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -1034,7 +1034,7 @@
       },
       {
         "id": 5,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -1274,8 +1274,8 @@
       },
       {
         "id": 25,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1696,7 +1696,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1820,7 +1820,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "adobeedge.my.gov.au",
+        "domain": "{label}.my.gov.au",
         "requests": 2,
         "tracker": null
       }

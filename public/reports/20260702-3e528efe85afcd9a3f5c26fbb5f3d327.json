@@ -23,7 +23,7 @@
       "totalRequests": 296,
       "thirdPartyRequests": 128,
       "knownTrackerRequests": 56,
-      "thirdPartyDomains": 64,
+      "thirdPartyDomains": 49,
       "cookies": 47,
       "thirdPartyCookies": 13,
       "storageEntries": 60,
@@ -81,8 +81,8 @@
       },
       {
         "id": 2,
-        "url": "https://c.amazon-adsystem.com/{seg}/{seg}",
-        "domain": "c.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}/{seg}",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -110,8 +110,8 @@
       },
       {
         "id": 4,
-        "url": "https://config.aps.amazon-adsystem.com/{seg}/{n}",
-        "domain": "config.aps.amazon-adsystem.com",
+        "url": "https://{label}.{label}.amazon-adsystem.com/{seg}/{n}",
+        "domain": "{label}.{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -127,8 +127,8 @@
       },
       {
         "id": 5,
-        "url": "https://client.aps.amazon-adsystem.com/{seg}",
-        "domain": "client.aps.amazon-adsystem.com",
+        "url": "https://{label}.{label}.amazon-adsystem.com/{seg}",
+        "domain": "{label}.{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -156,7 +156,7 @@
       },
       {
         "id": 7,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -228,8 +228,8 @@
       },
       {
         "id": 13,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -240,8 +240,8 @@
       },
       {
         "id": 14,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -252,8 +252,8 @@
       },
       {
         "id": 15,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -276,8 +276,8 @@
       },
       {
         "id": 17,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -312,8 +312,8 @@
       },
       {
         "id": 20,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -324,8 +324,8 @@
       },
       {
         "id": 21,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -336,8 +336,8 @@
       },
       {
         "id": 22,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -348,8 +348,8 @@
       },
       {
         "id": 23,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -360,8 +360,8 @@
       },
       {
         "id": 24,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -384,8 +384,8 @@
       },
       {
         "id": 26,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -396,8 +396,8 @@
       },
       {
         "id": 27,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -408,8 +408,8 @@
       },
       {
         "id": 28,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -420,8 +420,8 @@
       },
       {
         "id": 29,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -444,8 +444,8 @@
       },
       {
         "id": 31,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -528,8 +528,8 @@
       },
       {
         "id": 38,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -540,8 +540,8 @@
       },
       {
         "id": 39,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -552,8 +552,8 @@
       },
       {
         "id": 40,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -564,8 +564,8 @@
       },
       {
         "id": 41,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -576,8 +576,8 @@
       },
       {
         "id": 42,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -588,8 +588,8 @@
       },
       {
         "id": 43,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -600,8 +600,8 @@
       },
       {
         "id": 44,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -612,8 +612,8 @@
       },
       {
         "id": 45,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -672,8 +672,8 @@
       },
       {
         "id": 50,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -936,8 +936,8 @@
       },
       {
         "id": 72,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -948,8 +948,8 @@
       },
       {
         "id": 73,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -960,8 +960,8 @@
       },
       {
         "id": 74,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1104,8 +1104,8 @@
       },
       {
         "id": 86,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1292,8 +1292,8 @@
       },
       {
         "id": 100,
-        "url": "https://player.h-cdn.com/{seg}?%5Bredacted%5D=",
-        "domain": "player.h-cdn.com",
+        "url": "https://{label}.h-cdn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.h-cdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1304,8 +1304,8 @@
       },
       {
         "id": 101,
-        "url": "https://cdn-gl.imrworldwide.com/{seg}/{seg}",
-        "domain": "cdn-gl.imrworldwide.com",
+        "url": "https://{label}.imrworldwide.com/{seg}/{seg}",
+        "domain": "{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1345,8 +1345,8 @@
       },
       {
         "id": 104,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1381,8 +1381,8 @@
       },
       {
         "id": 107,
-        "url": "https://secure-us.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "secure-us.imrworldwide.com",
+        "url": "https://{label}.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1434,7 +1434,7 @@
       },
       {
         "id": 111,
-        "url": "https://api.strike.fox/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://api.strike.fox/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "api.strike.fox",
         "method": "GET",
         "resourceType": "fetch",
@@ -1602,8 +1602,8 @@
       },
       {
         "id": 125,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1619,8 +1619,8 @@
       },
       {
         "id": 126,
-        "url": "https://widgets.outbrain.com/{seg}",
-        "domain": "widgets.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1653,8 +1653,8 @@
       },
       {
         "id": 128,
-        "url": "https://prod.idgraph.dt.fox/api/{seg}/{seg}",
-        "domain": "prod.idgraph.dt.fox",
+        "url": "https://{label}.{label}.dt.fox/api/{seg}/{seg}",
+        "domain": "{label}.{label}.dt.fox",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -1665,8 +1665,8 @@
       },
       {
         "id": 129,
-        "url": "https://prod.pyxis.atp.fox/{seg}/{seg}",
-        "domain": "prod.pyxis.atp.fox",
+        "url": "https://{label}.{label}.atp.fox/{seg}/{seg}",
+        "domain": "{label}.{label}.atp.fox",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1677,8 +1677,8 @@
       },
       {
         "id": 130,
-        "url": "https://secure-us.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "secure-us.imrworldwide.com",
+        "url": "https://{label}.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1778,8 +1778,8 @@
       },
       {
         "id": 138,
-        "url": "https://js.appboycdn.com/{seg}/{seg}/{seg}",
-        "domain": "js.appboycdn.com",
+        "url": "https://{label}.appboycdn.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.appboycdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1790,14 +1790,14 @@
       },
       {
         "id": 139,
-        "url": "https://bat.bing.com/{seg}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -1807,8 +1807,8 @@
       },
       {
         "id": 140,
-        "url": "https://c.amazon-adsystem.com/{seg}/{seg}/{seg}",
-        "domain": "c.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1824,8 +1824,8 @@
       },
       {
         "id": 141,
-        "url": "https://smetrics.foxnews.com/{seg}",
-        "domain": "smetrics.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1913,8 +1913,8 @@
       },
       {
         "id": 148,
-        "url": "https://sb.scorecardresearch.com/{seg}",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2043,8 +2043,8 @@
       },
       {
         "id": 158,
-        "url": "https://my.foxnews.com/{seg}",
-        "domain": "my.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2079,8 +2079,8 @@
       },
       {
         "id": 161,
-        "url": "https://mab.chartbeat.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mab.chartbeat.com",
+        "url": "https://{label}.chartbeat.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.chartbeat.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2132,8 +2132,8 @@
       },
       {
         "id": 165,
-        "url": "https://cdn-gl.imrworldwide.com/{seg}/{seg}/{n}/{seg}",
-        "domain": "cdn-gl.imrworldwide.com",
+        "url": "https://{label}.imrworldwide.com/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2149,8 +2149,8 @@
       },
       {
         "id": 166,
-        "url": "https://configs.knotch.com/{seg}/{seg}",
-        "domain": "configs.knotch.com",
+        "url": "https://{label}.knotch.com/{seg}/{seg}",
+        "domain": "{label}.knotch.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2173,8 +2173,8 @@
       },
       {
         "id": 168,
-        "url": "https://gum.criteo.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gum.criteo.com",
+        "url": "https://{label}.criteo.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.criteo.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2250,8 +2250,8 @@
       },
       {
         "id": 174,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2267,8 +2267,8 @@
       },
       {
         "id": 175,
-        "url": "https://imagetesting.chartbeat.com/{seg}/{seg}?width=&height=",
-        "domain": "imagetesting.chartbeat.com",
+        "url": "https://{label}.chartbeat.com/{seg}/{seg}?width=&height=",
+        "domain": "{label}.chartbeat.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2308,8 +2308,8 @@
       },
       {
         "id": 178,
-        "url": "https://prod-hp.foxnews.com/{seg}/{seg}/{seg}",
-        "domain": "prod-hp.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2332,8 +2332,8 @@
       },
       {
         "id": 180,
-        "url": "https://schedule-tool.foxnews.com/{seg}/{seg}/{seg}",
-        "domain": "schedule-tool.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2344,8 +2344,8 @@
       },
       {
         "id": 181,
-        "url": "https://pub-admin-elections.foxnews.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "pub-admin-elections.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2368,8 +2368,8 @@
       },
       {
         "id": 183,
-        "url": "https://my.foxnews.com/{seg}/{seg}/{seg}",
-        "domain": "my.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2392,8 +2392,8 @@
       },
       {
         "id": 185,
-        "url": "https://my.foxnews.com/{seg}/{seg}/{seg}",
-        "domain": "my.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2404,8 +2404,8 @@
       },
       {
         "id": 186,
-        "url": "https://smetrics.foxnews.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "smetrics.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2445,8 +2445,8 @@
       },
       {
         "id": 189,
-        "url": "https://sslwidget.criteo.com/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sslwidget.criteo.com",
+        "url": "https://{label}.criteo.com/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.criteo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2498,8 +2498,8 @@
       },
       {
         "id": 193,
-        "url": "https://frontdoor.knotch.it/{seg}",
-        "domain": "frontdoor.knotch.it",
+        "url": "https://{label}.knotch.it/{seg}",
+        "domain": "{label}.knotch.it",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2510,8 +2510,8 @@
       },
       {
         "id": 194,
-        "url": "https://frontdoor.knotch.it/{seg}",
-        "domain": "frontdoor.knotch.it",
+        "url": "https://{label}.knotch.it/{seg}",
+        "domain": "{label}.knotch.it",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2522,8 +2522,8 @@
       },
       {
         "id": 195,
-        "url": "https://frontdoor.knotch.it/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&type=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "frontdoor.knotch.it",
+        "url": "https://{label}.knotch.it/{seg}?%5Bredacted%5D=&type=",
+        "domain": "{label}.knotch.it",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2534,8 +2534,8 @@
       },
       {
         "id": 196,
-        "url": "https://prod.fennec.atp.fox/{seg}/{seg}",
-        "domain": "prod.fennec.atp.fox",
+        "url": "https://{label}.{label}.atp.fox/{seg}/{seg}",
+        "domain": "{label}.{label}.atp.fox",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2546,8 +2546,8 @@
       },
       {
         "id": 197,
-        "url": "https://frontdoor.knotch.it/{seg}",
-        "domain": "frontdoor.knotch.it",
+        "url": "https://{label}.knotch.it/{seg}",
+        "domain": "{label}.knotch.it",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2558,8 +2558,8 @@
       },
       {
         "id": 198,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2582,8 +2582,8 @@
       },
       {
         "id": 200,
-        "url": "https://loki-ingest.fox.com/{seg}/api/{seg}/{seg}",
-        "domain": "loki-ingest.fox.com",
+        "url": "https://{label}.fox.com/{seg}/api/{seg}/{seg}",
+        "domain": "{label}.fox.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2827,8 +2827,8 @@
       },
       {
         "id": 220,
-        "url": "https://widget-pixels.outbrain.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "widget-pixels.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2844,8 +2844,8 @@
       },
       {
         "id": 221,
-        "url": "https://widgets.outbrain.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "widgets.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2921,7 +2921,7 @@
       },
       {
         "id": 227,
-        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -2933,7 +2933,7 @@
       },
       {
         "id": 228,
-        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -2945,8 +2945,8 @@
       },
       {
         "id": 229,
-        "url": "https://agent.intentiq.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "agent.intentiq.com",
+        "url": "https://{label}.intentiq.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.intentiq.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2957,8 +2957,8 @@
       },
       {
         "id": 230,
-        "url": "https://mv.outbrain.com/{seg}/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&format=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mv.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}/api/{seg}?%5Bredacted%5D=&format=&version=&dpr=",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2974,8 +2974,8 @@
       },
       {
         "id": 231,
-        "url": "https://cdn-gl.imrworldwide.com/{seg}/{seg}/{seg}",
-        "domain": "cdn-gl.imrworldwide.com",
+        "url": "https://{label}.imrworldwide.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -3039,7 +3039,7 @@
       },
       {
         "id": 236,
-        "url": "https://cdn.taboola.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://cdn.taboola.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "cdn.taboola.com",
         "method": "GET",
         "resourceType": "image",
@@ -3097,8 +3097,8 @@
       },
       {
         "id": 240,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3109,8 +3109,8 @@
       },
       {
         "id": 241,
-        "url": "https://use.fontawesome.com/{seg}",
-        "domain": "use.fontawesome.com",
+        "url": "https://{label}.fontawesome.com/{seg}",
+        "domain": "{label}.fontawesome.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3121,8 +3121,8 @@
       },
       {
         "id": 242,
-        "url": "https://sdk.iad-05.braze.com/api/{seg}/{seg}",
-        "domain": "sdk.iad-05.braze.com",
+        "url": "https://{label}.{label}.braze.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.braze.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 201,
@@ -3138,8 +3138,8 @@
       },
       {
         "id": 243,
-        "url": "https://use.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "use.fontawesome.com",
+        "url": "https://{label}.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.fontawesome.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3150,8 +3150,8 @@
       },
       {
         "id": 244,
-        "url": "https://sb.scorecardresearch.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3184,8 +3184,8 @@
       },
       {
         "id": 246,
-        "url": "https://sb.scorecardresearch.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -3201,14 +3201,14 @@
       },
       {
         "id": 247,
-        "url": "https://bat.bing.com/{seg}/{seg}/{seg}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -3242,8 +3242,8 @@
       },
       {
         "id": 250,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3266,8 +3266,8 @@
       },
       {
         "id": 252,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3278,8 +3278,8 @@
       },
       {
         "id": 253,
-        "url": "https://mabping.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&V=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mabping.chartbeat.net",
+        "url": "https://{label}.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.chartbeat.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3295,8 +3295,8 @@
       },
       {
         "id": 254,
-        "url": "https://mabping.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&V=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mabping.chartbeat.net",
+        "url": "https://{label}.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.chartbeat.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3312,8 +3312,8 @@
       },
       {
         "id": 255,
-        "url": "https://mabping.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&V=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mabping.chartbeat.net",
+        "url": "https://{label}.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.chartbeat.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3329,8 +3329,8 @@
       },
       {
         "id": 256,
-        "url": "https://mabping.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&V=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mabping.chartbeat.net",
+        "url": "https://{label}.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.chartbeat.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3346,8 +3346,8 @@
       },
       {
         "id": 257,
-        "url": "https://mabping.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&V=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mabping.chartbeat.net",
+        "url": "https://{label}.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.chartbeat.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3363,8 +3363,8 @@
       },
       {
         "id": 258,
-        "url": "https://mabping.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&V=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mabping.chartbeat.net",
+        "url": "https://{label}.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.chartbeat.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3380,8 +3380,8 @@
       },
       {
         "id": 259,
-        "url": "https://ping.chartbeat.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&t=&V=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ping.chartbeat.net",
+        "url": "https://{label}.chartbeat.net/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.chartbeat.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3397,8 +3397,8 @@
       },
       {
         "id": 260,
-        "url": "https://secure-dcr.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "secure-dcr.imrworldwide.com",
+        "url": "https://{label}.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3414,8 +3414,8 @@
       },
       {
         "id": 261,
-        "url": "https://{label}.nuid.imrworldwide.com/",
-        "domain": "{label}.nuid.imrworldwide.com",
+        "url": "https://{label}.{label}.imrworldwide.com/",
+        "domain": "{label}.{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3431,8 +3431,8 @@
       },
       {
         "id": 262,
-        "url": "https://prod.fennec.atp.fox/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "prod.fennec.atp.fox",
+        "url": "https://{label}.{label}.atp.fox/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.atp.fox",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3443,7 +3443,7 @@
       },
       {
         "id": 263,
-        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -3455,14 +3455,14 @@
       },
       {
         "id": 264,
-        "url": "https://bat.bing.com/{seg}/{n}?%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&msclkid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{n}?%5Bredacted%5D=&ver=&msclkid=",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -3472,8 +3472,8 @@
       },
       {
         "id": 265,
-        "url": "https://amplify.outbrain.com/{seg}/{seg}",
-        "domain": "amplify.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}/{seg}",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3513,8 +3513,8 @@
       },
       {
         "id": 268,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ketchcdn.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3525,8 +3525,8 @@
       },
       {
         "id": 269,
-        "url": "https://prod.pyxis.atp.fox/{seg}/{seg}",
-        "domain": "prod.pyxis.atp.fox",
+        "url": "https://{label}.{label}.atp.fox/{seg}/{seg}",
+        "domain": "{label}.{label}.atp.fox",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3537,8 +3537,8 @@
       },
       {
         "id": 270,
-        "url": "https://sync.intentiq.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sync.intentiq.com",
+        "url": "https://{label}.intentiq.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.intentiq.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3561,8 +3561,8 @@
       },
       {
         "id": 272,
-        "url": "https://dd.insiad.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dd.insiad.com",
+        "url": "https://{label}.insiad.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.insiad.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3573,8 +3573,8 @@
       },
       {
         "id": 273,
-        "url": "https://dd.insiad.com/{seg}",
-        "domain": "dd.insiad.com",
+        "url": "https://{label}.insiad.com/{seg}",
+        "domain": "{label}.insiad.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3585,8 +3585,8 @@
       },
       {
         "id": 274,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ketchcdn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -3597,8 +3597,8 @@
       },
       {
         "id": 275,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3609,8 +3609,8 @@
       },
       {
         "id": 276,
-        "url": "https://wave.outbrain.com/{seg}/{seg}/{seg}",
-        "domain": "wave.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3626,8 +3626,8 @@
       },
       {
         "id": 277,
-        "url": "https://tr.outbrain.com/{seg}?%5Bredacted%5D=",
-        "domain": "tr.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3643,8 +3643,8 @@
       },
       {
         "id": 278,
-        "url": "https://widgets.outbrain.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "widgets.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -3660,8 +3660,8 @@
       },
       {
         "id": 279,
-        "url": "https://tcheck.outbrainimg.com/{seg}/{seg}/{seg}",
-        "domain": "tcheck.outbrainimg.com",
+        "url": "https://{label}.outbrainimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.outbrainimg.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3689,8 +3689,8 @@
       },
       {
         "id": 281,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3701,8 +3701,8 @@
       },
       {
         "id": 282,
-        "url": "https://logx.optimizely.com/{seg}/{seg}",
-        "domain": "logx.optimizely.com",
+        "url": "https://{label}.optimizely.com/{seg}/{seg}",
+        "domain": "{label}.optimizely.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -3718,8 +3718,8 @@
       },
       {
         "id": 283,
-        "url": "https://widgets.outbrain.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "widgets.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -3735,8 +3735,8 @@
       },
       {
         "id": 284,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3747,8 +3747,8 @@
       },
       {
         "id": 285,
-        "url": "https://player.h-cdn.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "player.h-cdn.com",
+        "url": "https://{label}.h-cdn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.h-cdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3759,8 +3759,8 @@
       },
       {
         "id": 286,
-        "url": "https://player.h-cdn.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "player.h-cdn.com",
+        "url": "https://{label}.h-cdn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.h-cdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3795,8 +3795,8 @@
       },
       {
         "id": 289,
-        "url": "https://secure-dcr.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "secure-dcr.imrworldwide.com",
+        "url": "https://{label}.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3812,8 +3812,8 @@
       },
       {
         "id": 290,
-        "url": "https://perr.h-cdn.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "perr.h-cdn.com",
+        "url": "https://{label}.h-cdn.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "{label}.h-cdn.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3836,8 +3836,8 @@
       },
       {
         "id": 292,
-        "url": "https://player.h-cdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "player.h-cdn.com",
+        "url": "https://{label}.h-cdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.h-cdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3848,8 +3848,8 @@
       },
       {
         "id": 293,
-        "url": "https://player.h-cdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "player.h-cdn.com",
+        "url": "https://{label}.h-cdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.h-cdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3872,8 +3872,8 @@
       },
       {
         "id": 295,
-        "url": "https://link.h-cdn.com/{seg}",
-        "domain": "link.h-cdn.com",
+        "url": "https://{label}.h-cdn.com/{seg}",
+        "domain": "{label}.h-cdn.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3884,8 +3884,8 @@
       },
       {
         "id": 296,
-        "url": "https://trc-events.taboola.com/{n}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "trc-events.taboola.com",
+        "url": "https://{label}.taboola.com/{n}/{seg}/{n}/{seg}?%5Bredacted%5D=&ver=&ref=",
+        "domain": "{label}.taboola.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
@@ -3902,26 +3902,8 @@
     ],
     "domains": [
       {
-        "domain": "mabping.chartbeat.net",
-        "requests": 6,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "chartbeat.net",
-          "entity": "Chartbeat",
-          "category": "audience analytics",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "widgets.outbrain.com",
-        "requests": 4,
+        "domain": "{label}.outbrain.com",
+        "requests": 9,
         "thirdParty": true,
         "tracker": {
           "domain": "outbrain.com",
@@ -3935,7 +3917,47 @@
         ],
         "resourceTypes": [
           "script",
+          "image",
           "document"
+        ]
+      },
+      {
+        "domain": "{label}.imrworldwide.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "imrworldwide.com",
+          "entity": "Nielsen",
+          "category": "audience measurement",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "script",
+          "image",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.chartbeat.net",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "chartbeat.net",
+          "entity": "Chartbeat",
+          "category": "audience analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
         ]
       },
       {
@@ -3958,30 +3980,11 @@
         ]
       },
       {
-        "domain": "cdn-gl.imrworldwide.com",
+        "domain": "{label}.bing.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": {
-          "domain": "imrworldwide.com",
-          "entity": "Nielsen",
-          "category": "audience measurement",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "document"
-        ]
-      },
-      {
-        "domain": "bat.bing.com",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -3997,7 +4000,7 @@
         ]
       },
       {
-        "domain": "sb.scorecardresearch.com",
+        "domain": "{label}.scorecardresearch.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": {
@@ -4018,7 +4021,7 @@
         ]
       },
       {
-        "domain": "c.amazon-adsystem.com",
+        "domain": "{label}.amazon-adsystem.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -4034,6 +4037,24 @@
         "resourceTypes": [
           "script",
           "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.amazon-adsystem.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
         ]
       },
       {
@@ -4073,26 +4094,7 @@
         ]
       },
       {
-        "domain": "secure-us.imrworldwide.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "imrworldwide.com",
-          "entity": "Nielsen",
-          "category": "audience measurement",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "dpm.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -4110,13 +4112,13 @@
         ]
       },
       {
-        "domain": "secure-dcr.imrworldwide.com",
+        "domain": "{label}.chartbeat.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "imrworldwide.com",
-          "entity": "Nielsen",
-          "category": "audience measurement",
+          "domain": "chartbeat.com",
+          "entity": "Chartbeat",
+          "category": "audience analytics",
           "confidence": "curated"
         },
         "blockedByShields": true,
@@ -4124,16 +4126,17 @@
           200
         ],
         "resourceTypes": [
+          "xhr",
           "image"
         ]
       },
       {
-        "domain": "config.aps.amazon-adsystem.com",
-        "requests": 1,
+        "domain": "{label}.criteo.com",
+        "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "amazon-adsystem.com",
-          "entity": "Amazon Ads",
+          "domain": "criteo.com",
+          "entity": "Criteo",
           "category": "advertising",
           "confidence": "curated"
         },
@@ -4142,24 +4145,7 @@
           200
         ],
         "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "client.aps.amazon-adsystem.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "amazon-adsystem.com",
-          "entity": "Amazon Ads",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
+          "document",
           "script"
         ]
       },
@@ -4218,115 +4204,7 @@
         ]
       },
       {
-        "domain": "mab.chartbeat.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "chartbeat.com",
-          "entity": "Chartbeat",
-          "category": "audience analytics",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "gum.criteo.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "criteo.com",
-          "entity": "Criteo",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "imagetesting.chartbeat.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "chartbeat.com",
-          "entity": "Chartbeat",
-          "category": "audience analytics",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "sslwidget.criteo.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "criteo.com",
-          "entity": "Criteo",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "widget-pixels.outbrain.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "outbrain.com",
-          "entity": "Outbrain",
-          "category": "advertising / recommendations",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "mv.outbrain.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "outbrain.com",
-          "entity": "Outbrain",
-          "category": "advertising / recommendations",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "sdk.iad-05.braze.com",
+        "domain": "{label}.{label}.braze.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -4362,25 +4240,7 @@
         ]
       },
       {
-        "domain": "ping.chartbeat.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "chartbeat.net",
-          "entity": "Chartbeat",
-          "category": "audience analytics",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "{label}.nuid.imrworldwide.com",
+        "domain": "{label}.{label}.imrworldwide.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -4398,61 +4258,7 @@
         ]
       },
       {
-        "domain": "amplify.outbrain.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "outbrain.com",
-          "entity": "Outbrain",
-          "category": "advertising / recommendations",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "wave.outbrain.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "outbrain.com",
-          "entity": "Outbrain",
-          "category": "advertising / recommendations",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "tr.outbrain.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "outbrain.com",
-          "entity": "Outbrain",
-          "category": "advertising / recommendations",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "tcheck.outbrainimg.com",
+        "domain": "{label}.outbrainimg.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -4470,7 +4276,7 @@
         ]
       },
       {
-        "domain": "logx.optimizely.com",
+        "domain": "{label}.optimizely.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -4488,7 +4294,7 @@
         ]
       },
       {
-        "domain": "trc-events.taboola.com",
+        "domain": "{label}.taboola.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -4522,7 +4328,22 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.h-cdn.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
         "requests": 6,
         "thirdParty": true,
         "tracker": null,
@@ -4535,7 +4356,7 @@
         ]
       },
       {
-        "domain": "global.ketchcdn.com",
+        "domain": "{label}.ketchcdn.com",
         "requests": 6,
         "thirdParty": true,
         "tracker": null,
@@ -4548,20 +4369,6 @@
           "script",
           "fetch",
           "ping"
-        ]
-      },
-      {
-        "domain": "player.h-cdn.com",
-        "requests": 5,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "stylesheet"
         ]
       },
       {
@@ -4579,6 +4386,21 @@
         ]
       },
       {
+        "domain": "{label}.{label}.atp.fox",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "script",
+          "xhr"
+        ]
+      },
+      {
         "domain": "static.trueanthem.com",
         "requests": 4,
         "thirdParty": true,
@@ -4592,7 +4414,7 @@
         ]
       },
       {
-        "domain": "frontdoor.knotch.it",
+        "domain": "{label}.knotch.it",
         "requests": 4,
         "thirdParty": true,
         "tracker": null,
@@ -4619,19 +4441,6 @@
         ]
       },
       {
-        "domain": "prod.pyxis.atp.fox",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
         "domain": "pix.pub",
         "requests": 2,
         "thirdParty": true,
@@ -4645,7 +4454,7 @@
         ]
       },
       {
-        "domain": "prod.fennec.atp.fox",
+        "domain": "{label}.intentiq.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -4655,11 +4464,11 @@
         ],
         "resourceTypes": [
           "script",
-          "xhr"
+          "image"
         ]
       },
       {
-        "domain": "use.fontawesome.com",
+        "domain": "{label}.fontawesome.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -4685,7 +4494,7 @@
         ]
       },
       {
-        "domain": "dd.insiad.com",
+        "domain": "{label}.insiad.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -4735,7 +4544,7 @@
         ]
       },
       {
-        "domain": "prod.idgraph.dt.fox",
+        "domain": "{label}.{label}.dt.fox",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4746,7 +4555,7 @@
         ]
       },
       {
-        "domain": "js.appboycdn.com",
+        "domain": "{label}.appboycdn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4785,7 +4594,7 @@
         ]
       },
       {
-        "domain": "configs.knotch.com",
+        "domain": "{label}.knotch.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4824,7 +4633,7 @@
         ]
       },
       {
-        "domain": "loki-ingest.fox.com",
+        "domain": "{label}.fox.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4850,32 +4659,6 @@
         ]
       },
       {
-        "domain": "agent.intentiq.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "sync.intentiq.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
         "domain": "cdn.browsiprod.com",
         "requests": 1,
         "thirdParty": true,
@@ -4886,32 +4669,6 @@
         ],
         "resourceTypes": [
           "script"
-        ]
-      },
-      {
-        "domain": "perr.h-cdn.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "link.h-cdn.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -4933,18 +4690,22 @@
         ]
       },
       {
-        "domain": "a57.foxnews.com",
-        "requests": 25,
+        "domain": "{label}.foxnews.com",
+        "requests": 33,
         "thirdParty": false,
         "tracker": null,
-        "blockedByShields": false,
+        "blockedByShields": true,
         "statuses": [
           200,
           206
         ],
         "resourceTypes": [
           "image",
-          "media"
+          "media",
+          "xhr",
+          "document",
+          "fetch",
+          "script"
         ]
       },
       {
@@ -4961,79 +4722,12 @@
           "xhr",
           "script"
         ]
-      },
-      {
-        "domain": "my.foxnews.com",
-        "requests": 3,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document",
-          "script"
-        ]
-      },
-      {
-        "domain": "smetrics.foxnews.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
-          "image"
-        ]
-      },
-      {
-        "domain": "prod-hp.foxnews.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "schedule-tool.foxnews.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "pub-admin-elections.foxnews.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
       }
     ],
     "cookies": [
       {
         "name": "[redacted]",
-        "domain": ".bat.bing.com",
+        "domain": ".{label}.bing.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -5153,7 +4847,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "widgets.outbrain.com",
+        "domain": "{label}.outbrain.com",
         "path": "/{seg}/{seg}/{seg}",
         "sameSite": "None",
         "secure": true,
@@ -5827,7 +5521,7 @@
             "https://cdn.taboola.com/",
             "https://static.chartbeat.com/",
             "https://static.foxnews.com/",
-            "https://widgets.outbrain.com/"
+            "https://{label}.outbrain.com/"
           ],
           "totalListenerCalls": 8
         }
@@ -5859,17 +5553,17 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://cdn-gl.imrworldwide.com/",
+            "https://{label}.imrworldwide.com/",
             "https://cdn.binsiad.com/",
             "https://cdn.browsiprod.com/",
             "https://cdn.ketchjs.com/",
             "https://cdn.optimizely.com/",
             "https://cdn.taboola.com/",
-            "https://player.h-cdn.com/",
-            "https://prod.fennec.atp.fox/",
+            "https://{label}.h-cdn.com/",
+            "https://{label}.{label}.atp.fox/",
             "https://static.chartbeat.com/",
             "https://static.foxnews.com/",
-            "https://widgets.outbrain.com/",
+            "https://{label}.outbrain.com/",
             "https://www.googletagmanager.com/",
             "https://www.knotch-cdn.com/"
           ],
@@ -5879,8 +5573,8 @@
     ],
     "cnameCloaks": [
       {
-        "host": "smetrics.foxnews.com",
-        "cname": "foxnews.com.ssl.d1.sc.omtrdc.net",
+        "host": "{label}.foxnews.com",
+        "cname": "{label}.{label}.{label}.{label}.{label}.omtrdc.net",
         "tracker": {
           "domain": "omtrdc.net",
           "entity": "Adobe",
@@ -5945,7 +5639,7 @@
       "totalRequests": 293,
       "thirdPartyRequests": 125,
       "knownTrackerRequests": 56,
-      "thirdPartyDomains": 64,
+      "thirdPartyDomains": 49,
       "cookies": 47,
       "thirdPartyCookies": 13,
       "storageEntries": 60,
@@ -6003,8 +5697,8 @@
       },
       {
         "id": 2,
-        "url": "https://c.amazon-adsystem.com/{seg}/{seg}",
-        "domain": "c.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}/{seg}",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6032,8 +5726,8 @@
       },
       {
         "id": 4,
-        "url": "https://config.aps.amazon-adsystem.com/{seg}/{n}",
-        "domain": "config.aps.amazon-adsystem.com",
+        "url": "https://{label}.{label}.amazon-adsystem.com/{seg}/{n}",
+        "domain": "{label}.{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6049,8 +5743,8 @@
       },
       {
         "id": 5,
-        "url": "https://client.aps.amazon-adsystem.com/{seg}",
-        "domain": "client.aps.amazon-adsystem.com",
+        "url": "https://{label}.{label}.amazon-adsystem.com/{seg}",
+        "domain": "{label}.{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6078,7 +5772,7 @@
       },
       {
         "id": 7,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -6150,8 +5844,8 @@
       },
       {
         "id": 13,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6162,8 +5856,8 @@
       },
       {
         "id": 14,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6174,8 +5868,8 @@
       },
       {
         "id": 15,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6198,8 +5892,8 @@
       },
       {
         "id": 17,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6234,8 +5928,8 @@
       },
       {
         "id": 20,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6246,8 +5940,8 @@
       },
       {
         "id": 21,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6258,8 +5952,8 @@
       },
       {
         "id": 22,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6270,8 +5964,8 @@
       },
       {
         "id": 23,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6282,8 +5976,8 @@
       },
       {
         "id": 24,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6306,8 +6000,8 @@
       },
       {
         "id": 26,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6318,8 +6012,8 @@
       },
       {
         "id": 27,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6330,8 +6024,8 @@
       },
       {
         "id": 28,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6342,8 +6036,8 @@
       },
       {
         "id": 29,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6366,8 +6060,8 @@
       },
       {
         "id": 31,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6450,8 +6144,8 @@
       },
       {
         "id": 38,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6462,8 +6156,8 @@
       },
       {
         "id": 39,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6474,8 +6168,8 @@
       },
       {
         "id": 40,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6486,8 +6180,8 @@
       },
       {
         "id": 41,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6498,8 +6192,8 @@
       },
       {
         "id": 42,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6510,8 +6204,8 @@
       },
       {
         "id": 43,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6522,8 +6216,8 @@
       },
       {
         "id": 44,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6534,8 +6228,8 @@
       },
       {
         "id": 45,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6846,8 +6540,8 @@
       },
       {
         "id": 71,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -6858,8 +6552,8 @@
       },
       {
         "id": 72,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -6870,8 +6564,8 @@
       },
       {
         "id": 73,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -6882,8 +6576,8 @@
       },
       {
         "id": 74,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -6894,8 +6588,8 @@
       },
       {
         "id": 75,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{n}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -7214,8 +6908,8 @@
       },
       {
         "id": 100,
-        "url": "https://player.h-cdn.com/{seg}?%5Bredacted%5D=",
-        "domain": "player.h-cdn.com",
+        "url": "https://{label}.h-cdn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.h-cdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7226,8 +6920,8 @@
       },
       {
         "id": 101,
-        "url": "https://cdn-gl.imrworldwide.com/{seg}/{seg}",
-        "domain": "cdn-gl.imrworldwide.com",
+        "url": "https://{label}.imrworldwide.com/{seg}/{seg}",
+        "domain": "{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7267,8 +6961,8 @@
       },
       {
         "id": 104,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7303,8 +6997,8 @@
       },
       {
         "id": 107,
-        "url": "https://secure-us.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "secure-us.imrworldwide.com",
+        "url": "https://{label}.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -7356,7 +7050,7 @@
       },
       {
         "id": 111,
-        "url": "https://api.strike.fox/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://api.strike.fox/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "api.strike.fox",
         "method": "GET",
         "resourceType": "fetch",
@@ -7524,8 +7218,8 @@
       },
       {
         "id": 125,
-        "url": "https://secure-us.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "secure-us.imrworldwide.com",
+        "url": "https://{label}.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7541,8 +7235,8 @@
       },
       {
         "id": 126,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -7558,8 +7252,8 @@
       },
       {
         "id": 127,
-        "url": "https://widgets.outbrain.com/{seg}",
-        "domain": "widgets.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7592,8 +7286,8 @@
       },
       {
         "id": 129,
-        "url": "https://prod.idgraph.dt.fox/api/{seg}/{seg}",
-        "domain": "prod.idgraph.dt.fox",
+        "url": "https://{label}.{label}.dt.fox/api/{seg}/{seg}",
+        "domain": "{label}.{label}.dt.fox",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -7604,8 +7298,8 @@
       },
       {
         "id": 130,
-        "url": "https://prod.pyxis.atp.fox/{seg}/{seg}",
-        "domain": "prod.pyxis.atp.fox",
+        "url": "https://{label}.{label}.atp.fox/{seg}/{seg}",
+        "domain": "{label}.{label}.atp.fox",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -7700,8 +7394,8 @@
       },
       {
         "id": 138,
-        "url": "https://js.appboycdn.com/{seg}/{seg}/{seg}",
-        "domain": "js.appboycdn.com",
+        "url": "https://{label}.appboycdn.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.appboycdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7712,14 +7406,14 @@
       },
       {
         "id": 139,
-        "url": "https://bat.bing.com/{seg}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -7729,8 +7423,8 @@
       },
       {
         "id": 140,
-        "url": "https://c.amazon-adsystem.com/{seg}/{seg}/{seg}",
-        "domain": "c.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -7746,8 +7440,8 @@
       },
       {
         "id": 141,
-        "url": "https://smetrics.foxnews.com/{seg}",
-        "domain": "smetrics.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -7835,8 +7529,8 @@
       },
       {
         "id": 148,
-        "url": "https://sb.scorecardresearch.com/{seg}",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7965,8 +7659,8 @@
       },
       {
         "id": 158,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -7982,8 +7676,8 @@
       },
       {
         "id": 159,
-        "url": "https://my.foxnews.com/{seg}",
-        "domain": "my.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -7994,8 +7688,8 @@
       },
       {
         "id": 160,
-        "url": "https://prod.fennec.atp.fox/{seg}/{seg}",
-        "domain": "prod.fennec.atp.fox",
+        "url": "https://{label}.{label}.atp.fox/{seg}/{seg}",
+        "domain": "{label}.{label}.atp.fox",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -8030,8 +7724,8 @@
       },
       {
         "id": 163,
-        "url": "https://mab.chartbeat.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mab.chartbeat.com",
+        "url": "https://{label}.chartbeat.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.chartbeat.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -8047,8 +7741,8 @@
       },
       {
         "id": 164,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -8088,8 +7782,8 @@
       },
       {
         "id": 167,
-        "url": "https://cdn-gl.imrworldwide.com/{seg}/{seg}/{n}/{seg}",
-        "domain": "cdn-gl.imrworldwide.com",
+        "url": "https://{label}.imrworldwide.com/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -8105,8 +7799,8 @@
       },
       {
         "id": 168,
-        "url": "https://configs.knotch.com/{seg}/{seg}",
-        "domain": "configs.knotch.com",
+        "url": "https://{label}.knotch.com/{seg}/{seg}",
+        "domain": "{label}.knotch.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8117,8 +7811,8 @@
       },
       {
         "id": 169,
-        "url": "https://my.foxnews.com/{seg}/{seg}/{seg}",
-        "domain": "my.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -8141,8 +7835,8 @@
       },
       {
         "id": 171,
-        "url": "https://my.foxnews.com/{seg}/{seg}/{seg}",
-        "domain": "my.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -8153,8 +7847,8 @@
       },
       {
         "id": 172,
-        "url": "https://smetrics.foxnews.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "smetrics.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8182,8 +7876,8 @@
       },
       {
         "id": 174,
-        "url": "https://imagetesting.chartbeat.com/{seg}/{seg}?width=&height=",
-        "domain": "imagetesting.chartbeat.com",
+        "url": "https://{label}.chartbeat.com/{seg}/{seg}?width=&height=",
+        "domain": "{label}.chartbeat.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8211,8 +7905,8 @@
       },
       {
         "id": 176,
-        "url": "https://loki-ingest.fox.com/{seg}/api/{seg}/{seg}",
-        "domain": "loki-ingest.fox.com",
+        "url": "https://{label}.fox.com/{seg}/api/{seg}/{seg}",
+        "domain": "{label}.fox.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -8396,8 +8090,8 @@
       },
       {
         "id": 191,
-        "url": "https://prod-hp.foxnews.com/{seg}/{seg}/{seg}",
-        "domain": "prod-hp.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8420,8 +8114,8 @@
       },
       {
         "id": 193,
-        "url": "https://schedule-tool.foxnews.com/{seg}/{seg}/{seg}",
-        "domain": "schedule-tool.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -8432,8 +8126,8 @@
       },
       {
         "id": 194,
-        "url": "https://pub-admin-elections.foxnews.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "pub-admin-elections.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8492,8 +8186,8 @@
       },
       {
         "id": 199,
-        "url": "https://frontdoor.knotch.it/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&type=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "frontdoor.knotch.it",
+        "url": "https://{label}.knotch.it/{seg}?%5Bredacted%5D=&type=",
+        "domain": "{label}.knotch.it",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8504,8 +8198,8 @@
       },
       {
         "id": 200,
-        "url": "https://a57.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
-        "domain": "a57.foxnews.com",
+        "url": "https://{label}.foxnews.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "{label}.foxnews.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8552,7 +8246,7 @@
       },
       {
         "id": 204,
-        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -8564,7 +8258,7 @@
       },
       {
         "id": 205,
-        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -8660,8 +8354,8 @@
       },
       {
         "id": 213,
-        "url": "https://gum.criteo.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gum.criteo.com",
+        "url": "https://{label}.criteo.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.criteo.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -8749,8 +8443,8 @@
       },
       {
         "id": 220,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -8761,8 +8455,8 @@
       },
       {
         "id": 221,
-        "url": "https://widget-pixels.outbrain.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "widget-pixels.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8778,8 +8472,8 @@
       },
       {
         "id": 222,
-        "url": "https://widgets.outbrain.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "widgets.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -8807,7 +8501,7 @@
       },
       {
         "id": 224,
-        "url": "https://cdn.taboola.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://cdn.taboola.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "cdn.taboola.com",
         "method": "GET",
         "resourceType": "image",
@@ -8841,8 +8535,8 @@
       },
       {
         "id": 226,
-        "url": "https://use.fontawesome.com/{seg}",
-        "domain": "use.fontawesome.com",
+        "url": "https://{label}.fontawesome.com/{seg}",
+        "domain": "{label}.fontawesome.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -8853,8 +8547,8 @@
       },
       {
         "id": 227,
-        "url": "https://sdk.iad-05.braze.com/api/{seg}/{seg}",
-        "domain": "sdk.iad-05.braze.com",
+        "url": "https://{label}.{label}.braze.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.braze.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 201,
@@ -8870,14 +8564,14 @@
       },
       {
         "id": 228,
-        "url": "https://bat.bing.com/{seg}/{seg}/{seg}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -8928,8 +8622,8 @@
       },
       {
         "id": 232,
-        "url": "https://use.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "use.fontawesome.com",
+        "url": "https://{label}.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.fontawesome.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -8952,8 +8646,8 @@
       },
       {
         "id": 234,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -8964,8 +8658,8 @@
       },
       {
         "id": 235,
-        "url": "https://sb.scorecardresearch.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -8993,8 +8687,8 @@
       },
       {
         "id": 237,
-        "url": "https://sb.scorecardresearch.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -9022,8 +8716,8 @@
       },
       {
         "id": 239,
-        "url": "https://cdn-gl.imrworldwide.com/{seg}/{seg}/{seg}",
-        "domain": "cdn-gl.imrworldwide.com",
+        "url": "https://{label}.imrworldwide.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -9039,8 +8733,8 @@
       },
       {
         "id": 240,
-        "url": "https://prod.fennec.atp.fox/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "prod.fennec.atp.fox",
+        "url": "https://{label}.{label}.atp.fox/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.atp.fox",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -9051,8 +8745,8 @@
       },
       {
         "id": 241,
-        "url": "https://agent.intentiq.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "agent.intentiq.com",
+        "url": "https://{label}.intentiq.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.intentiq.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -9063,8 +8757,8 @@
       },
       {
         "id": 242,
-        "url": "https://mv.outbrain.com/{seg}/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&format=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mv.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}/api/{seg}?%5Bredacted%5D=&format=&version=&dpr=",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -9080,8 +8774,8 @@
       },
       {
         "id": 243,
-        "url": "https://mabping.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&V=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mabping.chartbeat.net",
+        "url": "https://{label}.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.chartbeat.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9097,8 +8791,8 @@
       },
       {
         "id": 244,
-        "url": "https://mabping.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&V=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mabping.chartbeat.net",
+        "url": "https://{label}.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.chartbeat.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9114,8 +8808,8 @@
       },
       {
         "id": 245,
-        "url": "https://mabping.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&V=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mabping.chartbeat.net",
+        "url": "https://{label}.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.chartbeat.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9131,8 +8825,8 @@
       },
       {
         "id": 246,
-        "url": "https://mabping.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&V=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mabping.chartbeat.net",
+        "url": "https://{label}.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.chartbeat.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9148,8 +8842,8 @@
       },
       {
         "id": 247,
-        "url": "https://mabping.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&V=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mabping.chartbeat.net",
+        "url": "https://{label}.chartbeat.net/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.chartbeat.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9165,8 +8859,8 @@
       },
       {
         "id": 248,
-        "url": "https://ping.chartbeat.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&t=&V=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ping.chartbeat.net",
+        "url": "https://{label}.chartbeat.net/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.chartbeat.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9182,8 +8876,8 @@
       },
       {
         "id": 249,
-        "url": "https://sslwidget.criteo.com/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sslwidget.criteo.com",
+        "url": "https://{label}.criteo.com/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.criteo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -9199,7 +8893,7 @@
       },
       {
         "id": 250,
-        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -9271,8 +8965,8 @@
       },
       {
         "id": 256,
-        "url": "https://prod.pyxis.atp.fox/{seg}/{seg}",
-        "domain": "prod.pyxis.atp.fox",
+        "url": "https://{label}.{label}.atp.fox/{seg}/{seg}",
+        "domain": "{label}.{label}.atp.fox",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -9283,8 +8977,8 @@
       },
       {
         "id": 257,
-        "url": "https://secure-dcr.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "secure-dcr.imrworldwide.com",
+        "url": "https://{label}.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9300,8 +8994,8 @@
       },
       {
         "id": 258,
-        "url": "https://{label}.nuid.imrworldwide.com/",
-        "domain": "{label}.nuid.imrworldwide.com",
+        "url": "https://{label}.{label}.imrworldwide.com/",
+        "domain": "{label}.{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9317,8 +9011,8 @@
       },
       {
         "id": 259,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -9389,8 +9083,8 @@
       },
       {
         "id": 265,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -9401,8 +9095,8 @@
       },
       {
         "id": 266,
-        "url": "https://logx.optimizely.com/{seg}/{seg}",
-        "domain": "logx.optimizely.com",
+        "url": "https://{label}.optimizely.com/{seg}/{seg}",
+        "domain": "{label}.optimizely.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -9418,8 +9112,8 @@
       },
       {
         "id": 267,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ketchcdn.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -9430,8 +9124,8 @@
       },
       {
         "id": 268,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ketchcdn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -9442,8 +9136,8 @@
       },
       {
         "id": 269,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -9454,8 +9148,8 @@
       },
       {
         "id": 270,
-        "url": "https://amplify.outbrain.com/{seg}/{seg}",
-        "domain": "amplify.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}/{seg}",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -9483,8 +9177,8 @@
       },
       {
         "id": 272,
-        "url": "https://dd.insiad.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dd.insiad.com",
+        "url": "https://{label}.insiad.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.insiad.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -9495,8 +9189,8 @@
       },
       {
         "id": 273,
-        "url": "https://dd.insiad.com/{seg}",
-        "domain": "dd.insiad.com",
+        "url": "https://{label}.insiad.com/{seg}",
+        "domain": "{label}.insiad.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -9507,14 +9201,14 @@
       },
       {
         "id": 274,
-        "url": "https://bat.bing.com/{seg}/{n}?%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&msclkid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{n}?%5Bredacted%5D=&ver=&msclkid=",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -9524,8 +9218,8 @@
       },
       {
         "id": 275,
-        "url": "https://sync.intentiq.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sync.intentiq.com",
+        "url": "https://{label}.intentiq.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.intentiq.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9536,8 +9230,8 @@
       },
       {
         "id": 276,
-        "url": "https://widgets.outbrain.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "widgets.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -9553,8 +9247,8 @@
       },
       {
         "id": 277,
-        "url": "https://tcheck.outbrainimg.com/{seg}/{seg}/{seg}",
-        "domain": "tcheck.outbrainimg.com",
+        "url": "https://{label}.outbrainimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.outbrainimg.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -9570,8 +9264,8 @@
       },
       {
         "id": 278,
-        "url": "https://wave.outbrain.com/{seg}/{seg}/{seg}",
-        "domain": "wave.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -9587,8 +9281,8 @@
       },
       {
         "id": 279,
-        "url": "https://tr.outbrain.com/{seg}?%5Bredacted%5D=",
-        "domain": "tr.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -9604,8 +9298,8 @@
       },
       {
         "id": 280,
-        "url": "https://widgets.outbrain.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "widgets.outbrain.com",
+        "url": "https://{label}.outbrain.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.outbrain.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -9621,8 +9315,8 @@
       },
       {
         "id": 281,
-        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "global.ketchcdn.com",
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -9633,8 +9327,8 @@
       },
       {
         "id": 282,
-        "url": "https://player.h-cdn.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "player.h-cdn.com",
+        "url": "https://{label}.h-cdn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.h-cdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -9645,8 +9339,8 @@
       },
       {
         "id": 283,
-        "url": "https://player.h-cdn.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "player.h-cdn.com",
+        "url": "https://{label}.h-cdn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.h-cdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -9657,8 +9351,8 @@
       },
       {
         "id": 284,
-        "url": "https://perr.h-cdn.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "perr.h-cdn.com",
+        "url": "https://{label}.h-cdn.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "{label}.h-cdn.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -9681,8 +9375,8 @@
       },
       {
         "id": 286,
-        "url": "https://player.h-cdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "player.h-cdn.com",
+        "url": "https://{label}.h-cdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.h-cdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -9693,8 +9387,8 @@
       },
       {
         "id": 287,
-        "url": "https://player.h-cdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "player.h-cdn.com",
+        "url": "https://{label}.h-cdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.h-cdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -9717,8 +9411,8 @@
       },
       {
         "id": 289,
-        "url": "https://link.h-cdn.com/{seg}",
-        "domain": "link.h-cdn.com",
+        "url": "https://{label}.h-cdn.com/{seg}",
+        "domain": "{label}.h-cdn.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -9753,8 +9447,8 @@
       },
       {
         "id": 292,
-        "url": "https://secure-dcr.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "secure-dcr.imrworldwide.com",
+        "url": "https://{label}.imrworldwide.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.imrworldwide.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9770,8 +9464,8 @@
       },
       {
         "id": 293,
-        "url": "https://trc-events.taboola.com/{n}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "trc-events.taboola.com",
+        "url": "https://{label}.taboola.com/{n}/{seg}/{n}/{seg}?%5Bredacted%5D=&ver=&ref=",
+        "domain": "{label}.taboola.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
@@ -9788,26 +9482,8 @@
     ],
     "domains": [
       {
-        "domain": "mabping.chartbeat.net",
-        "requests": 5,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "chartbeat.net",
-          "entity": "Chartbeat",
-          "category": "audience analytics",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "widgets.outbrain.com",
-        "requests": 4,
+        "domain": "{label}.outbrain.com",
+        "requests": 9,
         "thirdParty": true,
         "tracker": {
           "domain": "outbrain.com",
@@ -9821,7 +9497,47 @@
         ],
         "resourceTypes": [
           "script",
+          "image",
           "document"
+        ]
+      },
+      {
+        "domain": "{label}.imrworldwide.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "imrworldwide.com",
+          "entity": "Nielsen",
+          "category": "audience measurement",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "script",
+          "image",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.chartbeat.net",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "chartbeat.net",
+          "entity": "Chartbeat",
+          "category": "audience analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
         ]
       },
       {
@@ -9844,26 +9560,7 @@
         ]
       },
       {
-        "domain": "cdn-gl.imrworldwide.com",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "imrworldwide.com",
-          "entity": "Nielsen",
-          "category": "audience measurement",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "document"
-        ]
-      },
-      {
-        "domain": "dpm.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 3,
         "thirdParty": true,
         "tracker": {
@@ -9881,11 +9578,11 @@
         ]
       },
       {
-        "domain": "bat.bing.com",
+        "domain": "{label}.bing.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -9901,7 +9598,7 @@
         ]
       },
       {
-        "domain": "sb.scorecardresearch.com",
+        "domain": "{label}.scorecardresearch.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": {
@@ -9922,7 +9619,7 @@
         ]
       },
       {
-        "domain": "c.amazon-adsystem.com",
+        "domain": "{label}.amazon-adsystem.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -9938,6 +9635,24 @@
         "resourceTypes": [
           "script",
           "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.amazon-adsystem.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
         ]
       },
       {
@@ -9977,32 +9692,13 @@
         ]
       },
       {
-        "domain": "secure-us.imrworldwide.com",
+        "domain": "{label}.chartbeat.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "imrworldwide.com",
-          "entity": "Nielsen",
-          "category": "audience measurement",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "secure-dcr.imrworldwide.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "imrworldwide.com",
-          "entity": "Nielsen",
-          "category": "audience measurement",
+          "domain": "chartbeat.com",
+          "entity": "Chartbeat",
+          "category": "audience analytics",
           "confidence": "curated"
         },
         "blockedByShields": true,
@@ -10010,16 +9706,17 @@
           200
         ],
         "resourceTypes": [
+          "xhr",
           "image"
         ]
       },
       {
-        "domain": "config.aps.amazon-adsystem.com",
-        "requests": 1,
+        "domain": "{label}.criteo.com",
+        "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "amazon-adsystem.com",
-          "entity": "Amazon Ads",
+          "domain": "criteo.com",
+          "entity": "Criteo",
           "category": "advertising",
           "confidence": "curated"
         },
@@ -10028,24 +9725,7 @@
           200
         ],
         "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "client.aps.amazon-adsystem.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "amazon-adsystem.com",
-          "entity": "Amazon Ads",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
+          "document",
           "script"
         ]
       },
@@ -10104,79 +9784,7 @@
         ]
       },
       {
-        "domain": "mab.chartbeat.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "chartbeat.com",
-          "entity": "Chartbeat",
-          "category": "audience analytics",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "imagetesting.chartbeat.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "chartbeat.com",
-          "entity": "Chartbeat",
-          "category": "audience analytics",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "gum.criteo.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "criteo.com",
-          "entity": "Criteo",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "widget-pixels.outbrain.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "outbrain.com",
-          "entity": "Outbrain",
-          "category": "advertising / recommendations",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "sdk.iad-05.braze.com",
+        "domain": "{label}.{label}.braze.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -10212,61 +9820,7 @@
         ]
       },
       {
-        "domain": "mv.outbrain.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "outbrain.com",
-          "entity": "Outbrain",
-          "category": "advertising / recommendations",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "ping.chartbeat.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "chartbeat.net",
-          "entity": "Chartbeat",
-          "category": "audience analytics",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "sslwidget.criteo.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "criteo.com",
-          "entity": "Criteo",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "{label}.nuid.imrworldwide.com",
+        "domain": "{label}.{label}.imrworldwide.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -10284,7 +9838,7 @@
         ]
       },
       {
-        "domain": "logx.optimizely.com",
+        "domain": "{label}.optimizely.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -10302,25 +9856,7 @@
         ]
       },
       {
-        "domain": "amplify.outbrain.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "outbrain.com",
-          "entity": "Outbrain",
-          "category": "advertising / recommendations",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "tcheck.outbrainimg.com",
+        "domain": "{label}.outbrainimg.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -10338,43 +9874,7 @@
         ]
       },
       {
-        "domain": "wave.outbrain.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "outbrain.com",
-          "entity": "Outbrain",
-          "category": "advertising / recommendations",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "tr.outbrain.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "outbrain.com",
-          "entity": "Outbrain",
-          "category": "advertising / recommendations",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "trc-events.taboola.com",
+        "domain": "{label}.taboola.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -10408,7 +9908,22 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.h-cdn.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
         "requests": 6,
         "thirdParty": true,
         "tracker": null,
@@ -10421,7 +9936,7 @@
         ]
       },
       {
-        "domain": "global.ketchcdn.com",
+        "domain": "{label}.ketchcdn.com",
         "requests": 6,
         "thirdParty": true,
         "tracker": null,
@@ -10437,20 +9952,6 @@
         ]
       },
       {
-        "domain": "player.h-cdn.com",
-        "requests": 5,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "stylesheet"
-        ]
-      },
-      {
         "domain": "www.google.com",
         "requests": 5,
         "thirdParty": true,
@@ -10462,6 +9963,21 @@
         "resourceTypes": [
           "script",
           "document"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.atp.fox",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "script",
+          "xhr"
         ]
       },
       {
@@ -10491,19 +10007,6 @@
         ]
       },
       {
-        "domain": "prod.pyxis.atp.fox",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
         "domain": "pix.pub",
         "requests": 2,
         "thirdParty": true,
@@ -10517,21 +10020,7 @@
         ]
       },
       {
-        "domain": "prod.fennec.atp.fox",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "xhr"
-        ]
-      },
-      {
-        "domain": "use.fontawesome.com",
+        "domain": "{label}.fontawesome.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -10541,6 +10030,20 @@
         ],
         "resourceTypes": [
           "stylesheet"
+        ]
+      },
+      {
+        "domain": "{label}.intentiq.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
         ]
       },
       {
@@ -10557,7 +10060,7 @@
         ]
       },
       {
-        "domain": "dd.insiad.com",
+        "domain": "{label}.insiad.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -10609,7 +10112,7 @@
         ]
       },
       {
-        "domain": "prod.idgraph.dt.fox",
+        "domain": "{label}.{label}.dt.fox",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -10620,7 +10123,7 @@
         ]
       },
       {
-        "domain": "js.appboycdn.com",
+        "domain": "{label}.appboycdn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -10646,7 +10149,7 @@
         ]
       },
       {
-        "domain": "configs.knotch.com",
+        "domain": "{label}.knotch.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -10659,7 +10162,7 @@
         ]
       },
       {
-        "domain": "loki-ingest.fox.com",
+        "domain": "{label}.fox.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -10698,7 +10201,7 @@
         ]
       },
       {
-        "domain": "frontdoor.knotch.it",
+        "domain": "{label}.knotch.it",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -10737,58 +10240,6 @@
         ]
       },
       {
-        "domain": "agent.intentiq.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "sync.intentiq.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "perr.h-cdn.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "link.h-cdn.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
         "domain": "cdn.browsiprod.com",
         "requests": 1,
         "thirdParty": true,
@@ -10820,18 +10271,22 @@
         ]
       },
       {
-        "domain": "a57.foxnews.com",
-        "requests": 25,
+        "domain": "{label}.foxnews.com",
+        "requests": 33,
         "thirdParty": false,
         "tracker": null,
-        "blockedByShields": false,
+        "blockedByShields": true,
         "statuses": [
           200,
           206
         ],
         "resourceTypes": [
           "image",
-          "media"
+          "media",
+          "xhr",
+          "document",
+          "script",
+          "fetch"
         ]
       },
       {
@@ -10848,79 +10303,12 @@
           "xhr",
           "script"
         ]
-      },
-      {
-        "domain": "my.foxnews.com",
-        "requests": 3,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document",
-          "script"
-        ]
-      },
-      {
-        "domain": "smetrics.foxnews.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
-          "image"
-        ]
-      },
-      {
-        "domain": "prod-hp.foxnews.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "schedule-tool.foxnews.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "pub-admin-elections.foxnews.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
       }
     ],
     "cookies": [
       {
         "name": "[redacted]",
-        "domain": ".bat.bing.com",
+        "domain": ".{label}.bing.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -11040,7 +10428,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "widgets.outbrain.com",
+        "domain": "{label}.outbrain.com",
         "path": "/{seg}/{seg}/{seg}",
         "sameSite": "None",
         "secure": true,
@@ -11714,7 +11102,7 @@
             "https://cdn.taboola.com/",
             "https://static.chartbeat.com/",
             "https://static.foxnews.com/",
-            "https://widgets.outbrain.com/"
+            "https://{label}.outbrain.com/"
           ],
           "totalListenerCalls": 8
         }
@@ -11746,17 +11134,17 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://cdn-gl.imrworldwide.com/",
+            "https://{label}.imrworldwide.com/",
             "https://cdn.binsiad.com/",
             "https://cdn.browsiprod.com/",
             "https://cdn.ketchjs.com/",
             "https://cdn.optimizely.com/",
             "https://cdn.taboola.com/",
-            "https://player.h-cdn.com/",
-            "https://prod.fennec.atp.fox/",
+            "https://{label}.h-cdn.com/",
+            "https://{label}.{label}.atp.fox/",
             "https://static.chartbeat.com/",
             "https://static.foxnews.com/",
-            "https://widgets.outbrain.com/",
+            "https://{label}.outbrain.com/",
             "https://www.googletagmanager.com/",
             "https://www.knotch-cdn.com/"
           ],
@@ -11766,8 +11154,8 @@
     ],
     "cnameCloaks": [
       {
-        "host": "smetrics.foxnews.com",
-        "cname": "foxnews.com.ssl.d1.sc.omtrdc.net",
+        "host": "{label}.foxnews.com",
+        "cname": "{label}.{label}.{label}.{label}.{label}.omtrdc.net",
         "tracker": {
           "domain": "omtrdc.net",
           "entity": "Adobe",
@@ -11837,8 +11225,8 @@
       "delta": 0
     },
     "thirdPartyDomains": {
-      "before": 64,
-      "after": 64,
+      "before": 49,
+      "after": 49,
       "delta": 0
     },
     "cookies": {

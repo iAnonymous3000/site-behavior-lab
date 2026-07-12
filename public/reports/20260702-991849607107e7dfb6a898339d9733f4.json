@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -734,8 +734,8 @@
       },
       {
         "id": 56,
-        "url": "https://zombie.duolingo.com/{n}/{seg}",
-        "domain": "zombie.duolingo.com",
+        "url": "https://{label}.duolingo.com/{n}/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 404,
@@ -770,8 +770,8 @@
       },
       {
         "id": 59,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1430,8 +1430,8 @@
       },
       {
         "id": 114,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1442,8 +1442,8 @@
       },
       {
         "id": 115,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1466,8 +1466,8 @@
       },
       {
         "id": 117,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1478,8 +1478,8 @@
       },
       {
         "id": 118,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1490,8 +1490,8 @@
       },
       {
         "id": 119,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1502,8 +1502,8 @@
       },
       {
         "id": 120,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1562,7 +1562,7 @@
       },
       {
         "id": 125,
-        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "document",
@@ -1598,8 +1598,8 @@
       },
       {
         "id": 128,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1610,8 +1610,8 @@
       },
       {
         "id": 129,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1646,8 +1646,8 @@
       },
       {
         "id": 132,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1670,7 +1670,7 @@
       },
       {
         "id": 134,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1687,7 +1687,7 @@
       },
       {
         "id": 135,
-        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "ad.doubleclick.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -1704,8 +1704,8 @@
       },
       {
         "id": 136,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1721,7 +1721,7 @@
       },
       {
         "id": 137,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1733,7 +1733,7 @@
       },
       {
         "id": 138,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1745,7 +1745,7 @@
       },
       {
         "id": 139,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
@@ -1806,7 +1806,7 @@
         ]
       },
       {
-        "domain": "googleads.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -1914,7 +1914,7 @@
         ]
       },
       {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1927,7 +1927,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1940,15 +1940,17 @@
         ]
       },
       {
-        "domain": "excess.duolingo.com",
-        "requests": 9,
+        "domain": "{label}.duolingo.com",
+        "requests": 10,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
+          404,
           200
         ],
         "resourceTypes": [
+          "fetch",
           "xhr"
         ]
       },
@@ -1964,19 +1966,6 @@
         ],
         "resourceTypes": [
           "document",
-          "fetch"
-        ]
-      },
-      {
-        "domain": "zombie.duolingo.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          404
-        ],
-        "resourceTypes": [
           "fetch"
         ]
       }
@@ -2479,8 +2468,8 @@
       },
       {
         "id": 17,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2928,8 +2917,8 @@
       },
       {
         "id": 54,
-        "url": "https://zombie.duolingo.com/{n}/{seg}",
-        "domain": "zombie.duolingo.com",
+        "url": "https://{label}.duolingo.com/{n}/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 404,
@@ -2964,8 +2953,8 @@
       },
       {
         "id": 57,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3624,8 +3613,8 @@
       },
       {
         "id": 112,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3636,8 +3625,8 @@
       },
       {
         "id": 113,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3660,8 +3649,8 @@
       },
       {
         "id": 115,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3672,8 +3661,8 @@
       },
       {
         "id": 116,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3684,8 +3673,8 @@
       },
       {
         "id": 117,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3696,8 +3685,8 @@
       },
       {
         "id": 118,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3756,7 +3745,7 @@
       },
       {
         "id": 123,
-        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "document",
@@ -3804,8 +3793,8 @@
       },
       {
         "id": 127,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3840,8 +3829,8 @@
       },
       {
         "id": 130,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3876,7 +3865,7 @@
       },
       {
         "id": 133,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -3905,8 +3894,8 @@
       },
       {
         "id": 135,
-        "url": "https://excess.duolingo.com/{seg}",
-        "domain": "excess.duolingo.com",
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3917,7 +3906,7 @@
       },
       {
         "id": 136,
-        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "ad.doubleclick.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -3934,8 +3923,8 @@
       },
       {
         "id": 137,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3951,7 +3940,7 @@
       },
       {
         "id": 138,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -3963,7 +3952,7 @@
       },
       {
         "id": 139,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -3975,7 +3964,7 @@
       },
       {
         "id": 140,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
@@ -4036,7 +4025,7 @@
         ]
       },
       {
-        "domain": "googleads.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -4144,7 +4133,7 @@
         ]
       },
       {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4168,7 +4157,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4181,15 +4170,17 @@
         ]
       },
       {
-        "domain": "excess.duolingo.com",
-        "requests": 9,
+        "domain": "{label}.duolingo.com",
+        "requests": 10,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
+          404,
           200
         ],
         "resourceTypes": [
+          "fetch",
           "xhr"
         ]
       },
@@ -4205,19 +4196,6 @@
         ],
         "resourceTypes": [
           "document",
-          "fetch"
-        ]
-      },
-      {
-        "domain": "zombie.duolingo.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          404
-        ],
-        "resourceTypes": [
           "fetch"
         ]
       }

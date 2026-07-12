@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import tldtsPackage from "tldts/package.json";
 import {
   INVALID_URL_MARKER,
   INVALID_HOST_MARKER,
+  PUBLIC_SUFFIX_ENGINE_VERSION,
   emptyRedactionCounters,
   queryKeyAllowed,
+  publicRegistrableDomain,
   redactCookieName,
   redactHostnameV2,
   redactPathV2,
@@ -12,6 +15,10 @@ import {
   redactUrlV2,
   tokenShapeMarker
 } from "./redaction-v2";
+
+test("public-suffix provenance matches the exact installed package", () => {
+  assert.equal(PUBLIC_SUFFIX_ENGINE_VERSION, `tldts@${tldtsPackage.version}`);
+});
 
 test("malformed and non-http input redacts, never passes through", () => {
   // The exact v1 defect this replaces: report-url returned unparseable URLs unchanged.
@@ -22,6 +29,23 @@ test("malformed and non-http input redacts, never passes through", () => {
   const nonHttp = redactUrlV2("javascript:alert(document.cookie)");
   assert.equal(nonHttp.value, INVALID_URL_MARKER);
   assert.equal(nonHttp.counters.malformedUrlsDropped, 1);
+
+  const singleLabel = redactUrlV2("https://AlicePatient/secret");
+  assert.equal(singleLabel.value, INVALID_URL_MARKER);
+  assert.equal(singleLabel.counters.malformedUrlsDropped, 1);
+  const singleLabelHost = redactHostnameV2("AlicePatient");
+  assert.equal(singleLabelHost.value, INVALID_HOST_MARKER);
+  assert.equal(singleLabelHost.counters.malformedUrlsDropped, 1);
+
+  for (const specialUse of ["alice.internal", "alice.localhost", "alice.example"]) {
+    assert.equal(redactUrlV2(`https://${specialUse}/secret`).value, INVALID_URL_MARKER);
+    assert.equal(redactHostnameV2(specialUse).value, INVALID_HOST_MARKER);
+  }
+  assert.equal(redactUrlV2("https://alice.github.io/secret").value, "https://alice.github.io/{seg}");
+  assert.equal(publicRegistrableDomain("example.com."), "example.com");
+  assert.equal(publicRegistrableDomain("Alice.Patient.example.com."), "example.com");
+  assert.equal(publicRegistrableDomain("example.com.."), "example.com");
+  assert.equal(publicRegistrableDomain("WWW.EXAMPLE.COM"), "example.com");
 });
 
 test("paths are default-deny: only allowlisted route literals survive", () => {
@@ -37,8 +61,8 @@ test("paths are default-deny: only allowlisted route literals survive", () => {
 test("health topics and short lowercase words do not survive by shape", () => {
   // The RFC's stated reason for literal allowlists over heuristics: short
   // lowercase words include names and health topics.
-  const redacted = redactUrlV2("https://clinic.example/hiv/treatment");
-  assert.equal(redacted.value, "https://clinic.example/{seg}/{seg}");
+  const redacted = redactUrlV2("https://clinic.example.com/hiv/treatment");
+  assert.equal(redacted.value, "https://{label}.example.com/{seg}/{seg}");
 });
 
 test("paths are capped and the overflow is counted", () => {
@@ -54,24 +78,48 @@ test("matrix parameters strip before classification", () => {
 });
 
 test("query keys survive only via the allowlist; values always drop", () => {
-  const redacted = redactUrlV2("https://t.example/collect?utm_source=news&email=anna%40example.com&gclid=abc123", {
+  const redacted = redactUrlV2("https://telemetry.example.com/collect?utm_source=news&email=anna%40example.com&gclid=abc123", {
     preserveQueryKeys: true
   });
-  assert.equal(redacted.value, "https://t.example/{seg}?utm_source=&%5Bredacted%5D=&gclid=");
+  assert.equal(redacted.value, "https://telemetry.example.com/{seg}?utm_source=&%5Bredacted%5D=&gclid=");
   assert.equal(redacted.counters.queryKeysRedacted, 1);
 
   // Without preserveQueryKeys the query drops entirely.
-  const dropped = redactUrlV2("https://t.example/collect?utm_source=news", {});
+  const dropped = redactUrlV2("https://telemetry.example.com/collect?utm_source=news", {});
   assert.equal(dropped.value.includes("?"), false);
+  assert.equal(dropped.counters.queryKeysRedacted, 1);
 
   assert.equal(queryKeyAllowed("utm_campaign"), true);
   assert.equal(queryKeyAllowed("ud[em]"), true);
+  assert.equal(queryKeyAllowed("utm_alice_private_account"), false);
+  assert.equal(queryKeyAllowed("ud[alice_private_account]"), false);
   // v1's pattern rule passed any short alphanumeric key; the literal
   // allowlist does not.
   assert.equal(queryKeyAllowed("annaschmidt1987"), false);
+
+  const hostile = redactUrlV2(
+    `https://telemetry.example.com/collect?${[
+      "utm_alice_private_account=secret",
+      "ud[alice_private_account]=secret",
+      ...Array.from({ length: 100 }, (_, index) => `unknown_${index}=x`),
+      "UTM_SOURCE=x",
+      "utm_source=y"
+    ].join("&")}`,
+    { preserveQueryKeys: true }
+  );
+  assert.equal(hostile.value.includes("alice"), false);
+  assert.equal((hostile.value.match(/utm_source/g) ?? []).length, 1);
+  assert.ok(hostile.value.length < 1_000);
+  assert.ok(hostile.counters.queryKeysRedacted >= 102);
 });
 
-test("token-shaped subdomain labels generalize; the registrable domain and named services survive", () => {
+test("oversized raw URLs fail closed before public shaping", () => {
+  const result = redactUrlV2(`https://example.com/?q=${"x".repeat(20_000)}`, { preserveQueryKeys: true });
+  assert.equal(result.value, INVALID_URL_MARKER);
+  assert.equal(result.counters.malformedUrlsDropped, 1);
+});
+
+test("subdomain labels are reviewed-literal only; tenant and token labels generalize", () => {
   assert.equal(redactUrlV2("https://telemetry.example.com/").value, "https://telemetry.example.com/");
 
   const tokened = redactUrlV2("https://a8f3c9d2e1b4f6a7.telemetry.example.com/");
@@ -83,6 +131,15 @@ test("token-shaped subdomain labels generalize; the registrable domain and named
 
   // Conventional numbered shards are not token-like.
   assert.equal(redactUrlV2("https://cdn2.example.com/").value, "https://cdn2.example.com/");
+  assert.equal(redactUrlV2("https://alice.patient.example.com/").value, "https://{label}.{label}.example.com/");
+  assert.equal(
+    redactUrlV2("https://Alice.Patient.example.com./secret").value,
+    "https://{label}.{label}.example.com/{seg}"
+  );
+  assert.equal(
+    redactHostnameV2("Alice.Patient.example.com..").value,
+    "{label}.{label}.example.com"
+  );
 });
 
 test("cookie names and storage keys are allowlist-or-marker with shape classes", () => {
@@ -104,9 +161,9 @@ test("shape markers classify, never authorize survival", () => {
   assert.equal(tokenShapeMarker("anna"), "[redacted]");
 });
 
-test("IDN hosts canonicalize to punycode and default ports strip", () => {
+test("IDN hosts canonicalize before an unreviewed subdomain is generalized", () => {
   const redacted = redactUrlV2("https://münchen.example.com:443/privacy");
-  assert.equal(redacted.value, "https://xn--mnchen-3ya.example.com/privacy");
+  assert.equal(redacted.value, "https://{label}.example.com/privacy");
 });
 
 test("hostname and path field sanitizers apply the same policy without a containing URL", () => {
@@ -132,6 +189,14 @@ test("all public markers are byte-idempotent across repeated boundaries", () => 
   assert.equal(redactUrlV2(once, { preserveQueryKeys: true }).value, once);
   assert.equal(redactPathV2(redactPathV2("/private/12345").value).value, "/{seg}/{n}");
   assert.equal(redactHostnameV2(redactHostnameV2("a8f3c9d2e1b4f6a7.example.com").value).value, "{label}.example.com");
+  assert.equal(
+    redactUrlV2("https://cdn.{label}.website-files.com/private").value,
+    "https://cdn.{label}.website-files.com/{seg}"
+  );
+  assert.equal(
+    redactHostnameV2("cdn.{label}.website-files.com").value,
+    "cdn.{label}.website-files.com"
+  );
 
   const counters = emptyRedactionCounters();
   for (const marker of [

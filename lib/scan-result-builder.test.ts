@@ -108,12 +108,12 @@ test("buildScanResult owns single-report shape and summary math", () => {
       }),
       requestRecord({
         id: 2,
-        domain: "analytics.example.net",
+        domain: "google-analytics.com",
         thirdParty: true,
         tracker: {
-          domain: "analytics.example.net",
-          entity: "Example Analytics",
-          category: "analytics",
+          domain: "google-analytics.com",
+          entity: "Google",
+          category: "analytics / tag management",
           confidence: "curated"
         },
         blockedByShields: true
@@ -139,7 +139,7 @@ test("buildScanResult owns single-report shape and summary math", () => {
       },
       {
         name: "_ga",
-        domain: ".analytics.example.net",
+        domain: ".google-analytics.com",
         path: "/",
         sameSite: "None",
         secure: true,
@@ -187,7 +187,7 @@ test("buildScanResult owns single-report shape and summary math", () => {
     shieldsBlockedRequests: 7
   });
   assert.equal(result.domains.length, 3);
-  assert.equal(result.domains.find((domain) => domain.domain === "analytics.example.net")?.blockedByShields, true);
+  assert.equal(result.domains.find((domain) => domain.domain === "google-analytics.com")?.blockedByShields, true);
   assert.deepEqual(result.warnings, ["The page did not reach network idle before the scan window ended."]);
 });
 
@@ -205,8 +205,8 @@ test("buildScanResult is the default-deny public seam after matching and classif
     requests: [
       {
         id: 1,
-        url: "https://a8f3c9d2e1b4f6a7.tracker.example.net/users/anna?email=x&utm_source=y",
-        domain: "a8f3c9d2e1b4f6a7.tracker.example.net",
+        url: "https://a8f3c9d2e1b4f6a7.google-analytics.com/users/anna?email=x&utm_source=y",
+        domain: "a8f3c9d2e1b4f6a7.google-analytics.com",
         method: "GET",
         resourceType: "script",
         status: 200,
@@ -214,9 +214,9 @@ test("buildScanResult is the default-deny public seam after matching and classif
         // The match happened against the raw hostname before this seam. The
         // classified label survives while page-controlled host/path data does not.
         tracker: {
-          domain: "tracker.example.net",
-          entity: "Example Tracker",
-          category: "analytics",
+          domain: "google-analytics.com",
+          entity: "Google",
+          category: "analytics / tag management",
           confidence: "curated"
         },
         startedAtMs: 1
@@ -245,9 +245,9 @@ test("buildScanResult is the default-deny public seam after matching and classif
   assert.equal(result.conditions.finalUrl, "https://example.com/account/{n}");
   assert.equal(
     result.requests[0].url,
-    "https://{label}.tracker.example.net/{seg}/{seg}?%5Bredacted%5D=&utm_source="
+    "https://{label}.google-analytics.com/{seg}/{seg}?%5Bredacted%5D=&utm_source="
   );
-  assert.equal(result.requests[0].tracker?.entity, "Example Tracker");
+  assert.equal(result.requests[0].tracker?.entity, "Google");
   assert.equal(result.cookies[0].name, "[redacted]");
   assert.equal(result.cookies[0].path, "/{seg}/{seg}");
   assert.equal(result.storage[0].key, "[redacted]");

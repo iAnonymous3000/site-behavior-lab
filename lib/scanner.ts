@@ -215,6 +215,10 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     }
 
     const page = await context.newPage();
+    // Read environment metadata from the pristine about:blank page before any
+    // target script can shadow Navigator getters. The configured locale is
+    // producer-owned and must never be replaced with page testimony.
+    const configuredUserAgent = await page.evaluate(() => navigator.userAgent);
     await installFingerprintObserver(page, targetUrl.hostname);
 
     const requestsBlockedByShields = new WeakSet<Request>();
@@ -448,6 +452,15 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         }).catch(() => null);
     throwIfScanAborted(options.signal);
 
+    const responseByteBudget = scanProxy.getDiagnostics().responseByteBudget;
+    if (responseByteBudget.captureLoss) {
+      warnings.add(
+        `The scan stopped loading additional response bytes after reaching the ${Math.round(
+          responseByteBudget.limitBytes / 1024 / 1024
+        )} MiB aggregate response-byte budget.`
+      );
+    }
+
     const scannerEgress = scannerEgressDescription();
     const adblockMeta = adblockEngine ? adblockListMeta() : null;
     const conditions = buildScanConditions({
@@ -456,10 +469,10 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       finalUrl,
       scannedAt: new Date(started).toISOString(),
       chromiumVersion,
-      userAgent: await withScanTimeout(page.evaluate(() => navigator.userAgent), started),
+      userAgent: configuredUserAgent,
       timezone: SCAN_TIMEZONE,
       locale: SCAN_LOCALE,
-      language: await withScanTimeout(page.evaluate(() => navigator.language), started),
+      language: SCAN_LOCALE,
       viewport: {
         width: page.viewportSize()?.width ?? DESKTOP_VIEWPORT.width,
         height: page.viewportSize()?.height ?? DESKTOP_VIEWPORT.height,

@@ -30,7 +30,8 @@ import { scanReportV2R2SemanticViolations } from "./scan-report-v2-r2-evaluators
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import {
   readStoredScanReport,
-  type ReadStoredScanReportError
+  type ReadStoredScanReportError,
+  type StoredScanReport
 } from "./scan-report-reader";
 import { toReportView, viewFromV2, type ReportView } from "./scan-report-views";
 
@@ -56,6 +57,23 @@ export type LoadedReport =
       public: PublicScanReportV2R2;
       view: ReportView;
     };
+
+/**
+ * A stored report has already passed the deep reader and contains no ephemeral
+ * screenshot shell. Build the exact client render envelope on the server so a
+ * permalink can ship evidence in its initial HTML instead of showing a generic
+ * shell and fetching the same JSON again after hydration.
+ */
+export function loadedReportFromStored(stored: StoredScanReport): LoadedReport {
+  const view = toReportView(stored);
+  if (stored.schemaVersion === 1) {
+    return { source: "v1", wire: stored.report, view };
+  }
+  if (stored.schemaRevision === 1) {
+    return { source: "v2-public", wire: stored.report, view };
+  }
+  return { source: "v2-r2-public", wire: stored.report, view };
+}
 
 /**
  * One reader for everything a scan endpoint can return: API errors, async job

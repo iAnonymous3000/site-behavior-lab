@@ -23,7 +23,7 @@
       "totalRequests": 59,
       "thirdPartyRequests": 19,
       "knownTrackerRequests": 10,
-      "thirdPartyDomains": 11,
+      "thirdPartyDomains": 8,
       "cookies": 21,
       "thirdPartyCookies": 2,
       "storageEntries": 6,
@@ -98,8 +98,8 @@
       },
       {
         "id": 3,
-        "url": "https://use.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "use.fontawesome.com",
+        "url": "https://{label}.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.fontawesome.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -170,8 +170,8 @@
       },
       {
         "id": 9,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -187,8 +187,8 @@
       },
       {
         "id": 11,
-        "url": "https://canada.tt.omtrdc.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&version=",
-        "domain": "canada.tt.omtrdc.net",
+        "url": "https://{label}.{label}.omtrdc.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.{label}.omtrdc.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -204,8 +204,8 @@
       },
       {
         "id": 12,
-        "url": "https://cdn.design-system.alpha.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdn.design-system.alpha.canada.ca",
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -216,8 +216,8 @@
       },
       {
         "id": 13,
-        "url": "https://cdn.design-system.alpha.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdn.design-system.alpha.canada.ca",
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -240,8 +240,8 @@
       },
       {
         "id": 15,
-        "url": "https://s.go-mpulse.net/{seg}/{seg}",
-        "domain": "s.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/{seg}/{seg}",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -502,8 +502,8 @@
       },
       {
         "id": 36,
-        "url": "https://cm.everesttech.net/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "cm.everesttech.net",
+        "url": "https://{label}.everesttech.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.everesttech.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -514,8 +514,8 @@
       },
       {
         "id": 37,
-        "url": "https://canada.demdex.net/{seg}?%5Bredacted%5D=",
-        "domain": "canada.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -531,8 +531,8 @@
       },
       {
         "id": 38,
-        "url": "https://dpm.demdex.net/{seg}",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -548,8 +548,8 @@
       },
       {
         "id": 39,
-        "url": "https://cdn.design-system.alpha.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdn.design-system.alpha.canada.ca",
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -560,8 +560,8 @@
       },
       {
         "id": 40,
-        "url": "https://cdn.design-system.alpha.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdn.design-system.alpha.canada.ca",
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -608,8 +608,8 @@
       },
       {
         "id": 44,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -620,8 +620,8 @@
       },
       {
         "id": 45,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -632,8 +632,8 @@
       },
       {
         "id": 46,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -644,8 +644,8 @@
       },
       {
         "id": 47,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -668,8 +668,8 @@
       },
       {
         "id": 49,
-        "url": "https://cdn.design-system.alpha.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdn.design-system.alpha.canada.ca",
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -680,8 +680,8 @@
       },
       {
         "id": 50,
-        "url": "https://c.go-mpulse.net/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
@@ -692,8 +692,8 @@
       },
       {
         "id": 51,
-        "url": "https://cdn.design-system.alpha.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdn.design-system.alpha.canada.ca",
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -810,8 +810,8 @@
       },
       {
         "id": 60,
-        "url": "https://canada.sc.omtrdc.net/{seg}/{seg}/{seg}/{n}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "canada.sc.omtrdc.net",
+        "url": "https://{label}.{label}.omtrdc.net/{seg}/{seg}/{seg}/{n}/{seg}/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.{label}.omtrdc.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -846,11 +846,31 @@
         ]
       },
       {
-        "domain": "dpm.demdex.net",
-        "requests": 2,
+        "domain": "{label}.demdex.net",
+        "requests": 3,
         "thirdParty": true,
         "tracker": {
           "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.omtrdc.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
           "entity": "Adobe",
           "category": "analytics / advertising",
           "confidence": "curated"
@@ -865,61 +885,7 @@
         ]
       },
       {
-        "domain": "canada.tt.omtrdc.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "omtrdc.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "canada.demdex.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "canada.sc.omtrdc.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "omtrdc.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": null,
@@ -932,7 +898,22 @@
         ]
       },
       {
-        "domain": "use.fontawesome.com",
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.fontawesome.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -958,20 +939,7 @@
         ]
       },
       {
-        "domain": "s.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "cm.everesttech.net",
+        "domain": "{label}.everesttech.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -981,19 +949,6 @@
         ],
         "resourceTypes": [
           "image"
-        ]
-      },
-      {
-        "domain": "c.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -1015,7 +970,7 @@
         ]
       },
       {
-        "domain": "cdn.design-system.alpha.canada.ca",
+        "domain": "cdn.{label}.{label}.canada.ca",
         "requests": 6,
         "thirdParty": false,
         "tracker": null,
@@ -1042,7 +997,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".dpm.demdex.net",
+        "domain": ".{label}.demdex.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -1323,7 +1278,7 @@
           "thirdPartyOrigins": [
             "https://ajax.googleapis.com/",
             "https://assets.adobedtm.com/",
-            "https://s.go-mpulse.net/"
+            "https://{label}.go-mpulse.net/"
           ],
           "totalListenerCalls": 14
         }
@@ -1355,7 +1310,7 @@
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Blocked a request that could not be verified as public: https://true/{seg}",
+      "Blocked a request that could not be verified as public: {invalid-url}",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
       "Read the site's privacy policy (https://www.canada.ca/en/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
@@ -1447,8 +1402,8 @@
       },
       {
         "id": 3,
-        "url": "https://use.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "use.fontawesome.com",
+        "url": "https://{label}.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.fontawesome.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1519,8 +1474,8 @@
       },
       {
         "id": 11,
-        "url": "https://canada.tt.omtrdc.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&version=",
-        "domain": "canada.tt.omtrdc.net",
+        "url": "https://{label}.{label}.omtrdc.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.{label}.omtrdc.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1548,8 +1503,8 @@
       },
       {
         "id": 14,
-        "url": "https://cdn.design-system.alpha.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdn.design-system.alpha.canada.ca",
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1560,8 +1515,8 @@
       },
       {
         "id": 15,
-        "url": "https://cdn.design-system.alpha.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdn.design-system.alpha.canada.ca",
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1584,8 +1539,8 @@
       },
       {
         "id": 17,
-        "url": "https://cdn.design-system.alpha.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdn.design-system.alpha.canada.ca",
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1596,8 +1551,8 @@
       },
       {
         "id": 18,
-        "url": "https://cdn.design-system.alpha.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdn.design-system.alpha.canada.ca",
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1812,8 +1767,8 @@
       },
       {
         "id": 39,
-        "url": "https://cdn.design-system.alpha.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdn.design-system.alpha.canada.ca",
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1860,8 +1815,8 @@
       },
       {
         "id": 43,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1872,8 +1827,8 @@
       },
       {
         "id": 44,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1884,8 +1839,8 @@
       },
       {
         "id": 45,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1908,8 +1863,8 @@
       },
       {
         "id": 47,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1920,8 +1875,8 @@
       },
       {
         "id": 48,
-        "url": "https://cdn.design-system.alpha.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdn.design-system.alpha.canada.ca",
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2023,7 +1978,7 @@
         ]
       },
       {
-        "domain": "canada.tt.omtrdc.net",
+        "domain": "{label}.{label}.omtrdc.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -2041,7 +1996,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": null,
@@ -2054,7 +2009,7 @@
         ]
       },
       {
-        "domain": "use.fontawesome.com",
+        "domain": "{label}.fontawesome.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2098,7 +2053,7 @@
         ]
       },
       {
-        "domain": "cdn.design-system.alpha.canada.ca",
+        "domain": "cdn.{label}.{label}.canada.ca",
         "requests": 6,
         "thirdParty": false,
         "tracker": null,
@@ -2306,7 +2261,7 @@
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-      "Blocked a request that could not be verified as public: https://true/{seg}",
+      "Blocked a request that could not be verified as public: {invalid-url}",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
       "Read the site's privacy policy (https://www.canada.ca/en/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
@@ -2328,9 +2283,9 @@
       "delta": -8
     },
     "thirdPartyDomains": {
-      "before": 11,
+      "before": 8,
       "after": 5,
-      "delta": -6
+      "delta": -3
     },
     "cookies": {
       "before": 21,
@@ -2355,47 +2310,22 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "dpm.demdex.net",
+        "domain": "{label}.demdex.net",
+        "requests": 3,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
         "requests": 2,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "c.go-mpulse.net",
-        "requests": 1,
         "tracker": null
       },
       {
-        "domain": "canada.demdex.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "canada.sc.omtrdc.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "omtrdc.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "cm.everesttech.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "s.go-mpulse.net",
+        "domain": "{label}.everesttech.net",
         "requests": 1,
         "tracker": null
       }
@@ -2406,12 +2336,12 @@
     "removedCookies": [
       {
         "name": "[redacted]",
-        "domain": ".demdex.net",
+        "domain": ".{label}.demdex.net",
         "thirdParty": true
       },
       {
         "name": "[redacted]",
-        "domain": ".dpm.demdex.net",
+        "domain": ".demdex.net",
         "thirdParty": true
       },
       {
@@ -2436,13 +2366,13 @@
     "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "No blocking: Blocked a request that could not be verified as public: https://true/{seg}",
+    "No blocking: Blocked a request that could not be verified as public: {invalid-url}",
     "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
     "No blocking: Read the site's privacy policy (https://www.canada.ca/en/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-    "Brave-list blocking: Blocked a request that could not be verified as public: https://true/{seg}",
+    "Brave-list blocking: Blocked a request that could not be verified as public: {invalid-url}",
     "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
     "Brave-list blocking: Read the site's privacy policy (https://www.canada.ca/en/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],

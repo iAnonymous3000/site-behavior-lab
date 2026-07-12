@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // One-off local operator tool. Run with `wrangler dev --remote`; do not
+  // deploy this Worker. GET / is always dry-run. POST /apply additionally
+  // requires SITE_BEHAVIOR_LAB_R2_REMEDIATION_APPLY_TOKEN as a local secret.
+  "name": "site-behavior-lab-r2-remediation-local",
+  "main": "cloudflare/r2-remediation-worker.ts",
+  "compatibility_date": "2026-06-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "r2_buckets": [
+    {
+      "binding": "REPORTS",
+      "bucket_name": "site-behavior-lab-reports",
+      "remote": true
+    }
+  ]
+}

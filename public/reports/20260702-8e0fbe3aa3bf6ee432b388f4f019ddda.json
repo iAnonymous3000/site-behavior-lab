@@ -549,8 +549,8 @@
       },
       {
         "id": 41,
-        "url": "https://mtrics.cdc.gov/{seg}/{seg}/{seg}",
-        "domain": "mtrics.cdc.gov",
+        "url": "https://{label}.cdc.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.cdc.gov",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -585,8 +585,8 @@
       },
       {
         "id": 44,
-        "url": "https://mtrics.cdc.gov/{seg}/{seg}/{seg}",
-        "domain": "mtrics.cdc.gov",
+        "url": "https://{label}.cdc.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.cdc.gov",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -609,8 +609,8 @@
       },
       {
         "id": 46,
-        "url": "https://dap.digitalgov.gov/{seg}/{seg}/{seg}",
-        "domain": "dap.digitalgov.gov",
+        "url": "https://{label}.digitalgov.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -638,7 +638,7 @@
       },
       {
         "id": 48,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -667,7 +667,7 @@
       },
       {
         "id": 50,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -721,7 +721,7 @@
         ]
       },
       {
-        "domain": "dap.digitalgov.gov",
+        "domain": "{label}.digitalgov.gov",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -752,7 +752,7 @@
         ]
       },
       {
-        "domain": "mtrics.cdc.gov",
+        "domain": "{label}.cdc.gov",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -1445,8 +1445,8 @@
       },
       {
         "id": 41,
-        "url": "https://mtrics.cdc.gov/{seg}/{seg}/{seg}",
-        "domain": "mtrics.cdc.gov",
+        "url": "https://{label}.cdc.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.cdc.gov",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1481,8 +1481,8 @@
       },
       {
         "id": 44,
-        "url": "https://mtrics.cdc.gov/{seg}/{seg}/{seg}",
-        "domain": "mtrics.cdc.gov",
+        "url": "https://{label}.cdc.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.cdc.gov",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1505,8 +1505,8 @@
       },
       {
         "id": 46,
-        "url": "https://dap.digitalgov.gov/{seg}/{seg}/{seg}",
-        "domain": "dap.digitalgov.gov",
+        "url": "https://{label}.digitalgov.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1534,7 +1534,7 @@
       },
       {
         "id": 48,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1563,7 +1563,7 @@
       },
       {
         "id": 50,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1617,7 +1617,7 @@
         ]
       },
       {
-        "domain": "dap.digitalgov.gov",
+        "domain": "{label}.digitalgov.gov",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1648,7 +1648,7 @@
         ]
       },
       {
-        "domain": "mtrics.cdc.gov",
+        "domain": "{label}.cdc.gov",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,

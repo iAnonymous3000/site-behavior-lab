@@ -489,8 +489,8 @@
       },
       {
         "id": 36,
-        "url": "https://apollo.archive.org/{seg}/{seg}",
-        "domain": "apollo.archive.org",
+        "url": "https://{label}.archive.org/{seg}/{seg}",
+        "domain": "{label}.archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -669,8 +669,8 @@
       },
       {
         "id": 51,
-        "url": "https://athena.archive.org/{seg}",
-        "domain": "athena.archive.org",
+        "url": "https://{label}.archive.org/{seg}",
+        "domain": "{label}.archive.org",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -717,8 +717,8 @@
       },
       {
         "id": 55,
-        "url": "https://sink.archive.org/api/{n}/{seg}",
-        "domain": "sink.archive.org",
+        "url": "https://{label}.archive.org/api/{n}/{seg}",
+        "domain": "{label}.archive.org",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1269,8 +1269,8 @@
       },
       {
         "id": 101,
-        "url": "https://sink.archive.org/api/{n}/{seg}",
-        "domain": "sink.archive.org",
+        "url": "https://{label}.archive.org/api/{n}/{seg}",
+        "domain": "{label}.archive.org",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -1299,42 +1299,19 @@
         ]
       },
       {
-        "domain": "sink.archive.org",
-        "requests": 2,
+        "domain": "{label}.archive.org",
+        "requests": 4,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
+          204,
           200
         ],
         "resourceTypes": [
+          "script",
+          "ping",
           "fetch"
-        ]
-      },
-      {
-        "domain": "apollo.archive.org",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "athena.archive.org",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "ping"
         ]
       }
     ],
@@ -1848,8 +1825,8 @@
       },
       {
         "id": 36,
-        "url": "https://apollo.archive.org/{seg}/{seg}",
-        "domain": "apollo.archive.org",
+        "url": "https://{label}.archive.org/{seg}/{seg}",
+        "domain": "{label}.archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -2622,7 +2599,7 @@
         ]
       },
       {
-        "domain": "apollo.archive.org",
+        "domain": "{label}.archive.org",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -2710,18 +2687,7 @@
       "delta": 0
     },
     "addedDomains": [],
-    "removedDomains": [
-      {
-        "domain": "sink.archive.org",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "athena.archive.org",
-        "requests": 1,
-        "tracker": null
-      }
-    ],
+    "removedDomains": [],
     "addedEntities": [],
     "removedEntities": [],
     "addedCookies": [],

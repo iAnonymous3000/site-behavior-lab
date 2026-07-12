@@ -23,7 +23,7 @@
       "totalRequests": 285,
       "thirdPartyRequests": 200,
       "knownTrackerRequests": 78,
-      "thirdPartyDomains": 78,
+      "thirdPartyDomains": 59,
       "cookies": 73,
       "thirdPartyCookies": 32,
       "storageEntries": 18,
@@ -81,8 +81,8 @@
       },
       {
         "id": 2,
-        "url": "https://b-code.liadm.com/{seg}",
-        "domain": "b-code.liadm.com",
+        "url": "https://{label}.liadm.com/{seg}",
+        "domain": "{label}.liadm.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://gtm.everydayhealth.com/{seg}",
-        "domain": "gtm.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://micro.rubiconproject.com/{seg}/{seg}/{seg}",
-        "domain": "micro.rubiconproject.com",
+        "url": "https://{label}.rubiconproject.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.rubiconproject.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -290,8 +290,8 @@
       },
       {
         "id": 19,
-        "url": "https://c.amazon-adsystem.com/{seg}/{seg}",
-        "domain": "c.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}/{seg}",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -307,8 +307,8 @@
       },
       {
         "id": 20,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -324,8 +324,8 @@
       },
       {
         "id": 21,
-        "url": "https://pub.dv.tech/{seg}/{n}/{seg}/{seg}",
-        "domain": "pub.dv.tech",
+        "url": "https://{label}.dv.tech/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.dv.tech",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -408,8 +408,8 @@
       },
       {
         "id": 28,
-        "url": "https://downloads.everydayhealth.com/{seg}/{seg}",
-        "domain": "downloads.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -444,8 +444,8 @@
       },
       {
         "id": 31,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -456,8 +456,8 @@
       },
       {
         "id": 32,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -468,8 +468,8 @@
       },
       {
         "id": 33,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -540,8 +540,8 @@
       },
       {
         "id": 39,
-        "url": "https://btg.everydayhealth.com/{seg}",
-        "domain": "btg.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -576,8 +576,8 @@
       },
       {
         "id": 42,
-        "url": "https://rp.liadm.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "rp.liadm.com",
+        "url": "https://{label}.liadm.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.liadm.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 302,
@@ -588,8 +588,8 @@
       },
       {
         "id": 43,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -612,8 +612,8 @@
       },
       {
         "id": 45,
-        "url": "https://c.amazon-adsystem.com/{seg}/{seg}/{seg}",
-        "domain": "c.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -629,8 +629,8 @@
       },
       {
         "id": 46,
-        "url": "https://rp.liadm.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "rp.liadm.com",
+        "url": "https://{label}.liadm.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.liadm.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -905,8 +905,8 @@
       },
       {
         "id": 69,
-        "url": "https://sli.everydayhealth.com/{seg}",
-        "domain": "sli.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -929,8 +929,8 @@
       },
       {
         "id": 71,
-        "url": "https://i.liadm.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&version=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.liadm.com",
+        "url": "https://{label}.liadm.com/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.liadm.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -953,8 +953,8 @@
       },
       {
         "id": 73,
-        "url": "https://gtm.everydayhealth.com/{seg}/{seg}",
-        "domain": "gtm.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1011,8 +1011,8 @@
       },
       {
         "id": 77,
-        "url": "https://sdk.mrf.io/{seg}/{seg}?id=",
-        "domain": "sdk.mrf.io",
+        "url": "https://{label}.mrf.io/{seg}/{seg}?id=",
+        "domain": "{label}.mrf.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1023,8 +1023,8 @@
       },
       {
         "id": 78,
-        "url": "https://pubads.g.doubleclick.net/{seg}",
-        "domain": "pubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1064,8 +1064,8 @@
       },
       {
         "id": 81,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1081,7 +1081,7 @@
       },
       {
         "id": 82,
-        "url": "https://zdbb.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://zdbb.net/{seg}?%5Bredacted%5D=",
         "domain": "zdbb.net",
         "method": "GET",
         "resourceType": "xhr",
@@ -1093,8 +1093,8 @@
       },
       {
         "id": 83,
-        "url": "https://gurgle.everydayhealth.com/{seg}",
-        "domain": "gurgle.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 302,
@@ -1117,8 +1117,8 @@
       },
       {
         "id": 85,
-        "url": "https://downloads.everydayhealth.com/{seg}/{seg}",
-        "domain": "downloads.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1129,8 +1129,8 @@
       },
       {
         "id": 86,
-        "url": "https://gtm.everydayhealth.com/{seg}/{seg}",
-        "domain": "gtm.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1141,8 +1141,8 @@
       },
       {
         "id": 87,
-        "url": "https://gtm.everydayhealth.com/{seg}/{seg}",
-        "domain": "gtm.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1153,8 +1153,8 @@
       },
       {
         "id": 88,
-        "url": "https://gurgle.zdbb.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gurgle.zdbb.net",
+        "url": "https://{label}.zdbb.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.zdbb.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1237,8 +1237,8 @@
       },
       {
         "id": 95,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1254,8 +1254,8 @@
       },
       {
         "id": 96,
-        "url": "https://gurgle.zdbb.net/{seg}/{seg}/{seg}/{n}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gurgle.zdbb.net",
+        "url": "https://{label}.zdbb.net/{seg}/{seg}/{seg}/{n}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.zdbb.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1266,8 +1266,8 @@
       },
       {
         "id": 97,
-        "url": "https://gurgle.everydayhealth.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gurgle.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1278,7 +1278,7 @@
       },
       {
         "id": 98,
-        "url": "https://zdbb.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://zdbb.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "zdbb.net",
         "method": "GET",
         "resourceType": "image",
@@ -1290,7 +1290,7 @@
       },
       {
         "id": 99,
-        "url": "https://zdbb.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://zdbb.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "zdbb.net",
         "method": "GET",
         "resourceType": "image",
@@ -1302,7 +1302,7 @@
       },
       {
         "id": 100,
-        "url": "https://zdbb.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://zdbb.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "zdbb.net",
         "method": "GET",
         "resourceType": "image",
@@ -1314,8 +1314,8 @@
       },
       {
         "id": 101,
-        "url": "https://pub.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1326,8 +1326,8 @@
       },
       {
         "id": 102,
-        "url": "https://pub.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1338,8 +1338,8 @@
       },
       {
         "id": 103,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1355,8 +1355,8 @@
       },
       {
         "id": 104,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1372,7 +1372,7 @@
       },
       {
         "id": 105,
-        "url": "https://metrics.rapidedge.io/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://metrics.rapidedge.io/{seg}?%5Bredacted%5D=",
         "domain": "metrics.rapidedge.io",
         "method": "GET",
         "resourceType": "script",
@@ -1401,7 +1401,7 @@
       },
       {
         "id": 107,
-        "url": "https://zdbb.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://zdbb.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "zdbb.net",
         "method": "GET",
         "resourceType": "image",
@@ -1413,7 +1413,7 @@
       },
       {
         "id": 108,
-        "url": "https://zdbb.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://zdbb.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "zdbb.net",
         "method": "GET",
         "resourceType": "image",
@@ -1437,8 +1437,8 @@
       },
       {
         "id": 110,
-        "url": "https://config.aps.amazon-adsystem.com/{seg}/{n}",
-        "domain": "config.aps.amazon-adsystem.com",
+        "url": "https://{label}.{label}.amazon-adsystem.com/{seg}/{n}",
+        "domain": "{label}.{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1488,8 +1488,8 @@
       },
       {
         "id": 113,
-        "url": "https://vtrk.dv.tech/?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "vtrk.dv.tech",
+        "url": "https://{label}.dv.tech/?%5Bredacted%5D=&cid=&t=&v=",
+        "domain": "{label}.dv.tech",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -1500,7 +1500,7 @@
       },
       {
         "id": 114,
-        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -1512,8 +1512,8 @@
       },
       {
         "id": 115,
-        "url": "https://idx.liadm.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "idx.liadm.com",
+        "url": "https://{label}.liadm.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.liadm.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -1596,8 +1596,8 @@
       },
       {
         "id": 122,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1613,8 +1613,8 @@
       },
       {
         "id": 123,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1625,8 +1625,8 @@
       },
       {
         "id": 124,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&ref=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1642,8 +1642,8 @@
       },
       {
         "id": 125,
-        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1671,8 +1671,8 @@
       },
       {
         "id": 127,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1707,8 +1707,8 @@
       },
       {
         "id": 130,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1731,8 +1731,8 @@
       },
       {
         "id": 132,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1755,8 +1755,8 @@
       },
       {
         "id": 134,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1772,8 +1772,8 @@
       },
       {
         "id": 135,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1789,8 +1789,8 @@
       },
       {
         "id": 136,
-        "url": "https://pub.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1801,8 +1801,8 @@
       },
       {
         "id": 137,
-        "url": "https://web-banner.ads.aps.amazon-adsystem.com/{seg}/{seg}/{seg}",
-        "domain": "web-banner.ads.aps.amazon-adsystem.com",
+        "url": "https://{label}.ads.{label}.amazon-adsystem.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ads.{label}.amazon-adsystem.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1818,8 +1818,8 @@
       },
       {
         "id": 138,
-        "url": "https://prebid.media.net/{seg}/{seg}?cid=",
-        "domain": "prebid.media.net",
+        "url": "https://{label}.media.net/{seg}/{seg}?cid=",
+        "domain": "{label}.media.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -1835,8 +1835,8 @@
       },
       {
         "id": 139,
-        "url": "https://elb.the-ozone-project.com/{seg}/{seg}",
-        "domain": "elb.the-ozone-project.com",
+        "url": "https://{label}.the-ozone-project.com/{seg}/{seg}",
+        "domain": "{label}.the-ozone-project.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1847,8 +1847,8 @@
       },
       {
         "id": 140,
-        "url": "https://tlx.3lift.com/{seg}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tlx.3lift.com",
+        "url": "https://{label}.3lift.com/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.3lift.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1859,8 +1859,8 @@
       },
       {
         "id": 141,
-        "url": "https://prebid.deepintent.com/{seg}",
-        "domain": "prebid.deepintent.com",
+        "url": "https://{label}.deepintent.com/{seg}",
+        "domain": "{label}.deepintent.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -1871,8 +1871,8 @@
       },
       {
         "id": 142,
-        "url": "https://fastlane.rubiconproject.com/{seg}/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "fastlane.rubiconproject.com",
+        "url": "https://{label}.rubiconproject.com/{seg}/api/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.rubiconproject.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1888,8 +1888,8 @@
       },
       {
         "id": 143,
-        "url": "https://direct.adsrvr.org/{seg}/{seg}/{seg}",
-        "domain": "direct.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.adsrvr.org",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1905,8 +1905,8 @@
       },
       {
         "id": 144,
-        "url": "https://htlb.casalemedia.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "htlb.casalemedia.com",
+        "url": "https://{label}.casalemedia.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.casalemedia.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1922,8 +1922,8 @@
       },
       {
         "id": 145,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -1951,8 +1951,8 @@
       },
       {
         "id": 147,
-        "url": "https://ep2.adtrafficquality.google/{seg}?%5Bredacted%5D=",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1975,8 +1975,8 @@
       },
       {
         "id": 149,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1992,8 +1992,8 @@
       },
       {
         "id": 150,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2009,8 +2009,8 @@
       },
       {
         "id": 151,
-        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2026,8 +2026,8 @@
       },
       {
         "id": 152,
-        "url": "https://ampcid.google.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "ampcid.google.com",
+        "url": "https://{label}.google.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2038,8 +2038,8 @@
       },
       {
         "id": 153,
-        "url": "https://gtm.everydayhealth.com/{seg}/{seg}",
-        "domain": "gtm.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2050,8 +2050,8 @@
       },
       {
         "id": 154,
-        "url": "https://gtm.everydayhealth.com/{seg}/{seg}",
-        "domain": "gtm.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2062,8 +2062,8 @@
       },
       {
         "id": 155,
-        "url": "https://gtm.everydayhealth.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gtm.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2074,8 +2074,8 @@
       },
       {
         "id": 156,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2091,8 +2091,8 @@
       },
       {
         "id": 157,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2108,8 +2108,8 @@
       },
       {
         "id": 158,
-        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2125,8 +2125,8 @@
       },
       {
         "id": 159,
-        "url": "https://gtm.everydayhealth.com/{seg}/{seg}",
-        "domain": "gtm.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2137,8 +2137,8 @@
       },
       {
         "id": 160,
-        "url": "https://tpc.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2154,8 +2154,8 @@
       },
       {
         "id": 161,
-        "url": "https://s0.2mdn.net/{n}/{seg}",
-        "domain": "s0.2mdn.net",
+        "url": "https://{label}.2mdn.net/{n}/{seg}",
+        "domain": "{label}.2mdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2166,8 +2166,8 @@
       },
       {
         "id": 162,
-        "url": "https://tpc.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2183,8 +2183,8 @@
       },
       {
         "id": 163,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2200,8 +2200,8 @@
       },
       {
         "id": 164,
-        "url": "https://s0.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
-        "domain": "s0.2mdn.net",
+        "url": "https://{label}.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.2mdn.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2212,8 +2212,8 @@
       },
       {
         "id": 165,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2229,7 +2229,7 @@
       },
       {
         "id": 166,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&%5Bredacted%5D=&t=&cid=&tid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "xhr",
@@ -2246,8 +2246,8 @@
       },
       {
         "id": 167,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2263,8 +2263,8 @@
       },
       {
         "id": 168,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2280,8 +2280,8 @@
       },
       {
         "id": 169,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2297,8 +2297,8 @@
       },
       {
         "id": 170,
-        "url": "https://s0.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
-        "domain": "s0.2mdn.net",
+        "url": "https://{label}.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.2mdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2309,8 +2309,8 @@
       },
       {
         "id": 171,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2326,8 +2326,8 @@
       },
       {
         "id": 172,
-        "url": "https://s0.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
-        "domain": "s0.2mdn.net",
+        "url": "https://{label}.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.2mdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2338,8 +2338,8 @@
       },
       {
         "id": 173,
-        "url": "https://s0.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
-        "domain": "s0.2mdn.net",
+        "url": "https://{label}.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.2mdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2350,8 +2350,8 @@
       },
       {
         "id": 174,
-        "url": "https://s0.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
-        "domain": "s0.2mdn.net",
+        "url": "https://{label}.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.2mdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2362,8 +2362,8 @@
       },
       {
         "id": 175,
-        "url": "https://s0.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
-        "domain": "s0.2mdn.net",
+        "url": "https://{label}.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.2mdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2374,8 +2374,8 @@
       },
       {
         "id": 176,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2386,8 +2386,8 @@
       },
       {
         "id": 177,
-        "url": "https://s0.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
-        "domain": "s0.2mdn.net",
+        "url": "https://{label}.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.2mdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2398,8 +2398,8 @@
       },
       {
         "id": 178,
-        "url": "https://s0.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
-        "domain": "s0.2mdn.net",
+        "url": "https://{label}.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.2mdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2410,8 +2410,8 @@
       },
       {
         "id": 179,
-        "url": "https://jogger.zdbb.net/{seg}?%5Bredacted%5D=",
-        "domain": "jogger.zdbb.net",
+        "url": "https://{label}.zdbb.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.zdbb.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2439,7 +2439,7 @@
       },
       {
         "id": 181,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -2456,8 +2456,8 @@
       },
       {
         "id": 182,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2468,8 +2468,8 @@
       },
       {
         "id": 183,
-        "url": "https://js.adsrvr.org/{seg}",
-        "domain": "js.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2485,14 +2485,14 @@
       },
       {
         "id": 184,
-        "url": "https://bat.bing.com/{seg}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -2502,8 +2502,8 @@
       },
       {
         "id": 185,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2519,8 +2519,8 @@
       },
       {
         "id": 186,
-        "url": "https://px.deepintent.com/{seg}?id=",
-        "domain": "px.deepintent.com",
+        "url": "https://{label}.deepintent.com/{seg}?id=",
+        "domain": "{label}.deepintent.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2531,8 +2531,8 @@
       },
       {
         "id": 187,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2548,8 +2548,8 @@
       },
       {
         "id": 188,
-        "url": "https://sb.scorecardresearch.com/{seg}/{n}/{seg}",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}/{n}/{seg}",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
@@ -2565,8 +2565,8 @@
       },
       {
         "id": 189,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2577,8 +2577,8 @@
       },
       {
         "id": 190,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2601,8 +2601,8 @@
       },
       {
         "id": 192,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2618,8 +2618,8 @@
       },
       {
         "id": 193,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2635,8 +2635,8 @@
       },
       {
         "id": 194,
-        "url": "https://sb.scorecardresearch.com/{seg}/{seg}/{seg}",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2652,8 +2652,8 @@
       },
       {
         "id": 195,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2669,14 +2669,14 @@
       },
       {
         "id": 196,
-        "url": "https://bat.bing.com/{seg}/{seg}/{seg}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -2686,8 +2686,8 @@
       },
       {
         "id": 197,
-        "url": "https://prebid-a.rubiconproject.com/{seg}",
-        "domain": "prebid-a.rubiconproject.com",
+        "url": "https://{label}.rubiconproject.com/{seg}",
+        "domain": "{label}.rubiconproject.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2703,8 +2703,8 @@
       },
       {
         "id": 198,
-        "url": "https://sb.scorecardresearch.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -2720,8 +2720,8 @@
       },
       {
         "id": 199,
-        "url": "https://sb.scorecardresearch.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2737,8 +2737,8 @@
       },
       {
         "id": 200,
-        "url": "https://bat.bing.net/{seg}/{n}?%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bat.bing.net",
+        "url": "https://{label}.bing.net/{seg}/{n}?%5Bredacted%5D=&ver=",
+        "domain": "{label}.bing.net",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -2749,8 +2749,8 @@
       },
       {
         "id": 201,
-        "url": "https://bat.bing.net/{seg}/{n}?%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bat.bing.net",
+        "url": "https://{label}.bing.net/{seg}/{n}?%5Bredacted%5D=&ver=",
+        "domain": "{label}.bing.net",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -2761,8 +2761,8 @@
       },
       {
         "id": 202,
-        "url": "https://bat.bing.net/{seg}/{n}?%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bat.bing.net",
+        "url": "https://{label}.bing.net/{seg}/{n}?%5Bredacted%5D=&ver=",
+        "domain": "{label}.bing.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2773,8 +2773,8 @@
       },
       {
         "id": 203,
-        "url": "https://ep2.adtrafficquality.google/{seg}?%5Bredacted%5D=",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2785,8 +2785,8 @@
       },
       {
         "id": 204,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2797,8 +2797,8 @@
       },
       {
         "id": 205,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&id=&v=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2814,8 +2814,8 @@
       },
       {
         "id": 206,
-        "url": "https://insight.adsrvr.org/{seg}/{seg}",
-        "domain": "insight.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}",
+        "domain": "{label}.adsrvr.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2831,8 +2831,8 @@
       },
       {
         "id": 207,
-        "url": "https://check.analytics.rlcdn.com/{seg}/{n}",
-        "domain": "check.analytics.rlcdn.com",
+        "url": "https://{label}.analytics.rlcdn.com/{seg}/{n}",
+        "domain": "{label}.analytics.rlcdn.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2848,8 +2848,8 @@
       },
       {
         "id": 208,
-        "url": "https://js-sec.indexww.com/{seg}/{seg}",
-        "domain": "js-sec.indexww.com",
+        "url": "https://{label}.indexww.com/{seg}/{seg}",
+        "domain": "{label}.indexww.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2872,8 +2872,8 @@
       },
       {
         "id": 210,
-        "url": "https://elb.the-ozone-project.com/static/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cb=&%5Bredacted%5D=",
-        "domain": "elb.the-ozone-project.com",
+        "url": "https://{label}.the-ozone-project.com/static/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.the-ozone-project.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2884,8 +2884,8 @@
       },
       {
         "id": 211,
-        "url": "https://match.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -2901,8 +2901,8 @@
       },
       {
         "id": 212,
-        "url": "https://eb2.3lift.com/{seg}?%5Bredacted%5D=",
-        "domain": "eb2.3lift.com",
+        "url": "https://{label}.3lift.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.3lift.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2925,8 +2925,8 @@
       },
       {
         "id": 214,
-        "url": "https://elb.the-ozone-project.com/{seg}",
-        "domain": "elb.the-ozone-project.com",
+        "url": "https://{label}.the-ozone-project.com/{seg}",
+        "domain": "{label}.the-ozone-project.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2937,8 +2937,8 @@
       },
       {
         "id": 215,
-        "url": "https://match.deepintent.com/{seg}/{n}",
-        "domain": "match.deepintent.com",
+        "url": "https://{label}.deepintent.com/{seg}/{n}",
+        "domain": "{label}.deepintent.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2949,8 +2949,8 @@
       },
       {
         "id": 216,
-        "url": "https://match.deepintent.com/{seg}/{n}",
-        "domain": "match.deepintent.com",
+        "url": "https://{label}.deepintent.com/{seg}/{n}",
+        "domain": "{label}.deepintent.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2961,8 +2961,8 @@
       },
       {
         "id": 217,
-        "url": "https://match.deepintent.com/{seg}/{n}",
-        "domain": "match.deepintent.com",
+        "url": "https://{label}.deepintent.com/{seg}/{n}",
+        "domain": "{label}.deepintent.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2973,8 +2973,8 @@
       },
       {
         "id": 218,
-        "url": "https://match.deepintent.com/{seg}/{n}",
-        "domain": "match.deepintent.com",
+        "url": "https://{label}.deepintent.com/{seg}/{n}",
+        "domain": "{label}.deepintent.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2985,8 +2985,8 @@
       },
       {
         "id": 219,
-        "url": "https://match.deepintent.com/{seg}/{n}",
-        "domain": "match.deepintent.com",
+        "url": "https://{label}.deepintent.com/{seg}/{n}",
+        "domain": "{label}.deepintent.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2997,8 +2997,8 @@
       },
       {
         "id": 220,
-        "url": "https://match.deepintent.com/{seg}/{n}",
-        "domain": "match.deepintent.com",
+        "url": "https://{label}.deepintent.com/{seg}/{n}",
+        "domain": "{label}.deepintent.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3009,8 +3009,8 @@
       },
       {
         "id": 221,
-        "url": "https://match.deepintent.com/{seg}/{n}",
-        "domain": "match.deepintent.com",
+        "url": "https://{label}.deepintent.com/{seg}/{n}",
+        "domain": "{label}.deepintent.com",
         "method": "GET",
         "resourceType": "image",
         "status": 303,
@@ -3021,8 +3021,8 @@
       },
       {
         "id": 222,
-        "url": "https://match.deepintent.com/{seg}/{n}",
-        "domain": "match.deepintent.com",
+        "url": "https://{label}.deepintent.com/{seg}/{n}",
+        "domain": "{label}.deepintent.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3033,8 +3033,8 @@
       },
       {
         "id": 223,
-        "url": "https://match.deepintent.com/{seg}/{n}",
-        "domain": "match.deepintent.com",
+        "url": "https://{label}.deepintent.com/{seg}/{n}",
+        "domain": "{label}.deepintent.com",
         "method": "GET",
         "resourceType": "image",
         "status": 303,
@@ -3045,7 +3045,7 @@
       },
       {
         "id": 224,
-        "url": "https://pixel.rubiconproject.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://pixel.rubiconproject.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "pixel.rubiconproject.com",
         "method": "GET",
         "resourceType": "image",
@@ -3062,7 +3062,7 @@
       },
       {
         "id": 225,
-        "url": "https://ads.pubmatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://ads.pubmatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "ads.pubmatic.com",
         "method": "GET",
         "resourceType": "document",
@@ -3079,8 +3079,8 @@
       },
       {
         "id": 226,
-        "url": "https://ssum.casalemedia.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
-        "domain": "ssum.casalemedia.com",
+        "url": "https://{label}.casalemedia.com/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.casalemedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3108,8 +3108,8 @@
       },
       {
         "id": 228,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3125,8 +3125,8 @@
       },
       {
         "id": 229,
-        "url": "https://match.deepintent.com/{seg}/{n}/store?id=&%5Bredacted%5D=",
-        "domain": "match.deepintent.com",
+        "url": "https://{label}.deepintent.com/{seg}/{n}/store?id=&%5Bredacted%5D=",
+        "domain": "{label}.deepintent.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3137,7 +3137,7 @@
       },
       {
         "id": 230,
-        "url": "https://creativecdn.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://creativecdn.com/{seg}?%5Bredacted%5D=",
         "domain": "creativecdn.com",
         "method": "GET",
         "resourceType": "image",
@@ -3161,8 +3161,8 @@
       },
       {
         "id": 232,
-        "url": "https://ut.pubmatic.com/{seg}?%5Bredacted%5D=",
-        "domain": "ut.pubmatic.com",
+        "url": "https://{label}.pubmatic.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.pubmatic.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3178,7 +3178,7 @@
       },
       {
         "id": 233,
-        "url": "https://creativecdn.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://creativecdn.com/{seg}?%5Bredacted%5D=",
         "domain": "creativecdn.com",
         "method": "GET",
         "resourceType": "image",
@@ -3190,8 +3190,8 @@
       },
       {
         "id": 234,
-        "url": "https://image6.pubmatic.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "image6.pubmatic.com",
+        "url": "https://{label}.pubmatic.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.pubmatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3207,8 +3207,8 @@
       },
       {
         "id": 235,
-        "url": "https://elb.the-ozone-project.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "elb.the-ozone-project.com",
+        "url": "https://{label}.the-ozone-project.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.the-ozone-project.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3219,8 +3219,8 @@
       },
       {
         "id": 236,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3236,8 +3236,8 @@
       },
       {
         "id": 237,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3253,8 +3253,8 @@
       },
       {
         "id": 238,
-        "url": "https://dpm.demdex.net/{seg}",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3270,8 +3270,8 @@
       },
       {
         "id": 239,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3287,8 +3287,8 @@
       },
       {
         "id": 240,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3304,8 +3304,8 @@
       },
       {
         "id": 241,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3321,8 +3321,8 @@
       },
       {
         "id": 242,
-        "url": "https://ib.adnxs.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ib.adnxs.com",
+        "url": "https://{label}.adnxs.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adnxs.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3333,8 +3333,8 @@
       },
       {
         "id": 243,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3350,7 +3350,7 @@
       },
       {
         "id": 244,
-        "url": "https://pixel.rubiconproject.com/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://pixel.rubiconproject.com/{seg}?v=&%5Bredacted%5D=",
         "domain": "pixel.rubiconproject.com",
         "method": "GET",
         "resourceType": "image",
@@ -3367,8 +3367,8 @@
       },
       {
         "id": 245,
-        "url": "https://ib.adnxs.com/{seg}?%5Bredacted%5D=",
-        "domain": "ib.adnxs.com",
+        "url": "https://{label}.adnxs.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adnxs.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3379,8 +3379,8 @@
       },
       {
         "id": 246,
-        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3396,7 +3396,7 @@
       },
       {
         "id": 247,
-        "url": "https://pixel.tapad.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://pixel.tapad.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "pixel.tapad.com",
         "method": "GET",
         "resourceType": "image",
@@ -3408,7 +3408,7 @@
       },
       {
         "id": 248,
-        "url": "https://pixel.tapad.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://pixel.tapad.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "pixel.tapad.com",
         "method": "GET",
         "resourceType": "image",
@@ -3420,8 +3420,8 @@
       },
       {
         "id": 249,
-        "url": "https://x.bidswitch.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "x.bidswitch.net",
+        "url": "https://{label}.bidswitch.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bidswitch.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3444,8 +3444,8 @@
       },
       {
         "id": 251,
-        "url": "https://x.bidswitch.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "x.bidswitch.net",
+        "url": "https://{label}.bidswitch.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bidswitch.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3456,8 +3456,8 @@
       },
       {
         "id": 252,
-        "url": "https://a.sportradarserving.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "a.sportradarserving.com",
+        "url": "https://{label}.sportradarserving.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.sportradarserving.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3468,8 +3468,8 @@
       },
       {
         "id": 253,
-        "url": "https://a.sportradarserving.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "a.sportradarserving.com",
+        "url": "https://{label}.sportradarserving.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.sportradarserving.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3480,8 +3480,8 @@
       },
       {
         "id": 254,
-        "url": "https://x.bidswitch.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "x.bidswitch.net",
+        "url": "https://{label}.bidswitch.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bidswitch.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3492,8 +3492,8 @@
       },
       {
         "id": 255,
-        "url": "https://elb.the-ozone-project.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "elb.the-ozone-project.com",
+        "url": "https://{label}.the-ozone-project.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.the-ozone-project.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3504,8 +3504,8 @@
       },
       {
         "id": 256,
-        "url": "https://rtb.openx.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "rtb.openx.net",
+        "url": "https://{label}.openx.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.openx.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3521,8 +3521,8 @@
       },
       {
         "id": 257,
-        "url": "https://elb.the-ozone-project.com/{seg}/{seg}",
-        "domain": "elb.the-ozone-project.com",
+        "url": "https://{label}.the-ozone-project.com/{seg}/{seg}",
+        "domain": "{label}.the-ozone-project.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -3545,8 +3545,8 @@
       },
       {
         "id": 259,
-        "url": "https://s0.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
-        "domain": "s0.2mdn.net",
+        "url": "https://{label}.2mdn.net/{seg}/{n}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.2mdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3557,8 +3557,8 @@
       },
       {
         "id": 260,
-        "url": "https://content.jwplatform.com/{seg}/{seg}",
-        "domain": "content.jwplatform.com",
+        "url": "https://{label}.jwplatform.com/{seg}/{seg}",
+        "domain": "{label}.jwplatform.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3581,8 +3581,8 @@
       },
       {
         "id": 262,
-        "url": "https://content.jwplatform.com/{seg}/{seg}",
-        "domain": "content.jwplatform.com",
+        "url": "https://{label}.jwplatform.com/{seg}/{seg}",
+        "domain": "{label}.jwplatform.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3737,8 +3737,8 @@
       },
       {
         "id": 275,
-        "url": "https://privacy-policy.truste.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "privacy-policy.truste.com",
+        "url": "https://{label}.truste.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.truste.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3785,8 +3785,8 @@
       },
       {
         "id": 279,
-        "url": "https://gtm.everydayhealth.com/{seg}/{seg}",
-        "domain": "gtm.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -3797,8 +3797,8 @@
       },
       {
         "id": 280,
-        "url": "https://bat.bing.net/{seg}/{n}?%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bat.bing.net",
+        "url": "https://{label}.bing.net/{seg}/{n}?%5Bredacted%5D=&ver=",
+        "domain": "{label}.bing.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -3833,8 +3833,8 @@
       },
       {
         "id": 283,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": null,
@@ -3850,8 +3850,8 @@
       },
       {
         "id": 284,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&id=&v=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": null,
@@ -3867,8 +3867,8 @@
       },
       {
         "id": 285,
-        "url": "https://elb.the-ozone-project.com/{seg}/{seg}",
-        "domain": "elb.the-ozone-project.com",
+        "url": "https://{label}.the-ozone-project.com/{seg}/{seg}",
+        "domain": "{label}.the-ozone-project.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -3880,8 +3880,8 @@
     ],
     "domains": [
       {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 15,
+        "domain": "{label}.googlesyndication.com",
+        "requests": 17,
         "thirdParty": true,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -3901,8 +3901,8 @@
         ]
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 9,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 16,
         "thirdParty": true,
         "tracker": {
           "domain": "doubleclick.net",
@@ -3912,38 +3912,20 @@
         },
         "blockedByShields": true,
         "statuses": [
-          200
+          200,
+          302
         ],
         "resourceTypes": [
           "script",
-          "fetch",
-          "other",
-          "image"
-        ]
-      },
-      {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 6,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
           "image",
-          "document"
+          "document",
+          "fetch",
+          "other"
         ]
       },
       {
-        "domain": "match.adsrvr.org",
-        "requests": 6,
+        "domain": "{label}.adsrvr.org",
+        "requests": 9,
         "thirdParty": true,
         "tracker": {
           "domain": "adsrvr.org",
@@ -3953,9 +3935,13 @@
         },
         "blockedByShields": true,
         "statuses": [
+          200,
           302
         ],
         "resourceTypes": [
+          "fetch",
+          "script",
+          "xhr",
           "image"
         ]
       },
@@ -3979,7 +3965,7 @@
         ]
       },
       {
-        "domain": "sb.scorecardresearch.com",
+        "domain": "{label}.scorecardresearch.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": {
@@ -3997,6 +3983,26 @@
         "resourceTypes": [
           "script",
           "image"
+        ]
+      },
+      {
+        "domain": "{label}.rubiconproject.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rubiconproject.com",
+          "entity": "Magnite",
+          "category": "advertising / supply-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch"
         ]
       },
       {
@@ -4018,7 +4024,7 @@
         ]
       },
       {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.{label}.googlesyndication.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": {
@@ -4036,7 +4042,7 @@
         ]
       },
       {
-        "domain": "c.amazon-adsystem.com",
+        "domain": "{label}.amazon-adsystem.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -4074,13 +4080,13 @@
         ]
       },
       {
-        "domain": "tpc.googlesyndication.com",
+        "domain": "{label}.casalemedia.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
+          "domain": "casalemedia.com",
+          "entity": "Index Exchange",
+          "category": "advertising / exchange",
           "confidence": "curated"
         },
         "blockedByShields": true,
@@ -4088,15 +4094,16 @@
           200
         ],
         "resourceTypes": [
-          "script"
+          "fetch",
+          "image"
         ]
       },
       {
-        "domain": "bat.bing.com",
+        "domain": "{label}.bing.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -4110,7 +4117,26 @@
         ]
       },
       {
-        "domain": "dpm.demdex.net",
+        "domain": "{label}.pubmatic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "pubmatic.com",
+          "entity": "PubMatic",
+          "category": "advertising / supply-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.demdex.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -4122,42 +4148,6 @@
         "blockedByShields": true,
         "statuses": [
           302
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "micro.rubiconproject.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "rubiconproject.com",
-          "entity": "Magnite",
-          "category": "advertising / supply-side platform",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "pubads.g.doubleclick.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
         ],
         "resourceTypes": [
           "image"
@@ -4182,7 +4172,7 @@
         ]
       },
       {
-        "domain": "config.aps.amazon-adsystem.com",
+        "domain": "{label}.{label}.amazon-adsystem.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -4200,7 +4190,7 @@
         ]
       },
       {
-        "domain": "web-banner.ads.aps.amazon-adsystem.com",
+        "domain": "{label}.ads.{label}.amazon-adsystem.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -4218,7 +4208,7 @@
         ]
       },
       {
-        "domain": "prebid.media.net",
+        "domain": "{label}.media.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -4236,115 +4226,7 @@
         ]
       },
       {
-        "domain": "fastlane.rubiconproject.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "rubiconproject.com",
-          "entity": "Magnite",
-          "category": "advertising / supply-side platform",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "direct.adsrvr.org",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "htlb.casalemedia.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "casalemedia.com",
-          "entity": "Index Exchange",
-          "category": "advertising / exchange",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "js.adsrvr.org",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "prebid-a.rubiconproject.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "rubiconproject.com",
-          "entity": "Magnite",
-          "category": "advertising / supply-side platform",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "insight.adsrvr.org",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "check.analytics.rlcdn.com",
+        "domain": "{label}.analytics.rlcdn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -4380,61 +4262,7 @@
         ]
       },
       {
-        "domain": "ssum.casalemedia.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "casalemedia.com",
-          "entity": "Index Exchange",
-          "category": "advertising / exchange",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "ut.pubmatic.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "pubmatic.com",
-          "entity": "PubMatic",
-          "category": "advertising / supply-side platform",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "image6.pubmatic.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "pubmatic.com",
-          "entity": "PubMatic",
-          "category": "advertising / supply-side platform",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "rtb.openx.net",
+        "domain": "{label}.openx.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -4452,7 +4280,40 @@
         ]
       },
       {
-        "domain": "s0.2mdn.net",
+        "domain": "{label}.deepintent.com",
+        "requests": 12,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204,
+          200,
+          303
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 10,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.2mdn.net",
         "requests": 10,
         "thirdParty": true,
         "tracker": null,
@@ -4463,20 +4324,6 @@
         "resourceTypes": [
           "script",
           "document",
-          "image"
-        ]
-      },
-      {
-        "domain": "match.deepintent.com",
-        "requests": 10,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200,
-          303
-        ],
-        "resourceTypes": [
           "image"
         ]
       },
@@ -4494,7 +4341,7 @@
         ]
       },
       {
-        "domain": "elb.the-ozone-project.com",
+        "domain": "{label}.the-ozone-project.com",
         "requests": 7,
         "thirdParty": true,
         "tracker": null,
@@ -4527,19 +4374,21 @@
         ]
       },
       {
-        "domain": "ep2.adtrafficquality.google",
-        "requests": 6,
+        "domain": "{label}.liadm.com",
+        "requests": 5,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
           200,
+          302,
           204
         ],
         "resourceTypes": [
           "script",
+          "xhr",
           "document",
-          "image"
+          "fetch"
         ]
       },
       {
@@ -4573,7 +4422,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": null,
@@ -4586,22 +4435,7 @@
         ]
       },
       {
-        "domain": "ep1.adtrafficquality.google",
-        "requests": 4,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200,
-          204
-        ],
-        "resourceTypes": [
-          "xhr",
-          "image"
-        ]
-      },
-      {
-        "domain": "bat.bing.net",
+        "domain": "{label}.bing.net",
         "requests": 4,
         "thirdParty": true,
         "tracker": null,
@@ -4642,7 +4476,20 @@
         ]
       },
       {
-        "domain": "pub.doubleverify.com",
+        "domain": "{label}.zdbb.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.doubleverify.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -4655,7 +4502,7 @@
         ]
       },
       {
-        "domain": "x.bidswitch.net",
+        "domain": "{label}.bidswitch.net",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -4668,30 +4515,18 @@
         ]
       },
       {
-        "domain": "rp.liadm.com",
+        "domain": "{label}.dv.tech",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
-          302,
-          200
+          200,
+          204
         ],
         "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "gurgle.zdbb.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
+          "script",
+          "ping"
         ]
       },
       {
@@ -4709,6 +4544,20 @@
         ]
       },
       {
+        "domain": "{label}.3lift.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "document"
+        ]
+      },
+      {
         "domain": "creativecdn.com",
         "requests": 2,
         "thirdParty": true,
@@ -4722,7 +4571,7 @@
         ]
       },
       {
-        "domain": "ib.adnxs.com",
+        "domain": "{label}.adnxs.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -4748,7 +4597,7 @@
         ]
       },
       {
-        "domain": "a.sportradarserving.com",
+        "domain": "{label}.sportradarserving.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -4761,7 +4610,7 @@
         ]
       },
       {
-        "domain": "content.jwplatform.com",
+        "domain": "{label}.jwplatform.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -4774,33 +4623,7 @@
         ]
       },
       {
-        "domain": "b-code.liadm.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "pub.dv.tech",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4810,19 +4633,6 @@
         ],
         "resourceTypes": [
           "xhr"
-        ]
-      },
-      {
-        "domain": "i.liadm.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
         ]
       },
       {
@@ -4839,7 +4649,7 @@
         ]
       },
       {
-        "domain": "sdk.mrf.io",
+        "domain": "{label}.mrf.io",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4891,59 +4701,7 @@
         ]
       },
       {
-        "domain": "vtrk.dv.tech",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "ping"
-        ]
-      },
-      {
-        "domain": "idx.liadm.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "tlx.3lift.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "prebid.deepintent.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "ampcid.google.com",
+        "domain": "{label}.google.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4956,33 +4714,7 @@
         ]
       },
       {
-        "domain": "jogger.zdbb.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "px.deepintent.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "js-sec.indexww.com",
+        "domain": "{label}.indexww.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4996,19 +4728,6 @@
       },
       {
         "domain": "cdn.deepintent.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "eb2.3lift.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -5073,7 +4792,7 @@
         ]
       },
       {
-        "domain": "privacy-policy.truste.com",
+        "domain": "{label}.truste.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -5113,45 +4832,23 @@
         ]
       },
       {
-        "domain": "gtm.everydayhealth.com",
-        "requests": 9,
+        "domain": "{label}.everydayhealth.com",
+        "requests": 15,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
-          200
+          200,
+          206,
+          302
         ],
         "resourceTypes": [
           "script",
+          "media",
+          "image",
+          "xhr",
           "fetch",
           "document"
-        ]
-      },
-      {
-        "domain": "downloads.everydayhealth.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          206
-        ],
-        "resourceTypes": [
-          "media"
-        ]
-      },
-      {
-        "domain": "gurgle.everydayhealth.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -5165,32 +4862,6 @@
         ],
         "resourceTypes": [
           "document"
-        ]
-      },
-      {
-        "domain": "btg.everydayhealth.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "sli.everydayhealth.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
         ]
       }
     ],
@@ -5317,7 +4988,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".dpm.demdex.net",
+        "domain": ".{label}.demdex.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -6042,10 +5713,10 @@
           "thirdPartyOrigins": [
             "https://assets.everydayhealth.com/",
             "https://cdn.p-n.io/",
-            "https://gtm.everydayhealth.com/",
+            "https://{label}.everydayhealth.com/",
             "https://metrics.rapidedge.io/",
-            "https://sdk.mrf.io/",
-            "https://securepubads.g.doubleclick.net/",
+            "https://{label}.mrf.io/",
+            "https://{label}.{label}.doubleclick.net/",
             "https://www.googletagmanager.com/",
             "https://www.gstatic.com/"
           ],
@@ -6086,12 +5757,12 @@
             "https://assets.everydayhealth.com/",
             "https://cdn.p-n.io/",
             "https://cdn.ziffstatic.com/",
-            "https://gtm.everydayhealth.com/",
+            "https://{label}.everydayhealth.com/",
             "https://imasdk.googleapis.com/",
             "https://metrics.rapidedge.io/",
-            "https://micro.rubiconproject.com/",
-            "https://sdk.mrf.io/",
-            "https://securepubads.g.doubleclick.net/",
+            "https://{label}.rubiconproject.com/",
+            "https://{label}.mrf.io/",
+            "https://{label}.{label}.doubleclick.net/",
             "https://www.googletagmanager.com/",
             "https://www.gstatic.com/"
           ],
@@ -6101,8 +5772,8 @@
     ],
     "cnameCloaks": [
       {
-        "host": "gurgle.everydayhealth.com",
-        "cname": "gurgle.zdbb.net",
+        "host": "{label}.everydayhealth.com",
+        "cname": "{label}.zdbb.net",
         "tracker": {
           "domain": "zdbb.net",
           "entity": "zdbb.net",
@@ -6440,8 +6111,8 @@
       },
       {
         "id": 28,
-        "url": "https://downloads.everydayhealth.com/{seg}/{seg}",
-        "domain": "downloads.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -6476,8 +6147,8 @@
       },
       {
         "id": 31,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -6488,8 +6159,8 @@
       },
       {
         "id": 32,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -6500,8 +6171,8 @@
       },
       {
         "id": 33,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -6560,8 +6231,8 @@
       },
       {
         "id": 38,
-        "url": "https://btg.everydayhealth.com/{seg}",
-        "domain": "btg.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6884,7 +6555,7 @@
       },
       {
         "id": 65,
-        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -6944,8 +6615,8 @@
       },
       {
         "id": 70,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -6956,8 +6627,8 @@
       },
       {
         "id": 71,
-        "url": "https://downloads.everydayhealth.com/{seg}/{seg}",
-        "domain": "downloads.everydayhealth.com",
+        "url": "https://{label}.everydayhealth.com/{seg}/{seg}",
+        "domain": "{label}.everydayhealth.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -7064,8 +6735,8 @@
       },
       {
         "id": 80,
-        "url": "https://content.jwplatform.com/{seg}/{seg}",
-        "domain": "content.jwplatform.com",
+        "url": "https://{label}.jwplatform.com/{seg}/{seg}",
+        "domain": "{label}.jwplatform.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -7088,8 +6759,8 @@
       },
       {
         "id": 82,
-        "url": "https://content.jwplatform.com/{seg}/{seg}",
-        "domain": "content.jwplatform.com",
+        "url": "https://{label}.jwplatform.com/{seg}/{seg}",
+        "domain": "{label}.jwplatform.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -7285,7 +6956,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": null,
@@ -7312,7 +6983,7 @@
         ]
       },
       {
-        "domain": "content.jwplatform.com",
+        "domain": "{label}.jwplatform.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -7352,16 +7023,18 @@
         ]
       },
       {
-        "domain": "downloads.everydayhealth.com",
-        "requests": 2,
+        "domain": "{label}.everydayhealth.com",
+        "requests": 3,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
         "statuses": [
-          206
+          206,
+          200
         ],
         "resourceTypes": [
-          "media"
+          "media",
+          "script"
         ]
       },
       {
@@ -7375,19 +7048,6 @@
         ],
         "resourceTypes": [
           "document"
-        ]
-      },
-      {
-        "domain": "btg.everydayhealth.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
         ]
       }
     ],
@@ -7558,9 +7218,9 @@
       "delta": -78
     },
     "thirdPartyDomains": {
-      "before": 78,
+      "before": 59,
       "after": 4,
-      "delta": -74
+      "delta": -55
     },
     "cookies": {
       "before": 73,
@@ -7585,8 +7245,8 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 15,
+        "domain": "{label}.googlesyndication.com",
+        "requests": 17,
         "tracker": {
           "domain": "googlesyndication.com",
           "entity": "Google",
@@ -7595,28 +7255,8 @@
         }
       },
       {
-        "domain": "match.deepintent.com",
-        "requests": 10,
-        "tracker": null
-      },
-      {
-        "domain": "s0.2mdn.net",
-        "requests": 10,
-        "tracker": null
-      },
-      {
-        "domain": "events.newsroom.bi",
-        "requests": 9,
-        "tracker": null
-      },
-      {
-        "domain": "gtm.everydayhealth.com",
-        "requests": 9,
-        "tracker": null
-      },
-      {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 9,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 16,
         "tracker": {
           "domain": "doubleclick.net",
           "entity": "Google",
@@ -7625,28 +7265,23 @@
         }
       },
       {
-        "domain": "elb.the-ozone-project.com",
-        "requests": 7,
+        "domain": "{label}.deepintent.com",
+        "requests": 12,
         "tracker": null
       },
       {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 6,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "ep2.adtrafficquality.google",
-        "requests": 6,
+        "domain": "{label}.2mdn.net",
+        "requests": 10,
         "tracker": null
       },
       {
-        "domain": "match.adsrvr.org",
-        "requests": 6,
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 10,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.adsrvr.org",
+        "requests": 9,
         "tracker": {
           "domain": "adsrvr.org",
           "entity": "The Trade Desk",
@@ -7655,19 +7290,39 @@
         }
       },
       {
+        "domain": "events.newsroom.bi",
+        "requests": 9,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.the-ozone-project.com",
+        "requests": 7,
+        "tracker": null
+      },
+      {
         "domain": "zdbb.net",
         "requests": 6,
         "tracker": null
       },
       {
-        "domain": "bat.bing.net",
+        "domain": "{label}.liadm.com",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.bing.net",
         "requests": 4,
         "tracker": null
       },
       {
-        "domain": "ep1.adtrafficquality.google",
+        "domain": "{label}.scorecardresearch.com",
         "requests": 4,
-        "tracker": null
+        "tracker": {
+          "domain": "scorecardresearch.com",
+          "entity": "Comscore",
+          "category": "audience measurement",
+          "confidence": "curated"
+        }
       },
       {
         "domain": "pixel.rubiconproject.com",
@@ -7680,17 +7335,7 @@
         }
       },
       {
-        "domain": "sb.scorecardresearch.com",
-        "requests": 4,
-        "tracker": {
-          "domain": "scorecardresearch.com",
-          "entity": "Comscore",
-          "category": "audience measurement",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.{label}.googlesyndication.com",
         "requests": 3,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -7700,17 +7345,37 @@
         }
       },
       {
+        "domain": "{label}.bidswitch.net",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.doubleverify.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.rubiconproject.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "rubiconproject.com",
+          "entity": "Magnite",
+          "category": "advertising / supply-side platform",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.zdbb.net",
+        "requests": 3,
+        "tracker": null
+      },
+      {
         "domain": "cdn.cookielaw.org",
         "requests": 3,
         "tracker": null
       },
       {
         "domain": "cdn.ziffstatic.com",
-        "requests": 3,
-        "tracker": null
-      },
-      {
-        "domain": "pub.doubleverify.com",
         "requests": 3,
         "tracker": null
       },
@@ -7725,27 +7390,17 @@
         }
       },
       {
-        "domain": "x.bidswitch.net",
-        "requests": 3,
-        "tracker": null
-      },
-      {
-        "domain": "a.sportradarserving.com",
+        "domain": "{label}.3lift.com",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "bat.bing.com",
+        "domain": "{label}.adnxs.com",
         "requests": 2,
-        "tracker": {
-          "domain": "bat.bing.com",
-          "entity": "Microsoft",
-          "category": "advertising / analytics",
-          "confidence": "curated"
-        }
+        "tracker": null
       },
       {
-        "domain": "c.amazon-adsystem.com",
+        "domain": "{label}.amazon-adsystem.com",
         "requests": 2,
         "tracker": {
           "domain": "amazon-adsystem.com",
@@ -7755,12 +7410,27 @@
         }
       },
       {
-        "domain": "creativecdn.com",
+        "domain": "{label}.bing.com",
         "requests": 2,
-        "tracker": null
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        }
       },
       {
-        "domain": "dpm.demdex.net",
+        "domain": "{label}.casalemedia.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "casalemedia.com",
+          "entity": "Index Exchange",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.demdex.net",
         "requests": 2,
         "tracker": {
           "domain": "demdex.net",
@@ -7770,17 +7440,27 @@
         }
       },
       {
-        "domain": "gurgle.everydayhealth.com",
+        "domain": "{label}.dv.tech",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "gurgle.zdbb.net",
+        "domain": "{label}.pubmatic.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "pubmatic.com",
+          "entity": "PubMatic",
+          "category": "advertising / supply-side platform",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.sportradarserving.com",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "ib.adnxs.com",
+        "domain": "creativecdn.com",
         "requests": 2,
         "tracker": null
       },
@@ -7795,21 +7475,6 @@
         "tracker": null
       },
       {
-        "domain": "rp.liadm.com",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "tpc.googlesyndication.com",
-        "requests": 2,
-        "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
         "domain": "www.google-analytics.com",
         "requests": 2,
         "tracker": {
@@ -7818,6 +7483,81 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         }
+      },
+      {
+        "domain": "{label}.{label}.amazon-adsystem.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.ads.{label}.amazon-adsystem.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.analytics.rlcdn.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.google.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.indexww.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.media.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "media.net",
+          "entity": "Media.net",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.mrf.io",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.openx.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "openx.net",
+          "entity": "OpenX",
+          "category": "advertising / exchange",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.truste.com",
+        "requests": 1,
+        "tracker": null
       },
       {
         "domain": "ads.pubmatic.com",
@@ -7840,16 +7580,6 @@
         }
       },
       {
-        "domain": "ampcid.google.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "b-code.liadm.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
         "domain": "cdn.deepintent.com",
         "requests": 1,
         "tracker": null
@@ -7865,89 +7595,9 @@
         "tracker": null
       },
       {
-        "domain": "check.analytics.rlcdn.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "rlcdn.com",
-          "entity": "LiveRamp",
-          "category": "identity / advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "config.aps.amazon-adsystem.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "amazon-adsystem.com",
-          "entity": "Amazon Ads",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "direct.adsrvr.org",
-        "requests": 1,
-        "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "eb2.3lift.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "fastlane.rubiconproject.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "rubiconproject.com",
-          "entity": "Magnite",
-          "category": "advertising / supply-side platform",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "geolocation.onetrust.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "htlb.casalemedia.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "casalemedia.com",
-          "entity": "Index Exchange",
-          "category": "advertising / exchange",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "i.liadm.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
         "domain": "id5-sync.com",
         "requests": 1,
         "tracker": null
-      },
-      {
-        "domain": "idx.liadm.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "image6.pubmatic.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "pubmatic.com",
-          "entity": "PubMatic",
-          "category": "advertising / supply-side platform",
-          "confidence": "curated"
-        }
       },
       {
         "domain": "imasdk.googleapis.com",
@@ -7955,129 +7605,9 @@
         "tracker": null
       },
       {
-        "domain": "insight.adsrvr.org",
-        "requests": 1,
-        "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "jogger.zdbb.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "js-sec.indexww.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "js.adsrvr.org",
-        "requests": 1,
-        "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "micro.rubiconproject.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "rubiconproject.com",
-          "entity": "Magnite",
-          "category": "advertising / supply-side platform",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "prebid-a.rubiconproject.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "rubiconproject.com",
-          "entity": "Magnite",
-          "category": "advertising / supply-side platform",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "prebid.deepintent.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "prebid.media.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "media.net",
-          "entity": "Media.net",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "privacy-policy.truste.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "pub.dv.tech",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "pubads.g.doubleclick.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "px.deepintent.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "rtb.openx.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "openx.net",
-          "entity": "OpenX",
-          "category": "advertising / exchange",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "sdk.mrf.io",
-        "requests": 1,
-        "tracker": null
-      },
-      {
         "domain": "secure.adnxs.com",
         "requests": 1,
         "tracker": null
-      },
-      {
-        "domain": "sli.everydayhealth.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "ssum.casalemedia.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "casalemedia.com",
-          "entity": "Index Exchange",
-          "category": "advertising / exchange",
-          "confidence": "curated"
-        }
       },
       {
         "domain": "static.adziff.com",
@@ -8090,36 +7620,6 @@
         "tracker": null
       },
       {
-        "domain": "tlx.3lift.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "ut.pubmatic.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "pubmatic.com",
-          "entity": "PubMatic",
-          "category": "advertising / supply-side platform",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "vtrk.dv.tech",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "web-banner.ads.aps.amazon-adsystem.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "amazon-adsystem.com",
-          "entity": "Amazon Ads",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
         "domain": "www.googletagservices.com",
         "requests": 1,
         "tracker": null
@@ -8130,17 +7630,17 @@
       {
         "entity": "Google",
         "requests": 41,
-        "domains": 8
+        "domains": 5
       },
       {
         "entity": "The Trade Desk",
         "requests": 9,
-        "domains": 4
+        "domains": 1
       },
       {
         "entity": "Magnite",
         "requests": 8,
-        "domains": 5
+        "domains": 3
       },
       {
         "entity": "Amazon Ads",
@@ -8155,7 +7655,7 @@
       {
         "entity": "PubMatic",
         "requests": 3,
-        "domains": 3
+        "domains": 2
       },
       {
         "entity": "Adobe",
@@ -8165,7 +7665,7 @@
       {
         "entity": "Index Exchange",
         "requests": 2,
-        "domains": 2
+        "domains": 1
       },
       {
         "entity": "Microsoft",
@@ -8190,6 +7690,11 @@
     ],
     "addedCookies": [],
     "removedCookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.demdex.net",
+        "thirdParty": true
+      },
       {
         "name": "[redacted]",
         "domain": ".ads.pubmatic.com",
@@ -8223,11 +7728,6 @@
       {
         "name": "IDE",
         "domain": ".doubleclick.net",
-        "thirdParty": true
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".dpm.demdex.net",
         "thirdParty": true
       },
       {

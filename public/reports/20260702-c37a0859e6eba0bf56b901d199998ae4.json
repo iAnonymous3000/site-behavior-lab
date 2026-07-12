@@ -345,8 +345,8 @@
       },
       {
         "id": 24,
-        "url": "https://console.python.org/{seg}",
-        "domain": "console.python.org",
+        "url": "https://{label}.python.org/{seg}",
+        "domain": "{label}.python.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": null,
@@ -526,7 +526,7 @@
         ]
       },
       {
-        "domain": "console.python.org",
+        "domain": "{label}.python.org",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -542,7 +542,7 @@
     "fingerprintEvents": [],
     "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://policies.python.org/{seg}/{seg}",
+      "url": "https://{label}.python.org/{seg}/{seg}",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [],
@@ -554,7 +554,7 @@
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "The page did not reach network idle before the scan window ended.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://policies.python.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.python.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "variant": {
@@ -867,8 +867,8 @@
       },
       {
         "id": 24,
-        "url": "https://console.python.org/{seg}",
-        "domain": "console.python.org",
+        "url": "https://{label}.python.org/{seg}",
+        "domain": "{label}.python.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": null,
@@ -1022,7 +1022,7 @@
         ]
       },
       {
-        "domain": "console.python.org",
+        "domain": "{label}.python.org",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -1038,7 +1038,7 @@
     "fingerprintEvents": [],
     "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://policies.python.org/{seg}/{seg}",
+      "url": "https://{label}.python.org/{seg}/{seg}",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [],
@@ -1051,7 +1051,7 @@
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
       "The page did not reach network idle before the scan window ended.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://policies.python.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.python.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "diff": {
@@ -1130,13 +1130,13 @@
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "No blocking: The page did not reach network idle before the scan window ended.",
     "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "No blocking: Read the site's privacy policy (https://policies.python.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://{label}.python.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
     "Brave-list blocking: The page did not reach network idle before the scan window ended.",
     "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Brave-list blocking: Read the site's privacy policy (https://policies.python.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://{label}.python.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260702-c37a0859e6eba0bf56b901d199998ae4",

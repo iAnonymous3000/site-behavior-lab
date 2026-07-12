@@ -369,8 +369,8 @@
       },
       {
         "id": 26,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -405,8 +405,8 @@
       },
       {
         "id": 29,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -429,8 +429,8 @@
       },
       {
         "id": 31,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -453,8 +453,8 @@
       },
       {
         "id": 33,
-        "url": "https://rail.bankofamerica.com/{n}/{seg}",
-        "domain": "rail.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -477,8 +477,8 @@
       },
       {
         "id": 35,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -489,8 +489,8 @@
       },
       {
         "id": 36,
-        "url": "https://adobedc.demdex.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "adobedc.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -578,8 +578,8 @@
       },
       {
         "id": 43,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -590,8 +590,8 @@
       },
       {
         "id": 44,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -602,8 +602,8 @@
       },
       {
         "id": 45,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -614,8 +614,8 @@
       },
       {
         "id": 46,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -626,8 +626,8 @@
       },
       {
         "id": 47,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -638,8 +638,8 @@
       },
       {
         "id": 48,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -650,8 +650,8 @@
       },
       {
         "id": 49,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -662,8 +662,8 @@
       },
       {
         "id": 50,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -674,8 +674,8 @@
       },
       {
         "id": 51,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -686,8 +686,8 @@
       },
       {
         "id": 52,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -698,8 +698,8 @@
       },
       {
         "id": 53,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -710,8 +710,8 @@
       },
       {
         "id": 54,
-        "url": "https://glassbox-hlx-igw.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -722,8 +722,8 @@
       },
       {
         "id": 55,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -734,8 +734,8 @@
       },
       {
         "id": 56,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -782,8 +782,8 @@
       },
       {
         "id": 60,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -866,8 +866,8 @@
       },
       {
         "id": 67,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -890,8 +890,8 @@
       },
       {
         "id": 69,
-        "url": "https://rail.bankofamerica.com/{n}/{seg}",
-        "domain": "rail.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -926,8 +926,8 @@
       },
       {
         "id": 72,
-        "url": "https://boss.bankofamerica.com/{n}/{seg}",
-        "domain": "boss.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -938,8 +938,8 @@
       },
       {
         "id": 73,
-        "url": "https://aero.bankofamerica.com/{n}/{seg}",
-        "domain": "aero.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -950,8 +950,8 @@
       },
       {
         "id": 74,
-        "url": "https://boss.bankofamerica.com/{n}/{seg}",
-        "domain": "boss.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -962,8 +962,8 @@
       },
       {
         "id": 75,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -986,8 +986,8 @@
       },
       {
         "id": 77,
-        "url": "https://storage.glancecdn.net/{seg}/{seg}/{seg}",
-        "domain": "storage.glancecdn.net",
+        "url": "https://{label}.glancecdn.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.glancecdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -998,8 +998,8 @@
       },
       {
         "id": 78,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1034,8 +1034,8 @@
       },
       {
         "id": 81,
-        "url": "https://glassbox-hlx-igw.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1070,8 +1070,8 @@
       },
       {
         "id": 84,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1082,8 +1082,8 @@
       },
       {
         "id": 85,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1094,8 +1094,8 @@
       },
       {
         "id": 86,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1106,8 +1106,8 @@
       },
       {
         "id": 87,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1118,8 +1118,8 @@
       },
       {
         "id": 88,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1130,8 +1130,8 @@
       },
       {
         "id": 89,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1142,8 +1142,8 @@
       },
       {
         "id": 90,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1154,8 +1154,8 @@
       },
       {
         "id": 91,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1166,8 +1166,8 @@
       },
       {
         "id": 92,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1214,8 +1214,8 @@
       },
       {
         "id": 96,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1226,8 +1226,8 @@
       },
       {
         "id": 97,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1238,8 +1238,8 @@
       },
       {
         "id": 98,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1250,8 +1250,8 @@
       },
       {
         "id": 99,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1262,8 +1262,8 @@
       },
       {
         "id": 100,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1274,8 +1274,8 @@
       },
       {
         "id": 101,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1286,8 +1286,8 @@
       },
       {
         "id": 102,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1358,8 +1358,8 @@
       },
       {
         "id": 108,
-        "url": "https://boss.bankofamerica.com/{n}/{seg}",
-        "domain": "boss.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1370,8 +1370,8 @@
       },
       {
         "id": 109,
-        "url": "https://aero.bankofamerica.com/{n}/{seg}",
-        "domain": "aero.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1382,8 +1382,8 @@
       },
       {
         "id": 110,
-        "url": "https://boss.bankofamerica.com/{n}/{seg}",
-        "domain": "boss.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1394,8 +1394,8 @@
       },
       {
         "id": 111,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1406,8 +1406,8 @@
       },
       {
         "id": 112,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1418,8 +1418,8 @@
       },
       {
         "id": 113,
-        "url": "https://glassbox-hlx-igw.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1430,8 +1430,8 @@
       },
       {
         "id": 114,
-        "url": "https://boss.bankofamerica.com/{n}/{seg}",
-        "domain": "boss.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1442,8 +1442,8 @@
       },
       {
         "id": 115,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1454,8 +1454,8 @@
       },
       {
         "id": 116,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1466,8 +1466,8 @@
       },
       {
         "id": 117,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1478,8 +1478,8 @@
       },
       {
         "id": 118,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1490,8 +1490,8 @@
       },
       {
         "id": 119,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1502,8 +1502,8 @@
       },
       {
         "id": 120,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1514,8 +1514,8 @@
       },
       {
         "id": 121,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1526,8 +1526,8 @@
       },
       {
         "id": 122,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1538,8 +1538,8 @@
       },
       {
         "id": 123,
-        "url": "https://awuseb.advanced-web-analytics.com/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "awuseb.advanced-web-analytics.com",
+        "url": "https://{label}.advanced-web-analytics.com/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.advanced-web-analytics.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1562,8 +1562,8 @@
       },
       {
         "id": 125,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1574,8 +1574,8 @@
       },
       {
         "id": 126,
-        "url": "https://glassbox-hlx-igw.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1586,8 +1586,8 @@
       },
       {
         "id": 127,
-        "url": "https://glassbox-hlx-igw.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1598,8 +1598,8 @@
       },
       {
         "id": 128,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1610,8 +1610,8 @@
       },
       {
         "id": 129,
-        "url": "https://boss.bankofamerica.com/{n}/{seg}",
-        "domain": "boss.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1622,8 +1622,8 @@
       },
       {
         "id": 130,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1634,8 +1634,8 @@
       },
       {
         "id": 131,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1646,8 +1646,8 @@
       },
       {
         "id": 132,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1658,8 +1658,8 @@
       },
       {
         "id": 133,
-        "url": "https://awuseb.advanced-web-analytics.com/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "awuseb.advanced-web-analytics.com",
+        "url": "https://{label}.advanced-web-analytics.com/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.advanced-web-analytics.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1670,8 +1670,8 @@
       },
       {
         "id": 134,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1682,8 +1682,8 @@
       },
       {
         "id": 135,
-        "url": "https://aero.bankofamerica.com/{n}/{seg}",
-        "domain": "aero.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1694,8 +1694,8 @@
       },
       {
         "id": 136,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1706,8 +1706,8 @@
       },
       {
         "id": 137,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1718,8 +1718,8 @@
       },
       {
         "id": 138,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1730,8 +1730,8 @@
       },
       {
         "id": 139,
-        "url": "https://aero.bankofamerica.com/{n}/{seg}",
-        "domain": "aero.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1742,8 +1742,8 @@
       },
       {
         "id": 140,
-        "url": "https://aero.bankofamerica.com/{n}/{seg}",
-        "domain": "aero.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1754,8 +1754,8 @@
       },
       {
         "id": 141,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1766,8 +1766,8 @@
       },
       {
         "id": 142,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1790,8 +1790,8 @@
       },
       {
         "id": 144,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1802,8 +1802,8 @@
       },
       {
         "id": 145,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1814,8 +1814,8 @@
       },
       {
         "id": 146,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1826,8 +1826,8 @@
       },
       {
         "id": 147,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1874,8 +1874,8 @@
       },
       {
         "id": 151,
-        "url": "https://tilt.bankofamerica.com/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tilt.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1886,8 +1886,8 @@
       },
       {
         "id": 152,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1946,8 +1946,8 @@
       },
       {
         "id": 157,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1958,8 +1958,8 @@
       },
       {
         "id": 158,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1970,8 +1970,8 @@
       },
       {
         "id": 159,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1982,8 +1982,8 @@
       },
       {
         "id": 160,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1994,8 +1994,8 @@
       },
       {
         "id": 161,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2006,8 +2006,8 @@
       },
       {
         "id": 162,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2018,8 +2018,8 @@
       },
       {
         "id": 163,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2030,8 +2030,8 @@
       },
       {
         "id": 164,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2042,8 +2042,8 @@
       },
       {
         "id": 165,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2054,8 +2054,8 @@
       },
       {
         "id": 166,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2066,8 +2066,8 @@
       },
       {
         "id": 167,
-        "url": "https://tilt.bankofamerica.com/{n}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tilt.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2078,8 +2078,8 @@
       },
       {
         "id": 168,
-        "url": "https://d.agkn.com/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "d.agkn.com",
+        "url": "https://{label}.agkn.com/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.agkn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2090,8 +2090,8 @@
       },
       {
         "id": 169,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2102,8 +2102,8 @@
       },
       {
         "id": 170,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2114,8 +2114,8 @@
       },
       {
         "id": 171,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2126,8 +2126,8 @@
       },
       {
         "id": 172,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2138,8 +2138,8 @@
       },
       {
         "id": 173,
-        "url": "https://storage.glancecdn.net/{seg}/{seg}/{seg}",
-        "domain": "storage.glancecdn.net",
+        "url": "https://{label}.glancecdn.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.glancecdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2150,8 +2150,8 @@
       },
       {
         "id": 174,
-        "url": "https://boss.bankofamerica.com/{n}/{seg}",
-        "domain": "boss.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2162,8 +2162,8 @@
       },
       {
         "id": 175,
-        "url": "https://boss.bankofamerica.com/{n}/{seg}",
-        "domain": "boss.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2174,8 +2174,8 @@
       },
       {
         "id": 176,
-        "url": "https://aero.bankofamerica.com/{n}/{seg}",
-        "domain": "aero.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2186,8 +2186,8 @@
       },
       {
         "id": 177,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2198,8 +2198,8 @@
       },
       {
         "id": 178,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2210,8 +2210,8 @@
       },
       {
         "id": 179,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2222,8 +2222,8 @@
       },
       {
         "id": 180,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2294,8 +2294,8 @@
       },
       {
         "id": 186,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2498,8 +2498,8 @@
       },
       {
         "id": 203,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2522,8 +2522,8 @@
       },
       {
         "id": 205,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2534,8 +2534,8 @@
       },
       {
         "id": 206,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2558,8 +2558,8 @@
       },
       {
         "id": 208,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2570,8 +2570,8 @@
       },
       {
         "id": 209,
-        "url": "https://tilt.bankofamerica.com/{n}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tilt.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2582,8 +2582,8 @@
       },
       {
         "id": 210,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2594,8 +2594,8 @@
       },
       {
         "id": 211,
-        "url": "https://smetrics.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "smetrics.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2606,8 +2606,8 @@
       },
       {
         "id": 212,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2618,8 +2618,8 @@
       },
       {
         "id": 213,
-        "url": "https://dull.bankofamerica.com/{seg}/{seg}",
-        "domain": "dull.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2630,8 +2630,8 @@
       },
       {
         "id": 214,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2642,8 +2642,8 @@
       },
       {
         "id": 215,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2654,8 +2654,8 @@
       },
       {
         "id": 216,
-        "url": "https://glassbox-hlx-igw.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
@@ -2666,8 +2666,8 @@
       },
       {
         "id": 217,
-        "url": "https://glassbox-hlx-igw.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
@@ -2678,8 +2678,8 @@
       },
       {
         "id": 218,
-        "url": "https://aero.bankofamerica.com/{n}/{seg}",
-        "domain": "aero.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "GET",
         "resourceType": "script",
         "status": null,
@@ -2690,8 +2690,8 @@
       },
       {
         "id": 219,
-        "url": "https://tilt.bankofamerica.com/{n}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tilt.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
@@ -2702,8 +2702,8 @@
       },
       {
         "id": 220,
-        "url": "https://tilt.bankofamerica.com/{n}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tilt.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{n}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
@@ -2715,7 +2715,7 @@
     ],
     "domains": [
       {
-        "domain": "adobedc.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -2749,7 +2749,7 @@
         ]
       },
       {
-        "domain": "secure1.bac-assets.com",
+        "domain": "{label}.bac-assets.com",
         "requests": 34,
         "thirdParty": true,
         "tracker": null,
@@ -2766,7 +2766,7 @@
         ]
       },
       {
-        "domain": "tags.tiqcdn.com",
+        "domain": "{label}.tiqcdn.com",
         "requests": 14,
         "thirdParty": true,
         "tracker": null,
@@ -2795,7 +2795,7 @@
         ]
       },
       {
-        "domain": "storage.glancecdn.net",
+        "domain": "{label}.glancecdn.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -2808,7 +2808,7 @@
         ]
       },
       {
-        "domain": "awuseb.advanced-web-analytics.com",
+        "domain": "{label}.advanced-web-analytics.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -2821,7 +2821,7 @@
         ]
       },
       {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2834,7 +2834,7 @@
         ]
       },
       {
-        "domain": "d.agkn.com",
+        "domain": "{label}.agkn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2844,6 +2844,22 @@
         ],
         "resourceTypes": [
           "image"
+        ]
+      },
+      {
+        "domain": "{label}.bankofamerica.com",
+        "requests": 72,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "xhr",
+          "document"
         ]
       },
       {
@@ -2859,116 +2875,6 @@
           "xhr",
           "script",
           "fetch"
-        ]
-      },
-      {
-        "domain": "smetrics.bankofamerica.com",
-        "requests": 17,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "dull.bankofamerica.com",
-        "requests": 17,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "document",
-          "xhr"
-        ]
-      },
-      {
-        "domain": "w3f6gq.bankofamerica.com",
-        "requests": 9,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
-          "fetch"
-        ]
-      },
-      {
-        "domain": "boss.bankofamerica.com",
-        "requests": 8,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
-        "requests": 7,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "xhr"
-        ]
-      },
-      {
-        "domain": "aero.bankofamerica.com",
-        "requests": 7,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "document",
-          "xhr"
-        ]
-      },
-      {
-        "domain": "tilt.bankofamerica.com",
-        "requests": 5,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "rail.bankofamerica.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
         ]
       },
       {
@@ -3408,7 +3314,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
+        "domain": "{label}.bankofamerica.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -3418,7 +3324,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
+        "domain": "{label}.bankofamerica.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -3428,7 +3334,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
+        "domain": "{label}.bankofamerica.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -3438,7 +3344,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
+        "domain": "{label}.bankofamerica.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -3448,7 +3354,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
+        "domain": "{label}.bankofamerica.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -3498,7 +3404,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "tilt.bankofamerica.com",
+        "domain": "{label}.bankofamerica.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -3508,7 +3414,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "tilt.bankofamerica.com",
+        "domain": "{label}.bankofamerica.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -3518,7 +3424,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "tilt.bankofamerica.com",
+        "domain": "{label}.bankofamerica.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -3726,6 +3632,10 @@
     ],
     "fingerprintEvents": [
       {
+        "api": "canvas.measureText",
+        "count": 1
+      },
+      {
         "api": "canvas.toDataURL",
         "count": 4
       },
@@ -3738,22 +3648,6 @@
         "count": 2
       },
       {
-        "api": "webrtc.RTCPeerConnection.createDataChannel",
-        "count": 2
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.createOffer",
-        "count": 2
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.setLocalDescription",
-        "count": 2
-      },
-      {
-        "api": "canvas.measureText",
-        "count": 1
-      },
-      {
         "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
         "count": 1
       },
@@ -3764,6 +3658,18 @@
       {
         "api": "webrtc.RTCPeerConnection",
         "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 2
       }
     ],
     "fingerprintDetections": [
@@ -3818,11 +3724,11 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://aero.bankofamerica.com/",
+            "https://{label}.bankofamerica.com/",
             "https://cdn.cookielaw.org/",
-            "https://glassbox-hlx-igw.bankofamerica.com/",
-            "https://secure1.bac-assets.com/",
-            "https://tags.tiqcdn.com/",
+            "https://{label}.bankofamerica.com/",
+            "https://{label}.bac-assets.com/",
+            "https://{label}.tiqcdn.com/",
             "https://www1.bac-assets.com/"
           ],
           "totalListenerCalls": 197
@@ -3859,12 +3765,12 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://aero.bankofamerica.com/",
+            "https://{label}.bankofamerica.com/",
             "https://cdn.cookielaw.org/",
-            "https://glassbox-hlx-igw.bankofamerica.com/",
+            "https://{label}.bankofamerica.com/",
             "https://secure.bankofamerica.com/",
-            "https://secure1.bac-assets.com/",
-            "https://tags.tiqcdn.com/",
+            "https://{label}.bac-assets.com/",
+            "https://{label}.tiqcdn.com/",
             "https://www1.bac-assets.com/"
           ],
           "totalListenerCalls": 546
@@ -3884,8 +3790,8 @@
     ],
     "cnameCloaks": [
       {
-        "host": "w3f6gq.bankofamerica.com",
-        "cname": "{label}.us.v2.we-stats.com",
+        "host": "{label}.bankofamerica.com",
+        "cname": "{label}.{label}.{label}.we-stats.com",
         "tracker": {
           "domain": "we-stats.com",
           "entity": "we-stats.com",
@@ -3895,7 +3801,7 @@
       }
     ],
     "privacyPolicy": {
-      "url": "https://web.bankofamerica.com/en/privacy",
+      "url": "https://{label}.bankofamerica.com/en/privacy",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [
@@ -3909,7 +3815,7 @@
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "This scan typed a synthetic test value into 3 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
       "Resolved 1 first-party subdomain that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
-      "Read the site's privacy policy (https://web.bankofamerica.com/en/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.bankofamerica.com/en/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "variant": {
@@ -4270,8 +4176,8 @@
       },
       {
         "id": 26,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4318,8 +4224,8 @@
       },
       {
         "id": 30,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4330,8 +4236,8 @@
       },
       {
         "id": 31,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4342,8 +4248,8 @@
       },
       {
         "id": 32,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4354,8 +4260,8 @@
       },
       {
         "id": 33,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4366,8 +4272,8 @@
       },
       {
         "id": 34,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4378,8 +4284,8 @@
       },
       {
         "id": 35,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4390,8 +4296,8 @@
       },
       {
         "id": 36,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4402,8 +4308,8 @@
       },
       {
         "id": 37,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4414,8 +4320,8 @@
       },
       {
         "id": 38,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4426,8 +4332,8 @@
       },
       {
         "id": 39,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4438,8 +4344,8 @@
       },
       {
         "id": 40,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4462,8 +4368,8 @@
       },
       {
         "id": 42,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4498,8 +4404,8 @@
       },
       {
         "id": 46,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4570,8 +4476,8 @@
       },
       {
         "id": 53,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4582,8 +4488,8 @@
       },
       {
         "id": 55,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4594,8 +4500,8 @@
       },
       {
         "id": 56,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4918,8 +4824,8 @@
       },
       {
         "id": 90,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -4930,8 +4836,8 @@
       },
       {
         "id": 91,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4942,8 +4848,8 @@
       },
       {
         "id": 92,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4954,8 +4860,8 @@
       },
       {
         "id": 93,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4966,8 +4872,8 @@
       },
       {
         "id": 94,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4978,8 +4884,8 @@
       },
       {
         "id": 95,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4990,8 +4896,8 @@
       },
       {
         "id": 96,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -5002,8 +4908,8 @@
       },
       {
         "id": 97,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5014,8 +4920,8 @@
       },
       {
         "id": 98,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -5026,8 +4932,8 @@
       },
       {
         "id": 99,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -5038,8 +4944,8 @@
       },
       {
         "id": 100,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -5050,8 +4956,8 @@
       },
       {
         "id": 101,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -5062,8 +4968,8 @@
       },
       {
         "id": 102,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -5086,8 +4992,8 @@
       },
       {
         "id": 104,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -5098,8 +5004,8 @@
       },
       {
         "id": 105,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5110,8 +5016,8 @@
       },
       {
         "id": 106,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5122,8 +5028,8 @@
       },
       {
         "id": 107,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -5134,8 +5040,8 @@
       },
       {
         "id": 108,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -5146,8 +5052,8 @@
       },
       {
         "id": 109,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5158,8 +5064,8 @@
       },
       {
         "id": 110,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5170,8 +5076,8 @@
       },
       {
         "id": 111,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5182,8 +5088,8 @@
       },
       {
         "id": 112,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5194,8 +5100,8 @@
       },
       {
         "id": 113,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5206,8 +5112,8 @@
       },
       {
         "id": 114,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -5218,8 +5124,8 @@
       },
       {
         "id": 115,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5230,8 +5136,8 @@
       },
       {
         "id": 116,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -5242,8 +5148,8 @@
       },
       {
         "id": 117,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -5254,8 +5160,8 @@
       },
       {
         "id": 118,
-        "url": "https://secure1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "secure1.bac-assets.com",
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5266,8 +5172,8 @@
       },
       {
         "id": 119,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -5542,8 +5448,8 @@
       },
       {
         "id": 142,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -5566,8 +5472,8 @@
       },
       {
         "id": 144,
-        "url": "https://w3f6gq.bankofamerica.com/{seg}/{seg}",
-        "domain": "w3f6gq.bankofamerica.com",
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -5595,7 +5501,7 @@
         ]
       },
       {
-        "domain": "secure1.bac-assets.com",
+        "domain": "{label}.bac-assets.com",
         "requests": 28,
         "thirdParty": true,
         "tracker": null,
@@ -5612,7 +5518,7 @@
         ]
       },
       {
-        "domain": "tags.tiqcdn.com",
+        "domain": "{label}.tiqcdn.com",
         "requests": 14,
         "thirdParty": true,
         "tracker": null,
@@ -5655,7 +5561,7 @@
         ]
       },
       {
-        "domain": "w3f6gq.bankofamerica.com",
+        "domain": "{label}.bankofamerica.com",
         "requests": 6,
         "thirdParty": false,
         "tracker": null,
@@ -6042,6 +5948,10 @@
     ],
     "fingerprintEvents": [
       {
+        "api": "canvas.measureText",
+        "count": 1
+      },
+      {
         "api": "canvas.toDataURL",
         "count": 3
       },
@@ -6054,6 +5964,10 @@
         "count": 2
       },
       {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      },
+      {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
         "count": 2
       },
@@ -6064,14 +5978,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 2
-      },
-      {
-        "api": "canvas.measureText",
-        "count": 1
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -6108,7 +6014,7 @@
             "other"
           ],
           "thirdPartyOrigins": [
-            "https://secure1.bac-assets.com/",
+            "https://{label}.bac-assets.com/",
             "https://www1.bac-assets.com/"
           ],
           "totalListenerCalls": 163
@@ -6144,8 +6050,8 @@
           ],
           "thirdPartyOrigins": [
             "https://secure.bankofamerica.com/",
-            "https://secure1.bac-assets.com/",
-            "https://tags.tiqcdn.com/",
+            "https://{label}.bac-assets.com/",
+            "https://{label}.tiqcdn.com/",
             "https://www1.bac-assets.com/"
           ],
           "totalListenerCalls": 455
@@ -6179,8 +6085,8 @@
     ],
     "cnameCloaks": [
       {
-        "host": "w3f6gq.bankofamerica.com",
-        "cname": "{label}.us.v2.we-stats.com",
+        "host": "{label}.bankofamerica.com",
+        "cname": "{label}.{label}.{label}.we-stats.com",
         "tracker": {
           "domain": "we-stats.com",
           "entity": "we-stats.com",
@@ -6190,7 +6096,7 @@
       }
     ],
     "privacyPolicy": {
-      "url": "https://web.bankofamerica.com/en/privacy",
+      "url": "https://{label}.bankofamerica.com/en/privacy",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [],
@@ -6203,7 +6109,7 @@
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
       "This scan typed a synthetic test value into 3 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
       "Resolved 1 first-party subdomain that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
-      "Read the site's privacy policy (https://web.bankofamerica.com/en/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.bankofamerica.com/en/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "diff": {
@@ -6250,52 +6156,22 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "dull.bankofamerica.com",
-        "requests": 17,
-        "tracker": null
-      },
-      {
-        "domain": "smetrics.bankofamerica.com",
-        "requests": 17,
-        "tracker": null
-      },
-      {
-        "domain": "boss.bankofamerica.com",
-        "requests": 8,
-        "tracker": null
-      },
-      {
-        "domain": "aero.bankofamerica.com",
-        "requests": 7,
-        "tracker": null
-      },
-      {
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
-        "requests": 7,
-        "tracker": null
-      },
-      {
-        "domain": "tilt.bankofamerica.com",
-        "requests": 5,
-        "tracker": null
-      },
-      {
-        "domain": "awuseb.advanced-web-analytics.com",
+        "domain": "{label}.advanced-web-analytics.com",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "rail.bankofamerica.com",
+        "domain": "{label}.glancecdn.net",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "storage.glancecdn.net",
-        "requests": 2,
+        "domain": "{label}.agkn.com",
+        "requests": 1,
         "tracker": null
       },
       {
-        "domain": "adobedc.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 1,
         "tracker": {
           "domain": "demdex.net",
@@ -6305,12 +6181,7 @@
         }
       },
       {
-        "domain": "d.agkn.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "tracker": null
       }
@@ -6352,12 +6223,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "glassbox-hlx-igw.bankofamerica.com",
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": "tilt.bankofamerica.com",
+        "domain": "{label}.bankofamerica.com",
         "thirdParty": false
       }
     ],
@@ -6384,13 +6250,13 @@
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "No blocking: This scan typed a synthetic test value into 3 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
     "No blocking: Resolved 1 first-party subdomain that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
-    "No blocking: Read the site's privacy policy (https://web.bankofamerica.com/en/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://{label}.bankofamerica.com/en/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
     "Brave-list blocking: This scan typed a synthetic test value into 3 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
     "Brave-list blocking: Resolved 1 first-party subdomain that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
-    "Brave-list blocking: Read the site's privacy policy (https://web.bankofamerica.com/en/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://{label}.bankofamerica.com/en/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260706-dae87bcd0a1eb60850cf997956755d74",

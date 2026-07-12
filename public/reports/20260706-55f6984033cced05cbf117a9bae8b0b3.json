@@ -525,8 +525,8 @@
       },
       {
         "id": 39,
-        "url": "https://{label}.ingest.sentry.io/api/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "{label}.ingest.sentry.io",
+        "url": "https://{label}.{label}.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.sentry.io",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -542,8 +542,8 @@
       },
       {
         "id": 40,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -819,7 +819,7 @@
     ],
     "domains": [
       {
-        "domain": "{label}.ingest.sentry.io",
+        "domain": "{label}.{label}.sentry.io",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -853,7 +853,7 @@
         ]
       },
       {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1717,7 +1717,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "{label}.ingest.sentry.io",
+        "domain": "{label}.{label}.sentry.io",
         "requests": 1,
         "tracker": {
           "domain": "sentry.io",
@@ -1727,7 +1727,7 @@
         }
       },
       {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "tracker": null
       }

@@ -11,11 +11,12 @@ import type { ScanReport, ScanResult } from "./types";
 
 /**
  * The DRY-RUN remediation inventory (RFC scan-report-v2 9.6: audit first).
- * Given already-published v1 reports, this computes exactly what the v2
- * default-deny sanitizer WOULD change, without writing anything: per-report
- * redaction counters, how many URL fields change, class-marker histograms,
- * and the risk signals the 9.6 step-2 human decision needs (does the public
- * history contain identifier-shaped material, or only page structure?).
+ * Given already-published v1 reports, this computes the URL and name/key
+ * changes made by the default-deny sanitizer, without writing anything:
+ * per-report redaction counters, URL-field changes, class-marker histograms,
+ * and the risk signals the 9.6 step-2 human decision needs. It is deliberately
+ * not an exact preview of the full v1 public-report transform, which also
+ * normalizes closed producer vocabularies such as resourceType.
  *
  * Pure analysis over parsed reports; the CLI owns file/store IO. Nothing here
  * mutates a report.
@@ -40,12 +41,13 @@ export type ReportRemediationInventory = {
    * Identifier-shaped material already public in this report's stored
    * strings: the audit basis for the RFC 9.6 step-2 history decision.
    * Email-like matches are the strongest signal; token-shaped path segments
-   * and subdomain labels are stable-identifier candidates.
+   * are stable-identifier candidates. The subdomain count is broader: v3
+   * generalizes every label absent from the reviewed literal allowlist.
    */
   riskSignals: {
     emailLikeStrings: number;
     tokenLikePathSegments: number;
-    tokenLikeSubdomainLabels: number;
+    unallowlistedSubdomainLabels: number;
   };
   /** Up to `maxExamples` before/after URL diffs, for operator review only. */
   examples: UrlFieldChange[];
@@ -68,7 +70,7 @@ export function inventoryV1Report(id: string, report: ScanReport, maxExamples = 
     changedUrlFields: 0,
     cookieNames: { total: 0, wouldRedact: 0 },
     storageKeys: { total: 0, wouldRedact: 0 },
-    riskSignals: { emailLikeStrings: 0, tokenLikePathSegments: 0, tokenLikeSubdomainLabels: 0 },
+    riskSignals: { emailLikeStrings: 0, tokenLikePathSegments: 0, unallowlistedSubdomainLabels: 0 },
     examples: []
   };
 
@@ -86,7 +88,7 @@ function inventoryRun(run: ScanResult, label: string, inventory: ReportRemediati
     inventory.totalUrlFields += 1;
     const redacted = redactUrlV2(value, { preserveQueryKeys });
     addRedactionCounters(inventory.counters, redacted.counters);
-    inventory.riskSignals.tokenLikeSubdomainLabels += redacted.counters.subdomainLabelsGeneralized;
+    inventory.riskSignals.unallowlistedSubdomainLabels += redacted.counters.subdomainLabelsGeneralized;
     if (EMAIL_LIKE.test(value)) inventory.riskSignals.emailLikeStrings += 1;
     inventory.riskSignals.tokenLikePathSegments += tokenLikePathSegments(value);
     if (redacted.value !== value) {
@@ -137,7 +139,7 @@ function tokenLikePathSegments(value: string): number {
 
 export type InventoryTotals = {
   reports: number;
-  changedReports: number;
+  reportsWithUrlOrNameChanges: number;
   totalUrlFields: number;
   changedUrlFields: number;
   counters: RedactionCounters;
@@ -149,17 +151,17 @@ export type InventoryTotals = {
 export function summarizeInventories(entries: ReportRemediationInventory[]): InventoryTotals {
   const totals: InventoryTotals = {
     reports: entries.length,
-    changedReports: 0,
+    reportsWithUrlOrNameChanges: 0,
     totalUrlFields: 0,
     changedUrlFields: 0,
     counters: emptyRedactionCounters(),
     cookieNames: { total: 0, wouldRedact: 0 },
     storageKeys: { total: 0, wouldRedact: 0 },
-    riskSignals: { emailLikeStrings: 0, tokenLikePathSegments: 0, tokenLikeSubdomainLabels: 0 }
+    riskSignals: { emailLikeStrings: 0, tokenLikePathSegments: 0, unallowlistedSubdomainLabels: 0 }
   };
   for (const entry of entries) {
     if (entry.changedUrlFields > 0 || entry.cookieNames.wouldRedact > 0 || entry.storageKeys.wouldRedact > 0) {
-      totals.changedReports += 1;
+      totals.reportsWithUrlOrNameChanges += 1;
     }
     totals.totalUrlFields += entry.totalUrlFields;
     totals.changedUrlFields += entry.changedUrlFields;
@@ -170,7 +172,7 @@ export function summarizeInventories(entries: ReportRemediationInventory[]): Inv
     totals.storageKeys.wouldRedact += entry.storageKeys.wouldRedact;
     totals.riskSignals.emailLikeStrings += entry.riskSignals.emailLikeStrings;
     totals.riskSignals.tokenLikePathSegments += entry.riskSignals.tokenLikePathSegments;
-    totals.riskSignals.tokenLikeSubdomainLabels += entry.riskSignals.tokenLikeSubdomainLabels;
+    totals.riskSignals.unallowlistedSubdomainLabels += entry.riskSignals.unallowlistedSubdomainLabels;
   }
   return totals;
 }

@@ -65,6 +65,7 @@ import {
 import { consentChoiceLabel } from "@/lib/consent-interaction";
 import { requestLogToCsv } from "@/lib/csv-export";
 import { displayableScreenshot } from "@/lib/report-insights";
+import { buildReportHeadline } from "@/lib/report-headline";
 import { committedReportLocation } from "@/lib/report-locator";
 import { isScanRuntimeHealth, type ScanRuntimeHealth } from "@/lib/scan-runtime-health";
 import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/lib/run-mode-copy";
@@ -180,13 +181,16 @@ type SiteBehaviorAppProps = {
   initialError?: string | null;
   initialLoading?: boolean;
   corpusHighlights?: CorpusHighlights | null;
+  /** Evidence-first permalink: render the report directly, without the scanner workbench. */
+  reportPage?: boolean;
 };
 
 export function SiteBehaviorApp({
   initialLoaded = null,
   initialError = null,
   initialLoading = false,
-  corpusHighlights = null
+  corpusHighlights = null,
+  reportPage = false
 }: SiteBehaviorAppProps) {
   const [form, setForm] = useState<ScanFormState>(initialForm);
   // The shell's report state is the version-independent LoadedReport (RFC
@@ -215,6 +219,7 @@ export function SiteBehaviorApp({
   const [urlNotice, setUrlNotice] = useState("");
 
   useEffect(() => {
+    if (reportPage) return;
     if (!LIVE_SCAN_ENABLED) return;
     if (OPEN_ACCESS_SCANNER) return;
 
@@ -226,7 +231,15 @@ export function SiteBehaviorApp({
     } catch {
       /* localStorage unavailable */
     }
-  }, []);
+  }, [reportPage]);
+
+  useEffect(() => {
+    if (reportPage || typeof window === "undefined") return;
+    const requested = new URLSearchParams(window.location.search).get("url");
+    if (!requested) return;
+    const normalized = normalizeScanUrl(requested);
+    if (normalized) setForm((current) => ({ ...current, url: normalized }));
+  }, [reportPage]);
 
   useEffect(() => {
     setLoaded(initialLoaded);
@@ -243,6 +256,7 @@ export function SiteBehaviorApp({
   }, [initialLoading]);
 
   useEffect(() => {
+    if (reportPage) return;
     if (!STATIC_EXPORT) return;
 
     let cancelled = false;
@@ -269,9 +283,10 @@ export function SiteBehaviorApp({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reportPage]);
 
   useEffect(() => {
+    if (reportPage) return;
     if (!LIVE_SCAN_ENABLED) return;
 
     let cancelled = false;
@@ -308,7 +323,7 @@ export function SiteBehaviorApp({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reportPage]);
 
   const gpcComparisonEnabled = !STATIC_EXPORT || scannerHealth?.capabilities?.gpcComparison === true;
   const shieldsComparisonEnabled = !STATIC_EXPORT || scannerHealth?.capabilities?.shieldsComparison === true;
@@ -317,7 +332,7 @@ export function SiteBehaviorApp({
   // A live-scanned report only has a shareable permalink when the scan API serves
   // its own report pages (the full Node app / container). The JSON-only Browser
   // Run Worker does not, so its reports stay download-only (no broken Share link).
-  const liveApiServesReportPages = scannerHealth?.capabilities?.savedReportPages === true;
+  const liveApiServesReportPages = reportPage || scannerHealth?.capabilities?.savedReportPages === true;
   const scannerRequiresAccessKey =
     LIVE_SCAN_ENABLED && !openAccessScanner && (!STATIC_LIVE_SCAN_ENABLED || scannerHealth?.authenticated === true);
   const scannerUnavailable = LIVE_SCAN_ENABLED && Boolean(scannerHealthError);
@@ -477,7 +492,9 @@ export function SiteBehaviorApp({
 
   function useExample(url: string) {
     setForm((current) => ({ ...current, url: `https://${url}` }));
-    void runScan(`https://${url}`);
+    // Example chips are suggestions, not paid browser work. Prefill the form
+    // and let the visitor deliberately submit after reviewing the mode/device.
+    window.requestAnimationFrame(() => document.getElementById("url")?.focus());
   }
 
   function updateAccessKey(accessKey: string) {
@@ -582,6 +599,7 @@ export function SiteBehaviorApp({
     loaded && primaryRun && !loading && !error
       ? `Scan report ready for ${primaryRun.domain}: ${plural(primaryRun.counts.totalRequests, "request")} observed.`
       : "";
+  const permalinkHeadline = reportPage && reportView ? buildReportHeadline(reportView) : null;
   const statusLabel = liveScannerStatusLabel(scannerHealth, scannerHealthError);
   const statusClassName = `status-pill${STATIC_EXPORT ? " status-pill-static" : ""}${
     LIVE_SCAN_ENABLED ? " status-pill-live" : ""
@@ -781,22 +799,35 @@ export function SiteBehaviorApp({
       <a className="skip-link" href="#report">
         Skip to results
       </a>
-      <main className="app-shell">
+      <main className={`app-shell${reportPage ? " report-page-shell" : ""}`}>
         <header className="topbar">
           <a className="brand" href={staticAssetPath("/")} aria-label="Site Behavior Lab home">
             <span className="brand-mark">
               <FlaskConical size={22} aria-hidden="true" />
             </span>
             <div>
-              <p className="eyebrow">Site Behavior Lab</p>
-              <h1>See what a site does, not just what it says.</h1>
+              <p className="eyebrow">{reportPage ? "Site Behavior Lab · Evidence" : "Site Behavior Lab"}</p>
+              <h1>
+                {permalinkHeadline
+                  ? `${permalinkHeadline.domain}: ${permalinkHeadline.headline}`
+                  : reportPage
+                    ? "Saved site behavior report"
+                    : "See what a site does, not just what it says."}
+              </h1>
             </div>
           </a>
           <div className="topbar-actions">
-            <span className={statusClassName}>
-              <span className="status-dot" />
-              {statusLabel}
-            </span>
+            {reportPage ? (
+              <>
+                <a className="topbar-link" href={staticAssetPath("/directory/")}>Directory</a>
+                <a className="secondary-button" href={staticAssetPath("/")}>Scan a site</a>
+              </>
+            ) : (
+              <span className={statusClassName}>
+                <span className="status-dot" />
+                {statusLabel}
+              </span>
+            )}
             <ThemeToggle />
           </div>
         </header>
@@ -805,26 +836,28 @@ export function SiteBehaviorApp({
           <CorpusHero highlights={corpusHighlights} />
         )}
 
-        <section className="scan-workbench">
-          {LIVE_SCAN_ENABLED ? (
-            scanForm
-          ) : (
-            <StaticPublicPanel onUploadReport={loadReportFile} onUploadError={setError} />
-          )}
+        {!reportPage && (
+          <section className="scan-workbench" id="scan">
+            {LIVE_SCAN_ENABLED ? (
+              scanForm
+            ) : (
+              <StaticPublicPanel onUploadReport={loadReportFile} onUploadError={setError} />
+            )}
 
-          <aside className="method-card">
-            <div className="method-icon">
-              <Shield size={20} aria-hidden="true" />
-            </div>
-            <div>
-              <h2>Evidence, then interpretation</h2>
-              <p>
-                Every report records the exact scan conditions, then the request log, cookies, storage keys,
-                known-service labels, and instrumentation notes. Signals describe what was observed, not a verdict.
-              </p>
-            </div>
-          </aside>
-        </section>
+            <aside className="method-card">
+              <div className="method-icon">
+                <Shield size={20} aria-hidden="true" />
+              </div>
+              <div>
+                <h2>Evidence, then interpretation</h2>
+                <p>
+                  Every report records the exact scan conditions, then the request log, cookies, storage keys,
+                  known-service labels, and instrumentation notes. Signals describe what was observed, not a verdict.
+                </p>
+              </div>
+            </aside>
+          </section>
+        )}
 
         {error && (
           <section className="error-banner" role="alert">
@@ -1039,7 +1072,7 @@ export function SiteBehaviorApp({
                             : ""}
                           {displayedRun.conditions.trackerCatalog.version}
                           <br />
-                          {displayedRun.conditions.trackerCatalog.entries.toLocaleString()} entries
+                          {displayedRun.conditions.trackerCatalog.entries.toLocaleString("en-US")} entries
                         </dd>
                       </div>
                     )}
@@ -1049,8 +1082,8 @@ export function SiteBehaviorApp({
                         <dd>
                           {displayedRun.conditions.adblockLists.source}
                           <br />
-                          {displayedRun.conditions.adblockLists.lists.toLocaleString()} lists · fetched{" "}
-                          {new Date(displayedRun.conditions.adblockLists.fetchedAt).toLocaleDateString()}
+                          {displayedRun.conditions.adblockLists.lists.toLocaleString("en-US")} lists · fetched{" "}
+                          {new Date(displayedRun.conditions.adblockLists.fetchedAt).toLocaleDateString("en-US", { timeZone: "UTC" })}
                         </dd>
                       </div>
                     )}
@@ -1132,7 +1165,7 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
         <div className="corpus-hero-cats">
           {highlights.topCategories.map((category) => (
             <div className="corpus-hero-cat" key={category.label}>
-              <span className="corpus-hero-cat-num">{category.medianTrackers.toLocaleString()}</span>
+              <span className="corpus-hero-cat-num">{category.medianTrackers.toLocaleString("en-US")}</span>
               <span className="corpus-hero-cat-label">{category.label}</span>
             </div>
           ))}
@@ -1375,11 +1408,15 @@ function isStaticReportManifestEntry(value: unknown): value is StaticReportManif
   return (
     typeof entry.id === "string" &&
     typeof entry.title === "string" &&
+    typeof entry.headline === "string" &&
+    (entry.tone === "alarm" || entry.tone === "warn" || entry.tone === "info" || entry.tone === "calm") &&
     typeof entry.domain === "string" &&
     typeof entry.requestedUrl === "string" &&
     typeof entry.scannedAt === "string" &&
     (entry.reportType === "single" || entry.reportType === "comparison") &&
     (entry.device === "desktop" || entry.device === "mobile") &&
+    (entry.historyKey === undefined || typeof entry.historyKey === "string") &&
+    (entry.comparisonHistoryKey === undefined || typeof entry.comparisonHistoryKey === "string") &&
     metrics !== undefined &&
     typeof metrics.totalRequests === "number" &&
     typeof metrics.thirdPartyRequests === "number"

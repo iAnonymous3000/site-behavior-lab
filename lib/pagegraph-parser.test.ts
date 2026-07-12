@@ -39,7 +39,7 @@ const SAMPLE_GRAPHML = `<?xml version="1.0" encoding="UTF-8"?>
     </node>
     <edge id="e1" source="n1" target="n2">
       <data key="d0">request start</data>
-      <data key="d1">https://analytics.brave.test/collect?id=abc&amp;email=a%40b.test</data>
+      <data key="d1">https://google-analytics.com/collect?id=abc&amp;email=a%40b.test</data>
       <data key="d2">POST</data>
       <data key="d3">204</data>
       <data key="d4">xhr</data>
@@ -85,33 +85,17 @@ test("pageGraphGraphmlToScanResult produces a PageGraph-backed ScanResult", () =
     requestedUrl: "https://example.com/?token=secret",
     finalUrl: "https://example.com/",
     scannedAt: new Date(0).toISOString(),
-    trackerCatalog: {
-      source: "Brave test catalog",
-      version: "test",
-      region: "global",
-      entries: 1,
-      curatedOverrides: 0,
-      license: "internal"
-    },
-    trackerMatcher: (domain) =>
-      domain === "analytics.brave.test"
-        ? {
-            domain,
-            entity: "Brave Test Analytics",
-            category: "test analytics",
-            confidence: "curated"
-          }
-        : null
+    trackerMatcher: undefined
   });
 
   assert.equal(result.conditions.automation, "brave-pagegraph");
-  assert.equal(result.conditions.trackerCatalog.source, "Brave test catalog");
+  assert.equal(result.conditions.trackerCatalog.source, "Hand-curated service catalog");
   assert.equal(result.summary.totalRequests, 2);
   assert.equal(result.summary.thirdPartyRequests, 1);
   assert.equal(result.summary.knownTrackerRequests, 1);
-  assert.equal(result.requests[1].url, "https://analytics.brave.test/{seg}?id=&%5Bredacted%5D=");
+  assert.equal(result.requests[1].url, "https://google-analytics.com/{seg}?id=&%5Bredacted%5D=");
   assert.equal(result.requests[1].provenance?.scriptUrl, "https://example.com/{seg}");
-  assert.equal(result.requests[1].tracker?.entity, "Brave Test Analytics");
+  assert.equal(result.requests[1].tracker?.entity, "Google");
 });
 
 test("pageGraphUploadToScanResult infers the page URL from a root node without overrides", () => {
@@ -138,9 +122,9 @@ test("pageGraphUploadToScanResult warns when the page URL is only inferred from 
 });
 
 test("pageGraphUploadToScanResult honors an explicit page URL override", () => {
-  const result = pageGraphUploadToScanResult(SAMPLE_GRAPHML, { requestedUrl: "https://override.example/" });
+  const result = pageGraphUploadToScanResult(SAMPLE_GRAPHML, { requestedUrl: "https://override.example.com/" });
 
-  assert.equal(result.conditions.requestedUrl, "https://override.example/");
+  assert.equal(result.conditions.requestedUrl, "https://{label}.example.com/");
   assert.equal(
     result.warnings.some((warning) => warning.includes("inferred from the first observed URL")),
     false
@@ -172,23 +156,15 @@ test("pageGraphGraphmlToScanResult preserves real-schema provenance through the 
     requestedUrl: "https://example.com/?token=secret",
     finalUrl: "https://example.com/",
     scannedAt: new Date(0).toISOString(),
-    trackerMatcher: (domain) =>
-      domain === "tracker.example"
-        ? {
-            domain,
-            entity: "Tracker Fixture",
-            category: "test tracker",
-            confidence: "curated"
-          }
-        : null
+    trackerMatcher: undefined
   });
 
   assert.equal(result.summary.totalRequests, 2);
   assert.equal(result.summary.knownTrackerRequests, 1);
-  assert.equal(result.requests[1].method, "UNKNOWN");
-  assert.equal(result.requests[1].url, "https://tracker.example/{seg}?cid=&%5Bredacted%5D=");
-  assert.equal(result.requests[1].provenance?.scriptDomain, "tags.example.net");
-  assert.equal(result.requests[1].provenance?.injectedByDomain, "loader.example");
+  assert.equal(result.requests[1].method, "OTHER");
+  assert.equal(result.requests[1].url, "https://google-analytics.com/{seg}?cid=&%5Bredacted%5D=");
+  assert.equal(result.requests[1].provenance?.scriptDomain, "{label}.example.net");
+  assert.equal(result.requests[1].provenance?.injectedByDomain, "{label}.example.net");
   assert.equal(result.warnings.some((warning) => warning.includes("not script-to-request causality")), false);
 });
 

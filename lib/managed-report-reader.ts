@@ -104,6 +104,14 @@ export function readManagedReport(input: {
 
   const provenance = matchProvenance(publicReport, sidecar, input.reportId);
   if (provenance.status !== "matched") return provenanceFailure(provenance);
+  if (
+    reportRead.stored.schemaVersion === 2 &&
+    embeddedRedactionVersions(reportRead.stored).some(
+      (version) => version !== provenance.entry.redactionVersion
+    )
+  ) {
+    return failure("redaction-version-mismatch");
+  }
   if (!input.retention) return failure("missing-retention-metadata");
   if (!isManagedReportClock(input.retention)) return failure("malformed-retention-metadata");
   if (
@@ -120,6 +128,12 @@ export function readManagedReport(input: {
     provenance: provenance.entry,
     retention: input.retention
   };
+}
+
+function embeddedRedactionVersions(stored: Extract<StoredScanReport, { schemaVersion: 2 }>): number[] {
+  return stored.report.reportType === "single"
+    ? [stored.report.run.privacy.redactionVersion]
+    : [stored.report.baseline.privacy.redactionVersion, stored.report.variant.privacy.redactionVersion];
 }
 
 function provenanceFailure(match: Exclude<ProvenanceMatch, { status: "matched" }>): ManagedReportReadResult {

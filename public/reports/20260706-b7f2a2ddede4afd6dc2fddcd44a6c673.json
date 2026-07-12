@@ -81,8 +81,8 @@
       },
       {
         "id": 2,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -93,8 +93,8 @@
       },
       {
         "id": 3,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -105,8 +105,8 @@
       },
       {
         "id": 4,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -117,8 +117,8 @@
       },
       {
         "id": 5,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -129,8 +129,8 @@
       },
       {
         "id": 6,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -141,8 +141,8 @@
       },
       {
         "id": 7,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -165,8 +165,8 @@
       },
       {
         "id": 9,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -177,8 +177,8 @@
       },
       {
         "id": 10,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -189,8 +189,8 @@
       },
       {
         "id": 11,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -225,8 +225,8 @@
       },
       {
         "id": 14,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -261,8 +261,8 @@
       },
       {
         "id": 17,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -285,8 +285,8 @@
       },
       {
         "id": 19,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -309,8 +309,8 @@
       },
       {
         "id": 21,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -321,8 +321,8 @@
       },
       {
         "id": 22,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -333,8 +333,8 @@
       },
       {
         "id": 23,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -345,8 +345,8 @@
       },
       {
         "id": 24,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -357,8 +357,8 @@
       },
       {
         "id": 25,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -369,8 +369,8 @@
       },
       {
         "id": 26,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -381,8 +381,8 @@
       },
       {
         "id": 27,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -393,8 +393,8 @@
       },
       {
         "id": 28,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -405,8 +405,8 @@
       },
       {
         "id": 29,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -417,8 +417,8 @@
       },
       {
         "id": 30,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -429,8 +429,8 @@
       },
       {
         "id": 31,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -441,8 +441,8 @@
       },
       {
         "id": 32,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -453,8 +453,8 @@
       },
       {
         "id": 33,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -465,8 +465,8 @@
       },
       {
         "id": 34,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -477,8 +477,8 @@
       },
       {
         "id": 35,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -489,8 +489,8 @@
       },
       {
         "id": 36,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -501,8 +501,8 @@
       },
       {
         "id": 37,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -513,8 +513,8 @@
       },
       {
         "id": 38,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -525,8 +525,8 @@
       },
       {
         "id": 39,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -537,8 +537,8 @@
       },
       {
         "id": 40,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -561,8 +561,8 @@
       },
       {
         "id": 42,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -573,8 +573,8 @@
       },
       {
         "id": 43,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -585,8 +585,8 @@
       },
       {
         "id": 44,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -597,8 +597,8 @@
       },
       {
         "id": 45,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -609,8 +609,8 @@
       },
       {
         "id": 46,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -621,8 +621,8 @@
       },
       {
         "id": 47,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -633,8 +633,8 @@
       },
       {
         "id": 48,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -645,8 +645,8 @@
       },
       {
         "id": 49,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -657,8 +657,8 @@
       },
       {
         "id": 50,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -669,8 +669,8 @@
       },
       {
         "id": 51,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -681,8 +681,8 @@
       },
       {
         "id": 52,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -693,8 +693,8 @@
       },
       {
         "id": 53,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -705,8 +705,8 @@
       },
       {
         "id": 54,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -717,8 +717,8 @@
       },
       {
         "id": 55,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -753,8 +753,8 @@
       },
       {
         "id": 58,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -777,8 +777,8 @@
       },
       {
         "id": 60,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -789,8 +789,8 @@
       },
       {
         "id": 61,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -801,8 +801,8 @@
       },
       {
         "id": 62,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -813,8 +813,8 @@
       },
       {
         "id": 63,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -825,8 +825,8 @@
       },
       {
         "id": 64,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -837,8 +837,8 @@
       },
       {
         "id": 65,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -849,8 +849,8 @@
       },
       {
         "id": 66,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -861,8 +861,8 @@
       },
       {
         "id": 67,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -873,8 +873,8 @@
       },
       {
         "id": 68,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -885,8 +885,8 @@
       },
       {
         "id": 69,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -897,8 +897,8 @@
       },
       {
         "id": 70,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -909,8 +909,8 @@
       },
       {
         "id": 71,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -921,8 +921,8 @@
       },
       {
         "id": 72,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -933,8 +933,8 @@
       },
       {
         "id": 73,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -945,8 +945,8 @@
       },
       {
         "id": 74,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -957,8 +957,8 @@
       },
       {
         "id": 75,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -969,8 +969,8 @@
       },
       {
         "id": 76,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -981,8 +981,8 @@
       },
       {
         "id": 77,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -993,8 +993,8 @@
       },
       {
         "id": 78,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1005,8 +1005,8 @@
       },
       {
         "id": 79,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1017,8 +1017,8 @@
       },
       {
         "id": 80,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1029,8 +1029,8 @@
       },
       {
         "id": 81,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1041,8 +1041,8 @@
       },
       {
         "id": 82,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1053,8 +1053,8 @@
       },
       {
         "id": 83,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1065,8 +1065,8 @@
       },
       {
         "id": 84,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1077,8 +1077,8 @@
       },
       {
         "id": 85,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1089,8 +1089,8 @@
       },
       {
         "id": 86,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1101,8 +1101,8 @@
       },
       {
         "id": 87,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1113,8 +1113,8 @@
       },
       {
         "id": 88,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1125,8 +1125,8 @@
       },
       {
         "id": 89,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1197,7 +1197,7 @@
       },
       {
         "id": 95,
-        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&size=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&width=&type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&size=&width=&type=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -1209,8 +1209,8 @@
       },
       {
         "id": 96,
-        "url": "https://appleid.cdn-apple.com/{seg}/static/{seg}/{seg}/{n}/{seg}",
-        "domain": "appleid.cdn-apple.com",
+        "url": "https://{label}.cdn-apple.com/{seg}/static/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.cdn-apple.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1233,7 +1233,7 @@
       },
       {
         "id": 98,
-        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&size=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&width=&type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&size=&width=&type=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -1245,8 +1245,8 @@
       },
       {
         "id": 99,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1281,8 +1281,8 @@
       },
       {
         "id": 102,
-        "url": "https://play.google.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&format=",
-        "domain": "play.google.com",
+        "url": "https://{label}.google.com/{seg}?%5Bredacted%5D=&format=",
+        "domain": "{label}.google.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -1294,7 +1294,7 @@
     ],
     "domains": [
       {
-        "domain": "abs.twimg.com",
+        "domain": "{label}.twimg.com",
         "requests": 83,
         "thirdParty": true,
         "tracker": null,
@@ -1325,7 +1325,7 @@
         ]
       },
       {
-        "domain": "appleid.cdn-apple.com",
+        "domain": "{label}.cdn-apple.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1338,7 +1338,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1351,7 +1351,7 @@
         ]
       },
       {
-        "domain": "play.google.com",
+        "domain": "{label}.google.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1463,12 +1463,12 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "canvas.measureText",
-        "count": 301
-      },
-      {
         "api": "canvas.getImageData",
         "count": 23
+      },
+      {
+        "api": "canvas.measureText",
+        "count": 301
       },
       {
         "api": "canvas.toDataURL",
@@ -1479,20 +1479,20 @@
         "count": 2
       },
       {
-        "api": "webrtc.RTCPeerConnection.createDataChannel",
-        "count": 2
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.createOffer",
-        "count": 2
-      },
-      {
         "api": "webgl.readPixels",
         "count": 1
       },
       {
         "api": "webrtc.RTCPeerConnection",
         "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 2
       }
     ],
     "fingerprintDetections": [
@@ -1530,7 +1530,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://abs.twimg.com/",
+            "https://{label}.twimg.com/",
             "https://accounts.google.com/"
           ],
           "totalListenerCalls": 37
@@ -1566,7 +1566,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://abs.twimg.com/",
+            "https://{label}.twimg.com/",
             "https://accounts.google.com/"
           ],
           "totalListenerCalls": 108
@@ -1684,8 +1684,8 @@
       },
       {
         "id": 2,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1696,8 +1696,8 @@
       },
       {
         "id": 3,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1708,8 +1708,8 @@
       },
       {
         "id": 4,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1720,8 +1720,8 @@
       },
       {
         "id": 5,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1732,8 +1732,8 @@
       },
       {
         "id": 6,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1744,8 +1744,8 @@
       },
       {
         "id": 7,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1756,8 +1756,8 @@
       },
       {
         "id": 8,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1768,8 +1768,8 @@
       },
       {
         "id": 9,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1780,8 +1780,8 @@
       },
       {
         "id": 10,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1792,8 +1792,8 @@
       },
       {
         "id": 11,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1816,8 +1816,8 @@
       },
       {
         "id": 13,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -1828,8 +1828,8 @@
       },
       {
         "id": 14,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -1840,8 +1840,8 @@
       },
       {
         "id": 15,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1852,8 +1852,8 @@
       },
       {
         "id": 16,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1864,8 +1864,8 @@
       },
       {
         "id": 17,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1876,8 +1876,8 @@
       },
       {
         "id": 18,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1888,8 +1888,8 @@
       },
       {
         "id": 19,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1900,8 +1900,8 @@
       },
       {
         "id": 20,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1912,8 +1912,8 @@
       },
       {
         "id": 21,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1924,8 +1924,8 @@
       },
       {
         "id": 22,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1936,8 +1936,8 @@
       },
       {
         "id": 23,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1948,8 +1948,8 @@
       },
       {
         "id": 24,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1960,8 +1960,8 @@
       },
       {
         "id": 25,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1972,8 +1972,8 @@
       },
       {
         "id": 26,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1984,8 +1984,8 @@
       },
       {
         "id": 27,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1996,8 +1996,8 @@
       },
       {
         "id": 28,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2008,8 +2008,8 @@
       },
       {
         "id": 29,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2020,8 +2020,8 @@
       },
       {
         "id": 30,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2032,8 +2032,8 @@
       },
       {
         "id": 31,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2044,8 +2044,8 @@
       },
       {
         "id": 32,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2056,8 +2056,8 @@
       },
       {
         "id": 33,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2068,8 +2068,8 @@
       },
       {
         "id": 34,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2080,8 +2080,8 @@
       },
       {
         "id": 35,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2092,8 +2092,8 @@
       },
       {
         "id": 36,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2104,8 +2104,8 @@
       },
       {
         "id": 37,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2116,8 +2116,8 @@
       },
       {
         "id": 38,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2128,8 +2128,8 @@
       },
       {
         "id": 39,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2140,8 +2140,8 @@
       },
       {
         "id": 40,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2164,8 +2164,8 @@
       },
       {
         "id": 42,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2176,8 +2176,8 @@
       },
       {
         "id": 43,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2188,8 +2188,8 @@
       },
       {
         "id": 44,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2200,8 +2200,8 @@
       },
       {
         "id": 45,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2212,8 +2212,8 @@
       },
       {
         "id": 46,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2224,8 +2224,8 @@
       },
       {
         "id": 47,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2236,8 +2236,8 @@
       },
       {
         "id": 48,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2248,8 +2248,8 @@
       },
       {
         "id": 49,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2260,8 +2260,8 @@
       },
       {
         "id": 50,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2272,8 +2272,8 @@
       },
       {
         "id": 51,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2284,8 +2284,8 @@
       },
       {
         "id": 52,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2296,8 +2296,8 @@
       },
       {
         "id": 53,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2308,8 +2308,8 @@
       },
       {
         "id": 54,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2320,8 +2320,8 @@
       },
       {
         "id": 55,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2356,8 +2356,8 @@
       },
       {
         "id": 59,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2368,8 +2368,8 @@
       },
       {
         "id": 60,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2380,8 +2380,8 @@
       },
       {
         "id": 61,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2392,8 +2392,8 @@
       },
       {
         "id": 62,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2404,8 +2404,8 @@
       },
       {
         "id": 63,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2416,8 +2416,8 @@
       },
       {
         "id": 64,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2428,8 +2428,8 @@
       },
       {
         "id": 65,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2440,8 +2440,8 @@
       },
       {
         "id": 66,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2452,8 +2452,8 @@
       },
       {
         "id": 67,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2464,8 +2464,8 @@
       },
       {
         "id": 68,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2476,8 +2476,8 @@
       },
       {
         "id": 69,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2488,8 +2488,8 @@
       },
       {
         "id": 70,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2500,8 +2500,8 @@
       },
       {
         "id": 71,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2512,8 +2512,8 @@
       },
       {
         "id": 72,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2524,8 +2524,8 @@
       },
       {
         "id": 73,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2536,8 +2536,8 @@
       },
       {
         "id": 74,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2548,8 +2548,8 @@
       },
       {
         "id": 75,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2560,8 +2560,8 @@
       },
       {
         "id": 76,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2572,8 +2572,8 @@
       },
       {
         "id": 77,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2584,8 +2584,8 @@
       },
       {
         "id": 78,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2596,8 +2596,8 @@
       },
       {
         "id": 79,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2608,8 +2608,8 @@
       },
       {
         "id": 80,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2620,8 +2620,8 @@
       },
       {
         "id": 81,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2632,8 +2632,8 @@
       },
       {
         "id": 82,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2644,8 +2644,8 @@
       },
       {
         "id": 83,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2656,8 +2656,8 @@
       },
       {
         "id": 84,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2668,8 +2668,8 @@
       },
       {
         "id": 85,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2680,8 +2680,8 @@
       },
       {
         "id": 86,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2692,8 +2692,8 @@
       },
       {
         "id": 87,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2704,8 +2704,8 @@
       },
       {
         "id": 88,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2716,8 +2716,8 @@
       },
       {
         "id": 89,
-        "url": "https://abs.twimg.com/{seg}/{seg}/{seg}",
-        "domain": "abs.twimg.com",
+        "url": "https://{label}.twimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.twimg.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2764,8 +2764,8 @@
       },
       {
         "id": 94,
-        "url": "https://appleid.cdn-apple.com/{seg}/static/{seg}/{seg}/{n}/{seg}",
-        "domain": "appleid.cdn-apple.com",
+        "url": "https://{label}.cdn-apple.com/{seg}/static/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.cdn-apple.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2800,7 +2800,7 @@
       },
       {
         "id": 97,
-        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&size=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&width=&type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&size=&width=&type=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -2812,8 +2812,8 @@
       },
       {
         "id": 98,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2825,7 +2825,7 @@
     ],
     "domains": [
       {
-        "domain": "abs.twimg.com",
+        "domain": "{label}.twimg.com",
         "requests": 83,
         "thirdParty": true,
         "tracker": null,
@@ -2856,7 +2856,7 @@
         ]
       },
       {
-        "domain": "appleid.cdn-apple.com",
+        "domain": "{label}.cdn-apple.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2869,7 +2869,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2982,12 +2982,12 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "canvas.measureText",
-        "count": 301
-      },
-      {
         "api": "canvas.getImageData",
         "count": 23
+      },
+      {
+        "api": "canvas.measureText",
+        "count": 301
       },
       {
         "api": "canvas.toDataURL",
@@ -2998,20 +2998,20 @@
         "count": 2
       },
       {
-        "api": "webrtc.RTCPeerConnection.createDataChannel",
-        "count": 2
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.createOffer",
-        "count": 2
-      },
-      {
         "api": "webgl.readPixels",
         "count": 1
       },
       {
         "api": "webrtc.RTCPeerConnection",
         "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 2
       }
     ],
     "fingerprintDetections": [
@@ -3049,7 +3049,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://abs.twimg.com/",
+            "https://{label}.twimg.com/",
             "https://accounts.google.com/"
           ],
           "totalListenerCalls": 48
@@ -3085,7 +3085,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://abs.twimg.com/",
+            "https://{label}.twimg.com/",
             "https://accounts.google.com/"
           ],
           "totalListenerCalls": 133
@@ -3178,7 +3178,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "play.google.com",
+        "domain": "{label}.google.com",
         "requests": 1,
         "tracker": null
       }

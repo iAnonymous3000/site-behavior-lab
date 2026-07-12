@@ -23,7 +23,7 @@
       "totalRequests": 109,
       "thirdPartyRequests": 73,
       "knownTrackerRequests": 8,
-      "thirdPartyDomains": 11,
+      "thirdPartyDomains": 10,
       "cookies": 9,
       "thirdPartyCookies": 5,
       "storageEntries": 0,
@@ -206,8 +206,8 @@
       },
       {
         "id": 12,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -422,8 +422,8 @@
       },
       {
         "id": 30,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -434,7 +434,7 @@
       },
       {
         "id": 31,
-        "url": "https://www.youtube.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.youtube.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "document",
@@ -446,8 +446,8 @@
       },
       {
         "id": 32,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -458,8 +458,8 @@
       },
       {
         "id": 33,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -470,8 +470,8 @@
       },
       {
         "id": 34,
-        "url": "https://a-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -482,8 +482,8 @@
       },
       {
         "id": 35,
-        "url": "https://a-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -494,8 +494,8 @@
       },
       {
         "id": 36,
-        "url": "https://a-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -506,8 +506,8 @@
       },
       {
         "id": 37,
-        "url": "https://a-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -518,8 +518,8 @@
       },
       {
         "id": 38,
-        "url": "https://a-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -578,8 +578,8 @@
       },
       {
         "id": 43,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -614,8 +614,8 @@
       },
       {
         "id": 46,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 302,
@@ -660,7 +660,7 @@
       },
       {
         "id": 49,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -677,8 +677,8 @@
       },
       {
         "id": 50,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -706,8 +706,8 @@
       },
       {
         "id": 52,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -718,8 +718,8 @@
       },
       {
         "id": 53,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -730,8 +730,8 @@
       },
       {
         "id": 54,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -742,8 +742,8 @@
       },
       {
         "id": 55,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -754,8 +754,8 @@
       },
       {
         "id": 56,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -766,8 +766,8 @@
       },
       {
         "id": 57,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -778,8 +778,8 @@
       },
       {
         "id": 58,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -790,8 +790,8 @@
       },
       {
         "id": 59,
-        "url": "https://i.ytimg.com/{seg}/{seg}/{seg}",
-        "domain": "i.ytimg.com",
+        "url": "https://{label}.ytimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ytimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -802,8 +802,8 @@
       },
       {
         "id": 60,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -814,8 +814,8 @@
       },
       {
         "id": 61,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -826,8 +826,8 @@
       },
       {
         "id": 62,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -838,8 +838,8 @@
       },
       {
         "id": 63,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -850,8 +850,8 @@
       },
       {
         "id": 64,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -862,8 +862,8 @@
       },
       {
         "id": 65,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -874,8 +874,8 @@
       },
       {
         "id": 66,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -886,8 +886,8 @@
       },
       {
         "id": 67,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -898,8 +898,8 @@
       },
       {
         "id": 68,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -910,8 +910,8 @@
       },
       {
         "id": 69,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -922,8 +922,8 @@
       },
       {
         "id": 70,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -934,8 +934,8 @@
       },
       {
         "id": 71,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -946,8 +946,8 @@
       },
       {
         "id": 72,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -958,8 +958,8 @@
       },
       {
         "id": 73,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -970,8 +970,8 @@
       },
       {
         "id": 74,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -982,8 +982,8 @@
       },
       {
         "id": 75,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -994,8 +994,8 @@
       },
       {
         "id": 76,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1006,8 +1006,8 @@
       },
       {
         "id": 77,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1018,8 +1018,8 @@
       },
       {
         "id": 78,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1030,8 +1030,8 @@
       },
       {
         "id": 79,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1042,8 +1042,8 @@
       },
       {
         "id": 80,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1126,8 +1126,8 @@
       },
       {
         "id": 87,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1138,8 +1138,8 @@
       },
       {
         "id": 88,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1150,8 +1150,8 @@
       },
       {
         "id": 89,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1186,8 +1186,8 @@
       },
       {
         "id": 92,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1198,8 +1198,8 @@
       },
       {
         "id": 93,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1210,8 +1210,8 @@
       },
       {
         "id": 94,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1222,8 +1222,8 @@
       },
       {
         "id": 95,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1234,8 +1234,8 @@
       },
       {
         "id": 96,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1246,8 +1246,8 @@
       },
       {
         "id": 97,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -1294,7 +1294,7 @@
       },
       {
         "id": 101,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1335,7 +1335,7 @@
       },
       {
         "id": 104,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1352,7 +1352,7 @@
       },
       {
         "id": 105,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1369,7 +1369,7 @@
       },
       {
         "id": 106,
-        "url": "https://www.youtube.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.youtube.com/api/{seg}/{seg}?%5Bredacted%5D=&ver=&hl=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
@@ -1393,7 +1393,7 @@
       },
       {
         "id": 108,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1405,7 +1405,7 @@
       },
       {
         "id": 109,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1436,7 +1436,7 @@
         ]
       },
       {
-        "domain": "googleads.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -1491,8 +1491,8 @@
         ]
       },
       {
-        "domain": "a2-us.storyblok.com",
-        "requests": 41,
+        "domain": "{label}.storyblok.com",
+        "requests": 46,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -1524,19 +1524,6 @@
         ]
       },
       {
-        "domain": "a-us.storyblok.com",
-        "requests": 5,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
         "domain": "www.google.com",
         "requests": 3,
         "thirdParty": true,
@@ -1551,7 +1538,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1564,7 +1551,7 @@
         ]
       },
       {
-        "domain": "i.ytimg.com",
+        "domain": "{label}.ytimg.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1808,7 +1795,7 @@
       "totalRequests": 103,
       "thirdPartyRequests": 67,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 7,
+      "thirdPartyDomains": 6,
       "cookies": 7,
       "thirdPartyCookies": 5,
       "storageEntries": 0,
@@ -2178,8 +2165,8 @@
       },
       {
         "id": 29,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2190,8 +2177,8 @@
       },
       {
         "id": 30,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2202,7 +2189,7 @@
       },
       {
         "id": 31,
-        "url": "https://www.youtube.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.youtube.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "document",
@@ -2214,8 +2201,8 @@
       },
       {
         "id": 32,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2226,8 +2213,8 @@
       },
       {
         "id": 33,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2238,8 +2225,8 @@
       },
       {
         "id": 34,
-        "url": "https://a-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2250,8 +2237,8 @@
       },
       {
         "id": 35,
-        "url": "https://a-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2262,8 +2249,8 @@
       },
       {
         "id": 36,
-        "url": "https://a-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2274,8 +2261,8 @@
       },
       {
         "id": 37,
-        "url": "https://a-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2286,8 +2273,8 @@
       },
       {
         "id": 38,
-        "url": "https://a-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2346,8 +2333,8 @@
       },
       {
         "id": 43,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2394,8 +2381,8 @@
       },
       {
         "id": 49,
-        "url": "https://i.ytimg.com/{seg}/{seg}/{seg}",
-        "domain": "i.ytimg.com",
+        "url": "https://{label}.ytimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ytimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2418,8 +2405,8 @@
       },
       {
         "id": 51,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2430,8 +2417,8 @@
       },
       {
         "id": 52,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2442,8 +2429,8 @@
       },
       {
         "id": 53,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2454,8 +2441,8 @@
       },
       {
         "id": 54,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2466,8 +2453,8 @@
       },
       {
         "id": 55,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2478,8 +2465,8 @@
       },
       {
         "id": 56,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2490,8 +2477,8 @@
       },
       {
         "id": 57,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2502,8 +2489,8 @@
       },
       {
         "id": 58,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2514,8 +2501,8 @@
       },
       {
         "id": 59,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2526,8 +2513,8 @@
       },
       {
         "id": 60,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2538,8 +2525,8 @@
       },
       {
         "id": 61,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2550,8 +2537,8 @@
       },
       {
         "id": 62,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2562,8 +2549,8 @@
       },
       {
         "id": 63,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2574,8 +2561,8 @@
       },
       {
         "id": 64,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2586,8 +2573,8 @@
       },
       {
         "id": 65,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2598,8 +2585,8 @@
       },
       {
         "id": 66,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2610,8 +2597,8 @@
       },
       {
         "id": 67,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2622,8 +2609,8 @@
       },
       {
         "id": 68,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2634,8 +2621,8 @@
       },
       {
         "id": 69,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2646,8 +2633,8 @@
       },
       {
         "id": 70,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2658,8 +2645,8 @@
       },
       {
         "id": 71,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2670,8 +2657,8 @@
       },
       {
         "id": 72,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2682,8 +2669,8 @@
       },
       {
         "id": 73,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2694,8 +2681,8 @@
       },
       {
         "id": 74,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2706,8 +2693,8 @@
       },
       {
         "id": 75,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2718,8 +2705,8 @@
       },
       {
         "id": 76,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2730,8 +2717,8 @@
       },
       {
         "id": 77,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2742,8 +2729,8 @@
       },
       {
         "id": 78,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2814,8 +2801,8 @@
       },
       {
         "id": 84,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2838,8 +2825,8 @@
       },
       {
         "id": 86,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2874,8 +2861,8 @@
       },
       {
         "id": 89,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2886,8 +2873,8 @@
       },
       {
         "id": 90,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2898,8 +2885,8 @@
       },
       {
         "id": 91,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2910,8 +2897,8 @@
       },
       {
         "id": 92,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2922,8 +2909,8 @@
       },
       {
         "id": 93,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": null,
@@ -2958,8 +2945,8 @@
       },
       {
         "id": 96,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2970,8 +2957,8 @@
       },
       {
         "id": 98,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2982,8 +2969,8 @@
       },
       {
         "id": 99,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -2994,8 +2981,8 @@
       },
       {
         "id": 100,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -3006,8 +2993,8 @@
       },
       {
         "id": 101,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -3018,8 +3005,8 @@
       },
       {
         "id": 102,
-        "url": "https://a2-us.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
-        "domain": "a2-us.storyblok.com",
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -3066,7 +3053,7 @@
       },
       {
         "id": 106,
-        "url": "https://www.youtube.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.youtube.com/api/{seg}/{seg}?%5Bredacted%5D=&ver=&hl=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
@@ -3091,8 +3078,8 @@
     ],
     "domains": [
       {
-        "domain": "a2-us.storyblok.com",
-        "requests": 45,
+        "domain": "{label}.storyblok.com",
+        "requests": 50,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -3122,20 +3109,7 @@
         ]
       },
       {
-        "domain": "a-us.storyblok.com",
-        "requests": 5,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3148,7 +3122,7 @@
         ]
       },
       {
-        "domain": "i.ytimg.com",
+        "domain": "{label}.ytimg.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3377,8 +3351,8 @@
       "delta": -8
     },
     "thirdPartyDomains": {
-      "before": 11,
-      "after": 7,
+      "before": 10,
+      "after": 6,
       "delta": -4
     },
     "cookies": {
@@ -3414,7 +3388,7 @@
         }
       },
       {
-        "domain": "googleads.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 2,
         "tracker": {
           "domain": "doubleclick.net",

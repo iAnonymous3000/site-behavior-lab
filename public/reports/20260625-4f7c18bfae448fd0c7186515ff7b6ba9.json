@@ -23,7 +23,7 @@
       "totalRequests": 51,
       "thirdPartyRequests": 37,
       "knownTrackerRequests": 25,
-      "thirdPartyDomains": 10,
+      "thirdPartyDomains": 7,
       "cookies": 10,
       "thirdPartyCookies": 3,
       "storageEntries": 0,
@@ -280,8 +280,8 @@
       },
       {
         "id": 14,
-        "url": "https://platform.linkedin.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "platform.linkedin.com",
+        "url": "https://{label}.linkedin.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.linkedin.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -491,8 +491,8 @@
       },
       {
         "id": 28,
-        "url": "https://li.protechts.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "li.protechts.net",
+        "url": "https://{label}.protechts.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.protechts.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -554,7 +554,7 @@
       },
       {
         "id": 32,
-        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&size=&%5Bredacted%5D=&%5Bredacted%5D=&type=&width=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&size=&type=&width=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -566,7 +566,7 @@
       },
       {
         "id": 33,
-        "url": "https://accounts.google.com/{seg}/status?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://accounts.google.com/{seg}/status?%5Bredacted%5D=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -578,8 +578,8 @@
       },
       {
         "id": 34,
-        "url": "https://client.protechts.net/{seg}/{seg}",
-        "domain": "client.protechts.net",
+        "url": "https://{label}.protechts.net/{seg}/{seg}",
+        "domain": "{label}.protechts.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -602,8 +602,8 @@
       },
       {
         "id": 36,
-        "url": "https://tzm.protechts.net/{seg}?%5Bredacted%5D=",
-        "domain": "tzm.protechts.net",
+        "url": "https://{label}.protechts.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.protechts.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -662,8 +662,8 @@
       },
       {
         "id": 41,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -710,8 +710,8 @@
       },
       {
         "id": 45,
-        "url": "https://fst-ec.perimeterx.net/?id=",
-        "domain": "fst-ec.perimeterx.net",
+        "url": "https://{label}.perimeterx.net/?id=",
+        "domain": "{label}.perimeterx.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -722,8 +722,8 @@
       },
       {
         "id": 46,
-        "url": "https://ift.px-cloud.net/{seg}?v=&%5Bredacted%5D=",
-        "domain": "ift.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}?v=&%5Bredacted%5D=",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -828,6 +828,21 @@
         ]
       },
       {
+        "domain": "{label}.protechts.net",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "xhr"
+        ]
+      },
+      {
         "domain": "accounts.google.com",
         "requests": 2,
         "thirdParty": true,
@@ -838,19 +853,6 @@
         ],
         "resourceTypes": [
           "document",
-          "xhr"
-        ]
-      },
-      {
-        "domain": "{label}.protechts.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
           "xhr"
         ]
       },
@@ -869,46 +871,7 @@
         ]
       },
       {
-        "domain": "li.protechts.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "client.protechts.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "tzm.protechts.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -921,7 +884,7 @@
         ]
       },
       {
-        "domain": "fst-ec.perimeterx.net",
+        "domain": "{label}.perimeterx.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -934,7 +897,7 @@
         ]
       },
       {
-        "domain": "ift.px-cloud.net",
+        "domain": "{label}.px-cloud.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -963,7 +926,7 @@
         ]
       },
       {
-        "domain": "platform.linkedin.com",
+        "domain": "{label}.linkedin.com",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -1081,6 +1044,10 @@
     "storage": [],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 2
+      },
+      {
         "api": "canvas.toDataURL",
         "count": 4
       },
@@ -1093,6 +1060,10 @@
         "count": 4
       },
       {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 2
+      },
+      {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
         "count": 4
       },
@@ -1103,14 +1074,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 4
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 2
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 2
       }
     ],
     "fingerprintDetections": [
@@ -1145,7 +1108,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://client.protechts.net/",
+            "https://{label}.protechts.net/",
             "https://static.licdn.com/"
           ],
           "totalListenerCalls": 18
@@ -1178,7 +1141,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://client.protechts.net/",
+            "https://{label}.protechts.net/",
             "https://static.licdn.com/"
           ],
           "totalListenerCalls": 72
@@ -1214,7 +1177,7 @@
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Blocked a request that could not be verified as public: https://ponf.linkedin.com/{seg}/{seg}",
+      "Blocked a request that could not be verified as public: https://{label}.linkedin.com/{seg}/{seg}",
       "The page did not reach network idle before the scan window ended."
     ]
   },
@@ -1737,7 +1700,7 @@
       },
       {
         "id": 32,
-        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&size=&%5Bredacted%5D=&%5Bredacted%5D=&type=&width=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&size=&type=&width=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -1749,7 +1712,7 @@
       },
       {
         "id": 33,
-        "url": "https://accounts.google.com/{seg}/status?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://accounts.google.com/{seg}/status?%5Bredacted%5D=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -1773,8 +1736,8 @@
       },
       {
         "id": 39,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1821,7 +1784,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1924,6 +1887,10 @@
     "storage": [],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 2
+      },
+      {
         "api": "canvas.toDataURL",
         "count": 4
       },
@@ -1936,6 +1903,10 @@
         "count": 4
       },
       {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 2
+      },
+      {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
         "count": 4
       },
@@ -1946,14 +1917,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 4
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 2
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 2
       }
     ],
     "fingerprintDetections": [
@@ -2047,7 +2010,7 @@
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-      "Blocked a request that could not be verified as public: https://ponf.linkedin.com/{seg}/{seg}"
+      "Blocked a request that could not be verified as public: https://{label}.linkedin.com/{seg}/{seg}"
     ]
   },
   "diff": {
@@ -2067,9 +2030,9 @@
       "delta": 0
     },
     "thirdPartyDomains": {
-      "before": 10,
+      "before": 7,
       "after": 3,
-      "delta": -7
+      "delta": -4
     },
     "cookies": {
       "before": 10,
@@ -2095,7 +2058,7 @@
     "removedDomains": [
       {
         "domain": "{label}.protechts.net",
-        "requests": 2,
+        "requests": 5,
         "tracker": null
       },
       {
@@ -2104,32 +2067,17 @@
         "tracker": null
       },
       {
-        "domain": "client.protechts.net",
+        "domain": "{label}.linkedin.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "fst-ec.perimeterx.net",
+        "domain": "{label}.perimeterx.net",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "ift.px-cloud.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "li.protechts.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "platform.linkedin.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "tzm.protechts.net",
+        "domain": "{label}.px-cloud.net",
         "requests": 1,
         "tracker": null
       }
@@ -2160,12 +2108,12 @@
     "Shields comparison runs should be collected under matched crawl conditions. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "No blocking: Blocked a request that could not be verified as public: https://ponf.linkedin.com/{seg}/{seg}",
+    "No blocking: Blocked a request that could not be verified as public: https://{label}.linkedin.com/{seg}/{seg}",
     "No blocking: The page did not reach network idle before the scan window ended.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-    "Brave-list blocking: Blocked a request that could not be verified as public: https://ponf.linkedin.com/{seg}/{seg}"
+    "Brave-list blocking: Blocked a request that could not be verified as public: https://{label}.linkedin.com/{seg}/{seg}"
   ],
   "share": {
     "id": "20260625-4f7c18bfae448fd0c7186515ff7b6ba9",

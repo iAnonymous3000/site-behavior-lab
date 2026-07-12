@@ -669,8 +669,8 @@
       },
       {
         "id": 51,
-        "url": "https://anon-stats.eff.org/{seg}",
-        "domain": "anon-stats.eff.org",
+        "url": "https://{label}.eff.org/{seg}",
+        "domain": "{label}.eff.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -699,7 +699,7 @@
         ]
       },
       {
-        "domain": "anon-stats.eff.org",
+        "domain": "{label}.eff.org",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -1469,7 +1469,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "anon-stats.eff.org",
+        "domain": "{label}.eff.org",
         "requests": 1,
         "tracker": null
       }

@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { computeSinceLastScan, formatDelta, type TemporalDeltaInput } from "./temporal-deltas";
+import {
+  comparisonHistoryPairingKey,
+  computeComparableSinceLastScan,
+  computeSinceLastScan,
+  formatDelta,
+  type TemporalDeltaInput
+} from "./temporal-deltas";
 
 function entry(overrides: Partial<TemporalDeltaInput> & { id: string }): TemporalDeltaInput {
   return {
@@ -139,4 +145,56 @@ test("route keys keep path case (paths are case-sensitive) while host case still
   ]);
   assert.equal(hostCase.size, 1);
   assert.equal(hostCase.get("host-lower")?.previousId, "host-upper");
+
+  // A slash inside a query value is data, not route presentation. Removing it
+  // would silently pair distinct requested subjects.
+  const querySlash = computeSinceLastScan([
+    entry({ id: "query-slash", scannedAt: "2026-06-20T00:00:00.000Z", requestedUrl: "https://shop.example/?next=a/", finalUrl: "https://shop.example/" }),
+    entry({ id: "query-no-slash", scannedAt: "2026-07-02T00:00:00.000Z", requestedUrl: "https://shop.example/?next=a", finalUrl: "https://shop.example/" })
+  ]);
+  assert.equal(querySlash.size, 0);
+});
+
+test("the separate passive-history key drives comparable-since-last without changing strict pairing", () => {
+  const identity = {
+    domain: "shop.example",
+    reportType: "comparison" as const,
+    comparisonType: "shields" as const,
+    requestedUrl: "https://shop.example/news",
+    finalUrl: "https://shop.example/news",
+    comparisonHistoryCohort: "passive-cohort-a"
+  };
+  const key = comparisonHistoryPairingKey(identity);
+  assert.match(key ?? "", /^comparison-history-key-v1\|/);
+
+  const deltas = computeComparableSinceLastScan([
+    {
+      id: "old",
+      scannedAt: "2026-06-20T00:00:00.000Z",
+      thirdPartyRequests: 20,
+      trackerRequests: 5,
+      comparisonHistoryKey: key
+    },
+    {
+      id: "new",
+      scannedAt: "2026-07-02T00:00:00.000Z",
+      thirdPartyRequests: 27,
+      trackerRequests: 3,
+      comparisonHistoryKey: key
+    },
+    {
+      id: "unknown",
+      scannedAt: "2026-07-03T00:00:00.000Z",
+      thirdPartyRequests: 999,
+      trackerRequests: 999,
+      comparisonHistoryKey: null
+    }
+  ]);
+  assert.deepEqual(deltas.get("new"), {
+    previousId: "old",
+    previousScannedAt: "2026-06-20T00:00:00.000Z",
+    thirdPartyRequests: 7,
+    trackerRequests: -2
+  });
+  assert.equal(comparisonHistoryPairingKey({ ...identity, comparisonHistoryCohort: null }), null);
 });

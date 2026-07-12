@@ -23,7 +23,7 @@
       "totalRequests": 189,
       "thirdPartyRequests": 26,
       "knownTrackerRequests": 19,
-      "thirdPartyDomains": 9,
+      "thirdPartyDomains": 8,
       "cookies": 34,
       "thirdPartyCookies": 2,
       "storageEntries": 12,
@@ -81,8 +81,8 @@
       },
       {
         "id": 2,
-        "url": "https://verified.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "verified.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://bfp.capitalone.com/{seg}",
-        "domain": "bfp.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -309,8 +309,8 @@
       },
       {
         "id": 21,
-        "url": "https://verified.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "verified.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -333,8 +333,8 @@
       },
       {
         "id": 23,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -357,8 +357,8 @@
       },
       {
         "id": 25,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -549,8 +549,8 @@
       },
       {
         "id": 41,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -561,8 +561,8 @@
       },
       {
         "id": 42,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -573,8 +573,8 @@
       },
       {
         "id": 43,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -585,8 +585,8 @@
       },
       {
         "id": 44,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -621,8 +621,8 @@
       },
       {
         "id": 47,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -633,8 +633,8 @@
       },
       {
         "id": 48,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -645,8 +645,8 @@
       },
       {
         "id": 49,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -657,8 +657,8 @@
       },
       {
         "id": 50,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -669,8 +669,8 @@
       },
       {
         "id": 51,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -681,8 +681,8 @@
       },
       {
         "id": 52,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -705,8 +705,8 @@
       },
       {
         "id": 54,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -722,8 +722,8 @@
       },
       {
         "id": 55,
-        "url": "https://bam.nr-data.net/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -943,8 +943,8 @@
       },
       {
         "id": 73,
-        "url": "https://bam.nr-data.net/{seg}/{seg}?%5Bredacted%5D=&type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{seg}?%5Bredacted%5D=&type=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -996,8 +996,8 @@
       },
       {
         "id": 77,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1025,8 +1025,8 @@
       },
       {
         "id": 79,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1037,8 +1037,8 @@
       },
       {
         "id": 80,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1049,8 +1049,8 @@
       },
       {
         "id": 81,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1061,8 +1061,8 @@
       },
       {
         "id": 82,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1085,8 +1085,8 @@
       },
       {
         "id": 84,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1097,8 +1097,8 @@
       },
       {
         "id": 85,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1121,8 +1121,8 @@
       },
       {
         "id": 87,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1133,8 +1133,8 @@
       },
       {
         "id": 88,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1145,8 +1145,8 @@
       },
       {
         "id": 89,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1157,8 +1157,8 @@
       },
       {
         "id": 90,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1181,8 +1181,8 @@
       },
       {
         "id": 92,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1193,8 +1193,8 @@
       },
       {
         "id": 93,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1217,8 +1217,8 @@
       },
       {
         "id": 95,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1229,8 +1229,8 @@
       },
       {
         "id": 96,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1241,8 +1241,8 @@
       },
       {
         "id": 97,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1253,8 +1253,8 @@
       },
       {
         "id": 98,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1265,8 +1265,8 @@
       },
       {
         "id": 99,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1277,8 +1277,8 @@
       },
       {
         "id": 100,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1289,8 +1289,8 @@
       },
       {
         "id": 101,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1301,8 +1301,8 @@
       },
       {
         "id": 102,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1337,8 +1337,8 @@
       },
       {
         "id": 105,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1361,8 +1361,8 @@
       },
       {
         "id": 107,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1385,8 +1385,8 @@
       },
       {
         "id": 109,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1397,8 +1397,8 @@
       },
       {
         "id": 110,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1409,8 +1409,8 @@
       },
       {
         "id": 111,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1421,8 +1421,8 @@
       },
       {
         "id": 112,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1433,8 +1433,8 @@
       },
       {
         "id": 113,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1445,8 +1445,8 @@
       },
       {
         "id": 114,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1457,8 +1457,8 @@
       },
       {
         "id": 115,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1469,8 +1469,8 @@
       },
       {
         "id": 116,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1481,8 +1481,8 @@
       },
       {
         "id": 117,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1493,8 +1493,8 @@
       },
       {
         "id": 118,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1505,8 +1505,8 @@
       },
       {
         "id": 119,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1529,8 +1529,8 @@
       },
       {
         "id": 121,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 302,
@@ -1563,8 +1563,8 @@
       },
       {
         "id": 123,
-        "url": "https://capitalone-resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1575,8 +1575,8 @@
       },
       {
         "id": 124,
-        "url": "https://potomac-clickstream.capitalone.com/{seg}/{seg}",
-        "domain": "potomac-clickstream.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1587,8 +1587,8 @@
       },
       {
         "id": 125,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1599,8 +1599,8 @@
       },
       {
         "id": 126,
-        "url": "https://dpm.demdex.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1616,8 +1616,8 @@
       },
       {
         "id": 127,
-        "url": "https://capitaloneservices.demdex.net/{seg}?%5Bredacted%5D=",
-        "domain": "capitaloneservices.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1633,8 +1633,8 @@
       },
       {
         "id": 128,
-        "url": "https://smetrics.capitalone.com/{seg}",
-        "domain": "smetrics.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1645,8 +1645,8 @@
       },
       {
         "id": 129,
-        "url": "https://cm.everesttech.net/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "cm.everesttech.net",
+        "url": "https://{label}.everesttech.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.everesttech.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1657,8 +1657,8 @@
       },
       {
         "id": 130,
-        "url": "https://capitalone-resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1681,8 +1681,8 @@
       },
       {
         "id": 132,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1693,8 +1693,8 @@
       },
       {
         "id": 133,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1705,8 +1705,8 @@
       },
       {
         "id": 134,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1717,8 +1717,8 @@
       },
       {
         "id": 135,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1729,8 +1729,8 @@
       },
       {
         "id": 136,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1741,8 +1741,8 @@
       },
       {
         "id": 137,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1753,8 +1753,8 @@
       },
       {
         "id": 138,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1765,8 +1765,8 @@
       },
       {
         "id": 139,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1777,8 +1777,8 @@
       },
       {
         "id": 140,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1789,8 +1789,8 @@
       },
       {
         "id": 141,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1801,8 +1801,8 @@
       },
       {
         "id": 142,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1813,8 +1813,8 @@
       },
       {
         "id": 143,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1825,8 +1825,8 @@
       },
       {
         "id": 144,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1837,8 +1837,8 @@
       },
       {
         "id": 145,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1849,8 +1849,8 @@
       },
       {
         "id": 146,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1861,8 +1861,8 @@
       },
       {
         "id": 147,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1873,8 +1873,8 @@
       },
       {
         "id": 148,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1885,8 +1885,8 @@
       },
       {
         "id": 149,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1897,8 +1897,8 @@
       },
       {
         "id": 150,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1909,8 +1909,8 @@
       },
       {
         "id": 151,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1921,8 +1921,8 @@
       },
       {
         "id": 152,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1933,8 +1933,8 @@
       },
       {
         "id": 153,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1945,8 +1945,8 @@
       },
       {
         "id": 154,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1957,8 +1957,8 @@
       },
       {
         "id": 155,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1969,8 +1969,8 @@
       },
       {
         "id": 156,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1981,8 +1981,8 @@
       },
       {
         "id": 157,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1993,8 +1993,8 @@
       },
       {
         "id": 158,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2005,8 +2005,8 @@
       },
       {
         "id": 159,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2017,8 +2017,8 @@
       },
       {
         "id": 160,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2029,8 +2029,8 @@
       },
       {
         "id": 161,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2041,8 +2041,8 @@
       },
       {
         "id": 162,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2053,8 +2053,8 @@
       },
       {
         "id": 163,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2065,8 +2065,8 @@
       },
       {
         "id": 164,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2077,8 +2077,8 @@
       },
       {
         "id": 165,
-        "url": "https://dpm.demdex.net/{seg}",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2094,8 +2094,8 @@
       },
       {
         "id": 166,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2106,8 +2106,8 @@
       },
       {
         "id": 167,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2118,8 +2118,8 @@
       },
       {
         "id": 168,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2130,8 +2130,8 @@
       },
       {
         "id": 169,
-        "url": "https://smetrics.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "smetrics.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2142,8 +2142,8 @@
       },
       {
         "id": 170,
-        "url": "https://capitalone-resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2154,8 +2154,8 @@
       },
       {
         "id": 171,
-        "url": "https://capitalone-resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2166,8 +2166,8 @@
       },
       {
         "id": 172,
-        "url": "https://capitalone-resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2178,7 +2178,7 @@
       },
       {
         "id": 173,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2195,7 +2195,7 @@
       },
       {
         "id": 174,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2212,8 +2212,8 @@
       },
       {
         "id": 175,
-        "url": "https://potomac-clickstream.capitalone.com/{seg}/{seg}",
-        "domain": "potomac-clickstream.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2224,8 +2224,8 @@
       },
       {
         "id": 176,
-        "url": "https://smetrics.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "smetrics.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2236,7 +2236,7 @@
       },
       {
         "id": 177,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2253,8 +2253,8 @@
       },
       {
         "id": 178,
-        "url": "https://potomac-clickstream.capitalone.com/{seg}/{seg}",
-        "domain": "potomac-clickstream.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2265,8 +2265,8 @@
       },
       {
         "id": 179,
-        "url": "https://smetrics.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "smetrics.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2277,7 +2277,7 @@
       },
       {
         "id": 180,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2294,8 +2294,8 @@
       },
       {
         "id": 181,
-        "url": "https://potomac-clickstream.capitalone.com/{seg}/{seg}",
-        "domain": "potomac-clickstream.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2306,8 +2306,8 @@
       },
       {
         "id": 182,
-        "url": "https://smetrics.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "smetrics.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": null,
@@ -2318,8 +2318,8 @@
       },
       {
         "id": 183,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2335,8 +2335,8 @@
       },
       {
         "id": 184,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2352,8 +2352,8 @@
       },
       {
         "id": 185,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2369,8 +2369,8 @@
       },
       {
         "id": 186,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2386,8 +2386,8 @@
       },
       {
         "id": 187,
-        "url": "https://bam.nr-data.net/{seg}/{seg}?%5Bredacted%5D=&type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{seg}?%5Bredacted%5D=&type=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2403,8 +2403,8 @@
       },
       {
         "id": 188,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2420,7 +2420,7 @@
       },
       {
         "id": 189,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2433,7 +2433,7 @@
     ],
     "domains": [
       {
-        "domain": "bam.nr-data.net",
+        "domain": "{label}.nr-data.net",
         "requests": 9,
         "thirdParty": true,
         "tracker": {
@@ -2449,6 +2449,27 @@
         "resourceTypes": [
           "xhr",
           "ping"
+        ]
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "document",
+          "image"
         ]
       },
       {
@@ -2470,27 +2491,7 @@
         ]
       },
       {
-        "domain": "dpm.demdex.net",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
-          "image"
-        ]
-      },
-      {
-        "domain": "js-agent.newrelic.com",
+        "domain": "{label}.newrelic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -2526,25 +2527,7 @@
         ]
       },
       {
-        "domain": "capitaloneservices.demdex.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "domain": "{label}.{label}.medallia.com",
         "requests": 5,
         "thirdParty": true,
         "tracker": null,
@@ -2558,7 +2541,7 @@
         ]
       },
       {
-        "domain": "cm.everesttech.net",
+        "domain": "{label}.everesttech.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2582,16 +2565,20 @@
         ]
       },
       {
-        "domain": "ecm.capitalone.com",
-        "requests": 72,
+        "domain": "{label}.capitalone.com",
+        "requests": 95,
         "thirdParty": false,
         "tracker": null,
-        "blockedByShields": false,
+        "blockedByShields": true,
         "statuses": [
           200
         ],
         "resourceTypes": [
-          "image"
+          "script",
+          "image",
+          "fetch",
+          "xhr",
+          "ping"
         ]
       },
       {
@@ -2613,74 +2600,6 @@
           "xhr",
           "image"
         ]
-      },
-      {
-        "domain": "onetms.capitalone.com",
-        "requests": 11,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "fetch"
-        ]
-      },
-      {
-        "domain": "smetrics.capitalone.com",
-        "requests": 5,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
-          "image"
-        ]
-      },
-      {
-        "domain": "potomac-clickstream.capitalone.com",
-        "requests": 4,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
-          "ping"
-        ]
-      },
-      {
-        "domain": "verified.capitalone.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "bfp.capitalone.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
       }
     ],
     "cookies": [
@@ -2696,7 +2615,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".dpm.demdex.net",
+        "domain": ".{label}.demdex.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2936,7 +2855,7 @@
       },
       {
         "name": "AWSALB",
-        "domain": "potomac-clickstream.capitalone.com",
+        "domain": "{label}.capitalone.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
@@ -2946,7 +2865,7 @@
       },
       {
         "name": "AWSALBCORS",
-        "domain": "potomac-clickstream.capitalone.com",
+        "domain": "{label}.capitalone.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2956,7 +2875,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "potomac-clickstream.capitalone.com",
+        "domain": "{label}.capitalone.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -2966,7 +2885,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "potomac-clickstream.capitalone.com",
+        "domain": "{label}.capitalone.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -3089,16 +3008,24 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "canvas.measureText",
-        "count": 91
-      },
-      {
         "api": "canvas.getImageData",
         "count": 17
       },
       {
+        "api": "canvas.measureText",
+        "count": 91
+      },
+      {
         "api": "canvas.toDataURL",
         "count": 5
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
       },
       {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
@@ -3111,14 +3038,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 2
-      },
-      {
-        "api": "webgl2.readPixels",
-        "count": 1
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -3162,7 +3081,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://verified.capitalone.com/"
+            "https://{label}.capitalone.com/"
           ],
           "totalListenerCalls": 4
         }
@@ -3189,7 +3108,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://verified.capitalone.com/"
+            "https://{label}.capitalone.com/"
           ],
           "totalListenerCalls": 11
         }
@@ -3221,8 +3140,8 @@
     ],
     "cnameCloaks": [
       {
-        "host": "smetrics.capitalone.com",
-        "cname": "capitalone.com.ssl.d1.sc.omtrdc.net",
+        "host": "{label}.capitalone.com",
+        "cname": "{label}.{label}.{label}.{label}.{label}.omtrdc.net",
         "tracker": {
           "domain": "omtrdc.net",
           "entity": "Adobe",
@@ -3267,7 +3186,7 @@
       "totalRequests": 187,
       "thirdPartyRequests": 24,
       "knownTrackerRequests": 17,
-      "thirdPartyDomains": 9,
+      "thirdPartyDomains": 8,
       "cookies": 34,
       "thirdPartyCookies": 2,
       "storageEntries": 12,
@@ -3325,8 +3244,8 @@
       },
       {
         "id": 2,
-        "url": "https://verified.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "verified.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3481,8 +3400,8 @@
       },
       {
         "id": 15,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3541,8 +3460,8 @@
       },
       {
         "id": 20,
-        "url": "https://bfp.capitalone.com/{seg}",
-        "domain": "bfp.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3553,8 +3472,8 @@
       },
       {
         "id": 21,
-        "url": "https://verified.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "verified.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3577,8 +3496,8 @@
       },
       {
         "id": 23,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3601,8 +3520,8 @@
       },
       {
         "id": 25,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3793,8 +3712,8 @@
       },
       {
         "id": 41,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3805,8 +3724,8 @@
       },
       {
         "id": 42,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3817,8 +3736,8 @@
       },
       {
         "id": 43,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3829,8 +3748,8 @@
       },
       {
         "id": 44,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3865,8 +3784,8 @@
       },
       {
         "id": 47,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3877,8 +3796,8 @@
       },
       {
         "id": 48,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3889,8 +3808,8 @@
       },
       {
         "id": 49,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3901,8 +3820,8 @@
       },
       {
         "id": 50,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3913,8 +3832,8 @@
       },
       {
         "id": 51,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3925,8 +3844,8 @@
       },
       {
         "id": 52,
-        "url": "https://onetms.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "onetms.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3949,8 +3868,8 @@
       },
       {
         "id": 54,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4170,8 +4089,8 @@
       },
       {
         "id": 72,
-        "url": "https://bam.nr-data.net/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -4235,8 +4154,8 @@
       },
       {
         "id": 77,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4247,8 +4166,8 @@
       },
       {
         "id": 78,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4259,8 +4178,8 @@
       },
       {
         "id": 79,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4271,8 +4190,8 @@
       },
       {
         "id": 80,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4295,8 +4214,8 @@
       },
       {
         "id": 82,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4307,8 +4226,8 @@
       },
       {
         "id": 83,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4331,8 +4250,8 @@
       },
       {
         "id": 85,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4343,8 +4262,8 @@
       },
       {
         "id": 86,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4355,8 +4274,8 @@
       },
       {
         "id": 87,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4367,8 +4286,8 @@
       },
       {
         "id": 88,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4391,8 +4310,8 @@
       },
       {
         "id": 90,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4403,8 +4322,8 @@
       },
       {
         "id": 91,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4427,8 +4346,8 @@
       },
       {
         "id": 93,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4439,8 +4358,8 @@
       },
       {
         "id": 94,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4451,8 +4370,8 @@
       },
       {
         "id": 95,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4463,8 +4382,8 @@
       },
       {
         "id": 96,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4475,8 +4394,8 @@
       },
       {
         "id": 97,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4487,8 +4406,8 @@
       },
       {
         "id": 98,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4499,8 +4418,8 @@
       },
       {
         "id": 99,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4511,8 +4430,8 @@
       },
       {
         "id": 100,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4547,8 +4466,8 @@
       },
       {
         "id": 103,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4571,8 +4490,8 @@
       },
       {
         "id": 105,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4595,8 +4514,8 @@
       },
       {
         "id": 107,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4607,8 +4526,8 @@
       },
       {
         "id": 108,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4619,8 +4538,8 @@
       },
       {
         "id": 109,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4631,8 +4550,8 @@
       },
       {
         "id": 110,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4643,8 +4562,8 @@
       },
       {
         "id": 111,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4655,8 +4574,8 @@
       },
       {
         "id": 112,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4667,8 +4586,8 @@
       },
       {
         "id": 113,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4679,8 +4598,8 @@
       },
       {
         "id": 114,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4691,8 +4610,8 @@
       },
       {
         "id": 115,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4703,8 +4622,8 @@
       },
       {
         "id": 116,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4715,8 +4634,8 @@
       },
       {
         "id": 117,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4739,8 +4658,8 @@
       },
       {
         "id": 119,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 302,
@@ -4773,8 +4692,8 @@
       },
       {
         "id": 121,
-        "url": "https://capitalone-resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4785,8 +4704,8 @@
       },
       {
         "id": 122,
-        "url": "https://potomac-clickstream.capitalone.com/{seg}/{seg}",
-        "domain": "potomac-clickstream.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -4797,8 +4716,8 @@
       },
       {
         "id": 123,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4809,8 +4728,8 @@
       },
       {
         "id": 124,
-        "url": "https://dpm.demdex.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4826,8 +4745,8 @@
       },
       {
         "id": 125,
-        "url": "https://capitaloneservices.demdex.net/{seg}?%5Bredacted%5D=",
-        "domain": "capitaloneservices.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -4843,8 +4762,8 @@
       },
       {
         "id": 126,
-        "url": "https://smetrics.capitalone.com/{seg}",
-        "domain": "smetrics.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4855,8 +4774,8 @@
       },
       {
         "id": 127,
-        "url": "https://cm.everesttech.net/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "cm.everesttech.net",
+        "url": "https://{label}.everesttech.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.everesttech.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -4867,8 +4786,8 @@
       },
       {
         "id": 128,
-        "url": "https://capitalone-resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4879,8 +4798,8 @@
       },
       {
         "id": 129,
-        "url": "https://dpm.demdex.net/{seg}",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4896,8 +4815,8 @@
       },
       {
         "id": 130,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -4913,7 +4832,7 @@
       },
       {
         "id": 131,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -4930,8 +4849,8 @@
       },
       {
         "id": 132,
-        "url": "https://smetrics.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "smetrics.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4942,8 +4861,8 @@
       },
       {
         "id": 133,
-        "url": "https://capitalone-resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -4966,8 +4885,8 @@
       },
       {
         "id": 135,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4978,8 +4897,8 @@
       },
       {
         "id": 136,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4990,8 +4909,8 @@
       },
       {
         "id": 137,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5002,8 +4921,8 @@
       },
       {
         "id": 138,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5014,8 +4933,8 @@
       },
       {
         "id": 139,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5026,8 +4945,8 @@
       },
       {
         "id": 140,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5038,8 +4957,8 @@
       },
       {
         "id": 141,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5050,8 +4969,8 @@
       },
       {
         "id": 142,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5062,8 +4981,8 @@
       },
       {
         "id": 143,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5074,8 +4993,8 @@
       },
       {
         "id": 144,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5086,8 +5005,8 @@
       },
       {
         "id": 145,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5098,8 +5017,8 @@
       },
       {
         "id": 146,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5110,8 +5029,8 @@
       },
       {
         "id": 147,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5122,8 +5041,8 @@
       },
       {
         "id": 148,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5134,8 +5053,8 @@
       },
       {
         "id": 149,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5146,8 +5065,8 @@
       },
       {
         "id": 150,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5158,8 +5077,8 @@
       },
       {
         "id": 151,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5170,8 +5089,8 @@
       },
       {
         "id": 152,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5182,8 +5101,8 @@
       },
       {
         "id": 153,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5194,8 +5113,8 @@
       },
       {
         "id": 154,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5206,8 +5125,8 @@
       },
       {
         "id": 155,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5218,8 +5137,8 @@
       },
       {
         "id": 156,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5230,8 +5149,8 @@
       },
       {
         "id": 157,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5242,8 +5161,8 @@
       },
       {
         "id": 158,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5254,8 +5173,8 @@
       },
       {
         "id": 159,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5266,8 +5185,8 @@
       },
       {
         "id": 160,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5278,8 +5197,8 @@
       },
       {
         "id": 161,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5290,8 +5209,8 @@
       },
       {
         "id": 162,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5302,8 +5221,8 @@
       },
       {
         "id": 163,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5314,8 +5233,8 @@
       },
       {
         "id": 164,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5326,8 +5245,8 @@
       },
       {
         "id": 165,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5338,8 +5257,8 @@
       },
       {
         "id": 166,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5350,8 +5269,8 @@
       },
       {
         "id": 167,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5362,8 +5281,8 @@
       },
       {
         "id": 168,
-        "url": "https://capitalone-resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5374,8 +5293,8 @@
       },
       {
         "id": 169,
-        "url": "https://capitalone-resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5386,8 +5305,8 @@
       },
       {
         "id": 170,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5398,8 +5317,8 @@
       },
       {
         "id": 171,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5410,8 +5329,8 @@
       },
       {
         "id": 172,
-        "url": "https://ecm.capitalone.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ecm.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5422,7 +5341,7 @@
       },
       {
         "id": 173,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -5439,8 +5358,8 @@
       },
       {
         "id": 174,
-        "url": "https://potomac-clickstream.capitalone.com/{seg}/{seg}",
-        "domain": "potomac-clickstream.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -5451,8 +5370,8 @@
       },
       {
         "id": 175,
-        "url": "https://smetrics.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "smetrics.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5463,7 +5382,7 @@
       },
       {
         "id": 176,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -5480,8 +5399,8 @@
       },
       {
         "id": 177,
-        "url": "https://potomac-clickstream.capitalone.com/{seg}/{seg}",
-        "domain": "potomac-clickstream.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -5492,8 +5411,8 @@
       },
       {
         "id": 178,
-        "url": "https://smetrics.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "smetrics.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5504,7 +5423,7 @@
       },
       {
         "id": 179,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -5521,8 +5440,8 @@
       },
       {
         "id": 180,
-        "url": "https://potomac-clickstream.capitalone.com/{seg}/{seg}",
-        "domain": "potomac-clickstream.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -5533,8 +5452,8 @@
       },
       {
         "id": 181,
-        "url": "https://smetrics.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "smetrics.capitalone.com",
+        "url": "https://{label}.capitalone.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.capitalone.com",
         "method": "GET",
         "resourceType": "image",
         "status": null,
@@ -5545,8 +5464,8 @@
       },
       {
         "id": 182,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -5562,8 +5481,8 @@
       },
       {
         "id": 183,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -5579,8 +5498,8 @@
       },
       {
         "id": 184,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -5596,8 +5515,8 @@
       },
       {
         "id": 185,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -5613,8 +5532,8 @@
       },
       {
         "id": 186,
-        "url": "https://bam.nr-data.net/{seg}/{seg}?%5Bredacted%5D=&type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{seg}?%5Bredacted%5D=&type=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -5630,7 +5549,7 @@
       },
       {
         "id": 187,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -5643,7 +5562,7 @@
     ],
     "domains": [
       {
-        "domain": "bam.nr-data.net",
+        "domain": "{label}.nr-data.net",
         "requests": 7,
         "thirdParty": true,
         "tracker": {
@@ -5659,6 +5578,27 @@
         "resourceTypes": [
           "xhr",
           "ping"
+        ]
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "document",
+          "image"
         ]
       },
       {
@@ -5680,27 +5620,7 @@
         ]
       },
       {
-        "domain": "dpm.demdex.net",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
-          "image"
-        ]
-      },
-      {
-        "domain": "js-agent.newrelic.com",
+        "domain": "{label}.newrelic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -5736,25 +5656,7 @@
         ]
       },
       {
-        "domain": "capitaloneservices.demdex.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "capitalone-resources.digital-cloud.medallia.com",
+        "domain": "{label}.{label}.medallia.com",
         "requests": 5,
         "thirdParty": true,
         "tracker": null,
@@ -5768,7 +5670,7 @@
         ]
       },
       {
-        "domain": "cm.everesttech.net",
+        "domain": "{label}.everesttech.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -5792,16 +5694,20 @@
         ]
       },
       {
-        "domain": "ecm.capitalone.com",
-        "requests": 72,
+        "domain": "{label}.capitalone.com",
+        "requests": 95,
         "thirdParty": false,
         "tracker": null,
-        "blockedByShields": false,
+        "blockedByShields": true,
         "statuses": [
           200
         ],
         "resourceTypes": [
-          "image"
+          "script",
+          "image",
+          "fetch",
+          "xhr",
+          "ping"
         ]
       },
       {
@@ -5823,74 +5729,6 @@
           "xhr",
           "image"
         ]
-      },
-      {
-        "domain": "onetms.capitalone.com",
-        "requests": 11,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "fetch"
-        ]
-      },
-      {
-        "domain": "smetrics.capitalone.com",
-        "requests": 5,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
-          "image"
-        ]
-      },
-      {
-        "domain": "potomac-clickstream.capitalone.com",
-        "requests": 4,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
-          "ping"
-        ]
-      },
-      {
-        "domain": "verified.capitalone.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "bfp.capitalone.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
       }
     ],
     "cookies": [
@@ -5906,7 +5744,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".dpm.demdex.net",
+        "domain": ".{label}.demdex.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -6146,7 +5984,7 @@
       },
       {
         "name": "AWSALB",
-        "domain": "potomac-clickstream.capitalone.com",
+        "domain": "{label}.capitalone.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
@@ -6156,7 +5994,7 @@
       },
       {
         "name": "AWSALBCORS",
-        "domain": "potomac-clickstream.capitalone.com",
+        "domain": "{label}.capitalone.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -6166,7 +6004,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "potomac-clickstream.capitalone.com",
+        "domain": "{label}.capitalone.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -6176,7 +6014,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "potomac-clickstream.capitalone.com",
+        "domain": "{label}.capitalone.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -6299,16 +6137,24 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "canvas.measureText",
-        "count": 91
-      },
-      {
         "api": "canvas.getImageData",
         "count": 17
       },
       {
+        "api": "canvas.measureText",
+        "count": 91
+      },
+      {
         "api": "canvas.toDataURL",
         "count": 5
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
       },
       {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
@@ -6321,14 +6167,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 2
-      },
-      {
-        "api": "webgl2.readPixels",
-        "count": 1
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -6372,7 +6210,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://verified.capitalone.com/"
+            "https://{label}.capitalone.com/"
           ],
           "totalListenerCalls": 4
         }
@@ -6399,7 +6237,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://verified.capitalone.com/"
+            "https://{label}.capitalone.com/"
           ],
           "totalListenerCalls": 11
         }
@@ -6431,8 +6269,8 @@
     ],
     "cnameCloaks": [
       {
-        "host": "smetrics.capitalone.com",
-        "cname": "capitalone.com.ssl.d1.sc.omtrdc.net",
+        "host": "{label}.capitalone.com",
+        "cname": "{label}.{label}.{label}.{label}.{label}.omtrdc.net",
         "tracker": {
           "domain": "omtrdc.net",
           "entity": "Adobe",
@@ -6482,8 +6320,8 @@
       "delta": -2
     },
     "thirdPartyDomains": {
-      "before": 9,
-      "after": 9,
+      "before": 8,
+      "after": 8,
       "delta": 0
     },
     "cookies": {

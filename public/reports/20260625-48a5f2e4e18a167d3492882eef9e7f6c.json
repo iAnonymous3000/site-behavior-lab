@@ -23,7 +23,7 @@
       "totalRequests": 93,
       "thirdPartyRequests": 20,
       "knownTrackerRequests": 8,
-      "thirdPartyDomains": 8,
+      "thirdPartyDomains": 7,
       "cookies": 1,
       "thirdPartyCookies": 0,
       "storageEntries": 0,
@@ -189,8 +189,8 @@
       },
       {
         "id": 11,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -739,8 +739,8 @@
       },
       {
         "id": 56,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -756,7 +756,7 @@
       },
       {
         "id": 57,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -857,8 +857,8 @@
       },
       {
         "id": 65,
-        "url": "https://log.cookieyes.com/api/{seg}/{seg}",
-        "domain": "log.cookieyes.com",
+        "url": "https://{label}.cookieyes.com/api/{seg}/{seg}",
+        "domain": "{label}.cookieyes.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -893,8 +893,8 @@
       },
       {
         "id": 68,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -922,8 +922,8 @@
       },
       {
         "id": 70,
-        "url": "https://directory.cookieyes.com/api/{seg}/{seg}",
-        "domain": "directory.cookieyes.com",
+        "url": "https://{label}.cookieyes.com/api/{seg}/{seg}",
+        "domain": "{label}.cookieyes.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -994,7 +994,7 @@
       },
       {
         "id": 76,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1011,8 +1011,8 @@
       },
       {
         "id": 77,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -1196,7 +1196,7 @@
       },
       {
         "id": 92,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1213,7 +1213,7 @@
       },
       {
         "id": 93,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1226,7 +1226,7 @@
     ],
     "domains": [
       {
-        "domain": "securepubads.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 3,
         "thirdParty": true,
         "tracker": {
@@ -1281,7 +1281,7 @@
         ]
       },
       {
-        "domain": "pagead2.googlesyndication.com",
+        "domain": "{label}.googlesyndication.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -1315,8 +1315,8 @@
         ]
       },
       {
-        "domain": "log.cookieyes.com",
-        "requests": 1,
+        "domain": "{label}.cookieyes.com",
+        "requests": 2,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -1324,19 +1324,7 @@
           200
         ],
         "resourceTypes": [
-          "ping"
-        ]
-      },
-      {
-        "domain": "directory.cookieyes.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
+          "ping",
           "fetch"
         ]
       },
@@ -2513,9 +2501,9 @@
       "delta": -8
     },
     "thirdPartyDomains": {
-      "before": 8,
+      "before": 7,
       "after": 0,
-      "delta": -8
+      "delta": -7
     },
     "cookies": {
       "before": 1,
@@ -2545,7 +2533,7 @@
         "tracker": null
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 3,
         "tracker": {
           "domain": "doubleclick.net",
@@ -2553,6 +2541,11 @@
           "category": "advertising",
           "confidence": "curated"
         }
+      },
+      {
+        "domain": "{label}.cookieyes.com",
+        "requests": 2,
+        "tracker": null
       },
       {
         "domain": "www.google-analytics.com",
@@ -2575,17 +2568,7 @@
         }
       },
       {
-        "domain": "directory.cookieyes.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "log.cookieyes.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "pagead2.googlesyndication.com",
+        "domain": "{label}.googlesyndication.com",
         "requests": 1,
         "tracker": {
           "domain": "googlesyndication.com",

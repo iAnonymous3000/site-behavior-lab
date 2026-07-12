@@ -117,8 +117,8 @@
       },
       {
         "id": 5,
-        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.service.imperva.com",
+        "url": "https://{label}.{label}.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.imperva.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -129,8 +129,8 @@
       },
       {
         "id": 6,
-        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.service.imperva.com",
+        "url": "https://{label}.{label}.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -141,8 +141,8 @@
       },
       {
         "id": 7,
-        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.service.imperva.com",
+        "url": "https://{label}.{label}.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.service.imperva.com",
+        "url": "https://{label}.{label}.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -165,8 +165,8 @@
       },
       {
         "id": 9,
-        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.service.imperva.com",
+        "url": "https://{label}.{label}.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -178,7 +178,7 @@
     ],
     "domains": [
       {
-        "domain": "{label}.service.imperva.com",
+        "domain": "{label}.{label}.imperva.com",
         "requests": 5,
         "thirdParty": true,
         "tracker": null,
@@ -356,8 +356,8 @@
       },
       {
         "id": 5,
-        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.service.imperva.com",
+        "url": "https://{label}.{label}.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.imperva.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -368,8 +368,8 @@
       },
       {
         "id": 6,
-        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.service.imperva.com",
+        "url": "https://{label}.{label}.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -380,8 +380,8 @@
       },
       {
         "id": 7,
-        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.service.imperva.com",
+        "url": "https://{label}.{label}.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -392,8 +392,8 @@
       },
       {
         "id": 8,
-        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.service.imperva.com",
+        "url": "https://{label}.{label}.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -404,8 +404,8 @@
       },
       {
         "id": 9,
-        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.service.imperva.com",
+        "url": "https://{label}.{label}.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -417,7 +417,7 @@
     ],
     "domains": [
       {
-        "domain": "{label}.service.imperva.com",
+        "domain": "{label}.{label}.imperva.com",
         "requests": 5,
         "thirdParty": true,
         "tracker": null,

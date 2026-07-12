@@ -14,6 +14,7 @@ const RETENTION = {
 
 function managedParts() {
   const report = makePublicSingleReportV2();
+  report.run.privacy.redactionVersion = REDACTION_VERSION;
   const reportContents = `${JSON.stringify(report, null, 2)}\n`;
   const sidecar = buildProvenanceEntry({
     reportId: REPORT_ID,
@@ -42,6 +43,7 @@ test("a managed report requires a matching current sidecar and immutable retenti
 
 test("the managed reader supports committed-report sidecars with no expiry", () => {
   const report = makePublicSingleReportV2();
+  report.run.privacy.redactionVersion = REDACTION_VERSION;
   report.share = buildStaticReportShare(REPORT_ID);
   const clock = { createdAt: RETENTION.createdAt, expiresAt: null };
   const sidecar = buildProvenanceEntry({
@@ -60,6 +62,27 @@ test("the managed reader supports committed-report sidecars with no expiry", () 
   assert.equal(read.ok, true);
   if (!read.ok) throw new Error("expected committed managed report");
   assert.equal(read.retention.expiresAt, null);
+});
+
+test("a current sidecar cannot bless an older embedded v2 redaction revision", () => {
+  const report = makePublicSingleReportV2();
+  assert.notEqual(report.run.privacy.redactionVersion, REDACTION_VERSION);
+  const sidecar = buildProvenanceEntry({
+    reportId: REPORT_ID,
+    publicReport: report,
+    writtenAt: RETENTION.createdAt,
+    createdAt: RETENTION.createdAt,
+    expiresAt: RETENTION.expiresAt
+  });
+  assert.deepEqual(
+    readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: JSON.stringify(report),
+      sidecarContents: JSON.stringify(sidecar),
+      retention: RETENTION
+    }),
+    { ok: false, error: "invalid", reason: "redaction-version-mismatch" }
+  );
 });
 
 test("partial and malformed managed states fail closed", () => {

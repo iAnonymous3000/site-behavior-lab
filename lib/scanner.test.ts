@@ -240,12 +240,12 @@ test("ScanWarningCollector dedupes and caps unverified-request examples", () => 
   const warnings = new ScanWarningCollector();
 
   // Retries of the same URL (different query strings) collapse after redaction.
-  warnings.addUnverifiedRequest("https://blocked.example/pixel?attempt=1");
-  warnings.addUnverifiedRequest("https://blocked.example/pixel?attempt=2");
-  assert.deepEqual(warnings.list, ["Blocked a request that could not be verified as public: https://blocked.example/{seg}"]);
+  warnings.addUnverifiedRequest("https://blocked.example.com/pixel?attempt=1");
+  warnings.addUnverifiedRequest("https://blocked.example.com/pixel?attempt=2");
+  assert.deepEqual(warnings.list, ["Blocked a request that could not be verified as public: https://{label}.example.com/{seg}"]);
 
   for (let index = 0; index < NON_HTTP_WARNING_EXAMPLE_LIMIT + 3; index += 1) {
-    warnings.addUnverifiedRequest(`https://blocked-${index}.example/asset?token=secret`);
+    warnings.addUnverifiedRequest(`https://blocked-${index}.com/asset?token=secret`);
   }
 
   assert.equal(warnings.list.length, NON_HTTP_WARNING_EXAMPLE_LIMIT + 1);
@@ -305,7 +305,7 @@ test("decideRoutedRequest aborts requests that fail public host verification", a
   const requestBudget = new ScanRequestBudget(warnings);
 
   const decision = await decideRoutedRequest({
-    request: routeRequest({ url: "https://metadata.example/latest?token=secret" }),
+    request: routeRequest({ url: "https://metadata.example.com/latest?token=secret" }),
     page: routePage,
     targetUrl: new URL("https://example.com/"),
     warnings,
@@ -317,7 +317,7 @@ test("decideRoutedRequest aborts requests that fail public host verification", a
   });
 
   assert.deepEqual(decision, { action: "abort", blockedByShields: false });
-  assert.deepEqual(warnings.list, ["Blocked a request that could not be verified as public: https://metadata.example/{seg}"]);
+  assert.deepEqual(warnings.list, ["Blocked a request that could not be verified as public: https://{label}.example.com/{seg}"]);
 });
 
 test("decideRoutedRequest memoizes public host checks by scheme, host, and port", async () => {

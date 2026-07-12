@@ -1,4 +1,4 @@
-import { runHitRequestCap } from "./comparison-eligibility";
+import { runRequestEvidenceCapped } from "./comparison-eligibility";
 import type { CorpusMetricKey, CorpusStats, MetricDistribution } from "./corpus-stats";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import {
@@ -89,7 +89,7 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // exactly the ones that cap) and misranks every real site against a
     // truncated ceiling. The per-report pages disclose capped runs as cut
     // short.
-    if (runHitRequestCap(result)) continue;
+    if (runRequestEvidenceCapped(result)) continue;
 
     // A consent-interaction arm is a post-intervention state, not a default
     // visit: a consent comparison's baseline clicked "accept all" before

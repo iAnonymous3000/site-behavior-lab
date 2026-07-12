@@ -23,7 +23,7 @@
       "totalRequests": 327,
       "thirdPartyRequests": 281,
       "knownTrackerRequests": 34,
-      "thirdPartyDomains": 34,
+      "thirdPartyDomains": 24,
       "cookies": 49,
       "thirdPartyCookies": 7,
       "storageEntries": 67,
@@ -189,8 +189,8 @@
       },
       {
         "id": 11,
-        "url": "https://tag.getamigo.io/{seg}/{seg}/{seg}",
-        "domain": "tag.getamigo.io",
+        "url": "https://{label}.getamigo.io/{seg}/{seg}/{seg}",
+        "domain": "{label}.getamigo.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -201,8 +201,8 @@
       },
       {
         "id": 12,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -225,8 +225,8 @@
       },
       {
         "id": 14,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -261,8 +261,8 @@
       },
       {
         "id": 17,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -309,8 +309,8 @@
       },
       {
         "id": 21,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -321,8 +321,8 @@
       },
       {
         "id": 22,
-        "url": "https://adobedc.demdex.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "adobedc.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -338,8 +338,8 @@
       },
       {
         "id": 23,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -410,8 +410,8 @@
       },
       {
         "id": 29,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -422,8 +422,8 @@
       },
       {
         "id": 30,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -434,8 +434,8 @@
       },
       {
         "id": 31,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -446,8 +446,8 @@
       },
       {
         "id": 32,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -458,8 +458,8 @@
       },
       {
         "id": 33,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -470,8 +470,8 @@
       },
       {
         "id": 34,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -482,8 +482,8 @@
       },
       {
         "id": 35,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -494,8 +494,8 @@
       },
       {
         "id": 36,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -506,8 +506,8 @@
       },
       {
         "id": 37,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -518,8 +518,8 @@
       },
       {
         "id": 38,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -530,8 +530,8 @@
       },
       {
         "id": 39,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -722,8 +722,8 @@
       },
       {
         "id": 55,
-        "url": "https://client.px-cloud.net/{seg}/{seg}",
-        "domain": "client.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}/{seg}",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -734,8 +734,8 @@
       },
       {
         "id": 56,
-        "url": "https://s.go-mpulse.net/{seg}/{seg}",
-        "domain": "s.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/{seg}/{seg}",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -782,8 +782,8 @@
       },
       {
         "id": 60,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -794,8 +794,8 @@
       },
       {
         "id": 61,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -806,8 +806,8 @@
       },
       {
         "id": 62,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -818,8 +818,8 @@
       },
       {
         "id": 63,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -830,8 +830,8 @@
       },
       {
         "id": 64,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -842,8 +842,8 @@
       },
       {
         "id": 65,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -974,8 +974,8 @@
       },
       {
         "id": 76,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -986,8 +986,8 @@
       },
       {
         "id": 77,
-        "url": "https://tag.getamigo.io/static/{seg}/{seg}",
-        "domain": "tag.getamigo.io",
+        "url": "https://{label}.getamigo.io/static/{seg}/{seg}",
+        "domain": "{label}.getamigo.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1034,8 +1034,8 @@
       },
       {
         "id": 81,
-        "url": "https://gcp-runtime.getamigo.io/{seg}/{seg}/{seg}",
-        "domain": "gcp-runtime.getamigo.io",
+        "url": "https://{label}.getamigo.io/{seg}/{seg}/{seg}",
+        "domain": "{label}.getamigo.io",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1046,8 +1046,8 @@
       },
       {
         "id": 82,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1094,8 +1094,8 @@
       },
       {
         "id": 86,
-        "url": "https://localization.thdws.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&callback=",
-        "domain": "localization.thdws.com",
+        "url": "https://{label}.thdws.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&callback=",
+        "domain": "{label}.thdws.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1202,8 +1202,8 @@
       },
       {
         "id": 95,
-        "url": "https://swasc.homedepot.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "swasc.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1214,8 +1214,8 @@
       },
       {
         "id": 96,
-        "url": "https://ift.px-cloud.net/{seg}?%5Bredacted%5D=",
-        "domain": "ift.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1238,8 +1238,8 @@
       },
       {
         "id": 98,
-        "url": "https://clickstream-killswitch.hd-personalization-prod.gcp.homedepot.com/{seg}/{seg}/{seg}",
-        "domain": "clickstream-killswitch.hd-personalization-prod.gcp.homedepot.com",
+        "url": "https://{label}.{label}.{label}.homedepot.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.homedepot.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1286,8 +1286,8 @@
       },
       {
         "id": 102,
-        "url": "https://apionline.homedepot.com/{seg}/{seg}",
-        "domain": "apionline.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 206,
@@ -1886,8 +1886,8 @@
       },
       {
         "id": 152,
-        "url": "https://swasc.homedepot.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "swasc.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1898,8 +1898,8 @@
       },
       {
         "id": 153,
-        "url": "https://tag.getamigo.io/{seg}/{seg}/{seg}",
-        "domain": "tag.getamigo.io",
+        "url": "https://{label}.getamigo.io/{seg}/{seg}/{seg}",
+        "domain": "{label}.getamigo.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1910,8 +1910,8 @@
       },
       {
         "id": 154,
-        "url": "https://tag.getamigo.io/{seg}/{seg}/{seg}",
-        "domain": "tag.getamigo.io",
+        "url": "https://{label}.getamigo.io/{seg}/{seg}/{seg}",
+        "domain": "{label}.getamigo.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1922,8 +1922,8 @@
       },
       {
         "id": 155,
-        "url": "https://tag.getamigo.io/{seg}/{seg}/{seg}",
-        "domain": "tag.getamigo.io",
+        "url": "https://{label}.getamigo.io/{seg}/{seg}/{seg}",
+        "domain": "{label}.getamigo.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1934,8 +1934,8 @@
       },
       {
         "id": 156,
-        "url": "https://client.px-cloud.net/{seg}/{seg}",
-        "domain": "client.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}/{seg}",
+        "domain": "{label}.px-cloud.net",
         "method": "HEAD",
         "resourceType": "xhr",
         "status": 200,
@@ -1946,8 +1946,8 @@
       },
       {
         "id": 157,
-        "url": "https://c.go-mpulse.net/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1970,8 +1970,8 @@
       },
       {
         "id": 159,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2066,8 +2066,8 @@
       },
       {
         "id": 167,
-        "url": "https://apionline.homedepot.com/{seg}/{seg}",
-        "domain": "apionline.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 206,
@@ -2138,8 +2138,8 @@
       },
       {
         "id": 173,
-        "url": "https://{label}.siteintercept.qualtrics.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=",
-        "domain": "{label}.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}?%5Bredacted%5D=&t=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2179,8 +2179,8 @@
       },
       {
         "id": 176,
-        "url": "https://js-agent.newrelic.com/{seg}",
-        "domain": "js-agent.newrelic.com",
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2196,8 +2196,8 @@
       },
       {
         "id": 177,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2208,8 +2208,8 @@
       },
       {
         "id": 178,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2220,8 +2220,8 @@
       },
       {
         "id": 179,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2232,8 +2232,8 @@
       },
       {
         "id": 180,
-        "url": "https://{label}.cdn4.forter.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.cdn4.forter.com",
+        "url": "https://{label}.{label}.forter.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.forter.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2256,8 +2256,8 @@
       },
       {
         "id": 182,
-        "url": "https://bam.nr-data.net/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2273,8 +2273,8 @@
       },
       {
         "id": 183,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2285,8 +2285,8 @@
       },
       {
         "id": 184,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2297,8 +2297,8 @@
       },
       {
         "id": 185,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}",
+        "domain": "{label}.quantummetric.com",
         "method": "HEAD",
         "resourceType": "fetch",
         "status": 200,
@@ -2314,8 +2314,8 @@
       },
       {
         "id": 186,
-        "url": "https://clickstream-producer.hd-personalization-prod.gcp.homedepot.com/{seg}/{seg}/{seg}",
-        "domain": "clickstream-producer.hd-personalization-prod.gcp.homedepot.com",
+        "url": "https://{label}.{label}.{label}.homedepot.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.homedepot.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2338,8 +2338,8 @@
       },
       {
         "id": 188,
-        "url": "https://swasc.homedepot.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "swasc.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -2350,8 +2350,8 @@
       },
       {
         "id": 189,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2362,8 +2362,8 @@
       },
       {
         "id": 190,
-        "url": "https://customer.homedepot.com/{seg}/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2374,8 +2374,8 @@
       },
       {
         "id": 191,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -2386,8 +2386,8 @@
       },
       {
         "id": 192,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2398,8 +2398,8 @@
       },
       {
         "id": 193,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2410,8 +2410,8 @@
       },
       {
         "id": 194,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2422,8 +2422,8 @@
       },
       {
         "id": 195,
-        "url": "https://h.online-metrix.net/{seg}?%5Bredacted%5D=",
-        "domain": "h.online-metrix.net",
+        "url": "https://{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.online-metrix.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2434,8 +2434,8 @@
       },
       {
         "id": 196,
-        "url": "https://h64.online-metrix.net/{seg}?%5Bredacted%5D=",
-        "domain": "h64.online-metrix.net",
+        "url": "https://{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.online-metrix.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2446,8 +2446,8 @@
       },
       {
         "id": 197,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2458,8 +2458,8 @@
       },
       {
         "id": 198,
-        "url": "https://{label}.d.aa.online-metrix.net/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.d.aa.online-metrix.net",
+        "url": "https://{label}.{label}.{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.online-metrix.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2470,8 +2470,8 @@
       },
       {
         "id": 199,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2487,8 +2487,8 @@
       },
       {
         "id": 200,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2499,8 +2499,8 @@
       },
       {
         "id": 201,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2511,8 +2511,8 @@
       },
       {
         "id": 202,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2523,8 +2523,8 @@
       },
       {
         "id": 203,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2535,8 +2535,8 @@
       },
       {
         "id": 204,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2547,8 +2547,8 @@
       },
       {
         "id": 205,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2559,8 +2559,8 @@
       },
       {
         "id": 206,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
@@ -2571,8 +2571,8 @@
       },
       {
         "id": 207,
-        "url": "https://cdn0.forter.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "cdn0.forter.com",
+        "url": "https://{label}.forter.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.forter.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2583,8 +2583,8 @@
       },
       {
         "id": 208,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2595,8 +2595,8 @@
       },
       {
         "id": 209,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2607,8 +2607,8 @@
       },
       {
         "id": 210,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2619,8 +2619,8 @@
       },
       {
         "id": 211,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2631,8 +2631,8 @@
       },
       {
         "id": 212,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2643,8 +2643,8 @@
       },
       {
         "id": 213,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2655,8 +2655,8 @@
       },
       {
         "id": 214,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2667,8 +2667,8 @@
       },
       {
         "id": 215,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2679,8 +2679,8 @@
       },
       {
         "id": 216,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2691,8 +2691,8 @@
       },
       {
         "id": 217,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2703,8 +2703,8 @@
       },
       {
         "id": 218,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2715,8 +2715,8 @@
       },
       {
         "id": 219,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2727,8 +2727,8 @@
       },
       {
         "id": 220,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2739,8 +2739,8 @@
       },
       {
         "id": 221,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2751,8 +2751,8 @@
       },
       {
         "id": 222,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&Version=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2763,8 +2763,8 @@
       },
       {
         "id": 223,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2775,8 +2775,8 @@
       },
       {
         "id": 224,
-        "url": "https://mr.homedepot.com/{seg}/{seg}",
-        "domain": "mr.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2787,8 +2787,8 @@
       },
       {
         "id": 225,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2799,8 +2799,8 @@
       },
       {
         "id": 226,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2811,8 +2811,8 @@
       },
       {
         "id": 227,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2823,8 +2823,8 @@
       },
       {
         "id": 228,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2835,8 +2835,8 @@
       },
       {
         "id": 229,
-        "url": "https://h.online-metrix.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "h.online-metrix.net",
+        "url": "https://{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.online-metrix.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2859,8 +2859,8 @@
       },
       {
         "id": 231,
-        "url": "https://cdn0.forter.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "cdn0.forter.com",
+        "url": "https://{label}.forter.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.forter.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2895,8 +2895,8 @@
       },
       {
         "id": 234,
-        "url": "https://cdn0.forter.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "cdn0.forter.com",
+        "url": "https://{label}.forter.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.forter.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2907,8 +2907,8 @@
       },
       {
         "id": 235,
-        "url": "https://cdn0.forter.com/{seg}/{seg}/{seg}",
-        "domain": "cdn0.forter.com",
+        "url": "https://{label}.forter.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.forter.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2919,8 +2919,8 @@
       },
       {
         "id": 236,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2931,8 +2931,8 @@
       },
       {
         "id": 237,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2943,8 +2943,8 @@
       },
       {
         "id": 238,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3027,8 +3027,8 @@
       },
       {
         "id": 245,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3044,8 +3044,8 @@
       },
       {
         "id": 246,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3068,8 +3068,8 @@
       },
       {
         "id": 248,
-        "url": "https://cdn6.forter.com/{seg}/{seg}/{seg}",
-        "domain": "cdn6.forter.com",
+        "url": "https://{label}.forter.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.forter.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -3080,8 +3080,8 @@
       },
       {
         "id": 249,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3097,8 +3097,8 @@
       },
       {
         "id": 250,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3114,8 +3114,8 @@
       },
       {
         "id": 251,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3131,8 +3131,8 @@
       },
       {
         "id": 252,
-        "url": "https://cdn3.forter.com/{seg}",
-        "domain": "cdn3.forter.com",
+        "url": "https://{label}.forter.com/{seg}",
+        "domain": "{label}.forter.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -3167,8 +3167,8 @@
       },
       {
         "id": 255,
-        "url": "https://homedepot.demdex.net/{seg}?%5Bredacted%5D=",
-        "domain": "homedepot.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3184,8 +3184,8 @@
       },
       {
         "id": 256,
-        "url": "https://d.turn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "d.turn.com",
+        "url": "https://{label}.turn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.turn.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3196,8 +3196,8 @@
       },
       {
         "id": 257,
-        "url": "https://mr.homedepot.com/{seg}/{seg}",
-        "domain": "mr.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3208,8 +3208,8 @@
       },
       {
         "id": 258,
-        "url": "https://d.agkn.com/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "d.agkn.com",
+        "url": "https://{label}.agkn.com/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.agkn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -3220,8 +3220,8 @@
       },
       {
         "id": 259,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3237,8 +3237,8 @@
       },
       {
         "id": 260,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3254,8 +3254,8 @@
       },
       {
         "id": 261,
-        "url": "https://fid.agkn.com/{seg}?%5Bredacted%5D=",
-        "domain": "fid.agkn.com",
+        "url": "https://{label}.agkn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.agkn.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3283,8 +3283,8 @@
       },
       {
         "id": 263,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3324,8 +3324,8 @@
       },
       {
         "id": 266,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3341,8 +3341,8 @@
       },
       {
         "id": 267,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}/{seg}",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3358,8 +3358,8 @@
       },
       {
         "id": 268,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3375,8 +3375,8 @@
       },
       {
         "id": 269,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3728,8 +3728,8 @@
       },
       {
         "id": 298,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3776,8 +3776,8 @@
       },
       {
         "id": 302,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3793,8 +3793,8 @@
       },
       {
         "id": 303,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3810,8 +3810,8 @@
       },
       {
         "id": 304,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3839,8 +3839,8 @@
       },
       {
         "id": 306,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3856,8 +3856,8 @@
       },
       {
         "id": 307,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3873,8 +3873,8 @@
       },
       {
         "id": 308,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3885,8 +3885,8 @@
       },
       {
         "id": 309,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3897,8 +3897,8 @@
       },
       {
         "id": 310,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3909,8 +3909,8 @@
       },
       {
         "id": 311,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3950,8 +3950,8 @@
       },
       {
         "id": 314,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3967,8 +3967,8 @@
       },
       {
         "id": 315,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -3984,8 +3984,8 @@
       },
       {
         "id": 316,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -4001,8 +4001,8 @@
       },
       {
         "id": 317,
-        "url": "https://customer.homedepot.com/{seg}",
-        "domain": "customer.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -4037,8 +4037,8 @@
       },
       {
         "id": 320,
-        "url": "https://swasc.homedepot.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "swasc.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -4049,8 +4049,8 @@
       },
       {
         "id": 321,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -4066,8 +4066,8 @@
       },
       {
         "id": 322,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -4083,8 +4083,8 @@
       },
       {
         "id": 323,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -4100,8 +4100,8 @@
       },
       {
         "id": 324,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -4117,8 +4117,8 @@
       },
       {
         "id": 325,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -4134,8 +4134,8 @@
       },
       {
         "id": 326,
-        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=",
-        "domain": "bam.nr-data.net",
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&t=&ref=",
+        "domain": "{label}.nr-data.net",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -4151,8 +4151,8 @@
       },
       {
         "id": 327,
-        "url": "https://d.btttag.com/{seg}",
-        "domain": "d.btttag.com",
+        "url": "https://{label}.btttag.com/{seg}",
+        "domain": "{label}.btttag.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -4164,7 +4164,7 @@
     ],
     "domains": [
       {
-        "domain": "ingest.quantummetric.com",
+        "domain": "{label}.quantummetric.com",
         "requests": 23,
         "thirdParty": true,
         "tracker": {
@@ -4183,7 +4183,7 @@
         ]
       },
       {
-        "domain": "bam.nr-data.net",
+        "domain": "{label}.nr-data.net",
         "requests": 6,
         "thirdParty": true,
         "tracker": {
@@ -4202,8 +4202,8 @@
         ]
       },
       {
-        "domain": "adobedc.demdex.net",
-        "requests": 1,
+        "domain": "{label}.demdex.net",
+        "requests": 2,
         "thirdParty": true,
         "tracker": {
           "domain": "demdex.net",
@@ -4216,7 +4216,8 @@
           200
         ],
         "resourceTypes": [
-          "fetch"
+          "fetch",
+          "xhr"
         ]
       },
       {
@@ -4238,7 +4239,7 @@
         ]
       },
       {
-        "domain": "js-agent.newrelic.com",
+        "domain": "{label}.newrelic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -4253,24 +4254,6 @@
         ],
         "resourceTypes": [
           "script"
-        ]
-      },
-      {
-        "domain": "homedepot.demdex.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -4322,7 +4305,7 @@
         ]
       },
       {
-        "domain": "dam.thdstatic.com",
+        "domain": "{label}.thdstatic.com",
         "requests": 32,
         "thirdParty": true,
         "tracker": null,
@@ -4337,22 +4320,8 @@
         ]
       },
       {
-        "domain": "siteintercept.qualtrics.com",
-        "requests": 19,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "xhr"
-        ]
-      },
-      {
         "domain": "{label}.sprinklr.com",
-        "requests": 13,
+        "requests": 22,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -4366,21 +4335,8 @@
         ]
       },
       {
-        "domain": "live-chat-static.sprinklr.com",
-        "requests": 9,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "tag.getamigo.io",
-        "requests": 5,
+        "domain": "{label}.qualtrics.com",
+        "requests": 19,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -4388,12 +4344,42 @@
           200
         ],
         "resourceTypes": [
-          "script"
+          "script",
+          "xhr"
         ]
       },
       {
         "domain": "{label}.px-cloud.net",
-        "requests": 4,
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "ping"
+        ]
+      },
+      {
+        "domain": "{label}.getamigo.io",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.forter.com",
+        "requests": 6,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -4406,8 +4392,8 @@
         ]
       },
       {
-        "domain": "cdn0.forter.com",
-        "requests": 4,
+        "domain": "{label}.online-metrix.net",
+        "requests": 3,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -4415,7 +4401,9 @@
           200
         ],
         "resourceTypes": [
-          "xhr"
+          "document",
+          "script",
+          "image"
         ]
       },
       {
@@ -4432,11 +4420,11 @@
         ]
       },
       {
-        "domain": "client.px-cloud.net",
+        "domain": "{label}.go-mpulse.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
-        "blockedByShields": false,
+        "blockedByShields": true,
         "statuses": [
           200
         ],
@@ -4446,47 +4434,22 @@
         ]
       },
       {
-        "domain": "h.online-metrix.net",
+        "domain": "{label}.agkn.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
+          302,
           200
         ],
         "resourceTypes": [
-          "document",
-          "image"
+          "image",
+          "xhr"
         ]
       },
       {
-        "domain": "s.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "gcp-runtime.getamigo.io",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "localization.thdws.com",
+        "domain": "{label}.thdws.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4499,33 +4462,7 @@
         ]
       },
       {
-        "domain": "ift.px-cloud.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "c.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "{label}.siteintercept.qualtrics.com",
+        "domain": "{label}.{label}.qualtrics.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4538,7 +4475,7 @@
         ]
       },
       {
-        "domain": "{label}.cdn4.forter.com",
+        "domain": "{label}.{label}.forter.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4551,20 +4488,7 @@
         ]
       },
       {
-        "domain": "h64.online-metrix.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "{label}.d.aa.online-metrix.net",
+        "domain": "{label}.{label}.{label}.online-metrix.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4577,33 +4501,7 @@
         ]
       },
       {
-        "domain": "cdn6.forter.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "ping"
-        ]
-      },
-      {
-        "domain": "cdn3.forter.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "ping"
-        ]
-      },
-      {
-        "domain": "d.turn.com",
+        "domain": "{label}.turn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4616,33 +4514,7 @@
         ]
       },
       {
-        "domain": "d.agkn.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          302
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "fid.agkn.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "d.btttag.com",
+        "domain": "{label}.btttag.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4650,6 +4522,26 @@
         "statuses": [],
         "resourceTypes": [
           "ping"
+        ]
+      },
+      {
+        "domain": "{label}.homedepot.com",
+        "requests": 25,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          206,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "xhr",
+          "image",
+          "ping",
+          "document"
         ]
       },
       {
@@ -4671,88 +4563,16 @@
         ]
       },
       {
-        "domain": "customer.homedepot.com",
-        "requests": 17,
+        "domain": "{label}.{label}.{label}.homedepot.com",
+        "requests": 2,
         "thirdParty": false,
         "tracker": null,
-        "blockedByShields": true,
+        "blockedByShields": false,
         "statuses": [
-          200,
-          204
-        ],
-        "resourceTypes": [
-          "script",
-          "image",
-          "xhr",
-          "document",
-          "ping"
-        ]
-      },
-      {
-        "domain": "swasc.homedepot.com",
-        "requests": 4,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200,
-          204
+          200
         ],
         "resourceTypes": [
           "fetch",
-          "ping"
-        ]
-      },
-      {
-        "domain": "apionline.homedepot.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          206
-        ],
-        "resourceTypes": [
-          "xhr",
-          "fetch"
-        ]
-      },
-      {
-        "domain": "mr.homedepot.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "clickstream-killswitch.hd-personalization-prod.gcp.homedepot.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "clickstream-producer.hd-personalization-prod.gcp.homedepot.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
           "xhr"
         ]
       }
@@ -4800,7 +4620,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".homedepot.demdex.net",
+        "domain": ".{label}.demdex.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -4830,7 +4650,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".apionline.homedepot.com",
+        "domain": ".{label}.homedepot.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -5150,7 +4970,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "customer.homedepot.com",
+        "domain": "{label}.homedepot.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -5160,7 +4980,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "customer.homedepot.com",
+        "domain": "{label}.homedepot.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -5588,8 +5408,44 @@
     ],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 2
+      },
+      {
+        "api": "canvas.getImageData",
+        "count": 5
+      },
+      {
         "api": "canvas.measureText",
         "count": 164
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 5
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 4
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 4
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 5
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 3
       },
       {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
@@ -5602,42 +5458,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 6
-      },
-      {
-        "api": "canvas.getImageData",
-        "count": 5
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 5
-      },
-      {
-        "api": "webgl2.readPixels",
-        "count": 5
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 4
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 4
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 3
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 2
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 2
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 2
       }
     ],
     "fingerprintDetections": [
@@ -5699,8 +5519,8 @@
     ],
     "cnameCloaks": [
       {
-        "host": "customer.homedepot.com",
-        "cname": "h-homedepot.online-metrix.net",
+        "host": "{label}.homedepot.com",
+        "cname": "{label}.online-metrix.net",
         "tracker": {
           "domain": "online-metrix.net",
           "entity": "online-metrix.net",
@@ -5709,8 +5529,8 @@
         }
       },
       {
-        "host": "swasc.homedepot.com",
-        "cname": "homedepot.com.ssl.d2.sc.omtrdc.net",
+        "host": "{label}.homedepot.com",
+        "cname": "{label}.{label}.{label}.{label}.{label}.omtrdc.net",
         "tracker": {
           "domain": "omtrdc.net",
           "entity": "Adobe",
@@ -5764,7 +5584,7 @@
       "totalRequests": 224,
       "thirdPartyRequests": 199,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 11,
+      "thirdPartyDomains": 9,
       "cookies": 30,
       "thirdPartyCookies": 1,
       "storageEntries": 43,
@@ -5930,8 +5750,8 @@
       },
       {
         "id": 12,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5942,8 +5762,8 @@
       },
       {
         "id": 13,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5954,8 +5774,8 @@
       },
       {
         "id": 14,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5966,8 +5786,8 @@
       },
       {
         "id": 15,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6002,8 +5822,8 @@
       },
       {
         "id": 18,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6014,8 +5834,8 @@
       },
       {
         "id": 19,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6026,8 +5846,8 @@
       },
       {
         "id": 20,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6038,8 +5858,8 @@
       },
       {
         "id": 21,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6050,8 +5870,8 @@
       },
       {
         "id": 23,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6122,8 +5942,8 @@
       },
       {
         "id": 29,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6134,8 +5954,8 @@
       },
       {
         "id": 30,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6146,8 +5966,8 @@
       },
       {
         "id": 31,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6158,8 +5978,8 @@
       },
       {
         "id": 32,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6170,8 +5990,8 @@
       },
       {
         "id": 33,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6182,8 +6002,8 @@
       },
       {
         "id": 34,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6194,8 +6014,8 @@
       },
       {
         "id": 35,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6206,8 +6026,8 @@
       },
       {
         "id": 36,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6218,8 +6038,8 @@
       },
       {
         "id": 37,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6230,8 +6050,8 @@
       },
       {
         "id": 38,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6242,8 +6062,8 @@
       },
       {
         "id": 39,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6434,8 +6254,8 @@
       },
       {
         "id": 55,
-        "url": "https://client.px-cloud.net/{seg}/{seg}",
-        "domain": "client.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}/{seg}",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6482,8 +6302,8 @@
       },
       {
         "id": 60,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6494,8 +6314,8 @@
       },
       {
         "id": 61,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6506,8 +6326,8 @@
       },
       {
         "id": 62,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6518,8 +6338,8 @@
       },
       {
         "id": 63,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6530,8 +6350,8 @@
       },
       {
         "id": 64,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6542,8 +6362,8 @@
       },
       {
         "id": 65,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6674,8 +6494,8 @@
       },
       {
         "id": 76,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -6758,8 +6578,8 @@
       },
       {
         "id": 85,
-        "url": "https://localization.thdws.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&callback=",
-        "domain": "localization.thdws.com",
+        "url": "https://{label}.thdws.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&callback=",
+        "domain": "{label}.thdws.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6770,8 +6590,8 @@
       },
       {
         "id": 87,
-        "url": "https://ift.px-cloud.net/{seg}?%5Bredacted%5D=",
-        "domain": "ift.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6782,8 +6602,8 @@
       },
       {
         "id": 89,
-        "url": "https://clickstream-killswitch.hd-personalization-prod.gcp.homedepot.com/{seg}/{seg}/{seg}",
-        "domain": "clickstream-killswitch.hd-personalization-prod.gcp.homedepot.com",
+        "url": "https://{label}.{label}.{label}.homedepot.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.homedepot.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -7526,8 +7346,8 @@
       },
       {
         "id": 154,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7646,8 +7466,8 @@
       },
       {
         "id": 165,
-        "url": "https://apionline.homedepot.com/{seg}/{seg}",
-        "domain": "apionline.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 206,
@@ -7730,8 +7550,8 @@
       },
       {
         "id": 179,
-        "url": "https://clickstream-producer.hd-personalization-prod.gcp.homedepot.com/{seg}/{seg}/{seg}",
-        "domain": "clickstream-producer.hd-personalization-prod.gcp.homedepot.com",
+        "url": "https://{label}.{label}.{label}.homedepot.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.homedepot.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -7766,8 +7586,8 @@
       },
       {
         "id": 189,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7778,8 +7598,8 @@
       },
       {
         "id": 190,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7790,8 +7610,8 @@
       },
       {
         "id": 191,
-        "url": "https://mr.homedepot.com/{seg}/{seg}",
-        "domain": "mr.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -7802,8 +7622,8 @@
       },
       {
         "id": 192,
-        "url": "https://mr.homedepot.com/{seg}/{seg}",
-        "domain": "mr.homedepot.com",
+        "url": "https://{label}.homedepot.com/{seg}/{seg}",
+        "domain": "{label}.homedepot.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -7814,8 +7634,8 @@
       },
       {
         "id": 193,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7826,8 +7646,8 @@
       },
       {
         "id": 194,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7838,8 +7658,8 @@
       },
       {
         "id": 195,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7850,8 +7670,8 @@
       },
       {
         "id": 196,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7886,8 +7706,8 @@
       },
       {
         "id": 199,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7898,8 +7718,8 @@
       },
       {
         "id": 200,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7910,8 +7730,8 @@
       },
       {
         "id": 201,
-        "url": "https://live-chat-static.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
-        "domain": "live-chat-static.sprinklr.com",
+        "url": "https://{label}.sprinklr.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.sprinklr.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -8366,8 +8186,8 @@
       },
       {
         "id": 239,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8426,8 +8246,8 @@
       },
       {
         "id": 244,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8438,8 +8258,8 @@
       },
       {
         "id": 245,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8450,8 +8270,8 @@
       },
       {
         "id": 246,
-        "url": "https://dam.thdstatic.com/{seg}/{seg}/{seg}",
-        "domain": "dam.thdstatic.com",
+        "url": "https://{label}.thdstatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.thdstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8529,7 +8349,7 @@
         ]
       },
       {
-        "domain": "dam.thdstatic.com",
+        "domain": "{label}.thdstatic.com",
         "requests": 32,
         "thirdParty": true,
         "tracker": null,
@@ -8545,7 +8365,7 @@
       },
       {
         "domain": "{label}.sprinklr.com",
-        "requests": 13,
+        "requests": 22,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -8559,8 +8379,8 @@
         ]
       },
       {
-        "domain": "live-chat-static.sprinklr.com",
-        "requests": 9,
+        "domain": "{label}.px-cloud.net",
+        "requests": 2,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -8568,46 +8388,21 @@
           200
         ],
         "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "client.px-cloud.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "localization.thdws.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "ift.px-cloud.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
+          "script",
           "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.thdws.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
         ]
       },
       {
@@ -8668,7 +8463,21 @@
         ]
       },
       {
-        "domain": "mr.homedepot.com",
+        "domain": "{label}.homedepot.com",
+        "requests": 3,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          206,
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.{label}.homedepot.com",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -8677,45 +8486,7 @@
           200
         ],
         "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "clickstream-killswitch.hd-personalization-prod.gcp.homedepot.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "apionline.homedepot.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          206
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "clickstream-producer.hd-personalization-prod.gcp.homedepot.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
+          "fetch",
           "xhr"
         ]
       }
@@ -8733,7 +8504,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".apionline.homedepot.com",
+        "domain": ".{label}.homedepot.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -9241,16 +9012,16 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "webrtc.RTCPeerConnection.createDataChannel",
-        "count": 4
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
       },
       {
-        "api": "webrtc.RTCPeerConnection.createOffer",
-        "count": 4
+        "api": "canvas.measureText",
+        "count": 1
       },
       {
-        "api": "webrtc.RTCPeerConnection.setLocalDescription",
-        "count": 4
+        "api": "canvas.toDataURL",
+        "count": 2
       },
       {
         "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
@@ -9259,10 +9030,6 @@
       {
         "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
         "count": 3
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 2
       },
       {
         "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
@@ -9277,12 +9044,16 @@
         "count": 2
       },
       {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 4
       },
       {
-        "api": "canvas.measureText",
-        "count": 1
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 4
       }
     ],
     "fingerprintDetections": [
@@ -9363,9 +9134,9 @@
       "delta": -34
     },
     "thirdPartyDomains": {
-      "before": 34,
-      "after": 11,
-      "delta": -23
+      "before": 24,
+      "after": 9,
+      "delta": -15
     },
     "cookies": {
       "before": 49,
@@ -9406,7 +9177,7 @@
     ],
     "removedDomains": [
       {
-        "domain": "ingest.quantummetric.com",
+        "domain": "{label}.quantummetric.com",
         "requests": 23,
         "tracker": {
           "domain": "quantummetric.com",
@@ -9416,17 +9187,22 @@
         }
       },
       {
-        "domain": "siteintercept.qualtrics.com",
+        "domain": "{label}.qualtrics.com",
         "requests": 19,
         "tracker": null
       },
       {
-        "domain": "customer.homedepot.com",
-        "requests": 17,
+        "domain": "{label}.forter.com",
+        "requests": 6,
         "tracker": null
       },
       {
-        "domain": "bam.nr-data.net",
+        "domain": "{label}.getamigo.io",
+        "requests": 6,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.nr-data.net",
         "requests": 6,
         "tracker": {
           "domain": "nr-data.net",
@@ -9436,53 +9212,23 @@
         }
       },
       {
-        "domain": "tag.getamigo.io",
-        "requests": 5,
-        "tracker": null
-      },
-      {
-        "domain": "{label}.px-cloud.net",
-        "requests": 4,
-        "tracker": null
-      },
-      {
-        "domain": "cdn0.forter.com",
-        "requests": 4,
-        "tracker": null
-      },
-      {
-        "domain": "swasc.homedepot.com",
-        "requests": 4,
-        "tracker": null
-      },
-      {
         "domain": "{label}.cdn.forter.com",
         "requests": 3,
         "tracker": null
       },
       {
-        "domain": "h.online-metrix.net",
+        "domain": "{label}.online-metrix.net",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.agkn.com",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "{label}.cdn4.forter.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "{label}.d.aa.online-metrix.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "{label}.siteintercept.qualtrics.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "adobedc.demdex.net",
-        "requests": 1,
+        "domain": "{label}.demdex.net",
+        "requests": 2,
         "tracker": {
           "domain": "demdex.net",
           "entity": "Adobe",
@@ -9491,7 +9237,42 @@
         }
       },
       {
-        "domain": "c.go-mpulse.net",
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.{label}.online-metrix.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.forter.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.qualtrics.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.btttag.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.newrelic.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.turn.com",
         "requests": 1,
         "tracker": null
       },
@@ -9504,71 +9285,6 @@
           "category": "session replay / product analytics",
           "confidence": "curated"
         }
-      },
-      {
-        "domain": "cdn3.forter.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "cdn6.forter.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "d.agkn.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "d.btttag.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "d.turn.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "fid.agkn.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "gcp-runtime.getamigo.io",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "h64.online-metrix.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "homedepot.demdex.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "js-agent.newrelic.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "newrelic.com",
-          "entity": "New Relic",
-          "category": "performance monitoring",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "s.go-mpulse.net",
-        "requests": 1,
-        "tracker": null
       },
       {
         "domain": "www.facebook.com",
@@ -9596,7 +9312,7 @@
       {
         "entity": "Adobe",
         "requests": 2,
-        "domains": 2
+        "domains": 1
       },
       {
         "entity": "Meta",
@@ -9606,6 +9322,11 @@
     ],
     "addedCookies": [],
     "removedCookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.demdex.net",
+        "thirdParty": true
+      },
       {
         "name": "[redacted]",
         "domain": ".agkn.com",
@@ -9618,17 +9339,12 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".homedepot.demdex.net",
-        "thirdParty": true
-      },
-      {
-        "name": "[redacted]",
         "domain": ".turn.com",
         "thirdParty": true
       },
       {
         "name": "[redacted]",
-        "domain": "customer.homedepot.com",
+        "domain": "{label}.homedepot.com",
         "thirdParty": false
       }
     ],

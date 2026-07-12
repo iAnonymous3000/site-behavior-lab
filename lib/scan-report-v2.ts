@@ -35,6 +35,10 @@ export const SCAN_REPORT_V2_SCHEMA_REVISION = 1 as const;
 // Subject identity (RFC section 2)
 // ---------------------------------------------------------------------------
 
+// The property doc below is byte-frozen into the published r1 schema and keeps
+// its historical "token-like" wording. Executable sanitizer revision 3 and
+// RFC 9.1 are stricter: every non-allowlisted subdomain label generalizes, and
+// trailing dots are stripped. Correcting schema prose requires a new revision.
 export type SubjectKey = {
   /**
    * Normalized privacy-safe origin: lowercase, IDN as punycode A-label, default

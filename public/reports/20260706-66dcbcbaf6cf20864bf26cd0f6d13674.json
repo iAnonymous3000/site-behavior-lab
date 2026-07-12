@@ -23,7 +23,7 @@
       "totalRequests": 201,
       "thirdPartyRequests": 100,
       "knownTrackerRequests": 41,
-      "thirdPartyDomains": 29,
+      "thirdPartyDomains": 21,
       "cookies": 38,
       "thirdPartyCookies": 3,
       "storageEntries": 18,
@@ -141,8 +141,8 @@
       },
       {
         "id": 7,
-        "url": "https://dok.js-cdn.dynatrace.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "dok.js-cdn.dynatrace.com",
+        "url": "https://{label}.{label}.dynatrace.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.dynatrace.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -153,7 +153,7 @@
       },
       {
         "id": 8,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -362,8 +362,8 @@
       },
       {
         "id": 25,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -823,8 +823,8 @@
       },
       {
         "id": 63,
-        "url": "https://s2.go-mpulse.net/{seg}/{seg}",
-        "domain": "s2.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/{seg}/{seg}",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -847,8 +847,8 @@
       },
       {
         "id": 65,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1087,8 +1087,8 @@
       },
       {
         "id": 85,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1147,8 +1147,8 @@
       },
       {
         "id": 90,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1243,8 +1243,8 @@
       },
       {
         "id": 98,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1255,8 +1255,8 @@
       },
       {
         "id": 99,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1267,8 +1267,8 @@
       },
       {
         "id": 100,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1279,8 +1279,8 @@
       },
       {
         "id": 101,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1291,8 +1291,8 @@
       },
       {
         "id": 102,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1303,8 +1303,8 @@
       },
       {
         "id": 103,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1315,8 +1315,8 @@
       },
       {
         "id": 104,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1327,8 +1327,8 @@
       },
       {
         "id": 105,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1339,8 +1339,8 @@
       },
       {
         "id": 106,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1351,8 +1351,8 @@
       },
       {
         "id": 107,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1363,8 +1363,8 @@
       },
       {
         "id": 108,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1375,8 +1375,8 @@
       },
       {
         "id": 109,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 302,
@@ -1605,8 +1605,8 @@
       },
       {
         "id": 124,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1634,8 +1634,8 @@
       },
       {
         "id": 126,
-        "url": "https://dpm.demdex.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1651,8 +1651,8 @@
       },
       {
         "id": 127,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1663,8 +1663,8 @@
       },
       {
         "id": 128,
-        "url": "https://c.go-mpulse.net/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
@@ -1675,8 +1675,8 @@
       },
       {
         "id": 129,
-        "url": "https://walgreens.demdex.net/{seg}?%5Bredacted%5D=",
-        "domain": "walgreens.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1692,8 +1692,8 @@
       },
       {
         "id": 130,
-        "url": "https://cm.everesttech.net/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "cm.everesttech.net",
+        "url": "https://{label}.everesttech.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.everesttech.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1704,8 +1704,8 @@
       },
       {
         "id": 131,
-        "url": "https://target.walgreens.com/{seg}/{seg}/{seg}",
-        "domain": "target.walgreens.com",
+        "url": "https://{label}.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.walgreens.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1716,7 +1716,7 @@
       },
       {
         "id": 132,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -1740,8 +1740,8 @@
       },
       {
         "id": 134,
-        "url": "https://dpm.demdex.net/{seg}",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1844,8 +1844,8 @@
       },
       {
         "id": 141,
-        "url": "https://smetrics.walgreens.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "smetrics.walgreens.com",
+        "url": "https://{label}.walgreens.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.walgreens.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1892,8 +1892,8 @@
       },
       {
         "id": 145,
-        "url": "https://resources.digital-cloud-west.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "resources.digital-cloud-west.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1921,8 +1921,8 @@
       },
       {
         "id": 147,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -1974,8 +1974,8 @@
       },
       {
         "id": 151,
-        "url": "https://smetrics.walgreens.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "smetrics.walgreens.com",
+        "url": "https://{label}.walgreens.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.walgreens.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2010,8 +2010,8 @@
       },
       {
         "id": 154,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2027,8 +2027,8 @@
       },
       {
         "id": 155,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2039,8 +2039,8 @@
       },
       {
         "id": 156,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2056,8 +2056,8 @@
       },
       {
         "id": 157,
-        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2090,8 +2090,8 @@
       },
       {
         "id": 159,
-        "url": "https://resources.digital-cloud-west.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "resources.digital-cloud-west.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2114,8 +2114,8 @@
       },
       {
         "id": 161,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2160,8 +2160,8 @@
       },
       {
         "id": 164,
-        "url": "https://resources.digital-cloud-west.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "resources.digital-cloud-west.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2172,8 +2172,8 @@
       },
       {
         "id": 165,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2196,8 +2196,8 @@
       },
       {
         "id": 167,
-        "url": "https://analytics-fe.digital-cloud-west.medallia.com/api/{seg}/{seg}",
-        "domain": "analytics-fe.digital-cloud-west.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2208,8 +2208,8 @@
       },
       {
         "id": 168,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2225,8 +2225,8 @@
       },
       {
         "id": 169,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2254,8 +2254,8 @@
       },
       {
         "id": 171,
-        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2271,8 +2271,8 @@
       },
       {
         "id": 172,
-        "url": "https://smetrics.walgreens.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "smetrics.walgreens.com",
+        "url": "https://{label}.walgreens.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.walgreens.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2283,8 +2283,8 @@
       },
       {
         "id": 173,
-        "url": "https://tpc.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2300,8 +2300,8 @@
       },
       {
         "id": 174,
-        "url": "https://tpc.googlesyndication.com/{seg}/{n}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{n}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2317,8 +2317,8 @@
       },
       {
         "id": 175,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2334,8 +2334,8 @@
       },
       {
         "id": 176,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2351,8 +2351,8 @@
       },
       {
         "id": 177,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2368,8 +2368,8 @@
       },
       {
         "id": 178,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2385,8 +2385,8 @@
       },
       {
         "id": 179,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2414,8 +2414,8 @@
       },
       {
         "id": 181,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2431,8 +2431,8 @@
       },
       {
         "id": 182,
-        "url": "https://ep2.adtrafficquality.google/{seg}?%5Bredacted%5D=",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2455,8 +2455,8 @@
       },
       {
         "id": 184,
-        "url": "https://tps.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tps.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2467,8 +2467,8 @@
       },
       {
         "id": 185,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2484,8 +2484,8 @@
       },
       {
         "id": 186,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2568,8 +2568,8 @@
       },
       {
         "id": 193,
-        "url": "https://tpsc-ue1.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tpsc-ue1.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -2580,8 +2580,8 @@
       },
       {
         "id": 194,
-        "url": "https://smetrics.walgreens.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "smetrics.walgreens.com",
+        "url": "https://{label}.walgreens.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.walgreens.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2616,8 +2616,8 @@
       },
       {
         "id": 197,
-        "url": "https://privacyportal.onetrust.com/{seg}/{seg}/{seg}",
-        "domain": "privacyportal.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2628,8 +2628,8 @@
       },
       {
         "id": 198,
-        "url": "https://tpsc-ue1.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tpsc-ue1.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2652,8 +2652,8 @@
       },
       {
         "id": 200,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": null,
@@ -2669,8 +2669,8 @@
       },
       {
         "id": 201,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&id=&v=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": null,
@@ -2705,8 +2705,8 @@
         ]
       },
       {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 9,
+        "domain": "{label}.googlesyndication.com",
+        "requests": 11,
         "thirdParty": true,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -2726,8 +2726,8 @@
         ]
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 6,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 7,
         "thirdParty": true,
         "tracker": {
           "domain": "doubleclick.net",
@@ -2742,12 +2742,13 @@
         "resourceTypes": [
           "script",
           "other",
+          "document",
           "fetch"
         ]
       },
       {
-        "domain": "dpm.demdex.net",
-        "requests": 3,
+        "domain": "{label}.demdex.net",
+        "requests": 4,
         "thirdParty": true,
         "tracker": {
           "domain": "demdex.net",
@@ -2762,11 +2763,12 @@
         ],
         "resourceTypes": [
           "xhr",
+          "document",
           "image"
         ]
       },
       {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.{label}.googlesyndication.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -2784,62 +2786,7 @@
         ]
       },
       {
-        "domain": "tpc.googlesyndication.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "image"
-        ]
-      },
-      {
-        "domain": "walgreens.demdex.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "wag-images-prod.przone.net",
+        "domain": "{label}.przone.net",
         "requests": 12,
         "thirdParty": true,
         "tracker": null,
@@ -2881,6 +2828,37 @@
         ]
       },
       {
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.medallia.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
         "domain": "fonts.googleapis.com",
         "requests": 3,
         "thirdParty": true,
@@ -2894,21 +2872,7 @@
         ]
       },
       {
-        "domain": "resources.digital-cloud-west.medallia.com",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "xhr"
-        ]
-      },
-      {
-        "domain": "ep2.adtrafficquality.google",
+        "domain": "{label}.doubleverify.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -2918,13 +2882,27 @@
           204
         ],
         "resourceTypes": [
-          "script",
-          "document",
-          "image"
+          "fetch",
+          "ping"
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -2937,18 +2915,17 @@
         ]
       },
       {
-        "domain": "ep1.adtrafficquality.google",
+        "domain": "{label}.onetrust.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
-          200,
-          204
+          200
         ],
         "resourceTypes": [
           "xhr",
-          "image"
+          "ping"
         ]
       },
       {
@@ -2965,19 +2942,6 @@
         ]
       },
       {
-        "domain": "tpsc-ue1.doubleverify.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "ping"
-        ]
-      },
-      {
         "domain": "rum.hlx.page",
         "requests": 1,
         "thirdParty": true,
@@ -2991,7 +2955,7 @@
         ]
       },
       {
-        "domain": "dok.js-cdn.dynatrace.com",
+        "domain": "{label}.{label}.dynatrace.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3004,46 +2968,7 @@
         ]
       },
       {
-        "domain": "s2.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "geolocation.onetrust.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "c.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "cm.everesttech.net",
+        "domain": "{label}.everesttech.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3069,19 +2994,6 @@
         ]
       },
       {
-        "domain": "analytics-fe.digital-cloud-west.medallia.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
         "domain": "cdn.jsdelivr.net",
         "requests": 1,
         "thirdParty": true,
@@ -3092,30 +3004,6 @@
         ],
         "resourceTypes": [
           "script"
-        ]
-      },
-      {
-        "domain": "tps.doubleverify.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "privacyportal.onetrust.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [],
-        "resourceTypes": [
-          "ping"
         ]
       },
       {
@@ -3143,8 +3031,8 @@
         ]
       },
       {
-        "domain": "smetrics.walgreens.com",
-        "requests": 4,
+        "domain": "{label}.walgreens.com",
+        "requests": 5,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
@@ -3152,22 +3040,9 @@
           200
         ],
         "resourceTypes": [
-          "script",
           "xhr",
+          "script",
           "ping"
-        ]
-      },
-      {
-        "domain": "target.walgreens.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       }
     ],
@@ -3194,7 +3069,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".dpm.demdex.net",
+        "domain": ".{label}.demdex.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -3697,8 +3572,8 @@
           ],
           "thirdPartyOrigins": [
             "https://cdn.doubleverify.com/",
-            "https://dok.js-cdn.dynatrace.com/",
-            "https://pagead2.googlesyndication.com/"
+            "https://{label}.{label}.dynatrace.com/",
+            "https://{label}.googlesyndication.com/"
           ],
           "totalListenerCalls": 661
         }
@@ -3723,7 +3598,7 @@
             "other"
           ],
           "thirdPartyOrigins": [
-            "https://dok.js-cdn.dynatrace.com/"
+            "https://{label}.{label}.dynatrace.com/"
           ],
           "totalListenerCalls": 357
         }
@@ -3747,8 +3622,8 @@
     ],
     "cnameCloaks": [
       {
-        "host": "target.walgreens.com",
-        "cname": "walgreenco.tt.omtrdc.net",
+        "host": "{label}.walgreens.com",
+        "cname": "{label}.{label}.omtrdc.net",
         "tracker": {
           "domain": "omtrdc.net",
           "entity": "Adobe",
@@ -3757,8 +3632,8 @@
         }
       },
       {
-        "host": "smetrics.walgreens.com",
-        "cname": "walgreens.com.ssl.d1.sc.omtrdc.net",
+        "host": "{label}.walgreens.com",
+        "cname": "{label}.{label}.{label}.{label}.{label}.omtrdc.net",
         "tracker": {
           "domain": "omtrdc.net",
           "entity": "Adobe",
@@ -3798,7 +3673,7 @@
       "totalRequests": 138,
       "thirdPartyRequests": 48,
       "knownTrackerRequests": 15,
-      "thirdPartyDomains": 9,
+      "thirdPartyDomains": 8,
       "cookies": 23,
       "thirdPartyCookies": 0,
       "storageEntries": 9,
@@ -3916,7 +3791,7 @@
       },
       {
         "id": 9,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -4581,8 +4456,8 @@
       },
       {
         "id": 66,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -4773,8 +4648,8 @@
       },
       {
         "id": 83,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -4833,8 +4708,8 @@
       },
       {
         "id": 88,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4845,8 +4720,8 @@
       },
       {
         "id": 89,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4857,8 +4732,8 @@
       },
       {
         "id": 90,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4869,8 +4744,8 @@
       },
       {
         "id": 91,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4881,8 +4756,8 @@
       },
       {
         "id": 92,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4893,8 +4768,8 @@
       },
       {
         "id": 93,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4905,8 +4780,8 @@
       },
       {
         "id": 94,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4917,8 +4792,8 @@
       },
       {
         "id": 95,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4929,8 +4804,8 @@
       },
       {
         "id": 96,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4941,8 +4816,8 @@
       },
       {
         "id": 97,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4953,8 +4828,8 @@
       },
       {
         "id": 98,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}?v=",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5013,8 +4888,8 @@
       },
       {
         "id": 103,
-        "url": "https://wag-images-prod.przone.net/{seg}/{seg}",
-        "domain": "wag-images-prod.przone.net",
+        "url": "https://{label}.przone.net/{seg}/{seg}",
+        "domain": "{label}.przone.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5276,7 +5151,7 @@
       },
       {
         "id": 127,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -5351,8 +5226,8 @@
       },
       {
         "id": 134,
-        "url": "https://resources.digital-cloud-west.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "resources.digital-cloud-west.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5409,8 +5284,8 @@
       },
       {
         "id": 138,
-        "url": "https://resources.digital-cloud-west.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "resources.digital-cloud-west.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5467,8 +5342,8 @@
       },
       {
         "id": 142,
-        "url": "https://resources.digital-cloud-west.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "resources.digital-cloud-west.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5491,8 +5366,8 @@
       },
       {
         "id": 144,
-        "url": "https://analytics-fe.digital-cloud-west.medallia.com/api/{seg}/{seg}",
-        "domain": "analytics-fe.digital-cloud-west.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -5594,7 +5469,7 @@
         ]
       },
       {
-        "domain": "wag-images-prod.przone.net",
+        "domain": "{label}.przone.net",
         "requests": 12,
         "thirdParty": true,
         "tracker": null,
@@ -5620,6 +5495,20 @@
         ]
       },
       {
+        "domain": "{label}.{label}.medallia.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
         "domain": "fonts.googleapis.com",
         "requests": 3,
         "thirdParty": true,
@@ -5633,21 +5522,7 @@
         ]
       },
       {
-        "domain": "resources.digital-cloud-west.medallia.com",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "xhr"
-        ]
-      },
-      {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -5670,19 +5545,6 @@
         ],
         "resourceTypes": [
           "script",
-          "xhr"
-        ]
-      },
-      {
-        "domain": "analytics-fe.digital-cloud-west.medallia.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
           "xhr"
         ]
       },
@@ -6072,9 +5934,9 @@
       "delta": -26
     },
     "thirdPartyDomains": {
-      "before": 29,
-      "after": 9,
-      "delta": -20
+      "before": 21,
+      "after": 8,
+      "delta": -13
     },
     "cookies": {
       "before": 38,
@@ -6099,8 +5961,8 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 9,
+        "domain": "{label}.googlesyndication.com",
+        "requests": 11,
         "tracker": {
           "domain": "googlesyndication.com",
           "entity": "Google",
@@ -6109,8 +5971,8 @@
         }
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 6,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 7,
         "tracker": {
           "domain": "doubleclick.net",
           "entity": "Google",
@@ -6119,13 +5981,18 @@
         }
       },
       {
-        "domain": "smetrics.walgreens.com",
-        "requests": 4,
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
         "tracker": null
       },
       {
-        "domain": "dpm.demdex.net",
-        "requests": 3,
+        "domain": "{label}.walgreens.com",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 4,
         "tracker": {
           "domain": "demdex.net",
           "entity": "Adobe",
@@ -6134,12 +6001,12 @@
         }
       },
       {
-        "domain": "ep2.adtrafficquality.google",
+        "domain": "{label}.doubleverify.com",
         "requests": 3,
         "tracker": null
       },
       {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.{label}.googlesyndication.com",
         "requests": 2,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -6147,6 +6014,16 @@
           "category": "advertising",
           "confidence": "curated"
         }
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 2,
+        "tracker": null
       },
       {
         "domain": "cdn.doubleverify.com",
@@ -6154,57 +6031,12 @@
         "tracker": null
       },
       {
-        "domain": "ep1.adtrafficquality.google",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "tpc.googlesyndication.com",
-        "requests": 2,
-        "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "tpsc-ue1.doubleverify.com",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "c.go-mpulse.net",
+        "domain": "{label}.{label}.dynatrace.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "cm.everesttech.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "dok.js-cdn.dynatrace.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "geolocation.onetrust.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "privacyportal.onetrust.com",
+        "domain": "{label}.everesttech.net",
         "requests": 1,
         "tracker": null
       },
@@ -6212,31 +6044,6 @@
         "domain": "rum.hlx.page",
         "requests": 1,
         "tracker": null
-      },
-      {
-        "domain": "s2.go-mpulse.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "target.walgreens.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "tps.doubleverify.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "walgreens.demdex.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        }
       },
       {
         "domain": "www.google.com",
@@ -6249,11 +6056,16 @@
       {
         "entity": "Google",
         "requests": 20,
-        "domains": 5
+        "domains": 3
       }
     ],
     "addedCookies": [],
     "removedCookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.demdex.net",
+        "thirdParty": true
+      },
       {
         "name": "[redacted]",
         "domain": ".demdex.net",
@@ -6262,11 +6074,6 @@
       {
         "name": "IDE",
         "domain": ".doubleclick.net",
-        "thirdParty": true
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".dpm.demdex.net",
         "thirdParty": true
       },
       {

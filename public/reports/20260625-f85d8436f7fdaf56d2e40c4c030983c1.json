@@ -578,8 +578,8 @@
       },
       {
         "id": 43,
-        "url": "https://tools.applemediaservices.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tools.applemediaservices.com",
+        "url": "https://{label}.applemediaservices.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.applemediaservices.com",
         "method": "GET",
         "resourceType": "image",
         "status": 301,
@@ -1058,8 +1058,8 @@
       },
       {
         "id": 83,
-        "url": "https://toolbox.marketingtools.apple.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "toolbox.marketingtools.apple.com",
+        "url": "https://{label}.{label}.apple.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.apple.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1070,8 +1070,8 @@
       },
       {
         "id": 84,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1862,8 +1862,8 @@
       },
       {
         "id": 150,
-        "url": "https://tools.applemediaservices.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tools.applemediaservices.com",
+        "url": "https://{label}.applemediaservices.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.applemediaservices.com",
         "method": "GET",
         "resourceType": "image",
         "status": 301,
@@ -2054,8 +2054,8 @@
       },
       {
         "id": 166,
-        "url": "https://toolbox.marketingtools.apple.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "toolbox.marketingtools.apple.com",
+        "url": "https://{label}.{label}.apple.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.apple.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2178,7 +2178,7 @@
         ]
       },
       {
-        "domain": "tools.applemediaservices.com",
+        "domain": "{label}.applemediaservices.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -2191,7 +2191,7 @@
         ]
       },
       {
-        "domain": "toolbox.marketingtools.apple.com",
+        "domain": "{label}.{label}.apple.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -2204,7 +2204,7 @@
         ]
       },
       {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2938,8 +2938,8 @@
       },
       {
         "id": 43,
-        "url": "https://tools.applemediaservices.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tools.applemediaservices.com",
+        "url": "https://{label}.applemediaservices.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.applemediaservices.com",
         "method": "GET",
         "resourceType": "image",
         "status": 301,
@@ -3418,8 +3418,8 @@
       },
       {
         "id": 83,
-        "url": "https://toolbox.marketingtools.apple.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "toolbox.marketingtools.apple.com",
+        "url": "https://{label}.{label}.apple.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.apple.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4270,8 +4270,8 @@
       },
       {
         "id": 156,
-        "url": "https://tools.applemediaservices.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tools.applemediaservices.com",
+        "url": "https://{label}.applemediaservices.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.applemediaservices.com",
         "method": "GET",
         "resourceType": "image",
         "status": 301,
@@ -4546,8 +4546,8 @@
       },
       {
         "id": 179,
-        "url": "https://toolbox.marketingtools.apple.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "toolbox.marketingtools.apple.com",
+        "url": "https://{label}.{label}.apple.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.apple.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4616,7 +4616,7 @@
         ]
       },
       {
-        "domain": "tools.applemediaservices.com",
+        "domain": "{label}.applemediaservices.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -4629,7 +4629,7 @@
         ]
       },
       {
-        "domain": "toolbox.marketingtools.apple.com",
+        "domain": "{label}.{label}.apple.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -4847,7 +4847,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "tracker": null
       },

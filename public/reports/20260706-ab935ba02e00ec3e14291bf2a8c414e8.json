@@ -23,7 +23,7 @@
       "totalRequests": 291,
       "thirdPartyRequests": 80,
       "knownTrackerRequests": 24,
-      "thirdPartyDomains": 26,
+      "thirdPartyDomains": 23,
       "cookies": 131,
       "thirdPartyCookies": 7,
       "storageEntries": 28,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://s.go-mpulse.net/{seg}/{seg}",
-        "domain": "s.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/{seg}/{seg}",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1401,8 +1401,8 @@
       },
       {
         "id": 112,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1413,8 +1413,8 @@
       },
       {
         "id": 113,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 302,
@@ -1459,8 +1459,8 @@
       },
       {
         "id": 116,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1476,8 +1476,8 @@
       },
       {
         "id": 117,
-        "url": "https://i.ytimg.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.ytimg.com",
+        "url": "https://{label}.ytimg.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ytimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1644,8 +1644,8 @@
       },
       {
         "id": 131,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1656,8 +1656,8 @@
       },
       {
         "id": 132,
-        "url": "https://c.go-mpulse.net/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
@@ -2112,8 +2112,8 @@
       },
       {
         "id": 170,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2280,8 +2280,8 @@
       },
       {
         "id": 184,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2292,8 +2292,8 @@
       },
       {
         "id": 185,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2465,8 +2465,8 @@
       },
       {
         "id": 199,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2482,8 +2482,8 @@
       },
       {
         "id": 200,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2511,8 +2511,8 @@
       },
       {
         "id": 202,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2523,8 +2523,8 @@
       },
       {
         "id": 203,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2540,8 +2540,8 @@
       },
       {
         "id": 204,
-        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2557,8 +2557,8 @@
       },
       {
         "id": 205,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2569,8 +2569,8 @@
       },
       {
         "id": 206,
-        "url": "https://adobedc.demdex.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "adobedc.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2622,8 +2622,8 @@
       },
       {
         "id": 210,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2646,8 +2646,8 @@
       },
       {
         "id": 212,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2663,8 +2663,8 @@
       },
       {
         "id": 213,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2680,8 +2680,8 @@
       },
       {
         "id": 214,
-        "url": "https://ep2.adtrafficquality.google/{seg}?%5Bredacted%5D=",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2752,8 +2752,8 @@
       },
       {
         "id": 220,
-        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "edge.adobedc.net",
+        "url": "https://{label}.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2764,8 +2764,8 @@
       },
       {
         "id": 221,
-        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "edge.adobedc.net",
+        "url": "https://{label}.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2776,8 +2776,8 @@
       },
       {
         "id": 222,
-        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "edge.adobedc.net",
+        "url": "https://{label}.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2788,8 +2788,8 @@
       },
       {
         "id": 223,
-        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "edge.adobedc.net",
+        "url": "https://{label}.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2800,8 +2800,8 @@
       },
       {
         "id": 224,
-        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "edge.adobedc.net",
+        "url": "https://{label}.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2812,8 +2812,8 @@
       },
       {
         "id": 225,
-        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "edge.adobedc.net",
+        "url": "https://{label}.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3232,8 +3232,8 @@
       },
       {
         "id": 260,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -3268,8 +3268,8 @@
       },
       {
         "id": 263,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -3326,8 +3326,8 @@
       },
       {
         "id": 267,
-        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "edge.adobedc.net",
+        "url": "https://{label}.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3350,8 +3350,8 @@
       },
       {
         "id": 269,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}",
+        "domain": "{label}.quantummetric.com",
         "method": "HEAD",
         "resourceType": "fetch",
         "status": 200,
@@ -3367,8 +3367,8 @@
       },
       {
         "id": 270,
-        "url": "https://ingest.quantummetric.com/{seg}/api/{seg}/{seg}",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/api/{seg}/{seg}",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -3384,8 +3384,8 @@
       },
       {
         "id": 271,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3401,8 +3401,8 @@
       },
       {
         "id": 272,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3418,8 +3418,8 @@
       },
       {
         "id": 273,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3435,8 +3435,8 @@
       },
       {
         "id": 274,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3452,8 +3452,8 @@
       },
       {
         "id": 275,
-        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "edge.adobedc.net",
+        "url": "https://{label}.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adobedc.net",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -3500,8 +3500,8 @@
       },
       {
         "id": 279,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}/{seg}",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3529,8 +3529,8 @@
       },
       {
         "id": 281,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3546,8 +3546,8 @@
       },
       {
         "id": 282,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3563,8 +3563,8 @@
       },
       {
         "id": 283,
-        "url": "https://pdx-col.eum-appdynamics.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pdx-col.eum-appdynamics.com",
+        "url": "https://{label}.eum-appdynamics.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.eum-appdynamics.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
@@ -3575,8 +3575,8 @@
       },
       {
         "id": 284,
-        "url": "https://pdx-col.eum-appdynamics.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pdx-col.eum-appdynamics.com",
+        "url": "https://{label}.eum-appdynamics.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.eum-appdynamics.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -3587,8 +3587,8 @@
       },
       {
         "id": 285,
-        "url": "https://pdx-col.eum-appdynamics.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pdx-col.eum-appdynamics.com",
+        "url": "https://{label}.eum-appdynamics.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.eum-appdynamics.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -3611,8 +3611,8 @@
       },
       {
         "id": 287,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&Q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=&q=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -3628,8 +3628,8 @@
       },
       {
         "id": 288,
-        "url": "https://ingest.quantummetric.com/{seg}/{seg}?T=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ingest.quantummetric.com",
+        "url": "https://{label}.quantummetric.com/{seg}/{seg}?t=&%5Bredacted%5D=&v=",
+        "domain": "{label}.quantummetric.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -3657,7 +3657,7 @@
       },
       {
         "id": 290,
-        "url": "https://www.youtube.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.youtube.com/api/{seg}/{seg}?%5Bredacted%5D=&ver=&hl=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
@@ -3682,7 +3682,7 @@
     ],
     "domains": [
       {
-        "domain": "ingest.quantummetric.com",
+        "domain": "{label}.quantummetric.com",
         "requests": 11,
         "thirdParty": true,
         "tracker": {
@@ -3701,8 +3701,8 @@
         ]
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 4,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 6,
         "thirdParty": true,
         "tracker": {
           "domain": "doubleclick.net",
@@ -3712,16 +3712,18 @@
         },
         "blockedByShields": true,
         "statuses": [
+          302,
           200
         ],
         "resourceTypes": [
+          "xhr",
           "script",
           "other",
           "fetch"
         ]
       },
       {
-        "domain": "pagead2.googlesyndication.com",
+        "domain": "{label}.googlesyndication.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": {
@@ -3739,25 +3741,6 @@
           "script",
           "image",
           "fetch"
-        ]
-      },
-      {
-        "domain": "googleads.g.doubleclick.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -3779,7 +3762,7 @@
         ]
       },
       {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.{label}.googlesyndication.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3797,7 +3780,7 @@
         ]
       },
       {
-        "domain": "adobedc.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3867,7 +3850,7 @@
         ]
       },
       {
-        "domain": "edge.adobedc.net",
+        "domain": "{label}.adobedc.net",
         "requests": 8,
         "thirdParty": true,
         "tracker": null,
@@ -3882,7 +3865,24 @@
         ]
       },
       {
-        "domain": "tags.tiqcdn.com",
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.tiqcdn.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -3895,8 +3895,20 @@
         ]
       },
       {
-        "domain": "ep2.adtrafficquality.google",
+        "domain": "{label}.eum-appdynamics.com",
         "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "xhr",
+          "ping"
+        ]
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -3906,20 +3918,7 @@
         ],
         "resourceTypes": [
           "script",
-          "document",
-          "image"
-        ]
-      },
-      {
-        "domain": "pdx-col.eum-appdynamics.com",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [],
-        "resourceTypes": [
-          "xhr",
-          "ping"
+          "xhr"
         ]
       },
       {
@@ -3976,35 +3975,7 @@
         ]
       },
       {
-        "domain": "ep1.adtrafficquality.google",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200,
-          204
-        ],
-        "resourceTypes": [
-          "xhr",
-          "image"
-        ]
-      },
-      {
-        "domain": "s.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4017,7 +3988,7 @@
         ]
       },
       {
-        "domain": "i.ytimg.com",
+        "domain": "{label}.ytimg.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4030,26 +4001,13 @@
         ]
       },
       {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
           200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "c.go-mpulse.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          204
         ],
         "resourceTypes": [
           "xhr"
@@ -5560,6 +5518,14 @@
     ],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 2
+      },
+      {
         "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
         "count": 4
       },
@@ -5568,20 +5534,12 @@
         "count": 3
       },
       {
-        "api": "canvas.toDataURL",
-        "count": 2
-      },
-      {
         "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
         "count": 2
       },
       {
         "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
         "count": 2
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -5622,8 +5580,8 @@
           ],
           "thirdPartyOrigins": [
             "https://cdn.appdynamics.com/",
-            "https://s.go-mpulse.net/",
-            "https://tags.tiqcdn.com/",
+            "https://{label}.go-mpulse.net/",
+            "https://{label}.tiqcdn.com/",
             "https://www.google.com/"
           ],
           "totalListenerCalls": 62
@@ -5661,8 +5619,8 @@
           ],
           "thirdPartyOrigins": [
             "https://cdn.appdynamics.com/",
-            "https://s.go-mpulse.net/",
-            "https://tags.tiqcdn.com/",
+            "https://{label}.go-mpulse.net/",
+            "https://{label}.tiqcdn.com/",
             "https://www.google.com/"
           ],
           "totalListenerCalls": 321
@@ -5925,8 +5883,8 @@
       },
       {
         "id": 15,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7065,8 +7023,8 @@
       },
       {
         "id": 112,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -7101,8 +7059,8 @@
       },
       {
         "id": 117,
-        "url": "https://i.ytimg.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.ytimg.com",
+        "url": "https://{label}.ytimg.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ytimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8109,7 +8067,7 @@
       },
       {
         "id": 209,
-        "url": "https://www.youtube.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.youtube.com/api/{seg}/{seg}?%5Bredacted%5D=&ver=&hl=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
@@ -8177,7 +8135,7 @@
         ]
       },
       {
-        "domain": "tags.tiqcdn.com",
+        "domain": "{label}.tiqcdn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -8190,7 +8148,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -8203,7 +8161,7 @@
         ]
       },
       {
-        "domain": "i.ytimg.com",
+        "domain": "{label}.ytimg.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -9491,6 +9449,14 @@
     ],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 2
+      },
+      {
         "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
         "count": 4
       },
@@ -9499,20 +9465,12 @@
         "count": 3
       },
       {
-        "api": "canvas.toDataURL",
-        "count": 2
-      },
-      {
         "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
         "count": 2
       },
       {
         "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
         "count": 2
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -9625,9 +9583,9 @@
       "delta": -24
     },
     "thirdPartyDomains": {
-      "before": 26,
+      "before": 23,
       "after": 8,
-      "delta": -18
+      "delta": -15
     },
     "cookies": {
       "before": 131,
@@ -9652,7 +9610,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "ingest.quantummetric.com",
+        "domain": "{label}.quantummetric.com",
         "requests": 11,
         "tracker": {
           "domain": "quantummetric.com",
@@ -9662,13 +9620,13 @@
         }
       },
       {
-        "domain": "edge.adobedc.net",
+        "domain": "{label}.adobedc.net",
         "requests": 8,
         "tracker": null
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 4,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 6,
         "tracker": {
           "domain": "doubleclick.net",
           "entity": "Google",
@@ -9677,12 +9635,17 @@
         }
       },
       {
-        "domain": "ep2.adtrafficquality.google",
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.eum-appdynamics.com",
         "requests": 3,
         "tracker": null
       },
       {
-        "domain": "pagead2.googlesyndication.com",
+        "domain": "{label}.googlesyndication.com",
         "requests": 3,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -9692,17 +9655,12 @@
         }
       },
       {
-        "domain": "pdx-col.eum-appdynamics.com",
-        "requests": 3,
-        "tracker": null
-      },
-      {
-        "domain": "cdn.appdynamics.com",
+        "domain": "{label}.go-mpulse.net",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "ep1.adtrafficquality.google",
+        "domain": "cdn.appdynamics.com",
         "requests": 2,
         "tracker": null
       },
@@ -9712,17 +9670,7 @@
         "tracker": null
       },
       {
-        "domain": "googleads.g.doubleclick.net",
-        "requests": 2,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.{label}.googlesyndication.com",
         "requests": 1,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -9732,7 +9680,7 @@
         }
       },
       {
-        "domain": "adobedc.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 1,
         "tracker": {
           "domain": "demdex.net",
@@ -9742,7 +9690,7 @@
         }
       },
       {
-        "domain": "c.go-mpulse.net",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "tracker": null
       },
@@ -9758,16 +9706,6 @@
       },
       {
         "domain": "cdn1.adoberesources.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "geolocation.onetrust.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "s.go-mpulse.net",
         "requests": 1,
         "tracker": null
       },
@@ -9792,7 +9730,7 @@
       {
         "entity": "Google",
         "requests": 11,
-        "domains": 5
+        "domains": 4
       },
       {
         "entity": "Adobe",

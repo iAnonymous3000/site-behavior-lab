@@ -61,6 +61,14 @@ export type SinceLastScan = {
   trackerRequests: number;
 };
 
+export type ComparisonHistoryDeltaInput = Pick<
+  TemporalDeltaInput,
+  "id" | "scannedAt" | "thirdPartyRequests" | "trackerRequests"
+> & {
+  /** Precomputed, versioned passive-history identity; null never pairs. */
+  comparisonHistoryKey: string | null;
+};
+
 type TemporalPairingIdentity = Pick<
   TemporalDeltaInput,
   | "domain"
@@ -84,15 +92,48 @@ export function temporalPairingKey(entry: TemporalPairingIdentity): string | nul
   )}|${normalizedRouteKey(entry.finalUrl)}`;
 }
 
+type ComparisonHistoryPairingIdentity = Omit<TemporalPairingIdentity, "temporalCohort"> & {
+  comparisonHistoryCohort: string | null;
+};
+
+/**
+ * Separate identity for descriptive passive-history comparisons. This must
+ * never replace `temporalPairingKey`: retention continues to use the strict
+ * identity above, including the exact filter snapshot. The relaxed cohort is
+ * produced only after success/cap/provenance checks and omits that one field.
+ */
+export function comparisonHistoryPairingKey(entry: ComparisonHistoryPairingIdentity): string | null {
+  if (!entry.domain || !entry.comparisonHistoryCohort) return null;
+  const kind = entry.reportType === "comparison" ? entry.comparisonType ?? "comparison" : "single";
+  return `comparison-history-key-v1|${entry.comparisonHistoryCohort}|${entry.domain.toLowerCase()}|${kind}${
+    entry.consentClicks ? `|${entry.consentClicks}` : ""
+  }|${normalizedRouteKey(entry.requestedUrl)}|${normalizedRouteKey(entry.finalUrl)}`;
+}
+
 /** Map of report id (the newest per site and kind) to its since-last-scan delta. */
 export function computeSinceLastScan(entries: TemporalDeltaInput[]): Map<string, SinceLastScan> {
-  const groups = new Map<string, TemporalDeltaInput[]>();
+  return computeDeltas(entries, temporalPairingKey);
+}
+
+/**
+ * "Since last comparable visit" deltas for site profiles. Inputs carry the
+ * exact same versioned key published in the manifest, so archive grouping and
+ * profile calculations cannot silently use different cohort rules.
+ */
+export function computeComparableSinceLastScan(
+  entries: ComparisonHistoryDeltaInput[]
+): Map<string, SinceLastScan> {
+  return computeDeltas(entries, (entry) => entry.comparisonHistoryKey);
+}
+
+function computeDeltas<T extends Pick<TemporalDeltaInput, "id" | "scannedAt" | "thirdPartyRequests" | "trackerRequests">>(
+  entries: T[],
+  keyFor: (entry: T) => string | null
+): Map<string, SinceLastScan> {
+  const groups = new Map<string, T[]>();
   for (const entry of entries) {
     if (!Number.isFinite(Date.parse(entry.scannedAt))) continue;
-    // The pairing key is the SUBJECT, not just the site: requested and final
-    // routes must both match, so a direct scan never pairs with a scan that
-    // redirected to a different landing page.
-    const key = temporalPairingKey(entry);
+    const key = keyFor(entry);
     if (!key) continue;
     const group = groups.get(key);
     if (group) group.push(entry);
@@ -122,7 +163,7 @@ export function computeSinceLastScan(entries: TemporalDeltaInput[]): Map<string,
  * differently.
  */
 function normalizedRouteKey(url: string): string {
-  const trimmed = url.trim().replace(/\/+$/, "");
+  const trimmed = url.trim();
   const parsed = safeParseUrl(trimmed);
   if (!parsed) return trimmed;
   // URL lowercases scheme and hostname itself; path/query keep their case.

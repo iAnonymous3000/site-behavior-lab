@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readLoadedReport } from "./client-report-reader";
+import { loadedReportFromStored } from "./scan-report-view";
+import { readStoredScanReport } from "./scan-report-reader";
 import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 
@@ -23,6 +25,17 @@ test("readLoadedReport accepts every readable v2 generation (the v1-only gate is
   const r2 = await readLoadedReport(makePublicSingleReportV2R2(), "This report");
   assert.equal(r2.ok, true);
   if (r2.ok) assert.equal(r2.loaded.source, "v2-r2-public");
+});
+
+test("stored reports become server-renderable loaded envelopes without a transport fetch", () => {
+  for (const payload of [makeScanReportV1(), makePublicSingleReportV2(), makePublicSingleReportV2R2()]) {
+    const read = readStoredScanReport(payload);
+    assert.equal(read.ok, true);
+    if (!read.ok) continue;
+    const loaded = loadedReportFromStored(read.stored);
+    assert.equal(loaded.wire, read.stored.report);
+    assert.equal(loaded.view.reportType, "single");
+  }
 });
 
 test("a deep-shape violation reads as damaged, not as a crash later", async () => {

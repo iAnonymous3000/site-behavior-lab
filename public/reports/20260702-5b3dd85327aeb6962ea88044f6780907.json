@@ -23,7 +23,7 @@
       "totalRequests": 188,
       "thirdPartyRequests": 154,
       "knownTrackerRequests": 25,
-      "thirdPartyDomains": 24,
+      "thirdPartyDomains": 19,
       "cookies": 41,
       "thirdPartyCookies": 6,
       "storageEntries": 17,
@@ -81,8 +81,8 @@
       },
       {
         "id": 2,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -93,8 +93,8 @@
       },
       {
         "id": 3,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -105,8 +105,8 @@
       },
       {
         "id": 4,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -117,8 +117,8 @@
       },
       {
         "id": 5,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -129,8 +129,8 @@
       },
       {
         "id": 6,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -141,8 +141,8 @@
       },
       {
         "id": 7,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -165,8 +165,8 @@
       },
       {
         "id": 9,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -177,8 +177,8 @@
       },
       {
         "id": 10,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -189,8 +189,8 @@
       },
       {
         "id": 11,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -201,8 +201,8 @@
       },
       {
         "id": 12,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -225,8 +225,8 @@
       },
       {
         "id": 14,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -261,8 +261,8 @@
       },
       {
         "id": 17,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -285,8 +285,8 @@
       },
       {
         "id": 19,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -309,8 +309,8 @@
       },
       {
         "id": 21,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -321,8 +321,8 @@
       },
       {
         "id": 22,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -333,8 +333,8 @@
       },
       {
         "id": 23,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -345,8 +345,8 @@
       },
       {
         "id": 24,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -357,8 +357,8 @@
       },
       {
         "id": 25,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -369,8 +369,8 @@
       },
       {
         "id": 26,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -381,8 +381,8 @@
       },
       {
         "id": 27,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -393,8 +393,8 @@
       },
       {
         "id": 28,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -405,8 +405,8 @@
       },
       {
         "id": 29,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -417,8 +417,8 @@
       },
       {
         "id": 30,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -429,8 +429,8 @@
       },
       {
         "id": 31,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -441,8 +441,8 @@
       },
       {
         "id": 32,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -453,8 +453,8 @@
       },
       {
         "id": 33,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -465,8 +465,8 @@
       },
       {
         "id": 34,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -477,8 +477,8 @@
       },
       {
         "id": 35,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -489,8 +489,8 @@
       },
       {
         "id": 36,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -501,8 +501,8 @@
       },
       {
         "id": 37,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -513,8 +513,8 @@
       },
       {
         "id": 38,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -525,8 +525,8 @@
       },
       {
         "id": 39,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -537,8 +537,8 @@
       },
       {
         "id": 40,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -549,8 +549,8 @@
       },
       {
         "id": 41,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -561,8 +561,8 @@
       },
       {
         "id": 42,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -573,8 +573,8 @@
       },
       {
         "id": 43,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -585,8 +585,8 @@
       },
       {
         "id": 44,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -597,8 +597,8 @@
       },
       {
         "id": 45,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -609,8 +609,8 @@
       },
       {
         "id": 46,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -621,8 +621,8 @@
       },
       {
         "id": 47,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -633,8 +633,8 @@
       },
       {
         "id": 48,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -645,8 +645,8 @@
       },
       {
         "id": 49,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -657,8 +657,8 @@
       },
       {
         "id": 50,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -669,8 +669,8 @@
       },
       {
         "id": 51,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -693,8 +693,8 @@
       },
       {
         "id": 53,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -705,8 +705,8 @@
       },
       {
         "id": 54,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -717,8 +717,8 @@
       },
       {
         "id": 55,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -729,8 +729,8 @@
       },
       {
         "id": 56,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -741,8 +741,8 @@
       },
       {
         "id": 57,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -753,8 +753,8 @@
       },
       {
         "id": 58,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -765,8 +765,8 @@
       },
       {
         "id": 59,
-        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -777,8 +777,8 @@
       },
       {
         "id": 60,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -789,8 +789,8 @@
       },
       {
         "id": 61,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -801,8 +801,8 @@
       },
       {
         "id": 62,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -813,8 +813,8 @@
       },
       {
         "id": 63,
-        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -825,8 +825,8 @@
       },
       {
         "id": 64,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -837,8 +837,8 @@
       },
       {
         "id": 65,
-        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -849,8 +849,8 @@
       },
       {
         "id": 66,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -861,8 +861,8 @@
       },
       {
         "id": 67,
-        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -873,8 +873,8 @@
       },
       {
         "id": 68,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -885,8 +885,8 @@
       },
       {
         "id": 69,
-        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -897,8 +897,8 @@
       },
       {
         "id": 70,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -909,8 +909,8 @@
       },
       {
         "id": 71,
-        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -921,8 +921,8 @@
       },
       {
         "id": 72,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -933,8 +933,8 @@
       },
       {
         "id": 73,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -945,8 +945,8 @@
       },
       {
         "id": 74,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -957,8 +957,8 @@
       },
       {
         "id": 75,
-        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -969,8 +969,8 @@
       },
       {
         "id": 76,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -981,8 +981,8 @@
       },
       {
         "id": 77,
-        "url": "https://sherlock-events-sampler.ebay.com/{seg}",
-        "domain": "sherlock-events-sampler.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -993,8 +993,8 @@
       },
       {
         "id": 78,
-        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1005,8 +1005,8 @@
       },
       {
         "id": 79,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1017,8 +1017,8 @@
       },
       {
         "id": 80,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1029,8 +1029,8 @@
       },
       {
         "id": 81,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1041,8 +1041,8 @@
       },
       {
         "id": 82,
-        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "i.ebayimg.com",
+        "url": "https://{label}.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1077,8 +1077,8 @@
       },
       {
         "id": 85,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}?callback=",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}?callback=",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1089,8 +1089,8 @@
       },
       {
         "id": 86,
-        "url": "https://cas.avalon.perfdrive.com/{seg}",
-        "domain": "cas.avalon.perfdrive.com",
+        "url": "https://{label}.{label}.perfdrive.com/{seg}",
+        "domain": "{label}.{label}.perfdrive.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1101,8 +1101,8 @@
       },
       {
         "id": 87,
-        "url": "https://cas.avalon.perfdrive.com/{seg}",
-        "domain": "cas.avalon.perfdrive.com",
+        "url": "https://{label}.{label}.perfdrive.com/{seg}",
+        "domain": "{label}.{label}.perfdrive.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1113,8 +1113,8 @@
       },
       {
         "id": 88,
-        "url": "https://cas.avalon.perfdrive.com/{seg}",
-        "domain": "cas.avalon.perfdrive.com",
+        "url": "https://{label}.{label}.perfdrive.com/{seg}",
+        "domain": "{label}.{label}.perfdrive.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1125,8 +1125,8 @@
       },
       {
         "id": 89,
-        "url": "https://cas.avalon.perfdrive.com/{seg}",
-        "domain": "cas.avalon.perfdrive.com",
+        "url": "https://{label}.{label}.perfdrive.com/{seg}",
+        "domain": "{label}.{label}.perfdrive.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1137,8 +1137,8 @@
       },
       {
         "id": 90,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1149,8 +1149,8 @@
       },
       {
         "id": 91,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1161,8 +1161,8 @@
       },
       {
         "id": 92,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1173,8 +1173,8 @@
       },
       {
         "id": 93,
-        "url": "https://rover.ebay.com/{seg}/{n}/{n}/{n}",
-        "domain": "rover.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{n}/{n}/{n}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1197,8 +1197,8 @@
       },
       {
         "id": 95,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1209,8 +1209,8 @@
       },
       {
         "id": 96,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1233,8 +1233,8 @@
       },
       {
         "id": 98,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1245,8 +1245,8 @@
       },
       {
         "id": 99,
-        "url": "https://backstory.ebay.com/{seg}/{seg}/{seg}",
-        "domain": "backstory.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1257,8 +1257,8 @@
       },
       {
         "id": 100,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1269,8 +1269,8 @@
       },
       {
         "id": 101,
-        "url": "https://devicebind.ebay.com/signin/{seg}/{seg}",
-        "domain": "devicebind.ebay.com",
+        "url": "https://{label}.ebay.com/signin/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1317,7 +1317,7 @@
       },
       {
         "id": 105,
-        "url": "https://www.ebayadservices.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.ebayadservices.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.ebayadservices.com",
         "method": "GET",
         "resourceType": "image",
@@ -1329,8 +1329,8 @@
       },
       {
         "id": 106,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1341,8 +1341,8 @@
       },
       {
         "id": 107,
-        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "mkttag.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1353,8 +1353,8 @@
       },
       {
         "id": 108,
-        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "mkttag.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1365,8 +1365,8 @@
       },
       {
         "id": 109,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1377,8 +1377,8 @@
       },
       {
         "id": 110,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1389,8 +1389,8 @@
       },
       {
         "id": 111,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1401,8 +1401,8 @@
       },
       {
         "id": 112,
-        "url": "https://sherlock-events-sampler.ebay.com/{seg}",
-        "domain": "sherlock-events-sampler.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1413,8 +1413,8 @@
       },
       {
         "id": 113,
-        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "mkttag.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1425,8 +1425,8 @@
       },
       {
         "id": 114,
-        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "mkttag.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1437,8 +1437,8 @@
       },
       {
         "id": 115,
-        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "mkttag.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1449,8 +1449,8 @@
       },
       {
         "id": 116,
-        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "mkttag.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1461,8 +1461,8 @@
       },
       {
         "id": 117,
-        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "mkttag.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1473,8 +1473,8 @@
       },
       {
         "id": 118,
-        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "mkttag.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1485,8 +1485,8 @@
       },
       {
         "id": 119,
-        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "mkttag.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1497,8 +1497,8 @@
       },
       {
         "id": 120,
-        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "mkttag.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1509,8 +1509,8 @@
       },
       {
         "id": 121,
-        "url": "https://sp.analytics.yahoo.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sp.analytics.yahoo.com",
+        "url": "https://{label}.analytics.yahoo.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1521,8 +1521,8 @@
       },
       {
         "id": 122,
-        "url": "https://dynamic.criteo.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "dynamic.criteo.com",
+        "url": "https://{label}.criteo.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.criteo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1538,14 +1538,14 @@
       },
       {
         "id": 123,
-        "url": "https://connect.facebook.net/{seg}/{seg}",
-        "domain": "connect.facebook.net",
+        "url": "https://{label}.facebook.net/{seg}/{seg}",
+        "domain": "{label}.facebook.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "connect.facebook.net",
+          "domain": "{label}.facebook.net",
           "entity": "Meta",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1584,8 +1584,8 @@
       },
       {
         "id": 126,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1608,8 +1608,8 @@
       },
       {
         "id": 128,
-        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
-        "domain": "tags.tiqcdn.com",
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1620,8 +1620,8 @@
       },
       {
         "id": 129,
-        "url": "https://s.pinimg.com/{seg}/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1632,8 +1632,8 @@
       },
       {
         "id": 130,
-        "url": "https://pixel-config.reddit.com/{seg}/{seg}/{seg}",
-        "domain": "pixel-config.reddit.com",
+        "url": "https://{label}.reddit.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.reddit.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1644,8 +1644,8 @@
       },
       {
         "id": 131,
-        "url": "https://alb.reddit.com/{seg}?%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "alb.reddit.com",
+        "url": "https://{label}.reddit.com/{seg}?%5Bredacted%5D=&id=&v=",
+        "domain": "{label}.reddit.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1656,8 +1656,8 @@
       },
       {
         "id": 132,
-        "url": "https://tr.snapchat.com/{seg}/{seg}/{seg}?v=",
-        "domain": "tr.snapchat.com",
+        "url": "https://{label}.snapchat.com/{seg}/{seg}/{seg}?v=",
+        "domain": "{label}.snapchat.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1668,8 +1668,8 @@
       },
       {
         "id": 133,
-        "url": "https://tr.snapchat.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tr.snapchat.com",
+        "url": "https://{label}.snapchat.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.snapchat.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1680,8 +1680,8 @@
       },
       {
         "id": 134,
-        "url": "https://gum.criteo.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gum.criteo.com",
+        "url": "https://{label}.criteo.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.criteo.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1697,14 +1697,14 @@
       },
       {
         "id": 135,
-        "url": "https://ct.pinterest.com/{seg}?tid=&%5Bredacted%5D=&%5Bredacted%5D=&cb=&%5Bredacted%5D=",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}?tid=&%5Bredacted%5D=&cb=",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1714,14 +1714,14 @@
       },
       {
         "id": 136,
-        "url": "https://ct.pinterest.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&tid=&cb=&%5Bredacted%5D=",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}?%5Bredacted%5D=&tid=&cb=",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1731,14 +1731,14 @@
       },
       {
         "id": 137,
-        "url": "https://ct.pinterest.com/{seg}?tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}?tid=&%5Bredacted%5D=&cb=",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1748,14 +1748,14 @@
       },
       {
         "id": 138,
-        "url": "https://connect.facebook.net/{seg}/{seg}/{n}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "connect.facebook.net",
+        "url": "https://{label}.facebook.net/{seg}/{seg}/{n}?v=&%5Bredacted%5D=",
+        "domain": "{label}.facebook.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "connect.facebook.net",
+          "domain": "{label}.facebook.net",
           "entity": "Meta",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1765,14 +1765,14 @@
       },
       {
         "id": 139,
-        "url": "https://ct.pinterest.com/{seg}",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1782,14 +1782,14 @@
       },
       {
         "id": 140,
-        "url": "https://ct.pinterest.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&tid=&cb=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}?%5Bredacted%5D=&tid=&cb=",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1799,8 +1799,8 @@
       },
       {
         "id": 141,
-        "url": "https://sslwidget.criteo.com/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sslwidget.criteo.com",
+        "url": "https://{label}.criteo.com/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.criteo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1816,7 +1816,7 @@
       },
       {
         "id": 142,
-        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "ad.doubleclick.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -1833,8 +1833,8 @@
       },
       {
         "id": 143,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1850,7 +1850,7 @@
       },
       {
         "id": 144,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1862,8 +1862,8 @@
       },
       {
         "id": 145,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1879,7 +1879,7 @@
       },
       {
         "id": 146,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1891,7 +1891,7 @@
       },
       {
         "id": 147,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1908,8 +1908,8 @@
       },
       {
         "id": 148,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1925,7 +1925,7 @@
       },
       {
         "id": 149,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1937,7 +1937,7 @@
       },
       {
         "id": 150,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1954,7 +1954,7 @@
       },
       {
         "id": 151,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1966,7 +1966,7 @@
       },
       {
         "id": 152,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1978,8 +1978,8 @@
       },
       {
         "id": 153,
-        "url": "https://tr.snapchat.com/{seg}",
-        "domain": "tr.snapchat.com",
+        "url": "https://{label}.snapchat.com/{seg}",
+        "domain": "{label}.snapchat.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -1990,7 +1990,7 @@
       },
       {
         "id": 154,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
@@ -2002,7 +2002,7 @@
       },
       {
         "id": 155,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
@@ -2014,7 +2014,7 @@
       },
       {
         "id": 156,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
@@ -2026,8 +2026,8 @@
       },
       {
         "id": 157,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2043,7 +2043,7 @@
       },
       {
         "id": 158,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2055,8 +2055,8 @@
       },
       {
         "id": 159,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2072,7 +2072,7 @@
       },
       {
         "id": 160,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2084,7 +2084,7 @@
       },
       {
         "id": 161,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2096,7 +2096,7 @@
       },
       {
         "id": 162,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2108,8 +2108,8 @@
       },
       {
         "id": 163,
-        "url": "https://tr6.snapchat.com/{seg}",
-        "domain": "tr6.snapchat.com",
+        "url": "https://{label}.snapchat.com/{seg}",
+        "domain": "{label}.snapchat.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2137,8 +2137,8 @@
       },
       {
         "id": 165,
-        "url": "https://{label}.fls.doubleclick.net/{seg}",
-        "domain": "{label}.fls.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 302,
@@ -2154,7 +2154,7 @@
       },
       {
         "id": 166,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2166,7 +2166,7 @@
       },
       {
         "id": 167,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
@@ -2178,7 +2178,7 @@
       },
       {
         "id": 168,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
@@ -2190,8 +2190,8 @@
       },
       {
         "id": 169,
-        "url": "https://{label}.fls.doubleclick.net/{seg}",
-        "domain": "{label}.fls.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2207,8 +2207,8 @@
       },
       {
         "id": 170,
-        "url": "https://tr.snapchat.com/{seg}",
-        "domain": "tr.snapchat.com",
+        "url": "https://{label}.snapchat.com/{seg}",
+        "domain": "{label}.snapchat.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2219,14 +2219,14 @@
       },
       {
         "id": 171,
-        "url": "https://adservice.google.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "adservice.google.com",
+        "url": "https://{label}.google.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.google.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "adservice.google.com",
+          "domain": "{label}.google.com",
           "entity": "Google",
           "category": "advertising",
           "confidence": "curated"
@@ -2248,8 +2248,8 @@
       },
       {
         "id": 173,
-        "url": "https://svcs.ebay.com/{seg}/{seg}/{seg}",
-        "domain": "svcs.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 202,
@@ -2272,7 +2272,7 @@
       },
       {
         "id": 175,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2284,7 +2284,7 @@
       },
       {
         "id": 176,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2296,8 +2296,8 @@
       },
       {
         "id": 177,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2313,7 +2313,7 @@
       },
       {
         "id": 178,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2325,7 +2325,7 @@
       },
       {
         "id": 179,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
@@ -2361,8 +2361,8 @@
       },
       {
         "id": 182,
-        "url": "https://pulsar.ebay.com/{seg}/{seg}/{n}/{seg}/{n}",
-        "domain": "pulsar.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{n}/{seg}/{n}",
+        "domain": "{label}.ebay.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2373,8 +2373,8 @@
       },
       {
         "id": 183,
-        "url": "https://edgetrksvc.ebay.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "edgetrksvc.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2385,8 +2385,8 @@
       },
       {
         "id": 184,
-        "url": "https://backstory.ebay.com/{seg}/{seg}/{seg}",
-        "domain": "backstory.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2397,8 +2397,8 @@
       },
       {
         "id": 185,
-        "url": "https://tr.snapchat.com/{seg}",
-        "domain": "tr.snapchat.com",
+        "url": "https://{label}.snapchat.com/{seg}",
+        "domain": "{label}.snapchat.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2409,8 +2409,8 @@
       },
       {
         "id": 186,
-        "url": "https://svcs.ebay.com/{seg}/{seg}/{seg}",
-        "domain": "svcs.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
@@ -2421,8 +2421,8 @@
       },
       {
         "id": 187,
-        "url": "https://sofe.ebay.com/{seg}/{seg}/{seg}",
-        "domain": "sofe.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebay.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2451,8 +2451,8 @@
     ],
     "domains": [
       {
-        "domain": "googleads.g.doubleclick.net",
-        "requests": 6,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 8,
         "thirdParty": true,
         "tracker": {
           "domain": "doubleclick.net",
@@ -2462,18 +2462,20 @@
         },
         "blockedByShields": true,
         "statuses": [
-          200
+          200,
+          302
         ],
         "resourceTypes": [
-          "script"
+          "script",
+          "document"
         ]
       },
       {
-        "domain": "ct.pinterest.com",
+        "domain": "{label}.pinterest.com",
         "requests": 5,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -2485,6 +2487,25 @@
         "resourceTypes": [
           "xhr",
           "fetch",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.criteo.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
           "document"
         ]
       },
@@ -2526,11 +2547,11 @@
         ]
       },
       {
-        "domain": "connect.facebook.net",
+        "domain": "{label}.facebook.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "connect.facebook.net",
+          "domain": "{label}.facebook.net",
           "entity": "Meta",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -2544,84 +2565,11 @@
         ]
       },
       {
-        "domain": "{label}.fls.doubleclick.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "dynamic.criteo.com",
+        "domain": "{label}.google.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
-          "domain": "criteo.com",
-          "entity": "Criteo",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "gum.criteo.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "criteo.com",
-          "entity": "Criteo",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "sslwidget.criteo.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "criteo.com",
-          "entity": "Criteo",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "adservice.google.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "adservice.google.com",
+          "domain": "{label}.google.com",
           "entity": "Google",
           "category": "advertising",
           "confidence": "curated"
@@ -2635,7 +2583,7 @@
         ]
       },
       {
-        "domain": "i.ebayimg.com",
+        "domain": "{label}.ebayimg.com",
         "requests": 55,
         "thirdParty": true,
         "tracker": null,
@@ -2648,7 +2596,7 @@
         ]
       },
       {
-        "domain": "ir.ebaystatic.com",
+        "domain": "{label}.ebaystatic.com",
         "requests": 36,
         "thirdParty": true,
         "tracker": null,
@@ -2679,8 +2627,8 @@
         ]
       },
       {
-        "domain": "tr.snapchat.com",
-        "requests": 5,
+        "domain": "{label}.snapchat.com",
+        "requests": 6,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -2694,7 +2642,7 @@
         ]
       },
       {
-        "domain": "cas.avalon.perfdrive.com",
+        "domain": "{label}.{label}.perfdrive.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": null,
@@ -2707,7 +2655,7 @@
         ]
       },
       {
-        "domain": "s.pinimg.com",
+        "domain": "{label}.pinimg.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -2717,6 +2665,20 @@
         ],
         "resourceTypes": [
           "script"
+        ]
+      },
+      {
+        "domain": "{label}.reddit.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "image"
         ]
       },
       {
@@ -2733,7 +2695,7 @@
         ]
       },
       {
-        "domain": "sp.analytics.yahoo.com",
+        "domain": "{label}.analytics.yahoo.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2772,7 +2734,7 @@
         ]
       },
       {
-        "domain": "tags.tiqcdn.com",
+        "domain": "{label}.tiqcdn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2785,41 +2747,21 @@
         ]
       },
       {
-        "domain": "pixel-config.reddit.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "alb.reddit.com",
-        "requests": 1,
-        "thirdParty": true,
+        "domain": "{label}.ebay.com",
+        "requests": 21,
+        "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
-          200
+          200,
+          202
         ],
         "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "tr6.snapchat.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
+          "fetch",
+          "image",
+          "document",
+          "script",
+          "xhr",
           "ping"
         ]
       },
@@ -2838,118 +2780,6 @@
           "fetch",
           "xhr"
         ]
-      },
-      {
-        "domain": "mkttag.ebay.com",
-        "requests": 10,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "sherlock-events-sampler.ebay.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "backstory.ebay.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image",
-          "ping"
-        ]
-      },
-      {
-        "domain": "svcs.ebay.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          202
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "rover.ebay.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "devicebind.ebay.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "pulsar.ebay.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [],
-        "resourceTypes": [
-          "ping"
-        ]
-      },
-      {
-        "domain": "edgetrksvc.ebay.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [],
-        "resourceTypes": [
-          "ping"
-        ]
-      },
-      {
-        "domain": "sofe.ebay.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [],
-        "resourceTypes": [
-          "ping"
-        ]
       }
     ],
     "cookies": [
@@ -2965,7 +2795,7 @@
       },
       {
         "name": "_pinterest_ct_ua",
-        "domain": ".ct.pinterest.com",
+        "domain": ".{label}.pinterest.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -3511,8 +3341,8 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://ir.ebaystatic.com/",
-            "https://s.pinimg.com/",
+            "https://{label}.ebaystatic.com/",
+            "https://{label}.pinimg.com/",
             "https://sc-static.net/",
             "https://www.googletagmanager.com/"
           ],
@@ -3544,8 +3374,8 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://connect.facebook.net/",
-            "https://ir.ebaystatic.com/",
+            "https://{label}.facebook.net/",
+            "https://{label}.ebaystatic.com/",
             "https://sc-static.net/",
             "https://www.googletagmanager.com/"
           ],
@@ -3652,8 +3482,8 @@
       },
       {
         "id": 2,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3664,8 +3494,8 @@
       },
       {
         "id": 3,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -3676,8 +3506,8 @@
       },
       {
         "id": 4,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3688,8 +3518,8 @@
       },
       {
         "id": 5,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3700,8 +3530,8 @@
       },
       {
         "id": 6,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3712,8 +3542,8 @@
       },
       {
         "id": 7,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3724,8 +3554,8 @@
       },
       {
         "id": 8,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3748,8 +3578,8 @@
       },
       {
         "id": 10,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3760,8 +3590,8 @@
       },
       {
         "id": 11,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3772,8 +3602,8 @@
       },
       {
         "id": 12,
-        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ir.ebaystatic.com",
+        "url": "https://{label}.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ebaystatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3784,8 +3614,8 @@
       },
       {
         "id": 13,
-        "url": "https://cas.avalon.perfdrive.com/{seg}",
-        "domain": "cas.avalon.perfdrive.com",
+        "url": "https://{label}.{label}.perfdrive.com/{seg}",
+        "domain": "{label}.{label}.perfdrive.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3796,8 +3626,8 @@
       },
       {
         "id": 14,
-        "url": "https://cas.avalon.perfdrive.com/{seg}",
-        "domain": "cas.avalon.perfdrive.com",
+        "url": "https://{label}.{label}.perfdrive.com/{seg}",
+        "domain": "{label}.{label}.perfdrive.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3808,8 +3638,8 @@
       },
       {
         "id": 15,
-        "url": "https://cas.avalon.perfdrive.com/{seg}",
-        "domain": "cas.avalon.perfdrive.com",
+        "url": "https://{label}.{label}.perfdrive.com/{seg}",
+        "domain": "{label}.{label}.perfdrive.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3844,8 +3674,8 @@
       },
       {
         "id": 18,
-        "url": "https://pulsar.ebay.com/{seg}/{seg}/{n}/{seg}/{n}",
-        "domain": "pulsar.ebay.com",
+        "url": "https://{label}.ebay.com/{seg}/{seg}/{n}/{seg}/{n}",
+        "domain": "{label}.ebay.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -3857,7 +3687,7 @@
     ],
     "domains": [
       {
-        "domain": "ir.ebaystatic.com",
+        "domain": "{label}.ebaystatic.com",
         "requests": 10,
         "thirdParty": true,
         "tracker": null,
@@ -3872,7 +3702,7 @@
         ]
       },
       {
-        "domain": "cas.avalon.perfdrive.com",
+        "domain": "{label}.{label}.perfdrive.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -3900,7 +3730,7 @@
         ]
       },
       {
-        "domain": "pulsar.ebay.com",
+        "domain": "{label}.ebay.com",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -4073,7 +3903,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://ir.ebaystatic.com/"
+            "https://{label}.ebaystatic.com/"
           ],
           "totalListenerCalls": 9
         }
@@ -4101,7 +3931,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://ir.ebaystatic.com/"
+            "https://{label}.ebaystatic.com/"
           ],
           "totalListenerCalls": 22
         }
@@ -4152,9 +3982,9 @@
       "delta": -25
     },
     "thirdPartyDomains": {
-      "before": 24,
+      "before": 19,
       "after": 2,
-      "delta": -22
+      "delta": -17
     },
     "cookies": {
       "before": 41,
@@ -4179,7 +4009,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "i.ebayimg.com",
+        "domain": "{label}.ebayimg.com",
         "requests": 55,
         "tracker": null
       },
@@ -4189,13 +4019,8 @@
         "tracker": null
       },
       {
-        "domain": "mkttag.ebay.com",
-        "requests": 10,
-        "tracker": null
-      },
-      {
-        "domain": "googleads.g.doubleclick.net",
-        "requests": 6,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 8,
         "tracker": {
           "domain": "doubleclick.net",
           "entity": "Google",
@@ -4204,19 +4029,29 @@
         }
       },
       {
-        "domain": "ct.pinterest.com",
+        "domain": "{label}.snapchat.com",
+        "requests": 6,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.pinterest.com",
         "requests": 5,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
         }
       },
       {
-        "domain": "tr.snapchat.com",
-        "requests": 5,
-        "tracker": null
+        "domain": "{label}.criteo.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "criteo.com",
+          "entity": "Criteo",
+          "category": "advertising",
+          "confidence": "curated"
+        }
       },
       {
         "domain": "ad.doubleclick.net",
@@ -4239,132 +4074,47 @@
         }
       },
       {
-        "domain": "{label}.fls.doubleclick.net",
+        "domain": "{label}.facebook.net",
         "requests": 2,
         "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "backstory.ebay.com",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "connect.facebook.net",
-        "requests": 2,
-        "tracker": {
-          "domain": "connect.facebook.net",
+          "domain": "{label}.facebook.net",
           "entity": "Meta",
           "category": "social / advertising pixel",
           "confidence": "curated"
         }
       },
       {
-        "domain": "s.pinimg.com",
+        "domain": "{label}.pinimg.com",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "sherlock-events-sampler.ebay.com",
+        "domain": "{label}.reddit.com",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "svcs.ebay.com",
-        "requests": 2,
+        "domain": "{label}.analytics.yahoo.com",
+        "requests": 1,
         "tracker": null
       },
       {
-        "domain": "adservice.google.com",
+        "domain": "{label}.google.com",
         "requests": 1,
         "tracker": {
-          "domain": "adservice.google.com",
+          "domain": "{label}.google.com",
           "entity": "Google",
           "category": "advertising",
           "confidence": "curated"
         }
       },
       {
-        "domain": "alb.reddit.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "devicebind.ebay.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "dynamic.criteo.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "criteo.com",
-          "entity": "Criteo",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "edgetrksvc.ebay.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "gum.criteo.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "criteo.com",
-          "entity": "Criteo",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "pixel-config.reddit.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "rover.ebay.com",
+        "domain": "{label}.tiqcdn.com",
         "requests": 1,
         "tracker": null
       },
       {
         "domain": "sc-static.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "sofe.ebay.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "sp.analytics.yahoo.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "sslwidget.criteo.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "criteo.com",
-          "entity": "Criteo",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "tags.tiqcdn.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "tr6.snapchat.com",
         "requests": 1,
         "tracker": null
       },
@@ -4384,7 +4134,7 @@
       {
         "entity": "Google",
         "requests": 15,
-        "domains": 5
+        "domains": 4
       },
       {
         "entity": "Pinterest",
@@ -4394,7 +4144,7 @@
       {
         "entity": "Criteo",
         "requests": 3,
-        "domains": 3
+        "domains": 1
       },
       {
         "entity": "Meta",
@@ -4405,13 +4155,13 @@
     "addedCookies": [],
     "removedCookies": [
       {
-        "name": "[redacted]",
-        "domain": ".criteo.com",
+        "name": "_pinterest_ct_ua",
+        "domain": ".{label}.pinterest.com",
         "thirdParty": true
       },
       {
-        "name": "_pinterest_ct_ua",
-        "domain": ".ct.pinterest.com",
+        "name": "[redacted]",
+        "domain": ".criteo.com",
         "thirdParty": true
       },
       {

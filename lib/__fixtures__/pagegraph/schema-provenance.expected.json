@@ -12,14 +12,14 @@
         "initiatorId": "element-child-script",
         "initiatorType": "HTML element",
         "scriptId": "injector-script-id",
-        "scriptUrl": "https://loader.example/loader.js?cache=1",
-        "scriptDomain": "loader.example",
+        "scriptUrl": "https://loader.example.net/loader.js?cache=1",
+        "scriptDomain": "loader.example.net",
         "injectedById": "parser-1"
       }
     },
     {
-      "url": "https://tracker.example/collect?cid=abc&email=a%40b.test",
-      "domain": "tracker.example",
+      "url": "https://google-analytics.com/collect?cid=abc&email=a%40b.test",
+      "domain": "google-analytics.com",
       "resourceType": "xhr",
       "status": 204,
       "startedAtMs": 6,
@@ -34,8 +34,8 @@
         "scriptUrl": "https://tags.example.net/tag.js?cache=123",
         "scriptDomain": "tags.example.net",
         "injectedById": "script-injector",
-        "injectedByUrl": "https://loader.example/loader.js?cache=1",
-        "injectedByDomain": "loader.example"
+        "injectedByUrl": "https://loader.example.net/loader.js?cache=1",
+        "injectedByDomain": "loader.example.net"
       }
     }
   ],

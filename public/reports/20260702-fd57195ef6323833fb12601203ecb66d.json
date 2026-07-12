@@ -8,7 +8,7 @@
     "baseline": "No blocking",
     "variant": "Brave-list blocking"
   },
-  "requestedUrl": "https://plato.stanford.edu/",
+  "requestedUrl": "https://{label}.stanford.edu/",
   "scannedAt": "2026-07-02T15:24:24.991Z",
   "device": "desktop",
   "baseline": {
@@ -19,7 +19,7 @@
       "pageTitle": "Stanford Encyclopedia of Philosophy",
       "status": 200,
       "durationMs": 4954,
-      "firstPartyDomain": "plato.stanford.edu",
+      "firstPartyDomain": "{label}.stanford.edu",
       "totalRequests": 20,
       "thirdPartyRequests": 3,
       "knownTrackerRequests": 0,
@@ -31,8 +31,8 @@
       "shieldsBlockedRequests": 0
     },
     "conditions": {
-      "requestedUrl": "https://plato.stanford.edu/",
-      "finalUrl": "https://plato.stanford.edu/",
+      "requestedUrl": "https://{label}.stanford.edu/",
+      "finalUrl": "https://{label}.stanford.edu/",
       "scannedAt": "2026-07-02T15:24:20.032Z",
       "chromiumVersion": "149.0.7827.55",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
@@ -69,8 +69,8 @@
     "requests": [
       {
         "id": 1,
-        "url": "https://plato.stanford.edu/",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -81,7 +81,7 @@
       },
       {
         "id": 2,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -93,8 +93,8 @@
       },
       {
         "id": 3,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -105,8 +105,8 @@
       },
       {
         "id": 4,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -117,8 +117,8 @@
       },
       {
         "id": 5,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -129,8 +129,8 @@
       },
       {
         "id": 6,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -141,8 +141,8 @@
       },
       {
         "id": 7,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -165,8 +165,8 @@
       },
       {
         "id": 9,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -177,8 +177,8 @@
       },
       {
         "id": 10,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -189,8 +189,8 @@
       },
       {
         "id": 11,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -201,8 +201,8 @@
       },
       {
         "id": 12,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -225,8 +225,8 @@
       },
       {
         "id": 14,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -261,8 +261,8 @@
       },
       {
         "id": 17,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -285,8 +285,8 @@
       },
       {
         "id": 19,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -310,7 +310,7 @@
     ],
     "domains": [
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -336,7 +336,7 @@
         ]
       },
       {
-        "domain": "plato.stanford.edu",
+        "domain": "{label}.stanford.edu",
         "requests": 17,
         "thirdParty": false,
         "tracker": null,
@@ -372,7 +372,7 @@
       "pageTitle": "Stanford Encyclopedia of Philosophy",
       "status": 200,
       "durationMs": 4987,
-      "firstPartyDomain": "plato.stanford.edu",
+      "firstPartyDomain": "{label}.stanford.edu",
       "totalRequests": 20,
       "thirdPartyRequests": 3,
       "knownTrackerRequests": 0,
@@ -384,8 +384,8 @@
       "shieldsBlockedRequests": 0
     },
     "conditions": {
-      "requestedUrl": "https://plato.stanford.edu/",
-      "finalUrl": "https://plato.stanford.edu/",
+      "requestedUrl": "https://{label}.stanford.edu/",
+      "finalUrl": "https://{label}.stanford.edu/",
       "scannedAt": "2026-07-02T15:24:24.991Z",
       "chromiumVersion": "149.0.7827.55",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
@@ -422,8 +422,8 @@
     "requests": [
       {
         "id": 1,
-        "url": "https://plato.stanford.edu/",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -434,7 +434,7 @@
       },
       {
         "id": 2,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -446,8 +446,8 @@
       },
       {
         "id": 3,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -458,8 +458,8 @@
       },
       {
         "id": 4,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -470,8 +470,8 @@
       },
       {
         "id": 5,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -482,8 +482,8 @@
       },
       {
         "id": 6,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -494,8 +494,8 @@
       },
       {
         "id": 7,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -506,8 +506,8 @@
       },
       {
         "id": 8,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -518,8 +518,8 @@
       },
       {
         "id": 9,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -530,8 +530,8 @@
       },
       {
         "id": 10,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -542,8 +542,8 @@
       },
       {
         "id": 11,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -554,8 +554,8 @@
       },
       {
         "id": 12,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -566,8 +566,8 @@
       },
       {
         "id": 13,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -578,8 +578,8 @@
       },
       {
         "id": 14,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -590,8 +590,8 @@
       },
       {
         "id": 15,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -602,8 +602,8 @@
       },
       {
         "id": 16,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -614,8 +614,8 @@
       },
       {
         "id": 17,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -626,8 +626,8 @@
       },
       {
         "id": 18,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -638,8 +638,8 @@
       },
       {
         "id": 19,
-        "url": "https://plato.stanford.edu/{seg}/{seg}",
-        "domain": "plato.stanford.edu",
+        "url": "https://{label}.stanford.edu/{seg}/{seg}",
+        "domain": "{label}.stanford.edu",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -650,8 +650,8 @@
       },
       {
         "id": 20,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -663,7 +663,7 @@
     ],
     "domains": [
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -689,7 +689,7 @@
         ]
       },
       {
-        "domain": "plato.stanford.edu",
+        "domain": "{label}.stanford.edu",
         "requests": 17,
         "thirdParty": false,
         "tracker": null,

@@ -23,7 +23,7 @@
       "totalRequests": 112,
       "thirdPartyRequests": 89,
       "knownTrackerRequests": 1,
-      "thirdPartyDomains": 7,
+      "thirdPartyDomains": 6,
       "cookies": 8,
       "thirdPartyCookies": 0,
       "storageEntries": 1,
@@ -494,8 +494,8 @@
       },
       {
         "id": 36,
-        "url": "https://tools.applemediaservices.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tools.applemediaservices.com",
+        "url": "https://{label}.applemediaservices.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.applemediaservices.com",
         "method": "GET",
         "resourceType": "image",
         "status": 301,
@@ -1010,8 +1010,8 @@
       },
       {
         "id": 79,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1046,8 +1046,8 @@
       },
       {
         "id": 82,
-        "url": "https://toolbox.marketingtools.apple.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "toolbox.marketingtools.apple.com",
+        "url": "https://{label}.{label}.apple.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.apple.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1406,8 +1406,8 @@
       },
       {
         "id": 112,
-        "url": "https://privacyportal.onetrust.com/{seg}/{seg}/{seg}",
-        "domain": "privacyportal.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1470,7 +1470,20 @@
         ]
       },
       {
-        "domain": "tools.applemediaservices.com",
+        "domain": "{label}.onetrust.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.applemediaservices.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1483,20 +1496,7 @@
         ]
       },
       {
-        "domain": "geolocation.onetrust.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "toolbox.marketingtools.apple.com",
+        "domain": "{label}.{label}.apple.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1506,19 +1506,6 @@
         ],
         "resourceTypes": [
           "image"
-        ]
-      },
-      {
-        "domain": "privacyportal.onetrust.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -1737,7 +1724,7 @@
       "totalRequests": 112,
       "thirdPartyRequests": 89,
       "knownTrackerRequests": 1,
-      "thirdPartyDomains": 7,
+      "thirdPartyDomains": 6,
       "cookies": 8,
       "thirdPartyCookies": 0,
       "storageEntries": 1,
@@ -2208,8 +2195,8 @@
       },
       {
         "id": 36,
-        "url": "https://tools.applemediaservices.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "tools.applemediaservices.com",
+        "url": "https://{label}.applemediaservices.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.applemediaservices.com",
         "method": "GET",
         "resourceType": "image",
         "status": 301,
@@ -2688,8 +2675,8 @@
       },
       {
         "id": 76,
-        "url": "https://toolbox.marketingtools.apple.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "toolbox.marketingtools.apple.com",
+        "url": "https://{label}.{label}.apple.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.apple.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2700,8 +2687,8 @@
       },
       {
         "id": 77,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3120,8 +3107,8 @@
       },
       {
         "id": 112,
-        "url": "https://privacyportal.onetrust.com/{seg}/{seg}/{seg}",
-        "domain": "privacyportal.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3184,7 +3171,20 @@
         ]
       },
       {
-        "domain": "tools.applemediaservices.com",
+        "domain": "{label}.onetrust.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.applemediaservices.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3197,7 +3197,7 @@
         ]
       },
       {
-        "domain": "toolbox.marketingtools.apple.com",
+        "domain": "{label}.{label}.apple.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3207,32 +3207,6 @@
         ],
         "resourceTypes": [
           "image"
-        ]
-      },
-      {
-        "domain": "geolocation.onetrust.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "privacyportal.onetrust.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -3456,8 +3430,8 @@
       "delta": 0
     },
     "thirdPartyDomains": {
-      "before": 7,
-      "after": 7,
+      "before": 6,
+      "after": 6,
       "delta": 0
     },
     "cookies": {

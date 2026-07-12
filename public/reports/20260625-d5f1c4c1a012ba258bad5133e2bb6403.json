@@ -23,7 +23,7 @@
       "totalRequests": 382,
       "thirdPartyRequests": 262,
       "knownTrackerRequests": 45,
-      "thirdPartyDomains": 29,
+      "thirdPartyDomains": 18,
       "cookies": 34,
       "thirdPartyCookies": 1,
       "storageEntries": 14,
@@ -93,8 +93,8 @@
       },
       {
         "id": 3,
-        "url": "https://pub.doubleverify.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -105,8 +105,8 @@
       },
       {
         "id": 4,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -302,8 +302,8 @@
       },
       {
         "id": 20,
-        "url": "https://client.px-cloud.net/{seg}/{seg}",
-        "domain": "client.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}/{seg}",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1082,8 +1082,8 @@
       },
       {
         "id": 85,
-        "url": "https://ift.px-cloud.net/{seg}?%5Bredacted%5D=",
-        "domain": "ift.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1130,8 +1130,8 @@
       },
       {
         "id": 89,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1142,8 +1142,8 @@
       },
       {
         "id": 90,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1154,8 +1154,8 @@
       },
       {
         "id": 91,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1166,8 +1166,8 @@
       },
       {
         "id": 92,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1178,8 +1178,8 @@
       },
       {
         "id": 93,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1190,8 +1190,8 @@
       },
       {
         "id": 94,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1202,8 +1202,8 @@
       },
       {
         "id": 95,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1214,8 +1214,8 @@
       },
       {
         "id": 96,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1226,8 +1226,8 @@
       },
       {
         "id": 97,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1238,8 +1238,8 @@
       },
       {
         "id": 98,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1250,8 +1250,8 @@
       },
       {
         "id": 99,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1262,8 +1262,8 @@
       },
       {
         "id": 100,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1274,8 +1274,8 @@
       },
       {
         "id": 101,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1286,8 +1286,8 @@
       },
       {
         "id": 102,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1562,8 +1562,8 @@
       },
       {
         "id": 125,
-        "url": "https://cdui-orchestrations.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdui-orchestrations.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1610,8 +1610,8 @@
       },
       {
         "id": 129,
-        "url": "https://sapphire-api.target.com/{seg}/{seg}/api/{seg}/{seg}/{seg}",
-        "domain": "sapphire-api.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/api/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1634,8 +1634,8 @@
       },
       {
         "id": 131,
-        "url": "https://redoak.target.com/{seg}/{seg}/{seg}",
-        "domain": "redoak.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1802,8 +1802,8 @@
       },
       {
         "id": 145,
-        "url": "https://pub.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1814,8 +1814,8 @@
       },
       {
         "id": 146,
-        "url": "https://pub.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1826,8 +1826,8 @@
       },
       {
         "id": 147,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?cb=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?cb=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1843,8 +1843,8 @@
       },
       {
         "id": 148,
-        "url": "https://carts.target.com/{seg}/{seg}/{seg}",
-        "domain": "carts.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -1867,8 +1867,8 @@
       },
       {
         "id": 150,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -1879,8 +1879,8 @@
       },
       {
         "id": 151,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -1903,7 +1903,7 @@
       },
       {
         "id": 153,
-        "url": "https://assets.targetimg1.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://assets.targetimg1.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "assets.targetimg1.com",
         "method": "GET",
         "resourceType": "script",
@@ -1915,8 +1915,8 @@
       },
       {
         "id": 154,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -1927,8 +1927,8 @@
       },
       {
         "id": 155,
-        "url": "https://edge.fullstory.com/{seg}/settings/{seg}/{seg}/{seg}",
-        "domain": "edge.fullstory.com",
+        "url": "https://{label}.fullstory.com/{seg}/settings/{seg}/{seg}/{seg}",
+        "domain": "{label}.fullstory.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2076,8 +2076,8 @@
       },
       {
         "id": 167,
-        "url": "https://redoak.target.com/{seg}/{seg}/{seg}",
-        "domain": "redoak.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2100,8 +2100,8 @@
       },
       {
         "id": 169,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2112,8 +2112,8 @@
       },
       {
         "id": 170,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2124,8 +2124,8 @@
       },
       {
         "id": 171,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2136,8 +2136,8 @@
       },
       {
         "id": 172,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2148,8 +2148,8 @@
       },
       {
         "id": 173,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2160,8 +2160,8 @@
       },
       {
         "id": 174,
-        "url": "https://pub.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2172,8 +2172,8 @@
       },
       {
         "id": 175,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2213,8 +2213,8 @@
       },
       {
         "id": 178,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "document",
         "status": null,
@@ -2237,8 +2237,8 @@
       },
       {
         "id": 180,
-        "url": "https://rs.fullstory.com/{seg}/{seg}",
-        "domain": "rs.fullstory.com",
+        "url": "https://{label}.fullstory.com/{seg}/{seg}",
+        "domain": "{label}.fullstory.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 202,
@@ -2254,8 +2254,8 @@
       },
       {
         "id": 181,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2266,8 +2266,8 @@
       },
       {
         "id": 182,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -2278,8 +2278,8 @@
       },
       {
         "id": 183,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -2290,8 +2290,8 @@
       },
       {
         "id": 184,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -2302,8 +2302,8 @@
       },
       {
         "id": 185,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -2314,8 +2314,8 @@
       },
       {
         "id": 186,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -2326,8 +2326,8 @@
       },
       {
         "id": 187,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -2338,8 +2338,8 @@
       },
       {
         "id": 188,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -2386,8 +2386,8 @@
       },
       {
         "id": 192,
-        "url": "https://vtrk.dv.tech/?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "vtrk.dv.tech",
+        "url": "https://{label}.dv.tech/?%5Bredacted%5D=&cid=&t=&v=",
+        "domain": "{label}.dv.tech",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -2398,8 +2398,8 @@
       },
       {
         "id": 193,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2415,8 +2415,8 @@
       },
       {
         "id": 194,
-        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2468,8 +2468,8 @@
       },
       {
         "id": 198,
-        "url": "https://p.toadmash.net/{n}/{seg}",
-        "domain": "p.toadmash.net",
+        "url": "https://{label}.toadmash.net/{n}/{seg}",
+        "domain": "{label}.toadmash.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2504,8 +2504,8 @@
       },
       {
         "id": 201,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2516,8 +2516,8 @@
       },
       {
         "id": 202,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2528,8 +2528,8 @@
       },
       {
         "id": 203,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2540,8 +2540,8 @@
       },
       {
         "id": 204,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2552,8 +2552,8 @@
       },
       {
         "id": 205,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2564,8 +2564,8 @@
       },
       {
         "id": 206,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2576,8 +2576,8 @@
       },
       {
         "id": 207,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2588,8 +2588,8 @@
       },
       {
         "id": 208,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2600,8 +2600,8 @@
       },
       {
         "id": 209,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2612,8 +2612,8 @@
       },
       {
         "id": 210,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2624,8 +2624,8 @@
       },
       {
         "id": 211,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2636,8 +2636,8 @@
       },
       {
         "id": 212,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2660,8 +2660,8 @@
       },
       {
         "id": 214,
-        "url": "https://mcl.spur.us/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mcl.spur.us",
+        "url": "https://{label}.spur.us/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.spur.us",
         "method": "GET",
         "resourceType": "script",
         "status": null,
@@ -2672,8 +2672,8 @@
       },
       {
         "id": 215,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2684,8 +2684,8 @@
       },
       {
         "id": 216,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "document",
         "status": null,
@@ -2696,8 +2696,8 @@
       },
       {
         "id": 217,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "document",
         "status": null,
@@ -2720,8 +2720,8 @@
       },
       {
         "id": 219,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2732,8 +2732,8 @@
       },
       {
         "id": 220,
-        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2761,8 +2761,8 @@
       },
       {
         "id": 222,
-        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2790,8 +2790,8 @@
       },
       {
         "id": 224,
-        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2819,8 +2819,8 @@
       },
       {
         "id": 226,
-        "url": "https://p.toadmash.net/{n}/{seg}",
-        "domain": "p.toadmash.net",
+        "url": "https://{label}.toadmash.net/{n}/{seg}",
+        "domain": "{label}.toadmash.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2855,8 +2855,8 @@
       },
       {
         "id": 229,
-        "url": "https://ponos.zeronaught.com/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ponos.zeronaught.com",
+        "url": "https://{label}.zeronaught.com/{n}?%5Bredacted%5D=",
+        "domain": "{label}.zeronaught.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2867,8 +2867,8 @@
       },
       {
         "id": 230,
-        "url": "https://tpc.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2884,8 +2884,8 @@
       },
       {
         "id": 231,
-        "url": "https://tpc.googlesyndication.com/{seg}/{n}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{n}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2901,8 +2901,8 @@
       },
       {
         "id": 232,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2918,8 +2918,8 @@
       },
       {
         "id": 233,
-        "url": "https://pub.dv.tech/{seg}/{n}/{seg}/{seg}",
-        "domain": "pub.dv.tech",
+        "url": "https://{label}.dv.tech/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.dv.tech",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2930,8 +2930,8 @@
       },
       {
         "id": 234,
-        "url": "https://mcl.spur.us/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mcl.spur.us",
+        "url": "https://{label}.spur.us/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.spur.us",
         "method": "GET",
         "resourceType": "script",
         "status": 301,
@@ -2942,8 +2942,8 @@
       },
       {
         "id": 235,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2954,8 +2954,8 @@
       },
       {
         "id": 236,
-        "url": "https://tpc.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2971,8 +2971,8 @@
       },
       {
         "id": 237,
-        "url": "https://tpc.googlesyndication.com/{seg}/{n}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{n}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2988,8 +2988,8 @@
       },
       {
         "id": 238,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3005,8 +3005,8 @@
       },
       {
         "id": 239,
-        "url": "https://pub.dv.tech/{seg}/{n}/{seg}/{seg}",
-        "domain": "pub.dv.tech",
+        "url": "https://{label}.dv.tech/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.dv.tech",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3017,8 +3017,8 @@
       },
       {
         "id": 240,
-        "url": "https://tpc.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3034,8 +3034,8 @@
       },
       {
         "id": 241,
-        "url": "https://tpc.googlesyndication.com/{seg}/{n}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{n}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3051,8 +3051,8 @@
       },
       {
         "id": 242,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3068,8 +3068,8 @@
       },
       {
         "id": 243,
-        "url": "https://pub.dv.tech/{seg}/{n}/{seg}/{seg}",
-        "domain": "pub.dv.tech",
+        "url": "https://{label}.dv.tech/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.dv.tech",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3080,8 +3080,8 @@
       },
       {
         "id": 244,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3097,7 +3097,7 @@
       },
       {
         "id": 245,
-        "url": "https://{label}.mcl.io/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&v=",
+        "url": "https://{label}.mcl.io/{seg}/{seg}?%5Bredacted%5D=&t=&v=",
         "domain": "{label}.mcl.io",
         "method": "GET",
         "resourceType": "script",
@@ -3121,8 +3121,8 @@
       },
       {
         "id": 247,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -3138,8 +3138,8 @@
       },
       {
         "id": 248,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -3155,8 +3155,8 @@
       },
       {
         "id": 249,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3172,8 +3172,8 @@
       },
       {
         "id": 250,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -3189,8 +3189,8 @@
       },
       {
         "id": 251,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -3206,8 +3206,8 @@
       },
       {
         "id": 252,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3223,8 +3223,8 @@
       },
       {
         "id": 253,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -3240,8 +3240,8 @@
       },
       {
         "id": 254,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -3269,8 +3269,8 @@
       },
       {
         "id": 256,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -3286,8 +3286,8 @@
       },
       {
         "id": 257,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -3303,8 +3303,8 @@
       },
       {
         "id": 258,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -3332,8 +3332,8 @@
       },
       {
         "id": 260,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -3361,7 +3361,7 @@
       },
       {
         "id": 262,
-        "url": "https://{label}.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://{label}.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=",
         "domain": "{label}.mcl.io",
         "method": "GET",
         "resourceType": "fetch",
@@ -3373,8 +3373,8 @@
       },
       {
         "id": 263,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3390,8 +3390,8 @@
       },
       {
         "id": 264,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3407,8 +3407,8 @@
       },
       {
         "id": 265,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3436,8 +3436,8 @@
       },
       {
         "id": 267,
-        "url": "https://tps.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tps.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3448,8 +3448,8 @@
       },
       {
         "id": 268,
-        "url": "https://tps.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tps.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3484,8 +3484,8 @@
       },
       {
         "id": 271,
-        "url": "https://tps.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tps.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3496,8 +3496,8 @@
       },
       {
         "id": 272,
-        "url": "https://js.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "js.mcl.io",
+        "url": "https://{label}.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.mcl.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3508,8 +3508,8 @@
       },
       {
         "id": 273,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "media",
         "status": null,
@@ -3520,8 +3520,8 @@
       },
       {
         "id": 274,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -3556,8 +3556,8 @@
       },
       {
         "id": 277,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -3568,8 +3568,8 @@
       },
       {
         "id": 278,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3700,8 +3700,8 @@
       },
       {
         "id": 289,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -3717,8 +3717,8 @@
       },
       {
         "id": 290,
-        "url": "https://resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3729,8 +3729,8 @@
       },
       {
         "id": 291,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3741,8 +3741,8 @@
       },
       {
         "id": 292,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -3753,8 +3753,8 @@
       },
       {
         "id": 293,
-        "url": "https://resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3765,8 +3765,8 @@
       },
       {
         "id": 294,
-        "url": "https://resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3777,8 +3777,8 @@
       },
       {
         "id": 295,
-        "url": "https://analytics-fe.digital-cloud.medallia.com/api/{seg}/{seg}",
-        "domain": "analytics-fe.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3789,8 +3789,8 @@
       },
       {
         "id": 296,
-        "url": "https://analytics-fe.digital-cloud.medallia.com/api/{seg}/{seg}",
-        "domain": "analytics-fe.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3801,8 +3801,8 @@
       },
       {
         "id": 297,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3813,8 +3813,8 @@
       },
       {
         "id": 298,
-        "url": "https://analytics-fe.digital-cloud.medallia.com/api/{seg}/{seg}",
-        "domain": "analytics-fe.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3825,8 +3825,8 @@
       },
       {
         "id": 299,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -3849,8 +3849,8 @@
       },
       {
         "id": 301,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3866,8 +3866,8 @@
       },
       {
         "id": 302,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -3883,8 +3883,8 @@
       },
       {
         "id": 303,
-        "url": "https://ep2.adtrafficquality.google/{seg}?%5Bredacted%5D=",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -3895,8 +3895,8 @@
       },
       {
         "id": 304,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -3907,8 +3907,8 @@
       },
       {
         "id": 305,
-        "url": "https://cdui-orchestrations.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdui-orchestrations.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3919,8 +3919,8 @@
       },
       {
         "id": 306,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3931,8 +3931,8 @@
       },
       {
         "id": 307,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -3955,8 +3955,8 @@
       },
       {
         "id": 309,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3967,8 +3967,8 @@
       },
       {
         "id": 310,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3979,8 +3979,8 @@
       },
       {
         "id": 311,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3991,8 +3991,8 @@
       },
       {
         "id": 312,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4003,8 +4003,8 @@
       },
       {
         "id": 313,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4015,8 +4015,8 @@
       },
       {
         "id": 314,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4027,8 +4027,8 @@
       },
       {
         "id": 315,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4039,8 +4039,8 @@
       },
       {
         "id": 316,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4051,8 +4051,8 @@
       },
       {
         "id": 317,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4063,8 +4063,8 @@
       },
       {
         "id": 318,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4075,8 +4075,8 @@
       },
       {
         "id": 319,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4087,8 +4087,8 @@
       },
       {
         "id": 320,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4099,8 +4099,8 @@
       },
       {
         "id": 321,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4111,8 +4111,8 @@
       },
       {
         "id": 322,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4123,8 +4123,8 @@
       },
       {
         "id": 323,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4135,8 +4135,8 @@
       },
       {
         "id": 324,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4147,8 +4147,8 @@
       },
       {
         "id": 325,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4159,8 +4159,8 @@
       },
       {
         "id": 326,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4171,8 +4171,8 @@
       },
       {
         "id": 327,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4183,8 +4183,8 @@
       },
       {
         "id": 328,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4207,8 +4207,8 @@
       },
       {
         "id": 330,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4219,8 +4219,8 @@
       },
       {
         "id": 331,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4231,8 +4231,8 @@
       },
       {
         "id": 332,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4243,8 +4243,8 @@
       },
       {
         "id": 333,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4255,8 +4255,8 @@
       },
       {
         "id": 334,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4267,8 +4267,8 @@
       },
       {
         "id": 335,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4279,8 +4279,8 @@
       },
       {
         "id": 336,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4291,8 +4291,8 @@
       },
       {
         "id": 337,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4303,8 +4303,8 @@
       },
       {
         "id": 338,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4315,8 +4315,8 @@
       },
       {
         "id": 339,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4327,8 +4327,8 @@
       },
       {
         "id": 340,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4339,8 +4339,8 @@
       },
       {
         "id": 341,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4351,8 +4351,8 @@
       },
       {
         "id": 342,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4363,8 +4363,8 @@
       },
       {
         "id": 343,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4375,8 +4375,8 @@
       },
       {
         "id": 344,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4495,8 +4495,8 @@
       },
       {
         "id": 354,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -4519,8 +4519,8 @@
       },
       {
         "id": 356,
-        "url": "https://p.toadmash.net/{n}/{seg}",
-        "domain": "p.toadmash.net",
+        "url": "https://{label}.toadmash.net/{n}/{seg}",
+        "domain": "{label}.toadmash.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4543,8 +4543,8 @@
       },
       {
         "id": 358,
-        "url": "https://mcl.spur.us/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mcl.spur.us",
+        "url": "https://{label}.spur.us/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.spur.us",
         "method": "GET",
         "resourceType": "script",
         "status": 301,
@@ -4555,8 +4555,8 @@
       },
       {
         "id": 359,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4567,7 +4567,7 @@
       },
       {
         "id": 360,
-        "url": "https://{label}.mcl.io/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&v=",
+        "url": "https://{label}.mcl.io/{seg}/{seg}?%5Bredacted%5D=&t=&v=",
         "domain": "{label}.mcl.io",
         "method": "GET",
         "resourceType": "script",
@@ -4591,7 +4591,7 @@
       },
       {
         "id": 362,
-        "url": "https://{label}.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://{label}.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=",
         "domain": "{label}.mcl.io",
         "method": "GET",
         "resourceType": "fetch",
@@ -4603,8 +4603,8 @@
       },
       {
         "id": 363,
-        "url": "https://js.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "js.mcl.io",
+        "url": "https://{label}.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.mcl.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -4615,8 +4615,8 @@
       },
       {
         "id": 364,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -4639,8 +4639,8 @@
       },
       {
         "id": 366,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&id=&v=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -4668,8 +4668,8 @@
       },
       {
         "id": 368,
-        "url": "https://tpsc-uw1.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tpsc-uw1.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -4680,8 +4680,8 @@
       },
       {
         "id": 369,
-        "url": "https://tpsc-uw1.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tpsc-uw1.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -4692,8 +4692,8 @@
       },
       {
         "id": 370,
-        "url": "https://tpsc-uw1.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tpsc-uw1.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -4704,8 +4704,8 @@
       },
       {
         "id": 371,
-        "url": "https://tpsc-uw1.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tpsc-uw1.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -4716,8 +4716,8 @@
       },
       {
         "id": 372,
-        "url": "https://tpsc-uw1.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tpsc-uw1.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -4728,8 +4728,8 @@
       },
       {
         "id": 373,
-        "url": "https://tpsc-uw1.doubleverify.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "tpsc-uw1.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -4764,8 +4764,8 @@
       },
       {
         "id": 376,
-        "url": "https://vtrk.dv.tech/?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "vtrk.dv.tech",
+        "url": "https://{label}.dv.tech/?%5Bredacted%5D=&cid=&t=&v=",
+        "domain": "{label}.dv.tech",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -4776,8 +4776,8 @@
       },
       {
         "id": 377,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": null,
@@ -4793,8 +4793,8 @@
       },
       {
         "id": 378,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&id=&v=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": null,
@@ -4810,8 +4810,8 @@
       },
       {
         "id": 379,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": null,
@@ -4827,8 +4827,8 @@
       },
       {
         "id": 380,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&id=&v=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": null,
@@ -4844,8 +4844,8 @@
       },
       {
         "id": 381,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": null,
@@ -4861,8 +4861,8 @@
       },
       {
         "id": 382,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&id=&v=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": null,
@@ -4879,8 +4879,8 @@
     ],
     "domains": [
       {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 22,
+        "domain": "{label}.googlesyndication.com",
+        "requests": 28,
         "thirdParty": true,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -4895,13 +4895,13 @@
         ],
         "resourceTypes": [
           "script",
-          "fetch",
-          "image"
+          "image",
+          "fetch"
         ]
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 10,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 11,
         "thirdParty": true,
         "tracker": {
           "domain": "doubleclick.net",
@@ -4915,31 +4915,13 @@
         ],
         "resourceTypes": [
           "script",
+          "document",
           "fetch",
           "other"
         ]
       },
       {
-        "domain": "tpc.googlesyndication.com",
-        "requests": 6,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "image"
-        ]
-      },
-      {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.{label}.googlesyndication.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": {
@@ -4957,8 +4939,8 @@
         ]
       },
       {
-        "domain": "edge.fullstory.com",
-        "requests": 1,
+        "domain": "{label}.fullstory.com",
+        "requests": 2,
         "thirdParty": true,
         "tracker": {
           "domain": "fullstory.com",
@@ -4968,42 +4950,7 @@
         },
         "blockedByShields": true,
         "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
-        "domain": "rs.fullstory.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "fullstory.com",
-          "entity": "FullStory",
-          "category": "session replay",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
+          200,
           202
         ],
         "resourceTypes": [
@@ -5028,7 +4975,7 @@
         ]
       },
       {
-        "domain": "target.scene7.com",
+        "domain": "{label}.scene7.com",
         "requests": 50,
         "thirdParty": true,
         "tracker": null,
@@ -5043,35 +4990,24 @@
         ]
       },
       {
-        "domain": "tpsc-uw1.doubleverify.com",
-        "requests": 6,
+        "domain": "{label}.doubleverify.com",
+        "requests": 13,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
+          200,
           204
         ],
         "resourceTypes": [
+          "script",
+          "fetch",
           "ping"
         ]
       },
       {
         "domain": "{label}.px-cloud.net",
-        "requests": 5,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
-          "ping"
-        ]
-      },
-      {
-        "domain": "pub.doubleverify.com",
-        "requests": 4,
+        "requests": 7,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -5080,12 +5016,13 @@
         ],
         "resourceTypes": [
           "script",
-          "fetch"
+          "xhr",
+          "ping"
         ]
       },
       {
         "domain": "{label}.mcl.io",
-        "requests": 4,
+        "requests": 6,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -5094,11 +5031,58 @@
         ],
         "resourceTypes": [
           "script",
-          "fetch"
+          "fetch",
+          "xhr"
         ]
       },
       {
-        "domain": "p.toadmash.net",
+        "domain": "{label}.{label}.medallia.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.dv.tech",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204,
+          200
+        ],
+        "resourceTypes": [
+          "ping",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.toadmash.net",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -5111,26 +5095,13 @@
         ]
       },
       {
-        "domain": "mcl.spur.us",
+        "domain": "{label}.spur.us",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
         "statuses": [
           301
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "pub.dv.tech",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
         ],
         "resourceTypes": [
           "script"
@@ -5150,129 +5121,6 @@
         ]
       },
       {
-        "domain": "tps.doubleverify.com",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "resources.digital-cloud.medallia.com",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "xhr"
-        ]
-      },
-      {
-        "domain": "analytics-fe.digital-cloud.medallia.com",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "ep2.adtrafficquality.google",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200,
-          204
-        ],
-        "resourceTypes": [
-          "script",
-          "document",
-          "image"
-        ]
-      },
-      {
-        "domain": "vtrk.dv.tech",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "ping"
-        ]
-      },
-      {
-        "domain": "js.mcl.io",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "ep1.adtrafficquality.google",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200,
-          204
-        ],
-        "resourceTypes": [
-          "xhr",
-          "image"
-        ]
-      },
-      {
-        "domain": "client.px-cloud.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "ift.px-cloud.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
         "domain": "cdn.speedcurve.com",
         "requests": 1,
         "thirdParty": true,
@@ -5286,7 +5134,7 @@
         ]
       },
       {
-        "domain": "ponos.zeronaught.com",
+        "domain": "{label}.zeronaught.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -5308,6 +5156,22 @@
           200
         ],
         "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.target.com",
+        "requests": 49,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          204,
+          403
+        ],
+        "resourceTypes": [
+          "fetch",
           "document"
         ]
       },
@@ -5336,86 +5200,6 @@
           200,
           201,
           202
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "redsky.target.com",
-        "requests": 22,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          403,
-          200
-        ],
-        "resourceTypes": [
-          "fetch",
-          "document"
-        ]
-      },
-      {
-        "domain": "typeahead.target.com",
-        "requests": 21,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "cdui-orchestrations.target.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "redoak.target.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "sapphire-api.target.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "carts.target.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          204
         ],
         "resourceTypes": [
           "fetch"
@@ -5655,7 +5439,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "cdui-orchestrations.target.com",
+        "domain": "{label}.target.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
@@ -5665,7 +5449,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "redsky.target.com",
+        "domain": "{label}.target.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
@@ -5675,7 +5459,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "redsky.target.com",
+        "domain": "{label}.target.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
@@ -5838,12 +5622,12 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "canvas.measureText",
-        "count": 91
-      },
-      {
         "api": "canvas.getImageData",
         "count": 65
+      },
+      {
+        "api": "canvas.measureText",
+        "count": 91
       },
       {
         "api": "canvas.toDataURL",
@@ -5858,6 +5642,14 @@
         "count": 2
       },
       {
+        "api": "webgl2.readPixels",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      },
+      {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
         "count": 2
       },
@@ -5868,14 +5660,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 2
-      },
-      {
-        "api": "webgl2.readPixels",
-        "count": 1
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -5902,8 +5686,8 @@
             "https://assets.targetimg1.com/",
             "https://cdn.dv.tech/",
             "https://cdn.speedcurve.com/",
-            "https://client.px-cloud.net/",
-            "https://securepubads.g.doubleclick.net/"
+            "https://{label}.px-cloud.net/",
+            "https://{label}.{label}.doubleclick.net/"
           ],
           "totalListenerCalls": 332
         }
@@ -5942,10 +5726,10 @@
             "https://assets.targetimg1.com/",
             "https://cdn.dv.tech/",
             "https://cdn.speedcurve.com/",
-            "https://client.px-cloud.net/",
-            "https://pagead2.googlesyndication.com/",
-            "https://pub.doubleverify.com/",
-            "https://securepubads.g.doubleclick.net/"
+            "https://{label}.px-cloud.net/",
+            "https://{label}.googlesyndication.com/",
+            "https://{label}.doubleverify.com/",
+            "https://{label}.{label}.doubleclick.net/"
           ],
           "totalListenerCalls": 808
         }
@@ -6022,7 +5806,7 @@
       "totalRequests": 291,
       "thirdPartyRequests": 188,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 9,
+      "thirdPartyDomains": 7,
       "cookies": 25,
       "thirdPartyCookies": 0,
       "storageEntries": 9,
@@ -6272,8 +6056,8 @@
       },
       {
         "id": 20,
-        "url": "https://client.px-cloud.net/{seg}/{seg}",
-        "domain": "client.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}/{seg}",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7076,8 +6860,8 @@
       },
       {
         "id": 87,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7088,8 +6872,8 @@
       },
       {
         "id": 88,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7100,8 +6884,8 @@
       },
       {
         "id": 89,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7112,8 +6896,8 @@
       },
       {
         "id": 90,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7124,8 +6908,8 @@
       },
       {
         "id": 91,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7136,8 +6920,8 @@
       },
       {
         "id": 92,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7148,8 +6932,8 @@
       },
       {
         "id": 93,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7160,8 +6944,8 @@
       },
       {
         "id": 94,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7172,8 +6956,8 @@
       },
       {
         "id": 95,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7184,8 +6968,8 @@
       },
       {
         "id": 96,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7196,8 +6980,8 @@
       },
       {
         "id": 97,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7208,8 +6992,8 @@
       },
       {
         "id": 98,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7220,8 +7004,8 @@
       },
       {
         "id": 99,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7232,8 +7016,8 @@
       },
       {
         "id": 100,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7244,8 +7028,8 @@
       },
       {
         "id": 101,
-        "url": "https://ift.px-cloud.net/{seg}?%5Bredacted%5D=",
-        "domain": "ift.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -7472,8 +7256,8 @@
       },
       {
         "id": 124,
-        "url": "https://cdui-orchestrations.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdui-orchestrations.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -7520,8 +7304,8 @@
       },
       {
         "id": 128,
-        "url": "https://sapphire-api.target.com/{seg}/{seg}/api/{seg}/{seg}/{seg}",
-        "domain": "sapphire-api.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/api/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -7544,8 +7328,8 @@
       },
       {
         "id": 130,
-        "url": "https://redoak.target.com/{seg}/{seg}/{seg}",
-        "domain": "redoak.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -7712,8 +7496,8 @@
       },
       {
         "id": 144,
-        "url": "https://carts.target.com/{seg}/{seg}/{seg}",
-        "domain": "carts.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -7724,8 +7508,8 @@
       },
       {
         "id": 145,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -7736,8 +7520,8 @@
       },
       {
         "id": 146,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -7760,7 +7544,7 @@
       },
       {
         "id": 148,
-        "url": "https://assets.targetimg1.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://assets.targetimg1.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "assets.targetimg1.com",
         "method": "GET",
         "resourceType": "script",
@@ -7772,8 +7556,8 @@
       },
       {
         "id": 150,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -7784,8 +7568,8 @@
       },
       {
         "id": 152,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "document",
         "status": null,
@@ -7820,8 +7604,8 @@
       },
       {
         "id": 155,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -7832,8 +7616,8 @@
       },
       {
         "id": 158,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -7844,8 +7628,8 @@
       },
       {
         "id": 159,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -7856,8 +7640,8 @@
       },
       {
         "id": 161,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -7868,8 +7652,8 @@
       },
       {
         "id": 162,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -7880,8 +7664,8 @@
       },
       {
         "id": 163,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -7892,8 +7676,8 @@
       },
       {
         "id": 164,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -7904,8 +7688,8 @@
       },
       {
         "id": 165,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -7916,8 +7700,8 @@
       },
       {
         "id": 166,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -7964,8 +7748,8 @@
       },
       {
         "id": 171,
-        "url": "https://p.toadmash.net/{n}/{seg}",
-        "domain": "p.toadmash.net",
+        "url": "https://{label}.toadmash.net/{n}/{seg}",
+        "domain": "{label}.toadmash.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -8012,8 +7796,8 @@
       },
       {
         "id": 177,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8024,8 +7808,8 @@
       },
       {
         "id": 178,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8036,8 +7820,8 @@
       },
       {
         "id": 179,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8048,8 +7832,8 @@
       },
       {
         "id": 180,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8060,8 +7844,8 @@
       },
       {
         "id": 181,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8072,8 +7856,8 @@
       },
       {
         "id": 182,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8084,8 +7868,8 @@
       },
       {
         "id": 183,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8096,8 +7880,8 @@
       },
       {
         "id": 184,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8108,8 +7892,8 @@
       },
       {
         "id": 185,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8120,8 +7904,8 @@
       },
       {
         "id": 186,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8132,8 +7916,8 @@
       },
       {
         "id": 187,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8144,8 +7928,8 @@
       },
       {
         "id": 188,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8168,8 +7952,8 @@
       },
       {
         "id": 190,
-        "url": "https://mcl.spur.us/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mcl.spur.us",
+        "url": "https://{label}.spur.us/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.spur.us",
         "method": "GET",
         "resourceType": "script",
         "status": 301,
@@ -8180,8 +7964,8 @@
       },
       {
         "id": 191,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8192,8 +7976,8 @@
       },
       {
         "id": 192,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "document",
         "status": null,
@@ -8204,7 +7988,7 @@
       },
       {
         "id": 194,
-        "url": "https://{label}.mcl.io/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&v=",
+        "url": "https://{label}.mcl.io/{seg}/{seg}?%5Bredacted%5D=&t=&v=",
         "domain": "{label}.mcl.io",
         "method": "GET",
         "resourceType": "script",
@@ -8216,8 +8000,8 @@
       },
       {
         "id": 195,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -8360,8 +8144,8 @@
       },
       {
         "id": 207,
-        "url": "https://redoak.target.com/{seg}/{seg}/{seg}",
-        "domain": "redoak.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8372,8 +8156,8 @@
       },
       {
         "id": 208,
-        "url": "https://p.toadmash.net/{n}/{seg}",
-        "domain": "p.toadmash.net",
+        "url": "https://{label}.toadmash.net/{n}/{seg}",
+        "domain": "{label}.toadmash.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -8384,8 +8168,8 @@
       },
       {
         "id": 209,
-        "url": "https://mcl.spur.us/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mcl.spur.us",
+        "url": "https://{label}.spur.us/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.spur.us",
         "method": "GET",
         "resourceType": "script",
         "status": 301,
@@ -8396,8 +8180,8 @@
       },
       {
         "id": 210,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8408,7 +8192,7 @@
       },
       {
         "id": 213,
-        "url": "https://{label}.mcl.io/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&v=",
+        "url": "https://{label}.mcl.io/{seg}/{seg}?%5Bredacted%5D=&t=&v=",
         "domain": "{label}.mcl.io",
         "method": "GET",
         "resourceType": "script",
@@ -8420,8 +8204,8 @@
       },
       {
         "id": 214,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -8432,8 +8216,8 @@
       },
       {
         "id": 216,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
@@ -8444,7 +8228,7 @@
       },
       {
         "id": 217,
-        "url": "https://{label}.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://{label}.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=",
         "domain": "{label}.mcl.io",
         "method": "GET",
         "resourceType": "fetch",
@@ -8468,8 +8252,8 @@
       },
       {
         "id": 219,
-        "url": "https://js.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "js.mcl.io",
+        "url": "https://{label}.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.mcl.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -8480,8 +8264,8 @@
       },
       {
         "id": 220,
-        "url": "https://resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -8492,8 +8276,8 @@
       },
       {
         "id": 221,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -8504,8 +8288,8 @@
       },
       {
         "id": 222,
-        "url": "https://resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -8516,8 +8300,8 @@
       },
       {
         "id": 223,
-        "url": "https://resources.digital-cloud.medallia.com/{seg}/{n}/{seg}/{n}/{seg}",
-        "domain": "resources.digital-cloud.medallia.com",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -8684,8 +8468,8 @@
       },
       {
         "id": 240,
-        "url": "https://cdui-orchestrations.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "cdui-orchestrations.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8696,8 +8480,8 @@
       },
       {
         "id": 242,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8708,8 +8492,8 @@
       },
       {
         "id": 243,
-        "url": "https://redsky.target.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 403,
@@ -8732,8 +8516,8 @@
       },
       {
         "id": 245,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8744,8 +8528,8 @@
       },
       {
         "id": 246,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8756,8 +8540,8 @@
       },
       {
         "id": 247,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8768,8 +8552,8 @@
       },
       {
         "id": 248,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8780,8 +8564,8 @@
       },
       {
         "id": 249,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8792,8 +8576,8 @@
       },
       {
         "id": 250,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8804,8 +8588,8 @@
       },
       {
         "id": 251,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8816,8 +8600,8 @@
       },
       {
         "id": 252,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -8828,8 +8612,8 @@
       },
       {
         "id": 253,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8840,8 +8624,8 @@
       },
       {
         "id": 254,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8852,8 +8636,8 @@
       },
       {
         "id": 255,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8864,8 +8648,8 @@
       },
       {
         "id": 256,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8888,8 +8672,8 @@
       },
       {
         "id": 258,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8900,8 +8684,8 @@
       },
       {
         "id": 259,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8912,8 +8696,8 @@
       },
       {
         "id": 260,
-        "url": "https://p.toadmash.net/{n}/{seg}",
-        "domain": "p.toadmash.net",
+        "url": "https://{label}.toadmash.net/{n}/{seg}",
+        "domain": "{label}.toadmash.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -8924,8 +8708,8 @@
       },
       {
         "id": 261,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8936,8 +8720,8 @@
       },
       {
         "id": 262,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8948,8 +8732,8 @@
       },
       {
         "id": 263,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8960,8 +8744,8 @@
       },
       {
         "id": 264,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8972,8 +8756,8 @@
       },
       {
         "id": 265,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8984,8 +8768,8 @@
       },
       {
         "id": 266,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -8996,8 +8780,8 @@
       },
       {
         "id": 267,
-        "url": "https://typeahead.target.com/{seg}/{seg}/{seg}",
-        "domain": "typeahead.target.com",
+        "url": "https://{label}.target.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -9008,8 +8792,8 @@
       },
       {
         "id": 268,
-        "url": "https://mcl.spur.us/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mcl.spur.us",
+        "url": "https://{label}.spur.us/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.spur.us",
         "method": "GET",
         "resourceType": "script",
         "status": 301,
@@ -9020,8 +8804,8 @@
       },
       {
         "id": 269,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -9032,7 +8816,7 @@
       },
       {
         "id": 270,
-        "url": "https://{label}.mcl.io/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&v=",
+        "url": "https://{label}.mcl.io/{seg}/{seg}?%5Bredacted%5D=&t=&v=",
         "domain": "{label}.mcl.io",
         "method": "GET",
         "resourceType": "script",
@@ -9044,8 +8828,8 @@
       },
       {
         "id": 271,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9056,8 +8840,8 @@
       },
       {
         "id": 272,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9068,8 +8852,8 @@
       },
       {
         "id": 273,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9080,8 +8864,8 @@
       },
       {
         "id": 274,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9092,8 +8876,8 @@
       },
       {
         "id": 275,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9104,8 +8888,8 @@
       },
       {
         "id": 276,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9116,8 +8900,8 @@
       },
       {
         "id": 277,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9128,8 +8912,8 @@
       },
       {
         "id": 278,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9140,8 +8924,8 @@
       },
       {
         "id": 279,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9152,8 +8936,8 @@
       },
       {
         "id": 280,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9164,8 +8948,8 @@
       },
       {
         "id": 281,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9176,8 +8960,8 @@
       },
       {
         "id": 282,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9188,8 +8972,8 @@
       },
       {
         "id": 283,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9200,8 +8984,8 @@
       },
       {
         "id": 284,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9212,8 +8996,8 @@
       },
       {
         "id": 285,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9224,8 +9008,8 @@
       },
       {
         "id": 286,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9236,8 +9020,8 @@
       },
       {
         "id": 287,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9248,8 +9032,8 @@
       },
       {
         "id": 288,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9260,8 +9044,8 @@
       },
       {
         "id": 289,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9272,8 +9056,8 @@
       },
       {
         "id": 290,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9284,8 +9068,8 @@
       },
       {
         "id": 291,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9296,8 +9080,8 @@
       },
       {
         "id": 292,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9308,8 +9092,8 @@
       },
       {
         "id": 293,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9320,8 +9104,8 @@
       },
       {
         "id": 294,
-        "url": "https://target.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "target.scene7.com",
+        "url": "https://{label}.scene7.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scene7.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9368,7 +9152,7 @@
       },
       {
         "id": 298,
-        "url": "https://{label}.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://{label}.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=",
         "domain": "{label}.mcl.io",
         "method": "GET",
         "resourceType": "fetch",
@@ -9500,8 +9284,8 @@
       },
       {
         "id": 309,
-        "url": "https://js.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "js.mcl.io",
+        "url": "https://{label}.mcl.io/{seg}/{seg}?v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.mcl.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -9512,8 +9296,8 @@
       },
       {
         "id": 311,
-        "url": "https://redsky.target.com/{seg}",
-        "domain": "redsky.target.com",
+        "url": "https://{label}.target.com/{seg}",
+        "domain": "{label}.target.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -9578,7 +9362,7 @@
         ]
       },
       {
-        "domain": "target.scene7.com",
+        "domain": "{label}.scene7.com",
         "requests": 52,
         "thirdParty": true,
         "tracker": null,
@@ -9594,7 +9378,7 @@
       },
       {
         "domain": "{label}.mcl.io",
-        "requests": 5,
+        "requests": 7,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -9603,11 +9387,12 @@
         ],
         "resourceTypes": [
           "script",
-          "fetch"
+          "fetch",
+          "xhr"
         ]
       },
       {
-        "domain": "p.toadmash.net",
+        "domain": "{label}.toadmash.net",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -9620,7 +9405,7 @@
         ]
       },
       {
-        "domain": "mcl.spur.us",
+        "domain": "{label}.spur.us",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -9633,7 +9418,7 @@
         ]
       },
       {
-        "domain": "resources.digital-cloud.medallia.com",
+        "domain": "{label}.{label}.medallia.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -9647,7 +9432,7 @@
         ]
       },
       {
-        "domain": "js.mcl.io",
+        "domain": "{label}.px-cloud.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -9656,33 +9441,24 @@
           200
         ],
         "resourceTypes": [
+          "script",
           "xhr"
         ]
       },
       {
-        "domain": "client.px-cloud.net",
-        "requests": 1,
-        "thirdParty": true,
+        "domain": "{label}.target.com",
+        "requests": 49,
+        "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
         "statuses": [
-          200
+          200,
+          204,
+          403
         ],
         "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "ift.px-cloud.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
+          "fetch",
+          "document"
         ]
       },
       {
@@ -9701,34 +9477,6 @@
         ]
       },
       {
-        "domain": "redsky.target.com",
-        "requests": 22,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          403,
-          200
-        ],
-        "resourceTypes": [
-          "fetch",
-          "document"
-        ]
-      },
-      {
-        "domain": "typeahead.target.com",
-        "requests": 21,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
         "domain": "api.target.com",
         "requests": 15,
         "thirdParty": false,
@@ -9738,58 +9486,6 @@
           201,
           200,
           202
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "cdui-orchestrations.target.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "redoak.target.com",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "sapphire-api.target.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "carts.target.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          204
         ],
         "resourceTypes": [
           "fetch"
@@ -9959,7 +9655,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "cdui-orchestrations.target.com",
+        "domain": "{label}.target.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
@@ -9969,7 +9665,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "redsky.target.com",
+        "domain": "{label}.target.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
@@ -9979,7 +9675,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "redsky.target.com",
+        "domain": "{label}.target.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
@@ -10097,12 +9793,12 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "canvas.measureText",
-        "count": 91
-      },
-      {
         "api": "canvas.getImageData",
         "count": 65
+      },
+      {
+        "api": "canvas.measureText",
+        "count": 91
       },
       {
         "api": "canvas.toDataURL",
@@ -10117,6 +9813,14 @@
         "count": 2
       },
       {
+        "api": "webgl2.readPixels",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      },
+      {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
         "count": 2
       },
@@ -10127,14 +9831,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 2
-      },
-      {
-        "api": "webgl2.readPixels",
-        "count": 1
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -10199,7 +9895,7 @@
           ],
           "thirdPartyOrigins": [
             "https://assets.targetimg1.com/",
-            "https://client.px-cloud.net/"
+            "https://{label}.px-cloud.net/"
           ],
           "totalListenerCalls": 314
         }
@@ -10235,7 +9931,7 @@
           ],
           "thirdPartyOrigins": [
             "https://assets.targetimg1.com/",
-            "https://client.px-cloud.net/"
+            "https://{label}.px-cloud.net/"
           ],
           "totalListenerCalls": 717
         }
@@ -10277,9 +9973,9 @@
       "delta": -45
     },
     "thirdPartyDomains": {
-      "before": 29,
-      "after": 9,
-      "delta": -20
+      "before": 18,
+      "after": 7,
+      "delta": -11
     },
     "cookies": {
       "before": 34,
@@ -10304,8 +10000,8 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 22,
+        "domain": "{label}.googlesyndication.com",
+        "requests": 28,
         "tracker": {
           "domain": "googlesyndication.com",
           "entity": "Google",
@@ -10314,8 +10010,13 @@
         }
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 10,
+        "domain": "{label}.doubleverify.com",
+        "requests": 13,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 11,
         "tracker": {
           "domain": "doubleclick.net",
           "entity": "Google",
@@ -10324,27 +10025,17 @@
         }
       },
       {
-        "domain": "tpc.googlesyndication.com",
-        "requests": 6,
-        "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "tpsc-uw1.doubleverify.com",
-        "requests": 6,
-        "tracker": null
-      },
-      {
-        "domain": "{label}.px-cloud.net",
+        "domain": "{label}.adtrafficquality.google",
         "requests": 5,
         "tracker": null
       },
       {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.dv.tech",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.googlesyndication.com",
         "requests": 4,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -10352,16 +10043,6 @@
           "category": "advertising",
           "confidence": "curated"
         }
-      },
-      {
-        "domain": "pub.doubleverify.com",
-        "requests": 4,
-        "tracker": null
-      },
-      {
-        "domain": "analytics-fe.digital-cloud.medallia.com",
-        "requests": 3,
-        "tracker": null
       },
       {
         "domain": "cdn.dv.tech",
@@ -10369,69 +10050,24 @@
         "tracker": null
       },
       {
-        "domain": "ep2.adtrafficquality.google",
-        "requests": 3,
-        "tracker": null
-      },
-      {
-        "domain": "pub.dv.tech",
-        "requests": 3,
-        "tracker": null
-      },
-      {
-        "domain": "tps.doubleverify.com",
-        "requests": 3,
-        "tracker": null
-      },
-      {
-        "domain": "ep1.adtrafficquality.google",
+        "domain": "{label}.fullstory.com",
         "requests": 2,
-        "tracker": null
+        "tracker": {
+          "domain": "fullstory.com",
+          "entity": "FullStory",
+          "category": "session replay",
+          "confidence": "curated"
+        }
       },
       {
-        "domain": "vtrk.dv.tech",
-        "requests": 2,
+        "domain": "{label}.zeronaught.com",
+        "requests": 1,
         "tracker": null
       },
       {
         "domain": "cdn.speedcurve.com",
         "requests": 1,
         "tracker": null
-      },
-      {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "edge.fullstory.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "fullstory.com",
-          "entity": "FullStory",
-          "category": "session replay",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "ponos.zeronaught.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "rs.fullstory.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "fullstory.com",
-          "entity": "FullStory",
-          "category": "session replay",
-          "confidence": "curated"
-        }
       },
       {
         "domain": "www.google.com",
@@ -10444,12 +10080,12 @@
       {
         "entity": "Google",
         "requests": 43,
-        "domains": 5
+        "domains": 3
       },
       {
         "entity": "FullStory",
         "requests": 2,
-        "domains": 2
+        "domains": 1
       }
     ],
     "addedCookies": [],

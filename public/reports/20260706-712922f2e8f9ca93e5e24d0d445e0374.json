@@ -921,7 +921,7 @@
       },
       {
         "id": 72,
-        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "document",
@@ -1017,8 +1017,8 @@
       },
       {
         "id": 80,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1094,7 +1094,7 @@
       },
       {
         "id": 86,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1106,7 +1106,7 @@
       },
       {
         "id": 87,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1118,7 +1118,7 @@
       },
       {
         "id": 88,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1130,7 +1130,7 @@
       },
       {
         "id": 89,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1142,7 +1142,7 @@
       },
       {
         "id": 90,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "xhr",
@@ -1178,8 +1178,8 @@
       },
       {
         "id": 93,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1202,8 +1202,8 @@
       },
       {
         "id": 95,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1226,8 +1226,8 @@
       },
       {
         "id": 97,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1250,7 +1250,7 @@
       },
       {
         "id": 99,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1286,8 +1286,8 @@
       },
       {
         "id": 102,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1298,8 +1298,8 @@
       },
       {
         "id": 103,
-        "url": "https://i.paypal.com/{seg}/{seg}/{seg}",
-        "domain": "i.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1429,7 +1429,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1458,21 +1458,8 @@
         ]
       },
       {
-        "domain": "t.paypal.com",
-        "requests": 4,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "i.paypal.com",
-        "requests": 1,
+        "domain": "{label}.paypal.com",
+        "requests": 5,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
@@ -2653,7 +2640,7 @@
       },
       {
         "id": 72,
-        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "document",
@@ -2737,8 +2724,8 @@
       },
       {
         "id": 79,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2980,7 +2967,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3296,13 +3283,8 @@
         "tracker": null
       },
       {
-        "domain": "t.paypal.com",
-        "requests": 4,
-        "tracker": null
-      },
-      {
-        "domain": "i.paypal.com",
-        "requests": 1,
+        "domain": "{label}.paypal.com",
+        "requests": 5,
         "tracker": null
       },
       {

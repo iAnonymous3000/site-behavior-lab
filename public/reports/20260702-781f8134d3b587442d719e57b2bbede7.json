@@ -537,8 +537,8 @@
       },
       {
         "id": 40,
-        "url": "https://{label}.w.hcaptcha.com/{seg}",
-        "domain": "{label}.w.hcaptcha.com",
+        "url": "https://{label}.{label}.hcaptcha.com/{seg}",
+        "domain": "{label}.{label}.hcaptcha.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -549,8 +549,8 @@
       },
       {
         "id": 41,
-        "url": "https://newassets.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
-        "domain": "newassets.hcaptcha.com",
+        "url": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "{label}.hcaptcha.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -561,8 +561,8 @@
       },
       {
         "id": 42,
-        "url": "https://newassets.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
-        "domain": "newassets.hcaptcha.com",
+        "url": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "{label}.hcaptcha.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -573,8 +573,8 @@
       },
       {
         "id": 43,
-        "url": "https://{label}.w.hcaptcha.com/{seg}",
-        "domain": "{label}.w.hcaptcha.com",
+        "url": "https://{label}.{label}.hcaptcha.com/{seg}",
+        "domain": "{label}.{label}.hcaptcha.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -585,7 +585,7 @@
       },
       {
         "id": 44,
-        "url": "https://api.hcaptcha.com/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://api.hcaptcha.com/{seg}?v=&%5Bredacted%5D=",
         "domain": "api.hcaptcha.com",
         "method": "POST",
         "resourceType": "xhr",
@@ -597,8 +597,8 @@
       },
       {
         "id": 45,
-        "url": "https://newassets.hcaptcha.com/{seg}/{seg}/{seg}",
-        "domain": "newassets.hcaptcha.com",
+        "url": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.hcaptcha.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -754,7 +754,7 @@
     ],
     "domains": [
       {
-        "domain": "newassets.hcaptcha.com",
+        "domain": "{label}.hcaptcha.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -768,7 +768,7 @@
         ]
       },
       {
-        "domain": "{label}.w.hcaptcha.com",
+        "domain": "{label}.{label}.hcaptcha.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -840,20 +840,20 @@
     "storage": [],
     "fingerprintEvents": [
       {
-        "api": "canvas.measureText",
-        "count": 104
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 5
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
       },
       {
         "api": "canvas.getImageData",
         "count": 3
       },
       {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
+        "api": "canvas.measureText",
+        "count": 104
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 5
       },
       {
         "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
@@ -1473,8 +1473,8 @@
       },
       {
         "id": 40,
-        "url": "https://{label}.w.hcaptcha.com/{seg}",
-        "domain": "{label}.w.hcaptcha.com",
+        "url": "https://{label}.{label}.hcaptcha.com/{seg}",
+        "domain": "{label}.{label}.hcaptcha.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1485,8 +1485,8 @@
       },
       {
         "id": 41,
-        "url": "https://newassets.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
-        "domain": "newassets.hcaptcha.com",
+        "url": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "{label}.hcaptcha.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1497,8 +1497,8 @@
       },
       {
         "id": 42,
-        "url": "https://newassets.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
-        "domain": "newassets.hcaptcha.com",
+        "url": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "{label}.hcaptcha.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1509,8 +1509,8 @@
       },
       {
         "id": 43,
-        "url": "https://{label}.w.hcaptcha.com/{seg}",
-        "domain": "{label}.w.hcaptcha.com",
+        "url": "https://{label}.{label}.hcaptcha.com/{seg}",
+        "domain": "{label}.{label}.hcaptcha.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1521,7 +1521,7 @@
       },
       {
         "id": 44,
-        "url": "https://api.hcaptcha.com/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://api.hcaptcha.com/{seg}?v=&%5Bredacted%5D=",
         "domain": "api.hcaptcha.com",
         "method": "POST",
         "resourceType": "xhr",
@@ -1533,8 +1533,8 @@
       },
       {
         "id": 45,
-        "url": "https://newassets.hcaptcha.com/{seg}/{seg}/{seg}",
-        "domain": "newassets.hcaptcha.com",
+        "url": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.hcaptcha.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1690,7 +1690,7 @@
     ],
     "domains": [
       {
-        "domain": "newassets.hcaptcha.com",
+        "domain": "{label}.hcaptcha.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -1704,7 +1704,7 @@
         ]
       },
       {
-        "domain": "{label}.w.hcaptcha.com",
+        "domain": "{label}.{label}.hcaptcha.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1776,20 +1776,20 @@
     "storage": [],
     "fingerprintEvents": [
       {
-        "api": "canvas.measureText",
-        "count": 104
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 5
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
       },
       {
         "api": "canvas.getImageData",
         "count": 3
       },
       {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
+        "api": "canvas.measureText",
+        "count": 104
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 5
       },
       {
         "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",

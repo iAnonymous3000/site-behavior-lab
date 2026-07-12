@@ -1,6 +1,7 @@
-import { getDomain } from "tldts";
+import { parse } from "tldts";
 import allowlists from "./redaction-allowlists.json";
 import type { PrivacyStats } from "./scan-report-v2";
+import { sha256Hex } from "./sha256";
 
 /**
  * Redaction v2: the default-deny sanitizer (RFC scan-report-v2 section 9).
@@ -25,8 +26,13 @@ import type { PrivacyStats } from "./scan-report-v2";
  * lib/domain-utils does.
  */
 
-export const REDACTION_VERSION = 2;
+// Policy revision 3 closes prefix-shaped query keys and unreviewed subdomain
+// labels. The module name remains the RFC's "redaction v2" architecture; this
+// numeric identity is the executable sanitizer revision carried in provenance.
+export const REDACTION_VERSION = 3;
 export const REDACTION_ALLOWLISTS_VERSION: string = allowlists.version;
+export const REDACTION_ALLOWLISTS_DIGEST = sha256Hex(JSON.stringify(allowlists));
+export const PUBLIC_SUFFIX_ENGINE_VERSION = "tldts@7.4.3";
 
 export const INVALID_URL_MARKER = "{invalid-url}";
 export const INVALID_HOST_MARKER = "{invalid-host}";
@@ -44,8 +50,11 @@ const TERMINAL_NAME_MARKERS = new Set([
 
 /** RFC 9.1 path cap ("proposal: 6"). */
 const MAX_PATH_SEGMENTS = 6;
-/** A subdomain label longer than this always generalizes. */
-const MAX_SUBDOMAIN_LABEL_LENGTH = 24;
+const MAX_RAW_URL_CHARS = 16_384;
+const MAX_PUBLIC_QUERY_KEYS = 32;
+const MAX_RAW_HOST_CHARS = 253;
+const MAX_RAW_PATH_CHARS = 4_096;
+const MAX_RAW_NAME_CHARS = 1_024;
 
 export type RedactionCounters = PrivacyStats["redaction"];
 
@@ -68,8 +77,8 @@ export function addRedactionCounters(target: RedactionCounters, source: Redactio
 }
 
 const routeLiterals = new Set(allowlists.routeLiterals.literals.map((literal) => literal.toLowerCase()));
+const subdomainLabelLiterals = new Set(allowlists.subdomainLabels.literals.map((literal) => literal.toLowerCase()));
 const queryKeyLiterals = new Set(allowlists.queryKeys.literals.map((literal) => literal.toLowerCase()));
-const queryKeyPrefixes = allowlists.queryKeys.prefixes.map((prefix) => prefix.toLowerCase());
 const cookieNameLiterals = new Set(allowlists.cookieNames.literals);
 const storageKeyLiterals = new Set(allowlists.storageKeys.literals);
 
@@ -88,6 +97,7 @@ export function tokenShapeMarker(value: string): string {
   // remediation). Markers are terminal public values: a later pass must not
   // collapse a classed marker back to the generic marker.
   if (TERMINAL_NAME_MARKERS.has(value)) return value;
+  if (value.length > MAX_RAW_NAME_CHARS) return "[redacted:long-token]";
   if (UUID_SHAPE.test(value)) return "[redacted:uuid-like]";
   // Numeric before hex: a digit-only string is valid hex too, and "numeric"
   // is the more truthful class for it.
@@ -97,25 +107,6 @@ export function tokenShapeMarker(value: string): string {
     return "[redacted:long-token]";
   }
   return REDACTED_KEY;
-}
-
-/** Whether a subdomain label must generalize (RFC 9.1 host rule). */
-function subdomainLabelIsTokenLike(label: string): boolean {
-  // Punycode (xn--) is the canonical IDNA encoding of a human-readable name,
-  // not an entropy token; the mixed-alphanumeric heuristic below would
-  // misread nearly every one, so IDN labels are exempt from the shape rules
-  // (a genuinely token-shaped IDN label still hits the length cap).
-  const idn = label.toLowerCase().startsWith("xn--");
-  if (label.length > MAX_SUBDOMAIN_LABEL_LENGTH) return true;
-  if (idn) return false;
-  if (UUID_SHAPE.test(label)) return true;
-  if (HEX_SHAPE.test(label)) return true;
-  if (NUMERIC_SHAPE.test(label) && label.length >= 5) return true;
-  // Mixed-alphanumeric high-entropy labels (base64/base32 flavored).
-  if (label.length >= 12 && /[0-9]/.test(label) && /[a-z]/i.test(label) && /^[a-z0-9_-]+$/i.test(label) && !/^[a-z]+[0-9]{1,2}$/i.test(label)) {
-    return true;
-  }
-  return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -144,6 +135,10 @@ export type RedactUrlV2Options = {
 export function redactUrlV2(url: string, options: RedactUrlV2Options = {}): RedactedUrl {
   const counters = emptyRedactionCounters();
   if (url === INVALID_URL_MARKER) return { value: INVALID_URL_MARKER, counters };
+  if (url.length > MAX_RAW_URL_CHARS) {
+    counters.malformedUrlsDropped += 1;
+    return { value: INVALID_URL_MARKER, counters };
+  }
   let parsed: URL;
   try {
     parsed = new URL(url);
@@ -159,29 +154,71 @@ export function redactUrlV2(url: string, options: RedactUrlV2Options = {}): Reda
   // Host: WHATWG parsing already lowercases and punycodes; the registrable
   // domain always survives, labels left of it are screened.
   const hostname = redactCanonicalHostname(parsed.hostname, counters);
+  if (hostname === INVALID_HOST_MARKER) return { value: INVALID_URL_MARKER, counters };
 
   const path = redactPath(parsed.pathname, counters);
-  const query = options.preserveQueryKeys ? redactQuery(parsed.searchParams, counters) : "";
+  const query = options.preserveQueryKeys ? redactQuery(parsed.searchParams, counters) : dropQuery(parsed.searchParams, counters);
 
   const port = parsed.port ? `:${parsed.port}` : "";
   return { value: `${parsed.protocol}//${hostname}${port}${path}${query}`, counters };
 }
 
+function dropQuery(params: URLSearchParams, counters: RedactionCounters): "" {
+  for (const _key of params.keys()) counters.queryKeysRedacted += 1;
+  return "";
+}
+
 function redactCanonicalHostname(hostname: string, counters: RedactionCounters): string {
+  const canonicalHostname = hostname.replace(/\.+$/, "");
+  if (!canonicalHostname) {
+    counters.malformedUrlsDropped += 1;
+    return INVALID_HOST_MARKER;
+  }
   // IP literals have no labels to screen.
-  if (/^\[.*\]$/.test(hostname) || /^[0-9.]+$/.test(hostname)) return hostname;
-  const registrable = getDomain(hostname, { allowPrivateDomains: true });
-  if (!registrable || registrable === hostname) return hostname;
-  if (!hostname.endsWith(`.${registrable}`)) return hostname;
-  const prefix = hostname.slice(0, hostname.length - registrable.length - 1);
+  if (/^\[.*\]$/.test(canonicalHostname) || /^[0-9.]+$/.test(canonicalHostname)) return canonicalHostname;
+  const registrable = publicRegistrableDomain(canonicalHostname);
+  if (!registrable) {
+    counters.malformedUrlsDropped += 1;
+    return INVALID_HOST_MARKER;
+  }
+  if (registrable === canonicalHostname) return canonicalHostname;
+  if (!canonicalHostname.endsWith(`.${registrable}`)) return INVALID_HOST_MARKER;
+  const prefix = canonicalHostname.slice(0, canonicalHostname.length - registrable.length - 1);
   const labels = prefix.split(".").map((label) => {
-    if (label && subdomainLabelIsTokenLike(label)) {
+    // Subdomains can be tenant names, clinics, usernames, or opaque ids. Keep
+    // only reviewed infrastructure/service literals; everything else is a
+    // marker. The marker itself is terminal for repeated publication passes.
+    if (label && label !== GENERALIZED_LABEL && !subdomainLabelLiterals.has(label.toLowerCase())) {
       counters.subdomainLabelsGeneralized += 1;
       return GENERALIZED_LABEL;
     }
     return label;
   });
   return `${labels.join(".")}.${registrable}`;
+}
+
+/**
+ * Return a registrable domain only when it is backed by the ICANN or reviewed
+ * private suffix tables. Unknown and special-use suffixes (for example
+ * `.internal`, `.localhost`, and `.example`) are not a safe public boundary:
+ * tldts otherwise treats the entire human-controlled label as the domain.
+ */
+export function publicRegistrableDomain(hostname: string): string | null {
+  let canonicalHostname: string;
+  try {
+    canonicalHostname = new URL(`https://${hostname.replace(/\.+$/, "")}/`).hostname.replace(/\.+$/, "");
+  } catch {
+    return null;
+  }
+  if (!canonicalHostname) return null;
+  const originalLabels = canonicalHostname.split(".");
+  const markerSafeHostname = originalLabels
+    .map((label) => label === GENERALIZED_LABEL ? "redacted-label" : label)
+    .join(".");
+  const parsed = parse(markerSafeHostname, { allowPrivateDomains: true });
+  if (!parsed.domain || (!parsed.isIcann && !parsed.isPrivate)) return null;
+  const domainLabels = parsed.domain.split(".").length;
+  return originalLabels.slice(-domainLabels).join(".");
 }
 
 /**
@@ -196,8 +233,8 @@ export function redactHostnameV2(hostname: string): RedactedUrl {
 
   const trimmed = hostname.trim();
   const leadingDot = trimmed.startsWith(".");
-  const raw = (leadingDot ? trimmed.slice(1) : trimmed).replace(/\.$/, "");
-  if (!raw || /[\s/@?#]/.test(raw)) {
+  const raw = (leadingDot ? trimmed.slice(1) : trimmed).replace(/\.+$/, "");
+  if (!raw || raw.length > MAX_RAW_HOST_CHARS || /[\s/@?#]/.test(raw)) {
     counters.malformedUrlsDropped += 1;
     return { value: INVALID_HOST_MARKER, counters };
   }
@@ -254,6 +291,10 @@ export function redactPathV2(pathname: string): RedactedUrl {
   const counters = emptyRedactionCounters();
   const trimmed = pathname.trim();
   if (!trimmed) return { value: "/", counters };
+  if (trimmed.length > MAX_RAW_PATH_CHARS) {
+    counters.pathSegmentsGeneralized += 1;
+    return { value: `/${GENERALIZED_SEGMENT}`, counters };
+  }
 
   // Cookie paths should be absolute. A non-absolute value is still treated as
   // page-controlled path material, never passed through; prefixing a slash
@@ -264,26 +305,33 @@ export function redactPathV2(pathname: string): RedactedUrl {
 
 function redactQuery(params: URLSearchParams, counters: RedactionCounters): string {
   const redacted = new URLSearchParams();
-  params.forEach((_value, key) => {
+  const emitted = new Set<string>();
+  for (const key of params.keys()) {
+    let publicKey: string;
     if (key === REDACTED_KEY) {
-      redacted.append(REDACTED_KEY, "");
-      return;
+      publicKey = REDACTED_KEY;
+    } else if (queryKeyAllowed(key)) {
+      // Canonical casing closes a covert page-controlled string channel.
+      publicKey = key.toLowerCase();
+    } else {
+      counters.queryKeysRedacted += 1;
+      publicKey = REDACTED_KEY;
     }
-    if (queryKeyAllowed(key)) {
-      redacted.append(key, "");
-      return;
+    if (emitted.has(publicKey)) continue;
+    if (emitted.size >= MAX_PUBLIC_QUERY_KEYS) {
+      counters.queryKeysRedacted += 1;
+      continue;
     }
-    counters.queryKeysRedacted += 1;
-    redacted.append(REDACTED_KEY, "");
-  });
+    emitted.add(publicKey);
+    redacted.append(publicKey, "");
+  }
   const serialized = redacted.toString();
   return serialized ? `?${serialized}` : "";
 }
 
 export function queryKeyAllowed(key: string): boolean {
   const lowered = key.toLowerCase();
-  if (queryKeyLiterals.has(lowered)) return true;
-  return queryKeyPrefixes.some((prefix) => lowered.startsWith(prefix));
+  return queryKeyLiterals.has(lowered);
 }
 
 function safeDecode(segment: string): string {

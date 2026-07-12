@@ -7,6 +7,7 @@ import {
 } from "./compare-reports";
 import {
   legacyComparisonDecision,
+  legacyComparisonHistoryCohortFingerprint,
   legacyMeasurementEnvironmentFingerprint,
   legacyTemporalCohortFingerprint,
   v2ComparisonDecision
@@ -169,9 +170,18 @@ test("shields family: never measured is suppressed, one-arm is raw-only, both-ar
     shieldsMode: "classification" as const,
     adblock: { ...adblock, fetchedAt: "2026-02-01T00:00:00.000Z" }
   };
-  const staleSnapshot = legacyComparisonDecision(orderedTemporalPair(staleBefore, staleAfter));
+  const stalePair = orderedTemporalPair(staleBefore, staleAfter);
+  const staleSnapshot = legacyComparisonDecision(stalePair);
+  assert.equal(staleSnapshot.mode, "comparable");
+  assert.equal(staleSnapshot.families["raw-counts"].mode, "comparable");
+  assert.equal(staleSnapshot.families["tracker-classification"].mode, "comparable");
   assert.equal(staleSnapshot.families["shields-simulation"].mode, "raw-only");
+  assert.equal(staleSnapshot.families["detector-findings"].mode, "raw-only");
+  assert.equal(staleSnapshot.compatibility.matched, false);
   assert.match(staleSnapshot.families["shields-simulation"].reasons.join(" "), /different filter-list snapshots/);
+  const staleView = viewFromV1Report(stalePair);
+  assert.equal(staleView.claims.pairComparison?.allowed, true);
+  assert.equal(staleView.claims.temporalChange, false);
 });
 
 test("the legacy fingerprint matches identical environments and follows the unknown rule", () => {
@@ -269,6 +279,35 @@ test("automatic v1 history cohorts include methodology, conditions, lists, and c
   const unknown = structuredClone(current);
   delete unknown.conditions.shieldsMode;
   assert.equal(legacyTemporalCohortFingerprint(unknown), null);
+});
+
+test("passive comparison-history cohorts omit only the known snapshot date", () => {
+  const before = makeRun({});
+  before.conditions = {
+    ...before.conditions,
+    shieldsMode: "classification",
+    adblock: { active: true, source: "brave", lists: 31, fetchedAt: "2026-07-12T00:00:00.000Z" },
+    scannerDisclosure: `Automated Chromium scan under methodology ${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}.`
+  };
+  const after = structuredClone(before);
+  after.conditions.adblock!.fetchedAt = "2026-07-13T00:00:00.000Z";
+
+  assert.notEqual(legacyTemporalCohortFingerprint(before), legacyTemporalCohortFingerprint(after));
+  assert.equal(
+    legacyComparisonHistoryCohortFingerprint(before),
+    legacyComparisonHistoryCohortFingerprint(after)
+  );
+
+  after.conditions.adblock!.lists = 30;
+  assert.notEqual(
+    legacyComparisonHistoryCohortFingerprint(before),
+    legacyComparisonHistoryCohortFingerprint(after)
+  );
+  after.conditions.shieldsMode = "block-simulation";
+  assert.equal(legacyComparisonHistoryCohortFingerprint(after), null);
+  after.conditions.shieldsMode = "classification";
+  after.conditions.adblock!.fetchedAt = "unknown";
+  assert.equal(legacyComparisonHistoryCohortFingerprint(after), null);
 });
 
 test("the fingerprint excludes the intervention axes: a GPC flip does not change it", () => {

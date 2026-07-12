@@ -43,6 +43,7 @@ function DomainTable({ domains }: { domains: DomainSummary[] }) {
     () => domains.filter((domain) => domain.domain.toLowerCase().includes(query.toLowerCase())),
     [domains, query]
   );
+  const shown = filtered.slice(0, 100);
 
   return (
     <details className="data-section disclosure" open>
@@ -73,11 +74,11 @@ function DomainTable({ domains }: { domains: DomainSummary[] }) {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((domain) => (
+            {shown.map((domain) => (
               <tr key={domain.domain}>
                 <td className="mono" data-label="Domain">{domain.domain}</td>
                 <td data-label="Role">{roleTag(domain)}</td>
-                <td data-label="Requests">{domain.requests.toLocaleString()}</td>
+                <td data-label="Requests">{domain.requests.toLocaleString("en-US")}</td>
                 <td data-label="Known service">{domain.tracker ? `${domain.tracker.entity}: ${domain.tracker.category}` : "-"}</td>
                 <td data-label="Resource types">{domain.resourceTypes.join(", ")}</td>
               </tr>
@@ -85,12 +86,16 @@ function DomainTable({ domains }: { domains: DomainSummary[] }) {
           </tbody>
         </table>
         {filtered.length === 0 && <p className="table-empty">No domains match &ldquo;{query}&rdquo;.</p>}
+        {filtered.length > shown.length && (
+          <p className="row-more">Showing first 100 of {filtered.length} matching domains. Export JSON for the full list.</p>
+        )}
       </div>
     </details>
   );
 }
 
 function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
+  const [opened, setOpened] = useState(false);
   const [query, setQuery] = useState("");
   const [signalFilter, setSignalFilter] = useState<RequestSignalFilter>("all");
   const [statusFilter, setStatusFilter] = useState<RequestStatusFilter>("all");
@@ -133,7 +138,12 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
   const hasPhases = useMemo(() => requests.some((request) => typeof (request as { phaseId?: unknown }).phaseId === "number"), [requests]);
 
   return (
-    <details className="data-section disclosure">
+    <details
+      className="data-section disclosure"
+      onToggle={(event) => {
+        if (event.currentTarget.open) setOpened(true);
+      }}
+    >
       <summary className="section-heading">
         <h2>Request log</h2>
         <span className="count-badge">
@@ -143,6 +153,8 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
         </span>
         <ChevronDown className="disclosure-chevron" size={16} aria-hidden="true" />
       </summary>
+      {opened ? (
+        <>
       <div className="section-tools disclosure-tools request-log-tools">
         <div className="request-filter-chips" role="group" aria-label="Request signal filters">
           {REQUEST_SIGNAL_FILTERS.map((filter) => (
@@ -207,7 +219,7 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
                 request id can legitimately appear in several phases. */}
             {shown.map((request, index) => (
               <tr key={`${request.id}:${index}`}>
-                <td className="mono" data-label="Time">{request.startedAtMs.toLocaleString()}ms</td>
+                <td className="mono" data-label="Time">{request.startedAtMs.toLocaleString("en-US")}ms</td>
                 {hasPhases && (
                   <td className="mono" data-label="Phase">
                     {requestPhaseId(request) ?? ""}
@@ -245,6 +257,10 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
           <p className="row-more">Showing first 80 of {filtered.length} matching requests. Export JSON for the full log.</p>
         )}
       </div>
+        </>
+      ) : (
+        <p className="muted disclosure-lazy-note">Open the request log to render its bounded first 80 rows and filters.</p>
+      )}
     </details>
   );
 }
@@ -335,7 +351,7 @@ function TopThirdParties({ domains }: { domains: DomainSummary[] }) {
             <strong>{domain.domain}</strong>
             <span className="chip-sub">{domain.tracker ? `${domain.tracker.entity} · ${domain.tracker.category}` : "unlabeled third party"}</span>
           </div>
-          <span className="count-pill">{domain.requests.toLocaleString()}</span>
+          <span className="count-pill">{domain.requests.toLocaleString("en-US")}</span>
         </div>
       ))}
       <ListOverflowNote total={thirdParty.length} shown={top.length} where="the domain table" />
@@ -348,7 +364,7 @@ function ListOverflowNote({ total, shown, where }: { total: number; shown: numbe
   if (total <= shown) return null;
   return (
     <p className="muted list-overflow-note">
-      +{(total - shown).toLocaleString()} more in {where}.
+      +{(total - shown).toLocaleString("en-US")} more in {where}.
     </p>
   );
 }

@@ -309,8 +309,8 @@
       },
       {
         "id": 21,
-        "url": "https://ogads-pa.clients6.google.com/{seg}/{seg}/{seg}",
-        "domain": "ogads-pa.clients6.google.com",
+        "url": "https://{label}.{label}.google.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -717,8 +717,8 @@
       },
       {
         "id": 55,
-        "url": "https://play.google.com/{seg}",
-        "domain": "play.google.com",
+        "url": "https://{label}.google.com/{seg}",
+        "domain": "{label}.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -764,7 +764,7 @@
         ]
       },
       {
-        "domain": "ogads-pa.clients6.google.com",
+        "domain": "{label}.{label}.google.com",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -777,7 +777,7 @@
         ]
       },
       {
-        "domain": "play.google.com",
+        "domain": "{label}.google.com",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -1089,8 +1089,8 @@
       },
       {
         "id": 21,
-        "url": "https://ogads-pa.clients6.google.com/{seg}/{seg}/{seg}",
-        "domain": "ogads-pa.clients6.google.com",
+        "url": "https://{label}.{label}.google.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1483,7 +1483,7 @@
         ]
       },
       {
-        "domain": "ogads-pa.clients6.google.com",
+        "domain": "{label}.{label}.google.com",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,
@@ -1614,7 +1614,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "play.google.com",
+        "domain": "{label}.google.com",
         "requests": 1,
         "tracker": null
       }

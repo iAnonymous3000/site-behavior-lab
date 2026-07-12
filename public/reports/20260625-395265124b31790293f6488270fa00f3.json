@@ -23,7 +23,7 @@
       "totalRequests": 223,
       "thirdPartyRequests": 176,
       "knownTrackerRequests": 41,
-      "thirdPartyDomains": 47,
+      "thirdPartyDomains": 40,
       "cookies": 25,
       "thirdPartyCookies": 7,
       "storageEntries": 13,
@@ -134,8 +134,8 @@
       },
       {
         "id": 6,
-        "url": "https://prod-eks-static-assets.npr.org/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-static-assets.npr.org",
+        "url": "https://{label}.npr.org/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -146,8 +146,8 @@
       },
       {
         "id": 7,
-        "url": "https://prod-eks-static-assets.npr.org/static/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-static-assets.npr.org",
+        "url": "https://{label}.npr.org/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -158,8 +158,8 @@
       },
       {
         "id": 8,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -170,8 +170,8 @@
       },
       {
         "id": 9,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -182,8 +182,8 @@
       },
       {
         "id": 10,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -194,8 +194,8 @@
       },
       {
         "id": 11,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -206,8 +206,8 @@
       },
       {
         "id": 12,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -218,8 +218,8 @@
       },
       {
         "id": 13,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -242,8 +242,8 @@
       },
       {
         "id": 15,
-        "url": "https://prod-eks-static-assets.npr.org/{seg}/{seg}",
-        "domain": "prod-eks-static-assets.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -254,8 +254,8 @@
       },
       {
         "id": 16,
-        "url": "https://prod-eks-static-assets.npr.org/{seg}/{seg}",
-        "domain": "prod-eks-static-assets.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -266,8 +266,8 @@
       },
       {
         "id": 17,
-        "url": "https://prod-eks-static-assets.npr.org/{seg}/{seg}",
-        "domain": "prod-eks-static-assets.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -290,8 +290,8 @@
       },
       {
         "id": 19,
-        "url": "https://s.go-mpulse.net/{seg}/{seg}",
-        "domain": "s.go-mpulse.net",
+        "url": "https://{label}.go-mpulse.net/{seg}/{seg}",
+        "domain": "{label}.go-mpulse.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -302,8 +302,8 @@
       },
       {
         "id": 20,
-        "url": "https://npr.brightspotcdn.com/{n}/{seg}/{seg}/{seg}",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -326,8 +326,8 @@
       },
       {
         "id": 22,
-        "url": "https://js.stripe.com/{seg}",
-        "domain": "js.stripe.com",
+        "url": "https://{label}.stripe.com/{seg}",
+        "domain": "{label}.stripe.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -350,8 +350,8 @@
       },
       {
         "id": 24,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -463,8 +463,8 @@
       },
       {
         "id": 33,
-        "url": "https://legacy.npr.org/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "legacy.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -535,8 +535,8 @@
       },
       {
         "id": 39,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -547,8 +547,8 @@
       },
       {
         "id": 40,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -559,8 +559,8 @@
       },
       {
         "id": 41,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -571,8 +571,8 @@
       },
       {
         "id": 42,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -583,8 +583,8 @@
       },
       {
         "id": 43,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -595,8 +595,8 @@
       },
       {
         "id": 44,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -607,8 +607,8 @@
       },
       {
         "id": 45,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -619,8 +619,8 @@
       },
       {
         "id": 46,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -631,8 +631,8 @@
       },
       {
         "id": 47,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -643,8 +643,8 @@
       },
       {
         "id": 48,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -655,8 +655,8 @@
       },
       {
         "id": 49,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -667,8 +667,8 @@
       },
       {
         "id": 50,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -679,8 +679,8 @@
       },
       {
         "id": 51,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -691,8 +691,8 @@
       },
       {
         "id": 52,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -703,8 +703,8 @@
       },
       {
         "id": 53,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -727,8 +727,8 @@
       },
       {
         "id": 55,
-        "url": "https://ssl.p.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ssl.p.jwpcdn.com",
+        "url": "https://{label}.{label}.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.{label}.jwpcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -775,8 +775,8 @@
       },
       {
         "id": 59,
-        "url": "https://ssl.p.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ssl.p.jwpcdn.com",
+        "url": "https://{label}.{label}.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.{label}.jwpcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -787,8 +787,8 @@
       },
       {
         "id": 60,
-        "url": "https://script.crazyegg.com/{seg}/{seg}/{n}/{seg}",
-        "domain": "script.crazyegg.com",
+        "url": "https://{label}.crazyegg.com/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.crazyegg.com",
         "method": "GET",
         "resourceType": "script",
         "status": null,
@@ -828,8 +828,8 @@
       },
       {
         "id": 63,
-        "url": "https://pl.connatix.com/",
-        "domain": "pl.connatix.com",
+        "url": "https://{label}.connatix.com/",
+        "domain": "{label}.connatix.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 202,
@@ -912,8 +912,8 @@
       },
       {
         "id": 70,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -924,8 +924,8 @@
       },
       {
         "id": 71,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -936,8 +936,8 @@
       },
       {
         "id": 72,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -948,8 +948,8 @@
       },
       {
         "id": 73,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -960,8 +960,8 @@
       },
       {
         "id": 74,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -972,8 +972,8 @@
       },
       {
         "id": 75,
-        "url": "https://placement-prd.jwpltx.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "placement-prd.jwpltx.com",
+        "url": "https://{label}.jwpltx.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.jwpltx.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -984,8 +984,8 @@
       },
       {
         "id": 76,
-        "url": "https://placement-prd.jwpltx.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "placement-prd.jwpltx.com",
+        "url": "https://{label}.jwpltx.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.jwpltx.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -996,8 +996,8 @@
       },
       {
         "id": 77,
-        "url": "https://placement-prd.jwpltx.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "placement-prd.jwpltx.com",
+        "url": "https://{label}.jwpltx.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.jwpltx.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1044,8 +1044,8 @@
       },
       {
         "id": 81,
-        "url": "https://entitlements.jwplayer.com/{seg}",
-        "domain": "entitlements.jwplayer.com",
+        "url": "https://{label}.jwplayer.com/{seg}",
+        "domain": "{label}.jwplayer.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1056,8 +1056,8 @@
       },
       {
         "id": 82,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1200,8 +1200,8 @@
       },
       {
         "id": 94,
-        "url": "https://prd.jwpltx.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cb=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "prd.jwpltx.com",
+        "url": "https://{label}.jwpltx.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&id=&t=&cb=",
+        "domain": "{label}.jwpltx.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1212,8 +1212,8 @@
       },
       {
         "id": 95,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1229,8 +1229,8 @@
       },
       {
         "id": 96,
-        "url": "https://placement-prd.jwpltx.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "placement-prd.jwpltx.com",
+        "url": "https://{label}.jwpltx.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.jwpltx.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1241,8 +1241,8 @@
       },
       {
         "id": 97,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1253,8 +1253,8 @@
       },
       {
         "id": 98,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1265,8 +1265,8 @@
       },
       {
         "id": 99,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1277,8 +1277,8 @@
       },
       {
         "id": 100,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1289,8 +1289,8 @@
       },
       {
         "id": 101,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1301,8 +1301,8 @@
       },
       {
         "id": 102,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1313,8 +1313,8 @@
       },
       {
         "id": 103,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1325,8 +1325,8 @@
       },
       {
         "id": 104,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1337,8 +1337,8 @@
       },
       {
         "id": 105,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1349,8 +1349,8 @@
       },
       {
         "id": 106,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1373,8 +1373,8 @@
       },
       {
         "id": 108,
-        "url": "https://videos-cloudfront-usp.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "videos-cloudfront-usp.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1426,8 +1426,8 @@
       },
       {
         "id": 112,
-        "url": "https://station.api.npr.org/{seg}/{seg}/{seg}",
-        "domain": "station.api.npr.org",
+        "url": "https://{label}.api.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.npr.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1462,8 +1462,8 @@
       },
       {
         "id": 115,
-        "url": "https://{label}.fls.doubleclick.net/{seg}",
-        "domain": "{label}.fls.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 302,
@@ -1479,8 +1479,8 @@
       },
       {
         "id": 116,
-        "url": "https://{label}.fls.doubleclick.net/{seg}",
-        "domain": "{label}.fls.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1496,8 +1496,8 @@
       },
       {
         "id": 117,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1508,8 +1508,8 @@
       },
       {
         "id": 118,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1520,8 +1520,8 @@
       },
       {
         "id": 119,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1532,8 +1532,8 @@
       },
       {
         "id": 120,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1544,8 +1544,8 @@
       },
       {
         "id": 121,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1556,8 +1556,8 @@
       },
       {
         "id": 122,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1568,8 +1568,8 @@
       },
       {
         "id": 123,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1580,8 +1580,8 @@
       },
       {
         "id": 124,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1592,8 +1592,8 @@
       },
       {
         "id": 125,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1604,8 +1604,8 @@
       },
       {
         "id": 126,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1616,8 +1616,8 @@
       },
       {
         "id": 127,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1628,8 +1628,8 @@
       },
       {
         "id": 128,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1640,8 +1640,8 @@
       },
       {
         "id": 129,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1652,8 +1652,8 @@
       },
       {
         "id": 130,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1664,8 +1664,8 @@
       },
       {
         "id": 131,
-        "url": "https://ssl.p.jwpcdn.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ssl.p.jwpcdn.com",
+        "url": "https://{label}.{label}.jwpcdn.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.jwpcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1676,8 +1676,8 @@
       },
       {
         "id": 132,
-        "url": "https://prod-eks-static-assets.npr.org/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-static-assets.npr.org",
+        "url": "https://{label}.npr.org/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1700,8 +1700,8 @@
       },
       {
         "id": 134,
-        "url": "https://videos-cloudfront-usp.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "videos-cloudfront-usp.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1712,8 +1712,8 @@
       },
       {
         "id": 135,
-        "url": "https://js.stripe.com/{seg}/{seg}",
-        "domain": "js.stripe.com",
+        "url": "https://{label}.stripe.com/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1736,8 +1736,8 @@
       },
       {
         "id": 137,
-        "url": "https://js.stripe.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "js.stripe.com",
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1748,8 +1748,8 @@
       },
       {
         "id": 138,
-        "url": "https://organization.api.npr.org/{seg}/{seg}/{n}",
-        "domain": "organization.api.npr.org",
+        "url": "https://{label}.api.npr.org/{seg}/{seg}/{n}",
+        "domain": "{label}.api.npr.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1760,8 +1760,8 @@
       },
       {
         "id": 139,
-        "url": "https://organization.api.npr.org/{seg}/{seg}/{n}",
-        "domain": "organization.api.npr.org",
+        "url": "https://{label}.api.npr.org/{seg}/{seg}/{n}",
+        "domain": "{label}.api.npr.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1772,8 +1772,8 @@
       },
       {
         "id": 140,
-        "url": "https://organization.api.npr.org/{seg}/{seg}/{n}",
-        "domain": "organization.api.npr.org",
+        "url": "https://{label}.api.npr.org/{seg}/{seg}/{n}",
+        "domain": "{label}.api.npr.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1820,8 +1820,8 @@
       },
       {
         "id": 144,
-        "url": "https://videos-cloudfront-usp.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "videos-cloudfront-usp.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1832,8 +1832,8 @@
       },
       {
         "id": 145,
-        "url": "https://prod-eks-static-assets.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-static-assets.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1844,8 +1844,8 @@
       },
       {
         "id": 146,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1861,8 +1861,8 @@
       },
       {
         "id": 147,
-        "url": "https://videos-cloudfront-usp.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "videos-cloudfront-usp.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1933,8 +1933,8 @@
       },
       {
         "id": 153,
-        "url": "https://branding.npr.org/{seg}/{seg}/{seg}",
-        "domain": "branding.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1945,8 +1945,8 @@
       },
       {
         "id": 154,
-        "url": "https://branding.npr.org/{seg}/{seg}/{seg}",
-        "domain": "branding.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1957,8 +1957,8 @@
       },
       {
         "id": 155,
-        "url": "https://c2.piano.io/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "c2.piano.io",
+        "url": "https://{label}.piano.io/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.piano.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1969,8 +1969,8 @@
       },
       {
         "id": 156,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1981,8 +1981,8 @@
       },
       {
         "id": 157,
-        "url": "https://ssl.p.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ssl.p.jwpcdn.com",
+        "url": "https://{label}.{label}.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.jwpcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1993,8 +1993,8 @@
       },
       {
         "id": 158,
-        "url": "https://ssl.p.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ssl.p.jwpcdn.com",
+        "url": "https://{label}.{label}.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.jwpcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2005,8 +2005,8 @@
       },
       {
         "id": 159,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2017,8 +2017,8 @@
       },
       {
         "id": 160,
-        "url": "https://prd.jwpltx.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cb=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "prd.jwpltx.com",
+        "url": "https://{label}.jwpltx.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&id=&t=&cb=",
+        "domain": "{label}.jwpltx.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2041,8 +2041,8 @@
       },
       {
         "id": 162,
-        "url": "https://s0.2mdn.net/{seg}/{seg}/{seg}",
-        "domain": "s0.2mdn.net",
+        "url": "https://{label}.2mdn.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.2mdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2053,8 +2053,8 @@
       },
       {
         "id": 163,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2070,8 +2070,8 @@
       },
       {
         "id": 164,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2099,8 +2099,8 @@
       },
       {
         "id": 166,
-        "url": "https://connectid.analytics.yahoo.com/{seg}",
-        "domain": "connectid.analytics.yahoo.com",
+        "url": "https://{label}.analytics.yahoo.com/{seg}",
+        "domain": "{label}.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2128,7 +2128,7 @@
       },
       {
         "id": 168,
-        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "document",
@@ -2188,8 +2188,8 @@
       },
       {
         "id": 173,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2212,8 +2212,8 @@
       },
       {
         "id": 175,
-        "url": "https://ups.analytics.yahoo.com/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=",
-        "domain": "ups.analytics.yahoo.com",
+        "url": "https://{label}.analytics.yahoo.com/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2224,8 +2224,8 @@
       },
       {
         "id": 176,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -2241,8 +2241,8 @@
       },
       {
         "id": 177,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2265,8 +2265,8 @@
       },
       {
         "id": 179,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2306,8 +2306,8 @@
       },
       {
         "id": 182,
-        "url": "https://c2.piano.io/api/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&source=",
-        "domain": "c2.piano.io",
+        "url": "https://{label}.piano.io/api/{seg}/{seg}/{seg}?%5Bredacted%5D=&source=",
+        "domain": "{label}.piano.io",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2318,8 +2318,8 @@
       },
       {
         "id": 183,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2330,8 +2330,8 @@
       },
       {
         "id": 184,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2347,8 +2347,8 @@
       },
       {
         "id": 185,
-        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2364,8 +2364,8 @@
       },
       {
         "id": 186,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2376,8 +2376,8 @@
       },
       {
         "id": 187,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2388,8 +2388,8 @@
       },
       {
         "id": 188,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2422,8 +2422,8 @@
       },
       {
         "id": 190,
-        "url": "https://bl.veritonicmetrics.com/?cId=&%5Bredacted%5D=&id=&cb=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bl.veritonicmetrics.com",
+        "url": "https://{label}.veritonicmetrics.com/?cid=&%5Bredacted%5D=&id=&cb=",
+        "domain": "{label}.veritonicmetrics.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2434,7 +2434,7 @@
       },
       {
         "id": 191,
-        "url": "https://secure.insightexpressai.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://secure.insightexpressai.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "secure.insightexpressai.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -2446,8 +2446,8 @@
       },
       {
         "id": 192,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2463,8 +2463,8 @@
       },
       {
         "id": 193,
-        "url": "https://tpc.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2480,8 +2480,8 @@
       },
       {
         "id": 194,
-        "url": "https://tpc.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2497,8 +2497,8 @@
       },
       {
         "id": 195,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2514,8 +2514,8 @@
       },
       {
         "id": 196,
-        "url": "https://tpc.googlesyndication.com/{seg}/{n}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{n}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2555,8 +2555,8 @@
       },
       {
         "id": 199,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2572,8 +2572,8 @@
       },
       {
         "id": 200,
-        "url": "https://tpc.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2589,8 +2589,8 @@
       },
       {
         "id": 201,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2606,8 +2606,8 @@
       },
       {
         "id": 202,
-        "url": "https://tpc.googlesyndication.com/{seg}/{n}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{n}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2623,8 +2623,8 @@
       },
       {
         "id": 203,
-        "url": "https://tpc.googlesyndication.com/{seg}/{n}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{n}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2640,8 +2640,8 @@
       },
       {
         "id": 204,
-        "url": "https://tpc.googlesyndication.com/{seg}/{n}",
-        "domain": "tpc.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{n}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2669,8 +2669,8 @@
       },
       {
         "id": 206,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2686,8 +2686,8 @@
       },
       {
         "id": 207,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2703,8 +2703,8 @@
       },
       {
         "id": 208,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2720,8 +2720,8 @@
       },
       {
         "id": 209,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2737,8 +2737,8 @@
       },
       {
         "id": 210,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2754,8 +2754,8 @@
       },
       {
         "id": 211,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2771,8 +2771,8 @@
       },
       {
         "id": 212,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2788,8 +2788,8 @@
       },
       {
         "id": 213,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2805,8 +2805,8 @@
       },
       {
         "id": 214,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2822,8 +2822,8 @@
       },
       {
         "id": 215,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2839,8 +2839,8 @@
       },
       {
         "id": 216,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
@@ -2856,8 +2856,8 @@
       },
       {
         "id": 217,
-        "url": "https://ep2.adtrafficquality.google/{seg}?%5Bredacted%5D=",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2868,8 +2868,8 @@
       },
       {
         "id": 218,
-        "url": "https://buy.tinypass.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "buy.tinypass.com",
+        "url": "https://{label}.tinypass.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tinypass.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2880,8 +2880,8 @@
       },
       {
         "id": 219,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2897,8 +2897,8 @@
       },
       {
         "id": 220,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2921,8 +2921,8 @@
       },
       {
         "id": 222,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&id=&v=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2938,8 +2938,8 @@
       },
       {
         "id": 223,
-        "url": "https://c2.piano.io/api/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&source=",
-        "domain": "c2.piano.io",
+        "url": "https://{label}.piano.io/api/{seg}/{seg}/{seg}?%5Bredacted%5D=&source=",
+        "domain": "{label}.piano.io",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2951,8 +2951,8 @@
     ],
     "domains": [
       {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 13,
+        "domain": "{label}.googlesyndication.com",
+        "requests": 20,
         "thirdParty": true,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -2967,12 +2967,13 @@
         ],
         "resourceTypes": [
           "script",
-          "fetch"
+          "fetch",
+          "image"
         ]
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 11,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 14,
         "thirdParty": true,
         "tracker": {
           "domain": "doubleclick.net",
@@ -2982,31 +2983,14 @@
         },
         "blockedByShields": true,
         "statuses": [
-          200
+          200,
+          302
         ],
         "resourceTypes": [
           "script",
+          "document",
           "other",
           "fetch"
-        ]
-      },
-      {
-        "domain": "tpc.googlesyndication.com",
-        "requests": 7,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "image"
         ]
       },
       {
@@ -3028,25 +3012,6 @@
         ]
       },
       {
-        "domain": "{label}.fls.doubleclick.net",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
-          "document"
-        ]
-      },
-      {
         "domain": "cdn.optimizely.com",
         "requests": 1,
         "thirdParty": true,
@@ -3065,7 +3030,7 @@
         ]
       },
       {
-        "domain": "script.crazyegg.com",
+        "domain": "{label}.crazyegg.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3078,24 +3043,6 @@
         "statuses": [],
         "resourceTypes": [
           "script"
-        ]
-      },
-      {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
         ]
       },
       {
@@ -3117,7 +3064,7 @@
         ]
       },
       {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.{label}.googlesyndication.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3151,7 +3098,7 @@
         ]
       },
       {
-        "domain": "npr.brightspotcdn.com",
+        "domain": "{label}.brightspotcdn.com",
         "requests": 31,
         "thirdParty": true,
         "tracker": null,
@@ -3182,6 +3129,20 @@
         ]
       },
       {
+        "domain": "{label}.jwpsrv.com",
+        "requests": 14,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "xhr"
+        ]
+      },
+      {
         "domain": "cdn.cookielaw.org",
         "requests": 13,
         "thirdParty": true,
@@ -3198,20 +3159,20 @@
         ]
       },
       {
-        "domain": "assets-jpcust.jwpsrv.com",
-        "requests": 10,
+        "domain": "{label}.jwpltx.com",
+        "requests": 6,
         "thirdParty": true,
         "tracker": null,
-        "blockedByShields": false,
+        "blockedByShields": true,
         "statuses": [
-          200
+          204
         ],
         "resourceTypes": [
           "image"
         ]
       },
       {
-        "domain": "ssl.p.jwpcdn.com",
+        "domain": "{label}.{label}.jwpcdn.com",
         "requests": 5,
         "thirdParty": true,
         "tracker": null,
@@ -3240,29 +3201,20 @@
         ]
       },
       {
-        "domain": "placement-prd.jwpltx.com",
-        "requests": 4,
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
+          200,
           204
         ],
         "resourceTypes": [
+          "xhr",
+          "script",
+          "document",
           "image"
-        ]
-      },
-      {
-        "domain": "videos-cloudfront-usp.jwpsrv.com",
-        "requests": 4,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -3280,7 +3232,7 @@
         ]
       },
       {
-        "domain": "js.stripe.com",
+        "domain": "{label}.stripe.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -3308,7 +3260,7 @@
         ]
       },
       {
-        "domain": "c2.piano.io",
+        "domain": "{label}.piano.io",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -3322,23 +3274,7 @@
         ]
       },
       {
-        "domain": "ep2.adtrafficquality.google",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200,
-          204
-        ],
-        "resourceTypes": [
-          "script",
-          "document",
-          "image"
-        ]
-      },
-      {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -3352,7 +3288,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -3362,19 +3298,6 @@
         ],
         "resourceTypes": [
           "font"
-        ]
-      },
-      {
-        "domain": "prd.jwpltx.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "image"
         ]
       },
       {
@@ -3419,22 +3342,21 @@
         ]
       },
       {
-        "domain": "ep1.adtrafficquality.google",
+        "domain": "{label}.analytics.yahoo.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
-          200,
-          204
+          200
         ],
         "resourceTypes": [
-          "xhr",
-          "image"
+          "script",
+          "xhr"
         ]
       },
       {
-        "domain": "s.go-mpulse.net",
+        "domain": "{label}.go-mpulse.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3473,7 +3395,7 @@
         ]
       },
       {
-        "domain": "pl.connatix.com",
+        "domain": "{label}.connatix.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3486,7 +3408,7 @@
         ]
       },
       {
-        "domain": "entitlements.jwplayer.com",
+        "domain": "{label}.jwplayer.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3538,7 +3460,7 @@
         ]
       },
       {
-        "domain": "s0.2mdn.net",
+        "domain": "{label}.2mdn.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3564,32 +3486,6 @@
         ]
       },
       {
-        "domain": "connectid.analytics.yahoo.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "ups.analytics.yahoo.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
         "domain": "cdn.kqed.org",
         "requests": 1,
         "thirdParty": true,
@@ -3603,7 +3499,7 @@
         ]
       },
       {
-        "domain": "bl.veritonicmetrics.com",
+        "domain": "{label}.veritonicmetrics.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3629,7 +3525,7 @@
         ]
       },
       {
-        "domain": "buy.tinypass.com",
+        "domain": "{label}.tinypass.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3642,21 +3538,8 @@
         ]
       },
       {
-        "domain": "media.npr.org",
-        "requests": 13,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "prod-eks-bundles.npr.org",
-        "requests": 12,
+        "domain": "{label}.npr.org",
+        "requests": 22,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
@@ -3666,6 +3549,19 @@
         "resourceTypes": [
           "script",
           "stylesheet",
+          "image"
+        ]
+      },
+      {
+        "domain": "media.npr.org",
+        "requests": 13,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
           "image"
         ]
       },
@@ -3686,62 +3582,8 @@
         ]
       },
       {
-        "domain": "prod-eks-static-assets.npr.org",
-        "requests": 7,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "image",
-          "stylesheet"
-        ]
-      },
-      {
-        "domain": "organization.api.npr.org",
-        "requests": 3,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "branding.npr.org",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "legacy.npr.org",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "station.api.npr.org",
-        "requests": 1,
+        "domain": "{label}.api.npr.org",
+        "requests": 4,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
@@ -4074,16 +3916,16 @@
     ],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
         "api": "canvas.measureText",
         "count": 58
       },
       {
         "api": "canvas.toDataURL",
         "count": 2
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
       },
       {
         "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
@@ -4154,13 +3996,13 @@
             "https://cdn.piano.io/",
             "https://{label}.ay.delivery/",
             "https://imasdk.googleapis.com/",
-            "https://js.stripe.com/",
-            "https://pagead2.googlesyndication.com/",
-            "https://prod-eks-bundles.npr.org/",
-            "https://s0.2mdn.net/",
-            "https://securepubads.g.doubleclick.net/",
-            "https://ssl.p.jwpcdn.com/",
-            "https://tpc.googlesyndication.com/",
+            "https://{label}.stripe.com/",
+            "https://{label}.googlesyndication.com/",
+            "https://{label}.npr.org/",
+            "https://{label}.2mdn.net/",
+            "https://{label}.{label}.doubleclick.net/",
+            "https://{label}.{label}.jwpcdn.com/",
+            "https://{label}.googlesyndication.com/",
             "https://www.gstatic.com/"
           ],
           "totalListenerCalls": 1774
@@ -4203,9 +4045,9 @@
             "https://cdn.piano.io/",
             "https://{label}.ay.delivery/",
             "https://imasdk.googleapis.com/",
-            "https://prod-eks-bundles.npr.org/",
-            "https://securepubads.g.doubleclick.net/",
-            "https://ssl.p.jwpcdn.com/",
+            "https://{label}.npr.org/",
+            "https://{label}.{label}.doubleclick.net/",
+            "https://{label}.{label}.jwpcdn.com/",
             "https://www.gstatic.com/"
           ],
           "totalListenerCalls": 546
@@ -4247,7 +4089,7 @@
       "totalRequests": 150,
       "thirdPartyRequests": 102,
       "knownTrackerRequests": 2,
-      "thirdPartyDomains": 19,
+      "thirdPartyDomains": 18,
       "cookies": 20,
       "thirdPartyCookies": 2,
       "storageEntries": 16,
@@ -4346,8 +4188,8 @@
       },
       {
         "id": 6,
-        "url": "https://prod-eks-static-assets.npr.org/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-static-assets.npr.org",
+        "url": "https://{label}.npr.org/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4358,8 +4200,8 @@
       },
       {
         "id": 7,
-        "url": "https://prod-eks-static-assets.npr.org/static/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-static-assets.npr.org",
+        "url": "https://{label}.npr.org/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4370,8 +4212,8 @@
       },
       {
         "id": 8,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4382,8 +4224,8 @@
       },
       {
         "id": 9,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -4394,8 +4236,8 @@
       },
       {
         "id": 10,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -4406,8 +4248,8 @@
       },
       {
         "id": 11,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -4418,8 +4260,8 @@
       },
       {
         "id": 12,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -4430,8 +4272,8 @@
       },
       {
         "id": 13,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -4454,8 +4296,8 @@
       },
       {
         "id": 15,
-        "url": "https://prod-eks-static-assets.npr.org/{seg}/{seg}",
-        "domain": "prod-eks-static-assets.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4466,8 +4308,8 @@
       },
       {
         "id": 16,
-        "url": "https://prod-eks-static-assets.npr.org/{seg}/{seg}",
-        "domain": "prod-eks-static-assets.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4478,8 +4320,8 @@
       },
       {
         "id": 17,
-        "url": "https://prod-eks-static-assets.npr.org/{seg}/{seg}",
-        "domain": "prod-eks-static-assets.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4502,8 +4344,8 @@
       },
       {
         "id": 19,
-        "url": "https://npr.brightspotcdn.com/{n}/{seg}/{seg}/{seg}",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4526,8 +4368,8 @@
       },
       {
         "id": 22,
-        "url": "https://js.stripe.com/{seg}",
-        "domain": "js.stripe.com",
+        "url": "https://{label}.stripe.com/{seg}",
+        "domain": "{label}.stripe.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4634,8 +4476,8 @@
       },
       {
         "id": 34,
-        "url": "https://legacy.npr.org/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "legacy.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4706,8 +4548,8 @@
       },
       {
         "id": 40,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4718,8 +4560,8 @@
       },
       {
         "id": 41,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4730,8 +4572,8 @@
       },
       {
         "id": 42,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4742,8 +4584,8 @@
       },
       {
         "id": 43,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4754,8 +4596,8 @@
       },
       {
         "id": 44,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4766,8 +4608,8 @@
       },
       {
         "id": 45,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4790,8 +4632,8 @@
       },
       {
         "id": 47,
-        "url": "https://ssl.p.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ssl.p.jwpcdn.com",
+        "url": "https://{label}.{label}.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.{label}.jwpcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -4814,8 +4656,8 @@
       },
       {
         "id": 49,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4826,8 +4668,8 @@
       },
       {
         "id": 50,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4838,8 +4680,8 @@
       },
       {
         "id": 51,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4850,8 +4692,8 @@
       },
       {
         "id": 52,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4862,8 +4704,8 @@
       },
       {
         "id": 53,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4874,8 +4716,8 @@
       },
       {
         "id": 54,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4886,8 +4728,8 @@
       },
       {
         "id": 55,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4898,8 +4740,8 @@
       },
       {
         "id": 56,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4951,8 +4793,8 @@
       },
       {
         "id": 61,
-        "url": "https://ssl.p.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "ssl.p.jwpcdn.com",
+        "url": "https://{label}.{label}.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.{label}.jwpcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5095,8 +4937,8 @@
       },
       {
         "id": 75,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5107,8 +4949,8 @@
       },
       {
         "id": 76,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5119,8 +4961,8 @@
       },
       {
         "id": 77,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5131,8 +4973,8 @@
       },
       {
         "id": 78,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5143,8 +4985,8 @@
       },
       {
         "id": 79,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5155,8 +4997,8 @@
       },
       {
         "id": 83,
-        "url": "https://entitlements.jwplayer.com/{seg}",
-        "domain": "entitlements.jwplayer.com",
+        "url": "https://{label}.jwplayer.com/{seg}",
+        "domain": "{label}.jwplayer.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5167,8 +5009,8 @@
       },
       {
         "id": 84,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -5311,8 +5153,8 @@
       },
       {
         "id": 99,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5323,8 +5165,8 @@
       },
       {
         "id": 100,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5335,8 +5177,8 @@
       },
       {
         "id": 101,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5347,8 +5189,8 @@
       },
       {
         "id": 102,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5359,8 +5201,8 @@
       },
       {
         "id": 103,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5371,8 +5213,8 @@
       },
       {
         "id": 104,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5383,8 +5225,8 @@
       },
       {
         "id": 105,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5395,8 +5237,8 @@
       },
       {
         "id": 106,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5407,8 +5249,8 @@
       },
       {
         "id": 107,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5419,8 +5261,8 @@
       },
       {
         "id": 108,
-        "url": "https://assets-jpcust.jwpsrv.com/{seg}/{seg}",
-        "domain": "assets-jpcust.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5443,8 +5285,8 @@
       },
       {
         "id": 110,
-        "url": "https://videos-cloudfront-usp.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "videos-cloudfront-usp.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5467,8 +5309,8 @@
       },
       {
         "id": 116,
-        "url": "https://station.api.npr.org/{seg}/{seg}/{seg}",
-        "domain": "station.api.npr.org",
+        "url": "https://{label}.api.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.npr.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -5503,8 +5345,8 @@
       },
       {
         "id": 123,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5515,8 +5357,8 @@
       },
       {
         "id": 124,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5527,8 +5369,8 @@
       },
       {
         "id": 125,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5539,8 +5381,8 @@
       },
       {
         "id": 126,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5551,8 +5393,8 @@
       },
       {
         "id": 127,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5563,8 +5405,8 @@
       },
       {
         "id": 128,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5575,8 +5417,8 @@
       },
       {
         "id": 129,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5587,8 +5429,8 @@
       },
       {
         "id": 130,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5599,8 +5441,8 @@
       },
       {
         "id": 131,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5611,8 +5453,8 @@
       },
       {
         "id": 132,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5623,8 +5465,8 @@
       },
       {
         "id": 133,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5635,8 +5477,8 @@
       },
       {
         "id": 134,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5647,8 +5489,8 @@
       },
       {
         "id": 135,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5659,8 +5501,8 @@
       },
       {
         "id": 136,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5671,8 +5513,8 @@
       },
       {
         "id": 138,
-        "url": "https://ssl.p.jwpcdn.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ssl.p.jwpcdn.com",
+        "url": "https://{label}.{label}.jwpcdn.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.jwpcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5683,8 +5525,8 @@
       },
       {
         "id": 139,
-        "url": "https://prod-eks-static-assets.npr.org/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-static-assets.npr.org",
+        "url": "https://{label}.npr.org/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -5695,8 +5537,8 @@
       },
       {
         "id": 142,
-        "url": "https://videos-cloudfront-usp.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "videos-cloudfront-usp.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5707,8 +5549,8 @@
       },
       {
         "id": 143,
-        "url": "https://js.stripe.com/{seg}/{seg}",
-        "domain": "js.stripe.com",
+        "url": "https://{label}.stripe.com/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -5719,8 +5561,8 @@
       },
       {
         "id": 144,
-        "url": "https://organization.api.npr.org/{seg}/{seg}/{n}",
-        "domain": "organization.api.npr.org",
+        "url": "https://{label}.api.npr.org/{seg}/{seg}/{n}",
+        "domain": "{label}.api.npr.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -5731,8 +5573,8 @@
       },
       {
         "id": 145,
-        "url": "https://organization.api.npr.org/{seg}/{seg}/{n}",
-        "domain": "organization.api.npr.org",
+        "url": "https://{label}.api.npr.org/{seg}/{seg}/{n}",
+        "domain": "{label}.api.npr.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -5743,8 +5585,8 @@
       },
       {
         "id": 146,
-        "url": "https://organization.api.npr.org/{seg}/{seg}/{n}",
-        "domain": "organization.api.npr.org",
+        "url": "https://{label}.api.npr.org/{seg}/{seg}/{n}",
+        "domain": "{label}.api.npr.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -5755,8 +5597,8 @@
       },
       {
         "id": 147,
-        "url": "https://js.stripe.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "js.stripe.com",
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5827,8 +5669,8 @@
       },
       {
         "id": 155,
-        "url": "https://c2.piano.io/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "c2.piano.io",
+        "url": "https://{label}.piano.io/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.piano.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -5839,8 +5681,8 @@
       },
       {
         "id": 156,
-        "url": "https://prod-eks-bundles.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-bundles.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5851,8 +5693,8 @@
       },
       {
         "id": 158,
-        "url": "https://videos-cloudfront-usp.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "videos-cloudfront-usp.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5863,8 +5705,8 @@
       },
       {
         "id": 159,
-        "url": "https://prod-eks-static-assets.npr.org/{seg}/{seg}/{seg}",
-        "domain": "prod-eks-static-assets.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5875,8 +5717,8 @@
       },
       {
         "id": 160,
-        "url": "https://branding.npr.org/{seg}/{seg}/{seg}",
-        "domain": "branding.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5887,8 +5729,8 @@
       },
       {
         "id": 161,
-        "url": "https://branding.npr.org/{seg}/{seg}/{seg}",
-        "domain": "branding.npr.org",
+        "url": "https://{label}.npr.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.npr.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5911,8 +5753,8 @@
       },
       {
         "id": 163,
-        "url": "https://ssl.p.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ssl.p.jwpcdn.com",
+        "url": "https://{label}.{label}.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.jwpcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5923,8 +5765,8 @@
       },
       {
         "id": 164,
-        "url": "https://ssl.p.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ssl.p.jwpcdn.com",
+        "url": "https://{label}.{label}.jwpcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.jwpcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5935,8 +5777,8 @@
       },
       {
         "id": 165,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5947,8 +5789,8 @@
       },
       {
         "id": 168,
-        "url": "https://videos-cloudfront-usp.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "videos-cloudfront-usp.jwpsrv.com",
+        "url": "https://{label}.jwpsrv.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.jwpsrv.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5959,7 +5801,7 @@
       },
       {
         "id": 169,
-        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "document",
@@ -6019,8 +5861,8 @@
       },
       {
         "id": 175,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -6079,8 +5921,8 @@
       },
       {
         "id": 181,
-        "url": "https://npr.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "npr.brightspotcdn.com",
+        "url": "https://{label}.brightspotcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.brightspotcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6091,8 +5933,8 @@
       },
       {
         "id": 182,
-        "url": "https://buy.tinypass.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "buy.tinypass.com",
+        "url": "https://{label}.tinypass.com/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tinypass.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6140,7 +5982,7 @@
         ]
       },
       {
-        "domain": "npr.brightspotcdn.com",
+        "domain": "{label}.brightspotcdn.com",
         "requests": 31,
         "thirdParty": true,
         "tracker": null,
@@ -6171,6 +6013,20 @@
         ]
       },
       {
+        "domain": "{label}.jwpsrv.com",
+        "requests": 14,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "xhr"
+        ]
+      },
+      {
         "domain": "cdn.cookielaw.org",
         "requests": 12,
         "thirdParty": true,
@@ -6187,20 +6043,7 @@
         ]
       },
       {
-        "domain": "assets-jpcust.jwpsrv.com",
-        "requests": 10,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "ssl.p.jwpcdn.com",
+        "domain": "{label}.{label}.jwpcdn.com",
         "requests": 5,
         "thirdParty": true,
         "tracker": null,
@@ -6229,20 +6072,7 @@
         ]
       },
       {
-        "domain": "videos-cloudfront-usp.jwpsrv.com",
-        "requests": 4,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "js.stripe.com",
+        "domain": "{label}.stripe.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -6270,7 +6100,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -6323,7 +6153,7 @@
         ]
       },
       {
-        "domain": "entitlements.jwplayer.com",
+        "domain": "{label}.jwplayer.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6336,7 +6166,7 @@
         ]
       },
       {
-        "domain": "c2.piano.io",
+        "domain": "{label}.piano.io",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6362,7 +6192,7 @@
         ]
       },
       {
-        "domain": "buy.tinypass.com",
+        "domain": "{label}.tinypass.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -6375,21 +6205,8 @@
         ]
       },
       {
-        "domain": "media.npr.org",
-        "requests": 13,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "prod-eks-bundles.npr.org",
-        "requests": 12,
+        "domain": "{label}.npr.org",
+        "requests": 22,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
@@ -6399,6 +6216,19 @@
         "resourceTypes": [
           "script",
           "stylesheet",
+          "image"
+        ]
+      },
+      {
+        "domain": "media.npr.org",
+        "requests": 13,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
           "image"
         ]
       },
@@ -6419,62 +6249,8 @@
         ]
       },
       {
-        "domain": "prod-eks-static-assets.npr.org",
-        "requests": 7,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script",
-          "image",
-          "stylesheet"
-        ]
-      },
-      {
-        "domain": "organization.api.npr.org",
-        "requests": 3,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "branding.npr.org",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "legacy.npr.org",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "station.api.npr.org",
-        "requests": 1,
+        "domain": "{label}.api.npr.org",
+        "requests": 4,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
@@ -6772,16 +6548,16 @@
     ],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
         "api": "canvas.measureText",
         "count": 58
       },
       {
         "api": "canvas.toDataURL",
         "count": 2
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
       },
       {
         "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
@@ -6850,8 +6626,8 @@
             "https://cdn.cookielaw.org/",
             "https://cdn.jwplayer.com/",
             "https://cdn.piano.io/",
-            "https://prod-eks-bundles.npr.org/",
-            "https://ssl.p.jwpcdn.com/",
+            "https://{label}.npr.org/",
+            "https://{label}.{label}.jwpcdn.com/",
             "https://www.gstatic.com/"
           ],
           "totalListenerCalls": 546
@@ -6892,9 +6668,9 @@
             "https://cdn.cookielaw.org/",
             "https://cdn.jwplayer.com/",
             "https://cdn.piano.io/",
-            "https://js.stripe.com/",
-            "https://prod-eks-bundles.npr.org/",
-            "https://ssl.p.jwpcdn.com/",
+            "https://{label}.stripe.com/",
+            "https://{label}.npr.org/",
+            "https://{label}.{label}.jwpcdn.com/",
             "https://www.gstatic.com/"
           ],
           "totalListenerCalls": 1744
@@ -6941,9 +6717,9 @@
       "delta": -39
     },
     "thirdPartyDomains": {
-      "before": 47,
-      "after": 19,
-      "delta": -28
+      "before": 40,
+      "after": 18,
+      "delta": -22
     },
     "cookies": {
       "before": 25,
@@ -6979,8 +6755,8 @@
     ],
     "removedDomains": [
       {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 13,
+        "domain": "{label}.googlesyndication.com",
+        "requests": 20,
         "tracker": {
           "domain": "googlesyndication.com",
           "entity": "Google",
@@ -6989,8 +6765,8 @@
         }
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 11,
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 14,
         "tracker": {
           "domain": "doubleclick.net",
           "entity": "Google",
@@ -6999,14 +6775,14 @@
         }
       },
       {
-        "domain": "tpc.googlesyndication.com",
-        "requests": 7,
-        "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
+        "domain": "{label}.jwpltx.com",
+        "requests": 6,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
+        "tracker": null
       },
       {
         "domain": "api.assertcom.de",
@@ -7014,42 +6790,17 @@
         "tracker": null
       },
       {
-        "domain": "placement-prd.jwpltx.com",
-        "requests": 4,
-        "tracker": null
-      },
-      {
-        "domain": "ep2.adtrafficquality.google",
-        "requests": 3,
-        "tracker": null
-      },
-      {
-        "domain": "{label}.fls.doubleclick.net",
-        "requests": 2,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "ep1.adtrafficquality.google",
+        "domain": "{label}.analytics.yahoo.com",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 2,
         "tracker": null
       },
       {
         "domain": "imasdk.googleapis.com",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "prd.jwpltx.com",
         "requests": 2,
         "tracker": null
       },
@@ -7069,17 +6820,7 @@
         }
       },
       {
-        "domain": "{label}.ay.delivery",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "{label}.creativecdn.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.{label}.googlesyndication.com",
         "requests": 1,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -7087,6 +6828,46 @@
           "category": "advertising",
           "confidence": "curated"
         }
+      },
+      {
+        "domain": "{label}.2mdn.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.ay.delivery",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.connatix.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.crazyegg.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "crazyegg.com",
+          "entity": "Crazy Egg",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.creativecdn.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.veritonicmetrics.com",
+        "requests": 1,
+        "tracker": null
       },
       {
         "domain": "ad.doubleclick.net",
@@ -7114,62 +6895,12 @@
         "tracker": null
       },
       {
-        "domain": "bl.veritonicmetrics.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "cm.g.doubleclick.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "connectid.analytics.yahoo.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
         "domain": "m.stripe.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "pl.connatix.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "s.go-mpulse.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "s0.2mdn.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "script.crazyegg.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "crazyegg.com",
-          "entity": "Crazy Egg",
-          "category": "session replay / behavior analytics",
-          "confidence": "curated"
-        }
-      },
-      {
         "domain": "secure.insightexpressai.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "ups.analytics.yahoo.com",
         "requests": 1,
         "tracker": null
       }
@@ -7179,7 +6910,7 @@
       {
         "entity": "Google",
         "requests": 38,
-        "domains": 8
+        "domains": 5
       },
       {
         "entity": "Crazy Egg",

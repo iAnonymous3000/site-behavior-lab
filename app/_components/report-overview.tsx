@@ -250,7 +250,7 @@ export function MetricGrid({ run }: { run: RunView }) {
     {
       label: "Requests",
       value: run.counts.totalRequests,
-      detail: `${run.counts.thirdPartyRequests.toLocaleString()} third-party`,
+      detail: `${run.counts.thirdPartyRequests.toLocaleString("en-US")} third-party`,
       icon: Network
     },
     ...(run.conditions.adblockActive
@@ -265,7 +265,7 @@ export function MetricGrid({ run }: { run: RunView }) {
             : {
                 label: "Matched Shields lists",
                 value: run.counts.shieldsBlockedRequests ?? 0,
-                detail: `of ${run.counts.totalRequests.toLocaleString()} requests`,
+                detail: `of ${run.counts.totalRequests.toLocaleString("en-US")} requests`,
                 icon: ShieldCheck
               }
         ]
@@ -273,13 +273,13 @@ export function MetricGrid({ run }: { run: RunView }) {
     {
       label: "Third-party domains",
       value: run.counts.thirdPartyDomains,
-      detail: `${knownServices.toLocaleString()} known ${knownServices === 1 ? "service" : "services"}`,
+      detail: `${knownServices.toLocaleString("en-US")} known ${knownServices === 1 ? "service" : "services"}`,
       icon: Globe2
     },
     {
       label: "Cookies",
       value: run.counts.cookies,
-      detail: `${run.counts.thirdPartyCookies.toLocaleString()} third-party`,
+      detail: `${run.counts.thirdPartyCookies.toLocaleString("en-US")} third-party`,
       icon: Cookie
     },
     { label: "Storage keys", value: run.counts.storageEntries, detail: "values redacted", icon: Database },
@@ -289,7 +289,7 @@ export function MetricGrid({ run }: { run: RunView }) {
       detail:
         detectionCount > 0
           ? `${plural(detectionCount, "behavior")} matched`
-          : `${apiFamilies.toLocaleString()} API ${apiFamilies === 1 ? "family" : "families"}`,
+          : `${apiFamilies.toLocaleString("en-US")} API ${apiFamilies === 1 ? "family" : "families"}`,
       icon: Fingerprint
     },
     {
@@ -301,7 +301,9 @@ export function MetricGrid({ run }: { run: RunView }) {
     {
       label: "Duration",
       value: `${Math.round(run.durationMs / 100) / 10}s`,
-      detail: run.startedAt ? new Date(run.startedAt).toLocaleTimeString() : "start time not recorded",
+      detail: run.startedAt
+        ? new Date(run.startedAt).toLocaleTimeString("en-US", { timeZone: "UTC" })
+        : "start time not recorded",
       icon: Clock
     }
   ];
@@ -320,7 +322,7 @@ export function MetricGrid({ run }: { run: RunView }) {
               <Icon size={18} aria-hidden="true" />
               <span className="m-label">{metric.label}</span>
               <strong className="m-value">
-                {typeof metric.value === "number" ? metric.value.toLocaleString() : metric.value}
+                {typeof metric.value === "number" ? metric.value.toLocaleString("en-US") : metric.value}
               </strong>
               <small className="m-detail">{metric.detail}</small>
             </div>
@@ -354,15 +356,15 @@ export function TrafficViz({ run }: { run: RunView }) {
       <div className="party-legend">
         <div>
           <span className="legend-swatch party-seg-first" />
-          First-party <span className="legend-count">{first.toLocaleString()}</span>
+          First-party <span className="legend-count">{first.toLocaleString("en-US")}</span>
         </div>
         <div>
           <span className="legend-swatch party-seg-third" />
-          Third-party <span className="legend-count">{third.toLocaleString()}</span>
+          Third-party <span className="legend-count">{third.toLocaleString("en-US")}</span>
         </div>
         <div>
           <span className="legend-swatch party-seg-track" />
-          Known service <span className="legend-count">{tracker.toLocaleString()}</span>
+          Known service <span className="legend-count">{tracker.toLocaleString("en-US")}</span>
         </div>
       </div>
       <RequestTimeline requests={run.evidence.requests} />
@@ -393,7 +395,7 @@ function RequestTimeline({ requests }: { requests: NetworkRequestRecord[] }) {
       </svg>
       <div className="timeline-axis">
         <span>0 ms</span>
-        <span>{maxTime.toLocaleString()} ms</span>
+        <span>{maxTime.toLocaleString("en-US")} ms</span>
       </div>
     </div>
   );

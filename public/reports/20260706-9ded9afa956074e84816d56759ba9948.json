@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://dap.digitalgov.gov/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dap.digitalgov.gov",
+        "url": "https://{label}.digitalgov.gov/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -201,8 +201,8 @@
       },
       {
         "id": 12,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -261,8 +261,8 @@
       },
       {
         "id": 17,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -357,8 +357,8 @@
       },
       {
         "id": 25,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -393,8 +393,8 @@
       },
       {
         "id": 28,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -405,8 +405,8 @@
       },
       {
         "id": 29,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -417,8 +417,8 @@
       },
       {
         "id": 30,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/articles/{n}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/articles/{n}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -429,8 +429,8 @@
       },
       {
         "id": 31,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -441,8 +441,8 @@
       },
       {
         "id": 32,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -453,8 +453,8 @@
       },
       {
         "id": 33,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -465,8 +465,8 @@
       },
       {
         "id": 34,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -477,8 +477,8 @@
       },
       {
         "id": 35,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -489,8 +489,8 @@
       },
       {
         "id": 36,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -513,8 +513,8 @@
       },
       {
         "id": 38,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -537,8 +537,8 @@
       },
       {
         "id": 40,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/news",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/news",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -561,8 +561,8 @@
       },
       {
         "id": 42,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -621,8 +621,8 @@
       },
       {
         "id": 47,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -758,8 +758,8 @@
       },
       {
         "id": 58,
-        "url": "https://dap.digitalgov.gov/{seg}/{seg}/{seg}",
-        "domain": "dap.digitalgov.gov",
+        "url": "https://{label}.digitalgov.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -852,8 +852,8 @@
       },
       {
         "id": 65,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -864,8 +864,8 @@
       },
       {
         "id": 66,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -876,8 +876,8 @@
       },
       {
         "id": 67,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -888,8 +888,8 @@
       },
       {
         "id": 68,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -900,8 +900,8 @@
       },
       {
         "id": 69,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -924,8 +924,8 @@
       },
       {
         "id": 71,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/articles/{n}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/articles/{n}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -948,8 +948,8 @@
       },
       {
         "id": 73,
-        "url": "https://science.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "science.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -960,8 +960,8 @@
       },
       {
         "id": 74,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -972,8 +972,8 @@
       },
       {
         "id": 75,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -984,8 +984,8 @@
       },
       {
         "id": 76,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1068,8 +1068,8 @@
       },
       {
         "id": 83,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1080,8 +1080,8 @@
       },
       {
         "id": 84,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1104,8 +1104,8 @@
       },
       {
         "id": 86,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1116,7 +1116,7 @@
       },
       {
         "id": 87,
-        "url": "https://api.parsely.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://api.parsely.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "api.parsely.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1133,8 +1133,8 @@
       },
       {
         "id": 88,
-        "url": "https://p1.parsely.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "p1.parsely.com",
+        "url": "https://{label}.parsely.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.parsely.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1198,8 +1198,8 @@
       },
       {
         "id": 93,
-        "url": "https://plus.nasa.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "plus.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1210,8 +1210,8 @@
       },
       {
         "id": 94,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1222,8 +1222,8 @@
       },
       {
         "id": 95,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1234,8 +1234,8 @@
       },
       {
         "id": 96,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 302,
@@ -1280,8 +1280,8 @@
       },
       {
         "id": 99,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1297,8 +1297,8 @@
       },
       {
         "id": 100,
-        "url": "https://i.ytimg.com/{seg}/{seg}/{seg}",
-        "domain": "i.ytimg.com",
+        "url": "https://{label}.ytimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ytimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1309,7 +1309,7 @@
       },
       {
         "id": 101,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1326,7 +1326,7 @@
       },
       {
         "id": 102,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1355,7 +1355,7 @@
       },
       {
         "id": 104,
-        "url": "https://www.youtube.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.youtube.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "document",
@@ -1379,7 +1379,7 @@
       },
       {
         "id": 106,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1468,8 +1468,8 @@
       },
       {
         "id": 113,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1480,7 +1480,7 @@
       },
       {
         "id": 114,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1497,8 +1497,8 @@
       },
       {
         "id": 115,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 302,
@@ -1543,8 +1543,8 @@
       },
       {
         "id": 118,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1560,8 +1560,8 @@
       },
       {
         "id": 119,
-        "url": "https://i.ytimg.com/{seg}/{seg}/{seg}",
-        "domain": "i.ytimg.com",
+        "url": "https://{label}.ytimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ytimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1632,8 +1632,8 @@
       },
       {
         "id": 125,
-        "url": "https://p1.parsely.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "p1.parsely.com",
+        "url": "https://{label}.parsely.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.parsely.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": null,
@@ -1649,7 +1649,7 @@
       },
       {
         "id": 126,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1666,7 +1666,7 @@
       },
       {
         "id": 127,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1683,7 +1683,7 @@
       },
       {
         "id": 128,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1700,7 +1700,7 @@
       },
       {
         "id": 129,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1717,7 +1717,7 @@
       },
       {
         "id": 130,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1734,7 +1734,7 @@
       },
       {
         "id": 131,
-        "url": "https://www.youtube.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.youtube.com/api/{seg}/{seg}?%5Bredacted%5D=&ver=&hl=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
@@ -1758,7 +1758,7 @@
       },
       {
         "id": 133,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1770,7 +1770,7 @@
       },
       {
         "id": 134,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1782,7 +1782,7 @@
       },
       {
         "id": 135,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1794,7 +1794,7 @@
       },
       {
         "id": 136,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1806,7 +1806,7 @@
       },
       {
         "id": 137,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1855,7 +1855,7 @@
         ]
       },
       {
-        "domain": "googleads.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 4,
         "thirdParty": true,
         "tracker": {
@@ -1874,7 +1874,7 @@
         ]
       },
       {
-        "domain": "p1.parsely.com",
+        "domain": "{label}.parsely.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -1979,7 +1979,7 @@
         ]
       },
       {
-        "domain": "dap.digitalgov.gov",
+        "domain": "{label}.digitalgov.gov",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1992,7 +1992,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -2005,7 +2005,7 @@
         ]
       },
       {
-        "domain": "i.ytimg.com",
+        "domain": "{label}.ytimg.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -2048,7 +2048,7 @@
         ]
       },
       {
-        "domain": "assets.science.nasa.gov",
+        "domain": "assets.{label}.nasa.gov",
         "requests": 23,
         "thirdParty": false,
         "tracker": null,
@@ -2061,8 +2061,8 @@
         ]
       },
       {
-        "domain": "images-assets.nasa.gov",
-        "requests": 9,
+        "domain": "{label}.nasa.gov",
+        "requests": 11,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
@@ -2070,32 +2070,7 @@
           200
         ],
         "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "science.nasa.gov",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "plus.nasa.gov",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
+          "image",
           "xhr"
         ]
       }
@@ -2240,7 +2215,7 @@
           ],
           "thirdPartyOrigins": [
             "https://cdn.parsely.com/",
-            "https://dap.digitalgov.gov/",
+            "https://{label}.digitalgov.gov/",
             "https://www.google.com/",
             "https://www.googletagmanager.com/"
           ],
@@ -2276,7 +2251,7 @@
           ],
           "thirdPartyOrigins": [
             "https://cdn.parsely.com/",
-            "https://dap.digitalgov.gov/",
+            "https://{label}.digitalgov.gov/",
             "https://www.google.com/",
             "https://www.googletagmanager.com/"
           ],
@@ -2494,8 +2469,8 @@
       },
       {
         "id": 12,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2506,8 +2481,8 @@
       },
       {
         "id": 13,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2530,8 +2505,8 @@
       },
       {
         "id": 15,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2542,8 +2517,8 @@
       },
       {
         "id": 16,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2554,8 +2529,8 @@
       },
       {
         "id": 17,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2650,8 +2625,8 @@
       },
       {
         "id": 25,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2686,8 +2661,8 @@
       },
       {
         "id": 28,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2698,8 +2673,8 @@
       },
       {
         "id": 29,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2710,8 +2685,8 @@
       },
       {
         "id": 30,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/articles/{n}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/articles/{n}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2722,8 +2697,8 @@
       },
       {
         "id": 31,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2734,8 +2709,8 @@
       },
       {
         "id": 32,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2746,8 +2721,8 @@
       },
       {
         "id": 33,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2758,8 +2733,8 @@
       },
       {
         "id": 34,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2770,8 +2745,8 @@
       },
       {
         "id": 35,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2782,8 +2757,8 @@
       },
       {
         "id": 36,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2806,8 +2781,8 @@
       },
       {
         "id": 38,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2830,8 +2805,8 @@
       },
       {
         "id": 40,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/news",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/news",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2854,8 +2829,8 @@
       },
       {
         "id": 42,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2914,8 +2889,8 @@
       },
       {
         "id": 47,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3082,8 +3057,8 @@
       },
       {
         "id": 63,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3094,8 +3069,8 @@
       },
       {
         "id": 64,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3106,8 +3081,8 @@
       },
       {
         "id": 65,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3118,8 +3093,8 @@
       },
       {
         "id": 66,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3130,8 +3105,8 @@
       },
       {
         "id": 67,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3154,8 +3129,8 @@
       },
       {
         "id": 69,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/articles/{n}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/articles/{n}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3178,8 +3153,8 @@
       },
       {
         "id": 71,
-        "url": "https://science.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "science.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3190,8 +3165,8 @@
       },
       {
         "id": 72,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3202,8 +3177,8 @@
       },
       {
         "id": 73,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3214,8 +3189,8 @@
       },
       {
         "id": 74,
-        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "assets.science.nasa.gov",
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3298,8 +3273,8 @@
       },
       {
         "id": 81,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3310,8 +3285,8 @@
       },
       {
         "id": 82,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3334,8 +3309,8 @@
       },
       {
         "id": 84,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3394,8 +3369,8 @@
       },
       {
         "id": 89,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3406,8 +3381,8 @@
       },
       {
         "id": 90,
-        "url": "https://plus.nasa.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "plus.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3418,8 +3393,8 @@
       },
       {
         "id": 91,
-        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
-        "domain": "images-assets.nasa.gov",
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3442,8 +3417,8 @@
       },
       {
         "id": 95,
-        "url": "https://i.ytimg.com/{seg}/{seg}/{seg}",
-        "domain": "i.ytimg.com",
+        "url": "https://{label}.ytimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ytimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3502,7 +3477,7 @@
       },
       {
         "id": 101,
-        "url": "https://www.youtube.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.youtube.com/api/{seg}/{seg}?%5Bredacted%5D=&ver=&hl=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
@@ -3543,7 +3518,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3556,7 +3531,7 @@
         ]
       },
       {
-        "domain": "i.ytimg.com",
+        "domain": "{label}.ytimg.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3612,7 +3587,7 @@
         ]
       },
       {
-        "domain": "assets.science.nasa.gov",
+        "domain": "assets.{label}.nasa.gov",
         "requests": 23,
         "thirdParty": false,
         "tracker": null,
@@ -3625,8 +3600,8 @@
         ]
       },
       {
-        "domain": "images-assets.nasa.gov",
-        "requests": 9,
+        "domain": "{label}.nasa.gov",
+        "requests": 11,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
@@ -3634,32 +3609,7 @@
           200
         ],
         "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "science.nasa.gov",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "plus.nasa.gov",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
+          "image",
           "xhr"
         ]
       }
@@ -3860,7 +3810,7 @@
         }
       },
       {
-        "domain": "googleads.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 4,
         "tracker": {
           "domain": "doubleclick.net",
@@ -3880,12 +3830,12 @@
         }
       },
       {
-        "domain": "dap.digitalgov.gov",
+        "domain": "{label}.digitalgov.gov",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "p1.parsely.com",
+        "domain": "{label}.parsely.com",
         "requests": 2,
         "tracker": {
           "domain": "parsely.com",

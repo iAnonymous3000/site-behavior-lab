@@ -68,7 +68,7 @@ const ARM_METHODS: Record<InterventionAxis, Set<string>> = {
  * cuts, so an exhausted request budget cannot hide behind an unrelated
  * detector loss. An unknown budget name is a violation.
  */
-export const BUDGET_FAMILIES: Record<string, EvidenceFamily> = {
+export const BUDGET_FAMILIES: Readonly<Record<string, EvidenceFamily>> = Object.freeze({
   "request-capture": "requests",
   "cookie-snapshot": "cookies",
   "storage-snapshot": "storage",
@@ -77,8 +77,24 @@ export const BUDGET_FAMILIES: Record<string, EvidenceFamily> = {
   "cname-lookups": "detector-output",
   "pixel-decode": "detector-output",
   "policy-visit": "detector-output",
-  "consent-verification": "consent-verification"
-};
+  "consent-verification": "consent-verification",
+  // Public build-time caps. These are part of the pre-emission registry: a
+  // hostile page cannot bloat a wire artifact, and every clipped family is
+  // explicitly censored instead of silently truncated.
+  "public-request-records": "requests",
+  "public-cookie-mutations": "cookies",
+  "public-cookie-final": "cookies",
+  "public-storage-mutations": "storage",
+  "public-storage-final": "storage",
+  "public-fingerprint-events": "fingerprinting",
+  "public-fingerprint-detections": "detector-output",
+  "public-cname-cloaks": "detector-output",
+  "public-pixel-events": "detector-output",
+  "public-policy-claims": "detector-output",
+  "public-policy-entities": "detector-output",
+  "public-warnings": "detector-output",
+  "public-consent-observations": "consent-verification"
+});
 
 // ---------------------------------------------------------------------------
 // Quality (RFC 5.3)
@@ -200,17 +216,26 @@ function metricDependencyReasons(family: MetricFamily, a: ScanRunV2, b: ScanRunV
     const catalog = digestReason("trackerCatalog", a.toolchain.trackerCatalog.digest, b.toolchain.trackerCatalog.digest);
     if (catalog !== null) reasons.push(catalog);
   }
-  if (family === "shields-simulation") {
-    if (a.toolchain.adblock === null || b.toolchain.adblock === null) {
-      reasons.push("unknown-dimension:adblock");
+  if (family === "shields-simulation" || family === "detector-findings") {
+    const leftAdblock = a.toolchain.adblock;
+    const rightAdblock = b.toolchain.adblock;
+    const missingAdblock = leftAdblock === null || rightAdblock === null;
+    if (missingAdblock) {
+      // Shields metrics always require an engine. Detector findings require
+      // the engine identity only when the Brave-list CNAME fallback was
+      // enabled on either arm; a known null/null pair means that fallback was
+      // disabled symmetrically.
+      if (family === "shields-simulation" || leftAdblock !== rightAdblock) {
+        reasons.push("unknown-dimension:adblock");
+      }
     } else {
-      const manifest = digestReason("adblockManifest", a.toolchain.adblock.manifestDigest, b.toolchain.adblock.manifestDigest);
+      const manifest = digestReason("adblockManifest", leftAdblock.manifestDigest, rightAdblock.manifestDigest);
       if (manifest !== null) reasons.push(manifest);
       // The unknown rule applies to versions too: two "unknown" engines are
       // not the same engine.
-      if (isUnknownDimension(a.toolchain.adblock.engineVersion) || isUnknownDimension(b.toolchain.adblock.engineVersion)) {
+      if (isUnknownDimension(leftAdblock.engineVersion) || isUnknownDimension(rightAdblock.engineVersion)) {
         reasons.push("unknown-dimension:adblockEngine");
-      } else if (a.toolchain.adblock.engineVersion !== b.toolchain.adblock.engineVersion) {
+      } else if (leftAdblock.engineVersion !== rightAdblock.engineVersion) {
         reasons.push("dependency-version-mismatch:adblockEngine");
       }
     }

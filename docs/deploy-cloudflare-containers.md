@@ -127,6 +127,37 @@ SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1                    # asserted by health + d
 SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN=<strong secret>     # operator-gated launch (see §6)
 ```
 
+### Migrating retained shares after a redaction revision
+
+Do not deploy a stricter managed-report provenance gate before retained R2
+shares have matching public bytes and sidecars. The one-off operator Worker is
+never deployed: it runs through a remote Wrangler development session bound to
+the production bucket. `GET /` is read-only and returns aggregate counts only.
+`POST /apply` requires an ephemeral bearer token:
+
+```bash
+TOKEN=$(openssl rand -hex 32)
+npx wrangler dev --remote -c wrangler.r2-remediation.jsonc --port 8791 \
+  --var "SITE_BEHAVIOR_LAB_R2_REMEDIATION_APPLY_TOKEN:$TOKEN" &
+DEV_PID=$!
+
+curl --fail-with-body http://127.0.0.1:8791/
+curl --fail-with-body -X POST \
+  -H "Authorization: Bearer $TOKEN" \
+  http://127.0.0.1:8791/apply
+
+kill "$DEV_PID"
+unset TOKEN
+```
+
+Apply preflights the complete `reports/` prefix before writing, refuses missing
+or malformed retention clocks, preserves the exact `createdAt`/`expiresAt` and
+R2 metadata, conditionally replaces changed report bytes, writes the sidecar
+second, and verifies the managed report after readback. Expired shares are
+reported and skipped; this migration never extends their lifetime. Run the dry
+run again after a scanner rollout to catch a share created by the old container
+between the pre-deploy migration and the new revision becoming active.
+
 ## 4. Deploy
 
 ```bash

@@ -1,5 +1,16 @@
 {
-  "version": "allowlists-v1",
+  "version": "allowlists-v2",
+  "subdomainLabels": {
+    "version": "subdomain-v1",
+    "literals": [
+      "account", "accounts", "ad", "ads", "amp", "analytics", "api", "app",
+      "apps", "assets", "auth", "blog", "business", "cdn", "cdn1", "cdn2",
+      "checkout", "collect", "docs", "download", "edition", "en", "events", "files",
+      "help", "images", "img", "login", "m", "media", "metrics", "mobile", "news",
+      "pay", "payments", "pixel", "secure", "shop", "static", "status", "store",
+      "support", "telemetry", "tracking", "video", "www", "www1", "www2"
+    ]
+  },
   "routeLiterals": {
     "version": "route-v1",
     "literals": [
@@ -13,15 +24,18 @@
     ]
   },
   "queryKeys": {
-    "version": "query-v1",
+    "version": "query-v2",
     "literals": [
       "cachebuster", "callback", "cb", "cid", "dclid", "dpr", "ev", "fbclid",
       "format", "gbraid", "gclid", "height", "hl", "id", "lang", "locale",
       "msclkid", "noscript", "page", "q", "quality", "ref", "rl", "size",
       "source", "t", "tid", "ttclid", "twclid", "type", "v", "ver", "version",
-      "wbraid", "width"
-    ],
-    "prefixes": ["utm_", "ud["]
+      "ud[client_ip_address]", "ud[client_user_agent]", "ud[country]", "ud[ct]",
+      "ud[db]", "ud[em]", "ud[external_id]", "ud[fn]", "ud[ge]", "ud[ln]",
+      "ud[ph]", "ud[st]", "ud[zp]", "utm_campaign", "utm_content",
+      "utm_creative_format", "utm_id", "utm_marketing_tactic", "utm_medium",
+      "utm_source", "utm_source_platform", "utm_term", "wbraid", "width"
+    ]
   },
   "cookieNames": {
     "version": "cookie-v1",

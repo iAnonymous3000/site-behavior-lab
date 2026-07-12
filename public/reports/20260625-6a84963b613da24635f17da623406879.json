@@ -23,7 +23,7 @@
       "totalRequests": 150,
       "thirdPartyRequests": 50,
       "knownTrackerRequests": 18,
-      "thirdPartyDomains": 21,
+      "thirdPartyDomains": 19,
       "cookies": 12,
       "thirdPartyCookies": 2,
       "storageEntries": 11,
@@ -446,8 +446,8 @@
       },
       {
         "id": 32,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -463,8 +463,8 @@
       },
       {
         "id": 33,
-        "url": "https://neodarwin-prod.sdcdns.com/{seg}/{seg}",
-        "domain": "neodarwin-prod.sdcdns.com",
+        "url": "https://{label}.sdcdns.com/{seg}/{seg}",
+        "domain": "{label}.sdcdns.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -540,8 +540,8 @@
       },
       {
         "id": 39,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -881,7 +881,7 @@
       },
       {
         "id": 67,
-        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -898,8 +898,8 @@
       },
       {
         "id": 68,
-        "url": "https://utt.impactcdn.com/{seg}",
-        "domain": "utt.impactcdn.com",
+        "url": "https://{label}.impactcdn.com/{seg}",
+        "domain": "{label}.impactcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -922,8 +922,8 @@
       },
       {
         "id": 70,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -939,8 +939,8 @@
       },
       {
         "id": 71,
-        "url": "https://cmas.sdcdns.com/{seg}/{seg}",
-        "domain": "cmas.sdcdns.com",
+        "url": "https://{label}.sdcdns.com/{seg}/{seg}",
+        "domain": "{label}.sdcdns.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1371,8 +1371,8 @@
       },
       {
         "id": 107,
-        "url": "https://abcya.sjv.io/{seg}/{n}/{n}/{n}",
-        "domain": "abcya.sjv.io",
+        "url": "https://{label}.sjv.io/{seg}/{n}/{n}/{n}",
+        "domain": "{label}.sjv.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1383,7 +1383,7 @@
       },
       {
         "id": 108,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1400,8 +1400,8 @@
       },
       {
         "id": 109,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1417,8 +1417,8 @@
       },
       {
         "id": 110,
-        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1446,7 +1446,7 @@
       },
       {
         "id": 112,
-        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -1506,8 +1506,8 @@
       },
       {
         "id": 117,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -1547,8 +1547,8 @@
       },
       {
         "id": 120,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1583,8 +1583,8 @@
       },
       {
         "id": 123,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1595,7 +1595,7 @@
       },
       {
         "id": 124,
-        "url": "https://app.shop.pe/app/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://app.shop.pe/app/{seg}/{seg}?%5Bredacted%5D=&callback=",
         "domain": "app.shop.pe",
         "method": "GET",
         "resourceType": "script",
@@ -1607,8 +1607,8 @@
       },
       {
         "id": 125,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1643,8 +1643,8 @@
       },
       {
         "id": 128,
-        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1667,8 +1667,8 @@
       },
       {
         "id": 130,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1684,8 +1684,8 @@
       },
       {
         "id": 131,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1701,8 +1701,8 @@
       },
       {
         "id": 132,
-        "url": "https://ep2.adtrafficquality.google/{seg}?%5Bredacted%5D=",
-        "domain": "ep2.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1713,8 +1713,8 @@
       },
       {
         "id": 133,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -1730,8 +1730,8 @@
       },
       {
         "id": 134,
-        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ep1.adtrafficquality.google",
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1838,8 +1838,8 @@
       },
       {
         "id": 143,
-        "url": "https://api-js.mixpanel.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "api-js.mixpanel.com",
+        "url": "https://{label}.mixpanel.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.mixpanel.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1855,7 +1855,7 @@
       },
       {
         "id": 144,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1872,7 +1872,7 @@
       },
       {
         "id": 145,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1889,7 +1889,7 @@
       },
       {
         "id": 146,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1906,8 +1906,8 @@
       },
       {
         "id": 147,
-        "url": "https://api-js.mixpanel.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "api-js.mixpanel.com",
+        "url": "https://{label}.mixpanel.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.mixpanel.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -1923,7 +1923,7 @@
       },
       {
         "id": 148,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1935,7 +1935,7 @@
       },
       {
         "id": 149,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1947,7 +1947,7 @@
       },
       {
         "id": 150,
-        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1960,7 +1960,7 @@
     ],
     "domains": [
       {
-        "domain": "pagead2.googlesyndication.com",
+        "domain": "{label}.googlesyndication.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": {
@@ -1981,7 +1981,7 @@
         ]
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 4,
         "thirdParty": true,
         "tracker": {
@@ -2037,7 +2037,7 @@
         ]
       },
       {
-        "domain": "api-js.mixpanel.com",
+        "domain": "{label}.mixpanel.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -2074,7 +2074,7 @@
         ]
       },
       {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.{label}.googlesyndication.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -2123,6 +2123,23 @@
         ]
       },
       {
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "document",
+          "image"
+        ]
+      },
+      {
         "domain": "kidsafe.com",
         "requests": 4,
         "thirdParty": true,
@@ -2151,39 +2168,8 @@
         ]
       },
       {
-        "domain": "ep2.adtrafficquality.google",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200,
-          204
-        ],
-        "resourceTypes": [
-          "script",
-          "document",
-          "image"
-        ]
-      },
-      {
-        "domain": "ep1.adtrafficquality.google",
+        "domain": "{label}.sdcdns.com",
         "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200,
-          204
-        ],
-        "resourceTypes": [
-          "xhr",
-          "image"
-        ]
-      },
-      {
-        "domain": "neodarwin-prod.sdcdns.com",
-        "requests": 1,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -2208,7 +2194,7 @@
         ]
       },
       {
-        "domain": "utt.impactcdn.com",
+        "domain": "{label}.impactcdn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2234,20 +2220,7 @@
         ]
       },
       {
-        "domain": "cmas.sdcdns.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "abcya.sjv.io",
+        "domain": "{label}.sjv.io",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2260,7 +2233,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2513,7 +2486,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://securepubads.g.doubleclick.net/",
+            "https://{label}.{label}.doubleclick.net/",
             "https://www.datadoghq-browser-agent.com/",
             "https://www.gstatic.com/"
           ],
@@ -2546,7 +2519,7 @@
           "thirdPartyOrigins": [
             "https://d2mjzob2nc713b.cloudfront.net/",
             "https://imasdk.googleapis.com/",
-            "https://utt.impactcdn.com/",
+            "https://{label}.impactcdn.com/",
             "https://www.datadoghq-browser-agent.com/",
             "https://www.googletagmanager.com/",
             "https://www.gstatic.com/"
@@ -3748,7 +3721,7 @@
       },
       {
         "id": 101,
-        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "document",
@@ -3808,8 +3781,8 @@
       },
       {
         "id": 106,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -4046,7 +4019,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4171,9 +4144,9 @@
       "delta": -18
     },
     "thirdPartyDomains": {
-      "before": 21,
+      "before": 19,
       "after": 4,
-      "delta": -17
+      "delta": -15
     },
     "cookies": {
       "before": 12,
@@ -4198,20 +4171,25 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "pagead2.googlesyndication.com",
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 4,
         "tracker": {
-          "domain": "googlesyndication.com",
+          "domain": "doubleclick.net",
           "entity": "Google",
           "category": "advertising",
           "confidence": "curated"
         }
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
+        "domain": "{label}.googlesyndication.com",
         "requests": 4,
         "tracker": {
-          "domain": "doubleclick.net",
+          "domain": "googlesyndication.com",
           "entity": "Google",
           "category": "advertising",
           "confidence": "curated"
@@ -4233,12 +4211,7 @@
         "tracker": null
       },
       {
-        "domain": "ep2.adtrafficquality.google",
-        "requests": 3,
-        "tracker": null
-      },
-      {
-        "domain": "api-js.mixpanel.com",
+        "domain": "{label}.mixpanel.com",
         "requests": 2,
         "tracker": {
           "domain": "mixpanel.com",
@@ -4248,7 +4221,7 @@
         }
       },
       {
-        "domain": "ep1.adtrafficquality.google",
+        "domain": "{label}.sdcdns.com",
         "requests": 2,
         "tracker": null
       },
@@ -4263,7 +4236,7 @@
         }
       },
       {
-        "domain": "{label}.safeframe.googlesyndication.com",
+        "domain": "{label}.{label}.googlesyndication.com",
         "requests": 1,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -4273,7 +4246,12 @@
         }
       },
       {
-        "domain": "abcya.sjv.io",
+        "domain": "{label}.impactcdn.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.sjv.io",
         "requests": 1,
         "tracker": null
       },
@@ -4283,27 +4261,12 @@
         "tracker": null
       },
       {
-        "domain": "cmas.sdcdns.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
         "domain": "imasdk.googleapis.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "neodarwin-prod.sdcdns.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
         "domain": "shop.pe",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "utt.impactcdn.com",
         "requests": 1,
         "tracker": null
       },

@@ -18,7 +18,7 @@ test("the PageGraph CLI exports opaque, sanitized, digest-pinned artifacts", () 
       input
     );
 
-    assert.equal(main(["--out", output, "--rule", "||tracker.example^", input]), 0);
+    assert.equal(main(["--out", output, "--rule", "||google-analytics.com^", input]), 0);
     const exportedNames = readdirSync(output).sort();
     assert.equal(exportedNames.includes("export-manifest.json"), true);
 

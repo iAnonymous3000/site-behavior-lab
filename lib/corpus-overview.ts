@@ -8,10 +8,14 @@ import { readStoredReportForId } from "./report-source";
 import { comparisonArmViews, displayRunView, familyCensoredOnRun, toReportView, type ReportView } from "./scan-report-view";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { listStaticReportIds } from "./static-report-files";
-import { computeSinceLastScan, type SinceLastScan } from "./temporal-deltas";
 import {
+  comparisonHistoryPairingKey,
+  computeComparableSinceLastScan,
+  type SinceLastScan
+} from "./temporal-deltas";
+import {
+  comparisonHistoryCohortForStoredReport,
   consentClicksForView,
-  temporalCohortForStoredReport,
   type ConsentClicks
 } from "./temporal-report-identity";
 import type { ComparisonType } from "./types";
@@ -83,7 +87,10 @@ export type DirectoryEntry = {
   schemaOrigin: "v2" | "legacy-derived";
   /** RFC 15.7 limited/descriptive marker (true for every v1 and v2 r1 report). */
   limited: boolean;
-  /** Set only when an earlier report has the same subject and compatible measurement/condition cohort. */
+  /**
+   * Set only when an earlier report shares the versioned passive-history key.
+   * The filter-list snapshot date may differ; this is a descriptive raw/catalog delta, never a Shields delta.
+   */
   sinceLastScan?: SinceLastScan;
 };
 
@@ -110,7 +117,15 @@ function entryLoadFailed(entry: DirectoryEntry): boolean {
   return typeof entry.status === "number" && entry.status >= 400;
 }
 
-export async function loadCorpusOverview(): Promise<CorpusOverview> {
+let corpusOverviewPromise: Promise<CorpusOverview> | null = null;
+
+/** One immutable committed-corpus read per server/build process. */
+export function loadCorpusOverview(): Promise<CorpusOverview> {
+  corpusOverviewPromise ??= buildCorpusOverview();
+  return corpusOverviewPromise;
+}
+
+async function buildCorpusOverview(): Promise<CorpusOverview> {
   const catalog = await loadCategoryCatalog();
   const loadedEntries = await loadDirectoryEntries(catalog);
   const entries = loadedEntries.map(({ entry }) => entry);
@@ -124,11 +139,12 @@ export async function loadCorpusOverview(): Promise<CorpusOverview> {
   const measuredLoaded = loadedEntries.filter(({ entry }) => !entryLoadFailed(entry) && !entry.capped);
   const measured = measuredLoaded.map(({ entry }) => entry);
 
-  // "Changed since last scan": each site's newest report is paired only with
-  // a predecessor of the same kind, subject, and complete versioned
-  // measurement/condition cohort (see lib/temporal-deltas.ts).
-  const deltas = computeSinceLastScan(
-    measuredLoaded.map(({ entry, temporalCohort }) => ({ ...entry, temporalCohort }))
+  // "Since last comparable visit": each site's newest report is paired only
+  // with a predecessor carrying the same versioned passive-history key used
+  // by the archive. The key is absent on failed, capped, simulated, unknown,
+  // or mismatched-subject visits.
+  const deltas = computeComparableSinceLastScan(
+    measuredLoaded.map(({ entry, comparisonHistoryKey }) => ({ ...entry, comparisonHistoryKey }))
   );
   for (const entry of entries) {
     const delta = deltas.get(entry.id);
@@ -211,7 +227,7 @@ function categoryFor(domain: string, catalog: CatalogEntry[]): { id: string; lab
   return hit ? { id: hit.id, label: hit.label } : { id: "", label: "Other" };
 }
 
-type LoadedDirectoryEntry = { entry: DirectoryEntry; temporalCohort: string | null };
+type LoadedDirectoryEntry = { entry: DirectoryEntry; comparisonHistoryKey: string | null };
 
 async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDirectoryEntry[]> {
   const ids = await listStaticReportIds();
@@ -285,7 +301,16 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
         ? { comparisonType: view.comparison.axis ?? (view.comparison.temporalPair ? ("temporal" as const) : ("custom" as const)) }
         : {})
     };
-    entries.push({ entry, temporalCohort: temporalCohortForStoredReport(readResult.stored, view) });
+    const comparisonHistoryKey = comparisonHistoryPairingKey({
+      domain: entry.domain,
+      reportType: entry.reportType,
+      comparisonType: entry.comparisonType,
+      consentClicks: entry.consentClicks,
+      requestedUrl: entry.requestedUrl,
+      finalUrl: entry.finalUrl,
+      comparisonHistoryCohort: comparisonHistoryCohortForStoredReport(readResult.stored, view)
+    });
+    entries.push({ entry, comparisonHistoryKey });
   }
 
   return entries.sort(

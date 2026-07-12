@@ -669,8 +669,8 @@
       },
       {
         "id": 51,
-        "url": "https://improving.duckduckgo.com/{seg}/{seg}",
-        "domain": "improving.duckduckgo.com",
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -705,8 +705,8 @@
       },
       {
         "id": 54,
-        "url": "https://improving.duckduckgo.com/{seg}/{seg}",
-        "domain": "improving.duckduckgo.com",
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -717,8 +717,8 @@
       },
       {
         "id": 55,
-        "url": "https://improving.duckduckgo.com/{seg}/{seg}",
-        "domain": "improving.duckduckgo.com",
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -801,8 +801,8 @@
       },
       {
         "id": 62,
-        "url": "https://improving.duckduckgo.com/{seg}",
-        "domain": "improving.duckduckgo.com",
+        "url": "https://{label}.duckduckgo.com/{seg}",
+        "domain": "{label}.duckduckgo.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -813,8 +813,8 @@
       },
       {
         "id": 63,
-        "url": "https://improving.duckduckgo.com/{seg}/{seg}",
-        "domain": "improving.duckduckgo.com",
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -1149,8 +1149,8 @@
       },
       {
         "id": 91,
-        "url": "https://improving.duckduckgo.com/{seg}/{seg}",
-        "domain": "improving.duckduckgo.com",
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -1161,8 +1161,8 @@
       },
       {
         "id": 92,
-        "url": "https://improving.duckduckgo.com/{seg}/{seg}",
-        "domain": "improving.duckduckgo.com",
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -1173,8 +1173,8 @@
       },
       {
         "id": 93,
-        "url": "https://improving.duckduckgo.com/{seg}/{seg}",
-        "domain": "improving.duckduckgo.com",
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -1437,8 +1437,8 @@
       },
       {
         "id": 115,
-        "url": "https://improving.duckduckgo.com/{seg}/{seg}",
-        "domain": "improving.duckduckgo.com",
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -1469,7 +1469,7 @@
         ]
       },
       {
-        "domain": "improving.duckduckgo.com",
+        "domain": "{label}.duckduckgo.com",
         "requests": 9,
         "thirdParty": false,
         "tracker": null,
@@ -2247,8 +2247,8 @@
       },
       {
         "id": 62,
-        "url": "https://improving.duckduckgo.com/{seg}",
-        "domain": "improving.duckduckgo.com",
+        "url": "https://{label}.duckduckgo.com/{seg}",
+        "domain": "{label}.duckduckgo.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2855,7 +2855,7 @@
         ]
       },
       {
-        "domain": "improving.duckduckgo.com",
+        "domain": "{label}.duckduckgo.com",
         "requests": 1,
         "thirdParty": false,
         "tracker": null,

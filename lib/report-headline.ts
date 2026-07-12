@@ -429,7 +429,13 @@ function buildShareText(headline: string, stats: ReportHeadlineStat[]): string {
 }
 
 function friendlyDomain(run: RunView): string {
-  return run.domain.replace(/^www\./, "") || run.domain;
+  // A public report can retain only a `{label}` placeholder for an
+  // unreviewed subdomain. Headlines should name the stable site boundary,
+  // not present the privacy marker as if it were a literal hostname.
+  const marker = "{label}.";
+  const markerIndex = run.domain.lastIndexOf(marker);
+  const stableSite = markerIndex >= 0 ? run.domain.slice(markerIndex + marker.length) : run.domain;
+  return stableSite.replace(/^www\./, "") || run.domain;
 }
 
 function n(value: number): string {

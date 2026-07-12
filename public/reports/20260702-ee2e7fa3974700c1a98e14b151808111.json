@@ -866,7 +866,7 @@
       },
       {
         "id": 67,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -878,7 +878,7 @@
       },
       {
         "id": 68,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -902,7 +902,7 @@
       },
       {
         "id": 70,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -938,7 +938,7 @@
       },
       {
         "id": 73,
-        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "document",
@@ -1010,8 +1010,8 @@
       },
       {
         "id": 79,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -1106,8 +1106,8 @@
       },
       {
         "id": 87,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1142,7 +1142,7 @@
       },
       {
         "id": 90,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1154,7 +1154,7 @@
       },
       {
         "id": 91,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1166,8 +1166,8 @@
       },
       {
         "id": 92,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1190,8 +1190,8 @@
       },
       {
         "id": 94,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1214,7 +1214,7 @@
       },
       {
         "id": 96,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1250,8 +1250,8 @@
       },
       {
         "id": 99,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1262,8 +1262,8 @@
       },
       {
         "id": 100,
-        "url": "https://i.paypal.com/{seg}/{seg}/{seg}",
-        "domain": "i.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1298,8 +1298,8 @@
       },
       {
         "id": 103,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1310,8 +1310,8 @@
       },
       {
         "id": 104,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1334,8 +1334,8 @@
       },
       {
         "id": 106,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1346,7 +1346,7 @@
       },
       {
         "id": 107,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1394,7 +1394,7 @@
       },
       {
         "id": 111,
-        "url": "https://www.facebook.com/{seg}?id=&noscript=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ev=",
+        "url": "https://www.facebook.com/{seg}?id=&noscript=&%5Bredacted%5D=&ev=",
         "domain": "www.facebook.com",
         "method": "GET",
         "resourceType": "image",
@@ -1411,8 +1411,8 @@
       },
       {
         "id": 112,
-        "url": "https://px.ads.linkedin.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "px.ads.linkedin.com",
+        "url": "https://{label}.ads.linkedin.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ads.linkedin.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1428,7 +1428,7 @@
       },
       {
         "id": 113,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "ping",
@@ -1532,8 +1532,8 @@
       },
       {
         "id": 120,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1549,7 +1549,7 @@
       },
       {
         "id": 121,
-        "url": "https://www.googleadservices.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.googleadservices.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
         "domain": "www.googleadservices.com",
         "method": "GET",
         "resourceType": "script",
@@ -1578,7 +1578,7 @@
       },
       {
         "id": 123,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&%5Bredacted%5D=&t=&cid=&tid=",
         "domain": "www.google-analytics.com",
         "method": "GET",
         "resourceType": "image",
@@ -1595,7 +1595,7 @@
       },
       {
         "id": 124,
-        "url": "https://www.google-analytics.com/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google-analytics.com/{seg}?v=&%5Bredacted%5D=&t=&cid=&tid=",
         "domain": "www.google-analytics.com",
         "method": "GET",
         "resourceType": "image",
@@ -1612,7 +1612,7 @@
       },
       {
         "id": 125,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1624,8 +1624,8 @@
       },
       {
         "id": 126,
-        "url": "https://px.ads.linkedin.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "px.ads.linkedin.com",
+        "url": "https://{label}.ads.linkedin.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ads.linkedin.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1641,8 +1641,8 @@
       },
       {
         "id": 127,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1658,7 +1658,7 @@
       },
       {
         "id": 128,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
@@ -1670,7 +1670,7 @@
       },
       {
         "id": 129,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
@@ -1699,8 +1699,8 @@
       },
       {
         "id": 131,
-        "url": "https://px.ads.linkedin.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "px.ads.linkedin.com",
+        "url": "https://{label}.ads.linkedin.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ads.linkedin.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1716,8 +1716,8 @@
       },
       {
         "id": 132,
-        "url": "https://pypd.paypal-mktg.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pypd.paypal-mktg.com",
+        "url": "https://{label}.paypal-mktg.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.paypal-mktg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1728,7 +1728,7 @@
       },
       {
         "id": 133,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1753,7 +1753,7 @@
     ],
     "domains": [
       {
-        "domain": "px.ads.linkedin.com",
+        "domain": "{label}.ads.linkedin.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": {
@@ -1828,7 +1828,7 @@
         ]
       },
       {
-        "domain": "googleads.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -1977,7 +1977,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2003,7 +2003,7 @@
         ]
       },
       {
-        "domain": "pypd.paypal-mktg.com",
+        "domain": "{label}.paypal-mktg.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2032,21 +2032,8 @@
         ]
       },
       {
-        "domain": "t.paypal.com",
-        "requests": 7,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "i.paypal.com",
-        "requests": 1,
+        "domain": "{label}.paypal.com",
+        "requests": 8,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
@@ -2151,7 +2138,7 @@
       },
       {
         "name": "[redacted:long-token]",
-        "domain": "pypd.paypal-mktg.com",
+        "domain": "{label}.paypal-mktg.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2161,7 +2148,7 @@
       },
       {
         "name": "[redacted:long-token]",
-        "domain": "pypd.paypal-mktg.com",
+        "domain": "{label}.paypal-mktg.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2321,7 +2308,7 @@
       },
       {
         "name": "__cf_bm",
-        "domain": ".t.paypal.com",
+        "domain": ".{label}.paypal.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -3400,7 +3387,7 @@
       },
       {
         "id": 66,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -3424,7 +3411,7 @@
       },
       {
         "id": 68,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -3436,7 +3423,7 @@
       },
       {
         "id": 69,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -3484,7 +3471,7 @@
       },
       {
         "id": 73,
-        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "document",
@@ -3568,8 +3555,8 @@
       },
       {
         "id": 80,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3652,8 +3639,8 @@
       },
       {
         "id": 87,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3676,8 +3663,8 @@
       },
       {
         "id": 89,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3700,7 +3687,7 @@
       },
       {
         "id": 91,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -3712,7 +3699,7 @@
       },
       {
         "id": 92,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -3736,8 +3723,8 @@
       },
       {
         "id": 94,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3760,7 +3747,7 @@
       },
       {
         "id": 96,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -3796,8 +3783,8 @@
       },
       {
         "id": 99,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3808,8 +3795,8 @@
       },
       {
         "id": 100,
-        "url": "https://i.paypal.com/{seg}/{seg}/{seg}",
-        "domain": "i.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -3844,8 +3831,8 @@
       },
       {
         "id": 103,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3856,8 +3843,8 @@
       },
       {
         "id": 104,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3868,8 +3855,8 @@
       },
       {
         "id": 105,
-        "url": "https://t.paypal.com/{seg}",
-        "domain": "t.paypal.com",
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -3892,7 +3879,7 @@
       },
       {
         "id": 107,
-        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "browser-intake-us5-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -4022,7 +4009,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4051,21 +4038,8 @@
         ]
       },
       {
-        "domain": "t.paypal.com",
-        "requests": 7,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "i.paypal.com",
-        "requests": 1,
+        "domain": "{label}.paypal.com",
+        "requests": 8,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
@@ -4190,7 +4164,7 @@
       },
       {
         "name": "__cf_bm",
-        "domain": ".t.paypal.com",
+        "domain": ".{label}.paypal.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -4396,7 +4370,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "px.ads.linkedin.com",
+        "domain": "{label}.ads.linkedin.com",
         "requests": 3,
         "tracker": {
           "domain": "ads.linkedin.com",
@@ -4421,7 +4395,7 @@
         "tracker": null
       },
       {
-        "domain": "ad.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 2,
         "tracker": {
           "domain": "doubleclick.net",
@@ -4431,7 +4405,7 @@
         }
       },
       {
-        "domain": "googleads.g.doubleclick.net",
+        "domain": "ad.doubleclick.net",
         "requests": 2,
         "tracker": {
           "domain": "doubleclick.net",
@@ -4451,7 +4425,7 @@
         }
       },
       {
-        "domain": "pypd.paypal-mktg.com",
+        "domain": "{label}.paypal-mktg.com",
         "requests": 1,
         "tracker": null
       },
@@ -4523,7 +4497,7 @@
       },
       {
         "name": "[redacted:long-token]",
-        "domain": "pypd.paypal-mktg.com",
+        "domain": "{label}.paypal-mktg.com",
         "thirdParty": true
       },
       {

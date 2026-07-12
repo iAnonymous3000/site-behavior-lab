@@ -82,7 +82,7 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
       {dataset && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(dataset) }} />
       )}
-      <SavedReportClient id={id} />
+      <SavedReportClient id={id} stored={result.stored} />
     </>
   );
 }

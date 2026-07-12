@@ -1143,6 +1143,25 @@ test("symmetric incomplete detectors are still incomplete", () => {
   assert.equal(clean.perMetric["detector-findings"].eligible, true);
 });
 
+test("detector findings bind the Brave-list identity whenever CNAME fallback is enabled", () => {
+  const baseline = makeScanRunV2({ runId: "a", startedAt: "2026-06-18T10:00:00.000Z" });
+  const variant = makeScanRunV2({ runId: "b" });
+  assert.notEqual(variant.toolchain.adblock, null);
+  if (variant.toolchain.adblock !== null) variant.toolchain.adblock.manifestDigest = "c".repeat(64);
+  const mismatched = evaluateComparability({ kind: "temporal", pairId: "p" }, baseline, variant);
+  assert.equal(mismatched.perMetric["raw-counts"].eligible, true);
+  assert.equal(mismatched.perMetric["detector-findings"].eligible, false);
+  assert.equal(
+    mismatched.perMetric["detector-findings"].reasons.includes("dependency-digest-mismatch:adblockManifest"),
+    true
+  );
+
+  baseline.toolchain.adblock = null;
+  variant.toolchain.adblock = null;
+  const disabled = evaluateComparability({ kind: "temporal", pairId: "p" }, baseline, variant);
+  assert.equal(disabled.perMetric["detector-findings"].eligible, true);
+});
+
 test("declared order must match the runs' chronology", () => {
   const report = mutate(makeInterventionComparisonReportV2(), (draft) => {
     if (draft.experiment.kind === "intervention") draft.experiment.order = "BA"; // baseline actually ran first
@@ -1297,13 +1316,13 @@ function makeMaximalScanReportV1(): AnyRecord {
   report.requests = [
     {
       id: 1,
-      url: "https://tracker.example/pixel",
-      domain: "tracker.example",
+      url: "https://google-analytics.com/pixel",
+      domain: "google-analytics.com",
       method: "GET",
       resourceType: "image",
       status: 200,
       thirdParty: true,
-      tracker: { domain: "tracker.example", entity: "Tracker", category: "ads", confidence: "curated", prevalence: 0.4 },
+      tracker: { domain: "google-analytics.com", entity: "Google", category: "analytics / tag management", confidence: "curated" },
       blockedByShields: true,
       provenance: { initiatorUrl: "https://example.com/", scriptDomain: "example.com" },
       startedAtMs: 12
@@ -1311,10 +1330,10 @@ function makeMaximalScanReportV1(): AnyRecord {
   ];
   report.domains = [
     {
-      domain: "tracker.example",
+      domain: "google-analytics.com",
       requests: 1,
       thirdParty: true,
-      tracker: { domain: "tracker.example", entity: "Tracker", category: "ads", confidence: "shields-list" },
+      tracker: { domain: "google-analytics.com", entity: "Google", category: "analytics / tag management", confidence: "curated" },
       blockedByShields: true,
       statuses: [200],
       resourceTypes: ["image"]
@@ -1334,13 +1353,13 @@ function makeMaximalScanReportV1(): AnyRecord {
     }
   ];
   report.cnameCloaks = [
-    { host: "metrics.example.com", cname: "example.eulerian.net", tracker: { domain: "eulerian.net", entity: "Eulerian", category: "analytics", confidence: "curated" } }
+    { host: "metrics.example.com", cname: "google-analytics.com", tracker: { domain: "google-analytics.com", entity: "Google", category: "analytics / tag management", confidence: "curated" } }
   ];
   report.pixelEvents = [{ platform: "Meta", product: "Meta Pixel", events: ["PageView"], advancedMatching: ["email"], requests: 1 }];
   report.privacyPolicy = {
     url: "https://example.com/privacy",
     claims: [{ kind: "honors-gpc", quote: "We honor GPC signals." }],
-    mentionedEntities: ["Tracker"],
+    mentionedEntities: ["Google"],
     unmentionedEntities: [],
     policyTextLength: 1200
   };
@@ -1380,14 +1399,14 @@ test("maximal v1 single and comparison fixtures retain every public evidence fam
   comparison.baseline = makeMaximalScanReportV1();
   delete comparison.baseline.reportType;
   comparison.diff.shieldsBlockedRequests = { before: 0, after: 1, delta: 1 };
-  comparison.diff.addedDomains = [{ domain: "tracker.example", requests: 1, tracker: null }];
-  comparison.diff.addedEntities = [{ entity: "Tracker", requests: 1, domains: 1 }];
+  comparison.diff.addedDomains = [{ domain: "google-analytics.com", requests: 1, tracker: null }];
+  comparison.diff.addedEntities = [{ entity: "Google", requests: 1, domains: 1 }];
   comparison.diff.addedCookies = [{ name: "_ga", domain: ".example.com", thirdParty: false }];
   comparison.diff.addedStorageKeys = [{ area: "localStorage", key: "theme" }];
   comparison.diff.addedFingerprinting = [{ kind: "canvas-fingerprinting", heuristic: "openwpm-canvas-v1", count: 1 }];
   comparison.diff.addedPixelEvents = [{ platform: "Meta", product: "Meta Pixel", events: ["PageView"], advancedMatching: [] }];
   comparison.diff.addedProvenance = [
-    { domain: "tracker.example", requests: 1, tracker: null, initiator: "example.com", script: null, injectedBy: null }
+    { domain: "google-analytics.com", requests: 1, tracker: null, initiator: "example.com", script: null, injectedBy: null }
   ];
   const comparisonResult = readScanTransportPayload(comparison);
   assert.equal(comparisonResult.kind, "report");

@@ -21,7 +21,7 @@
     </node>
     <node id="script-injector">
       <data key="nodeType">script</data>
-      <data key="url">https://loader.example/loader.js?cache=1</data>
+      <data key="url">https://loader.example.net/loader.js?cache=1</data>
       <data key="scriptId">injector-script-id</data>
       <data key="source">console.log("loader")</data>
     </node>
@@ -38,11 +38,11 @@
       <data key="nodeType">script</data>
       <data key="url">https://tags.example.net/tag.js?cache=123</data>
       <data key="scriptId">child-script-id</data>
-      <data key="source">fetch("https://tracker.example/collect")</data>
+      <data key="source">fetch("https://google-analytics.com/collect")</data>
     </node>
     <node id="resource-tracker">
       <data key="nodeType">resource</data>
-      <data key="url">https://tracker.example/collect?cid=abc&amp;email=a%40b.test</data>
+      <data key="url">https://google-analytics.com/collect?cid=abc&amp;email=a%40b.test</data>
     </node>
     <node id="local-storage">
       <data key="nodeType">local storage</data>

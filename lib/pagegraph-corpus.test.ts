@@ -81,7 +81,7 @@ test("blocking the tag CDN removes the downstream beacon, storage write, and can
   );
   assert.deepEqual(
     page.downstreamRequests.map((request) => request.url),
-    ["https://tracker.example/collect?cid=abc&email=a%40b.test"]
+    ["https://google-analytics.com/collect?cid=abc&email=a%40b.test"]
   );
   assert.equal(page.removedNodeCount, 3);
   assert.equal(page.removedStorageOps, 1);
@@ -90,12 +90,12 @@ test("blocking the tag CDN removes the downstream beacon, storage write, and can
   assert.equal(report.summary.pagesAffected, 1);
   assert.deepEqual(report.summary.topRemovedEtld1s, [
     { etld1: "example.net", pages: 1 },
-    { etld1: "tracker.example", pages: 1 }
+    { etld1: "google-analytics.com", pages: 1 }
   ]);
 });
 
 test("blocking the leaf tracker beacon removes nothing downstream", () => {
-  const report = simulateRuleImpact([fixtureFacts()], (request) => request.etld1 === "tracker.example");
+  const report = simulateRuleImpact([fixtureFacts()], (request) => request.etld1 === "google-analytics.com");
   const page = report.pages[0];
 
   assert.equal(page.directlyBlocked.length, 1);
@@ -159,8 +159,8 @@ test("rule matching sees raw PageGraph URLs before the impact JSON is sanitized"
   assert.equal(json.includes("a%40b.test"), false);
   assert.equal(json.includes("patient=secret"), false);
   assert.equal(projected.pages[0].pageId, "page-000001");
-  assert.equal(projected.pages[0].url, "https://tags.example.net/{seg}/{seg}");
-  assert.equal(projected.pages[0].directlyBlocked[0].url, "https://tracker.example/{seg}?cid=&%5Bredacted%5D=");
+  assert.equal(projected.pages[0].url, "https://{label}.example.net/{seg}/{seg}");
+  assert.equal(projected.pages[0].directlyBlocked[0].url, "https://google-analytics.com/{seg}?cid=&%5Bredacted%5D=");
 });
 
 test("the export manifest pins redaction versions and exact file bytes", () => {

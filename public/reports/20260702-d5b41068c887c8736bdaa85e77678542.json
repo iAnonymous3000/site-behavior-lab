@@ -19,11 +19,11 @@
       "pageTitle": "Cleveland Clinic: Every Life Deserves World Class Care",
       "status": 200,
       "durationMs": 6769,
-      "firstPartyDomain": "my.clevelandclinic.org",
+      "firstPartyDomain": "{label}.clevelandclinic.org",
       "totalRequests": 84,
       "thirdPartyRequests": 44,
       "knownTrackerRequests": 14,
-      "thirdPartyDomains": 20,
+      "thirdPartyDomains": 19,
       "cookies": 22,
       "thirdPartyCookies": 5,
       "storageEntries": 15,
@@ -32,7 +32,7 @@
     },
     "conditions": {
       "requestedUrl": "https://www.clevelandclinic.org/",
-      "finalUrl": "https://my.clevelandclinic.org/",
+      "finalUrl": "https://{label}.clevelandclinic.org/",
       "scannedAt": "2026-07-02T14:28:53.953Z",
       "chromiumVersion": "149.0.7827.55",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
@@ -81,8 +81,8 @@
       },
       {
         "id": 2,
-        "url": "https://my.clevelandclinic.org/",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -93,8 +93,8 @@
       },
       {
         "id": 3,
-        "url": "https://my.clevelandclinic.org/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -105,7 +105,7 @@
       },
       {
         "id": 4,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -141,8 +141,8 @@
       },
       {
         "id": 7,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -170,8 +170,8 @@
       },
       {
         "id": 9,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -182,8 +182,8 @@
       },
       {
         "id": 10,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -194,8 +194,8 @@
       },
       {
         "id": 11,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -206,8 +206,8 @@
       },
       {
         "id": 12,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -218,8 +218,8 @@
       },
       {
         "id": 13,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -230,8 +230,8 @@
       },
       {
         "id": 14,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -266,8 +266,8 @@
       },
       {
         "id": 17,
-        "url": "https://code.jquery.com/{seg}",
-        "domain": "code.jquery.com",
+        "url": "https://{label}.jquery.com/{seg}",
+        "domain": "{label}.jquery.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -278,8 +278,8 @@
       },
       {
         "id": 18,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -290,8 +290,8 @@
       },
       {
         "id": 19,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -331,8 +331,8 @@
       },
       {
         "id": 22,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -343,8 +343,8 @@
       },
       {
         "id": 23,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -355,8 +355,8 @@
       },
       {
         "id": 24,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -367,8 +367,8 @@
       },
       {
         "id": 25,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -379,8 +379,8 @@
       },
       {
         "id": 26,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -391,8 +391,8 @@
       },
       {
         "id": 27,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -403,8 +403,8 @@
       },
       {
         "id": 28,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -415,8 +415,8 @@
       },
       {
         "id": 29,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -427,8 +427,8 @@
       },
       {
         "id": 30,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -439,8 +439,8 @@
       },
       {
         "id": 31,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -451,8 +451,8 @@
       },
       {
         "id": 32,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -463,8 +463,8 @@
       },
       {
         "id": 33,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -475,8 +475,8 @@
       },
       {
         "id": 34,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -487,8 +487,8 @@
       },
       {
         "id": 35,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -499,8 +499,8 @@
       },
       {
         "id": 36,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -511,8 +511,8 @@
       },
       {
         "id": 37,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -523,8 +523,8 @@
       },
       {
         "id": 38,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -535,8 +535,8 @@
       },
       {
         "id": 39,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -547,8 +547,8 @@
       },
       {
         "id": 40,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -559,8 +559,8 @@
       },
       {
         "id": 41,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -571,8 +571,8 @@
       },
       {
         "id": 42,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -583,8 +583,8 @@
       },
       {
         "id": 43,
-        "url": "https://cdn3.optimizely.com/{seg}/{seg}",
-        "domain": "cdn3.optimizely.com",
+        "url": "https://{label}.optimizely.com/{seg}/{seg}",
+        "domain": "{label}.optimizely.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -617,8 +617,8 @@
       },
       {
         "id": 45,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -629,8 +629,8 @@
       },
       {
         "id": 46,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -641,8 +641,8 @@
       },
       {
         "id": 47,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -653,8 +653,8 @@
       },
       {
         "id": 48,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -682,8 +682,8 @@
       },
       {
         "id": 50,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -742,8 +742,8 @@
       },
       {
         "id": 55,
-        "url": "https://adobedc.demdex.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "adobedc.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -759,8 +759,8 @@
       },
       {
         "id": 56,
-        "url": "https://sb.scorecardresearch.com/{seg}/{n}/{seg}",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}/{n}/{seg}",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
@@ -788,8 +788,8 @@
       },
       {
         "id": 58,
-        "url": "https://solutions.invocacdn.com/{seg}/{seg}",
-        "domain": "solutions.invocacdn.com",
+        "url": "https://{label}.invocacdn.com/{seg}/{seg}",
+        "domain": "{label}.invocacdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -829,8 +829,8 @@
       },
       {
         "id": 61,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -841,8 +841,8 @@
       },
       {
         "id": 62,
-        "url": "https://sb.scorecardresearch.com/{seg}/{seg}/{seg}",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -858,8 +858,8 @@
       },
       {
         "id": 63,
-        "url": "https://sb.scorecardresearch.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -887,7 +887,7 @@
       },
       {
         "id": 65,
-        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "oc-cdn-ocprod.azureedge.net",
         "method": "GET",
         "resourceType": "document",
@@ -899,8 +899,8 @@
       },
       {
         "id": 66,
-        "url": "https://sb.scorecardresearch.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -952,8 +952,8 @@
       },
       {
         "id": 70,
-        "url": "https://solutions.invocacdn.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "solutions.invocacdn.com",
+        "url": "https://{label}.invocacdn.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.invocacdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -964,8 +964,8 @@
       },
       {
         "id": 71,
-        "url": "https://match.adsrvr.org/{seg}/{seg}?v=&%5Bredacted%5D=&type=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?v=&%5Bredacted%5D=&type=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1005,8 +1005,8 @@
       },
       {
         "id": 74,
-        "url": "https://logx.optimizely.com/{seg}/{seg}",
-        "domain": "logx.optimizely.com",
+        "url": "https://{label}.optimizely.com/{seg}/{seg}",
+        "domain": "{label}.optimizely.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -1022,8 +1022,8 @@
       },
       {
         "id": 75,
-        "url": "https://{label}.us.omnichannelengagementhub.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "{label}.us.omnichannelengagementhub.com",
+        "url": "https://{label}.{label}.omnichannelengagementhub.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.omnichannelengagementhub.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1034,8 +1034,8 @@
       },
       {
         "id": 76,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -1058,8 +1058,8 @@
       },
       {
         "id": 78,
-        "url": "https://{label}.us.omnichannelengagementhub.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.us.omnichannelengagementhub.com",
+        "url": "https://{label}.{label}.omnichannelengagementhub.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.omnichannelengagementhub.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1082,8 +1082,8 @@
       },
       {
         "id": 80,
-        "url": "https://browser.pipe.aria.microsoft.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.pipe.aria.microsoft.com",
+        "url": "https://{label}.{label}.{label}.microsoft.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.microsoft.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1094,8 +1094,8 @@
       },
       {
         "id": 81,
-        "url": "https://logx.optimizely.com/{seg}/{seg}",
-        "domain": "logx.optimizely.com",
+        "url": "https://{label}.optimizely.com/{seg}/{seg}",
+        "domain": "{label}.optimizely.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -1111,8 +1111,8 @@
       },
       {
         "id": 82,
-        "url": "https://my.clevelandclinic.org/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1123,8 +1123,8 @@
       },
       {
         "id": 83,
-        "url": "https://browser.pipe.aria.microsoft.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.pipe.aria.microsoft.com",
+        "url": "https://{label}.{label}.{label}.microsoft.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.microsoft.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1135,8 +1135,8 @@
       },
       {
         "id": 84,
-        "url": "https://browser.pipe.aria.microsoft.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.pipe.aria.microsoft.com",
+        "url": "https://{label}.{label}.{label}.microsoft.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.microsoft.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
@@ -1148,7 +1148,7 @@
     ],
     "domains": [
       {
-        "domain": "sb.scorecardresearch.com",
+        "domain": "{label}.scorecardresearch.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": {
@@ -1166,6 +1166,26 @@
         "resourceTypes": [
           "script",
           "image"
+        ]
+      },
+      {
+        "domain": "{label}.optimizely.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "optimizely.com",
+          "entity": "Optimizely",
+          "category": "experimentation",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
         ]
       },
       {
@@ -1187,43 +1207,7 @@
         ]
       },
       {
-        "domain": "logx.optimizely.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "optimizely.com",
-          "entity": "Optimizely",
-          "category": "experimentation",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
         "domain": "cdn.optimizely.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "optimizely.com",
-          "entity": "Optimizely",
-          "category": "experimentation",
-          "confidence": "curated"
-        },
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "cdn3.optimizely.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -1277,7 +1261,7 @@
         ]
       },
       {
-        "domain": "adobedc.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -1295,7 +1279,7 @@
         ]
       },
       {
-        "domain": "match.adsrvr.org",
+        "domain": "{label}.adsrvr.org",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -1369,7 +1353,7 @@
         ]
       },
       {
-        "domain": "browser.pipe.aria.microsoft.com",
+        "domain": "{label}.{label}.{label}.microsoft.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -1382,7 +1366,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1395,7 +1379,7 @@
         ]
       },
       {
-        "domain": "solutions.invocacdn.com",
+        "domain": "{label}.invocacdn.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1408,7 +1392,7 @@
         ]
       },
       {
-        "domain": "{label}.us.omnichannelengagementhub.com",
+        "domain": "{label}.{label}.omnichannelengagementhub.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1433,7 +1417,7 @@
         ]
       },
       {
-        "domain": "code.jquery.com",
+        "domain": "{label}.jquery.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1459,7 +1443,7 @@
         ]
       },
       {
-        "domain": "my.clevelandclinic.org",
+        "domain": "{label}.clevelandclinic.org",
         "requests": 38,
         "thirdParty": false,
         "tracker": null,
@@ -1687,7 +1671,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "my.clevelandclinic.org",
+        "domain": "{label}.clevelandclinic.org",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -1697,7 +1681,7 @@
       },
       {
         "name": "[redacted:long-token]",
-        "domain": "my.clevelandclinic.org",
+        "domain": "{label}.clevelandclinic.org",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -1707,7 +1691,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "my.clevelandclinic.org",
+        "domain": "{label}.clevelandclinic.org",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
@@ -1717,7 +1701,7 @@
       },
       {
         "name": "[redacted:long-token]",
-        "domain": "my.clevelandclinic.org",
+        "domain": "{label}.clevelandclinic.org",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
@@ -1806,7 +1790,7 @@
     "fingerprintEvents": [],
     "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://my.clevelandclinic.org/about/{seg}/{seg}",
+      "url": "https://{label}.clevelandclinic.org/about/{seg}/{seg}",
       "claims": [],
       "mentionedEntities": [
         "Adobe",
@@ -1828,7 +1812,7 @@
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
-      "Read the site's privacy policy (https://my.clevelandclinic.org/about/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.clevelandclinic.org/about/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "variant": {
@@ -1839,11 +1823,11 @@
       "pageTitle": "Cleveland Clinic: Every Life Deserves World Class Care",
       "status": 200,
       "durationMs": 6600,
-      "firstPartyDomain": "my.clevelandclinic.org",
+      "firstPartyDomain": "{label}.clevelandclinic.org",
       "totalRequests": 83,
       "thirdPartyRequests": 43,
       "knownTrackerRequests": 14,
-      "thirdPartyDomains": 20,
+      "thirdPartyDomains": 19,
       "cookies": 22,
       "thirdPartyCookies": 5,
       "storageEntries": 15,
@@ -1852,7 +1836,7 @@
     },
     "conditions": {
       "requestedUrl": "https://www.clevelandclinic.org/",
-      "finalUrl": "https://my.clevelandclinic.org/",
+      "finalUrl": "https://{label}.clevelandclinic.org/",
       "scannedAt": "2026-07-02T14:29:00.731Z",
       "chromiumVersion": "149.0.7827.55",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
@@ -1901,8 +1885,8 @@
       },
       {
         "id": 2,
-        "url": "https://my.clevelandclinic.org/",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1913,8 +1897,8 @@
       },
       {
         "id": 3,
-        "url": "https://my.clevelandclinic.org/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1925,7 +1909,7 @@
       },
       {
         "id": 4,
-        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -1961,8 +1945,8 @@
       },
       {
         "id": 7,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1990,8 +1974,8 @@
       },
       {
         "id": 9,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2002,8 +1986,8 @@
       },
       {
         "id": 10,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2014,8 +1998,8 @@
       },
       {
         "id": 11,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2026,8 +2010,8 @@
       },
       {
         "id": 12,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2038,8 +2022,8 @@
       },
       {
         "id": 13,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2050,8 +2034,8 @@
       },
       {
         "id": 14,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2086,8 +2070,8 @@
       },
       {
         "id": 17,
-        "url": "https://code.jquery.com/{seg}",
-        "domain": "code.jquery.com",
+        "url": "https://{label}.jquery.com/{seg}",
+        "domain": "{label}.jquery.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2098,8 +2082,8 @@
       },
       {
         "id": 18,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2110,8 +2094,8 @@
       },
       {
         "id": 19,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2139,8 +2123,8 @@
       },
       {
         "id": 21,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2151,8 +2135,8 @@
       },
       {
         "id": 22,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2163,8 +2147,8 @@
       },
       {
         "id": 23,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2175,8 +2159,8 @@
       },
       {
         "id": 24,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2187,8 +2171,8 @@
       },
       {
         "id": 25,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2199,8 +2183,8 @@
       },
       {
         "id": 26,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2211,8 +2195,8 @@
       },
       {
         "id": 27,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2223,8 +2207,8 @@
       },
       {
         "id": 28,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2235,8 +2219,8 @@
       },
       {
         "id": 29,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2247,8 +2231,8 @@
       },
       {
         "id": 30,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2259,8 +2243,8 @@
       },
       {
         "id": 31,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2271,8 +2255,8 @@
       },
       {
         "id": 32,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2283,8 +2267,8 @@
       },
       {
         "id": 33,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2295,8 +2279,8 @@
       },
       {
         "id": 34,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2307,8 +2291,8 @@
       },
       {
         "id": 35,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2319,8 +2303,8 @@
       },
       {
         "id": 36,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2331,8 +2315,8 @@
       },
       {
         "id": 37,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2343,8 +2327,8 @@
       },
       {
         "id": 38,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2355,8 +2339,8 @@
       },
       {
         "id": 39,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2379,8 +2363,8 @@
       },
       {
         "id": 41,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2391,8 +2375,8 @@
       },
       {
         "id": 42,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2403,8 +2387,8 @@
       },
       {
         "id": 43,
-        "url": "https://cdn3.optimizely.com/{seg}/{seg}",
-        "domain": "cdn3.optimizely.com",
+        "url": "https://{label}.optimizely.com/{seg}/{seg}",
+        "domain": "{label}.optimizely.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2437,8 +2421,8 @@
       },
       {
         "id": 45,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2449,8 +2433,8 @@
       },
       {
         "id": 46,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2461,8 +2445,8 @@
       },
       {
         "id": 47,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2473,8 +2457,8 @@
       },
       {
         "id": 48,
-        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "fonts.gstatic.com",
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -2502,8 +2486,8 @@
       },
       {
         "id": 50,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2562,8 +2546,8 @@
       },
       {
         "id": 55,
-        "url": "https://adobedc.demdex.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "adobedc.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2579,8 +2563,8 @@
       },
       {
         "id": 56,
-        "url": "https://sb.scorecardresearch.com/{seg}/{n}/{seg}",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}/{n}/{seg}",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
@@ -2608,8 +2592,8 @@
       },
       {
         "id": 58,
-        "url": "https://solutions.invocacdn.com/{seg}/{seg}",
-        "domain": "solutions.invocacdn.com",
+        "url": "https://{label}.invocacdn.com/{seg}/{seg}",
+        "domain": "{label}.invocacdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2649,8 +2633,8 @@
       },
       {
         "id": 61,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2661,8 +2645,8 @@
       },
       {
         "id": 62,
-        "url": "https://sb.scorecardresearch.com/{seg}/{seg}/{seg}",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2690,7 +2674,7 @@
       },
       {
         "id": 64,
-        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "oc-cdn-ocprod.azureedge.net",
         "method": "GET",
         "resourceType": "document",
@@ -2738,8 +2722,8 @@
       },
       {
         "id": 68,
-        "url": "https://sb.scorecardresearch.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -2755,8 +2739,8 @@
       },
       {
         "id": 69,
-        "url": "https://sb.scorecardresearch.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2772,8 +2756,8 @@
       },
       {
         "id": 70,
-        "url": "https://solutions.invocacdn.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "solutions.invocacdn.com",
+        "url": "https://{label}.invocacdn.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.invocacdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2784,8 +2768,8 @@
       },
       {
         "id": 71,
-        "url": "https://match.adsrvr.org/{seg}/{seg}?v=&%5Bredacted%5D=&type=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?v=&%5Bredacted%5D=&type=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2825,8 +2809,8 @@
       },
       {
         "id": 74,
-        "url": "https://logx.optimizely.com/{seg}/{seg}",
-        "domain": "logx.optimizely.com",
+        "url": "https://{label}.optimizely.com/{seg}/{seg}",
+        "domain": "{label}.optimizely.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -2842,8 +2826,8 @@
       },
       {
         "id": 75,
-        "url": "https://{label}.us.omnichannelengagementhub.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "{label}.us.omnichannelengagementhub.com",
+        "url": "https://{label}.{label}.omnichannelengagementhub.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.omnichannelengagementhub.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2854,8 +2838,8 @@
       },
       {
         "id": 76,
-        "url": "https://my.clevelandclinic.org/{seg}/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -2878,8 +2862,8 @@
       },
       {
         "id": 78,
-        "url": "https://{label}.us.omnichannelengagementhub.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.us.omnichannelengagementhub.com",
+        "url": "https://{label}.{label}.omnichannelengagementhub.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.omnichannelengagementhub.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -2902,8 +2886,8 @@
       },
       {
         "id": 80,
-        "url": "https://browser.pipe.aria.microsoft.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.pipe.aria.microsoft.com",
+        "url": "https://{label}.{label}.{label}.microsoft.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.microsoft.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2914,8 +2898,8 @@
       },
       {
         "id": 81,
-        "url": "https://logx.optimizely.com/{seg}/{seg}",
-        "domain": "logx.optimizely.com",
+        "url": "https://{label}.optimizely.com/{seg}/{seg}",
+        "domain": "{label}.optimizely.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -2931,8 +2915,8 @@
       },
       {
         "id": 82,
-        "url": "https://my.clevelandclinic.org/{seg}",
-        "domain": "my.clevelandclinic.org",
+        "url": "https://{label}.clevelandclinic.org/{seg}",
+        "domain": "{label}.clevelandclinic.org",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -2943,8 +2927,8 @@
       },
       {
         "id": 83,
-        "url": "https://browser.pipe.aria.microsoft.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.pipe.aria.microsoft.com",
+        "url": "https://{label}.{label}.{label}.microsoft.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.microsoft.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2956,7 +2940,7 @@
     ],
     "domains": [
       {
-        "domain": "sb.scorecardresearch.com",
+        "domain": "{label}.scorecardresearch.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": {
@@ -2974,6 +2958,26 @@
         "resourceTypes": [
           "script",
           "image"
+        ]
+      },
+      {
+        "domain": "{label}.optimizely.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "optimizely.com",
+          "entity": "Optimizely",
+          "category": "experimentation",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
         ]
       },
       {
@@ -2995,43 +2999,7 @@
         ]
       },
       {
-        "domain": "logx.optimizely.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "optimizely.com",
-          "entity": "Optimizely",
-          "category": "experimentation",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
         "domain": "cdn.optimizely.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "optimizely.com",
-          "entity": "Optimizely",
-          "category": "experimentation",
-          "confidence": "curated"
-        },
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "cdn3.optimizely.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3085,7 +3053,7 @@
         ]
       },
       {
-        "domain": "adobedc.demdex.net",
+        "domain": "{label}.demdex.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3103,7 +3071,7 @@
         ]
       },
       {
-        "domain": "match.adsrvr.org",
+        "domain": "{label}.adsrvr.org",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3177,7 +3145,7 @@
         ]
       },
       {
-        "domain": "fonts.gstatic.com",
+        "domain": "{label}.gstatic.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -3190,7 +3158,7 @@
         ]
       },
       {
-        "domain": "solutions.invocacdn.com",
+        "domain": "{label}.invocacdn.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -3203,7 +3171,7 @@
         ]
       },
       {
-        "domain": "{label}.us.omnichannelengagementhub.com",
+        "domain": "{label}.{label}.omnichannelengagementhub.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -3217,7 +3185,7 @@
         ]
       },
       {
-        "domain": "browser.pipe.aria.microsoft.com",
+        "domain": "{label}.{label}.{label}.microsoft.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -3241,7 +3209,7 @@
         ]
       },
       {
-        "domain": "code.jquery.com",
+        "domain": "{label}.jquery.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3267,7 +3235,7 @@
         ]
       },
       {
-        "domain": "my.clevelandclinic.org",
+        "domain": "{label}.clevelandclinic.org",
         "requests": 38,
         "thirdParty": false,
         "tracker": null,
@@ -3495,7 +3463,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "my.clevelandclinic.org",
+        "domain": "{label}.clevelandclinic.org",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -3505,7 +3473,7 @@
       },
       {
         "name": "[redacted:long-token]",
-        "domain": "my.clevelandclinic.org",
+        "domain": "{label}.clevelandclinic.org",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -3515,7 +3483,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "my.clevelandclinic.org",
+        "domain": "{label}.clevelandclinic.org",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
@@ -3525,7 +3493,7 @@
       },
       {
         "name": "[redacted:long-token]",
-        "domain": "my.clevelandclinic.org",
+        "domain": "{label}.clevelandclinic.org",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
@@ -3614,7 +3582,7 @@
     "fingerprintEvents": [],
     "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://my.clevelandclinic.org/about/{seg}/{seg}",
+      "url": "https://{label}.clevelandclinic.org/about/{seg}/{seg}",
       "claims": [],
       "mentionedEntities": [
         "Adobe",
@@ -3636,7 +3604,7 @@
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
-      "Read the site's privacy policy (https://my.clevelandclinic.org/about/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.clevelandclinic.org/about/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "diff": {
@@ -3656,8 +3624,8 @@
       "delta": 0
     },
     "thirdPartyDomains": {
-      "before": 20,
-      "after": 20,
+      "before": 19,
+      "after": 19,
       "delta": 0
     },
     "cookies": {
@@ -3703,11 +3671,11 @@
     "Accept-all attempt: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Accept-all attempt: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Accept-all attempt: This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
-    "Accept-all attempt: Read the site's privacy policy (https://my.clevelandclinic.org/about/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Accept-all attempt: Read the site's privacy policy (https://{label}.clevelandclinic.org/about/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Reject-all attempt: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Reject-all attempt: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Reject-all attempt: This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
-    "Reject-all attempt: Read the site's privacy policy (https://my.clevelandclinic.org/about/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Reject-all attempt: Read the site's privacy policy (https://{label}.clevelandclinic.org/about/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260702-d5b41068c887c8736bdaa85e77678542",

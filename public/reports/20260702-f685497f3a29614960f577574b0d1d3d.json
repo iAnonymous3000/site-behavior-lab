@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://outreach.abetterinternet.org/{seg}/{n}/{seg}/{seg}",
-        "domain": "outreach.abetterinternet.org",
+        "url": "https://{label}.abetterinternet.org/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.abetterinternet.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -285,8 +285,8 @@
       },
       {
         "id": 19,
-        "url": "https://outreach.abetterinternet.org/{seg}/{seg}?ver=",
-        "domain": "outreach.abetterinternet.org",
+        "url": "https://{label}.abetterinternet.org/{seg}/{seg}?ver=",
+        "domain": "{label}.abetterinternet.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://outreach.abetterinternet.org/{seg}/{seg}?ver=",
-        "domain": "outreach.abetterinternet.org",
+        "url": "https://{label}.abetterinternet.org/{seg}/{seg}?ver=",
+        "domain": "{label}.abetterinternet.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -309,8 +309,8 @@
       },
       {
         "id": 21,
-        "url": "https://pi.pardot.com/{seg}",
-        "domain": "pi.pardot.com",
+        "url": "https://{label}.pardot.com/{seg}",
+        "domain": "{label}.pardot.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -338,8 +338,8 @@
       },
       {
         "id": 23,
-        "url": "https://pi.pardot.com/{seg}?ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pi.pardot.com",
+        "url": "https://{label}.pardot.com/{seg}?ver=&%5Bredacted%5D=",
+        "domain": "{label}.pardot.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -356,7 +356,7 @@
     ],
     "domains": [
       {
-        "domain": "pi.pardot.com",
+        "domain": "{label}.pardot.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -374,7 +374,7 @@
         ]
       },
       {
-        "domain": "outreach.abetterinternet.org",
+        "domain": "{label}.abetterinternet.org",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -694,8 +694,8 @@
       },
       {
         "id": 16,
-        "url": "https://outreach.abetterinternet.org/{seg}/{n}/{seg}/{seg}",
-        "domain": "outreach.abetterinternet.org",
+        "url": "https://{label}.abetterinternet.org/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.abetterinternet.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -730,8 +730,8 @@
       },
       {
         "id": 19,
-        "url": "https://outreach.abetterinternet.org/{seg}/{seg}?ver=",
-        "domain": "outreach.abetterinternet.org",
+        "url": "https://{label}.abetterinternet.org/{seg}/{seg}?ver=",
+        "domain": "{label}.abetterinternet.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -742,8 +742,8 @@
       },
       {
         "id": 20,
-        "url": "https://outreach.abetterinternet.org/{seg}/{seg}?ver=",
-        "domain": "outreach.abetterinternet.org",
+        "url": "https://{label}.abetterinternet.org/{seg}/{seg}?ver=",
+        "domain": "{label}.abetterinternet.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -767,7 +767,7 @@
     ],
     "domains": [
       {
-        "domain": "outreach.abetterinternet.org",
+        "domain": "{label}.abetterinternet.org",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -892,7 +892,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "pi.pardot.com",
+        "domain": "{label}.pardot.com",
         "requests": 2,
         "tracker": {
           "domain": "pardot.com",

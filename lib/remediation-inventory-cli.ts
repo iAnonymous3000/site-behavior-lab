@@ -7,7 +7,7 @@ import { REDACTION_ALLOWLISTS_VERSION, REDACTION_VERSION } from "./redaction-v2"
 /**
  * DRY-RUN remediation inventory over the committed corpus (RFC 9.6 step 1:
  * audit first). Reads `public/reports/*.json`, computes what the v2
- * default-deny sanitizer WOULD change, prints the aggregate, and (with
+ * default-deny sanitizer changes in URLs and names/keys, prints the aggregate, and (with
  * `--out <file>`) writes the full per-report inventory including before/after
  * URL examples for operator review. NEVER writes to the corpus, the store, or
  * anything else; the remediation pass is a separate, later decision.
@@ -52,7 +52,8 @@ async function main(): Promise<void> {
 
   const totals = summarizeInventories(entries);
   console.log(`Redaction v2 dry-run inventory (sanitizer v${REDACTION_VERSION}, allowlists ${REDACTION_ALLOWLISTS_VERSION})`);
-  console.log(`Reports analyzed: ${totals.reports} (${totals.changedReports} would change)${skipped.length ? `, skipped ${skipped.length}` : ""}`);
+  console.log(`Reports analyzed: ${totals.reports}${skipped.length ? `, skipped ${skipped.length}` : ""}`);
+  console.log(`Reports with URL or name/key changes: ${totals.reportsWithUrlOrNameChanges} (not a full-transform rewrite count)`);
   console.log(`URL fields: ${totals.changedUrlFields.toLocaleString("en-US")} of ${totals.totalUrlFields.toLocaleString("en-US")} would change`);
   console.log(
     `Would generalize: ${totals.counters.pathSegmentsGeneralized.toLocaleString("en-US")} path segments, ` +
@@ -68,7 +69,7 @@ async function main(): Promise<void> {
   console.log(
     `Risk signals (RFC 9.6 step-2 audit basis): ${totals.riskSignals.emailLikeStrings} email-like strings, ` +
       `${totals.riskSignals.tokenLikePathSegments.toLocaleString("en-US")} token-shaped path segments, ` +
-      `${totals.riskSignals.tokenLikeSubdomainLabels.toLocaleString("en-US")} token-shaped subdomain labels`
+      `${totals.riskSignals.unallowlistedSubdomainLabels.toLocaleString("en-US")} non-allowlisted subdomain labels generalized`
   );
   for (const line of skipped) console.log(`Skipped ${line}`);
 

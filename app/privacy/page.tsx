@@ -77,9 +77,9 @@ export default function PrivacyPage() {
           <li>
             A live, user-requested scan can be saved as a shareable report so its permalink works. Before public
             report bytes are written, URL credentials, fragments, and query values are removed; non-allowlisted
-            path segments become markers such as <code>{"{seg}"}</code>, token-like subdomain labels are
+            path segments become markers such as <code>{"{seg}"}</code>, non-allowlisted subdomain labels are
             generalized, and unrecognized cookie names and storage keys become redaction markers. The scanner uses
-            the exact reduced address to perform the visit; it is not written into the public report. Screenshots
+            the exact submitted address to perform the visit; it is not written into the public report. Screenshots
             can appear in the immediate result, but are not persisted in the share report.
           </li>
           <li>

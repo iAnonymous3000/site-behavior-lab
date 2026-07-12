@@ -5,7 +5,9 @@ import {
   COMPARISON_REQUEST_CAP,
   comparableSubjectHosts,
   comparisonEligibility,
-  runHitRequestCap
+  runHitRequestCap,
+  runHitResponseByteCap,
+  temporalPairEligibility
 } from "./comparison-eligibility";
 import { MAX_RECORDED_REQUESTS, ScanRequestBudget, ScanWarningCollector } from "./scan-runtime";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanConditions, type ScanResult } from "./types";
@@ -254,6 +256,17 @@ test("the cap is also detected from the scanner's real cap warning", () => {
   assert.equal(runHitRequestCap(makeRun({ totalRequests: 1 })), false);
 });
 
+test("an exhausted aggregate response-byte budget censors the visit", () => {
+  const run = makeRun({ totalRequests: 1 });
+  run.warnings = ["The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget."];
+  assert.equal(runHitResponseByteCap(run), true);
+
+  const report = createTemporalComparisonReport(makeRun({}), run);
+  const eligibility = comparisonEligibility(report);
+  assert.equal(eligibility.eligible, false);
+  assert.match(eligibility.reasons.join(" "), /response-byte budget/);
+});
+
 test("mismatched subjects, devices, and pipelines each disqualify", () => {
   const differentSite = comparisonEligibility(
     createTemporalComparisonReport(makeRun({ firstPartyDomain: "alpha.example" }), makeRun({ firstPartyDomain: "beta.example" }))
@@ -329,6 +342,38 @@ test("Brave-list engine presence and snapshot identity are held constant", () =>
   eligibility = comparisonEligibility(createTemporalComparisonReport(baseline, variant));
   assert.equal(eligibility.eligible, false);
   assert.match(eligibility.reasons.join(" "), /different Brave filter-list snapshots/);
+});
+
+test("passive temporal eligibility omits only a known classification snapshot date", () => {
+  const baseline = makeRun({});
+  const variant = makeRun({});
+  const adblock = { active: true, source: "brave", lists: 31, fetchedAt: "2026-07-12T00:00:00.000Z" };
+  baseline.conditions = { ...baseline.conditions, shieldsMode: "classification", adblock: { ...adblock } };
+  variant.conditions = {
+    ...variant.conditions,
+    scannedAt: new Date(60_000).toISOString(),
+    shieldsMode: "classification",
+    adblock: { ...adblock, fetchedAt: "2026-07-13T00:00:00.000Z" }
+  };
+  const temporal = createTemporalComparisonReport(baseline, variant);
+
+  assert.equal(comparisonEligibility(temporal).eligible, false);
+  assert.deepEqual(temporalPairEligibility(temporal), { eligible: true, reasons: [] });
+
+  const listMismatch = structuredClone(temporal);
+  listMismatch.variant.conditions.adblock!.lists = 30;
+  assert.equal(temporalPairEligibility(listMismatch).eligible, false);
+  assert.match(temporalPairEligibility(listMismatch).reasons.join(" "), /different numbers of Brave filter lists/);
+
+  const simulated = structuredClone(temporal);
+  simulated.variant.conditions.shieldsMode = "block-simulation";
+  assert.equal(temporalPairEligibility(simulated).eligible, false);
+  assert.match(temporalPairEligibility(simulated).reasons.join(" "), /different Brave filter-list snapshots/);
+
+  const unknown = structuredClone(temporal);
+  unknown.variant.conditions.adblock!.fetchedAt = "unknown";
+  assert.equal(temporalPairEligibility(unknown).eligible, false);
+  assert.match(temporalPairEligibility(unknown).reasons.join(" "), /did not record its Brave filter-list snapshot/);
 });
 
 test("every disqualifying condition is reported, not just the first", () => {

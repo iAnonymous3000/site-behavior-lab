@@ -158,7 +158,8 @@ export function deriveChoiceStateR2(
   return "unavailable";
 }
 
-function deriveReverifiedAfterReload(run: ScanRunV2R2, consent: ConsentEvidenceR2): boolean {
+/** Shared producer/read-side derivation; never trust a producer-supplied reload claim. */
+export function deriveReverifiedAfterReloadR2(run: ScanRunV2R2, consent: ConsentEvidenceR2): boolean {
   return consent.verificationObservations.some(
     (observation) =>
       isStrongRead(observation) &&
@@ -328,7 +329,7 @@ function consentViolationsR2(run: ScanRunV2R2, label: string): string[] {
   if (consent.choiceState !== derivedState) {
     violations.push(`${label}: choiceState ${consent.choiceState} does not derive from the observations (expected ${derivedState})`);
   }
-  const derivedReload = deriveReverifiedAfterReload(run, consent);
+  const derivedReload = deriveReverifiedAfterReloadR2(run, consent);
   if (consent.reverifiedAfterReload !== derivedReload) {
     violations.push(`${label}: reverifiedAfterReload disagrees with the recorded strong observations`);
   }

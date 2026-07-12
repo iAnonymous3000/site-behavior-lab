@@ -1,11 +1,26 @@
 import { compareScanResults } from "./compare-reports";
 import {
   CONSENT_CMP_SELECTORS,
+  CONSENT_SHADOW_HOSTS,
+  CONSENT_TEXT_PATTERNS,
   consentInteractionWarning,
   matchesConsentChoice,
   normalizeConsentLabel
 } from "./consent-interaction";
 import { summarizeDomains } from "./domain-summaries";
+import { isFingerprintDetectionSummary } from "./fingerprint-detection-guard";
+import {
+  AUDIO_FINGERPRINT_APIS,
+  CANVAS_READ_APIS,
+  FINGERPRINT_EVENT_APIS,
+  INPUT_MONITORING_EVENTS,
+  KEYSTROKE_ENCODINGS,
+  KEYSTROKE_FIELD_TYPES,
+  LISTENER_TARGETS,
+  SESSION_RECORDING_EVENTS,
+  WEBGL_PARAMETERS,
+  WEBGL_READ_APIS
+} from "./measurement-kernel";
 import {
   addRedactionCounters,
   emptyRedactionCounters,
@@ -14,14 +29,21 @@ import {
   redactPathV2,
   redactStorageKey,
   redactUrlV2,
+  publicRegistrableDomain,
   type RedactionCounters
 } from "./redaction-v2";
 import { isCanonicalReportShare } from "./report-locator";
+import { MIN_POLICY_TEXT_LENGTH } from "./privacy-policy";
+import { scannerDisclosure, type ScanConditionsProfile } from "./scan-condition-disclosure";
+import { canonicalJson } from "./scan-report-v2-fingerprints";
+import { sha256Hex } from "./sha256";
+import { canonicalTrackerCatalogContents, findTrackerMatch, trackerCatalogMetadata } from "./tracker-catalog";
 import type {
   ComparisonScanResult,
   ConsentInteractionSummary,
   CookieRecord,
   FingerprintDetectionSummary,
+  FingerprintEventSummary,
   NetworkRequestProvenance,
   NetworkRequestRecord,
   PixelEventSummary,
@@ -51,18 +73,84 @@ export type RedactedV1<T extends ScanReport> = {
 
 const MAX_PAGE_TITLE_CHARS = 200;
 const MAX_POLICY_QUOTE_CHARS = 200;
+const MAX_POLICY_TEXT_CHARS = 400_000;
 const MAX_WARNING_CHARS = 600;
 const MAX_COMPARISON_TITLE_CHARS = 160;
 const MAX_RUN_LABEL_CHARS = 80;
-const INVALID_OPAQUE_ID_MARKER = "{invalid-id}";
 const REDACTED_PUBLIC_STRING = "[redacted]";
 const REDACTED_WARNING = "[redacted warning]";
+const SAFE_HTTP_METHODS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]);
+const SAFE_COOKIE_SAME_SITE = new Set(["Strict", "Lax", "None", "Unspecified"]);
+const SAFE_RESOURCE_TYPES = new Set([
+  "document",
+  "stylesheet",
+  "image",
+  "media",
+  "font",
+  "script",
+  "texttrack",
+  "xhr",
+  "fetch",
+  "ping",
+  "cspreport",
+  "beacon",
+  "eventsource",
+  "websocket",
+  "manifest",
+  "other"
+]);
+const SAFE_SCANNER_EGRESS = new Set([
+  "this scanner instance",
+  "cloudflare-containers",
+  "cloudflare-browser-run",
+  "github-actions-ubuntu",
+  "docker-smoke",
+  "test"
+]);
+const SAFE_ADBLOCK_SOURCE = "Brave default ad-block lists";
+const INVALID_METHODOLOGY_DISCLOSURE = "Methodology metadata was invalid and was removed at the public boundary.";
+const CHROMIUM_VERSION = /^(?:Brave\/\d+(?:\.\d+){1,3} Chromium\/)?\d+(?:\.\d+){1,3}$/;
+const CHROMIUM_USER_AGENT = /^Mozilla\/5\.0 \((?:X11; Linux x86_64|Macintosh; Intel Mac OS X \d+(?:_\d+){1,3}|Windows NT \d+\.\d+; Win64; x64)\) AppleWebKit\/\d+\.\d+ \(KHTML, like Gecko\) (?:HeadlessChrome|Chrome)\/\d+(?:\.\d+){1,3} Safari\/\d+\.\d+$/;
 
-// PageGraph node/edge ids are producer-generated opaque join keys. Preserve
-// their graph utility only when they stay inside the documented ASCII token
-// envelope; never pass URLs, paths, email-like strings, controls, or unbounded
-// input through an id field. The marker is terminal for repeat boundaries.
-const OPAQUE_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
+// PageGraph exports are external input. Lexical shape cannot prove an id or
+// node type is producer-owned rather than a page-controlled name. A redaction
+// pass therefore aliases every opaque id by first-seen order and admits only
+// the closed PageGraph node-type vocabulary. Sequential aliases keep causal
+// joins useful and remain byte-idempotent when the same report is sanitized
+// again because encounter order is stable.
+const OPAQUE_ID_ALIAS_PREFIX = "id-";
+const OPAQUE_ID_ALIAS_WIDTH = 6;
+const PAGEGRAPH_INITIATOR_TYPES = new Set([
+  "resource",
+  "script",
+  "HTML element",
+  "text node",
+  "DOM root",
+  "frame owner",
+  "parser",
+  "web API",
+  "JS builtin",
+  "local storage",
+  "session storage",
+  "cookie jar",
+  "storage",
+  "remote frame",
+  "binding",
+  "binding event",
+  "ad filter",
+  "tracker filter",
+  "fingerprinting filter",
+  "Brave Shields",
+  "ads shield",
+  "trackers shield",
+  "javascript shield",
+  "fingerprinting shield",
+  "fingerprintingV2 shield",
+  "extensions",
+  // Present in the maintained parser fixture even though older PageGraph
+  // documentation called the corresponding node a DOM root.
+  "web page"
+]);
 
 const KNOWN_CMP_NAMES = new Set(CONSENT_CMP_SELECTORS.map((entry) => entry.cmp));
 const KNOWN_PIXEL_MATCH_FIELDS = new Set([
@@ -74,6 +162,12 @@ const KNOWN_PIXEL_MATCH_FIELDS = new Set([
   "gender",
   "external_id"
 ]);
+const KNOWN_POLICY_CLAIM_KINDS = new Set(["no-cookies", "no-third-party-cookies", "no-selling-or-sharing", "honors-gpc"]);
+const CURATED_TRACKER_MATCHES = (JSON.parse(canonicalTrackerCatalogContents()) as Array<{ domain: string }>)
+  .flatMap((entry) => {
+    const match = findTrackerMatch(entry.domain);
+    return match === null ? [] : [match];
+  });
 
 const PIXEL_PRODUCTS = {
   Meta: {
@@ -176,6 +270,61 @@ const COMPARISON_WARNING_LABELS = new Set([
   "Variant"
 ]);
 
+export const PUBLIC_STRING_POLICY_VERSION = "public-string-policy-v2";
+/**
+ * Machine-derived identity of every non-allowlist public string vocabulary in
+ * this sanitizer. A selector, warning, method, resource, pixel, or opaque-id
+ * change automatically changes the normalization identity used by v2.
+ */
+export const PUBLIC_STRING_POLICY_DIGEST = sha256Hex(
+  canonicalJson({
+    version: PUBLIC_STRING_POLICY_VERSION,
+    httpMethods: [...SAFE_HTTP_METHODS].sort(),
+    resourceTypes: [...SAFE_RESOURCE_TYPES].sort(),
+    cookieSameSite: [...SAFE_COOKIE_SAME_SITE].sort(),
+    scannerEgress: [...SAFE_SCANNER_EGRESS].sort(),
+    adblockSource: SAFE_ADBLOCK_SOURCE,
+    chromiumVersionPattern: CHROMIUM_VERSION.source,
+    chromiumUserAgentPattern: CHROMIUM_USER_AGENT.source,
+    fixedWarnings: [...FIXED_SCANNER_WARNINGS].sort(),
+    warningLabels: [...COMPARISON_WARNING_LABELS].sort(),
+    dynamicWarningPatterns: "scanner-warning-patterns-v2",
+    cmpSelectors: CONSENT_CMP_SELECTORS,
+    consentShadowHosts: CONSENT_SHADOW_HOSTS,
+    consentTextPatterns: Object.fromEntries(
+      Object.entries(CONSENT_TEXT_PATTERNS).map(([key, value]) => [key, value.source])
+    ),
+    pixelMatchFields: [...KNOWN_PIXEL_MATCH_FIELDS].sort(),
+    pixelProducts: Object.fromEntries(
+      Object.entries(PIXEL_PRODUCTS).map(([key, value]) => [key, { product: value.product, events: [...value.events].sort() }])
+    ),
+    opaqueIdPolicy: {
+      prefix: OPAQUE_ID_ALIAS_PREFIX,
+      width: OPAQUE_ID_ALIAS_WIDTH,
+      initiatorTypes: [...PAGEGRAPH_INITIATOR_TYPES].sort()
+    },
+    fingerprintVocabulary: {
+      eventApis: FINGERPRINT_EVENT_APIS,
+      canvasReadApis: CANVAS_READ_APIS,
+      webglReadApis: WEBGL_READ_APIS,
+      webglParameters: WEBGL_PARAMETERS,
+      audioApis: AUDIO_FINGERPRINT_APIS,
+      sessionEvents: SESSION_RECORDING_EVENTS,
+      inputEvents: INPUT_MONITORING_EVENTS,
+      listenerTargets: LISTENER_TARGETS,
+      keystrokeEncodings: KEYSTROKE_ENCODINGS,
+      keystrokeFieldTypes: KEYSTROKE_FIELD_TYPES
+    },
+    limits: {
+      pageTitle: MAX_PAGE_TITLE_CHARS,
+      policyQuote: MAX_POLICY_QUOTE_CHARS,
+      warning: MAX_WARNING_CHARS,
+      comparisonTitle: MAX_COMPARISON_TITLE_CHARS,
+      runLabel: MAX_RUN_LABEL_CHARS
+    }
+  })
+);
+
 export function redactScanReportV1<T extends ScanReport>(report: T): RedactedV1<T> {
   if (report.reportType !== "comparison") {
     return redactScanResultV1(report) as RedactedV1<T>;
@@ -210,7 +359,7 @@ export function redactScanReportV1<T extends ScanReport>(report: T): RedactedV1<
     // from the sanitized arms so no raw diff string survives and the diff is
     // internally consistent with the evidence a reader actually receives.
     diff: compareScanResults(baseline.report, variant.report),
-    warnings: redactWarnings(report.warnings, pass),
+    warnings: redactScannerWarnings(report.warnings, pass),
     ...copyValidatedShare(report.share)
   };
 
@@ -223,10 +372,23 @@ export function redactScanResultV1(result: ScanResult): RedactedV1<ScanResult> {
   const domains = summarizeDomains(requests);
   const cookies = result.cookies.map((cookie) => redactCookie(cookie, pass));
   const storage = result.storage.map((entry) => redactStorage(entry, pass));
-  const fingerprintEvents = result.fingerprintEvents.map((event) => ({ ...event }));
-  const fingerprintDetections = result.fingerprintDetections?.map((detection) =>
-    redactFingerprintDetection(detection, pass)
-  );
+  const fingerprintEvents = redactFingerprintEvents(result.fingerprintEvents);
+  const fingerprintDetections = result.fingerprintDetections?.flatMap((detection) => {
+    const redacted = redactFingerprintDetection(detection, pass);
+    return redacted === null ? [] : [redacted];
+  });
+  const cnameCloaks = result.cnameCloaks?.flatMap((cloak) => {
+    const tracker = redactTrackerMatch(cloak.tracker, pass, cloak.cname);
+    return tracker === null
+      ? []
+      : [{ host: pass.hostname(cloak.host), cname: pass.hostname(cloak.cname), tracker }];
+  });
+  const trackerEntities = new Set<string>();
+  for (const request of requests) if (request.tracker !== null) trackerEntities.add(request.tracker.entity);
+  for (const cloak of cnameCloaks ?? []) trackerEntities.add(cloak.tracker.entity);
+  const privacyPolicy = result.privacyPolicy === undefined || !validPolicyTextLength(result.privacyPolicy.policyTextLength)
+    ? undefined
+    : redactPrivacyPolicy(result.privacyPolicy, pass, trackerEntities);
 
   const redacted: ScanResult = {
     ok: true,
@@ -259,28 +421,18 @@ export function redactScanResultV1(result: ScanResult): RedactedV1<ScanResult> {
     storage,
     fingerprintEvents,
     ...(fingerprintDetections !== undefined ? { fingerprintDetections } : {}),
-    ...(result.cnameCloaks !== undefined
-      ? {
-          cnameCloaks: result.cnameCloaks.map((cloak) => ({
-            host: pass.hostname(cloak.host),
-            cname: pass.hostname(cloak.cname),
-            tracker: redactTracker(cloak.tracker, pass) as TrackerMatch
-          }))
-        }
-      : {}),
+    ...(cnameCloaks !== undefined ? { cnameCloaks } : {}),
     ...(result.pixelEvents !== undefined
       ? { pixelEvents: redactPixelEvents(result.pixelEvents) }
       : {}),
-    ...(result.privacyPolicy !== undefined
-      ? { privacyPolicy: redactPrivacyPolicy(result.privacyPolicy, pass) }
-      : {}),
+    ...(privacyPolicy !== undefined ? { privacyPolicy } : {}),
     ...(result.consentInteraction !== undefined
       ? { consentInteraction: redactConsentInteraction(result.consentInteraction, pass) }
       : {}),
     // The immediate result may intentionally retain a screenshot for the
     // submitter. Persistence/export projectors strip it at their own boundary.
     screenshot: result.screenshot,
-    warnings: redactWarnings(result.warnings, pass),
+    warnings: redactScannerWarnings(result.warnings, pass),
     ...copyValidatedShare(result.share)
   };
 
@@ -289,6 +441,7 @@ export function redactScanResultV1(result: ScanResult): RedactedV1<ScanResult> {
 
 export class RedactionPass {
   readonly counters = emptyRedactionCounters();
+  private readonly opaqueIdAliases = new Map<string, string>();
 
   add(counters: RedactionCounters): void {
     addRedactionCounters(this.counters, counters);
@@ -320,32 +473,141 @@ export class RedactionPass {
     return redactStorageKey(value, this.counters).value;
   }
 
+  opaqueId(value: string): string {
+    const existing = this.opaqueIdAliases.get(value);
+    if (existing !== undefined) return existing;
+    const alias = `${OPAQUE_ID_ALIAS_PREFIX}${String(this.opaqueIdAliases.size + 1).padStart(OPAQUE_ID_ALIAS_WIDTH, "0")}`;
+    this.opaqueIdAliases.set(value, alias);
+    return alias;
+  }
+
   originOrHostname(value: string): string {
     return /^https?:\/\//i.test(value) ? this.url(value, false) : this.hostname(value);
   }
 }
 
 function redactConditions(conditions: ScanConditions, pass: RedactionPass): ScanConditions {
+  const profile = conditionsProfile(conditions.automation);
+  const chromiumVersion = safeChromiumVersion(conditions.chromiumVersion);
+  const userAgent = safeChromiumUserAgent(conditions.userAgent);
+  const timezone = profile === "brave-pagegraph" ? "unknown" : conditions.timezone === "UTC" ? "UTC" : "unknown";
+  const locale = profile === "brave-pagegraph" ? "unknown" : conditions.locale === "en-US" ? "en-US" : "unknown";
+  const language = profile === "brave-pagegraph" ? "unknown" : conditions.language === "en-US" ? "en-US" : "unknown";
+  const scannerEgress = safeScannerEgress(profile, conditions.scannerEgress);
+  const shieldsMode: NonNullable<ScanConditions["shieldsMode"]> =
+    conditions.shieldsMode === "block-simulation" ? "block-simulation" : "classification";
+  const disclosureInput = { chromiumVersion, locale, scannerEgress, shieldsMode, timezone };
+  const currentDisclosure = scannerDisclosure(profile, disclosureInput);
+  const legacyDisclosure = legacyNodeScannerDisclosure(profile, disclosureInput);
+  const scannerDisclosureValue =
+    conditions.scannerDisclosure === currentDisclosure || conditions.scannerDisclosure === legacyDisclosure
+      ? conditions.scannerDisclosure
+      : INVALID_METHODOLOGY_DISCLOSURE;
+  const adblock = conditions.adblock === undefined
+    ? undefined
+    : {
+        active: conditions.adblock.active === true,
+        source: conditions.adblock.source === SAFE_ADBLOCK_SOURCE ? SAFE_ADBLOCK_SOURCE : REDACTED_PUBLIC_STRING,
+        lists:
+          Number.isSafeInteger(conditions.adblock.lists) && conditions.adblock.lists >= 0 && conditions.adblock.lists <= 100
+            ? conditions.adblock.lists
+            : 0,
+        fetchedAt: canonicalTimestamp(conditions.adblock.fetchedAt) ?? "unknown"
+      };
   return {
     requestedUrl: pass.url(conditions.requestedUrl, false),
     finalUrl: pass.url(conditions.finalUrl, false),
-    scannedAt: conditions.scannedAt,
-    chromiumVersion: conditions.chromiumVersion,
-    userAgent: conditions.userAgent,
-    timezone: conditions.timezone,
-    locale: conditions.locale,
-    language: conditions.language,
-    viewport: { ...conditions.viewport },
-    gpcEnabled: conditions.gpcEnabled,
-    consentMode: conditions.consentMode,
-    automation: conditions.automation,
-    headless: conditions.headless,
-    scannerEgress: conditions.scannerEgress,
-    ...(conditions.shieldsMode !== undefined ? { shieldsMode: conditions.shieldsMode } : {}),
-    ...(conditions.adblock !== undefined ? { adblock: { ...conditions.adblock } } : {}),
-    trackerCatalog: { ...conditions.trackerCatalog },
-    scannerDisclosure: conditions.scannerDisclosure
+    scannedAt: canonicalTimestamp(conditions.scannedAt) ?? "1970-01-01T00:00:00.000Z",
+    chromiumVersion,
+    userAgent,
+    timezone,
+    locale,
+    language,
+    viewport: {
+      width: boundedViewportDimension(conditions.viewport.width, 1440),
+      height: boundedViewportDimension(conditions.viewport.height, 980),
+      isMobile: conditions.viewport.isMobile === true
+    },
+    gpcEnabled: conditions.gpcEnabled === true,
+    consentMode: ["observe", "accept-all", "reject-all"].includes(conditions.consentMode)
+      ? conditions.consentMode
+      : "observe",
+    automation:
+      profile === "node-playwright" ? "playwright-chromium" : profile === "brave-pagegraph" ? "brave-pagegraph" : "external",
+    headless: conditions.headless === true,
+    scannerEgress,
+    ...(conditions.shieldsMode !== undefined ? { shieldsMode } : {}),
+    ...(adblock !== undefined ? { adblock } : {}),
+    trackerCatalog: safeTrackerCatalog(profile),
+    scannerDisclosure: scannerDisclosureValue
   };
+}
+
+function conditionsProfile(automation: ScanConditions["automation"]): ScanConditionsProfile {
+  if (automation === "playwright-chromium") return "node-playwright";
+  if (automation === "brave-pagegraph") return "brave-pagegraph";
+  return "cloudflare-browser-run";
+}
+
+function safeChromiumVersion(value: string): string {
+  const normalized = value.trim();
+  return normalized === "unknown" || normalized === "test" || CHROMIUM_VERSION.test(normalized) ? normalized : "unknown";
+}
+
+function safeChromiumUserAgent(value: string): string {
+  const normalized = value.trim();
+  return normalized === "unknown" || normalized === "test" || CHROMIUM_USER_AGENT.test(normalized) ? normalized : "unknown";
+}
+
+function safeScannerEgress(profile: ScanConditionsProfile, value: string): string {
+  if (profile === "brave-pagegraph") return "Brave PageGraph crawl";
+  if (profile === "cloudflare-browser-run") return "cloudflare-browser-run";
+  return SAFE_SCANNER_EGRESS.has(value) ? value : "this scanner instance";
+}
+
+function safeTrackerCatalog(profile: ScanConditionsProfile): ScanConditions["trackerCatalog"] {
+  if (profile === "cloudflare-browser-run") {
+    return {
+      source: "none",
+      version: "cloudflare-worker-2026.06",
+      region: "n/a",
+      entries: 0,
+      curatedOverrides: 0,
+      license: "n/a"
+    };
+  }
+  return {
+    source: trackerCatalogMetadata.source,
+    version: trackerCatalogMetadata.version,
+    region: trackerCatalogMetadata.region,
+    entries: trackerCatalogMetadata.entries,
+    curatedOverrides: trackerCatalogMetadata.curatedOverrides,
+    license: trackerCatalogMetadata.license
+  };
+}
+
+function legacyNodeScannerDisclosure(
+  profile: ScanConditionsProfile,
+  input: {
+    chromiumVersion: string;
+    locale: string;
+    scannerEgress: string;
+    shieldsMode?: ScanConditions["shieldsMode"];
+    timezone: string;
+  }
+): string | null {
+  if (profile !== "node-playwright") return null;
+  const shieldsDescription = input.shieldsMode === "block-simulation" ? "block simulation" : "classification only";
+  return `Automated Chromium scan from ${input.scannerEgress} with browser ${input.chromiumVersion}, timezone ${input.timezone}, locale ${input.locale}, the listed viewport, and Brave Shields ${shieldsDescription}. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.`;
+}
+
+function canonicalTimestamp(value: string): string | null {
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value ? value : null;
+}
+
+function boundedViewportDimension(value: number, fallback: number): number {
+  return Number.isSafeInteger(value) && value > 0 && value <= 10_000 ? value : fallback;
 }
 
 export function redactRequest(request: NetworkRequestRecord, pass: RedactionPass): NetworkRequestRecord {
@@ -353,11 +615,11 @@ export function redactRequest(request: NetworkRequestRecord, pass: RedactionPass
     id: request.id,
     url: pass.url(request.url, request.thirdParty),
     domain: pass.hostname(request.domain),
-    method: request.method,
-    resourceType: request.resourceType,
+    method: redactHttpMethod(request.method),
+    resourceType: redactResourceType(request.resourceType),
     status: request.status,
     thirdParty: request.thirdParty,
-    tracker: redactTracker(request.tracker, pass),
+    tracker: redactTrackerMatch(request.tracker, pass, request.domain),
     ...(request.blockedByShields !== undefined ? { blockedByShields: request.blockedByShields } : {}),
     ...(request.provenance ? { provenance: redactProvenance(request.provenance, pass) } : {}),
     startedAtMs: request.startedAtMs
@@ -370,23 +632,23 @@ function redactProvenance(
 ): NetworkRequestProvenance {
   return {
     ...(provenance.graphRecordId !== undefined
-      ? { graphRecordId: redactOpaqueId(provenance.graphRecordId) }
+      ? { graphRecordId: pass.opaqueId(provenance.graphRecordId) }
       : {}),
     ...(provenance.initiatorId !== undefined
-      ? { initiatorId: redactOpaqueId(provenance.initiatorId) }
+      ? { initiatorId: pass.opaqueId(provenance.initiatorId) }
       : {}),
     ...(provenance.initiatorType !== undefined
-      ? { initiatorType: boundedProducerToken(provenance.initiatorType) }
+      ? { initiatorType: redactPageGraphInitiatorType(provenance.initiatorType) }
       : {}),
     ...(provenance.initiatorUrl !== undefined ? { initiatorUrl: pass.url(provenance.initiatorUrl, false) } : {}),
     ...(provenance.initiatorDomain !== undefined
       ? { initiatorDomain: pass.hostname(provenance.initiatorDomain) }
       : {}),
-    ...(provenance.scriptId !== undefined ? { scriptId: redactOpaqueId(provenance.scriptId) } : {}),
+    ...(provenance.scriptId !== undefined ? { scriptId: pass.opaqueId(provenance.scriptId) } : {}),
     ...(provenance.scriptUrl !== undefined ? { scriptUrl: pass.url(provenance.scriptUrl, false) } : {}),
     ...(provenance.scriptDomain !== undefined ? { scriptDomain: pass.hostname(provenance.scriptDomain) } : {}),
     ...(provenance.injectedById !== undefined
-      ? { injectedById: redactOpaqueId(provenance.injectedById) }
+      ? { injectedById: pass.opaqueId(provenance.injectedById) }
       : {}),
     ...(provenance.injectedByUrl !== undefined ? { injectedByUrl: pass.url(provenance.injectedByUrl, false) } : {}),
     ...(provenance.injectedByDomain !== undefined
@@ -395,8 +657,30 @@ function redactProvenance(
   };
 }
 
-function redactTracker(tracker: TrackerMatch | null, pass: RedactionPass): TrackerMatch | null {
+export function redactTrackerMatch(
+  tracker: TrackerMatch | null,
+  pass: RedactionPass,
+  observedHost: string = tracker?.domain ?? ""
+): TrackerMatch | null {
   if (tracker === null) return null;
+  if (tracker.confidence === "curated") {
+    const expected = observedHost.includes("{label}")
+      ? markerAwareCuratedTrackerMatch(observedHost, tracker)
+      : findTrackerMatch(observedHost);
+    if (expected === null || canonicalJson(expected) !== canonicalJson(tracker)) return null;
+  } else if (tracker.confidence === "shields-list") {
+    const domain = publicRegistrableDomain(observedHost);
+    if (domain === null) return null;
+    const expected: TrackerMatch = {
+      domain,
+      entity: domain,
+      category: "tracking (Brave Shields list)",
+      confidence: "shields-list"
+    };
+    if (canonicalJson(expected) !== canonicalJson(tracker)) return null;
+  } else {
+    return null;
+  }
   return {
     domain: pass.hostname(tracker.domain),
     entity: tracker.entity,
@@ -408,12 +692,36 @@ function redactTracker(tracker: TrackerMatch | null, pass: RedactionPass): Track
   };
 }
 
+function markerAwareCuratedTrackerMatch(observedHost: string, tracker: TrackerMatch): TrackerMatch | null {
+  const publicObserved = redactHostnameV2(observedHost).value;
+  for (const candidate of CURATED_TRACKER_MATCHES) {
+    const publicCandidate: TrackerMatch = { ...candidate, domain: redactHostnameV2(candidate.domain).value };
+    if (canonicalJson(publicCandidate) !== canonicalJson(tracker)) continue;
+    if (publicObserved === publicCandidate.domain || publicObserved.endsWith(`.${publicCandidate.domain}`)) {
+      return tracker;
+    }
+  }
+  return null;
+}
+
+/** Page script can choose a custom Fetch method token; public wire is closed. */
+export function redactHttpMethod(value: string): string {
+  const normalized = value.trim().toUpperCase();
+  return SAFE_HTTP_METHODS.has(normalized) ? normalized : "OTHER";
+}
+
+/** Resource types are producer vocabulary, never arbitrary page strings. */
+export function redactResourceType(value: string): string {
+  const normalized = value.trim().toLowerCase();
+  return SAFE_RESOURCE_TYPES.has(normalized) ? normalized : "other";
+}
+
 export function redactCookie(cookie: CookieRecord, pass: RedactionPass): CookieRecord {
   return {
     name: pass.cookieName(cookie.name),
     domain: pass.hostname(cookie.domain),
     path: pass.path(cookie.path),
-    sameSite: cookie.sameSite,
+    sameSite: redactCookieSameSite(cookie.sameSite),
     secure: cookie.secure,
     httpOnly: cookie.httpOnly,
     session: cookie.session,
@@ -428,29 +736,113 @@ export function redactStorage(entry: StorageRecord, pass: RedactionPass): Storag
 export function redactFingerprintDetection(
   detection: FingerprintDetectionSummary,
   pass: RedactionPass
-): FingerprintDetectionSummary {
+): FingerprintDetectionSummary | null {
   const copied = cloneJson(detection);
-  if (copied.kind === "session-recording" || copied.kind === "input-monitoring") {
+  copied.count = safeCount(copied.count);
+  if (copied.kind === "canvas-fingerprinting") {
+    copied.evidence.readApis = closedEvidenceValues(copied.evidence.readApis, CANVAS_READ_APIS);
+    copied.evidence.maxCanvasWidth = safeCount(copied.evidence.maxCanvasWidth);
+    copied.evidence.maxCanvasHeight = safeCount(copied.evidence.maxCanvasHeight);
+    copied.evidence.maxDistinctTextCharacters = safeCount(copied.evidence.maxDistinctTextCharacters);
+    copied.evidence.maxTextWriteCalls = safeCount(copied.evidence.maxTextWriteCalls);
+  } else if (copied.kind === "canvas-font-fingerprinting") {
+    copied.evidence.measureTextCalls = safeCount(copied.evidence.measureTextCalls);
+    copied.evidence.maxDistinctFonts = safeCount(copied.evidence.maxDistinctFonts);
+    copied.evidence.maxDistinctTextSamples = safeCount(copied.evidence.maxDistinctTextSamples);
+    copied.evidence.maxTextLength = safeCount(copied.evidence.maxTextLength);
+  } else if (copied.kind === "webgl-fingerprinting") {
+    copied.evidence.readApis = closedEvidenceValues(copied.evidence.readApis, WEBGL_READ_APIS);
+    copied.evidence.parameters = closedEvidenceValues(copied.evidence.parameters, WEBGL_PARAMETERS);
+    copied.evidence.getParameterCalls = safeCount(copied.evidence.getParameterCalls);
+    copied.evidence.readPixelsCalls = safeCount(copied.evidence.readPixelsCalls);
+  } else if (copied.kind === "audio-fingerprinting") {
+    copied.evidence.apis = closedEvidenceValues(copied.evidence.apis, AUDIO_FINGERPRINT_APIS);
+    copied.evidence.offlineRenderCalls = safeCount(copied.evidence.offlineRenderCalls);
+    copied.evidence.oscillatorCalls = safeCount(copied.evidence.oscillatorCalls);
+    copied.evidence.compressorCalls = safeCount(copied.evidence.compressorCalls);
+    copied.evidence.analyserCalls = safeCount(copied.evidence.analyserCalls);
+  } else if (copied.kind === "webrtc-fingerprinting") {
+    copied.evidence.constructorCalls = safeCount(copied.evidence.constructorCalls);
+    copied.evidence.createDataChannelCalls = safeCount(copied.evidence.createDataChannelCalls);
+    copied.evidence.createOfferCalls = safeCount(copied.evidence.createOfferCalls);
+    copied.evidence.setLocalDescriptionCalls = safeCount(copied.evidence.setLocalDescriptionCalls);
+  } else if (copied.kind === "session-recording") {
+    copied.evidence.eventTypes = closedEvidenceValues(copied.evidence.eventTypes, SESSION_RECORDING_EVENTS, true);
+    copied.evidence.listenerTargets = closedEvidenceValues(copied.evidence.listenerTargets, LISTENER_TARGETS, true);
     copied.evidence.thirdPartyOrigins = copied.evidence.thirdPartyOrigins.map((origin) =>
       pass.originOrHostname(origin)
     );
+    copied.evidence.totalListenerCalls = safeCount(copied.evidence.totalListenerCalls);
+  } else if (copied.kind === "input-monitoring") {
+    copied.evidence.eventTypes = closedEvidenceValues(copied.evidence.eventTypes, INPUT_MONITORING_EVENTS, true);
+    copied.evidence.listenerTargets = closedEvidenceValues(copied.evidence.listenerTargets, LISTENER_TARGETS, true);
+    copied.evidence.thirdPartyOrigins = copied.evidence.thirdPartyOrigins.map((origin) =>
+      pass.originOrHostname(origin)
+    );
+    copied.evidence.totalListenerCalls = safeCount(copied.evidence.totalListenerCalls);
   } else if (copied.kind === "keystroke-exfiltration") {
     copied.evidence.recipients = copied.evidence.recipients.map((recipient) => pass.hostname(recipient));
+    copied.evidence.encodings = closedEvidenceValues(copied.evidence.encodings, KEYSTROKE_ENCODINGS, true);
+    copied.evidence.fieldsTyped = safeCount(copied.evidence.fieldsTyped);
+    copied.evidence.fieldTypes = closedEvidenceValues(copied.evidence.fieldTypes, KEYSTROKE_FIELD_TYPES, true);
+  } else {
+    return null;
   }
-  return copied;
+  return isFingerprintDetectionSummary(copied) ? copied : null;
 }
 
-export function redactPrivacyPolicy(policy: PrivacyPolicySummary, pass: RedactionPass): PrivacyPolicySummary {
+function redactFingerprintEvents(events: FingerprintEventSummary[]): FingerprintEventSummary[] {
+  const counts = new Map<string, number>();
+  const allowed = new Set<string>(FINGERPRINT_EVENT_APIS);
+  for (const event of events) {
+    const api = allowed.has(event.api) ? event.api : "other";
+    const count = safeCount(event.count);
+    if (count > 0) counts.set(api, (counts.get(api) ?? 0) + count);
+  }
+  return Array.from(counts, ([api, count]) => ({ api, count })).sort((left, right) => left.api.localeCompare(right.api));
+}
+
+function closedEvidenceValues(values: string[], allowed: readonly string[], generalizeUnknown = false): string[] {
+  const registry = new Set(allowed);
+  return Array.from(new Set(values.flatMap((value) => registry.has(value) ? [value] : generalizeUnknown ? ["other"] : []))).sort();
+}
+
+function safeCount(value: number): number {
+  return Number.isSafeInteger(value) && value >= 0 ? value : 0;
+}
+
+export function redactPrivacyPolicy(
+  policy: PrivacyPolicySummary,
+  pass: RedactionPass,
+  groundedEntities: ReadonlySet<string> = new Set()
+): PrivacyPolicySummary {
+  const claimKinds = new Set<string>();
+  const claims = policy.claims.flatMap((claim) => {
+    if (!KNOWN_POLICY_CLAIM_KINDS.has(claim.kind) || claimKinds.has(claim.kind)) return [];
+    claimKinds.add(claim.kind);
+    return [{ kind: claim.kind, quote: boundedPublicText(claim.quote, MAX_POLICY_QUOTE_CHARS) }];
+  });
+  const mentionedEntities = uniqueGroundedEntities(policy.mentionedEntities, groundedEntities);
+  const mentionedSet = new Set(mentionedEntities);
+  const unmentionedEntities = uniqueGroundedEntities(policy.unmentionedEntities, groundedEntities)
+    .filter((entity) => !mentionedSet.has(entity));
   return {
     url: pass.url(policy.url, false),
-    claims: policy.claims.map((claim) => ({
-      kind: claim.kind,
-      quote: boundedPublicText(claim.quote, MAX_POLICY_QUOTE_CHARS)
-    })),
-    mentionedEntities: [...policy.mentionedEntities],
-    unmentionedEntities: [...policy.unmentionedEntities],
-    policyTextLength: policy.policyTextLength
+    claims,
+    mentionedEntities,
+    unmentionedEntities,
+    policyTextLength: validPolicyTextLength(policy.policyTextLength)
+      ? Math.min(policy.policyTextLength, MAX_POLICY_TEXT_CHARS)
+      : MIN_POLICY_TEXT_LENGTH
   };
+}
+
+function uniqueGroundedEntities(values: string[], grounded: ReadonlySet<string>): string[] {
+  return Array.from(new Set(values.filter((entity) => grounded.has(entity))));
+}
+
+function validPolicyTextLength(value: number): boolean {
+  return Number.isSafeInteger(value) && value >= MIN_POLICY_TEXT_LENGTH;
 }
 
 export function redactConsentInteraction(
@@ -501,16 +893,30 @@ function redactConsentMatchedText(
   return matchesConsentChoice(mode, normalized) ? normalized : REDACTED_PUBLIC_STRING;
 }
 
-function redactOpaqueId(value: string): string {
-  if (value === INVALID_OPAQUE_ID_MARKER) return value;
-  return OPAQUE_ID.test(value) ? value : INVALID_OPAQUE_ID_MARKER;
+export function redactCookieSameSite(value: string): string {
+  const normalized = value.trim();
+  return SAFE_COOKIE_SAME_SITE.has(normalized) ? normalized : "Unspecified";
 }
 
-function boundedProducerToken(value: string): string {
-  if (value === REDACTED_PUBLIC_STRING) return value;
-  return /^[A-Za-z][A-Za-z0-9 ._:-]{0,79}$/.test(value)
-    ? value
-    : REDACTED_PUBLIC_STRING;
+function redactPageGraphInitiatorType(value: string): string {
+  return PAGEGRAPH_INITIATOR_TYPES.has(value) ? value : REDACTED_PUBLIC_STRING;
+}
+
+/**
+ * The r2 producer uses this before generalization so unknown producer
+ * vocabulary cannot disappear while its detector still claims completeness.
+ */
+export function assertKnownPixelEventVocabulary(event: PixelEventSummary): void {
+  const catalog = PIXEL_PRODUCTS[event.platform as keyof typeof PIXEL_PRODUCTS];
+  if (!catalog || event.product !== catalog.product) {
+    throw new Error("Unknown pixel platform or product vocabulary.");
+  }
+  for (const field of event.advancedMatching) {
+    if (!KNOWN_PIXEL_MATCH_FIELDS.has(field)) throw new Error(`Unknown pixel advanced-matching field: ${field}`);
+  }
+  if (!Number.isSafeInteger(event.requests) || event.requests <= 0) {
+    throw new Error("Pixel request count must be a positive integer.");
+  }
 }
 
 export function redactPixelEvents(events: PixelEventSummary[]): PixelEventSummary[] {
@@ -544,7 +950,11 @@ function copyValidatedShare(share: ReportShare | undefined): { share?: ReportSha
   return { share: { ...share } };
 }
 
-function redactWarnings(warnings: string[], pass: RedactionPass): string[] {
+/**
+ * Admit only bounded scanner-owned warning vocabulary. Exported so every wire
+ * generation applies the same default-deny warning boundary.
+ */
+export function redactScannerWarnings(warnings: string[], pass: RedactionPass): string[] {
   const redacted = new Set<string>();
   for (const warning of warnings) {
     const normalized = normalizePublicText(warning);
@@ -583,6 +993,13 @@ function isScannerWarning(warning: string): boolean {
     return true;
   }
   if (/^The scan stopped recording or loading additional requests after [0-9]+ requests\.$/.test(warning)) {
+    return true;
+  }
+  if (
+    /^The scan stopped loading additional response bytes after reaching [0-9]+ MiB aggregate response-byte budget\.$/.test(
+      warning
+    )
+  ) {
     return true;
   }
   if (/^Skipped PageGraph request [0-9]+ because its URL was not HTTP\(S\)\.$/.test(warning)) {

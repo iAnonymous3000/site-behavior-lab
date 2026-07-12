@@ -23,7 +23,7 @@
       "totalRequests": 106,
       "thirdPartyRequests": 48,
       "knownTrackerRequests": 13,
-      "thirdPartyDomains": 19,
+      "thirdPartyDomains": 16,
       "cookies": 28,
       "thirdPartyCookies": 5,
       "storageEntries": 6,
@@ -513,8 +513,8 @@
       },
       {
         "id": 38,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
@@ -525,8 +525,8 @@
       },
       {
         "id": 39,
-        "url": "https://eum.instana.io/{seg}",
-        "domain": "eum.instana.io",
+        "url": "https://{label}.instana.io/{seg}",
+        "domain": "{label}.instana.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -585,8 +585,8 @@
       },
       {
         "id": 44,
-        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}",
-        "domain": "web.cmp.usercentrics.eu",
+        "url": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}",
+        "domain": "{label}.{label}.usercentrics.eu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -597,8 +597,8 @@
       },
       {
         "id": 45,
-        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}",
-        "domain": "web.cmp.usercentrics.eu",
+        "url": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}",
+        "domain": "{label}.{label}.usercentrics.eu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -621,8 +621,8 @@
       },
       {
         "id": 47,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -657,8 +657,8 @@
       },
       {
         "id": 50,
-        "url": "https://mpsnare.iesnare.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "mpsnare.iesnare.com",
+        "url": "https://{label}.iesnare.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.iesnare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -705,8 +705,8 @@
       },
       {
         "id": 54,
-        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
-        "domain": "web.cmp.usercentrics.eu",
+        "url": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.usercentrics.eu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -717,8 +717,8 @@
       },
       {
         "id": 55,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?lang=",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?lang=",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -729,8 +729,8 @@
       },
       {
         "id": 56,
-        "url": "https://v1.api.service.cmp.usercentrics.eu/{seg}/{seg}/{seg}",
-        "domain": "v1.api.service.cmp.usercentrics.eu",
+        "url": "https://{label}.api.{label}.{label}.usercentrics.eu/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.{label}.{label}.usercentrics.eu",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -741,8 +741,8 @@
       },
       {
         "id": 57,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -765,8 +765,8 @@
       },
       {
         "id": 59,
-        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
-        "domain": "web.cmp.usercentrics.eu",
+        "url": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.usercentrics.eu",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -777,8 +777,8 @@
       },
       {
         "id": 60,
-        "url": "https://mpsnare.iesnare.com/{seg}/{seg}",
-        "domain": "mpsnare.iesnare.com",
+        "url": "https://{label}.iesnare.com/{seg}/{seg}",
+        "domain": "{label}.iesnare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -789,8 +789,8 @@
       },
       {
         "id": 61,
-        "url": "https://v1.api.service.cmp.usercentrics.eu/{seg}/{n}/{seg}/en/us/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "v1.api.service.cmp.usercentrics.eu",
+        "url": "https://{label}.api.{label}.{label}.usercentrics.eu/{seg}/{n}/{seg}/en/us/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.api.{label}.{label}.usercentrics.eu",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -813,8 +813,8 @@
       },
       {
         "id": 63,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -825,8 +825,8 @@
       },
       {
         "id": 64,
-        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
-        "domain": "web.cmp.usercentrics.eu",
+        "url": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.usercentrics.eu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -837,8 +837,8 @@
       },
       {
         "id": 65,
-        "url": "https://consent-api.service.consent.usercentrics.eu/{seg}/{seg}/{n}",
-        "domain": "consent-api.service.consent.usercentrics.eu",
+        "url": "https://{label}.{label}.{label}.usercentrics.eu/{seg}/{seg}/{n}",
+        "domain": "{label}.{label}.{label}.usercentrics.eu",
         "method": "POST",
         "resourceType": "fetch",
         "status": 201,
@@ -849,8 +849,8 @@
       },
       {
         "id": 66,
-        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}",
-        "domain": "web.cmp.usercentrics.eu",
+        "url": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}",
+        "domain": "{label}.{label}.usercentrics.eu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -861,8 +861,8 @@
       },
       {
         "id": 67,
-        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
-        "domain": "web.cmp.usercentrics.eu",
+        "url": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.usercentrics.eu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -873,8 +873,8 @@
       },
       {
         "id": 68,
-        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
-        "domain": "web.cmp.usercentrics.eu",
+        "url": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.usercentrics.eu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -897,8 +897,8 @@
       },
       {
         "id": 70,
-        "url": "https://tms.eharmony.com/{seg}",
-        "domain": "tms.eharmony.com",
+        "url": "https://{label}.eharmony.com/{seg}",
+        "domain": "{label}.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -909,8 +909,8 @@
       },
       {
         "id": 71,
-        "url": "https://tms.eharmony.com/{seg}",
-        "domain": "tms.eharmony.com",
+        "url": "https://{label}.eharmony.com/{seg}",
+        "domain": "{label}.eharmony.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -921,8 +921,8 @@
       },
       {
         "id": 72,
-        "url": "https://b-code.liadm.com/{seg}",
-        "domain": "b-code.liadm.com",
+        "url": "https://{label}.liadm.com/{seg}",
+        "domain": "{label}.liadm.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -962,8 +962,8 @@
       },
       {
         "id": 75,
-        "url": "https://tms.eharmony.com/{seg}",
-        "domain": "tms.eharmony.com",
+        "url": "https://{label}.eharmony.com/{seg}",
+        "domain": "{label}.eharmony.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -974,14 +974,14 @@
       },
       {
         "id": 76,
-        "url": "https://bat.bing.com/{seg}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -991,14 +991,14 @@
       },
       {
         "id": 77,
-        "url": "https://connect.facebook.net/{seg}/{seg}",
-        "domain": "connect.facebook.net",
+        "url": "https://{label}.facebook.net/{seg}/{seg}",
+        "domain": "{label}.facebook.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "connect.facebook.net",
+          "domain": "{label}.facebook.net",
           "entity": "Meta",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1008,14 +1008,14 @@
       },
       {
         "id": 78,
-        "url": "https://bat.bing.com/{seg}/{seg}/{seg}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -1037,8 +1037,8 @@
       },
       {
         "id": 80,
-        "url": "https://data.adxcel-ec2.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "data.adxcel-ec2.com",
+        "url": "https://{label}.adxcel-ec2.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adxcel-ec2.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1049,14 +1049,14 @@
       },
       {
         "id": 81,
-        "url": "https://bat.bing.com/{seg}/{seg}/{seg}/{n}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -1066,14 +1066,14 @@
       },
       {
         "id": 82,
-        "url": "https://bat.bing.com/{seg}/{n}?%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&msclkid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{n}?%5Bredacted%5D=&ver=&msclkid=",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -1083,8 +1083,8 @@
       },
       {
         "id": 83,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 401,
@@ -1095,14 +1095,14 @@
       },
       {
         "id": 84,
-        "url": "https://connect.facebook.net/{seg}/{seg}/{n}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "connect.facebook.net",
+        "url": "https://{label}.facebook.net/{seg}/{seg}/{n}?v=&%5Bredacted%5D=",
+        "domain": "{label}.facebook.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "connect.facebook.net",
+          "domain": "{label}.facebook.net",
           "entity": "Meta",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1129,8 +1129,8 @@
       },
       {
         "id": 86,
-        "url": "https://tms.eharmony.com/{seg}/{seg}",
-        "domain": "tms.eharmony.com",
+        "url": "https://{label}.eharmony.com/{seg}/{seg}",
+        "domain": "{label}.eharmony.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -1141,8 +1141,8 @@
       },
       {
         "id": 87,
-        "url": "https://tms.eharmony.com/{seg}/{seg}",
-        "domain": "tms.eharmony.com",
+        "url": "https://{label}.eharmony.com/{seg}/{seg}",
+        "domain": "{label}.eharmony.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
@@ -1153,8 +1153,8 @@
       },
       {
         "id": 88,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1170,8 +1170,8 @@
       },
       {
         "id": 89,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1187,8 +1187,8 @@
       },
       {
         "id": 90,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1199,8 +1199,8 @@
       },
       {
         "id": 91,
-        "url": "https://rp.liadm.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "rp.liadm.com",
+        "url": "https://{label}.liadm.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.liadm.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 302,
@@ -1211,7 +1211,7 @@
       },
       {
         "id": 92,
-        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "ad.doubleclick.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -1228,8 +1228,8 @@
       },
       {
         "id": 93,
-        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "googleads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&ref=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1245,7 +1245,7 @@
       },
       {
         "id": 94,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&ref=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1257,7 +1257,7 @@
       },
       {
         "id": 95,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1269,8 +1269,8 @@
       },
       {
         "id": 96,
-        "url": "https://i.liadm.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&version=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "i.liadm.com",
+        "url": "https://{label}.liadm.com/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.liadm.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1281,7 +1281,7 @@
       },
       {
         "id": 97,
-        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&ref=&cid=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
@@ -1293,8 +1293,8 @@
       },
       {
         "id": 98,
-        "url": "https://rp.liadm.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "rp.liadm.com",
+        "url": "https://{label}.liadm.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.liadm.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1305,8 +1305,8 @@
       },
       {
         "id": 99,
-        "url": "https://sli.eharmony.com/{seg}",
-        "domain": "sli.eharmony.com",
+        "url": "https://{label}.eharmony.com/{seg}",
+        "domain": "{label}.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1329,8 +1329,8 @@
       },
       {
         "id": 101,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1365,14 +1365,14 @@
       },
       {
         "id": 104,
-        "url": "https://bat.bing.com/{seg}/{n}?%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&msclkid=&%5Bredacted%5D=",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{n}?%5Bredacted%5D=&ver=&msclkid=",
+        "domain": "{label}.bing.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -1382,8 +1382,8 @@
       },
       {
         "id": 105,
-        "url": "https://tms.eharmony.com/{seg}/{seg}",
-        "domain": "tms.eharmony.com",
+        "url": "https://{label}.eharmony.com/{seg}/{seg}",
+        "domain": "{label}.eharmony.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -1394,8 +1394,8 @@
       },
       {
         "id": 106,
-        "url": "https://tms.eharmony.com/{seg}/{seg}",
-        "domain": "tms.eharmony.com",
+        "url": "https://{label}.eharmony.com/{seg}/{seg}",
+        "domain": "{label}.eharmony.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -1407,11 +1407,11 @@
     ],
     "domains": [
       {
-        "domain": "bat.bing.com",
+        "domain": "{label}.bing.com",
         "requests": 5,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -1446,11 +1446,11 @@
         ]
       },
       {
-        "domain": "connect.facebook.net",
+        "domain": "{label}.facebook.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "connect.facebook.net",
+          "domain": "{label}.facebook.net",
           "entity": "Meta",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -1464,7 +1464,7 @@
         ]
       },
       {
-        "domain": "pagead2.googlesyndication.com",
+        "domain": "{label}.googlesyndication.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -1500,7 +1500,7 @@
         ]
       },
       {
-        "domain": "googleads.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -1518,7 +1518,7 @@
         ]
       },
       {
-        "domain": "challenges.cloudflare.com",
+        "domain": "{label}.cloudflare.com",
         "requests": 8,
         "thirdParty": true,
         "tracker": null,
@@ -1537,7 +1537,7 @@
         ]
       },
       {
-        "domain": "web.cmp.usercentrics.eu",
+        "domain": "{label}.{label}.usercentrics.eu",
         "requests": 8,
         "thirdParty": true,
         "tracker": null,
@@ -1547,6 +1547,22 @@
         ],
         "resourceTypes": [
           "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.liadm.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
           "document"
         ]
       },
@@ -1564,6 +1580,20 @@
         ]
       },
       {
+        "domain": "{label}.instana.io",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "ping"
+        ]
+      },
+      {
         "domain": "www.google.com",
         "requests": 3,
         "thirdParty": true,
@@ -1578,7 +1608,7 @@
         ]
       },
       {
-        "domain": "mpsnare.iesnare.com",
+        "domain": "{label}.iesnare.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1591,7 +1621,7 @@
         ]
       },
       {
-        "domain": "v1.api.service.cmp.usercentrics.eu",
+        "domain": "{label}.api.{label}.{label}.usercentrics.eu",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1604,47 +1634,7 @@
         ]
       },
       {
-        "domain": "rp.liadm.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "{label}.instana.io",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "ping"
-        ]
-      },
-      {
-        "domain": "eum.instana.io",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "consent-api.service.consent.usercentrics.eu",
+        "domain": "{label}.{label}.{label}.usercentrics.eu",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1657,20 +1647,7 @@
         ]
       },
       {
-        "domain": "b-code.liadm.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "data.adxcel-ec2.com",
+        "domain": "{label}.adxcel-ec2.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1680,19 +1657,6 @@
         ],
         "resourceTypes": [
           "image"
-        ]
-      },
-      {
-        "domain": "i.liadm.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "document"
         ]
       },
       {
@@ -1717,8 +1681,8 @@
         ]
       },
       {
-        "domain": "tms.eharmony.com",
-        "requests": 7,
+        "domain": "{label}.eharmony.com",
+        "requests": 8,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
@@ -1730,27 +1694,15 @@
           "script",
           "document",
           "xhr",
+          "image",
           "ping"
-        ]
-      },
-      {
-        "domain": "sli.eharmony.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
         ]
       }
     ],
     "cookies": [
       {
         "name": "[redacted]",
-        "domain": ".bat.bing.com",
+        "domain": ".{label}.bing.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -1790,7 +1742,7 @@
       },
       {
         "name": "[redacted:long-token]",
-        "domain": "mpsnare.iesnare.com",
+        "domain": "{label}.iesnare.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -1930,7 +1882,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "tms.eharmony.com",
+        "domain": "{label}.eharmony.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -1940,7 +1892,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "tms.eharmony.com",
+        "domain": "{label}.eharmony.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -1950,7 +1902,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "tms.eharmony.com",
+        "domain": "{label}.eharmony.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -1960,7 +1912,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "tms.eharmony.com",
+        "domain": "{label}.eharmony.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -1970,7 +1922,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "tms.eharmony.com",
+        "domain": "{label}.eharmony.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -1980,7 +1932,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "tms.eharmony.com",
+        "domain": "{label}.eharmony.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -1990,7 +1942,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "tms.eharmony.com",
+        "domain": "{label}.eharmony.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2063,12 +2015,20 @@
     ],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 5
+      },
+      {
+        "api": "canvas.getImageData",
+        "count": 1
+      },
+      {
         "api": "canvas.measureText",
         "count": 516
       },
       {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 5
+        "api": "canvas.toDataURL",
+        "count": 2
       },
       {
         "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
@@ -2079,12 +2039,12 @@
         "count": 3
       },
       {
-        "api": "canvas.toDataURL",
+        "api": "webgl.readPixels",
         "count": 2
       },
       {
-        "api": "webgl.readPixels",
-        "count": 2
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
       },
       {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
@@ -2097,14 +2057,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 2
-      },
-      {
-        "api": "canvas.getImageData",
-        "count": 1
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -2150,8 +2102,8 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://eum.instana.io/",
-            "https://mpsnare.iesnare.com/",
+            "https://{label}.instana.io/",
+            "https://{label}.iesnare.com/",
             "https://static.cloudflareinsights.com/",
             "https://www.googletagmanager.com/"
           ],
@@ -2183,10 +2135,10 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://eum.instana.io/",
-            "https://mpsnare.iesnare.com/",
+            "https://{label}.instana.io/",
+            "https://{label}.iesnare.com/",
             "https://static.cloudflareinsights.com/",
-            "https://web.cmp.usercentrics.eu/",
+            "https://{label}.{label}.usercentrics.eu/",
             "https://www.googletagmanager.com/"
           ],
           "totalListenerCalls": 40
@@ -2720,8 +2672,8 @@
       },
       {
         "id": 38,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
@@ -2792,8 +2744,8 @@
       },
       {
         "id": 47,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2840,8 +2792,8 @@
       },
       {
         "id": 52,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?lang=",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?lang=",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2852,8 +2804,8 @@
       },
       {
         "id": 53,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2900,8 +2852,8 @@
       },
       {
         "id": 57,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2912,8 +2864,8 @@
       },
       {
         "id": 58,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 401,
@@ -2924,8 +2876,8 @@
       },
       {
         "id": 59,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2936,8 +2888,8 @@
       },
       {
         "id": 60,
-        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "challenges.cloudflare.com",
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2949,7 +2901,7 @@
     ],
     "domains": [
       {
-        "domain": "challenges.cloudflare.com",
+        "domain": "{label}.cloudflare.com",
         "requests": 8,
         "thirdParty": true,
         "tracker": null,
@@ -3054,8 +3006,20 @@
     ],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.getImageData",
+        "count": 1
+      },
+      {
         "api": "canvas.measureText",
         "count": 258
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
       },
       {
         "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
@@ -3070,6 +3034,10 @@
         "count": 2
       },
       {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      },
+      {
         "api": "webrtc.RTCPeerConnection.createDataChannel",
         "count": 2
       },
@@ -3080,22 +3048,6 @@
       {
         "api": "webrtc.RTCPeerConnection.setLocalDescription",
         "count": 2
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "canvas.getImageData",
-        "count": 1
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 1
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -3176,9 +3128,9 @@
       "delta": -13
     },
     "thirdPartyDomains": {
-      "before": 19,
+      "before": 16,
       "after": 1,
-      "delta": -18
+      "delta": -15
     },
     "cookies": {
       "before": 28,
@@ -3203,24 +3155,34 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "web.cmp.usercentrics.eu",
+        "domain": "{label}.{label}.usercentrics.eu",
         "requests": 8,
         "tracker": null
       },
       {
-        "domain": "tms.eharmony.com",
-        "requests": 7,
+        "domain": "{label}.eharmony.com",
+        "requests": 8,
         "tracker": null
       },
       {
-        "domain": "bat.bing.com",
+        "domain": "{label}.bing.com",
         "requests": 5,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
         }
+      },
+      {
+        "domain": "{label}.liadm.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.instana.io",
+        "requests": 3,
+        "tracker": null
       },
       {
         "domain": "static.cloudflareinsights.com",
@@ -3233,27 +3195,22 @@
         "tracker": null
       },
       {
-        "domain": "{label}.instana.io",
+        "domain": "{label}.api.{label}.{label}.usercentrics.eu",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "connect.facebook.net",
+        "domain": "{label}.facebook.net",
         "requests": 2,
         "tracker": {
-          "domain": "connect.facebook.net",
+          "domain": "{label}.facebook.net",
           "entity": "Meta",
           "category": "social / advertising pixel",
           "confidence": "curated"
         }
       },
       {
-        "domain": "mpsnare.iesnare.com",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "pagead2.googlesyndication.com",
+        "domain": "{label}.googlesyndication.com",
         "requests": 2,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -3263,12 +3220,7 @@
         }
       },
       {
-        "domain": "rp.liadm.com",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "v1.api.service.cmp.usercentrics.eu",
+        "domain": "{label}.iesnare.com",
         "requests": 2,
         "tracker": null
       },
@@ -3283,6 +3235,26 @@
         }
       },
       {
+        "domain": "{label}.{label}.{label}.usercentrics.eu",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.adxcel-ec2.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
         "domain": "ad.doubleclick.net",
         "requests": 1,
         "tracker": {
@@ -3291,46 +3263,6 @@
           "category": "advertising",
           "confidence": "curated"
         }
-      },
-      {
-        "domain": "b-code.liadm.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "consent-api.service.consent.usercentrics.eu",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "data.adxcel-ec2.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "eum.instana.io",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "googleads.g.doubleclick.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "i.liadm.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "sli.eharmony.com",
-        "requests": 1,
-        "tracker": null
       }
     ],
     "addedEntities": [],
@@ -3355,7 +3287,7 @@
     "removedCookies": [
       {
         "name": "[redacted]",
-        "domain": ".bat.bing.com",
+        "domain": ".{label}.bing.com",
         "thirdParty": true
       },
       {
@@ -3375,7 +3307,7 @@
       },
       {
         "name": "[redacted:long-token]",
-        "domain": "mpsnare.iesnare.com",
+        "domain": "{label}.iesnare.com",
         "thirdParty": true
       },
       {
@@ -3400,7 +3332,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "tms.eharmony.com",
+        "domain": "{label}.eharmony.com",
         "thirdParty": false
       }
     ],

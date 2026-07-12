@@ -68,9 +68,9 @@ test("the dry-run inventory quantifies what the sanitizer would change, without 
   assert.deepEqual(inventory.storageKeys, { total: 2, wouldRedact: 1 });
 
   // Risk signals for the RFC 9.6 step-2 history decision: the stored query
-  // carried an email-like string, and the tracker host a token-shaped label.
+  // carried an email-like string; the tracker host has two non-allowlisted labels.
   assert.equal(inventory.riskSignals.emailLikeStrings, 1);
-  assert.equal(inventory.riskSignals.tokenLikeSubdomainLabels, 1);
+  assert.equal(inventory.riskSignals.unallowlistedSubdomainLabels, 2);
 
   // Image-density "@" suffixes are not addresses and must not inflate the
   // audit signal (the corpus's dominant false positive: logo@2x.png).
@@ -108,7 +108,7 @@ test("summarizeInventories aggregates and counts changed reports once", () => {
   ];
   const totals = summarizeInventories(entries);
   assert.equal(totals.reports, 2);
-  assert.equal(totals.changedReports >= 1, true);
+  assert.equal(totals.reportsWithUrlOrNameChanges >= 1, true);
   assert.equal(totals.totalUrlFields, entries[0].totalUrlFields + entries[1].totalUrlFields);
   assert.equal(totals.riskSignals.emailLikeStrings, 1);
 });

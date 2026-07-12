@@ -6,6 +6,8 @@ import { afterEach, beforeEach, test } from "node:test";
 import { pruneStaticReports } from "./prune-static-reports";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
+import { REDACTION_VERSION } from "./redaction-v2";
+import { scannerDisclosure } from "./scan-condition-disclosure";
 import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
 import type { PublicScanReportV2 } from "./scan-report-v2";
 import type { ScanReport, ScanResult } from "./types";
@@ -25,6 +27,7 @@ afterEach(async () => {
 function makeResult(domain: string, scannedAt: string): ScanResult {
   const base = makeScanReportV1();
   if (base.reportType === "comparison") throw new Error("fixture must be a single report");
+  const shieldsMode = "classification" as const;
   return {
     ...base,
     summary: { ...base.summary, firstPartyDomain: domain },
@@ -33,14 +36,20 @@ function makeResult(domain: string, scannedAt: string): ScanResult {
       requestedUrl: `https://${domain}/`,
       finalUrl: `https://${domain}/`,
       scannedAt,
-      shieldsMode: "classification",
+      shieldsMode,
       adblock: {
         active: true,
-        source: "brave-default-lists",
+        source: "Brave default ad-block lists",
         lists: 31,
         fetchedAt: "2026-06-01T00:00:00.000Z"
       },
-      scannerDisclosure: "Automated test scan under methodology pruning-method-v1."
+      scannerDisclosure: scannerDisclosure("node-playwright", {
+        chromiumVersion: base.conditions.chromiumVersion,
+        locale: base.conditions.locale,
+        scannerEgress: base.conditions.scannerEgress,
+        shieldsMode,
+        timezone: base.conditions.timezone
+      })
     }
   };
 }
@@ -49,6 +58,18 @@ type TestReport = ScanReport | PublicScanReportV2;
 
 async function writeReport(id: string, report: TestReport): Promise<void> {
   const publicReport = report.schemaVersion === 1 ? redactScanReportV1(report).report : structuredClone(report);
+  if (publicReport.schemaVersion === 2) {
+    if (publicReport.reportType === "comparison") {
+      publicReport.baseline.privacy.redactionVersion = REDACTION_VERSION;
+      publicReport.variant.privacy.redactionVersion = REDACTION_VERSION;
+    } else {
+      publicReport.run.privacy.redactionVersion = REDACTION_VERSION;
+    }
+  }
+  await writeManagedPublicReport(id, publicReport);
+}
+
+async function writeManagedPublicReport(id: string, publicReport: TestReport): Promise<void> {
   await writeFile(path.join(reportsDir, `${id}.json`), `${JSON.stringify(publicReport)}\n`);
   const createdAt =
     publicReport.schemaVersion === 1
@@ -72,9 +93,9 @@ test("age pruning removes stale reports but keeps each exact cohort's newest gen
   const now = Date.parse("2026-07-10T00:00:00.000Z");
   // Three generations for one site: the newest two are protected, the third
   // is stale and prunable.
-  await writeReport("20260101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", makeResult("one.example.dev", "2026-01-01T00:00:00.000Z"));
-  await writeReport("20260301-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", makeResult("one.example.dev", "2026-03-01T00:00:00.000Z"));
-  await writeReport("20260501-cccccccccccccccccccccccccccccccc", makeResult("one.example.dev", "2026-05-01T00:00:00.000Z"));
+  await writeReport("20260101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", makeResult("one-fixture.dev", "2026-01-01T00:00:00.000Z"));
+  await writeReport("20260301-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", makeResult("one-fixture.dev", "2026-03-01T00:00:00.000Z"));
+  await writeReport("20260501-cccccccccccccccccccccccccccccccc", makeResult("one-fixture.dev", "2026-05-01T00:00:00.000Z"));
 
   const { removed, warnings } = await pruneStaticReports(reportsDir, {
     maxAgeMs: 7 * DAY_MS,
@@ -99,7 +120,8 @@ const COHORT_MISMATCHES: { name: string; mutate: (report: ScanResult) => void }[
   {
     name: "methodology",
     mutate: (report) => {
-      report.conditions.scannerDisclosure = "Automated test scan under methodology pruning-method-v2.";
+      report.conditions.scannerDisclosure =
+        "Automated Chromium scan from test with browser test, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.";
     }
   },
   {
@@ -107,12 +129,6 @@ const COHORT_MISMATCHES: { name: string; mutate: (report: ScanResult) => void }[
     mutate: (report) => {
       if (!report.conditions.adblock) throw new Error("fixture must carry adblock provenance");
       report.conditions.adblock.fetchedAt = "2026-06-02T00:00:00.000Z";
-    }
-  },
-  {
-    name: "tracker catalog",
-    mutate: (report) => {
-      report.conditions.trackerCatalog = { ...report.conditions.trackerCatalog, version: "2" };
     }
   },
   {
@@ -130,8 +146,8 @@ const COHORT_MISMATCHES: { name: string; mutate: (report: ScanResult) => void }[
   {
     name: "subject",
     mutate: (report) => {
-      report.conditions.requestedUrl = "https://one.example.dev/privacy";
-      report.conditions.finalUrl = "https://one.example.dev/privacy";
+      report.conditions.requestedUrl = "https://one-fixture.dev/privacy";
+      report.conditions.finalUrl = "https://one-fixture.dev/privacy";
     }
   }
 ];
@@ -140,14 +156,14 @@ for (const mismatch of COHORT_MISMATCHES) {
   test(`${mismatch.name} mismatch cannot evict the only compatible predecessor`, async () => {
     const now = Date.parse("2026-07-10T00:00:00.000Z");
     const oldestId = "20260101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-    await writeReport(oldestId, makeResult("one.example.dev", "2026-01-01T00:00:00.000Z"));
+    await writeReport(oldestId, makeResult("one-fixture.dev", "2026-01-01T00:00:00.000Z"));
 
-    const incompatible = makeResult("one.example.dev", "2026-03-01T00:00:00.000Z");
+    const incompatible = makeResult("one-fixture.dev", "2026-03-01T00:00:00.000Z");
     mismatch.mutate(incompatible);
     await writeReport("20260301-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", incompatible);
     await writeReport(
       "20260501-cccccccccccccccccccccccccccccccc",
-      makeResult("one.example.dev", "2026-05-01T00:00:00.000Z")
+      makeResult("one-fixture.dev", "2026-05-01T00:00:00.000Z")
     );
 
     const { removed, warnings } = await pruneStaticReports(reportsDir, {
@@ -163,6 +179,41 @@ for (const mismatch of COHORT_MISMATCHES) {
     await access(path.join(reportsDir, committedSidecarFilename(oldestId)));
   });
 }
+
+test("a forged tracker catalog cannot evict the only compatible predecessor", async () => {
+  const now = Date.parse("2026-07-10T00:00:00.000Z");
+  const oldestId = "20260101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  const forgedId = "20260301-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+  await writeReport(oldestId, makeResult("one-fixture.dev", "2026-01-01T00:00:00.000Z"));
+
+  // v3 canonicalizes every Node v1 tracker catalog at the public boundary, so
+  // two differently versioned *managed* v1 catalogs cannot legitimately
+  // coexist. Model the only possible mismatch: bytes changed after redaction,
+  // with a freshly forged current sidecar. The fixed-point gate must still
+  // reject the report, and retention must never delete evidence it cannot trust.
+  const forged = redactScanReportV1(makeResult("one-fixture.dev", "2026-03-01T00:00:00.000Z")).report;
+  forged.conditions.trackerCatalog = { ...forged.conditions.trackerCatalog, version: "forged-catalog-v2" };
+  await writeManagedPublicReport(forgedId, forged);
+
+  await writeReport(
+    "20260501-cccccccccccccccccccccccccccccccc",
+    makeResult("one-fixture.dev", "2026-05-01T00:00:00.000Z")
+  );
+
+  const { removed, warnings } = await pruneStaticReports(reportsDir, {
+    maxAgeMs: 7 * DAY_MS,
+    maxCount: 1_000,
+    keepPerSite: 2,
+    now
+  });
+
+  assert.deepEqual(removed, []);
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], new RegExp(`${forgedId}\\.json.*redaction-not-idempotent`));
+  await access(path.join(reportsDir, `${oldestId}.json`));
+  await access(path.join(reportsDir, `${forgedId}.json`));
+  await access(path.join(reportsDir, committedSidecarFilename(forgedId)));
+});
 
 test("schema mismatch cannot evict the only compatible predecessor", async () => {
   const now = Date.parse("2026-07-10T00:00:00.000Z");

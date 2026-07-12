@@ -765,8 +765,8 @@
       },
       {
         "id": 59,
-        "url": "https://2.api.pof.com/{seg}/{seg}",
-        "domain": "2.api.pof.com",
+        "url": "https://{label}.api.pof.com/{seg}/{seg}",
+        "domain": "{label}.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -806,8 +806,8 @@
       },
       {
         "id": 62,
-        "url": "https://2.api.pof.com/{seg}/{seg}",
-        "domain": "2.api.pof.com",
+        "url": "https://{label}.api.pof.com/{seg}/{seg}",
+        "domain": "{label}.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -842,8 +842,8 @@
       },
       {
         "id": 65,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -997,7 +997,7 @@
         ]
       },
       {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1027,7 +1027,7 @@
         ]
       },
       {
-        "domain": "2.api.pof.com",
+        "domain": "{label}.api.pof.com",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -1163,7 +1163,7 @@
       }
     ],
     "privacyPolicy": {
-      "url": "https://policies.pof.com/{seg}",
+      "url": "https://{label}.pof.com/{seg}",
       "claims": [],
       "mentionedEntities": [
         "Google"
@@ -1181,7 +1181,7 @@
       "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://policies.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "variant": {
@@ -2058,8 +2058,8 @@
       },
       {
         "id": 69,
-        "url": "https://2.api.pof.com/{seg}/{seg}",
-        "domain": "2.api.pof.com",
+        "url": "https://{label}.api.pof.com/{seg}/{seg}",
+        "domain": "{label}.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2099,8 +2099,8 @@
       },
       {
         "id": 72,
-        "url": "https://2.api.pof.com/{seg}/{seg}",
-        "domain": "2.api.pof.com",
+        "url": "https://{label}.api.pof.com/{seg}/{seg}",
+        "domain": "{label}.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2135,8 +2135,8 @@
       },
       {
         "id": 75,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2290,7 +2290,7 @@
         ]
       },
       {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -2320,7 +2320,7 @@
         ]
       },
       {
-        "domain": "2.api.pof.com",
+        "domain": "{label}.api.pof.com",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -2456,7 +2456,7 @@
       }
     ],
     "privacyPolicy": {
-      "url": "https://policies.pof.com/{seg}",
+      "url": "https://{label}.pof.com/{seg}",
       "claims": [],
       "mentionedEntities": [
         "Google"
@@ -2474,7 +2474,7 @@
       "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://policies.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "Read the site's privacy policy (https://{label}.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "diff": {
@@ -2542,12 +2542,12 @@
     "Accept-all attempt: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Accept-all attempt: This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
     "Accept-all attempt: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Accept-all attempt: Read the site's privacy policy (https://policies.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Accept-all attempt: Read the site's privacy policy (https://{label}.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Reject-all attempt: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Reject-all attempt: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Reject-all attempt: This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
     "Reject-all attempt: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Reject-all attempt: Read the site's privacy policy (https://policies.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Reject-all attempt: Read the site's privacy policy (https://{label}.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260702-5447f612d08b44033458028e61ed985d",

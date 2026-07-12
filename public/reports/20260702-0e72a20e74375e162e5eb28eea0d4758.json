@@ -23,7 +23,7 @@
       "totalRequests": 381,
       "thirdPartyRequests": 154,
       "knownTrackerRequests": 2,
-      "thirdPartyDomains": 13,
+      "thirdPartyDomains": 12,
       "cookies": 41,
       "thirdPartyCookies": 19,
       "storageEntries": 12,
@@ -81,8 +81,8 @@
       },
       {
         "id": 2,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -93,8 +93,8 @@
       },
       {
         "id": 3,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -105,8 +105,8 @@
       },
       {
         "id": 4,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -117,8 +117,8 @@
       },
       {
         "id": 5,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -129,8 +129,8 @@
       },
       {
         "id": 6,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -141,8 +141,8 @@
       },
       {
         "id": 7,
-        "url": "https://r.bing.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://r.bing.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -165,8 +165,8 @@
       },
       {
         "id": 9,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -177,8 +177,8 @@
       },
       {
         "id": 10,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -189,8 +189,8 @@
       },
       {
         "id": 11,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -201,8 +201,8 @@
       },
       {
         "id": 12,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -225,8 +225,8 @@
       },
       {
         "id": 14,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -261,8 +261,8 @@
       },
       {
         "id": 17,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -285,8 +285,8 @@
       },
       {
         "id": 19,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -309,8 +309,8 @@
       },
       {
         "id": 21,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -321,8 +321,8 @@
       },
       {
         "id": 22,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -333,8 +333,8 @@
       },
       {
         "id": 23,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -345,8 +345,8 @@
       },
       {
         "id": 24,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -357,8 +357,8 @@
       },
       {
         "id": 25,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -369,8 +369,8 @@
       },
       {
         "id": 26,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -381,8 +381,8 @@
       },
       {
         "id": 27,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -405,8 +405,8 @@
       },
       {
         "id": 29,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -417,8 +417,8 @@
       },
       {
         "id": 30,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -429,8 +429,8 @@
       },
       {
         "id": 31,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -441,8 +441,8 @@
       },
       {
         "id": 32,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -453,8 +453,8 @@
       },
       {
         "id": 33,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -465,8 +465,8 @@
       },
       {
         "id": 34,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -477,8 +477,8 @@
       },
       {
         "id": 35,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -489,8 +489,8 @@
       },
       {
         "id": 36,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -501,8 +501,8 @@
       },
       {
         "id": 37,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -513,8 +513,8 @@
       },
       {
         "id": 38,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -525,8 +525,8 @@
       },
       {
         "id": 39,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -537,8 +537,8 @@
       },
       {
         "id": 40,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -549,8 +549,8 @@
       },
       {
         "id": 41,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -573,8 +573,8 @@
       },
       {
         "id": 43,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -597,8 +597,8 @@
       },
       {
         "id": 45,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -609,8 +609,8 @@
       },
       {
         "id": 46,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -621,8 +621,8 @@
       },
       {
         "id": 47,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -633,8 +633,8 @@
       },
       {
         "id": 48,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -645,8 +645,8 @@
       },
       {
         "id": 49,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -657,8 +657,8 @@
       },
       {
         "id": 50,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -669,8 +669,8 @@
       },
       {
         "id": 51,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -681,8 +681,8 @@
       },
       {
         "id": 52,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -693,8 +693,8 @@
       },
       {
         "id": 53,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -705,8 +705,8 @@
       },
       {
         "id": 54,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -717,8 +717,8 @@
       },
       {
         "id": 55,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -729,8 +729,8 @@
       },
       {
         "id": 56,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -741,8 +741,8 @@
       },
       {
         "id": 57,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -753,8 +753,8 @@
       },
       {
         "id": 58,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -765,8 +765,8 @@
       },
       {
         "id": 59,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -777,8 +777,8 @@
       },
       {
         "id": 60,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -789,8 +789,8 @@
       },
       {
         "id": 61,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -801,8 +801,8 @@
       },
       {
         "id": 62,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -813,8 +813,8 @@
       },
       {
         "id": 63,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -825,8 +825,8 @@
       },
       {
         "id": 64,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -837,8 +837,8 @@
       },
       {
         "id": 65,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -849,8 +849,8 @@
       },
       {
         "id": 66,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -861,8 +861,8 @@
       },
       {
         "id": 67,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -873,8 +873,8 @@
       },
       {
         "id": 68,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -885,8 +885,8 @@
       },
       {
         "id": 69,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -897,8 +897,8 @@
       },
       {
         "id": 70,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -909,8 +909,8 @@
       },
       {
         "id": 71,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -921,8 +921,8 @@
       },
       {
         "id": 72,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -933,8 +933,8 @@
       },
       {
         "id": 73,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -945,8 +945,8 @@
       },
       {
         "id": 74,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -957,8 +957,8 @@
       },
       {
         "id": 75,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -969,8 +969,8 @@
       },
       {
         "id": 76,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -981,8 +981,8 @@
       },
       {
         "id": 77,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -993,8 +993,8 @@
       },
       {
         "id": 78,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1017,8 +1017,8 @@
       },
       {
         "id": 80,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1029,8 +1029,8 @@
       },
       {
         "id": 81,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1041,8 +1041,8 @@
       },
       {
         "id": 82,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1053,8 +1053,8 @@
       },
       {
         "id": 83,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1065,8 +1065,8 @@
       },
       {
         "id": 84,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1077,8 +1077,8 @@
       },
       {
         "id": 85,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1089,8 +1089,8 @@
       },
       {
         "id": 86,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1161,8 +1161,8 @@
       },
       {
         "id": 92,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1173,8 +1173,8 @@
       },
       {
         "id": 93,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1185,8 +1185,8 @@
       },
       {
         "id": 94,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1197,8 +1197,8 @@
       },
       {
         "id": 95,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1473,8 +1473,8 @@
       },
       {
         "id": 118,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -1485,8 +1485,8 @@
       },
       {
         "id": 119,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1497,8 +1497,8 @@
       },
       {
         "id": 120,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1509,8 +1509,8 @@
       },
       {
         "id": 121,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1521,8 +1521,8 @@
       },
       {
         "id": 122,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1533,7 +1533,7 @@
       },
       {
         "id": 123,
-        "url": "https://assets.msn.com/{seg}/api/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=",
+        "url": "https://assets.msn.com/{seg}/api/{seg}/{seg}/{seg}?%5Bredacted%5D=&v=",
         "domain": "assets.msn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1593,8 +1593,8 @@
       },
       {
         "id": 128,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1605,8 +1605,8 @@
       },
       {
         "id": 129,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1617,8 +1617,8 @@
       },
       {
         "id": 130,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1629,8 +1629,8 @@
       },
       {
         "id": 131,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1641,8 +1641,8 @@
       },
       {
         "id": 132,
-        "url": "https://c.msn.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.msn.com",
+        "url": "https://{label}.msn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.msn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1653,8 +1653,8 @@
       },
       {
         "id": 133,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1665,7 +1665,7 @@
       },
       {
         "id": 134,
-        "url": "https://assets.msn.com/{seg}/news/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://assets.msn.com/{seg}/news/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "assets.msn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1761,8 +1761,8 @@
       },
       {
         "id": 142,
-        "url": "https://c.bing.com/{seg}",
-        "domain": "c.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1773,8 +1773,8 @@
       },
       {
         "id": 143,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1785,8 +1785,8 @@
       },
       {
         "id": 144,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -1797,8 +1797,8 @@
       },
       {
         "id": 145,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1809,8 +1809,8 @@
       },
       {
         "id": 146,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1833,8 +1833,8 @@
       },
       {
         "id": 148,
-        "url": "https://px.ads.linkedin.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "px.ads.linkedin.com",
+        "url": "https://{label}.ads.linkedin.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ads.linkedin.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1850,8 +1850,8 @@
       },
       {
         "id": 149,
-        "url": "https://trc.taboola.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "trc.taboola.com",
+        "url": "https://{label}.taboola.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.taboola.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1867,8 +1867,8 @@
       },
       {
         "id": 150,
-        "url": "https://c.bing.com/{seg}",
-        "domain": "c.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1879,8 +1879,8 @@
       },
       {
         "id": 151,
-        "url": "https://c.bing.com/{seg}",
-        "domain": "c.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1891,8 +1891,8 @@
       },
       {
         "id": 152,
-        "url": "https://c.msn.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.msn.com",
+        "url": "https://{label}.msn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.msn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1903,8 +1903,8 @@
       },
       {
         "id": 153,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1915,8 +1915,8 @@
       },
       {
         "id": 154,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1951,8 +1951,8 @@
       },
       {
         "id": 157,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1975,7 +1975,7 @@
       },
       {
         "id": 159,
-        "url": "https://m.adnxs.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://m.adnxs.com/{seg}?%5Bredacted%5D=",
         "domain": "m.adnxs.com",
         "method": "GET",
         "resourceType": "image",
@@ -1987,8 +1987,8 @@
       },
       {
         "id": 160,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1999,8 +1999,8 @@
       },
       {
         "id": 161,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2011,8 +2011,8 @@
       },
       {
         "id": 162,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2023,8 +2023,8 @@
       },
       {
         "id": 163,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2035,8 +2035,8 @@
       },
       {
         "id": 164,
-        "url": "https://r.bing.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2047,8 +2047,8 @@
       },
       {
         "id": 165,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2059,8 +2059,8 @@
       },
       {
         "id": 166,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -2071,8 +2071,8 @@
       },
       {
         "id": 167,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2095,8 +2095,8 @@
       },
       {
         "id": 169,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2107,8 +2107,8 @@
       },
       {
         "id": 170,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2119,8 +2119,8 @@
       },
       {
         "id": 171,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2143,8 +2143,8 @@
       },
       {
         "id": 173,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2179,7 +2179,7 @@
       },
       {
         "id": 176,
-        "url": "https://m.adnxs.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://m.adnxs.com/{seg}?%5Bredacted%5D=",
         "domain": "m.adnxs.com",
         "method": "GET",
         "resourceType": "image",
@@ -2215,8 +2215,8 @@
       },
       {
         "id": 179,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -2227,7 +2227,7 @@
       },
       {
         "id": 180,
-        "url": "https://login.microsoftonline.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://login.microsoftonline.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "login.microsoftonline.com",
         "method": "GET",
         "resourceType": "document",
@@ -2239,7 +2239,7 @@
       },
       {
         "id": 181,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2251,7 +2251,7 @@
       },
       {
         "id": 182,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2347,8 +2347,8 @@
       },
       {
         "id": 190,
-        "url": "https://ib.adnxs.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ib.adnxs.com",
+        "url": "https://{label}.adnxs.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adnxs.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2359,7 +2359,7 @@
       },
       {
         "id": 191,
-        "url": "https://login.live.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://login.live.com/{seg}?%5Bredacted%5D=",
         "domain": "login.live.com",
         "method": "GET",
         "resourceType": "document",
@@ -2383,8 +2383,8 @@
       },
       {
         "id": 193,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2395,7 +2395,7 @@
       },
       {
         "id": 194,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2407,8 +2407,8 @@
       },
       {
         "id": 195,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2419,7 +2419,7 @@
       },
       {
         "id": 196,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2431,8 +2431,8 @@
       },
       {
         "id": 197,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2443,7 +2443,7 @@
       },
       {
         "id": 198,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2515,8 +2515,8 @@
       },
       {
         "id": 204,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2527,7 +2527,7 @@
       },
       {
         "id": 205,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2539,8 +2539,8 @@
       },
       {
         "id": 206,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2551,7 +2551,7 @@
       },
       {
         "id": 207,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2563,8 +2563,8 @@
       },
       {
         "id": 208,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2575,7 +2575,7 @@
       },
       {
         "id": 209,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2587,7 +2587,7 @@
       },
       {
         "id": 210,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2599,7 +2599,7 @@
       },
       {
         "id": 211,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2611,8 +2611,8 @@
       },
       {
         "id": 212,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2623,7 +2623,7 @@
       },
       {
         "id": 213,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2635,8 +2635,8 @@
       },
       {
         "id": 214,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2647,8 +2647,8 @@
       },
       {
         "id": 215,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2659,7 +2659,7 @@
       },
       {
         "id": 216,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2671,8 +2671,8 @@
       },
       {
         "id": 217,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2683,7 +2683,7 @@
       },
       {
         "id": 218,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2695,8 +2695,8 @@
       },
       {
         "id": 219,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2707,7 +2707,7 @@
       },
       {
         "id": 220,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2719,8 +2719,8 @@
       },
       {
         "id": 221,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2731,7 +2731,7 @@
       },
       {
         "id": 222,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2743,8 +2743,8 @@
       },
       {
         "id": 223,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2755,7 +2755,7 @@
       },
       {
         "id": 224,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2779,8 +2779,8 @@
       },
       {
         "id": 226,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -2791,7 +2791,7 @@
       },
       {
         "id": 227,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2803,7 +2803,7 @@
       },
       {
         "id": 228,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2839,8 +2839,8 @@
       },
       {
         "id": 231,
-        "url": "https://srtb.msn.com/{seg}",
-        "domain": "srtb.msn.com",
+        "url": "https://{label}.msn.com/{seg}",
+        "domain": "{label}.msn.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2899,7 +2899,7 @@
       },
       {
         "id": 236,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2911,7 +2911,7 @@
       },
       {
         "id": 237,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -2923,7 +2923,7 @@
       },
       {
         "id": 238,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -3103,8 +3103,8 @@
       },
       {
         "id": 253,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -3115,8 +3115,8 @@
       },
       {
         "id": 254,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -3187,8 +3187,8 @@
       },
       {
         "id": 260,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -3235,8 +3235,8 @@
       },
       {
         "id": 264,
-        "url": "https://srtb.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&t=&%5Bredacted%5D=",
-        "domain": "srtb.msn.com",
+        "url": "https://{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=&tid=&t=",
+        "domain": "{label}.msn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -3259,8 +3259,8 @@
       },
       {
         "id": 266,
-        "url": "https://srtb.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&t=&%5Bredacted%5D=",
-        "domain": "srtb.msn.com",
+        "url": "https://{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=&tid=&t=",
+        "domain": "{label}.msn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -3295,7 +3295,7 @@
       },
       {
         "id": 269,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -3307,7 +3307,7 @@
       },
       {
         "id": 270,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -3319,8 +3319,8 @@
       },
       {
         "id": 271,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3343,8 +3343,8 @@
       },
       {
         "id": 273,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3355,7 +3355,7 @@
       },
       {
         "id": 274,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -3427,7 +3427,7 @@
       },
       {
         "id": 280,
-        "url": "https://assets.msn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://assets.msn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&type=",
         "domain": "assets.msn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -3439,7 +3439,7 @@
       },
       {
         "id": 281,
-        "url": "https://assets.msn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://assets.msn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "assets.msn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -3643,8 +3643,8 @@
       },
       {
         "id": 298,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3655,7 +3655,7 @@
       },
       {
         "id": 299,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -3667,8 +3667,8 @@
       },
       {
         "id": 300,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3679,7 +3679,7 @@
       },
       {
         "id": 301,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -3691,7 +3691,7 @@
       },
       {
         "id": 302,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -3703,7 +3703,7 @@
       },
       {
         "id": 303,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -3715,8 +3715,8 @@
       },
       {
         "id": 304,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3727,7 +3727,7 @@
       },
       {
         "id": 305,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -3739,8 +3739,8 @@
       },
       {
         "id": 306,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3751,8 +3751,8 @@
       },
       {
         "id": 307,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4135,8 +4135,8 @@
       },
       {
         "id": 339,
-        "url": "https://ecn.dev.virtualearth.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ecn.dev.virtualearth.net",
+        "url": "https://{label}.{label}.virtualearth.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.virtualearth.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4231,7 +4231,7 @@
       },
       {
         "id": 347,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -4267,8 +4267,8 @@
       },
       {
         "id": 350,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4279,7 +4279,7 @@
       },
       {
         "id": 351,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -4291,8 +4291,8 @@
       },
       {
         "id": 352,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4303,7 +4303,7 @@
       },
       {
         "id": 353,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -4315,8 +4315,8 @@
       },
       {
         "id": 354,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4327,8 +4327,8 @@
       },
       {
         "id": 355,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4339,7 +4339,7 @@
       },
       {
         "id": 356,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -4351,8 +4351,8 @@
       },
       {
         "id": 357,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4363,8 +4363,8 @@
       },
       {
         "id": 358,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4375,8 +4375,8 @@
       },
       {
         "id": 359,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4387,7 +4387,7 @@
       },
       {
         "id": 360,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -4399,8 +4399,8 @@
       },
       {
         "id": 361,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4411,7 +4411,7 @@
       },
       {
         "id": 362,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -4423,8 +4423,8 @@
       },
       {
         "id": 363,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -4447,7 +4447,7 @@
       },
       {
         "id": 365,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -4459,7 +4459,7 @@
       },
       {
         "id": 366,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -4495,7 +4495,7 @@
       },
       {
         "id": 369,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -4507,8 +4507,8 @@
       },
       {
         "id": 370,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4531,8 +4531,8 @@
       },
       {
         "id": 372,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -4555,8 +4555,8 @@
       },
       {
         "id": 374,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -4579,7 +4579,7 @@
       },
       {
         "id": 376,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -4615,8 +4615,8 @@
       },
       {
         "id": 379,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -4652,7 +4652,7 @@
     ],
     "domains": [
       {
-        "domain": "px.ads.linkedin.com",
+        "domain": "{label}.ads.linkedin.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -4670,7 +4670,7 @@
         ]
       },
       {
-        "domain": "trc.taboola.com",
+        "domain": "{label}.taboola.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -4716,7 +4716,7 @@
         ]
       },
       {
-        "domain": "browser.events.data.msn.com",
+        "domain": "{label}.events.{label}.msn.com",
         "requests": 9,
         "thirdParty": true,
         "tracker": null,
@@ -4729,32 +4729,19 @@
         ]
       },
       {
-        "domain": "srtb.msn.com",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200,
-          204
-        ],
-        "resourceTypes": [
-          "xhr",
-          "image"
-        ]
-      },
-      {
-        "domain": "c.msn.com",
-        "requests": 2,
+        "domain": "{label}.msn.com",
+        "requests": 5,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
           302,
-          200
+          200,
+          204
         ],
         "resourceTypes": [
-          "image"
+          "image",
+          "xhr"
         ]
       },
       {
@@ -4797,7 +4784,7 @@
         ]
       },
       {
-        "domain": "ib.adnxs.com",
+        "domain": "{label}.adnxs.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4823,7 +4810,7 @@
         ]
       },
       {
-        "domain": "ecn.dev.virtualearth.net",
+        "domain": "{label}.{label}.virtualearth.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4836,13 +4823,14 @@
         ]
       },
       {
-        "domain": "r.bing.com",
-        "requests": 113,
+        "domain": "{label}.bing.com",
+        "requests": 146,
         "thirdParty": false,
         "tracker": null,
-        "blockedByShields": false,
+        "blockedByShields": true,
         "statuses": [
-          200
+          200,
+          302
         ],
         "resourceTypes": [
           "stylesheet",
@@ -4874,33 +4862,6 @@
         ]
       },
       {
-        "domain": "th.bing.com",
-        "requests": 30,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "c.bing.com",
-        "requests": 3,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
         "domain": "www2.bing.com",
         "requests": 1,
         "thirdParty": false,
@@ -4917,7 +4878,7 @@
     "cookies": [
       {
         "name": "[redacted]",
-        "domain": ".c.msn.com",
+        "domain": ".{label}.msn.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -4927,7 +4888,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".c.msn.com",
+        "domain": ".{label}.msn.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -4937,7 +4898,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".c.msn.com",
+        "domain": ".{label}.msn.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -4947,7 +4908,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".c.msn.com",
+        "domain": ".{label}.msn.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -5237,7 +5198,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".c.bing.com",
+        "domain": ".{label}.bing.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -5247,7 +5208,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".c.bing.com",
+        "domain": ".{label}.bing.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -5257,7 +5218,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".c.bing.com",
+        "domain": ".{label}.bing.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -5410,7 +5371,7 @@
           ],
           "thirdPartyOrigins": [
             "https://assets.msn.com/",
-            "https://r.bing.com/"
+            "https://{label}.bing.com/"
           ],
           "totalListenerCalls": 459
         }
@@ -5440,7 +5401,7 @@
           ],
           "thirdPartyOrigins": [
             "https://assets.msn.com/",
-            "https://r.bing.com/"
+            "https://{label}.bing.com/"
           ],
           "totalListenerCalls": 736
         }
@@ -5470,7 +5431,7 @@
       "totalRequests": 383,
       "thirdPartyRequests": 154,
       "knownTrackerRequests": 2,
-      "thirdPartyDomains": 13,
+      "thirdPartyDomains": 12,
       "cookies": 42,
       "thirdPartyCookies": 19,
       "storageEntries": 12,
@@ -5528,8 +5489,8 @@
       },
       {
         "id": 2,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -5540,8 +5501,8 @@
       },
       {
         "id": 3,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -5552,8 +5513,8 @@
       },
       {
         "id": 4,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -5564,8 +5525,8 @@
       },
       {
         "id": 5,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -5576,8 +5537,8 @@
       },
       {
         "id": 6,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -5588,8 +5549,8 @@
       },
       {
         "id": 7,
-        "url": "https://r.bing.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -5600,8 +5561,8 @@
       },
       {
         "id": 8,
-        "url": "https://r.bing.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -5612,8 +5573,8 @@
       },
       {
         "id": 9,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -5624,8 +5585,8 @@
       },
       {
         "id": 10,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -5636,8 +5597,8 @@
       },
       {
         "id": 11,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -5648,8 +5609,8 @@
       },
       {
         "id": 12,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5660,8 +5621,8 @@
       },
       {
         "id": 13,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5672,8 +5633,8 @@
       },
       {
         "id": 14,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5684,8 +5645,8 @@
       },
       {
         "id": 15,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5696,8 +5657,8 @@
       },
       {
         "id": 16,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5708,8 +5669,8 @@
       },
       {
         "id": 17,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5720,8 +5681,8 @@
       },
       {
         "id": 18,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5732,8 +5693,8 @@
       },
       {
         "id": 19,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5744,8 +5705,8 @@
       },
       {
         "id": 20,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5756,8 +5717,8 @@
       },
       {
         "id": 21,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5768,8 +5729,8 @@
       },
       {
         "id": 22,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5780,8 +5741,8 @@
       },
       {
         "id": 23,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5792,8 +5753,8 @@
       },
       {
         "id": 24,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5804,8 +5765,8 @@
       },
       {
         "id": 25,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5816,8 +5777,8 @@
       },
       {
         "id": 26,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5828,8 +5789,8 @@
       },
       {
         "id": 27,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5840,8 +5801,8 @@
       },
       {
         "id": 28,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5852,8 +5813,8 @@
       },
       {
         "id": 29,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5864,8 +5825,8 @@
       },
       {
         "id": 30,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5876,8 +5837,8 @@
       },
       {
         "id": 31,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5888,8 +5849,8 @@
       },
       {
         "id": 32,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5900,8 +5861,8 @@
       },
       {
         "id": 33,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5912,8 +5873,8 @@
       },
       {
         "id": 34,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5924,8 +5885,8 @@
       },
       {
         "id": 35,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5936,8 +5897,8 @@
       },
       {
         "id": 36,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5948,8 +5909,8 @@
       },
       {
         "id": 37,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5960,8 +5921,8 @@
       },
       {
         "id": 38,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5972,8 +5933,8 @@
       },
       {
         "id": 39,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -5984,8 +5945,8 @@
       },
       {
         "id": 40,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6008,8 +5969,8 @@
       },
       {
         "id": 42,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -6044,8 +6005,8 @@
       },
       {
         "id": 45,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6056,8 +6017,8 @@
       },
       {
         "id": 46,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6068,8 +6029,8 @@
       },
       {
         "id": 47,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6080,8 +6041,8 @@
       },
       {
         "id": 48,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6092,8 +6053,8 @@
       },
       {
         "id": 49,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6104,8 +6065,8 @@
       },
       {
         "id": 50,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6116,8 +6077,8 @@
       },
       {
         "id": 51,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6128,8 +6089,8 @@
       },
       {
         "id": 52,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6140,8 +6101,8 @@
       },
       {
         "id": 53,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6152,8 +6113,8 @@
       },
       {
         "id": 54,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6164,8 +6125,8 @@
       },
       {
         "id": 55,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6176,8 +6137,8 @@
       },
       {
         "id": 56,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6188,8 +6149,8 @@
       },
       {
         "id": 57,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6200,8 +6161,8 @@
       },
       {
         "id": 58,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6212,8 +6173,8 @@
       },
       {
         "id": 59,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6224,8 +6185,8 @@
       },
       {
         "id": 60,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6236,8 +6197,8 @@
       },
       {
         "id": 61,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6248,8 +6209,8 @@
       },
       {
         "id": 62,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6260,8 +6221,8 @@
       },
       {
         "id": 63,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6272,8 +6233,8 @@
       },
       {
         "id": 64,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6284,8 +6245,8 @@
       },
       {
         "id": 65,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6296,8 +6257,8 @@
       },
       {
         "id": 66,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6308,8 +6269,8 @@
       },
       {
         "id": 67,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6320,8 +6281,8 @@
       },
       {
         "id": 68,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6332,8 +6293,8 @@
       },
       {
         "id": 69,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6344,8 +6305,8 @@
       },
       {
         "id": 70,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6356,8 +6317,8 @@
       },
       {
         "id": 71,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6368,8 +6329,8 @@
       },
       {
         "id": 72,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6380,8 +6341,8 @@
       },
       {
         "id": 73,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6392,8 +6353,8 @@
       },
       {
         "id": 74,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6404,8 +6365,8 @@
       },
       {
         "id": 75,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -6416,8 +6377,8 @@
       },
       {
         "id": 76,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6428,8 +6389,8 @@
       },
       {
         "id": 77,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6440,8 +6401,8 @@
       },
       {
         "id": 78,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6464,8 +6425,8 @@
       },
       {
         "id": 80,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -6476,8 +6437,8 @@
       },
       {
         "id": 81,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -6488,8 +6449,8 @@
       },
       {
         "id": 82,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -6500,8 +6461,8 @@
       },
       {
         "id": 83,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6512,8 +6473,8 @@
       },
       {
         "id": 84,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6524,8 +6485,8 @@
       },
       {
         "id": 85,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6536,8 +6497,8 @@
       },
       {
         "id": 86,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6608,8 +6569,8 @@
       },
       {
         "id": 92,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -6620,8 +6581,8 @@
       },
       {
         "id": 93,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6632,8 +6593,8 @@
       },
       {
         "id": 94,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6668,8 +6629,8 @@
       },
       {
         "id": 97,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6920,8 +6881,8 @@
       },
       {
         "id": 118,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -6932,8 +6893,8 @@
       },
       {
         "id": 119,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -6944,7 +6905,7 @@
       },
       {
         "id": 120,
-        "url": "https://assets.msn.com/{seg}/api/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=",
+        "url": "https://assets.msn.com/{seg}/api/{seg}/{seg}/{seg}?%5Bredacted%5D=&v=",
         "domain": "assets.msn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -7004,8 +6965,8 @@
       },
       {
         "id": 125,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7016,8 +6977,8 @@
       },
       {
         "id": 126,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7028,8 +6989,8 @@
       },
       {
         "id": 127,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7040,8 +7001,8 @@
       },
       {
         "id": 128,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7052,8 +7013,8 @@
       },
       {
         "id": 129,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7064,8 +7025,8 @@
       },
       {
         "id": 130,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7076,8 +7037,8 @@
       },
       {
         "id": 131,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7088,8 +7049,8 @@
       },
       {
         "id": 132,
-        "url": "https://c.msn.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.msn.com",
+        "url": "https://{label}.msn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.msn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -7100,7 +7061,7 @@
       },
       {
         "id": 133,
-        "url": "https://assets.msn.com/{seg}/news/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://assets.msn.com/{seg}/news/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "assets.msn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -7112,8 +7073,8 @@
       },
       {
         "id": 134,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7208,8 +7169,8 @@
       },
       {
         "id": 142,
-        "url": "https://c.bing.com/{seg}",
-        "domain": "c.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -7220,8 +7181,8 @@
       },
       {
         "id": 143,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -7232,8 +7193,8 @@
       },
       {
         "id": 144,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7244,8 +7205,8 @@
       },
       {
         "id": 145,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7256,8 +7217,8 @@
       },
       {
         "id": 146,
-        "url": "https://c.msn.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.msn.com",
+        "url": "https://{label}.msn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.msn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7280,8 +7241,8 @@
       },
       {
         "id": 148,
-        "url": "https://px.ads.linkedin.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "px.ads.linkedin.com",
+        "url": "https://{label}.ads.linkedin.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ads.linkedin.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7297,8 +7258,8 @@
       },
       {
         "id": 149,
-        "url": "https://trc.taboola.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "trc.taboola.com",
+        "url": "https://{label}.taboola.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.taboola.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7314,8 +7275,8 @@
       },
       {
         "id": 150,
-        "url": "https://c.bing.com/{seg}",
-        "domain": "c.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7326,8 +7287,8 @@
       },
       {
         "id": 151,
-        "url": "https://c.bing.com/{seg}",
-        "domain": "c.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -7338,8 +7299,8 @@
       },
       {
         "id": 152,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7374,8 +7335,8 @@
       },
       {
         "id": 155,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7386,7 +7347,7 @@
       },
       {
         "id": 156,
-        "url": "https://m.adnxs.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://m.adnxs.com/{seg}?%5Bredacted%5D=",
         "domain": "m.adnxs.com",
         "method": "GET",
         "resourceType": "image",
@@ -7398,8 +7359,8 @@
       },
       {
         "id": 157,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7422,8 +7383,8 @@
       },
       {
         "id": 159,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7434,8 +7395,8 @@
       },
       {
         "id": 160,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7446,8 +7407,8 @@
       },
       {
         "id": 161,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7458,8 +7419,8 @@
       },
       {
         "id": 162,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7482,8 +7443,8 @@
       },
       {
         "id": 164,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7494,8 +7455,8 @@
       },
       {
         "id": 165,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7506,8 +7467,8 @@
       },
       {
         "id": 166,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7530,8 +7491,8 @@
       },
       {
         "id": 168,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7554,7 +7515,7 @@
       },
       {
         "id": 170,
-        "url": "https://m.adnxs.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://m.adnxs.com/{seg}?%5Bredacted%5D=",
         "domain": "m.adnxs.com",
         "method": "GET",
         "resourceType": "image",
@@ -7578,8 +7539,8 @@
       },
       {
         "id": 172,
-        "url": "https://ib.adnxs.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ib.adnxs.com",
+        "url": "https://{label}.adnxs.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adnxs.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7614,8 +7575,8 @@
       },
       {
         "id": 175,
-        "url": "https://r.bing.com/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -7626,8 +7587,8 @@
       },
       {
         "id": 176,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -7638,8 +7599,8 @@
       },
       {
         "id": 177,
-        "url": "https://r.bing.com/{seg}/{seg}/{n}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -7650,8 +7611,8 @@
       },
       {
         "id": 178,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -7662,8 +7623,8 @@
       },
       {
         "id": 179,
-        "url": "https://r.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "r.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
@@ -7674,8 +7635,8 @@
       },
       {
         "id": 180,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -7686,7 +7647,7 @@
       },
       {
         "id": 181,
-        "url": "https://login.microsoftonline.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://login.microsoftonline.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "login.microsoftonline.com",
         "method": "GET",
         "resourceType": "document",
@@ -7698,7 +7659,7 @@
       },
       {
         "id": 182,
-        "url": "https://login.live.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://login.live.com/{seg}?%5Bredacted%5D=",
         "domain": "login.live.com",
         "method": "GET",
         "resourceType": "document",
@@ -7710,7 +7671,7 @@
       },
       {
         "id": 183,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -7722,7 +7683,7 @@
       },
       {
         "id": 184,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -7830,8 +7791,8 @@
       },
       {
         "id": 193,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7842,7 +7803,7 @@
       },
       {
         "id": 194,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -7854,8 +7815,8 @@
       },
       {
         "id": 195,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7866,7 +7827,7 @@
       },
       {
         "id": 196,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -7878,8 +7839,8 @@
       },
       {
         "id": 197,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7938,8 +7899,8 @@
       },
       {
         "id": 202,
-        "url": "https://srtb.msn.com/{seg}",
-        "domain": "srtb.msn.com",
+        "url": "https://{label}.msn.com/{seg}",
+        "domain": "{label}.msn.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -7986,8 +7947,8 @@
       },
       {
         "id": 206,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -7998,7 +7959,7 @@
       },
       {
         "id": 207,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8010,8 +7971,8 @@
       },
       {
         "id": 208,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8022,7 +7983,7 @@
       },
       {
         "id": 209,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8034,8 +7995,8 @@
       },
       {
         "id": 210,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8046,7 +8007,7 @@
       },
       {
         "id": 211,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8058,8 +8019,8 @@
       },
       {
         "id": 212,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8070,7 +8031,7 @@
       },
       {
         "id": 213,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8082,8 +8043,8 @@
       },
       {
         "id": 214,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8094,7 +8055,7 @@
       },
       {
         "id": 215,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8106,8 +8067,8 @@
       },
       {
         "id": 216,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8118,8 +8079,8 @@
       },
       {
         "id": 217,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8130,8 +8091,8 @@
       },
       {
         "id": 218,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8142,7 +8103,7 @@
       },
       {
         "id": 219,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8154,8 +8115,8 @@
       },
       {
         "id": 220,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8166,7 +8127,7 @@
       },
       {
         "id": 221,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8178,8 +8139,8 @@
       },
       {
         "id": 222,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8190,8 +8151,8 @@
       },
       {
         "id": 223,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8202,7 +8163,7 @@
       },
       {
         "id": 224,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8226,8 +8187,8 @@
       },
       {
         "id": 226,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -8238,7 +8199,7 @@
       },
       {
         "id": 227,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8250,7 +8211,7 @@
       },
       {
         "id": 228,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8322,7 +8283,7 @@
       },
       {
         "id": 234,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8334,7 +8295,7 @@
       },
       {
         "id": 235,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8346,7 +8307,7 @@
       },
       {
         "id": 236,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8394,8 +8355,8 @@
       },
       {
         "id": 240,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -8586,8 +8547,8 @@
       },
       {
         "id": 256,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -8622,8 +8583,8 @@
       },
       {
         "id": 259,
-        "url": "https://srtb.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&t=&%5Bredacted%5D=",
-        "domain": "srtb.msn.com",
+        "url": "https://{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=&tid=&t=",
+        "domain": "{label}.msn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -8646,8 +8607,8 @@
       },
       {
         "id": 261,
-        "url": "https://srtb.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&t=&%5Bredacted%5D=",
-        "domain": "srtb.msn.com",
+        "url": "https://{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=&tid=&t=",
+        "domain": "{label}.msn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -8658,8 +8619,8 @@
       },
       {
         "id": 262,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -8694,7 +8655,7 @@
       },
       {
         "id": 265,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8706,7 +8667,7 @@
       },
       {
         "id": 266,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -8718,8 +8679,8 @@
       },
       {
         "id": 267,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -8778,7 +8739,7 @@
       },
       {
         "id": 272,
-        "url": "https://assets.msn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&type=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://assets.msn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&type=",
         "domain": "assets.msn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -8790,7 +8751,7 @@
       },
       {
         "id": 273,
-        "url": "https://assets.msn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://assets.msn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "assets.msn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -8982,7 +8943,7 @@
       },
       {
         "id": 289,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9018,8 +8979,8 @@
       },
       {
         "id": 292,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9030,7 +8991,7 @@
       },
       {
         "id": 293,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9042,8 +9003,8 @@
       },
       {
         "id": 294,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9066,7 +9027,7 @@
       },
       {
         "id": 296,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9078,8 +9039,8 @@
       },
       {
         "id": 297,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9090,7 +9051,7 @@
       },
       {
         "id": 298,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9102,8 +9063,8 @@
       },
       {
         "id": 299,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9114,8 +9075,8 @@
       },
       {
         "id": 300,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9126,7 +9087,7 @@
       },
       {
         "id": 301,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9138,7 +9099,7 @@
       },
       {
         "id": 302,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9150,8 +9111,8 @@
       },
       {
         "id": 303,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9162,7 +9123,7 @@
       },
       {
         "id": 304,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9330,8 +9291,8 @@
       },
       {
         "id": 318,
-        "url": "https://ecn.dev.virtualearth.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ecn.dev.virtualearth.net",
+        "url": "https://{label}.{label}.virtualearth.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.virtualearth.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9426,7 +9387,7 @@
       },
       {
         "id": 326,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9438,7 +9399,7 @@
       },
       {
         "id": 327,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9450,7 +9411,7 @@
       },
       {
         "id": 328,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9486,7 +9447,7 @@
       },
       {
         "id": 331,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9498,7 +9459,7 @@
       },
       {
         "id": 332,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9510,8 +9471,8 @@
       },
       {
         "id": 333,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9522,8 +9483,8 @@
       },
       {
         "id": 334,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9534,7 +9495,7 @@
       },
       {
         "id": 335,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9546,8 +9507,8 @@
       },
       {
         "id": 336,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9558,7 +9519,7 @@
       },
       {
         "id": 337,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9570,8 +9531,8 @@
       },
       {
         "id": 338,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9582,8 +9543,8 @@
       },
       {
         "id": 339,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9594,7 +9555,7 @@
       },
       {
         "id": 340,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9606,8 +9567,8 @@
       },
       {
         "id": 341,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -9618,7 +9579,7 @@
       },
       {
         "id": 342,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9906,8 +9867,8 @@
       },
       {
         "id": 366,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -9930,7 +9891,7 @@
       },
       {
         "id": 368,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9942,7 +9903,7 @@
       },
       {
         "id": 369,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9978,7 +9939,7 @@
       },
       {
         "id": 372,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -9990,8 +9951,8 @@
       },
       {
         "id": 373,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -10014,8 +9975,8 @@
       },
       {
         "id": 375,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
@@ -10038,8 +9999,8 @@
       },
       {
         "id": 377,
-        "url": "https://th.bing.com/{seg}",
-        "domain": "th.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -10062,7 +10023,7 @@
       },
       {
         "id": 379,
-        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&q=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://img-s-msn-com.akamaized.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&q=",
         "domain": "img-s-msn-com.akamaized.net",
         "method": "GET",
         "resourceType": "image",
@@ -10098,8 +10059,8 @@
       },
       {
         "id": 382,
-        "url": "https://browser.events.data.msn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "browser.events.data.msn.com",
+        "url": "https://{label}.events.{label}.msn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.events.{label}.msn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -10123,7 +10084,7 @@
     ],
     "domains": [
       {
-        "domain": "px.ads.linkedin.com",
+        "domain": "{label}.ads.linkedin.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -10141,7 +10102,7 @@
         ]
       },
       {
-        "domain": "trc.taboola.com",
+        "domain": "{label}.taboola.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -10187,7 +10148,7 @@
         ]
       },
       {
-        "domain": "browser.events.data.msn.com",
+        "domain": "{label}.events.{label}.msn.com",
         "requests": 9,
         "thirdParty": true,
         "tracker": null,
@@ -10200,32 +10161,19 @@
         ]
       },
       {
-        "domain": "srtb.msn.com",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200,
-          204
-        ],
-        "resourceTypes": [
-          "xhr",
-          "image"
-        ]
-      },
-      {
-        "domain": "c.msn.com",
-        "requests": 2,
+        "domain": "{label}.msn.com",
+        "requests": 5,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
           302,
-          200
+          200,
+          204
         ],
         "resourceTypes": [
-          "image"
+          "image",
+          "xhr"
         ]
       },
       {
@@ -10255,7 +10203,7 @@
         ]
       },
       {
-        "domain": "ib.adnxs.com",
+        "domain": "{label}.adnxs.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -10294,7 +10242,7 @@
         ]
       },
       {
-        "domain": "ecn.dev.virtualearth.net",
+        "domain": "{label}.{label}.virtualearth.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -10307,13 +10255,14 @@
         ]
       },
       {
-        "domain": "r.bing.com",
-        "requests": 113,
+        "domain": "{label}.bing.com",
+        "requests": 145,
         "thirdParty": false,
         "tracker": null,
-        "blockedByShields": false,
+        "blockedByShields": true,
         "statuses": [
-          200
+          200,
+          302
         ],
         "resourceTypes": [
           "stylesheet",
@@ -10345,33 +10294,6 @@
         ]
       },
       {
-        "domain": "th.bing.com",
-        "requests": 29,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "c.bing.com",
-        "requests": 3,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          302,
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
         "domain": "www2.bing.com",
         "requests": 1,
         "thirdParty": false,
@@ -10388,7 +10310,7 @@
     "cookies": [
       {
         "name": "[redacted]",
-        "domain": ".c.msn.com",
+        "domain": ".{label}.msn.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -10398,7 +10320,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".c.msn.com",
+        "domain": ".{label}.msn.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -10408,7 +10330,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".c.msn.com",
+        "domain": ".{label}.msn.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -10418,7 +10340,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".c.msn.com",
+        "domain": ".{label}.msn.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -10718,7 +10640,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".c.bing.com",
+        "domain": ".{label}.bing.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -10728,7 +10650,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".c.bing.com",
+        "domain": ".{label}.bing.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -10738,7 +10660,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".c.bing.com",
+        "domain": ".{label}.bing.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -10891,7 +10813,7 @@
           ],
           "thirdPartyOrigins": [
             "https://assets.msn.com/",
-            "https://r.bing.com/"
+            "https://{label}.bing.com/"
           ],
           "totalListenerCalls": 475
         }
@@ -10921,7 +10843,7 @@
           ],
           "thirdPartyOrigins": [
             "https://assets.msn.com/",
-            "https://r.bing.com/"
+            "https://{label}.bing.com/"
           ],
           "totalListenerCalls": 733
         }
@@ -10956,8 +10878,8 @@
       "delta": 0
     },
     "thirdPartyDomains": {
-      "before": 13,
-      "after": 13,
+      "before": 12,
+      "after": 12,
       "delta": 0
     },
     "cookies": {

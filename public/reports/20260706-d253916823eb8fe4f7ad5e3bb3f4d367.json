@@ -23,7 +23,7 @@
       "totalRequests": 141,
       "thirdPartyRequests": 75,
       "knownTrackerRequests": 13,
-      "thirdPartyDomains": 20,
+      "thirdPartyDomains": 16,
       "cookies": 46,
       "thirdPartyCookies": 12,
       "storageEntries": 14,
@@ -129,8 +129,8 @@
       },
       {
         "id": 6,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -141,8 +141,8 @@
       },
       {
         "id": 7,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -153,8 +153,8 @@
       },
       {
         "id": 8,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -165,8 +165,8 @@
       },
       {
         "id": 9,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -177,8 +177,8 @@
       },
       {
         "id": 10,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -249,8 +249,8 @@
       },
       {
         "id": 16,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -261,8 +261,8 @@
       },
       {
         "id": 17,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -273,8 +273,8 @@
       },
       {
         "id": 18,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -285,8 +285,8 @@
       },
       {
         "id": 19,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -297,8 +297,8 @@
       },
       {
         "id": 20,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -309,8 +309,8 @@
       },
       {
         "id": 21,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -321,8 +321,8 @@
       },
       {
         "id": 22,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -333,8 +333,8 @@
       },
       {
         "id": 23,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -345,8 +345,8 @@
       },
       {
         "id": 24,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -357,8 +357,8 @@
       },
       {
         "id": 25,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -369,8 +369,8 @@
       },
       {
         "id": 26,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -381,8 +381,8 @@
       },
       {
         "id": 27,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -393,8 +393,8 @@
       },
       {
         "id": 28,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -405,8 +405,8 @@
       },
       {
         "id": 29,
-        "url": "https://c1.wfinterface.com/{seg}/{seg}/{seg}",
-        "domain": "c1.wfinterface.com",
+        "url": "https://{label}.wfinterface.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wfinterface.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -465,8 +465,8 @@
       },
       {
         "id": 34,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -501,8 +501,8 @@
       },
       {
         "id": 37,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -513,8 +513,8 @@
       },
       {
         "id": 38,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -525,8 +525,8 @@
       },
       {
         "id": 39,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -537,8 +537,8 @@
       },
       {
         "id": 40,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -549,8 +549,8 @@
       },
       {
         "id": 41,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -561,8 +561,8 @@
       },
       {
         "id": 42,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -573,8 +573,8 @@
       },
       {
         "id": 43,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -585,8 +585,8 @@
       },
       {
         "id": 44,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -597,8 +597,8 @@
       },
       {
         "id": 45,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -609,8 +609,8 @@
       },
       {
         "id": 46,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -633,8 +633,8 @@
       },
       {
         "id": 48,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -645,8 +645,8 @@
       },
       {
         "id": 49,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -657,8 +657,8 @@
       },
       {
         "id": 50,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -669,8 +669,8 @@
       },
       {
         "id": 51,
-        "url": "https://okra.wf.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "okra.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.wf.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -693,8 +693,8 @@
       },
       {
         "id": 53,
-        "url": "https://okra.wf.com/{seg}/{seg}/{seg}",
-        "domain": "okra.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wf.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -705,8 +705,8 @@
       },
       {
         "id": 54,
-        "url": "https://okra.wf.com/{seg}/{seg}/{seg}",
-        "domain": "okra.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wf.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -717,8 +717,8 @@
       },
       {
         "id": 55,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -729,8 +729,8 @@
       },
       {
         "id": 56,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -741,8 +741,8 @@
       },
       {
         "id": 57,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -789,8 +789,8 @@
       },
       {
         "id": 61,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -801,8 +801,8 @@
       },
       {
         "id": 62,
-        "url": "https://okra.wf.com/{seg}/{seg}/settings",
-        "domain": "okra.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}/settings",
+        "domain": "{label}.wf.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -825,8 +825,8 @@
       },
       {
         "id": 64,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -837,8 +837,8 @@
       },
       {
         "id": 65,
-        "url": "https://c1.wfinterface.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "c1.wfinterface.com",
+        "url": "https://{label}.wfinterface.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wfinterface.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -849,8 +849,8 @@
       },
       {
         "id": 66,
-        "url": "https://c1.wfinterface.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "c1.wfinterface.com",
+        "url": "https://{label}.wfinterface.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wfinterface.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -861,8 +861,8 @@
       },
       {
         "id": 67,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -873,8 +873,8 @@
       },
       {
         "id": 68,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -885,8 +885,8 @@
       },
       {
         "id": 69,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -897,8 +897,8 @@
       },
       {
         "id": 70,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -909,8 +909,8 @@
       },
       {
         "id": 71,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -921,8 +921,8 @@
       },
       {
         "id": 72,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -945,8 +945,8 @@
       },
       {
         "id": 74,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -969,8 +969,8 @@
       },
       {
         "id": 76,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -981,8 +981,8 @@
       },
       {
         "id": 77,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -993,8 +993,8 @@
       },
       {
         "id": 78,
-        "url": "https://okra.wf.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "okra.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1005,8 +1005,8 @@
       },
       {
         "id": 79,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1281,8 +1281,8 @@
       },
       {
         "id": 102,
-        "url": "https://okra.wf.com/{seg}/{seg}?callback=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "okra.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}?callback=&%5Bredacted%5D=",
+        "domain": "{label}.wf.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1293,8 +1293,8 @@
       },
       {
         "id": 103,
-        "url": "https://okra.wf.com/{seg}/{seg}/settings",
-        "domain": "okra.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}/settings",
+        "domain": "{label}.wf.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1305,8 +1305,8 @@
       },
       {
         "id": 104,
-        "url": "https://adobedc.demdex.net/{seg}/{seg}/privacy/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "adobedc.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}/{seg}/privacy/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1346,8 +1346,8 @@
       },
       {
         "id": 107,
-        "url": "https://gbxreport-prod.wf.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "gbxreport-prod.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.wf.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1394,8 +1394,8 @@
       },
       {
         "id": 111,
-        "url": "https://cm.everesttech.net/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "cm.everesttech.net",
+        "url": "https://{label}.everesttech.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.everesttech.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1406,8 +1406,8 @@
       },
       {
         "id": 112,
-        "url": "https://ort.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ort.wellsfargo.com",
+        "url": "https://{label}.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargo.com",
         "method": "POST",
         "resourceType": "other",
         "status": 200,
@@ -1418,8 +1418,8 @@
       },
       {
         "id": 113,
-        "url": "https://aa.agkn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "aa.agkn.com",
+        "url": "https://{label}.agkn.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.agkn.com",
         "method": "GET",
         "resourceType": "image",
         "status": null,
@@ -1430,8 +1430,8 @@
       },
       {
         "id": 114,
-        "url": "https://c.bing.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "c.bing.com",
+        "url": "https://{label}.bing.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": null,
@@ -1447,8 +1447,8 @@
       },
       {
         "id": 115,
-        "url": "https://ort.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "ort.wellsfargo.com",
+        "url": "https://{label}.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargo.com",
         "method": "POST",
         "resourceType": "other",
         "status": 200,
@@ -1459,8 +1459,8 @@
       },
       {
         "id": 116,
-        "url": "https://idsync.rlcdn.com/{seg}?%5Bredacted%5D=",
-        "domain": "idsync.rlcdn.com",
+        "url": "https://{label}.rlcdn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.rlcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1476,8 +1476,8 @@
       },
       {
         "id": 117,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1493,8 +1493,8 @@
       },
       {
         "id": 118,
-        "url": "https://cms.analytics.yahoo.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cms.analytics.yahoo.com",
+        "url": "https://{label}.analytics.yahoo.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1505,8 +1505,8 @@
       },
       {
         "id": 119,
-        "url": "https://trc.taboola.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "trc.taboola.com",
+        "url": "https://{label}.taboola.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.taboola.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1522,8 +1522,8 @@
       },
       {
         "id": 120,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1539,8 +1539,8 @@
       },
       {
         "id": 121,
-        "url": "https://dpm.demdex.net/{seg}",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1556,8 +1556,8 @@
       },
       {
         "id": 122,
-        "url": "https://ups.analytics.yahoo.com/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ups.analytics.yahoo.com",
+        "url": "https://{label}.analytics.yahoo.com/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1568,8 +1568,8 @@
       },
       {
         "id": 123,
-        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "cm.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1585,8 +1585,8 @@
       },
       {
         "id": 124,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1602,8 +1602,8 @@
       },
       {
         "id": 125,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1619,8 +1619,8 @@
       },
       {
         "id": 126,
-        "url": "https://ups.analytics.yahoo.com/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ups.analytics.yahoo.com",
+        "url": "https://{label}.analytics.yahoo.com/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1631,8 +1631,8 @@
       },
       {
         "id": 127,
-        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1648,8 +1648,8 @@
       },
       {
         "id": 128,
-        "url": "https://dpm.demdex.net/{seg}",
-        "domain": "dpm.demdex.net",
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -1665,8 +1665,8 @@
       },
       {
         "id": 129,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1677,8 +1677,8 @@
       },
       {
         "id": 130,
-        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
-        "domain": "s.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1694,8 +1694,8 @@
       },
       {
         "id": 131,
-        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/privacy/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "edge.adobedc.net",
+        "url": "https://{label}.adobedc.net/{seg}/{seg}/{seg}/privacy/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1706,8 +1706,8 @@
       },
       {
         "id": 132,
-        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "edge.adobedc.net",
+        "url": "https://{label}.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1718,8 +1718,8 @@
       },
       {
         "id": 133,
-        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "edge.adobedc.net",
+        "url": "https://{label}.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1730,8 +1730,8 @@
       },
       {
         "id": 134,
-        "url": "https://pdx-col.eum-appdynamics.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "pdx-col.eum-appdynamics.com",
+        "url": "https://{label}.eum-appdynamics.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.eum-appdynamics.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1742,8 +1742,8 @@
       },
       {
         "id": 135,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1754,8 +1754,8 @@
       },
       {
         "id": 136,
-        "url": "https://connect.secure.wf.com/{seg}/api/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/api/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1766,8 +1766,8 @@
       },
       {
         "id": 137,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1778,8 +1778,8 @@
       },
       {
         "id": 138,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1790,8 +1790,8 @@
       },
       {
         "id": 139,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1802,8 +1802,8 @@
       },
       {
         "id": 140,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -1814,8 +1814,8 @@
       },
       {
         "id": 141,
-        "url": "https://privacyportal.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "privacyportal.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -1827,8 +1827,8 @@
     ],
     "domains": [
       {
-        "domain": "dpm.demdex.net",
-        "requests": 4,
+        "domain": "{label}.demdex.net",
+        "requests": 5,
         "thirdParty": true,
         "tracker": {
           "domain": "demdex.net",
@@ -1842,11 +1842,12 @@
           302
         ],
         "resourceTypes": [
+          "fetch",
           "image"
         ]
       },
       {
-        "domain": "s.amazon-adsystem.com",
+        "domain": "{label}.amazon-adsystem.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": {
@@ -1865,7 +1866,7 @@
         ]
       },
       {
-        "domain": "cm.g.doubleclick.net",
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -1883,25 +1884,7 @@
         ]
       },
       {
-        "domain": "adobedc.demdex.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "c.bing.com",
+        "domain": "{label}.bing.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -1917,7 +1900,7 @@
         ]
       },
       {
-        "domain": "idsync.rlcdn.com",
+        "domain": "{label}.rlcdn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -1935,7 +1918,7 @@
         ]
       },
       {
-        "domain": "trc.taboola.com",
+        "domain": "{label}.taboola.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -1953,7 +1936,7 @@
         ]
       },
       {
-        "domain": "www17.wellsfargomedia.com",
+        "domain": "{label}.wellsfargomedia.com",
         "requests": 29,
         "thirdParty": true,
         "tracker": null,
@@ -1967,7 +1950,7 @@
         ]
       },
       {
-        "domain": "connect.secure.wf.com",
+        "domain": "{label}.secure.wf.com",
         "requests": 11,
         "thirdParty": true,
         "tracker": null,
@@ -1981,11 +1964,11 @@
         ]
       },
       {
-        "domain": "okra.wf.com",
-        "requests": 7,
+        "domain": "{label}.wf.com",
+        "requests": 8,
         "thirdParty": true,
         "tracker": null,
-        "blockedByShields": false,
+        "blockedByShields": true,
         "statuses": [
           200
         ],
@@ -1996,7 +1979,7 @@
         ]
       },
       {
-        "domain": "c1.wfinterface.com",
+        "domain": "{label}.wfinterface.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -2009,7 +1992,20 @@
         ]
       },
       {
-        "domain": "edge.adobedc.net",
+        "domain": "{label}.analytics.yahoo.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.adobedc.net",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -2022,103 +2018,54 @@
         ]
       },
       {
-        "domain": "ups.analytics.yahoo.com",
+        "domain": "{label}.onetrust.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
         "statuses": [
-          302
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "geolocation.onetrust.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
           200
         ],
         "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "gbxreport-prod.wf.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "cm.everesttech.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          302
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "aa.agkn.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "cms.analytics.yahoo.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          302
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "pdx-col.eum-appdynamics.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "privacyportal.onetrust.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [],
-        "resourceTypes": [
+          "xhr",
           "ping"
+        ]
+      },
+      {
+        "domain": "{label}.everesttech.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.agkn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.eum-appdynamics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
         ]
       },
       {
@@ -2157,7 +2104,7 @@
         ]
       },
       {
-        "domain": "connect.secure.wellsfargo.com",
+        "domain": "{label}.secure.wellsfargo.com",
         "requests": 13,
         "thirdParty": false,
         "tracker": null,
@@ -2171,7 +2118,7 @@
         ]
       },
       {
-        "domain": "ort.wellsfargo.com",
+        "domain": "{label}.wellsfargo.com",
         "requests": 2,
         "thirdParty": false,
         "tracker": null,
@@ -2237,7 +2184,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".dpm.demdex.net",
+        "domain": ".{label}.demdex.net",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2257,7 +2204,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "gbxreport-prod.wf.com",
+        "domain": "{label}.wf.com",
         "path": "/{seg}/{seg}/{seg}",
         "sameSite": "None",
         "secure": true,
@@ -2267,7 +2214,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "gbxreport-prod.wf.com",
+        "domain": "{label}.wf.com",
         "path": "/{seg}/{seg}/{seg}",
         "sameSite": "None",
         "secure": true,
@@ -2277,7 +2224,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "gbxreport-prod.wf.com",
+        "domain": "{label}.wf.com",
         "path": "/{seg}/{seg}/{seg}",
         "sameSite": "None",
         "secure": true,
@@ -2287,7 +2234,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "gbxreport-prod.wf.com",
+        "domain": "{label}.wf.com",
         "path": "/{seg}/{seg}/{seg}",
         "sameSite": "None",
         "secure": true,
@@ -2297,7 +2244,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "gbxreport-prod.wf.com",
+        "domain": "{label}.wf.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2307,7 +2254,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".connect.secure.wellsfargo.com",
+        "domain": ".{label}.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -2317,7 +2264,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".connect.secure.wellsfargo.com",
+        "domain": ".{label}.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -2537,7 +2484,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "connect.secure.wellsfargo.com",
+        "domain": "{label}.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -2547,7 +2494,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "connect.secure.wellsfargo.com",
+        "domain": "{label}.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -2557,7 +2504,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "connect.secure.wellsfargo.com",
+        "domain": "{label}.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -2720,8 +2667,16 @@
     ],
     "fingerprintEvents": [
       {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 2
+      },
+      {
         "api": "canvas.measureText",
         "count": 68
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 3
       },
       {
         "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
@@ -2730,14 +2685,6 @@
       {
         "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
         "count": 6
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 3
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 2
       },
       {
         "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
@@ -2811,8 +2758,8 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://c1.wfinterface.com/",
-            "https://connect.secure.wellsfargo.com/",
+            "https://{label}.wfinterface.com/",
+            "https://{label}.secure.wellsfargo.com/",
             "https://static.wellsfargo.com/"
           ],
           "totalListenerCalls": 36
@@ -2848,8 +2795,8 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://c1.wfinterface.com/",
-            "https://connect.secure.wellsfargo.com/",
+            "https://{label}.wfinterface.com/",
+            "https://{label}.secure.wellsfargo.com/",
             "https://static.wellsfargo.com/"
           ],
           "totalListenerCalls": 101
@@ -2981,8 +2928,8 @@
       },
       {
         "id": 6,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2993,8 +2940,8 @@
       },
       {
         "id": 7,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3005,8 +2952,8 @@
       },
       {
         "id": 8,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3017,8 +2964,8 @@
       },
       {
         "id": 9,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3029,8 +2976,8 @@
       },
       {
         "id": 10,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3101,8 +3048,8 @@
       },
       {
         "id": 16,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3113,8 +3060,8 @@
       },
       {
         "id": 17,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3125,8 +3072,8 @@
       },
       {
         "id": 18,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3137,8 +3084,8 @@
       },
       {
         "id": 19,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3149,8 +3096,8 @@
       },
       {
         "id": 20,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3161,8 +3108,8 @@
       },
       {
         "id": 21,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3173,8 +3120,8 @@
       },
       {
         "id": 22,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3185,8 +3132,8 @@
       },
       {
         "id": 23,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3197,8 +3144,8 @@
       },
       {
         "id": 24,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3209,8 +3156,8 @@
       },
       {
         "id": 25,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3221,8 +3168,8 @@
       },
       {
         "id": 26,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3233,8 +3180,8 @@
       },
       {
         "id": 27,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3245,8 +3192,8 @@
       },
       {
         "id": 28,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
@@ -3257,8 +3204,8 @@
       },
       {
         "id": 29,
-        "url": "https://c1.wfinterface.com/{seg}/{seg}/{seg}",
-        "domain": "c1.wfinterface.com",
+        "url": "https://{label}.wfinterface.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wfinterface.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3317,8 +3264,8 @@
       },
       {
         "id": 34,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3329,8 +3276,8 @@
       },
       {
         "id": 36,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3341,8 +3288,8 @@
       },
       {
         "id": 37,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3353,8 +3300,8 @@
       },
       {
         "id": 38,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3365,8 +3312,8 @@
       },
       {
         "id": 39,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3377,8 +3324,8 @@
       },
       {
         "id": 40,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3389,8 +3336,8 @@
       },
       {
         "id": 41,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3401,8 +3348,8 @@
       },
       {
         "id": 42,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3413,8 +3360,8 @@
       },
       {
         "id": 43,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3425,8 +3372,8 @@
       },
       {
         "id": 45,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3437,8 +3384,8 @@
       },
       {
         "id": 48,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3449,8 +3396,8 @@
       },
       {
         "id": 49,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3461,8 +3408,8 @@
       },
       {
         "id": 50,
-        "url": "https://okra.wf.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "okra.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.wf.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -3473,8 +3420,8 @@
       },
       {
         "id": 51,
-        "url": "https://okra.wf.com/{seg}/{seg}/{seg}",
-        "domain": "okra.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wf.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3485,8 +3432,8 @@
       },
       {
         "id": 52,
-        "url": "https://okra.wf.com/{seg}/{seg}/{seg}",
-        "domain": "okra.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wf.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3497,8 +3444,8 @@
       },
       {
         "id": 53,
-        "url": "https://okra.wf.com/{seg}/{seg}/settings",
-        "domain": "okra.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}/settings",
+        "domain": "{label}.wf.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3509,8 +3456,8 @@
       },
       {
         "id": 54,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3521,8 +3468,8 @@
       },
       {
         "id": 55,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3533,8 +3480,8 @@
       },
       {
         "id": 56,
-        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www17.wellsfargomedia.com",
+        "url": "https://{label}.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -3545,8 +3492,8 @@
       },
       {
         "id": 57,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3557,8 +3504,8 @@
       },
       {
         "id": 58,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3569,8 +3516,8 @@
       },
       {
         "id": 59,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3581,8 +3528,8 @@
       },
       {
         "id": 60,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3593,8 +3540,8 @@
       },
       {
         "id": 61,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3605,8 +3552,8 @@
       },
       {
         "id": 62,
-        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wellsfargo.com",
+        "url": "https://{label}.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3617,8 +3564,8 @@
       },
       {
         "id": 63,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3629,8 +3576,8 @@
       },
       {
         "id": 64,
-        "url": "https://okra.wf.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "okra.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3641,8 +3588,8 @@
       },
       {
         "id": 67,
-        "url": "https://okra.wf.com/{seg}/{seg}?callback=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "okra.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}?callback=&%5Bredacted%5D=",
+        "domain": "{label}.wf.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -3653,8 +3600,8 @@
       },
       {
         "id": 68,
-        "url": "https://okra.wf.com/{seg}/{seg}/settings",
-        "domain": "okra.wf.com",
+        "url": "https://{label}.wf.com/{seg}/{seg}/settings",
+        "domain": "{label}.wf.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -3665,8 +3612,8 @@
       },
       {
         "id": 69,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3677,8 +3624,8 @@
       },
       {
         "id": 70,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3689,8 +3636,8 @@
       },
       {
         "id": 71,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3701,8 +3648,8 @@
       },
       {
         "id": 73,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3785,8 +3732,8 @@
       },
       {
         "id": 97,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3797,8 +3744,8 @@
       },
       {
         "id": 98,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3809,8 +3756,8 @@
       },
       {
         "id": 99,
-        "url": "https://connect.secure.wf.com/{seg}/api/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/api/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3821,8 +3768,8 @@
       },
       {
         "id": 100,
-        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
-        "domain": "connect.secure.wf.com",
+        "url": "https://{label}.secure.wf.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -3834,7 +3781,7 @@
     ],
     "domains": [
       {
-        "domain": "www17.wellsfargomedia.com",
+        "domain": "{label}.wellsfargomedia.com",
         "requests": 28,
         "thirdParty": true,
         "tracker": null,
@@ -3848,7 +3795,7 @@
         ]
       },
       {
-        "domain": "connect.secure.wf.com",
+        "domain": "{label}.secure.wf.com",
         "requests": 9,
         "thirdParty": true,
         "tracker": null,
@@ -3861,7 +3808,7 @@
         ]
       },
       {
-        "domain": "okra.wf.com",
+        "domain": "{label}.wf.com",
         "requests": 7,
         "thirdParty": true,
         "tracker": null,
@@ -3876,7 +3823,7 @@
         ]
       },
       {
-        "domain": "c1.wfinterface.com",
+        "domain": "{label}.wfinterface.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3908,7 +3855,7 @@
         ]
       },
       {
-        "domain": "connect.secure.wellsfargo.com",
+        "domain": "{label}.secure.wellsfargo.com",
         "requests": 11,
         "thirdParty": false,
         "tracker": null,
@@ -3939,7 +3886,7 @@
     "cookies": [
       {
         "name": "[redacted]",
-        "domain": ".connect.secure.wellsfargo.com",
+        "domain": ".{label}.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -3949,7 +3896,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".connect.secure.wellsfargo.com",
+        "domain": ".{label}.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
@@ -4069,7 +4016,7 @@
       },
       {
         "name": "[redacted]",
-        "domain": "connect.secure.wellsfargo.com",
+        "domain": "{label}.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "None",
         "secure": true,
@@ -4187,20 +4134,20 @@
     ],
     "fingerprintEvents": [
       {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 6
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 6
-      },
-      {
         "api": "audio.OfflineAudioContext.startRendering",
         "count": 2
       },
       {
         "api": "canvas.toDataURL",
         "count": 2
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 6
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 6
       },
       {
         "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
@@ -4261,7 +4208,7 @@
             "other"
           ],
           "thirdPartyOrigins": [
-            "https://connect.secure.wellsfargo.com/"
+            "https://{label}.secure.wellsfargo.com/"
           ],
           "totalListenerCalls": 14
         }
@@ -4295,7 +4242,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://connect.secure.wellsfargo.com/"
+            "https://{label}.secure.wellsfargo.com/"
           ],
           "totalListenerCalls": 48
         }
@@ -4326,9 +4273,9 @@
       "delta": -13
     },
     "thirdPartyDomains": {
-      "before": 20,
+      "before": 16,
       "after": 4,
-      "delta": -16
+      "delta": -12
     },
     "cookies": {
       "before": 46,
@@ -4353,8 +4300,8 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "dpm.demdex.net",
-        "requests": 4,
+        "domain": "{label}.demdex.net",
+        "requests": 5,
         "tracker": {
           "domain": "demdex.net",
           "entity": "Adobe",
@@ -4363,12 +4310,12 @@
         }
       },
       {
-        "domain": "edge.adobedc.net",
+        "domain": "{label}.adobedc.net",
         "requests": 3,
         "tracker": null
       },
       {
-        "domain": "s.amazon-adsystem.com",
+        "domain": "{label}.amazon-adsystem.com",
         "requests": 3,
         "tracker": {
           "domain": "amazon-adsystem.com",
@@ -4378,7 +4325,12 @@
         }
       },
       {
-        "domain": "cm.g.doubleclick.net",
+        "domain": "{label}.analytics.yahoo.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
         "requests": 2,
         "tracker": {
           "domain": "doubleclick.net",
@@ -4388,32 +4340,22 @@
         }
       },
       {
-        "domain": "ort.wellsfargo.com",
+        "domain": "{label}.onetrust.com",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "ups.analytics.yahoo.com",
+        "domain": "{label}.wellsfargo.com",
         "requests": 2,
         "tracker": null
       },
       {
-        "domain": "aa.agkn.com",
+        "domain": "{label}.agkn.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "adobedc.demdex.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "demdex.net",
-          "entity": "Adobe",
-          "category": "analytics / advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "c.bing.com",
+        "domain": "{label}.bing.com",
         "requests": 1,
         "tracker": {
           "domain": "bing.com",
@@ -4423,27 +4365,17 @@
         }
       },
       {
-        "domain": "cm.everesttech.net",
+        "domain": "{label}.eum-appdynamics.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "cms.analytics.yahoo.com",
+        "domain": "{label}.everesttech.net",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "gbxreport-prod.wf.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "geolocation.onetrust.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "idsync.rlcdn.com",
+        "domain": "{label}.rlcdn.com",
         "requests": 1,
         "tracker": {
           "domain": "rlcdn.com",
@@ -4453,17 +4385,7 @@
         }
       },
       {
-        "domain": "pdx-col.eum-appdynamics.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "privacyportal.onetrust.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "trc.taboola.com",
+        "domain": "{label}.taboola.com",
         "requests": 1,
         "tracker": {
           "domain": "taboola.com",
@@ -4478,7 +4400,7 @@
       {
         "entity": "Adobe",
         "requests": 5,
-        "domains": 2
+        "domains": 1
       },
       {
         "entity": "Amazon Ads",
@@ -4510,6 +4432,11 @@
     "removedCookies": [
       {
         "name": "[redacted]",
+        "domain": ".{label}.demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
         "domain": ".amazon-adsystem.com",
         "thirdParty": true
       },
@@ -4530,22 +4457,17 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".dpm.demdex.net",
-        "thirdParty": true
-      },
-      {
-        "name": "[redacted]",
         "domain": ".yahoo.com",
         "thirdParty": true
       },
       {
         "name": "[redacted]",
-        "domain": "gbxreport-prod.wf.com",
+        "domain": "{label}.wf.com",
         "thirdParty": true
       },
       {
         "name": "[redacted]",
-        "domain": "gbxreport-prod.wf.com",
+        "domain": "{label}.wf.com",
         "thirdParty": true
       },
       {

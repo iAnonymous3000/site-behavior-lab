@@ -23,7 +23,7 @@
       "totalRequests": 227,
       "thirdPartyRequests": 187,
       "knownTrackerRequests": 51,
-      "thirdPartyDomains": 63,
+      "thirdPartyDomains": 55,
       "cookies": 42,
       "thirdPartyCookies": 12,
       "storageEntries": 44,
@@ -213,8 +213,8 @@
       },
       {
         "id": 13,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -225,8 +225,8 @@
       },
       {
         "id": 14,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -237,8 +237,8 @@
       },
       {
         "id": 15,
-        "url": "https://config.aps.amazon-adsystem.com/{seg}/{n}",
-        "domain": "config.aps.amazon-adsystem.com",
+        "url": "https://{label}.{label}.amazon-adsystem.com/{seg}/{n}",
+        "domain": "{label}.{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -254,8 +254,8 @@
       },
       {
         "id": 16,
-        "url": "https://client.aps.amazon-adsystem.com/{seg}",
-        "domain": "client.aps.amazon-adsystem.com",
+        "url": "https://{label}.{label}.amazon-adsystem.com/{seg}",
+        "domain": "{label}.{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -283,8 +283,8 @@
       },
       {
         "id": 18,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -295,8 +295,8 @@
       },
       {
         "id": 19,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -307,8 +307,8 @@
       },
       {
         "id": 20,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -319,8 +319,8 @@
       },
       {
         "id": 21,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -331,8 +331,8 @@
       },
       {
         "id": 22,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -343,8 +343,8 @@
       },
       {
         "id": 23,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -355,8 +355,8 @@
       },
       {
         "id": 24,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -367,8 +367,8 @@
       },
       {
         "id": 25,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -379,8 +379,8 @@
       },
       {
         "id": 26,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -391,8 +391,8 @@
       },
       {
         "id": 27,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -403,8 +403,8 @@
       },
       {
         "id": 28,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -415,8 +415,8 @@
       },
       {
         "id": 29,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -427,8 +427,8 @@
       },
       {
         "id": 30,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -439,8 +439,8 @@
       },
       {
         "id": 31,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -451,8 +451,8 @@
       },
       {
         "id": 32,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -463,8 +463,8 @@
       },
       {
         "id": 33,
-        "url": "https://prod.adspsp.com/{seg}",
-        "domain": "prod.adspsp.com",
+        "url": "https://{label}.adspsp.com/{seg}",
+        "domain": "{label}.adspsp.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -475,8 +475,8 @@
       },
       {
         "id": 34,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -492,8 +492,8 @@
       },
       {
         "id": 35,
-        "url": "https://rvo-cohesion.healthline.com/{seg}/{seg}",
-        "domain": "rvo-cohesion.healthline.com",
+        "url": "https://{label}.healthline.com/{seg}/{seg}",
+        "domain": "{label}.healthline.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -504,8 +504,8 @@
       },
       {
         "id": 36,
-        "url": "https://gtm-server.healthline.com/{seg}",
-        "domain": "gtm-server.healthline.com",
+        "url": "https://{label}.healthline.com/{seg}",
+        "domain": "{label}.healthline.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -528,8 +528,8 @@
       },
       {
         "id": 38,
-        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "geolocation.onetrust.com",
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -540,8 +540,8 @@
       },
       {
         "id": 39,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -552,8 +552,8 @@
       },
       {
         "id": 40,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -564,8 +564,8 @@
       },
       {
         "id": 41,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -576,8 +576,8 @@
       },
       {
         "id": 42,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -588,8 +588,8 @@
       },
       {
         "id": 43,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -600,8 +600,8 @@
       },
       {
         "id": 44,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -612,8 +612,8 @@
       },
       {
         "id": 45,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -624,8 +624,8 @@
       },
       {
         "id": 46,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -636,8 +636,8 @@
       },
       {
         "id": 47,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -648,8 +648,8 @@
       },
       {
         "id": 48,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -660,8 +660,8 @@
       },
       {
         "id": 49,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -672,8 +672,8 @@
       },
       {
         "id": 50,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -684,8 +684,8 @@
       },
       {
         "id": 51,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -696,8 +696,8 @@
       },
       {
         "id": 52,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -708,8 +708,8 @@
       },
       {
         "id": 53,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -720,8 +720,8 @@
       },
       {
         "id": 54,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -732,8 +732,8 @@
       },
       {
         "id": 55,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -744,8 +744,8 @@
       },
       {
         "id": 56,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -756,8 +756,8 @@
       },
       {
         "id": 57,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -768,8 +768,8 @@
       },
       {
         "id": 58,
-        "url": "https://cdn-ima.33across.com/{seg}",
-        "domain": "cdn-ima.33across.com",
+        "url": "https://{label}.33across.com/{seg}",
+        "domain": "{label}.33across.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -804,8 +804,8 @@
       },
       {
         "id": 61,
-        "url": "https://c.amazon-adsystem.com/{seg}/{seg}/{seg}",
-        "domain": "c.amazon-adsystem.com",
+        "url": "https://{label}.amazon-adsystem.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -977,8 +977,8 @@
       },
       {
         "id": 75,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -989,8 +989,8 @@
       },
       {
         "id": 76,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1001,8 +1001,8 @@
       },
       {
         "id": 77,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1013,8 +1013,8 @@
       },
       {
         "id": 78,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1025,8 +1025,8 @@
       },
       {
         "id": 79,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1037,8 +1037,8 @@
       },
       {
         "id": 80,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1049,8 +1049,8 @@
       },
       {
         "id": 81,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1061,8 +1061,8 @@
       },
       {
         "id": 82,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1073,8 +1073,8 @@
       },
       {
         "id": 83,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1085,8 +1085,8 @@
       },
       {
         "id": 84,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1097,8 +1097,8 @@
       },
       {
         "id": 85,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1174,8 +1174,8 @@
       },
       {
         "id": 91,
-        "url": "https://gtm-server.healthline.com/{seg}/{seg}",
-        "domain": "gtm-server.healthline.com",
+        "url": "https://{label}.healthline.com/{seg}/{seg}",
+        "domain": "{label}.healthline.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1186,8 +1186,8 @@
       },
       {
         "id": 92,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?cb=",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?cb=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1203,8 +1203,8 @@
       },
       {
         "id": 93,
-        "url": "https://prod.adspsp.com/{seg}?%5Bredacted%5D=",
-        "domain": "prod.adspsp.com",
+        "url": "https://{label}.adspsp.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adspsp.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1215,8 +1215,8 @@
       },
       {
         "id": 94,
-        "url": "https://prod.adspsp.com/{seg}?%5Bredacted%5D=",
-        "domain": "prod.adspsp.com",
+        "url": "https://{label}.adspsp.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adspsp.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1323,8 +1323,8 @@
       },
       {
         "id": 103,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1347,8 +1347,8 @@
       },
       {
         "id": 105,
-        "url": "https://pub.doubleverify.com/{seg}/{n}/{seg}/{seg}",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1395,7 +1395,7 @@
       },
       {
         "id": 109,
-        "url": "https://api.btmessage.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://api.btmessage.com/{seg}?%5Bredacted%5D=",
         "domain": "api.btmessage.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1419,7 +1419,7 @@
       },
       {
         "id": 111,
-        "url": "https://ad.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&size=",
+        "url": "https://ad.doubleclick.net/{seg}?%5Bredacted%5D=&size=",
         "domain": "ad.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
@@ -1436,7 +1436,7 @@
       },
       {
         "id": 112,
-        "url": "https://ad-delivery.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://ad-delivery.net/{seg}?%5Bredacted%5D=",
         "domain": "ad-delivery.net",
         "method": "GET",
         "resourceType": "image",
@@ -1460,8 +1460,8 @@
       },
       {
         "id": 114,
-        "url": "https://lexicon.33across.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "lexicon.33across.com",
+        "url": "https://{label}.33across.com/{seg}/{seg}?%5Bredacted%5D=&ver=",
+        "domain": "{label}.33across.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1472,8 +1472,8 @@
       },
       {
         "id": 115,
-        "url": "https://lexicon.33across.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "lexicon.33across.com",
+        "url": "https://{label}.33across.com/{seg}/{seg}?%5Bredacted%5D=&ver=",
+        "domain": "{label}.33across.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1484,8 +1484,8 @@
       },
       {
         "id": 116,
-        "url": "https://lexicon.33across.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "lexicon.33across.com",
+        "url": "https://{label}.33across.com/{seg}/{seg}?%5Bredacted%5D=&ver=",
+        "domain": "{label}.33across.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1508,8 +1508,8 @@
       },
       {
         "id": 118,
-        "url": "https://ats-wrapper.privacymanager.io/{seg}/{seg}/{seg}",
-        "domain": "ats-wrapper.privacymanager.io",
+        "url": "https://{label}.privacymanager.io/{seg}/{seg}/{seg}",
+        "domain": "{label}.privacymanager.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1520,8 +1520,8 @@
       },
       {
         "id": 119,
-        "url": "https://lbs.eu-1-id5-sync.com/{seg}/{seg}",
-        "domain": "lbs.eu-1-id5-sync.com",
+        "url": "https://{label}.eu-1-id5-sync.com/{seg}/{seg}",
+        "domain": "{label}.eu-1-id5-sync.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1532,8 +1532,8 @@
       },
       {
         "id": 120,
-        "url": "https://lb.eu-1-id5-sync.com/{seg}/{seg}",
-        "domain": "lb.eu-1-id5-sync.com",
+        "url": "https://{label}.eu-1-id5-sync.com/{seg}/{seg}",
+        "domain": "{label}.eu-1-id5-sync.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1556,7 +1556,7 @@
       },
       {
         "id": 122,
-        "url": "https://ad-delivery.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://ad-delivery.net/{seg}?%5Bredacted%5D=",
         "domain": "ad-delivery.net",
         "method": "GET",
         "resourceType": "fetch",
@@ -1580,7 +1580,7 @@
       },
       {
         "id": 124,
-        "url": "https://ad.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&size=",
+        "url": "https://ad.doubleclick.net/{seg}?%5Bredacted%5D=&size=",
         "domain": "ad.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
@@ -1597,8 +1597,8 @@
       },
       {
         "id": 125,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1621,8 +1621,8 @@
       },
       {
         "id": 127,
-        "url": "https://pavlov-prod.healthline.com/api/{seg}",
-        "domain": "pavlov-prod.healthline.com",
+        "url": "https://{label}.healthline.com/api/{seg}",
+        "domain": "{label}.healthline.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -1633,8 +1633,8 @@
       },
       {
         "id": 128,
-        "url": "https://pub.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1645,8 +1645,8 @@
       },
       {
         "id": 129,
-        "url": "https://pub.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "pub.doubleverify.com",
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1657,8 +1657,8 @@
       },
       {
         "id": 130,
-        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "securepubads.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
@@ -1674,8 +1674,8 @@
       },
       {
         "id": 131,
-        "url": "https://js-sec.indexww.com/{seg}/{seg}/{seg}",
-        "domain": "js-sec.indexww.com",
+        "url": "https://{label}.indexww.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.indexww.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -1686,8 +1686,8 @@
       },
       {
         "id": 132,
-        "url": "https://hm.adspsp.com/{seg}",
-        "domain": "hm.adspsp.com",
+        "url": "https://{label}.adspsp.com/{seg}",
+        "domain": "{label}.adspsp.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1710,8 +1710,8 @@
       },
       {
         "id": 134,
-        "url": "https://lexicon.33across.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "lexicon.33across.com",
+        "url": "https://{label}.33across.com/{seg}/{seg}?%5Bredacted%5D=&ver=",
+        "domain": "{label}.33across.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1722,8 +1722,8 @@
       },
       {
         "id": 135,
-        "url": "https://ups.analytics.yahoo.com/{seg}/{n}/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "ups.analytics.yahoo.com",
+        "url": "https://{label}.analytics.yahoo.com/{seg}/{n}/{seg}?v=&%5Bredacted%5D=",
+        "domain": "{label}.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1746,7 +1746,7 @@
       },
       {
         "id": 137,
-        "url": "https://api.rlcdn.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://api.rlcdn.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "api.rlcdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1763,8 +1763,8 @@
       },
       {
         "id": 138,
-        "url": "https://id2.sv.rkdms.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "id2.sv.rkdms.com",
+        "url": "https://{label}.{label}.rkdms.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.rkdms.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1775,8 +1775,8 @@
       },
       {
         "id": 139,
-        "url": "https://match.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1792,8 +1792,8 @@
       },
       {
         "id": 140,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1804,8 +1804,8 @@
       },
       {
         "id": 141,
-        "url": "https://gtm-server.healthline.com/{seg}/{seg}",
-        "domain": "gtm-server.healthline.com",
+        "url": "https://{label}.healthline.com/{seg}/{seg}",
+        "domain": "{label}.healthline.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1816,8 +1816,8 @@
       },
       {
         "id": 142,
-        "url": "https://gtm-server.healthline.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "gtm-server.healthline.com",
+        "url": "https://{label}.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.healthline.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -1828,8 +1828,8 @@
       },
       {
         "id": 143,
-        "url": "https://media.post.rvohealth.io/{seg}/{n}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1852,8 +1852,8 @@
       },
       {
         "id": 145,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -1876,7 +1876,7 @@
       },
       {
         "id": 147,
-        "url": "https://api.rlcdn.com/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://api.rlcdn.com/api/{seg}?%5Bredacted%5D=",
         "domain": "api.rlcdn.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -1893,8 +1893,8 @@
       },
       {
         "id": 148,
-        "url": "https://match.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "match.adsrvr.org",
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -1910,7 +1910,7 @@
       },
       {
         "id": 149,
-        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1922,8 +1922,8 @@
       },
       {
         "id": 150,
-        "url": "https://gtm-server.healthline.com/{seg}/{seg}",
-        "domain": "gtm-server.healthline.com",
+        "url": "https://{label}.healthline.com/{seg}/{seg}",
+        "domain": "{label}.healthline.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -1934,7 +1934,7 @@
       },
       {
         "id": 151,
-        "url": "https://analytics.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://analytics.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "analytics.google.com",
         "method": "GET",
         "resourceType": "image",
@@ -1951,8 +1951,8 @@
       },
       {
         "id": 152,
-        "url": "https://stats.g.doubleclick.net/{seg}/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "stats.g.doubleclick.net",
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?v=&%5Bredacted%5D=&tid=&cid=",
+        "domain": "{label}.{label}.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -1980,8 +1980,8 @@
       },
       {
         "id": 154,
-        "url": "https://lb.eu-1-id5-sync.com/{seg}/{seg}",
-        "domain": "lb.eu-1-id5-sync.com",
+        "url": "https://{label}.eu-1-id5-sync.com/{seg}/{seg}",
+        "domain": "{label}.eu-1-id5-sync.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
@@ -1992,8 +1992,8 @@
       },
       {
         "id": 155,
-        "url": "https://{label}.siteintercept.qualtrics.com/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.siteintercept.qualtrics.com",
+        "url": "https://{label}.{label}.qualtrics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2016,8 +2016,8 @@
       },
       {
         "id": 157,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2028,8 +2028,8 @@
       },
       {
         "id": 158,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2040,8 +2040,8 @@
       },
       {
         "id": 159,
-        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "pagead2.googlesyndication.com",
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
@@ -2057,8 +2057,8 @@
       },
       {
         "id": 160,
-        "url": "https://siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "siteintercept.qualtrics.com",
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2069,7 +2069,7 @@
       },
       {
         "id": 161,
-        "url": "https://adspsp.com/{seg}/{n}/{n}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://adspsp.com/{seg}/{n}/{n}/{n}?%5Bredacted%5D=&v=",
         "domain": "adspsp.com",
         "method": "GET",
         "resourceType": "image",
@@ -2093,8 +2093,8 @@
       },
       {
         "id": 163,
-        "url": "https://aim-tag.hcn.health/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "aim-tag.hcn.health",
+        "url": "https://{label}.hcn.health/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.hcn.health",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2105,7 +2105,7 @@
       },
       {
         "id": 164,
-        "url": "https://analytics.tiktok.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://analytics.tiktok.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "analytics.tiktok.com",
         "method": "GET",
         "resourceType": "script",
@@ -2122,8 +2122,8 @@
       },
       {
         "id": 165,
-        "url": "https://idsync.rlcdn.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "idsync.rlcdn.com",
+        "url": "https://{label}.rlcdn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.rlcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2139,14 +2139,14 @@
       },
       {
         "id": 166,
-        "url": "https://connect.facebook.net/{seg}/{seg}",
-        "domain": "connect.facebook.net",
+        "url": "https://{label}.facebook.net/{seg}/{seg}",
+        "domain": "{label}.facebook.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "connect.facebook.net",
+          "domain": "{label}.facebook.net",
           "entity": "Meta",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -2156,8 +2156,8 @@
       },
       {
         "id": 167,
-        "url": "https://sb.scorecardresearch.com/{seg}/{n}/{seg}",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}/{n}/{seg}",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
@@ -2173,8 +2173,8 @@
       },
       {
         "id": 168,
-        "url": "https://s.pinimg.com/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2185,8 +2185,8 @@
       },
       {
         "id": 169,
-        "url": "https://ak.sail-horizon.com/{seg}/{seg}",
-        "domain": "ak.sail-horizon.com",
+        "url": "https://{label}.sail-horizon.com/{seg}/{seg}",
+        "domain": "{label}.sail-horizon.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2197,8 +2197,8 @@
       },
       {
         "id": 170,
-        "url": "https://sp.analytics.yahoo.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sp.analytics.yahoo.com",
+        "url": "https://{label}.analytics.yahoo.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2209,14 +2209,14 @@
       },
       {
         "id": 171,
-        "url": "https://bat.bing.com/{seg}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -2226,8 +2226,8 @@
       },
       {
         "id": 172,
-        "url": "https://pixel-config.reddit.com/{seg}/{seg}/{seg}",
-        "domain": "pixel-config.reddit.com",
+        "url": "https://{label}.reddit.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.reddit.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2238,8 +2238,8 @@
       },
       {
         "id": 173,
-        "url": "https://alb.reddit.com/{seg}?%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "alb.reddit.com",
+        "url": "https://{label}.reddit.com/{seg}?%5Bredacted%5D=&id=&v=",
+        "domain": "{label}.reddit.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2250,8 +2250,8 @@
       },
       {
         "id": 174,
-        "url": "https://s.pinimg.com/{seg}/{seg}/{seg}",
-        "domain": "s.pinimg.com",
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2262,14 +2262,14 @@
       },
       {
         "id": 175,
-        "url": "https://ct.pinterest.com/{seg}?tid=&cb=&%5Bredacted%5D=",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}?tid=&cb=&%5Bredacted%5D=",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -2279,14 +2279,14 @@
       },
       {
         "id": 176,
-        "url": "https://ct.pinterest.com/{seg}?tid=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}?tid=&%5Bredacted%5D=&cb=",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -2296,14 +2296,14 @@
       },
       {
         "id": 177,
-        "url": "https://ct.pinterest.com/{seg}?tid=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}?tid=&%5Bredacted%5D=&cb=",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -2313,8 +2313,8 @@
       },
       {
         "id": 178,
-        "url": "https://aim-tag.hcn.health/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "aim-tag.hcn.health",
+        "url": "https://{label}.hcn.health/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.hcn.health",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2325,7 +2325,7 @@
       },
       {
         "id": 179,
-        "url": "https://api.sail-personalize.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://api.sail-personalize.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "api.sail-personalize.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -2354,8 +2354,8 @@
       },
       {
         "id": 181,
-        "url": "https://sb.scorecardresearch.com/{seg}/{seg}/{seg}",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2371,14 +2371,14 @@
       },
       {
         "id": 182,
-        "url": "https://bat.bing.com/{seg}/{seg}/{seg}",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -2388,14 +2388,14 @@
       },
       {
         "id": 183,
-        "url": "https://connect.facebook.net/{seg}/{seg}/{n}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "connect.facebook.net",
+        "url": "https://{label}.facebook.net/{seg}/{seg}/{n}?v=&%5Bredacted%5D=",
+        "domain": "{label}.facebook.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "connect.facebook.net",
+          "domain": "{label}.facebook.net",
           "entity": "Meta",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -2405,8 +2405,8 @@
       },
       {
         "id": 184,
-        "url": "https://aim-tag.hcn.health/{seg}",
-        "domain": "aim-tag.hcn.health",
+        "url": "https://{label}.hcn.health/{seg}",
+        "domain": "{label}.hcn.health",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2417,14 +2417,14 @@
       },
       {
         "id": 185,
-        "url": "https://ct.pinterest.com/{seg}",
-        "domain": "ct.pinterest.com",
+        "url": "https://{label}.pinterest.com/{seg}",
+        "domain": "{label}.pinterest.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -2434,8 +2434,8 @@
       },
       {
         "id": 186,
-        "url": "https://sb.scorecardresearch.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -2468,14 +2468,14 @@
       },
       {
         "id": 188,
-        "url": "https://bat.bing.com/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&msclkid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{n}?%5Bredacted%5D=&ver=&msclkid=",
+        "domain": "{label}.bing.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -2616,8 +2616,8 @@
       },
       {
         "id": 197,
-        "url": "https://sb.scorecardresearch.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "sb.scorecardresearch.com",
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
@@ -2735,8 +2735,8 @@
       },
       {
         "id": 204,
-        "url": "https://trc.lhmos.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&callback=",
-        "domain": "trc.lhmos.com",
+        "url": "https://{label}.lhmos.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&callback=",
+        "domain": "{label}.lhmos.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
@@ -2747,8 +2747,8 @@
       },
       {
         "id": 205,
-        "url": "https://match.deepintent.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&cb=",
-        "domain": "match.deepintent.com",
+        "url": "https://{label}.deepintent.com/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.deepintent.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
@@ -2759,8 +2759,8 @@
       },
       {
         "id": 206,
-        "url": "https://trc.lhmos.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "trc.lhmos.com",
+        "url": "https://{label}.lhmos.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.lhmos.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
@@ -2771,8 +2771,8 @@
       },
       {
         "id": 207,
-        "url": "https://match.deepintent.com/{seg}/{n}/store?%5Bredacted%5D=&id=",
-        "domain": "match.deepintent.com",
+        "url": "https://{label}.deepintent.com/{seg}/{n}/store?%5Bredacted%5D=&id=",
+        "domain": "{label}.deepintent.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2783,8 +2783,8 @@
       },
       {
         "id": 208,
-        "url": "https://id.rlcdn.com/{seg}?%5Bredacted%5D=",
-        "domain": "id.rlcdn.com",
+        "url": "https://{label}.rlcdn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.rlcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2800,8 +2800,8 @@
       },
       {
         "id": 209,
-        "url": "https://aim-tag.hcn.health/api/{seg}/{seg}/{seg}",
-        "domain": "aim-tag.hcn.health",
+        "url": "https://{label}.hcn.health/api/{seg}/{seg}/{seg}",
+        "domain": "{label}.hcn.health",
         "method": "POST",
         "resourceType": "xhr",
         "status": 202,
@@ -2812,8 +2812,8 @@
       },
       {
         "id": 210,
-        "url": "https://aim-tag.hcn.health/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "aim-tag.hcn.health",
+        "url": "https://{label}.hcn.health/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.hcn.health",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2841,8 +2841,8 @@
       },
       {
         "id": 212,
-        "url": "https://aim-tag.hcn.health/api/{seg}/{seg}/{seg}",
-        "domain": "aim-tag.hcn.health",
+        "url": "https://{label}.hcn.health/api/{seg}/{seg}/{seg}",
+        "domain": "{label}.hcn.health",
         "method": "POST",
         "resourceType": "xhr",
         "status": 202,
@@ -2853,7 +2853,7 @@
       },
       {
         "id": 213,
-        "url": "https://secure.adnxs.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "url": "https://secure.adnxs.com/{seg}?%5Bredacted%5D=",
         "domain": "secure.adnxs.com",
         "method": "GET",
         "resourceType": "image",
@@ -2877,8 +2877,8 @@
       },
       {
         "id": 215,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2889,8 +2889,8 @@
       },
       {
         "id": 216,
-        "url": "https://i0.wp.com/{seg}/{seg}/{seg}",
-        "domain": "i0.wp.com",
+        "url": "https://{label}.wp.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wp.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2901,8 +2901,8 @@
       },
       {
         "id": 217,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -2925,8 +2925,8 @@
       },
       {
         "id": 219,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
@@ -2937,8 +2937,8 @@
       },
       {
         "id": 220,
-        "url": "https://pavlov-prod.healthline.com/api/{seg}",
-        "domain": "pavlov-prod.healthline.com",
+        "url": "https://{label}.healthline.com/api/{seg}",
+        "domain": "{label}.healthline.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
@@ -2966,8 +2966,8 @@
       },
       {
         "id": 222,
-        "url": "https://pavlov-prod.healthline.com/api/{seg}/{seg}",
-        "domain": "pavlov-prod.healthline.com",
+        "url": "https://{label}.healthline.com/api/{seg}/{seg}",
+        "domain": "{label}.healthline.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2978,8 +2978,8 @@
       },
       {
         "id": 223,
-        "url": "https://ingest.make.rvohealth.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "ingest.make.rvohealth.com",
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.rvohealth.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -2990,8 +2990,8 @@
       },
       {
         "id": 224,
-        "url": "https://gtm-server.healthline.com/{seg}/{seg}",
-        "domain": "gtm-server.healthline.com",
+        "url": "https://{label}.healthline.com/{seg}/{seg}",
+        "domain": "{label}.healthline.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
@@ -3002,14 +3002,14 @@
       },
       {
         "id": 225,
-        "url": "https://bat.bing.com/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&msclkid=&%5Bredacted%5D=",
-        "domain": "bat.bing.com",
+        "url": "https://{label}.bing.com/{seg}/{n}?%5Bredacted%5D=&ver=&msclkid=",
+        "domain": "{label}.bing.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -3036,8 +3036,8 @@
       },
       {
         "id": 227,
-        "url": "https://vtrk.dv.tech/?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=",
-        "domain": "vtrk.dv.tech",
+        "url": "https://{label}.dv.tech/?%5Bredacted%5D=&cid=&t=&v=",
+        "domain": "{label}.dv.tech",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
@@ -3068,7 +3068,28 @@
         ]
       },
       {
-        "domain": "sb.scorecardresearch.com",
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "other",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.scorecardresearch.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": {
@@ -3089,11 +3110,11 @@
         ]
       },
       {
-        "domain": "bat.bing.com",
+        "domain": "{label}.bing.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
@@ -3110,11 +3131,11 @@
         ]
       },
       {
-        "domain": "ct.pinterest.com",
+        "domain": "{label}.pinterest.com",
         "requests": 4,
         "thirdParty": true,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -3130,12 +3151,12 @@
         ]
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 3,
+        "domain": "{label}.{label}.amazon-adsystem.com",
+        "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
           "category": "advertising",
           "confidence": "curated"
         },
@@ -3144,8 +3165,7 @@
           200
         ],
         "resourceTypes": [
-          "script",
-          "other"
+          "script"
         ]
       },
       {
@@ -3187,7 +3207,7 @@
         ]
       },
       {
-        "domain": "match.adsrvr.org",
+        "domain": "{label}.adsrvr.org",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -3206,11 +3226,29 @@
         ]
       },
       {
-        "domain": "connect.facebook.net",
+        "domain": "{label}.rlcdn.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
-          "domain": "connect.facebook.net",
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.facebook.net",
           "entity": "Meta",
           "category": "social / advertising pixel",
           "confidence": "curated"
@@ -3224,43 +3262,7 @@
         ]
       },
       {
-        "domain": "config.aps.amazon-adsystem.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "amazon-adsystem.com",
-          "entity": "Amazon Ads",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "client.aps.amazon-adsystem.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "amazon-adsystem.com",
-          "entity": "Amazon Ads",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "c.amazon-adsystem.com",
+        "domain": "{label}.amazon-adsystem.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3314,25 +3316,7 @@
         ]
       },
       {
-        "domain": "stats.g.doubleclick.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          204
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "pagead2.googlesyndication.com",
+        "domain": "{label}.googlesyndication.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3347,24 +3331,6 @@
         ],
         "resourceTypes": [
           "fetch"
-        ]
-      },
-      {
-        "domain": "idsync.rlcdn.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "rlcdn.com",
-          "entity": "LiveRamp",
-          "category": "identity / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
         ]
       },
       {
@@ -3386,25 +3352,7 @@
         ]
       },
       {
-        "domain": "id.rlcdn.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "rlcdn.com",
-          "entity": "LiveRamp",
-          "category": "identity / advertising",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "media.post.rvohealth.io",
+        "domain": "media.{label}.rvohealth.io",
         "requests": 38,
         "thirdParty": true,
         "tracker": null,
@@ -3417,7 +3365,7 @@
         ]
       },
       {
-        "domain": "ingest.make.rvohealth.com",
+        "domain": "{label}.{label}.rvohealth.com",
         "requests": 18,
         "thirdParty": true,
         "tracker": null,
@@ -3446,7 +3394,7 @@
         ]
       },
       {
-        "domain": "aim-tag.hcn.health",
+        "domain": "{label}.hcn.health",
         "requests": 6,
         "thirdParty": true,
         "tracker": null,
@@ -3459,6 +3407,21 @@
           "script",
           "document",
           "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.33across.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch"
         ]
       },
       {
@@ -3477,6 +3440,20 @@
         ]
       },
       {
+        "domain": "{label}.adspsp.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch"
+        ]
+      },
+      {
         "domain": "ad-delivery.net",
         "requests": 4,
         "thirdParty": true,
@@ -3487,20 +3464,6 @@
         ],
         "resourceTypes": [
           "image",
-          "fetch"
-        ]
-      },
-      {
-        "domain": "lexicon.33across.com",
-        "requests": 4,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
           "fetch"
         ]
       },
@@ -3519,20 +3482,7 @@
         ]
       },
       {
-        "domain": "prod.adspsp.com",
-        "requests": 3,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "pub.doubleverify.com",
+        "domain": "{label}.doubleverify.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -3546,7 +3496,20 @@
         ]
       },
       {
-        "domain": "siteintercept.qualtrics.com",
+        "domain": "{label}.eu-1-id5-sync.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.qualtrics.com",
         "requests": 3,
         "thirdParty": true,
         "tracker": null,
@@ -3587,19 +3550,6 @@
         ]
       },
       {
-        "domain": "lb.eu-1-id5-sync.com",
-        "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
         "domain": "www.youtube.com",
         "requests": 2,
         "thirdParty": true,
@@ -3613,7 +3563,21 @@
         ]
       },
       {
-        "domain": "s.pinimg.com",
+        "domain": "{label}.analytics.yahoo.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.pinimg.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -3626,7 +3590,21 @@
         ]
       },
       {
-        "domain": "trc.lhmos.com",
+        "domain": "{label}.reddit.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.lhmos.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -3640,7 +3618,7 @@
         ]
       },
       {
-        "domain": "match.deepintent.com",
+        "domain": "{label}.deepintent.com",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -3666,7 +3644,7 @@
         ]
       },
       {
-        "domain": "geolocation.onetrust.com",
+        "domain": "{label}.onetrust.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3676,19 +3654,6 @@
         ],
         "resourceTypes": [
           "xhr"
-        ]
-      },
-      {
-        "domain": "cdn-ima.33across.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
         ]
       },
       {
@@ -3757,7 +3722,7 @@
         ]
       },
       {
-        "domain": "ats-wrapper.privacymanager.io",
+        "domain": "{label}.privacymanager.io",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3770,20 +3735,7 @@
         ]
       },
       {
-        "domain": "lbs.eu-1-id5-sync.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "js-sec.indexww.com",
+        "domain": "{label}.indexww.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3796,33 +3748,7 @@
         ]
       },
       {
-        "domain": "hm.adspsp.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "ups.analytics.yahoo.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "id2.sv.rkdms.com",
+        "domain": "{label}.{label}.rkdms.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3846,7 +3772,7 @@
         ]
       },
       {
-        "domain": "{label}.siteintercept.qualtrics.com",
+        "domain": "{label}.{label}.qualtrics.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3885,7 +3811,7 @@
         ]
       },
       {
-        "domain": "ak.sail-horizon.com",
+        "domain": "{label}.sail-horizon.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3895,45 +3821,6 @@
         ],
         "resourceTypes": [
           "script"
-        ]
-      },
-      {
-        "domain": "sp.analytics.yahoo.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
-        ]
-      },
-      {
-        "domain": "pixel-config.reddit.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "alb.reddit.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "image"
         ]
       },
       {
@@ -3963,7 +3850,7 @@
         ]
       },
       {
-        "domain": "i0.wp.com",
+        "domain": "{label}.wp.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3976,7 +3863,7 @@
         ]
       },
       {
-        "domain": "vtrk.dv.tech",
+        "domain": "{label}.dv.tech",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -4002,8 +3889,8 @@
         ]
       },
       {
-        "domain": "gtm-server.healthline.com",
-        "requests": 6,
+        "domain": "{label}.healthline.com",
+        "requests": 10,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
@@ -4012,6 +3899,7 @@
         ],
         "resourceTypes": [
           "script",
+          "ping",
           "fetch",
           "document",
           "image"
@@ -4031,32 +3919,6 @@
           "fetch",
           "image",
           "font"
-        ]
-      },
-      {
-        "domain": "pavlov-prod.healthline.com",
-        "requests": 3,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "ping"
-        ]
-      },
-      {
-        "domain": "rvo-cohesion.healthline.com",
-        "requests": 1,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
         ]
       }
     ],
@@ -4730,9 +4592,9 @@
           ],
           "thirdPartyOrigins": [
             "https://assets.healthline.com/",
-            "https://prod.adspsp.com/",
-            "https://rvo-cohesion.healthline.com/",
-            "https://s.pinimg.com/"
+            "https://{label}.adspsp.com/",
+            "https://{label}.healthline.com/",
+            "https://{label}.pinimg.com/"
           ],
           "totalListenerCalls": 48
         }
@@ -4764,11 +4626,11 @@
             "https://analytics.tiktok.com/",
             "https://assets.healthline.com/",
             "https://cdn.cookielaw.org/",
-            "https://connect.facebook.net/",
-            "https://gtm-server.healthline.com/",
-            "https://prod.adspsp.com/",
-            "https://pub.doubleverify.com/",
-            "https://rvo-cohesion.healthline.com/"
+            "https://{label}.facebook.net/",
+            "https://{label}.healthline.com/",
+            "https://{label}.adspsp.com/",
+            "https://{label}.doubleverify.com/",
+            "https://{label}.healthline.com/"
           ],
           "totalListenerCalls": 59
         }
@@ -5021,8 +4883,8 @@
       },
       {
         "id": 13,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5033,8 +4895,8 @@
       },
       {
         "id": 14,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5057,8 +4919,8 @@
       },
       {
         "id": 16,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5069,8 +4931,8 @@
       },
       {
         "id": 17,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5081,8 +4943,8 @@
       },
       {
         "id": 18,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5093,8 +4955,8 @@
       },
       {
         "id": 19,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5105,8 +4967,8 @@
       },
       {
         "id": 20,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5117,8 +4979,8 @@
       },
       {
         "id": 21,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5129,8 +4991,8 @@
       },
       {
         "id": 22,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5153,8 +5015,8 @@
       },
       {
         "id": 25,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5165,8 +5027,8 @@
       },
       {
         "id": 26,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5177,8 +5039,8 @@
       },
       {
         "id": 27,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5189,8 +5051,8 @@
       },
       {
         "id": 28,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5201,8 +5063,8 @@
       },
       {
         "id": 29,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5213,8 +5075,8 @@
       },
       {
         "id": 30,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5225,8 +5087,8 @@
       },
       {
         "id": 31,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5237,8 +5099,8 @@
       },
       {
         "id": 32,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5249,8 +5111,8 @@
       },
       {
         "id": 33,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5261,8 +5123,8 @@
       },
       {
         "id": 34,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5273,8 +5135,8 @@
       },
       {
         "id": 35,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5285,8 +5147,8 @@
       },
       {
         "id": 36,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5297,8 +5159,8 @@
       },
       {
         "id": 37,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5309,8 +5171,8 @@
       },
       {
         "id": 38,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5321,8 +5183,8 @@
       },
       {
         "id": 39,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5333,8 +5195,8 @@
       },
       {
         "id": 40,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5345,8 +5207,8 @@
       },
       {
         "id": 41,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5357,8 +5219,8 @@
       },
       {
         "id": 42,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5369,8 +5231,8 @@
       },
       {
         "id": 43,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5381,8 +5243,8 @@
       },
       {
         "id": 44,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5393,8 +5255,8 @@
       },
       {
         "id": 45,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5405,8 +5267,8 @@
       },
       {
         "id": 46,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5417,8 +5279,8 @@
       },
       {
         "id": 47,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5429,8 +5291,8 @@
       },
       {
         "id": 48,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5441,8 +5303,8 @@
       },
       {
         "id": 49,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5453,8 +5315,8 @@
       },
       {
         "id": 50,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5465,8 +5327,8 @@
       },
       {
         "id": 51,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5681,8 +5543,8 @@
       },
       {
         "id": 78,
-        "url": "https://media.post.rvohealth.io/{seg}/{n}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5693,8 +5555,8 @@
       },
       {
         "id": 81,
-        "url": "https://i0.wp.com/{seg}/{seg}/{seg}",
-        "domain": "i0.wp.com",
+        "url": "https://{label}.wp.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wp.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5705,8 +5567,8 @@
       },
       {
         "id": 82,
-        "url": "https://media.post.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "media.post.rvohealth.io",
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
@@ -5730,7 +5592,7 @@
     ],
     "domains": [
       {
-        "domain": "media.post.rvohealth.io",
+        "domain": "media.{label}.rvohealth.io",
         "requests": 38,
         "thirdParty": true,
         "tracker": null,
@@ -5770,7 +5632,7 @@
         ]
       },
       {
-        "domain": "i0.wp.com",
+        "domain": "{label}.wp.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -5931,9 +5793,9 @@
       "delta": -51
     },
     "thirdPartyDomains": {
-      "before": 63,
+      "before": 55,
       "after": 4,
-      "delta": -59
+      "delta": -51
     },
     "cookies": {
       "before": 42,
@@ -5958,6 +5820,11 @@
     "addedDomains": [],
     "removedDomains": [
       {
+        "domain": "{label}.{label}.rvohealth.com",
+        "requests": 18,
+        "tracker": null
+      },
+      {
         "domain": "analytics.tiktok.com",
         "requests": 18,
         "tracker": {
@@ -5968,18 +5835,18 @@
         }
       },
       {
-        "domain": "ingest.make.rvohealth.com",
-        "requests": 18,
+        "domain": "{label}.healthline.com",
+        "requests": 10,
         "tracker": null
       },
       {
-        "domain": "aim-tag.hcn.health",
+        "domain": "{label}.hcn.health",
         "requests": 6,
         "tracker": null
       },
       {
-        "domain": "gtm-server.healthline.com",
-        "requests": 6,
+        "domain": "{label}.33across.com",
+        "requests": 5,
         "tracker": null
       },
       {
@@ -5988,42 +5855,42 @@
         "tracker": null
       },
       {
-        "domain": "ad-delivery.net",
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 4,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.adspsp.com",
         "requests": 4,
         "tracker": null
       },
       {
-        "domain": "bat.bing.com",
+        "domain": "{label}.bing.com",
         "requests": 4,
         "tracker": {
-          "domain": "bat.bing.com",
+          "domain": "{label}.bing.com",
           "entity": "Microsoft",
           "category": "advertising / analytics",
           "confidence": "curated"
         }
       },
       {
-        "domain": "ct.pinterest.com",
+        "domain": "{label}.pinterest.com",
         "requests": 4,
         "tracker": {
-          "domain": "ct.pinterest.com",
+          "domain": "{label}.pinterest.com",
           "entity": "Pinterest",
           "category": "social / advertising pixel",
           "confidence": "curated"
         }
       },
       {
-        "domain": "id5-sync.com",
-        "requests": 4,
-        "tracker": null
-      },
-      {
-        "domain": "lexicon.33across.com",
-        "requests": 4,
-        "tracker": null
-      },
-      {
-        "domain": "sb.scorecardresearch.com",
+        "domain": "{label}.scorecardresearch.com",
         "requests": 4,
         "tracker": {
           "domain": "scorecardresearch.com",
@@ -6033,34 +5900,94 @@
         }
       },
       {
-        "domain": "pavlov-prod.healthline.com",
+        "domain": "ad-delivery.net",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "id5-sync.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.doubleverify.com",
         "requests": 3,
         "tracker": null
       },
       {
-        "domain": "prod.adspsp.com",
+        "domain": "{label}.eu-1-id5-sync.com",
         "requests": 3,
         "tracker": null
       },
       {
-        "domain": "pub.doubleverify.com",
+        "domain": "{label}.qualtrics.com",
         "requests": 3,
         "tracker": null
       },
       {
-        "domain": "securepubads.g.doubleclick.net",
-        "requests": 3,
+        "domain": "{label}.{label}.amazon-adsystem.com",
+        "requests": 2,
         "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
           "category": "advertising",
           "confidence": "curated"
         }
       },
       {
-        "domain": "siteintercept.qualtrics.com",
-        "requests": 3,
+        "domain": "{label}.adsrvr.org",
+        "requests": 2,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.analytics.yahoo.com",
+        "requests": 2,
         "tracker": null
+      },
+      {
+        "domain": "{label}.deepintent.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.lhmos.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.pinimg.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.reddit.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.rlcdn.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        }
       },
       {
         "domain": "ad.doubleclick.net",
@@ -6093,47 +6020,7 @@
         "tracker": null
       },
       {
-        "domain": "connect.facebook.net",
-        "requests": 2,
-        "tracker": {
-          "domain": "connect.facebook.net",
-          "entity": "Meta",
-          "category": "social / advertising pixel",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "lb.eu-1-id5-sync.com",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "match.adsrvr.org",
-        "requests": 2,
-        "tracker": {
-          "domain": "adsrvr.org",
-          "entity": "The Trade Desk",
-          "category": "advertising / demand-side platform",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "match.deepintent.com",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "s.pinimg.com",
-        "requests": 2,
-        "tracker": null
-      },
-      {
         "domain": "secure.adnxs.com",
-        "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "trc.lhmos.com",
         "requests": 2,
         "tracker": null
       },
@@ -6143,7 +6030,57 @@
         "tracker": null
       },
       {
-        "domain": "{label}.siteintercept.qualtrics.com",
+        "domain": "{label}.{label}.qualtrics.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.rkdms.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.amazon-adsystem.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.dv.tech",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.googlesyndication.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.indexww.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.privacymanager.io",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.sail-horizon.com",
         "requests": 1,
         "tracker": null
       },
@@ -6154,16 +6091,6 @@
       },
       {
         "domain": "adspsp.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "ak.sail-horizon.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "alb.reddit.com",
         "requests": 1,
         "tracker": null
       },
@@ -6193,142 +6120,12 @@
         "tracker": null
       },
       {
-        "domain": "ats-wrapper.privacymanager.io",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "c.amazon-adsystem.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "amazon-adsystem.com",
-          "entity": "Amazon Ads",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "cdn-ima.33across.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
         "domain": "cdn.id5-sync.com",
         "requests": 1,
         "tracker": null
       },
       {
-        "domain": "client.aps.amazon-adsystem.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "amazon-adsystem.com",
-          "entity": "Amazon Ads",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "config.aps.amazon-adsystem.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "amazon-adsystem.com",
-          "entity": "Amazon Ads",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "geolocation.onetrust.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "hm.adspsp.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "id.rlcdn.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "rlcdn.com",
-          "entity": "LiveRamp",
-          "category": "identity / advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "id2.sv.rkdms.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "idsync.rlcdn.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "rlcdn.com",
-          "entity": "LiveRamp",
-          "category": "identity / advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "js-sec.indexww.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "lbs.eu-1-id5-sync.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "pagead2.googlesyndication.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "googlesyndication.com",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "pixel-config.reddit.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "rvo-cohesion.healthline.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
         "domain": "secure.cdn.fastclick.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "sp.analytics.yahoo.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "stats.g.doubleclick.net",
-        "requests": 1,
-        "tracker": {
-          "domain": "doubleclick.net",
-          "entity": "Google",
-          "category": "advertising",
-          "confidence": "curated"
-        }
-      },
-      {
-        "domain": "ups.analytics.yahoo.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "vtrk.dv.tech",
         "requests": 1,
         "tracker": null
       },
@@ -6373,7 +6170,7 @@
       {
         "entity": "Google",
         "requests": 9,
-        "domains": 6
+        "domains": 5
       },
       {
         "entity": "Comscore",
@@ -6383,7 +6180,7 @@
       {
         "entity": "LiveRamp",
         "requests": 4,
-        "domains": 3
+        "domains": 2
       },
       {
         "entity": "Microsoft",
@@ -6398,7 +6195,7 @@
       {
         "entity": "Amazon Ads",
         "requests": 3,
-        "domains": 3
+        "domains": 2
       },
       {
         "entity": "Meta",

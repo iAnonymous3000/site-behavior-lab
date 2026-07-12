@@ -25,7 +25,7 @@
  * imports, like lib/comparison-eligibility.
  */
 
-import { comparisonEligibility } from "./comparison-eligibility";
+import { comparisonEligibility, temporalPairEligibility } from "./comparison-eligibility";
 import { legacyV1MethodologyIdentity } from "./legacy-methodology";
 import { sha256Hex } from "./sha256";
 import type { ComparisonScanResult, ScanResult } from "./types";
@@ -156,6 +156,52 @@ export function legacyMeasurementEnvironmentFingerprint(run: ScanResult): string
  */
 export function legacyTemporalCohortFingerprint(run: ScanResult): string | null {
   const environment = legacyMeasurementEnvironmentFingerprint(run);
+  return legacyTemporalCohortFromEnvironment(run, environment, "legacy-temporal-cohort-v1");
+}
+
+/**
+ * Versioned passive-history cohort used only to SUGGEST and preflight
+ * descriptive temporal comparisons. It is identical to the strict legacy
+ * temporal cohort except that a known Brave-list `fetchedAt` is replaced with
+ * a fixed marker. This is allowed only for explicit classification visits;
+ * block simulation and unknown engine provenance remain unpairable.
+ *
+ * The strict cohort and the full compatibility fingerprint above deliberately
+ * keep the real snapshot, so retention and Shields comparisons are unchanged.
+ */
+export function legacyComparisonHistoryCohortFingerprint(run: ScanResult): string | null {
+  const conditions = run.conditions;
+  const adblock = conditions.adblock;
+  if (
+    conditions.shieldsMode !== "classification" ||
+    adblock?.active !== true ||
+    !knownString(adblock.source) ||
+    !knownString(adblock.fetchedAt) ||
+    !Number.isFinite(Date.parse(adblock.fetchedAt)) ||
+    !Number.isInteger(adblock.lists) ||
+    adblock.lists <= 0
+  ) {
+    return null;
+  }
+
+  const environment = legacyMeasurementEnvironmentFingerprint({
+    ...run,
+    conditions: {
+      ...conditions,
+      adblock: {
+        ...adblock,
+        fetchedAt: "comparison-history-snapshot-omitted-v1"
+      }
+    }
+  });
+  return legacyTemporalCohortFromEnvironment(run, environment, "legacy-comparison-history-cohort-v1");
+}
+
+function legacyTemporalCohortFromEnvironment(
+  run: ScanResult,
+  environment: string | null,
+  version: "legacy-temporal-cohort-v1" | "legacy-comparison-history-cohort-v1"
+): string | null {
   const conditions = run.conditions;
   const catalog = conditions.trackerCatalog;
   const shields = knownString(conditions.shieldsMode);
@@ -180,7 +226,7 @@ export function legacyTemporalCohortFingerprint(run: ScanResult): string | null 
 
   return sha256Hex(
     JSON.stringify({
-      version: "legacy-temporal-cohort-v1",
+      version,
       environment,
       conditions: {
         consent: conditions.consentMode,
@@ -235,13 +281,14 @@ function legacyCompatibility(report: ComparisonScanResult): CompatibilityFingerp
  *   proven to come from matching instrumentation (RFC 3.2).
  */
 export function legacyComparisonDecision(report: ComparisonScanResult): ComparisonDecision {
-  const eligibility = comparisonEligibility(report);
-  const pairReasons = [...eligibility.reasons];
+  const strictEligibility = comparisonEligibility(report);
+  const structuralEligibility = temporalPairEligibility(report);
+  const pairReasons = [...structuralEligibility.reasons];
 
-  const gatedFamily = (extraReasons: string[]): FamilyDecision =>
+  const gatedFamily = (eligibility: { eligible: boolean; reasons: string[] }, extraReasons: string[]): FamilyDecision =>
     eligibility.eligible && extraReasons.length === 0
       ? { mode: "comparable", reasons: [] }
-      : { mode: "raw-only", reasons: [...pairReasons, ...extraReasons] };
+      : { mode: "raw-only", reasons: [...eligibility.reasons, ...extraReasons] };
 
   const catalogReasons: string[] = [];
   const baselineCatalog = report.baseline.conditions.trackerCatalog;
@@ -288,16 +335,16 @@ export function legacyComparisonDecision(report: ComparisonScanResult): Comparis
     ) {
       shieldsReasons.push("The two visits used different filter-list snapshots, so their Shields numbers measure different lists.");
     }
-    shields = gatedFamily(shieldsReasons);
+    shields = gatedFamily(strictEligibility, shieldsReasons);
   }
 
   return {
-    mode: eligibility.eligible ? "comparable" : "raw-only",
+    mode: structuralEligibility.eligible ? "comparable" : "raw-only",
     reasons: pairReasons,
     compatibility: legacyCompatibility(report),
     families: {
-      "raw-counts": gatedFamily([]),
-      "tracker-classification": gatedFamily(catalogReasons),
+      "raw-counts": gatedFamily(structuralEligibility, []),
+      "tracker-classification": gatedFamily(structuralEligibility, catalogReasons),
       "shields-simulation": shields,
       "consent-verification": {
         mode: "suppressed",
