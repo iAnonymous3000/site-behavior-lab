@@ -226,6 +226,13 @@ async function uiChecks() {
     await expectText(page.locator(".report-header"), "https://example.com/");
     pass("share permalink renders saved report");
 
+    // Report permalinks intentionally lead with evidence and do not embed the
+    // scanner form. Return to the scanner before exercising its validation UI.
+    await page.goto(baseUrl, { waitUntil: "networkidle" });
+    if (scanAccessToken) {
+      await openOptions(page);
+      await page.getByLabel("Scanner access key").fill(scanAccessToken);
+    }
     await page.fill("#url", "http://127.0.0.1:3000");
     await page.getByRole("button", { name: "Scan", exact: true }).click();
     await page.waitForSelector(".error-banner", { timeout: 10_000 });
