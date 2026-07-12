@@ -80,8 +80,9 @@ export default function PrivacyPage() {
             before anything is written or shared.
           </li>
           <li>
-            Stored reports are <strong>automatically deleted after about {RETENTION_DAYS} days</strong> on the
-            reference deployment (configurable by whoever runs the instance).
+            Stored reports <strong>expire after about {RETENTION_DAYS} days</strong> on the reference deployment
+            (configurable by whoever runs the instance): an expired report&apos;s link stops working, any read of it
+            removes the stored copy, and routine cleanup deletes expired copies that were never read again.
           </li>
           <li>No report is linked to your identity, and reports do not record your IP address.</li>
         </ul>
