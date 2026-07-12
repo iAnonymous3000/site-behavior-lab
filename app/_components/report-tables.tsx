@@ -229,7 +229,7 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
         {shown.length === 0 && (
           <p className="table-empty">
             {filtersActive
-              ? "No requests in this visit match the current filters (they carried over from the previous view)."
+              ? "No requests in this visit match the current filters (filters stay applied when you switch visits)."
               : "No requests recorded for this visit."}
             {filtersActive && (
               <>

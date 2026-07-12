@@ -473,9 +473,11 @@ usatoday and eligible webmd Shields reports with a clean console:
   follows the evidence switcher; its tooltip names the visit it exports.
 - Arm-switch announcements: an aria-live status inside the switcher announces
   "Showing evidence from the <arm> visit." on every switch.
-- Filter reconciliation: a filtered-empty request log says the filters
-  carried over from the previous view and offers a working "Clear filters"
-  reset; a genuinely empty visit says so instead.
+- Filter reconciliation: a filtered-empty request log says no requests match
+  the current filters (noting that filters stay applied across the evidence
+  switcher, wording accurate whether the user typed the filter or switched
+  arms) and offers a working "Clear filters" reset; a genuinely empty visit
+  says so instead.
 - aria-expanded on the comparison change-list toggles.
 - Full suppression reasons: the panel's family notes consume
   claims.decision.families: ALL reasons (never just the first), with the mode

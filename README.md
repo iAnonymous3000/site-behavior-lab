@@ -306,6 +306,7 @@ Or individually:
 
 ```bash
 npm run typecheck
+npm run cf:typecheck
 npm run test:unit
 npm run build
 npm run build:pages
