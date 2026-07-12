@@ -194,8 +194,8 @@ jobs:
       - name: Trigger CI on the pushed commit
         # Pushes made with GITHUB_TOKEN never fire `on: push` workflows, so the
         # commit above would stay untested and the CI-gated production branch
-        # would never receive it. Dispatch CI explicitly; the Promote Production
-        # workflow advances `production` once that run passes.
+        # would never receive it. Dispatch CI explicitly; that tested CI run
+        # advances `production` itself once both jobs pass.
         if: steps.commit.outputs.pushed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}

@@ -108,7 +108,10 @@ jobs:
       - smoke
     # PR code never receives a write token. Pushes and explicit dispatches must
     # both target this repository's main ref before they can promote.
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: >-
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/main' &&
+      vars.SITE_BEHAVIOR_LAB_PROMOTION_PAUSED != '1'
     runs-on: ubuntu-latest
     permissions:
       contents: write

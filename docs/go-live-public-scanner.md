@@ -158,13 +158,14 @@ the committed Shields corpus keep working unchanged.
 
 ## Deploy (CI-gated)
 
-Production deploys track the **`production`** branch, never `main`.
-`.github/workflows/promote-production.yml` is the only writer: after a `main`
-CI run succeeds, it fast-forwards `production` to the exact SHA that run
-tested. No force pushes; out-of-order CI completions are skipped (never a
-rewind); a tested SHA missing from `main` hard-fails for human attention. The
-repo-writing workflows dispatch CI after their `GITHUB_TOKEN` pushes so corpus
-and filter-list commits are tested and promoted too.
+Production deploys track the **`production`** branch, never `main`. After both
+test jobs pass, CI fast-forwards `production` to the exact SHA it tested;
+`.github/workflows/promote-production.yml` is an idempotent fallback for
+ordinary push/user-dispatched runs. Both paths share one serialized promotion
+group and the same safeguards: no force pushes, no out-of-order rewind, and a
+hard failure when the tested SHA is no longer reachable from `main`. CI owns
+the direct path because runs dispatched by repo-writing workflows with
+`GITHUB_TOKEN` do not reliably cascade into a third `workflow_run`.
 
 One-time dashboard setup (no API token needed):
 
@@ -175,9 +176,9 @@ One-time dashboard setup (no API token needed):
    Settings > Builds > branch = `production`; disable non-production branch
    builds.
 
-To hold production at a known-good revision during an incident, disable the
-Promote Production workflow in the Actions tab; re-enabling resumes promotion
-at the next green CI run. Never move `production` by hand.
+To hold production at a known-good revision during an incident, set the
+repository Actions variable `SITE_BEHAVIOR_LAB_PROMOTION_PAUSED=1`. Clear it
+and rerun CI on `main` to resume. Never move `production` by hand.
 
 ## Operate
 
