@@ -1,5 +1,10 @@
 import { AwsClient } from "aws4fetch";
-import type { ReportStoreBackend, StoredReportBlob, StoredReportEntry } from "./report-store-backend";
+import type {
+  ReportRetentionMetadata,
+  ReportStoreBackend,
+  StoredReportBlob,
+  StoredReportEntry
+} from "./report-store-backend";
 import { REPORT_ID_PATTERN } from "./report-validation";
 
 const R2_BUCKET_ENV = "SITE_BEHAVIOR_LAB_R2_BUCKET";
@@ -7,6 +12,8 @@ const R2_ENDPOINT_ENV = "SITE_BEHAVIOR_LAB_R2_ENDPOINT";
 const R2_ACCESS_KEY_ID_ENV = "SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID";
 const R2_SECRET_ACCESS_KEY_ENV = "SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY";
 const R2_PREFIX_ENV = "SITE_BEHAVIOR_LAB_R2_PREFIX";
+const CREATED_AT_METADATA_HEADER = "x-amz-meta-created-at";
+const EXPIRES_AT_METADATA_HEADER = "x-amz-meta-expires-at";
 
 export type R2ReportStoreConfig = {
   bucket: string;
@@ -49,8 +56,10 @@ export function createR2ReportStoreBackend(
   const sign = deps.sign ?? defaultSigner(config);
   const sleep = deps.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
 
-  const objectUrl = (id: string): string =>
+  const reportObjectUrl = (id: string): string =>
     `${config.endpoint}/${encodeURIComponent(config.bucket)}/${encodeKey(`${config.prefix}${id}.json`)}`;
+  const sidecarObjectUrl = (id: string): string =>
+    `${config.endpoint}/${encodeURIComponent(config.bucket)}/${encodeKey(`${config.prefix}${id}.json.provenance.json`)}`;
 
   // One signed dispatch with bounded retries on transient failures. A rejected
   // fetch (network error) or a retryable status marks the attempt's server-side
@@ -78,51 +87,118 @@ export function createR2ReportStoreBackend(
     }
   }
 
-  async function readBlob(id: string): Promise<StoredReportBlob | null> {
-    const { response } = await send(objectUrl(id), { method: "GET" });
+  async function readObject(input: string, action: string): Promise<{ contents: string; headers: Headers; lastModifiedMs: number } | null> {
+    const { response } = await send(input, { method: "GET" });
     if (response.status === 404) {
       await drain(response);
       return null;
     }
-    await assertOk(response, "read report");
+    await assertOk(response, action);
     const contents = await response.text();
-    return { contents, lastModifiedMs: parseLastModified(response.headers) } satisfies StoredReportBlob;
+    return { contents, headers: response.headers, lastModifiedMs: parseLastModified(response.headers) };
+  }
+
+  async function readBlob(id: string): Promise<StoredReportBlob | null> {
+    const stored = await readObject(reportObjectUrl(id), "read report");
+    if (!stored) return null;
+    return {
+      contents: stored.contents,
+      lastModifiedMs: stored.lastModifiedMs,
+      retention: parseRetentionMetadata(stored.headers)
+    };
+  }
+
+  async function writeCreateOnly(
+    id: string,
+    input: string,
+    contents: string,
+    label: "report" | "report sidecar",
+    retention?: ReportRetentionMetadata
+  ): Promise<void> {
+    if (retention !== undefined && !isRetentionMetadata(retention)) {
+      throw new Error("Invalid report retention metadata.");
+    }
+    const headers: Record<string, string> = {
+      "content-type": "application/json",
+      "if-none-match": "*"
+    };
+    if (retention) {
+      headers[CREATED_AT_METADATA_HEADER] = retention.createdAt;
+      headers[EXPIRES_AT_METADATA_HEADER] = retention.expiresAt;
+    }
+
+    const { response, outcomeUnknown } = await send(input, { method: "PUT", body: contents, headers });
+    if (response.status === 412 || response.status === 409) {
+      await drain(response);
+      // A 412 after an attempt whose outcome was unknown can be this call's
+      // own earlier PUT having landed. Exact contents AND retention metadata
+      // must match before treating the replay as success.
+      if (outcomeUnknown) {
+        const stored = await readObject(input, `read ${label}`).catch(() => null);
+        const storedRetention = stored ? parseRetentionMetadata(stored.headers) : null;
+        if (
+          stored?.contents === contents &&
+          (retention === undefined || retentionMetadataEqual(storedRetention, retention))
+        ) {
+          return;
+        }
+      }
+      throw new ReportStoreWriteConflictError(`Report ${id} ${label} already exists.`);
+    }
+    await assertOk(response, `store ${label}`);
+    await drain(response);
+  }
+
+  async function deleteObject(input: string, action: string): Promise<void> {
+    const { response } = await send(input, { method: "DELETE" });
+    if (response.status !== 404) await assertOk(response, action);
+    await drain(response);
+  }
+
+  async function headRetention(id: string): Promise<{ exists: boolean; retention: ReportRetentionMetadata | null }> {
+    const { response } = await send(reportObjectUrl(id), { method: "HEAD" });
+    if (response.status === 404) {
+      await drain(response);
+      return { exists: false, retention: null };
+    }
+    await assertOk(response, "read report metadata");
+    const retention = parseRetentionMetadata(response.headers);
+    await drain(response);
+    return { exists: true, retention };
   }
 
   return {
     kind: "r2",
-    async write(id, contents) {
-      // If-None-Match: * makes the PUT create-only, preserving the filesystem
-      // `wx` guarantee against ID reuse.
-      const { response, outcomeUnknown } = await send(objectUrl(id), {
-        method: "PUT",
-        body: contents,
-        headers: { "content-type": "application/json", "if-none-match": "*" }
-      });
-      if (response.status === 412 || response.status === 409) {
-        await drain(response);
-        // A 412 after an attempt whose outcome was unknown can be this call's
-        // own earlier PUT having landed (the response was lost, the object was
-        // created). Read the object back: identical contents mean the write
-        // succeeded; anything else is a genuine ID conflict.
-        if (outcomeUnknown) {
-          const stored = await readBlob(id).catch(() => null);
-          if (stored?.contents === contents) return;
-        }
-        throw new ReportStoreWriteConflictError(`Report ${id} already exists.`);
-      }
-      await assertOk(response, "store report");
-      await drain(response);
+    write(id, contents, retention) {
+      return writeCreateOnly(id, reportObjectUrl(id), contents, "report", retention);
+    },
+    writeSidecar(id, contents) {
+      return writeCreateOnly(id, sidecarObjectUrl(id), contents, "report sidecar");
     },
     read(id) {
       return readBlob(id);
     },
+    async readSidecar(id) {
+      const stored = await readObject(sidecarObjectUrl(id), "read report sidecar");
+      return stored?.contents ?? null;
+    },
     async remove(id) {
-      const { response } = await send(objectUrl(id), { method: "DELETE" });
-      if (response.status !== 404) {
-        await assertOk(response, "delete report");
+      // Sidecar first: interruption leaves a report that fails provenance
+      // closed, never a sidecar-vouched report that pruning meant to remove.
+      // Still attempt both deletes if one errors so a transient/permission
+      // problem on one half cannot prevent cleanup of the other half.
+      let firstError: unknown;
+      try {
+        await deleteObject(sidecarObjectUrl(id), "delete report sidecar");
+      } catch (error) {
+        firstError = error;
       }
-      await drain(response);
+      try {
+        await deleteObject(reportObjectUrl(id), "delete report");
+      } catch (error) {
+        firstError ??= error;
+      }
+      if (firstError !== undefined) throw firstError;
     },
     async list() {
       const entries: StoredReportEntry[] = [];
@@ -131,7 +207,13 @@ export function createR2ReportStoreBackend(
         const { response } = await send(listUrl(config, continuationToken), { method: "GET" });
         await assertOk(response, "list reports");
         const page = parseListResult(await response.text(), config.prefix);
-        entries.push(...page.entries);
+        const enriched = await Promise.all(
+          page.entries.map(async (entry): Promise<StoredReportEntry | null> => {
+            const metadata = await headRetention(entry.id);
+            return metadata.exists ? { ...entry, retention: metadata.retention } : null;
+          })
+        );
+        entries.push(...enriched.filter((entry): entry is StoredReportEntry => entry !== null));
         continuationToken = page.nextContinuationToken;
       } while (continuationToken);
       return entries;
@@ -177,7 +259,7 @@ export function parseListResult(
     if (id === fileName || !REPORT_ID_PATTERN.test(id)) continue;
     const lastModified = extractTag(match[1], "LastModified");
     const parsed = lastModified ? Date.parse(lastModified) : Number.NaN;
-    entries.push({ id, lastModifiedMs: Number.isFinite(parsed) ? parsed : Date.now() });
+    entries.push({ id, lastModifiedMs: Number.isFinite(parsed) ? parsed : Date.now(), retention: null });
   }
 
   const truncated = extractTag(xml, "IsTruncated") === "true";
@@ -200,6 +282,35 @@ function parseLastModified(headers: Headers): number {
   const header = headers.get("last-modified");
   const parsed = header ? Date.parse(header) : Number.NaN;
   return Number.isFinite(parsed) ? parsed : Date.now();
+}
+
+function parseRetentionMetadata(headers: Headers): ReportRetentionMetadata | null {
+  const value = {
+    createdAt: headers.get(CREATED_AT_METADATA_HEADER) ?? "",
+    expiresAt: headers.get(EXPIRES_AT_METADATA_HEADER) ?? ""
+  };
+  return isRetentionMetadata(value) ? value : null;
+}
+
+function retentionMetadataEqual(left: ReportRetentionMetadata | null, right: ReportRetentionMetadata): boolean {
+  return left?.createdAt === right.createdAt && left.expiresAt === right.expiresAt;
+}
+
+function isRetentionMetadata(value: unknown): value is ReportRetentionMetadata {
+  if (!value || typeof value !== "object") return false;
+  const metadata = value as Partial<ReportRetentionMetadata>;
+  return (
+    Object.keys(value).length === 2 &&
+    isCanonicalTimestamp(metadata.createdAt) &&
+    isCanonicalTimestamp(metadata.expiresAt) &&
+    Date.parse(metadata.expiresAt) > Date.parse(metadata.createdAt)
+  );
+}
+
+function isCanonicalTimestamp(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
 }
 
 function normalizePrefix(raw: string | undefined): string {

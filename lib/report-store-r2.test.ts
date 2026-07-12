@@ -16,6 +16,18 @@ const CONFIG: R2ReportStoreConfig = {
 };
 
 const VALID_ID = "20260620-0123456789abcdef0123456789abcdef";
+const RETENTION = {
+  createdAt: "2026-06-20T12:00:00.000Z",
+  expiresAt: "2026-06-27T12:00:00.000Z"
+};
+
+function retentionHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  return {
+    "x-amz-meta-created-at": RETENTION.createdAt,
+    "x-amz-meta-expires-at": RETENTION.expiresAt,
+    ...extra
+  };
+}
 
 type RecordedRequest = { method: string; url: string; headers: Record<string, string>; body: string };
 
@@ -58,13 +70,32 @@ function backendWith(responses: (Response | Error)[]) {
 
 test("R2 write issues a create-only PUT to the prefixed key", async () => {
   const { backend, requests } = backendWith([new Response(null, { status: 200 })]);
-  await backend.write(VALID_ID, "{}\n");
+  await backend.write(VALID_ID, "{}\n", RETENTION);
 
   assert.equal(requests.length, 1);
   assert.equal(requests[0].method, "PUT");
   assert.equal(requests[0].url, `${CONFIG.endpoint}/reports-bucket/reports/${VALID_ID}.json`);
   assert.equal(requests[0].headers["if-none-match"], "*");
+  assert.equal(requests[0].headers["x-amz-meta-created-at"], RETENTION.createdAt);
+  assert.equal(requests[0].headers["x-amz-meta-expires-at"], RETENTION.expiresAt);
   assert.equal(requests[0].body, "{}\n");
+});
+
+test("R2 writes and reads the provenance sidecar beside the report key", async () => {
+  const { backend, requests } = backendWith([
+    new Response(null, { status: 200 }),
+    new Response('{"reportId":"test"}\n', { status: 200 })
+  ]);
+  await backend.writeSidecar(VALID_ID, '{"reportId":"test"}\n');
+  assert.equal(await backend.readSidecar(VALID_ID), '{"reportId":"test"}\n');
+  assert.equal(requests[0].url, `${CONFIG.endpoint}/reports-bucket/reports/${VALID_ID}.json.provenance.json`);
+  assert.equal(requests[0].method, "PUT");
+  assert.equal(requests[1].method, "GET");
+});
+
+test("R2 sidecar write is create-only", async () => {
+  const { backend } = backendWith([new Response(null, { status: 412 })]);
+  await assert.rejects(() => backend.writeSidecar(VALID_ID, "{}\n"), ReportStoreWriteConflictError);
 });
 
 test("R2 write rejects when the object already exists", async () => {
@@ -99,9 +130,12 @@ test("R2 write treats a 412 after a lost response as success when the object mat
   const { backend, requests } = backendWith([
     new Error("socket hang up"),
     new Response(null, { status: 412 }),
-    new Response("{}\n", { status: 200, headers: { "last-modified": "Fri, 20 Jun 2026 12:00:00 GMT" } })
+    new Response("{}\n", {
+      status: 200,
+      headers: retentionHeaders({ "last-modified": "Fri, 20 Jun 2026 12:00:00 GMT" })
+    })
   ]);
-  await backend.write(VALID_ID, "{}\n");
+  await backend.write(VALID_ID, "{}\n", RETENTION);
 
   assert.equal(requests.length, 3);
   assert.equal(requests[2].method, "GET");
@@ -114,6 +148,18 @@ test("R2 write still rejects a 412 after a lost response when the object differs
     new Response("SOMEONE-ELSES-REPORT", { status: 200 })
   ]);
   await assert.rejects(() => backend.write(VALID_ID, "{}\n"), ReportStoreWriteConflictError);
+});
+
+test("R2 ambiguous replay requires immutable retention metadata to match", async () => {
+  const { backend } = backendWith([
+    new Error("socket hang up"),
+    new Response(null, { status: 412 }),
+    new Response("{}\n", {
+      status: 200,
+      headers: retentionHeaders({ "x-amz-meta-expires-at": "2026-07-01T12:00:00.000Z" })
+    })
+  ]);
+  await assert.rejects(() => backend.write(VALID_ID, "{}\n", RETENTION), ReportStoreWriteConflictError);
 });
 
 test("R2 write gives up after exhausting retries", async () => {
@@ -143,16 +189,22 @@ test("R2 read retries a transient failure and succeeds", async () => {
   assert.equal(requests.length, 2);
 });
 
-test("R2 read returns contents and last-modified", async () => {
+test("R2 read returns contents, diagnostic last-modified, and immutable retention metadata", async () => {
   const lastModified = "Fri, 20 Jun 2026 12:00:00 GMT";
   const { backend } = backendWith([
-    new Response("REPORT-JSON", { status: 200, headers: { "last-modified": lastModified } })
+    new Response("REPORT-JSON", { status: 200, headers: retentionHeaders({ "last-modified": lastModified }) })
   ]);
 
   assert.deepEqual(await backend.read(VALID_ID), {
     contents: "REPORT-JSON",
-    lastModifiedMs: Date.parse(lastModified)
+    lastModifiedMs: Date.parse(lastModified),
+    retention: RETENTION
   });
+});
+
+test("R2 read treats missing or malformed custom retention metadata as unknown", async () => {
+  const { backend } = backendWith([new Response("REPORT-JSON", { status: 200 })]);
+  assert.equal((await backend.read(VALID_ID))?.retention, null);
 });
 
 test("R2 read returns null for a missing object", async () => {
@@ -161,16 +213,32 @@ test("R2 read returns null for a missing object", async () => {
 });
 
 test("R2 remove tolerates a missing object", async () => {
-  const { backend, requests } = backendWith([new Response(null, { status: 404 })]);
+  const { backend, requests } = backendWith([
+    new Response(null, { status: 404 }),
+    new Response(null, { status: 404 })
+  ]);
   await backend.remove(VALID_ID);
+  assert.match(requests[0].url, /\.json\.provenance\.json$/);
   assert.equal(requests[0].method, "DELETE");
+  assert.match(requests[1].url, new RegExp(`${VALID_ID}\\.json$`));
 });
 
-test("R2 list paginates and keeps only valid report ids", async () => {
+test("R2 remove attempts both halves when one delete fails", async () => {
+  const { backend, requests } = backendWith([
+    new Response("denied", { status: 403 }),
+    new Response(null, { status: 200 })
+  ]);
+  await assert.rejects(() => backend.remove(VALID_ID), /HTTP 403/);
+  assert.equal(requests.length, 2);
+  assert.match(requests[0].url, /\.json\.provenance\.json$/);
+  assert.match(requests[1].url, new RegExp(`${VALID_ID}\\.json$`));
+});
+
+test("R2 list paginates, keeps valid ids, and reads retention independently of rewrite time", async () => {
   const otherId = "20260619-ffffffffffffffffffffffffffffffff";
   const page1 = `<?xml version="1.0"?>
     <ListBucketResult>
-      <Contents><Key>reports/${VALID_ID}.json</Key><LastModified>2026-06-20T12:00:00.000Z</LastModified></Contents>
+      <Contents><Key>reports/${VALID_ID}.json</Key><LastModified>2030-01-01T00:00:00.000Z</LastModified></Contents>
       <Contents><Key>reports/not-a-report.txt</Key><LastModified>2026-06-20T12:00:00.000Z</LastModified></Contents>
       <IsTruncated>true</IsTruncated>
       <NextContinuationToken>TOKEN123</NextContinuationToken>
@@ -183,7 +251,15 @@ test("R2 list paginates and keeps only valid report ids", async () => {
 
   const { backend, requests } = backendWith([
     new Response(page1, { status: 200 }),
-    new Response(page2, { status: 200 })
+    new Response(null, { status: 200, headers: retentionHeaders() }),
+    new Response(page2, { status: 200 }),
+    new Response(null, {
+      status: 200,
+      headers: {
+        "x-amz-meta-created-at": "2026-06-19T08:00:00.000Z",
+        "x-amz-meta-expires-at": "2026-06-26T08:00:00.000Z"
+      }
+    })
   ]);
 
   const entries = await backend.list();
@@ -191,7 +267,11 @@ test("R2 list paginates and keeps only valid report ids", async () => {
     entries.map((entry) => entry.id),
     [VALID_ID, otherId]
   );
-  assert.ok(requests[1].url.includes("continuation-token=TOKEN123"));
+  assert.deepEqual(entries[0].retention, RETENTION);
+  assert.equal(entries[0].lastModifiedMs, Date.parse("2030-01-01T00:00:00.000Z"));
+  assert.equal(requests[1].method, "HEAD");
+  assert.ok(requests[2].url.includes("continuation-token=TOKEN123"));
+  assert.equal(requests[3].method, "HEAD");
 });
 
 test("parseListResult ignores keys outside the prefix", () => {

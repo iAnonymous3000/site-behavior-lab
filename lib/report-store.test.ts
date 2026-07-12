@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, readdir, rm, unlink, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { createComparisonReport, createGpcComparisonReport } from "./compare-reports";
-import { readScanReport, readStoredScanReportById, reportStoreStatus, saveScanReport } from "./report-store";
+import { buildProvenanceEntry, matchProvenance } from "./redaction-provenance";
+import { pruneStoredReports, readScanReport, readStoredScanReportById, reportStoreStatus, saveScanReport } from "./report-store";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } from "./types";
 
 const REPORT_MAX_COUNT_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT";
@@ -104,6 +105,47 @@ test("saveScanReport creates strongly random share IDs", async () => {
   assert.match(saved.share?.id || "", /^[0-9]{8}-[0-9a-f]{32}$/);
 });
 
+test("saveScanReport writes a matched report, sidecar, and immutable retention clock", async () => {
+  const saved = await saveScanReport(makeScanResult());
+  const id = saved.share?.id || "";
+  const report = JSON.parse(await readFile(path.join(reportDir, `${id}.json`), "utf8")) as unknown;
+  const sidecar = JSON.parse(await readFile(path.join(reportDir, `${id}.provenance.json`), "utf8")) as {
+    reportId: string;
+    createdAt: string;
+    expiresAt: string;
+  };
+  const retention = JSON.parse(await readFile(path.join(reportDir, `${id}.retention.json`), "utf8")) as {
+    createdAt: string;
+    expiresAt: string;
+  };
+
+  assert.equal(matchProvenance(report, sidecar, id).status, "matched");
+  assert.deepEqual(retention, { createdAt: sidecar.createdAt, expiresAt: sidecar.expiresAt });
+  assert.equal(Date.parse(retention.expiresAt) - Date.parse(retention.createdAt), 7 * 24 * 60 * 60 * 1_000);
+});
+
+test("saveScanReport writes report first and fails the share when sidecar creation fails", async () => {
+  const shareId = "20260712-" + "c".repeat(32);
+  await writeFile(path.join(reportDir, `${shareId}.provenance.json`), "{}\n");
+
+  await assert.rejects(() => saveScanReport(makeScanResult(), { shareId }), /EEXIST/);
+  await access(path.join(reportDir, `${shareId}.json`));
+  await access(path.join(reportDir, `${shareId}.retention.json`));
+  assert.deepEqual(await readStoredScanReportById(shareId), { outcome: "unreadable", error: "invalid" });
+});
+
+test("missing provenance or retention metadata makes an existing report unreadable", async () => {
+  const withoutSidecar = await saveScanReport(makeScanResult());
+  const sidecarId = withoutSidecar.share?.id || "";
+  await unlink(path.join(reportDir, `${sidecarId}.provenance.json`));
+  assert.deepEqual(await readStoredScanReportById(sidecarId), { outcome: "unreadable", error: "invalid" });
+
+  const withoutRetention = await saveScanReport(makeScanResult());
+  const retentionId = withoutRetention.share?.id || "";
+  await unlink(path.join(reportDir, `${retentionId}.retention.json`));
+  assert.deepEqual(await readStoredScanReportById(retentionId), { outcome: "unreadable", error: "invalid" });
+});
+
 test("saveScanReport can persist under a caller-supplied strong share ID", async () => {
   const shareId = "20260619-0123456789abcdef0123456789abcdef";
   const saved = await saveScanReport(makeScanResult(), { shareId });
@@ -165,17 +207,68 @@ test("readScanReport accepts non-GPC comparison reports", async () => {
 test("saveScanReport prunes persisted reports by max count", async () => {
   process.env[REPORT_MAX_COUNT_ENV] = "2";
 
-  await saveScanReport(makeScanResult());
-  await saveScanReport(makeScanResult());
-  await saveScanReport(makeScanResult());
+  const saved = [
+    await saveScanReport(makeScanResult()),
+    await saveScanReport(makeScanResult()),
+    await saveScanReport(makeScanResult())
+  ];
 
-  const files = (await readdir(reportDir)).filter((file) => file.endsWith(".json"));
-  assert.equal(files.length, 2);
+  const files = await readdir(reportDir);
+  assert.equal(files.filter(isReportFile).length, 2);
+  assert.equal(files.filter((file) => file.endsWith(".provenance.json")).length, 2);
+  assert.equal(files.filter((file) => file.endsWith(".retention.json")).length, 2);
+
+  let completeBundles = 0;
+  let removedBundles = 0;
+  for (const report of saved) {
+    const id = report.share?.id || "";
+    const bundle = [
+      `${id}.json`,
+      `${id}.provenance.json`,
+      `${id}.retention.json`
+    ].map((file) => files.includes(file));
+    assert.ok(bundle.every((present) => present === bundle[0]), `partial report bundle for ${id}`);
+    if (bundle[0]) completeBundles += 1;
+    else removedBundles += 1;
+  }
+  assert.equal(completeBundles, 2);
+  assert.equal(removedBundles, 1);
+});
+
+test("pruning uses immutable expiry metadata, never a rewritten report mtime", async () => {
+  const saved = await saveScanReport(makeScanResult());
+  const id = saved.share?.id || "";
+  const reportPath = path.join(reportDir, `${id}.json`);
+  const report = JSON.parse(await readFile(reportPath, "utf8")) as unknown;
+  const retention = {
+    createdAt: "2026-06-01T00:00:00.000Z",
+    expiresAt: "2026-06-08T00:00:00.000Z"
+  };
+  await writeFile(path.join(reportDir, `${id}.retention.json`), `${JSON.stringify(retention)}\n`);
+  await writeFile(
+    path.join(reportDir, `${id}.provenance.json`),
+    `${JSON.stringify(
+      buildProvenanceEntry({
+        reportId: id,
+        publicReport: report,
+        writtenAt: "2026-07-12T00:00:00.000Z",
+        createdAt: retention.createdAt,
+        expiresAt: retention.expiresAt
+      })
+    )}\n`
+  );
+  const rewrittenAt = new Date("2030-01-01T00:00:00.000Z");
+  await utimes(reportPath, rewrittenAt, rewrittenAt);
+
+  await pruneStoredReports(Date.parse("2026-07-12T00:00:00.000Z"));
+  await assert.rejects(() => access(reportPath), /ENOENT/);
+  await assert.rejects(() => access(path.join(reportDir, `${id}.provenance.json`)), /ENOENT/);
+  await assert.rejects(() => access(path.join(reportDir, `${id}.retention.json`)), /ENOENT/);
 });
 
 test("saveScanReport reports the configured report store directory in its status", async () => {
   const saved = await saveScanReport(makeScanResult());
-  const files = (await readdir(reportDir)).filter((file) => file.endsWith(".json"));
+  const files = (await readdir(reportDir)).filter(isReportFile);
 
   assert.equal(files.length, 1);
   assert.deepEqual(await readScanReport(saved.share?.id || ""), saved);
@@ -187,6 +280,10 @@ test("saveScanReport reports the configured report store directory in its status
     maxCount: 500
   });
 });
+
+function isReportFile(file: string): boolean {
+  return /^[0-9]{8}-[0-9a-f]{32}\.json$/.test(file);
+}
 
 function makeScanResult(options: { gpcEnabled?: boolean; screenshot?: string | null } = {}): ScanResult {
   const payload: ScanRequestPayload = {

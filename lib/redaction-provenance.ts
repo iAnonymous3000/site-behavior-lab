@@ -1,5 +1,6 @@
 import { CANONICALIZATION_VERSION, publicReportDigest } from "./canonical-json";
 import { REDACTION_VERSION } from "./redaction-v2";
+import { REPORT_ID_PATTERN } from "./report-validation";
 
 /**
  * Redaction provenance sidecars (RFC scan-report-v2 15.8). v1 wire is frozen,
@@ -57,7 +58,7 @@ export function buildProvenanceEntry(input: {
   expiresAt: string | null;
   redactionVersion?: number;
 }): RedactionProvenanceEntry {
-  return {
+  const entry: RedactionProvenanceEntry = {
     reportId: input.reportId,
     publicDigest: publicReportDigest(input.publicReport),
     canonicalizationVersion: CANONICALIZATION_VERSION,
@@ -66,22 +67,41 @@ export function buildProvenanceEntry(input: {
     createdAt: input.createdAt,
     expiresAt: input.expiresAt
   };
+  if (!isProvenanceEntry(entry)) {
+    throw new Error("Invalid redaction provenance entry.");
+  }
+  return entry;
 }
 
 export type ProvenanceMatch =
   | { status: "matched"; entry: RedactionProvenanceEntry }
   | { status: "digest-mismatch"; entry: RedactionProvenanceEntry; recomputedDigest: string }
-  | { status: "unknown"; reason: "no-sidecar" | "malformed-sidecar" | "canonicalization-version-mismatch" };
+  | {
+      status: "unknown";
+      reason:
+        | "no-sidecar"
+        | "malformed-sidecar"
+        | "report-id-mismatch"
+        | "canonicalization-version-mismatch"
+        | "redaction-version-mismatch";
+    };
 
 /**
  * Whether a stored report is vouched for by its sidecar. Any defect resolves
  * to UNKNOWN or mismatch, never to a false "remediated": that is the fail-safe
  * direction (re-remediate rather than trust).
  */
-export function matchProvenance(publicReport: unknown, sidecar: unknown): ProvenanceMatch {
+export function matchProvenance(publicReport: unknown, sidecar: unknown, expectedReportId: string): ProvenanceMatch {
+  if (sidecar === null || sidecar === undefined) return { status: "unknown", reason: "no-sidecar" };
   if (!isProvenanceEntry(sidecar)) return { status: "unknown", reason: "malformed-sidecar" };
+  if (!REPORT_ID_PATTERN.test(expectedReportId) || sidecar.reportId !== expectedReportId) {
+    return { status: "unknown", reason: "report-id-mismatch" };
+  }
   if (sidecar.canonicalizationVersion !== CANONICALIZATION_VERSION) {
     return { status: "unknown", reason: "canonicalization-version-mismatch" };
+  }
+  if (sidecar.redactionVersion !== REDACTION_VERSION) {
+    return { status: "unknown", reason: "redaction-version-mismatch" };
   }
   const recomputedDigest = publicReportDigest(publicReport);
   if (recomputedDigest !== sidecar.publicDigest) {
@@ -93,15 +113,38 @@ export function matchProvenance(publicReport: unknown, sidecar: unknown): Proven
 export function isProvenanceEntry(value: unknown): value is RedactionProvenanceEntry {
   if (!value || typeof value !== "object") return false;
   const entry = value as Partial<RedactionProvenanceEntry>;
+  const keys = Object.keys(value);
   return (
+    keys.length === 7 &&
+    keys.every((key) => PROVENANCE_ENTRY_KEYS.has(key as keyof RedactionProvenanceEntry)) &&
     typeof entry.reportId === "string" &&
+    REPORT_ID_PATTERN.test(entry.reportId) &&
     typeof entry.publicDigest === "string" &&
     /^[0-9a-f]{64}$/.test(entry.publicDigest) &&
     typeof entry.canonicalizationVersion === "string" &&
     typeof entry.redactionVersion === "number" &&
     Number.isInteger(entry.redactionVersion) &&
-    typeof entry.writtenAt === "string" &&
-    typeof entry.createdAt === "string" &&
-    (entry.expiresAt === null || typeof entry.expiresAt === "string")
+    entry.redactionVersion > 0 &&
+    isCanonicalTimestamp(entry.writtenAt) &&
+    isCanonicalTimestamp(entry.createdAt) &&
+    (entry.expiresAt === null || isCanonicalTimestamp(entry.expiresAt)) &&
+    Date.parse(entry.writtenAt) >= Date.parse(entry.createdAt) &&
+    (entry.expiresAt === null || Date.parse(entry.expiresAt) > Date.parse(entry.createdAt))
   );
+}
+
+const PROVENANCE_ENTRY_KEYS = new Set<keyof RedactionProvenanceEntry>([
+  "reportId",
+  "publicDigest",
+  "canonicalizationVersion",
+  "redactionVersion",
+  "writtenAt",
+  "createdAt",
+  "expiresAt"
+]);
+
+function isCanonicalTimestamp(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
 }

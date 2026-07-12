@@ -1,0 +1,173 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { readManagedReport } from "./managed-report-reader";
+import { buildProvenanceEntry } from "./redaction-provenance";
+import { REDACTION_VERSION } from "./redaction-v2";
+import { buildReportShare } from "./report-locator";
+import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
+
+const REPORT_ID = "20260712-" + "a".repeat(32);
+const RETENTION = {
+  createdAt: "2026-07-12T10:00:00.000Z",
+  expiresAt: "2026-07-19T10:00:00.000Z"
+};
+
+function managedParts() {
+  const report = makePublicSingleReportV2();
+  const reportContents = `${JSON.stringify(report, null, 2)}\n`;
+  const sidecar = buildProvenanceEntry({
+    reportId: REPORT_ID,
+    publicReport: report,
+    writtenAt: RETENTION.createdAt,
+    createdAt: RETENTION.createdAt,
+    expiresAt: RETENTION.expiresAt
+  });
+  return { report, reportContents, sidecar, sidecarContents: `${JSON.stringify(sidecar)}\n` };
+}
+
+test("a managed report requires a matching current sidecar and immutable retention metadata", () => {
+  const parts = managedParts();
+  const read = readManagedReport({
+    reportId: REPORT_ID,
+    reportContents: parts.reportContents,
+    sidecarContents: parts.sidecarContents,
+    retention: RETENTION
+  });
+  assert.equal(read.ok, true);
+  if (!read.ok) throw new Error("expected managed report");
+  assert.equal(read.wire, parts.reportContents);
+  assert.equal(read.provenance.reportId, REPORT_ID);
+  assert.deepEqual(read.retention, RETENTION);
+});
+
+test("the managed reader supports committed-report sidecars with no expiry", () => {
+  const report = makePublicSingleReportV2();
+  const clock = { createdAt: RETENTION.createdAt, expiresAt: null };
+  const sidecar = buildProvenanceEntry({
+    reportId: REPORT_ID,
+    publicReport: report,
+    writtenAt: RETENTION.createdAt,
+    createdAt: clock.createdAt,
+    expiresAt: null
+  });
+  const read = readManagedReport({
+    reportId: REPORT_ID,
+    reportContents: JSON.stringify(report),
+    sidecarContents: JSON.stringify(sidecar),
+    retention: clock
+  });
+  assert.equal(read.ok, true);
+  if (!read.ok) throw new Error("expected committed managed report");
+  assert.equal(read.retention.expiresAt, null);
+});
+
+test("partial and malformed managed states fail closed", () => {
+  const parts = managedParts();
+  const base = { reportId: REPORT_ID, reportContents: parts.reportContents, retention: RETENTION };
+
+  assert.equal(readManagedReport({ ...base, sidecarContents: null }).ok, false);
+  assert.deepEqual(readManagedReport({ ...base, sidecarContents: "{" }), {
+    ok: false,
+    error: "invalid",
+    reason: "invalid-sidecar-json"
+  });
+  assert.deepEqual(readManagedReport({ ...base, sidecarContents: "{}" }), {
+    ok: false,
+    error: "invalid",
+    reason: "malformed-sidecar"
+  });
+  assert.deepEqual(
+    readManagedReport({ ...base, reportContents: "{", sidecarContents: parts.sidecarContents }),
+    { ok: false, error: "invalid", reason: "invalid-report-json" }
+  );
+});
+
+test("wrong id, version, digest, or retention metadata fails closed", () => {
+  const parts = managedParts();
+  const read = (sidecar: unknown, retention = RETENTION) =>
+    readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: parts.reportContents,
+      sidecarContents: JSON.stringify(sidecar),
+      retention
+    });
+
+  assert.deepEqual(read({ ...parts.sidecar, reportId: "20260712-" + "b".repeat(32) }), {
+    ok: false,
+    error: "invalid",
+    reason: "report-id-mismatch"
+  });
+  assert.deepEqual(read({ ...parts.sidecar, redactionVersion: REDACTION_VERSION + 1 }), {
+    ok: false,
+    error: "invalid",
+    reason: "redaction-version-mismatch"
+  });
+  assert.deepEqual(read({ ...parts.sidecar, publicDigest: "0".repeat(64) }), {
+    ok: false,
+    error: "invalid",
+    reason: "digest-mismatch"
+  });
+  assert.deepEqual(read(parts.sidecar, { ...RETENTION, expiresAt: "2026-07-20T10:00:00.000Z" }), {
+    ok: false,
+    error: "invalid",
+    reason: "retention-metadata-mismatch"
+  });
+  assert.deepEqual(
+    readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: parts.reportContents,
+      sidecarContents: parts.sidecarContents,
+      retention: null
+    }),
+    { ok: false, error: "invalid", reason: "missing-retention-metadata" }
+  );
+  assert.deepEqual(read(parts.sidecar, { ...RETENTION, expiresAt: "not-a-timestamp" }), {
+    ok: false,
+    error: "invalid",
+    reason: "malformed-retention-metadata"
+  });
+});
+
+test("a current sidecar cannot bless unredacted v1 bytes or a foreign embedded share", () => {
+  const rawV1 = makeScanReportV1();
+  assert.notEqual(rawV1.reportType, "comparison");
+  if (rawV1.reportType === "comparison") throw new Error("expected single report fixture");
+  rawV1.conditions.requestedUrl = "https://example.com/patients/alice?token=secret";
+  rawV1.conditions.finalUrl = rawV1.conditions.requestedUrl;
+  const rawSidecar = buildProvenanceEntry({
+    reportId: REPORT_ID,
+    publicReport: rawV1,
+    writtenAt: RETENTION.createdAt,
+    createdAt: RETENTION.createdAt,
+    expiresAt: RETENTION.expiresAt
+  });
+  assert.deepEqual(
+    readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: JSON.stringify(rawV1),
+      sidecarContents: JSON.stringify(rawSidecar),
+      retention: RETENTION
+    }),
+    { ok: false, error: "invalid", reason: "redaction-not-idempotent" }
+  );
+
+  const foreignId = "20260712-" + "f".repeat(32);
+  const foreignShare = makePublicSingleReportV2();
+  foreignShare.share = buildReportShare(foreignId);
+  const foreignSidecar = buildProvenanceEntry({
+    reportId: REPORT_ID,
+    publicReport: foreignShare,
+    writtenAt: RETENTION.createdAt,
+    createdAt: RETENTION.createdAt,
+    expiresAt: RETENTION.expiresAt
+  });
+  assert.deepEqual(
+    readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: JSON.stringify(foreignShare),
+      sidecarContents: JSON.stringify(foreignSidecar),
+      retention: RETENTION
+    }),
+    { ok: false, error: "invalid", reason: "share-id-mismatch" }
+  );
+});

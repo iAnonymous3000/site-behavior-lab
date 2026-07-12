@@ -1,16 +1,16 @@
 import { randomBytes } from "node:crypto";
+import { readManagedReport } from "./managed-report-reader";
+import { buildProvenanceEntry } from "./redaction-provenance";
+import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { buildReportShare } from "./report-locator";
 import {
   resolveReportStoreBackend,
+  type ReportRetentionMetadata,
   type ReportStoreBackendStatus,
   type StoredReportEntry
 } from "./report-store-backend";
 import { REPORT_ID_PATTERN } from "./report-validation";
-import {
-  readStoredScanReport,
-  type ReadStoredScanReportError,
-  type StoredScanReport
-} from "./scan-report-reader";
+import type { ReadStoredScanReportError, StoredScanReport } from "./scan-report-reader";
 import type { ReportShare, ScanReport } from "./types";
 
 const DEFAULT_REPORT_MAX_AGE_DAYS = 7;
@@ -25,9 +25,31 @@ export type ReportStoreStatus = ReportStoreBackendStatus & {
 
 export async function saveScanReport<T extends ScanReport>(report: T, options: { shareId?: string } = {}): Promise<T> {
   const share = createReportShare(options.shareId);
-  const saved = attachShare(report, share);
+  // Idempotently enforce the current public sanitizer at the persistence
+  // boundary even when the producer already applied it. Only those exact
+  // sanitized bytes may receive a current-version provenance sidecar.
+  const saved = redactScanReportV1(attachShare(report, share)).report;
+  const publicReport = stripScreenshotsForStorage(saved);
+  const now = new Date();
+  const retention: ReportRetentionMetadata = {
+    createdAt: now.toISOString(),
+    expiresAt: new Date(now.getTime() + reportMaxAgeMs()).toISOString()
+  };
+  const reportWire = `${JSON.stringify(publicReport, null, 2)}\n`;
+  const sidecar = buildProvenanceEntry({
+    reportId: share.id,
+    publicReport,
+    writtenAt: retention.createdAt,
+    createdAt: retention.createdAt,
+    expiresAt: retention.expiresAt
+  });
   const backend = resolveReportStoreBackend();
-  await backend.write(share.id, `${JSON.stringify(stripScreenshotsForStorage(saved), null, 2)}\n`);
+  // Deliberately non-atomic and ordered: a crash/failure after the report PUT
+  // leaves no matching sidecar, so reads fail closed rather than trusting an
+  // unattested object. The share operation itself does not succeed until both
+  // writes do.
+  await backend.write(share.id, reportWire, retention);
+  await backend.writeSidecar(share.id, `${JSON.stringify(sidecar, null, 2)}\n`);
   await pruneStoredReportsSafely(share.id);
   return saved;
 }
@@ -56,24 +78,24 @@ export async function readStoredScanReportById(id: string): Promise<StoredReport
   const blob = await backend.read(id);
   if (!blob) return { outcome: "not-found" };
 
-  if (isExpired(blob.lastModifiedMs)) {
+  if (blob.retention && isExpired(blob.retention)) {
     await backend.remove(id).catch(() => undefined);
     return { outcome: "not-found" };
   }
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(blob.contents) as unknown;
-  } catch (error) {
-    if (error instanceof SyntaxError) return { outcome: "unreadable", error: "invalid" };
-    throw error;
+  const managed = readManagedReport({
+    reportId: id,
+    reportContents: blob.contents,
+    sidecarContents: await backend.readSidecar(id),
+    retention: blob.retention
+  });
+  if (!managed.ok) {
+    return {
+      outcome: "unreadable",
+      error: managed.error,
+      ...(managed.violations ? { violations: managed.violations } : {})
+    };
   }
-
-  const read = readStoredScanReport(parsed);
-  if (!read.ok) {
-    return { outcome: "unreadable", error: read.error, ...(read.violations ? { violations: read.violations } : {}) };
-  }
-  return { outcome: "found", stored: read.stored, wire: blob.contents };
+  return { outcome: "found", stored: managed.stored, wire: managed.wire };
 }
 
 /**
@@ -91,11 +113,13 @@ export async function readScanReport(id: string): Promise<ScanReport | null> {
 export async function pruneStoredReports(now = Date.now(), preserveId?: string): Promise<void> {
   const backend = resolveReportStoreBackend();
   const entries = await backend.list();
-  const maxAgeMs = reportMaxAgeMs();
   const kept: StoredReportEntry[] = [];
 
   for (const entry of entries) {
-    if (maxAgeMs > 0 && now - entry.lastModifiedMs > maxAgeMs) {
+    // Legacy/malformed objects have no trustworthy immutable clock. Never
+    // fall back to LastModified: a remediation rewrite would restart it and
+    // silently extend retention. Delete such runtime shares fail-closed.
+    if (!entry.retention || now >= Date.parse(entry.retention.expiresAt)) {
       await backend.remove(entry.id).catch(() => undefined);
     } else {
       kept.push(entry);
@@ -104,7 +128,9 @@ export async function pruneStoredReports(now = Date.now(), preserveId?: string):
 
   const maxCount = reportMaxCount();
   const preserved = preserveId ? kept.find((entry) => entry.id === preserveId) : undefined;
-  const candidates = kept.filter((entry) => entry.id !== preserveId).sort((a, b) => b.lastModifiedMs - a.lastModifiedMs);
+  const candidates = kept
+    .filter((entry) => entry.id !== preserveId)
+    .sort((a, b) => Date.parse(b.retention!.createdAt) - Date.parse(a.retention!.createdAt));
   const candidateLimit = preserved ? Math.max(0, maxCount - 1) : maxCount;
   await Promise.all(candidates.slice(candidateLimit).map((entry) => backend.remove(entry.id).catch(() => undefined)));
 }
@@ -155,10 +181,8 @@ async function pruneStoredReportsSafely(preserveId: string): Promise<void> {
   }
 }
 
-function isExpired(lastModifiedMs: number): boolean {
-  const maxAgeMs = reportMaxAgeMs();
-  if (maxAgeMs <= 0) return false;
-  return Date.now() - lastModifiedMs > maxAgeMs;
+function isExpired(retention: ReportRetentionMetadata): boolean {
+  return Date.now() >= Date.parse(retention.expiresAt);
 }
 
 function reportMaxAgeMs(): number {
