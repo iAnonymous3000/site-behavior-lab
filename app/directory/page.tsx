@@ -14,16 +14,21 @@ export const metadata: Metadata = {
   alternates: { canonical: "/directory/" }
 };
 
+// "Catalogued-service requests", never "tracker requests": the count is
+// requests matching the service catalog, which includes operational-only
+// services, and it counts REQUESTS, not distinct services.
 function sinceLastScanText(delta: SinceLastScan): string {
   if (delta.thirdPartyRequests === 0 && delta.trackerRequests === 0) {
-    return "no change in third-party or tracker requests";
+    return "no change in third-party or catalogued-service requests";
   }
   // Each metric reads grammatically on its own, so a lone zero renders as
-  // "no change in tracker requests" instead of "no change tracker requests".
+  // "no change in catalogued-service requests" instead of a bare "no change".
   const thirdParty =
     delta.thirdPartyRequests === 0 ? "no change in third-party" : `${formatDelta(delta.thirdPartyRequests)} third-party`;
   const tracker =
-    delta.trackerRequests === 0 ? "no change in tracker requests" : `${formatDelta(delta.trackerRequests)} tracker requests`;
+    delta.trackerRequests === 0
+      ? "no change in catalogued-service requests"
+      : `${formatDelta(delta.trackerRequests)} catalogued-service requests`;
   return `${thirdParty}, ${tracker}`;
 }
 
@@ -154,7 +159,7 @@ export default async function DirectoryPage() {
           </div>
           {heaviest.length > 0 && (
             <div className="rollup-leaderboard">
-              <h3>Heaviest sites by tracker requests</h3>
+              <h3>Heaviest sites by catalogued-service requests</h3>
               <ol>
                 {heaviest.map((site) => (
                   <li key={site.id}>

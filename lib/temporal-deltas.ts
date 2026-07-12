@@ -1,3 +1,4 @@
+import { safeParseUrl } from "./report-url";
 import type { ComparisonType } from "./types";
 
 /**
@@ -87,9 +88,18 @@ export function computeSinceLastScan(entries: TemporalDeltaInput[]): Map<string,
   return deltas;
 }
 
-/** Trailing-slash-insensitive, case-normalized route key for subject pairing. */
+/**
+ * Trailing-slash-insensitive route key for subject pairing. Only the scheme
+ * and host are case-folded: URL paths are case-sensitive, so lowercasing the
+ * whole URL would pair /About with /about, two routes a site may serve
+ * differently.
+ */
 function normalizedRouteKey(url: string): string {
-  return url.trim().toLowerCase().replace(/\/+$/, "");
+  const trimmed = url.trim().replace(/\/+$/, "");
+  const parsed = safeParseUrl(trimmed);
+  if (!parsed) return trimmed;
+  // URL lowercases scheme and hostname itself; path/query keep their case.
+  return `${parsed.origin}${parsed.pathname.replace(/\/+$/, "")}${parsed.search}`;
 }
 
 /** Signed display string for a delta ("+12", "-3", "no change"). */

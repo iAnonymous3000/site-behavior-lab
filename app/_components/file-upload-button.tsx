@@ -61,13 +61,15 @@ export function FileUploadButton({
 
 export function ReportUploadButton({
   onUploadReport,
+  onError,
   children
 }: {
   onUploadReport: (file: File | null) => Promise<void>;
+  onError?: (message: string) => void;
   children: ReactNode;
 }) {
   return (
-    <FileUploadButton accept="application/json,.json" onSelect={onUploadReport}>
+    <FileUploadButton accept="application/json,.json" onSelect={onUploadReport} onError={onError}>
       {children}
     </FileUploadButton>
   );
@@ -75,13 +77,15 @@ export function ReportUploadButton({
 
 export function PageGraphUploadButton({
   onUploadReport,
+  onError,
   children
 }: {
   onUploadReport: (file: File | null) => Promise<void>;
+  onError?: (message: string) => void;
   children: ReactNode;
 }) {
   return (
-    <FileUploadButton accept=".graphml,.xml,application/xml,text/xml" onSelect={onUploadReport}>
+    <FileUploadButton accept=".graphml,.xml,application/xml,text/xml" onSelect={onUploadReport} onError={onError}>
       {children}
     </FileUploadButton>
   );

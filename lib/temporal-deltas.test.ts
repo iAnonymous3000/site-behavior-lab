@@ -107,3 +107,21 @@ test("formatDelta prints signed values and a plain no-change label", () => {
   assert.equal(formatDelta(0), "no change");
   assert.equal(formatDelta(1200), "+1,200");
 });
+
+test("route keys keep path case (paths are case-sensitive) while host case still pairs", () => {
+  // /About and /about may be different pages; they must not pair.
+  const caseDiffer = computeSinceLastScan([
+    entry({ id: "upper", scannedAt: "2026-06-20T00:00:00.000Z", requestedUrl: "https://shop.example/About", finalUrl: "https://shop.example/About" }),
+    entry({ id: "lower", scannedAt: "2026-07-02T00:00:00.000Z", requestedUrl: "https://shop.example/about", finalUrl: "https://shop.example/about" })
+  ]);
+  assert.equal(caseDiffer.size, 0);
+
+  // Hostnames are case-insensitive, so host-case variance must still pair,
+  // as must a trailing slash.
+  const hostCase = computeSinceLastScan([
+    entry({ id: "host-upper", scannedAt: "2026-06-20T00:00:00.000Z", requestedUrl: "https://SHOP.example/news", finalUrl: "https://SHOP.example/news/" }),
+    entry({ id: "host-lower", scannedAt: "2026-07-02T00:00:00.000Z", requestedUrl: "https://shop.example/news", finalUrl: "https://shop.example/news" })
+  ]);
+  assert.equal(hostCase.size, 1);
+  assert.equal(hostCase.get("host-lower")?.previousId, "host-upper");
+});

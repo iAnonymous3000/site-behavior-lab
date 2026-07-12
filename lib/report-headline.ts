@@ -291,26 +291,60 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     }
   }
 
+  // Receipt wording ("told", "saw", "loaded") needs an observed response: a
+  // request record is created at dispatch, so an entity whose every request
+  // has a null status is proven only to have been SENT requests, never to
+  // have received them. Entities with at least one answered request keep the
+  // receipt verbs; the rest get attempt wording.
+  const respondedEntities = new Set<string>();
+  for (const domainSummary of run.evidence.domains) {
+    if (domainSummary.thirdParty && domainSummary.tracker && domainSummary.statuses.length > 0) {
+      respondedEntities.add(domainSummary.tracker.entity);
+    }
+  }
+  const receiptClause = (names: string, total: number, answeredCount: number): string =>
+    answeredCount === total
+      ? `${names} saw this visit`
+      : answeredCount > 0
+        ? `${names} were sent this visit (${answeredCount} answered; the rest recorded no response)`
+        : `${names} were sent this visit, though no response was recorded, so receipt is unproven`;
+
   if (platforms.length > 0) {
+    const answeredPlatforms = platforms.filter((platform) => respondedEntities.has(platform));
+    const clause =
+      trackingEntities.length > 0
+        ? receiptClause(
+            plural(trackingEntities.length, "tracking company", "tracking companies"),
+            trackingEntities.length,
+            trackingEntities.filter((entity) => respondedEntities.has(entity.entity)).length
+          )
+        : receiptClause("Trackers", platforms.length, answeredPlatforms.length);
     return finish(
       platforms.length >= 3 ? "alarm" : "warn",
-      `${domain} told ${joinNames(platforms)} you were here.`,
-      `${
-        trackingEntities.length > 0
-          ? `${plural(trackingEntities.length, "tracking company", "tracking companies")} saw this visit`
-          : "Trackers saw this visit"
-      } across ${plural(run.counts.thirdPartyDomains, "third-party domain")}.${extraNote}`
+      answeredPlatforms.length > 0
+        ? `${domain} told ${joinNames(answeredPlatforms)} you were here.`
+        : `${domain} tried to tell ${joinNames(platforms)} you were here.`,
+      `${clause} across ${plural(run.counts.thirdPartyDomains, "third-party domain")}.${extraNote}`
     );
   }
 
   if (trackingEntities.length > 0) {
+    const answeredCount = trackingEntities.filter((entity) => respondedEntities.has(entity.entity)).length;
     return finish(
       trackingEntities.length >= 6 ? "warn" : "info",
-      `${domain} shared this visit with ${plural(trackingEntities.length, "tracking company", "tracking companies")}.`,
-      `${joinNames(trackingNames)} loaded with the page: ${plural(
-        run.counts.thirdPartyRequests,
-        "request"
-      )} went to ${plural(run.counts.thirdPartyDomains, "third-party domain")}.${extraNote}`
+      answeredCount > 0
+        ? `${domain} shared this visit with ${plural(trackingEntities.length, "tracking company", "tracking companies")}.`
+        : `${domain} sent this visit to ${plural(trackingEntities.length, "tracking company", "tracking companies")}.`,
+      `${
+        answeredCount === trackingEntities.length
+          ? `${joinNames(trackingNames)} loaded with the page`
+          : answeredCount > 0
+            ? `${joinNames(trackingNames)} were sent requests (${answeredCount} answered; the rest recorded no response)`
+            : `${joinNames(trackingNames)} were sent requests that recorded no response, so receipt is unproven`
+      }: ${plural(run.counts.thirdPartyRequests, "request")} went to ${plural(
+        run.counts.thirdPartyDomains,
+        "third-party domain"
+      )}.${extraNote}`
     );
   }
 

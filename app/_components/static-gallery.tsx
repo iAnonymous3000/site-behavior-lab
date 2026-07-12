@@ -401,9 +401,9 @@ function StaticReportGallery({
             <option value="domain">Domain</option>
             <option value="thirdParty">Most third-party</option>
             {/* Sorts on summary.knownTrackerRequests, which counts every catalog
-                match including operational-only services, so the label says
-                "catalogued services", never "trackers". */}
-            <option value="trackers">Most catalogued services</option>
+                match including operational-only services, and counts REQUESTS,
+                not distinct services, so the label must say both. */}
+            <option value="trackers">Most catalogued-service requests</option>
           </select>
         </label>
       </div>

@@ -92,11 +92,17 @@ export function corpusBenchmark(
   // distribution, so the cohort is smaller than everything ever scanned.
   const sites = `${corpus.sampleSize.toLocaleString("en-US")} fully measured sites`;
 
+  // Anchored to the percentile mark, not a share of sites: with heavy ties a
+  // value AT the mark can exceed far fewer than 90% of sites, so "more than
+  // 90% of sites" would overclaim. "At or above the mark" is true by
+  // construction.
   if (value <= 0) return { level: "ok", label: `No ${label} observed.` };
-  if (value >= distribution.p90) return { level: "loud", label: `More ${label} than about 90% of the ${sites}.` };
-  if (value >= distribution.p75) return { level: "warn", label: `More ${label} than about 75% of the ${sites}.` };
-  if (value >= distribution.p50) return { level: "info", label: `More ${label} than about half of the ${sites}.` };
-  return { level: "quiet", label: `Fewer ${label} than most of the ${sites}.` };
+  if (value >= distribution.p90)
+    return { level: "loud", label: `At or above the 90th-percentile mark for ${label} across the ${sites}.` };
+  if (value >= distribution.p75)
+    return { level: "warn", label: `At or above the 75th-percentile mark for ${label} across the ${sites}.` };
+  if (value >= distribution.p50) return { level: "info", label: `At or above the median for ${label} across the ${sites}.` };
+  return { level: "quiet", label: `Below the median for ${label} across the ${sites}.` };
 }
 
 export function isCorpusStats(value: unknown): value is CorpusStats {

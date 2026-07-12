@@ -755,7 +755,7 @@ export function SiteBehaviorApp({
           {LIVE_SCAN_ENABLED ? (
             scanForm
           ) : (
-            <StaticPublicPanel onUploadReport={loadReportFile} />
+            <StaticPublicPanel onUploadReport={loadReportFile} onUploadError={setError} />
           )}
 
           <aside className="method-card">
@@ -788,6 +788,7 @@ export function SiteBehaviorApp({
               onPick={useExample}
               onUploadReport={loadReportFile}
               onUploadPageGraph={loadPageGraphFile}
+              onUploadError={setError}
               onCreateComparison={(comparison) => {
                 setLoading(false);
                 setError(null);
@@ -1022,7 +1023,14 @@ export function SiteBehaviorApp({
   );
 }
 
-function StaticPublicPanel({ onUploadReport }: { onUploadReport: (file: File | null) => Promise<void> }) {
+function StaticPublicPanel({
+  onUploadReport,
+  onUploadError
+}: {
+  onUploadReport: (file: File | null) => Promise<void>;
+  /** Surfaces picker-side rejections (e.g. the size cap) that never reach the upload handler. */
+  onUploadError: (message: string) => void;
+}) {
   return (
     <section className="scan-panel public-mode-panel" aria-labelledby="public-mode-title">
       <div className="public-mode-copy">
@@ -1038,7 +1046,9 @@ function StaticPublicPanel({ onUploadReport }: { onUploadReport: (file: File | n
           <FileJson size={17} aria-hidden="true" />
           Browse reports
         </a>
-        <ReportUploadButton onUploadReport={onUploadReport}>Open report file</ReportUploadButton>
+        <ReportUploadButton onUploadReport={onUploadReport} onError={onUploadError}>
+          Open report file
+        </ReportUploadButton>
         {SCAN_WORKFLOW_URL && (
           <a className="secondary-button" href={SCAN_WORKFLOW_URL} target="_blank" rel="noreferrer" title="Requires repository access">
             <Github size={17} aria-hidden="true" />
@@ -1109,11 +1119,12 @@ function scannerStatusText(health: ScannerHealth | null, error: string | null): 
       : " Rate-limited per client.";
   const comparisons = [
     health.capabilities?.gpcComparison ? "GPC" : null,
-    health.capabilities?.shieldsComparison ? "Brave Shields" : null
+    health.capabilities?.shieldsComparison ? "Brave Shields" : null,
+    health.capabilities?.consentComparison ? "Consent" : null
   ].filter((label): label is string => label !== null);
   const comparison =
-    comparisons.length === 2
-      ? ` ${comparisons[0]} and ${comparisons[1]} comparisons are available.`
+    comparisons.length > 1
+      ? ` ${comparisons.slice(0, -1).join(", ")} and ${comparisons[comparisons.length - 1]} comparisons are available.`
       : comparisons.length === 1
         ? ` ${comparisons[0]} comparison is available.`
         : "";
@@ -1364,6 +1375,7 @@ function EmptyState({
   onPick,
   onUploadReport,
   onUploadPageGraph,
+  onUploadError,
   onCreateComparison,
   onComparisonError,
   liveScanEnabled,
@@ -1374,6 +1386,8 @@ function EmptyState({
   onPick: (url: string) => void;
   onUploadReport: (file: File | null) => Promise<void>;
   onUploadPageGraph: (file: File | null) => Promise<void>;
+  /** Surfaces picker-side rejections (e.g. the size cap) that never reach the upload handlers. */
+  onUploadError: (message: string) => void;
   onCreateComparison: (comparison: ComparisonScanResult) => void;
   onComparisonError: (message: string) => void;
   liveScanEnabled: boolean;
@@ -1416,7 +1430,9 @@ function EmptyState({
                 Open latest report
               </a>
             )}
-            <ReportUploadButton onUploadReport={onUploadReport}>Open report file</ReportUploadButton>
+            <ReportUploadButton onUploadReport={onUploadReport} onError={onUploadError}>
+              Open report file
+            </ReportUploadButton>
             {SCAN_WORKFLOW_URL && (
               <a className="secondary-button" href={SCAN_WORKFLOW_URL} target="_blank" rel="noreferrer" title="Requires repository access">
                 <Github size={17} aria-hidden="true" />
@@ -1440,7 +1456,9 @@ function EmptyState({
             storage, fingerprinting, and script-to-request causality, all rendered here.
           </span>
         </div>
-        <PageGraphUploadButton onUploadReport={onUploadPageGraph}>Open PageGraph .graphml</PageGraphUploadButton>
+        <PageGraphUploadButton onUploadReport={onUploadPageGraph} onError={onUploadError}>
+          Open PageGraph .graphml
+        </PageGraphUploadButton>
       </div>
     </section>
   );

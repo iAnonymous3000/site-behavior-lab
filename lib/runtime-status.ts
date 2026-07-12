@@ -67,6 +67,10 @@ export async function runtimeStatus(
     authenticated,
     openAccess: !authenticated,
     turnstile: false,
+    // Top-level `storage` is the shared-contract field the client status text
+    // reads; the Browser Run worker already emits it, and without it here the
+    // Node scanner's status line never says where reports live.
+    storage: store.public.kind,
     checks: {
       adblock,
       scanAccess: authenticated ? "configured" : "open",

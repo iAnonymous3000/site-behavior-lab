@@ -74,10 +74,12 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     const result: ScanResult = report.reportType === "comparison" ? report.baseline : report;
 
     // A run that answered with an HTTP error (403/401/429 bot walls, outages)
-    // reflects an error page, not the site: its near-zero counts would drag
-    // the percentile distribution down and misrank every real site against
-    // it. The per-report pages already disclose these as failed loads.
-    if (typeof result.summary.status === "number" && result.summary.status >= 400) continue;
+    // reflects an error page, not the site, and a null status means the main
+    // document never produced a response at all (timeout, refused connect):
+    // either way the near-zero counts would drag the percentile distribution
+    // down and misrank every real site against it. The per-report pages
+    // already disclose these as failed loads.
+    if (typeof result.summary.status !== "number" || result.summary.status >= 400) continue;
 
     const domain = normalizeDomain(result.summary.firstPartyDomain);
     if (!domain || isReservedReportDomain(domain)) continue;
@@ -91,6 +93,14 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // truncated ceiling. The per-report pages disclose capped runs as cut
     // short.
     if (runHitRequestCap(result)) continue;
+
+    // A consent-interaction arm is a post-intervention state, not a default
+    // visit: a consent comparison's baseline clicked "accept all" before
+    // collection, so its counts describe the accepted-cookies experience.
+    // Ranking ordinary scans against it would contaminate the cohort the
+    // distribution claims to describe (the plain first visit). Covered, but
+    // never measured.
+    if (result.conditions.consentMode === "accept-all" || result.conditions.consentMode === "reject-all") continue;
 
     const scannedAt = result.conditions.scannedAt;
     const existing = bySite.get(domain);

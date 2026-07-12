@@ -759,3 +759,53 @@ function consentPair(accept: ScanResult, reject: ScanResult) {
   reject.conditions = { ...reject.conditions, consentMode: "reject-all" as const };
   return createConsentComparisonReport(accept, reject);
 }
+
+test("platforms whose requests all went unanswered get attempt wording, not receipt wording", () => {
+  // A request record is created at dispatch; statuses: [] means no response
+  // was ever observed, so "told X you were here" would overclaim receipt.
+  const result = makeResult({
+    firstPartyDomain: "shop.example",
+    domains: [
+      { ...makeTrackerDomain("google-analytics.com", 6, "Google", "analytics / advertising"), statuses: [] },
+      { ...makeTrackerDomain("facebook.net", 4, "Meta", "social / advertising pixel"), statuses: [] }
+    ],
+    thirdPartyRequests: 10,
+    thirdPartyDomains: 2
+  });
+
+  const headline = buildReportHeadline(viewFromV1Report(result));
+  assert.match(headline.headline, /shop\.example tried to tell Google and Meta you were here\./);
+  assert.match(headline.subhead, /receipt is unproven/);
+});
+
+test("a mixed answered/unanswered platform set names only the answered platforms as told", () => {
+  const result = makeResult({
+    firstPartyDomain: "shop.example",
+    domains: [
+      makeTrackerDomain("google-analytics.com", 6, "Google", "analytics / advertising"),
+      { ...makeTrackerDomain("facebook.net", 4, "Meta", "social / advertising pixel"), statuses: [] }
+    ],
+    thirdPartyRequests: 10,
+    thirdPartyDomains: 2
+  });
+
+  const headline = buildReportHeadline(viewFromV1Report(result));
+  assert.match(headline.headline, /shop\.example told Google you were here\./);
+  assert.doesNotMatch(headline.headline, /Meta/);
+  assert.match(headline.subhead, /1 answered; the rest recorded no response/);
+});
+
+test("unanswered tracking companies get sent-not-shared wording", () => {
+  const result = makeResult({
+    firstPartyDomain: "shop.example",
+    domains: [
+      { ...makeTrackerDomain("quiet-tracker.example", 3, "Quiet Analytics", "analytics"), statuses: [] }
+    ],
+    thirdPartyRequests: 3,
+    thirdPartyDomains: 1
+  });
+
+  const headline = buildReportHeadline(viewFromV1Report(result));
+  assert.match(headline.headline, /shop\.example sent this visit to 1 tracking company\./);
+  assert.match(headline.subhead, /recorded no response, so receipt is unproven/);
+});

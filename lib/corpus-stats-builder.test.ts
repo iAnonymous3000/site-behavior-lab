@@ -119,3 +119,26 @@ test("a missing reports directory yields an empty distribution", async () => {
   assert.equal(stats.sampleSize, 0);
   assert.deepEqual(stats.metrics, {});
 });
+
+test("null-status runs stay out of coverage and measurement: the main document never answered", async () => {
+  const nullStatus = makeResult({ firstPartyDomain: "silent.example.dev" });
+  nullStatus.summary = { ...nullStatus.summary, status: null };
+  await writeReport("20260701-dddddddddddddddddddddddddddddddd", makeResult({ firstPartyDomain: "ok.example.dev" }));
+  await writeReport("20260701-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", nullStatus);
+
+  const { stats } = await buildCorpusStats(reportsDir);
+  assert.equal(stats.sampleSize, 1);
+  assert.equal(stats.coverageSiteCount, 1);
+});
+
+test("a consent-interaction arm is covered but never measured: accept-all is not a default visit", async () => {
+  const acceptArm = makeResult({ firstPartyDomain: "consent.example.dev" });
+  acceptArm.conditions = { ...acceptArm.conditions, consentMode: "accept-all" };
+  await writeReport("20260701-ffffffffffffffffffffffffffffffff", makeResult({ firstPartyDomain: "ok.example.dev" }));
+  await writeReport("20260701-abababababababababababababababab", acceptArm);
+
+  const { stats } = await buildCorpusStats(reportsDir);
+  assert.equal(stats.sampleSize, 1);
+  // The site still counts as covered: it loaded, it is in the corpus.
+  assert.equal(stats.coverageSiteCount, 2);
+});

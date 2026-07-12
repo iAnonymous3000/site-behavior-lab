@@ -225,7 +225,7 @@ test("uses measured percentile wording when the corpus is usable, fixed threshol
   });
 
   const withCorpus = buildFindings(viewFromV1Report(result), makeCorpus(60));
-  assert.match(byId(withCorpus, "third-party-services").benchmark ?? "", /about 90% of the 60 fully measured sites/);
+  assert.match(byId(withCorpus, "third-party-services").benchmark ?? "", /90th-percentile mark for .* across the 60 fully measured sites/);
   assert.match(byId(withCorpus, "bottom-line").detail, /percentiles from the 60 fully measured sites/);
 
   // A corpus that also records its coverage names both concepts: the
