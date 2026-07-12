@@ -26,7 +26,11 @@
     // while that token is set.
     "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS": "1",
     "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE": "6",
-    "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY": "120"
+    "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY": "120",
+
+    // Forwarded into the Node container. The deployed smoke test requires the
+    // effective launch state to be "enabled" in /api/health.
+    "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX": "1"
   },
 
   // Per-client rate-limit store for public scans (RATE_LIMITS_KV binding).

@@ -123,6 +123,7 @@ SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY=<r2 token secret> # secret
 SITE_BEHAVIOR_LAB_R2_PREFIX=reports/
 SITE_BEHAVIOR_LAB_SCANNER_EGRESS=cloudflare-containers
 SITE_BEHAVIOR_LAB_ASYNC_SCANS=1                          # long scans don't hold the connection
+SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1                    # asserted by health + deployed smoke
 SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN=<strong secret>     # operator-gated launch (see §6)
 ```
 
@@ -168,10 +169,16 @@ to the Pages build; for Turnstile add `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_S
 
 ## 6. Security: the SSRF backstop is weaker here, gate accordingly
 
-The Node scanner's safety = the in-app **connect-time proxy** (resolves, validates, and
-pins to a public IP) **plus** an external egress firewall as defense-in-depth. On managed
-Cloudflare Containers you **cannot add that external egress firewall** (no VPC/iptables
-control), so the in-app proxy is your only layer. Start **operator-gated**
+The Node scanner's safety centers on the in-app **connect-time proxy**, which resolves,
+validates, and pins each public destination IP. Cloudflare Containers now offers
+[`enableInternet = false` and outbound interception](https://developers.cloudflare.com/containers/platform-details/outbound-traffic/),
+but the scanner proxy deliberately opens raw TCP connections to those pinned public IPs.
+Turning off container internet access would block those connections; passing arbitrary
+targets through a catch-all Worker fetch could perform a second DNS resolution and defeat
+the pin. Do not enable that switch until the proxy architecture has a deployed test proving
+both arbitrary public HTTP(S) scans and connect-time IP pinning still work. The current
+deployment therefore relies on the in-app proxy plus Chromium's non-proxied-WebRTC block,
+not a platform egress firewall. Start **operator-gated**
 (keep `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` set, you run the scans): it unlocks live
 Shields for building the corpus with no open-abuse surface. Open `POST /api/scan` to the
 public only behind **Turnstile + a WAF rate rule**, and only after accepting that the
@@ -182,8 +189,9 @@ run in production since 2026-06-22; the switch sequence is
 ## 7. Verify
 
 Run the automated production smoke test against the deployed scanner. It checks health
-(live Shields advertised, ad-block engine active, durable storage), runs a real scan and
-confirms it is stored screenshot-stripped, runs a live Shields comparison, and confirms a
+(live Shields advertised, ad-block engine active, Chromium sandbox enabled, durable
+storage), runs a real scan and confirms it is stored screenshot-stripped, runs a live
+Shields comparison, and confirms a
 link-local SSRF target (`169.254.169.254`) is refused. It tolerates async scan mode (the
 container returns `202` + a job id to poll):
 
@@ -197,8 +205,8 @@ Point `SMOKE_SHIELDS_URL` at a tracker-heavy site to also eyeball non-zero engin
 and baseline filter-match counts. A quick manual check of the same essentials:
 
 ```bash
-curl -s https://scan.sitebehavior.org/api/health | jq '.capabilities'
-# expect: { "singleScan": true, "gpcComparison": true, "shieldsComparison": true, "savedReports": true }
+curl -s https://scan.sitebehavior.org/api/health | jq '{capabilities, chromiumSandbox: .checks.chromiumSandbox}'
+# expect chromiumSandbox: "enabled" plus singleScan/Shields/savedReports capabilities
 ```
 
 ## Cost

@@ -1,5 +1,6 @@
 import { adblockEngineStatus, type AdblockEngineStatus } from "./adblock-engine";
 import { scanAccessTokenConfigured } from "./access-control";
+import { chromiumSandboxEnabled } from "./chromium-sandbox";
 import { reportStoreStatus } from "./report-store";
 import type { ReportStoreKind } from "./report-store-backend";
 import { producerCapability } from "./report-producers";
@@ -28,6 +29,7 @@ export type RuntimeStatus = {
   turnstile: boolean;
   checks: {
     adblock: RuntimeStatusAdblockCheck;
+    chromiumSandbox: "enabled" | "disabled";
     scanAccess: "configured" | "open";
     dnsRebindingGuard: "connect-time-proxy";
     reportStore: PublicReportStoreStatus;
@@ -73,6 +75,7 @@ export async function runtimeStatus(
     storage: store.public.kind,
     checks: {
       adblock,
+      chromiumSandbox: chromiumSandboxEnabled() ? "enabled" : "disabled",
       scanAccess: authenticated ? "configured" : "open",
       dnsRebindingGuard: "connect-time-proxy",
       reportStore,

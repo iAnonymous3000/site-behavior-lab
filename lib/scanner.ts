@@ -45,6 +45,7 @@ import { redactUrlForReport, safeParseUrl } from "./report-url";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
 import { collectFingerprintObservationsFromFrames, fingerprintObserverInitScript } from "./fingerprint-observer";
 import { startPublicScanProxy, type ResolvePublicHost } from "./public-scan-proxy";
+import { chromiumSandboxEnabled } from "./chromium-sandbox";
 import {
   collectStorageEntries,
   ScanNetworkRecorder,
@@ -133,8 +134,6 @@ let browserLaunchPromise: Promise<Browser> | null = null;
  * outright rather than merely hiding local IPs.
  */
 export const SCAN_CHROMIUM_LAUNCH_ARGS = ["--force-webrtc-ip-handling-policy=disable_non_proxied_udp"] as const;
-
-const CHROMIUM_SANDBOX_ENV = "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX";
 
 export type ScanSiteOptions = {
   publicUrlAlreadyVerified?: boolean;
@@ -537,7 +536,7 @@ async function getSharedBrowser(): Promise<Browser> {
     .launch({
       headless: true,
       args: [...SCAN_CHROMIUM_LAUNCH_ARGS],
-      chromiumSandbox: process.env[CHROMIUM_SANDBOX_ENV] === "1"
+      chromiumSandbox: chromiumSandboxEnabled()
     })
     .then(
     (browser) => {

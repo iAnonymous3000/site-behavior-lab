@@ -21,9 +21,9 @@
 // by hand instead (complete the challenge in a browser).
 //
 // It verifies the things that distinguish a finished live scanner from the
-// static corpus: health advertises live Shields, a real scan completes and is
-// stored without a screenshot, a Shields comparison actually runs the ad-block
-// engine, and a link-local SSRF target is refused.
+// static corpus: health advertises live Shields and an enabled Chromium sandbox,
+// a real scan completes and is stored without a screenshot, a Shields comparison
+// actually runs the ad-block engine, and a link-local SSRF target is refused.
 
 const baseUrl = (process.env.SCAN_BASE_URL || "").trim().replace(/\/+$/, "");
 const token = (process.env.SMOKE_SCAN_ACCESS_TOKEN || process.env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN || "").trim();
@@ -144,6 +144,9 @@ async function checkHealth() {
     fail("health does not advertise savedReportPages, this origin cannot serve human-shareable /reports/:id pages");
   }
   if (!health.checks?.adblock?.active) fail("Brave ad-block engine is not active on this deployment");
+  if (health.checks?.chromiumSandbox !== "enabled") {
+    fail("Chromium sandbox is not enabled on this deployment");
+  }
   pass(`health advertises live Shields (storage: ${health.storage || health.checks?.reportStore?.kind || "unknown"})`);
 }
 

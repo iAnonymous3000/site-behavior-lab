@@ -85,6 +85,57 @@ test("prepareScanRequest returns a queue-ready payload without acquiring a scan 
   });
 });
 
+test("prepareScanRequest rejects a declared oversized body before reading it", async () => {
+  let pulled = false;
+  const stream = new ReadableStream<Uint8Array>(
+    {
+      pull(controller) {
+        pulled = true;
+        controller.enqueue(new TextEncoder().encode('{"url":"https://1.1.1.1/"}'));
+        controller.close();
+      }
+    },
+    { highWaterMark: 0 }
+  );
+  const request = {
+    headers: new Headers({ "content-length": "999999" }),
+    body: stream
+  } as unknown as Request;
+
+  await assert.rejects(
+    () => prepareScanRequest(request),
+    (error) => error instanceof PublicScanError && error.status === 413
+  );
+  assert.equal(pulled, false);
+});
+
+test("prepareScanRequest cancels an oversized chunked body before buffering the rest", async () => {
+  let chunksServed = 0;
+  let cancelled = false;
+  const chunk = new Uint8Array(2_048).fill(120);
+  const stream = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      if (chunksServed >= 5) {
+        controller.close();
+        return;
+      }
+      chunksServed += 1;
+      controller.enqueue(chunk);
+    },
+    cancel() {
+      cancelled = true;
+    }
+  });
+  const request = { headers: new Headers(), body: stream } as unknown as Request;
+
+  await assert.rejects(
+    () => prepareScanRequest(request),
+    (error) => error instanceof PublicScanError && error.status === 413
+  );
+  assert.equal(cancelled, true);
+  assert.ok(chunksServed <= 3, `served ${chunksServed} chunks; the byte cap must stop the read early`);
+});
+
 test("executePreparedScan charges rate limits only after acquiring a scan slot", async () => {
   const prepared: PreparedScanRequest = {
     clientKey: "queued-client",

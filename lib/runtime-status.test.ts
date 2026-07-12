@@ -7,6 +7,7 @@ const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
 const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
 const ALLOW_UNAUTHENTICATED_SCANS_ENV = "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS";
 const REPORT_STORE_BACKEND_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND";
+const CHROMIUM_SANDBOX_ENV = "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX";
 
 afterEach(() => {
   delete process.env[SCAN_ACCESS_TOKEN_ENV];
@@ -14,6 +15,7 @@ afterEach(() => {
   delete process.env[SCANNER_EGRESS_ENV];
   delete process.env[ALLOW_UNAUTHENTICATED_SCANS_ENV];
   delete process.env[REPORT_STORE_BACKEND_ENV];
+  delete process.env[CHROMIUM_SANDBOX_ENV];
 });
 
 test("runtimeStatus degrades instead of throwing when the store backend is misconfigured", async () => {
@@ -55,6 +57,7 @@ test("runtimeStatus reports degraded status for open local defaults", async () =
   assert.equal(status.checks.dnsRebindingGuard, "connect-time-proxy");
   assert.equal(status.checks.reportStore.configuredPath, false);
   assert.equal(status.checks.scannerEgress, "default");
+  assert.equal(status.checks.chromiumSandbox, "disabled");
   assert.equal(status.warnings.length, 3);
 });
 
@@ -62,6 +65,7 @@ test("runtimeStatus reports ok status when production controls are configured", 
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
   process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
   process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[CHROMIUM_SANDBOX_ENV] = "1";
 
   const status = await runtimeStatus(loadedAdblock);
 
@@ -80,6 +84,7 @@ test("runtimeStatus reports ok status when production controls are configured", 
     maxCount: 500
   });
   assert.equal(status.checks.scannerEgress, "configured");
+  assert.equal(status.checks.chromiumSandbox, "enabled");
   assert.deepEqual(status.capabilities, {
     singleScan: true,
     gpcComparison: true,

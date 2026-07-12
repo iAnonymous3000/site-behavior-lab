@@ -56,6 +56,10 @@ Validate the container path end to end before exposing it:
 npm run test:smoke:docker
 ```
 
+The smoke container enables `SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1`, asserts the
+state through `/api/health`, and then runs real scans. A sandbox launch failure is
+a failed production prerequisite, not a reason to silently retry unsandboxed.
+
 ## 2. Production environment
 
 Start from [.env.example](../.env.example). For a public-but-safe deployment:

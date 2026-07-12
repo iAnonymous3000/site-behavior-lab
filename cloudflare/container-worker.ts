@@ -41,6 +41,9 @@ type Env = {
   SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS?: string;
   SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE?: string;
   SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY?: string;
+  // Forwarded to the Node scanner. Only "1" enables Playwright's Chromium
+  // sandbox; /api/health exposes the effective state for deployment checks.
+  SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX?: string;
   // "1" waives the Turnstile requirement for open access (KV rate limit only).
   // Without it, open access with no TURNSTILE_SECRET_KEY fails closed.
   SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK?: string;
@@ -88,9 +91,11 @@ export class ScannerContainer extends Container<Env> {
     SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN: this.env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN ?? "*",
     // Long Shields scans return 202 + jobId instead of holding the connection.
     SITE_BEHAVIOR_LAB_ASYNC_SCANS: "1",
+    SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: this.env.SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX ?? "",
     // The front Worker is the public gate, but the container also enforces the
-    // token (defense in depth): managed containers have no external egress
-    // firewall, so the in-app connect-time proxy is the only SSRF backstop.
+    // token (defense in depth). Cloudflare's deny-by-default egress switch is
+    // intentionally not enabled here: the app proxy opens raw TCP to a validated,
+    // pinned public IP, which that switch blocks. See the deployment runbook.
     SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN: this.env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN ?? "",
     // Forwarded so the container's /api/health treats open access as intentional
     // (no "token not configured" degradation) instead of looking misconfigured.

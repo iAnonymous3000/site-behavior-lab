@@ -39,13 +39,18 @@ try {
     `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN=${token}`,
     "-e",
     "SITE_BEHAVIOR_LAB_SCANNER_EGRESS=docker-smoke",
+    "-e",
+    "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1",
     image
   ]);
   containerId = runResult.stdout.trim();
   if (!containerId) throw new Error("Docker did not return a container id.");
 
   const baseUrl = `http://127.0.0.1:${port}`;
-  await waitForHealth(baseUrl);
+  const health = await waitForHealth(baseUrl);
+  if (health.checks?.chromiumSandbox !== "enabled") {
+    throw new Error("Docker health did not confirm that the Chromium sandbox is enabled.");
+  }
   await run("node", ["scripts/smoke-test.mjs"], {
     BASE_URL: baseUrl,
     SMOKE_SCAN_ACCESS_TOKEN: token
@@ -94,7 +99,7 @@ async function waitForHealth(baseUrl) {
     try {
       const response = await fetch(`${baseUrl}/api/health`);
       const health = await response.json();
-      if (response.ok && health.ok === true) return;
+      if (response.ok && health.ok === true) return health;
       lastError = `health returned ${response.status}`;
     } catch (error) {
       lastError = error instanceof Error ? error.message : String(error);

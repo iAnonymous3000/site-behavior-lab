@@ -48,6 +48,7 @@ export type ScanRuntimeHealth = {
       active?: boolean;
       engine?: "loaded" | "unavailable";
     };
+    chromiumSandbox?: "enabled" | "disabled";
   };
   capabilities?: ScanRuntimeCapabilities;
   limits?: {

@@ -4,6 +4,7 @@ import {
   MAX_BODY_BYTES,
   peekRateLimit
 } from "./scan-limits";
+import { readRequestBodyWithinLimit } from "./edge-scan-gate";
 import type { ScanDevice, ScanRequestPayload } from "./types";
 import { PublicScanError } from "./public-errors";
 import { assertPublicHttpUrl, assertPublicHttpUrlShape, normalizeUrl } from "./url-safety";
@@ -79,8 +80,11 @@ export function scanRateLimitCost(payload: { compareGpc?: boolean; compareShield
 async function readScanPayload(
   request: Request
 ): Promise<Partial<ScanRequestPayload> & { url: string; compareGpc?: boolean; compareShields?: boolean; compareConsent?: boolean }> {
-  const body = await request.text();
-  if (new Blob([body]).size > MAX_BODY_BYTES) {
+  // Content-Length is only an early rejection hint: clients can omit or forge
+  // it. Stream through the real byte cap so direct Node deployments have the
+  // same pre-buffer allocation bound as the Cloudflare edge gates.
+  const body = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES);
+  if (body === null) {
     throw new PublicScanError("Request body is too large.", 413);
   }
 
