@@ -1,5 +1,16 @@
 import { csvCell } from "./csv-export";
 import {
+  REDACTION_ALLOWLISTS_VERSION,
+  REDACTION_VERSION,
+  emptyRedactionCounters,
+  redactCookieName,
+  redactHostnameV2,
+  redactStorageKey,
+  redactUrlV2,
+  type RedactionCounters
+} from "./redaction-v2";
+import { sha256Hex } from "./sha256";
+import {
   extractPageGraphRootUrl,
   normalizePageGraphResourceType,
   parseGraphmlRecords,
@@ -119,6 +130,18 @@ export type CorpusFactsOptions = {
   pageUrl?: string;
   /** eTLD+1 resolver (tldts `getDomain` in the CLI); null when unresolvable. */
   registrableDomain: (host: string) => string | null;
+};
+
+export const PAGEGRAPH_EXPORT_MANIFEST_VERSION = 1;
+
+export type PageGraphExportManifest = {
+  manifestVersion: typeof PAGEGRAPH_EXPORT_MANIFEST_VERSION;
+  redactionVersion: number;
+  redactionAllowlistsVersion: string;
+  digestAlgorithm: "sha256";
+  generatedAt: string;
+  pages: number;
+  files: { name: string; bytes: number; sha256: string }[];
 };
 
 /** Structural causality: following these edges removes the TARGET node. */
@@ -475,16 +498,243 @@ function etld1OfUrl(url: string, registrableDomain: (host: string) => string | n
   return host ? registrableDomain(host) : null;
 }
 
+const INVALID_OPAQUE_ID = "{invalid-id}";
+
+class CorpusExportRedactionPass {
+  readonly counters = emptyRedactionCounters();
+
+  constructor(private readonly opaqueAliases: ReadonlyMap<string, string>) {}
+
+  url(value: string, preserveQueryKeys: boolean): string {
+    const redacted = redactUrlV2(value, { preserveQueryKeys });
+    this.add(redacted.counters);
+    return redacted.value;
+  }
+
+  hostname(value: string | null): string | null {
+    if (value === null) return null;
+    const redacted = redactHostnameV2(value);
+    this.add(redacted.counters);
+    return redacted.value;
+  }
+
+  storageKey(value: string, storageType: CorpusStorageOpRow["storageType"]): string {
+    return storageType === "cookie"
+      ? redactCookieName(value, this.counters).value
+      : redactStorageKey(value, this.counters).value;
+  }
+
+  opaqueId(value: string | null): string | null {
+    if (value === null) return null;
+    return this.opaqueAliases.get(value) ?? INVALID_OPAQUE_ID;
+  }
+
+  private add(source: RedactionCounters): void {
+    for (const key of Object.keys(this.counters) as (keyof RedactionCounters)[]) {
+      this.counters[key] += source[key];
+    }
+  }
+}
+
+/**
+ * Public PageGraph fact projection. Matching and causal closure always consume
+ * the raw `CorpusFacts`; only this terminal export copy is minimized. Page ids
+ * are ordinal capabilities rather than source filenames, and every URL/domain
+ * and storage key follows the same redaction-v2 policy as ScanReport.
+ */
+export function redactCorpusFactsForExport(corpus: CorpusFacts[]): CorpusFacts[] {
+  return corpus.map((facts, pageIndex) => {
+    const pass = new CorpusExportRedactionPass(buildOpaqueIdAliases(facts));
+    const pageId = opaquePageId(pageIndex);
+    return {
+      page: {
+        pageId,
+        url: pass.url(facts.page.url, false),
+        etld1: pass.hostname(facts.page.etld1)
+      },
+      nodes: facts.nodes.map((node) => ({
+        nodeId: pass.opaqueId(node.nodeId) as string,
+        pageId,
+        nodeType: node.nodeType,
+        url: node.url === null ? null : pass.url(node.url, true),
+        domain: pass.hostname(node.domain),
+        etld1: pass.hostname(node.etld1),
+        thirdParty: node.thirdParty
+      })),
+      edges: facts.edges.map((edge) => ({
+        edgeId: pass.opaqueId(edge.edgeId) as string,
+        pageId,
+        sourceNodeId: pass.opaqueId(edge.sourceNodeId),
+        targetNodeId: pass.opaqueId(edge.targetNodeId),
+        edgeType: edge.edgeType,
+        requestId: pass.opaqueId(edge.requestId),
+        timestampMs: edge.timestampMs
+      })),
+      requests: facts.requests.map((request) => ({
+        pageId,
+        nodeId: pass.opaqueId(request.nodeId) as string,
+        requestId: pass.opaqueId(request.requestId),
+        url: pass.url(request.url, true),
+        domain: pass.hostname(request.domain),
+        etld1: pass.hostname(request.etld1),
+        resourceType: request.resourceType,
+        status: request.status,
+        thirdParty: request.thirdParty,
+        initiatorNodeId: pass.opaqueId(request.initiatorNodeId)
+      })),
+      provenanceEdges: facts.provenanceEdges.map((edge) => ({
+        pageId,
+        childNodeId: pass.opaqueId(edge.childNodeId) as string,
+        parentNodeId: pass.opaqueId(edge.parentNodeId) as string,
+        relation: edge.relation
+      })),
+      storageOps: facts.storageOps.map((op) => ({
+        pageId,
+        opId: pass.opaqueId(op.opId) as string,
+        scriptNodeId: pass.opaqueId(op.scriptNodeId),
+        scriptUrl: op.scriptUrl === null ? null : pass.url(op.scriptUrl, true),
+        scriptEtld1: pass.hostname(op.scriptEtld1),
+        storageType: op.storageType,
+        key: pass.storageKey(op.key, op.storageType),
+        valueBytes: op.valueBytes,
+        thirdParty: op.thirdParty
+      })),
+      jsCalls: facts.jsCalls.map((call) => ({
+        pageId,
+        callId: pass.opaqueId(call.callId) as string,
+        scriptNodeId: pass.opaqueId(call.scriptNodeId),
+        api: call.api,
+        timestampMs: call.timestampMs
+      })),
+      warnings: [...facts.warnings]
+    };
+  });
+}
+
+/** Sanitize the raw-match rule-impact report immediately before JSON output. */
+export function redactRuleImpactReportForExport(
+  report: RuleImpactReport,
+  rawCorpus: CorpusFacts[]
+): RuleImpactReport {
+  const pages = report.pages.map((page, pageIndex) => {
+    const facts = rawCorpus.find((candidate) => candidate.page.pageId === page.pageId) ?? rawCorpus[pageIndex];
+    const pass = new CorpusExportRedactionPass(facts ? buildOpaqueIdAliases(facts) : new Map());
+    return {
+      pageId: opaquePageId(pageIndex),
+      url: pass.url(page.url, false),
+      directlyBlocked: page.directlyBlocked.map((entry) => ({
+        nodeId: pass.opaqueId(entry.nodeId) as string,
+        url: pass.url(entry.url, true)
+      })),
+      downstreamRequests: page.downstreamRequests.map((entry) => ({
+        nodeId: pass.opaqueId(entry.nodeId) as string,
+        url: pass.url(entry.url, true)
+      })),
+      removedNodeCount: page.removedNodeCount,
+      removedStorageOps: page.removedStorageOps,
+      removedJsCalls: page.removedJsCalls,
+      firstPartyRemovedUrls: page.firstPartyRemovedUrls.map((url) => pass.url(url, true)),
+      breakageRisk: page.breakageRisk
+    };
+  });
+  return {
+    pages,
+    summary: {
+      ...report.summary,
+      topRemovedEtld1s: report.summary.topRemovedEtld1s.map((entry) => ({
+        etld1: redactHostnameV2(entry.etld1).value,
+        pages: entry.pages
+      }))
+    }
+  };
+}
+
+/** Digest manifest for the exact bytes written by the PageGraph exporter. */
+export function buildPageGraphExportManifest(input: {
+  files: Record<string, string>;
+  generatedAt: string;
+  pages: number;
+}): PageGraphExportManifest {
+  const parsed = Date.parse(input.generatedAt);
+  if (!Number.isFinite(parsed) || new Date(parsed).toISOString() !== input.generatedAt) {
+    throw new Error("PageGraph export generatedAt must be a canonical timestamp.");
+  }
+  return {
+    manifestVersion: PAGEGRAPH_EXPORT_MANIFEST_VERSION,
+    redactionVersion: REDACTION_VERSION,
+    redactionAllowlistsVersion: REDACTION_ALLOWLISTS_VERSION,
+    digestAlgorithm: "sha256",
+    generatedAt: input.generatedAt,
+    pages: input.pages,
+    files: Object.entries(input.files)
+      .map(([name, contents]) => ({
+        name,
+        bytes: new TextEncoder().encode(contents).length,
+        sha256: sha256Hex(contents)
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name))
+  };
+}
+
+function opaquePageId(index: number): string {
+  return `page-${String(index + 1).padStart(6, "0")}`;
+}
+
+/**
+ * Alias every producer id, including innocuous-looking short strings: lexical
+ * shape cannot prove an id is not a name. Sorting the complete per-page id
+ * universe makes aliases deterministic and lets independently projected CSV
+ * and impact artifacts preserve their joins exactly.
+ */
+function buildOpaqueIdAliases(facts: CorpusFacts): Map<string, string> {
+  const ids = new Set<string>();
+  const add = (value: string | null): void => {
+    if (value !== null) ids.add(value);
+  };
+  for (const node of facts.nodes) add(node.nodeId);
+  for (const edge of facts.edges) {
+    add(edge.edgeId);
+    add(edge.sourceNodeId);
+    add(edge.targetNodeId);
+    add(edge.requestId);
+  }
+  for (const request of facts.requests) {
+    add(request.nodeId);
+    add(request.requestId);
+    add(request.initiatorNodeId);
+  }
+  for (const edge of facts.provenanceEdges) {
+    add(edge.childNodeId);
+    add(edge.parentNodeId);
+  }
+  for (const op of facts.storageOps) {
+    add(op.opId);
+    add(op.scriptNodeId);
+  }
+  for (const call of facts.jsCalls) {
+    add(call.callId);
+    add(call.scriptNodeId);
+  }
+  return new Map(
+    Array.from(ids)
+      // Code-unit order is locale-independent, so aliases do not drift with
+      // runner ICU/default-locale configuration.
+      .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
+      .map((id, index) => [id, `id-${String(index + 1).padStart(6, "0")}`])
+  );
+}
+
 /** CSV fact tables, one file per table (DuckDB `COPY ... FROM` targets). */
 export function corpusFactsToCsvTables(corpus: CorpusFacts[]): Record<string, string> {
+  const publicCorpus = redactCorpusFactsForExport(corpus);
   return {
     "page.csv": toCsv(
       ["page_id", "url", "etld1"],
-      corpus.map((facts) => [facts.page.pageId, facts.page.url, facts.page.etld1 ?? ""])
+      publicCorpus.map((facts) => [facts.page.pageId, facts.page.url, facts.page.etld1 ?? ""])
     ),
     "node.csv": toCsv(
       ["node_id", "page_id", "node_type", "url", "domain", "etld1", "third_party"],
-      corpus.flatMap((facts) =>
+      publicCorpus.flatMap((facts) =>
         facts.nodes.map((node) => [
           node.nodeId,
           node.pageId,
@@ -498,7 +748,7 @@ export function corpusFactsToCsvTables(corpus: CorpusFacts[]): Record<string, st
     ),
     "edge.csv": toCsv(
       ["edge_id", "page_id", "source_node_id", "target_node_id", "edge_type", "request_id", "timestamp_ms"],
-      corpus.flatMap((facts) =>
+      publicCorpus.flatMap((facts) =>
         facts.edges.map((edge) => [
           edge.edgeId,
           edge.pageId,
@@ -523,7 +773,7 @@ export function corpusFactsToCsvTables(corpus: CorpusFacts[]): Record<string, st
         "third_party",
         "initiator_node_id"
       ],
-      corpus.flatMap((facts) =>
+      publicCorpus.flatMap((facts) =>
         facts.requests.map((request) => [
           request.pageId,
           request.nodeId,
@@ -540,7 +790,7 @@ export function corpusFactsToCsvTables(corpus: CorpusFacts[]): Record<string, st
     ),
     "provenance_edge.csv": toCsv(
       ["page_id", "child_node_id", "parent_node_id", "relation"],
-      corpus.flatMap((facts) =>
+      publicCorpus.flatMap((facts) =>
         facts.provenanceEdges.map((edge) => [edge.pageId, edge.childNodeId, edge.parentNodeId, edge.relation])
       )
     ),
@@ -556,7 +806,7 @@ export function corpusFactsToCsvTables(corpus: CorpusFacts[]): Record<string, st
         "value_bytes",
         "third_party"
       ],
-      corpus.flatMap((facts) =>
+      publicCorpus.flatMap((facts) =>
         facts.storageOps.map((op) => [
           op.pageId,
           op.opId,
@@ -572,7 +822,7 @@ export function corpusFactsToCsvTables(corpus: CorpusFacts[]): Record<string, st
     ),
     "js_call.csv": toCsv(
       ["page_id", "call_id", "script_node_id", "api", "timestamp_ms"],
-      corpus.flatMap((facts) =>
+      publicCorpus.flatMap((facts) =>
         facts.jsCalls.map((call) => [call.pageId, call.callId, call.scriptNodeId ?? "", call.api, call.timestampMs ?? ""])
       )
     )

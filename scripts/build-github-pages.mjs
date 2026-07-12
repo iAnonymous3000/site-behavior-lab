@@ -133,6 +133,19 @@ async function main() {
     }
   });
 
+  // Publication is fail-closed: every committed report must already be the
+  // current sanitizer fixed point and have a matching provenance sidecar.
+  // The remediation command owns the check; this build never invents a
+  // fallback when the command or a sidecar is missing.
+  await runCommand(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "reports:remediate", "--", "--check"], {
+    cwd: workDir,
+    env: {
+      ...process.env,
+      NEXT_TELEMETRY_DISABLED: "1",
+      SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY: "1"
+    }
+  });
+
   await runCommand(process.execPath, ["scripts/build-static-report-manifest.mjs"], {
     cwd: workDir,
     env: {

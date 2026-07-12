@@ -3,13 +3,18 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import {
+  buildPageGraphExportManifest,
   buildCorpusFacts,
   corpusFactsToCsvTables,
   CROSS_SITE_STORAGE_SQL,
   DUCKDB_BOOTSTRAP_SQL,
+  redactCorpusFactsForExport,
+  redactRuleImpactReportForExport,
   RULE_IMPACT_SQL,
   simulateRuleImpact
 } from "./pagegraph-corpus";
+import { REDACTION_ALLOWLISTS_VERSION, REDACTION_VERSION } from "./redaction-v2";
+import { sha256Hex } from "./sha256";
 
 // Tests execute from the compiled .unit-test-dist tree; fixtures stay in lib/.
 const FIXTURE = readFileSync(
@@ -123,7 +128,12 @@ test("CSV tables and SQL stay value-blind and DuckDB-loadable", () => {
     "page_id,op_id,script_node_id,script_url,script_etld1,storage_type,key,value_bytes,third_party"
   );
   // The stored value ("true") appears only as a byte count, never verbatim as a value column.
-  assert.match(storageRow, /seen-banner,4,true$/);
+  assert.match(storageRow, /\[redacted\],4,true$/);
+  assert.match(tables["page.csv"], /^page_id,url,etld1\r\npage-000001,/);
+  const exported = Object.values(tables).join("\n");
+  assert.equal(exported.includes("cache=123"), false);
+  assert.equal(exported.includes("cid=abc"), false);
+  assert.equal(exported.includes("a%40b.test"), false);
 
   for (const table of Object.keys(tables)) {
     assert.match(DUCKDB_BOOTSTRAP_SQL, new RegExp(`COPY \\w+ FROM '${table}'`));
@@ -131,6 +141,59 @@ test("CSV tables and SQL stay value-blind and DuckDB-loadable", () => {
   assert.match(DUCKDB_BOOTSTRAP_SQL, /CREATE OR REPLACE VIEW closure_edge/);
   assert.match(RULE_IMPACT_SQL, /WITH RECURSIVE removed/);
   assert.match(CROSS_SITE_STORAGE_SQL, /GROUP BY 1, 2, 3/);
+});
+
+test("rule matching sees raw PageGraph URLs before the impact JSON is sanitized", () => {
+  const facts = fixtureFacts("https://tags.example.net/private/anna?patient=secret");
+  let matchedRaw = false;
+  const raw = simulateRuleImpact([facts], (request) => {
+    if (request.url.includes("cid=abc&email=a%40b.test")) matchedRaw = true;
+    return request.url.includes("cid=abc");
+  });
+  assert.equal(matchedRaw, true);
+
+  const projected = redactRuleImpactReportForExport(raw, [facts]);
+  const json = JSON.stringify(projected);
+  assert.equal(JSON.stringify(raw).includes("cid=abc"), true);
+  assert.equal(json.includes("cid=abc"), false);
+  assert.equal(json.includes("a%40b.test"), false);
+  assert.equal(json.includes("patient=secret"), false);
+  assert.equal(projected.pages[0].pageId, "page-000001");
+  assert.equal(projected.pages[0].url, "https://tags.example.net/{seg}/{seg}");
+  assert.equal(projected.pages[0].directlyBlocked[0].url, "https://tracker.example/{seg}?cid=&%5Bredacted%5D=");
+});
+
+test("the export manifest pins redaction versions and exact file bytes", () => {
+  const files = { "page.csv": "a,b\r\n1,2\r\n", "impact-report.json": "{}\n" };
+  const manifest = buildPageGraphExportManifest({
+    files,
+    generatedAt: "2026-07-12T12:00:00.000Z",
+    pages: 1
+  });
+
+  assert.equal(manifest.redactionVersion, REDACTION_VERSION);
+  assert.equal(manifest.redactionAllowlistsVersion, REDACTION_ALLOWLISTS_VERSION);
+  assert.deepEqual(manifest.files.map((entry) => entry.name), ["impact-report.json", "page.csv"]);
+  assert.equal(manifest.files.find((entry) => entry.name === "page.csv")?.sha256, sha256Hex(files["page.csv"]));
+});
+
+test("every producer id is deterministically aliased, including marker-shaped input", () => {
+  const facts = fixtureFacts();
+  facts.nodes.push({
+    ...facts.nodes[0],
+    nodeId: "{invalid-id}",
+    url: null,
+    domain: null,
+    etld1: null,
+    thirdParty: null
+  });
+
+  const first = redactCorpusFactsForExport([facts]);
+  const second = redactCorpusFactsForExport([structuredClone(facts)]);
+  assert.deepEqual(first, second);
+  const aliased = first[0].nodes.at(-1)?.nodeId;
+  assert.match(aliased ?? "", /^id-[0-9]{6}$/);
+  assert.notEqual(aliased, "{invalid-id}");
 });
 
 test("ingests the current capture schema: start-edge resource types, request-error completions, id-keyed rows", () => {

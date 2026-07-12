@@ -3,10 +3,12 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import { getDomain } from "tldts";
 import {
+  buildPageGraphExportManifest,
   buildCorpusFacts,
   corpusFactsToCsvTables,
   CROSS_SITE_STORAGE_SQL,
   DUCKDB_BOOTSTRAP_SQL,
+  redactRuleImpactReportForExport,
   RULE_IMPACT_SQL,
   simulateRuleImpact,
   type CorpusFacts,
@@ -73,9 +75,17 @@ export function main(argv = process.argv.slice(2)): number {
   }
 
   const corpus: CorpusFacts[] = [];
-  for (const file of options.files) {
-    const graphml = readFileSync(file, "utf8");
-    const pageId = path.basename(file).replace(/\.graphml$/i, "");
+  for (const [index, file] of options.files.entries()) {
+    let graphml: string;
+    try {
+      graphml = readFileSync(file, "utf8");
+    } catch {
+      console.error(`Could not read PageGraph input ${index + 1}.`);
+      return 1;
+    }
+    // Source filenames can contain customer/site names. The exported join key
+    // is deterministic by input order and reveals nothing about local paths.
+    const pageId = `page-${String(index + 1).padStart(6, "0")}`;
     const facts = buildCorpusFacts(graphml, {
       pageId,
       registrableDomain: (host) => getDomain(host)
@@ -87,38 +97,50 @@ export function main(argv = process.argv.slice(2)): number {
   }
 
   mkdirSync(options.out, { recursive: true });
-  const tables = corpusFactsToCsvTables(corpus);
-  for (const [name, csv] of Object.entries(tables)) {
-    writeFileSync(path.join(options.out, name), csv);
-  }
-  writeFileSync(path.join(options.out, "bootstrap.sql"), DUCKDB_BOOTSTRAP_SQL);
-  writeFileSync(path.join(options.out, "query-rule-impact.sql"), RULE_IMPACT_SQL);
-  writeFileSync(path.join(options.out, "query-cross-site-storage.sql"), CROSS_SITE_STORAGE_SQL);
+  const exportFiles: Record<string, string> = {
+    ...corpusFactsToCsvTables(corpus),
+    "bootstrap.sql": DUCKDB_BOOTSTRAP_SQL,
+    "query-rule-impact.sql": RULE_IMPACT_SQL,
+    "query-cross-site-storage.sql": CROSS_SITE_STORAGE_SQL
+  };
 
   // directly_blocked.csv always exists so bootstrap.sql loads unconditionally;
   // without --rule it is just the header (an empty seed set).
   let blockedCsv = "page_id,node_id\r\n";
   if (options.rule) {
     const matches = loadAdblockMatcher(options.rule);
-    const report = simulateRuleImpact(corpus, (request, page) => matches(request, page.url));
+    // Match against raw PageGraph URLs first; sanitize only the terminal
+    // report. Redacting before the engine would change filter semantics.
+    const rawReport = simulateRuleImpact(corpus, (request, page) => matches(request, page.url));
+    const report = redactRuleImpactReportForExport(rawReport, corpus);
     for (const page of report.pages) {
       for (const blocked of page.directlyBlocked) {
         blockedCsv += `${page.pageId},${blocked.nodeId}\r\n`;
       }
     }
-    writeFileSync(path.join(options.out, "impact-report.json"), `${JSON.stringify(report, null, 2)}\n`);
+    exportFiles["impact-report.json"] = `${JSON.stringify(report, null, 2)}\n`;
     const { summary } = report;
     console.log(
-      `Rule impact of ${JSON.stringify(options.rule)}: ${summary.pagesAffected}/${summary.pagesAnalyzed} pages affected, ` +
+      `Rule impact: ${summary.pagesAffected}/${summary.pagesAnalyzed} pages affected, ` +
         `${summary.directlyBlocked} directly blocked, ${summary.downstreamRequests} downstream requests reachable from the blocked set (upper bound), ` +
         `${summary.removedStorageOps} storage writes and ${summary.removedJsCalls} JS calls in that reachable set, ` +
         `${summary.breakageRiskPages} pages with first-party breakage risk.`
     );
   }
-  writeFileSync(path.join(options.out, "directly_blocked.csv"), blockedCsv);
+  exportFiles["directly_blocked.csv"] = blockedCsv;
+
+  for (const [name, contents] of Object.entries(exportFiles)) {
+    writeFileSync(path.join(options.out, name), contents);
+  }
+  const manifest = buildPageGraphExportManifest({
+    files: exportFiles,
+    generatedAt: new Date().toISOString(),
+    pages: corpus.length
+  });
+  writeFileSync(path.join(options.out, "export-manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 
   console.log(
-    `Wrote ${corpus.length} page${corpus.length === 1 ? "" : "s"} of corpus fact tables to ${options.out} ` +
+    `Wrote ${corpus.length} page${corpus.length === 1 ? "" : "s"} of sanitized corpus fact tables ` +
       "(load with: duckdb corpus.duckdb < bootstrap.sql)."
   );
   return 0;

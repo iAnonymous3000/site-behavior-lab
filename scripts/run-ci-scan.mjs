@@ -57,7 +57,7 @@ try {
   // trackers). Refuse to commit those; the caller logs it as a skipped site.
   const blockReason = botBlockReason(savedReport);
   if (blockReason) {
-    console.error(`Skipping ${targetUrl}: ${blockReason}.`);
+    console.error(`Skipping scan target: ${blockReason}.`);
     process.exit(1);
   }
 
@@ -87,9 +87,21 @@ try {
     // screenshot); never leave it behind in the temp directory.
     await rm(stagingDir, { recursive: true, force: true });
   }
-  await writeGithubOutput({ report_id: id, report_path: `public/reports/${id}.json` });
+  // Fail closed before this report can become an artifact or commit. The
+  // exact remediation check verifies the full managed corpus, including the
+  // publisher's report/sidecar pair and its digest.
+  execFileSync(
+    process.platform === "win32" ? "npm.cmd" : "npm",
+    ["run", "reports:remediate", "--", "--check"],
+    { cwd: rootDir, stdio: "inherit", env: { ...process.env, SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY: "1" } }
+  );
+  await writeGithubOutput({
+    report_id: id,
+    report_path: `public/reports/${id}.json`,
+    sidecar_path: `public/reports/${id}.provenance.json`
+  });
 
-  console.log(`Wrote static report ${id} for ${targetUrl}.`);
+  console.log(`Wrote validated static report and sidecar ${id}.`);
 } catch (error) {
   console.error(error instanceof Error ? error.message : error);
   process.exit(1);
@@ -175,7 +187,7 @@ function botBlockReason(report) {
   const title = String(summary.pageTitle || "").trim();
   const totalRequests = Number(summary.totalRequests) || 0;
   if (title && BLOCK_TITLE_PATTERN.test(title)) {
-    return `landing page title "${title}" matches a bot-block/challenge page`;
+    return "landing page title matches a bot-block/challenge page";
   }
   if (totalRequests <= 1) {
     return `only ${totalRequests} network request(s) observed, navigation likely failed or was blocked`;

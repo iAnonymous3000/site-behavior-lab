@@ -30,7 +30,7 @@ import {
 import { makeGpcInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { evaluateComparability, evaluateQuality } from "./scan-report-v2-evaluators";
 import { createComparisonReport, createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport, createTemporalComparisonReport } from "./compare-reports";
-import type { ScanResult } from "./types";
+import type { ScanReport, ScanResult } from "./types";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { makeScanRunV2 } from "./scan-report-v2-fixtures";
 import { sha256Hex } from "./sha256";
@@ -1060,7 +1060,15 @@ test("the export/persistence boundary never serializes an ephemeral shell", () =
   const v1 = readScanTransportPayload(makeScanReportV1());
   assert.equal(v1.kind, "report");
   if (v1.kind === "report") {
-    assert.deepEqual(publicWireForExportOrPersistence(v1.loaded), makeScanReportV1());
+    const wire = publicWireForExportOrPersistence(v1.loaded) as ScanReport;
+    assert.equal(readStoredScanReport(wire).ok, true);
+    assert.equal(wire.reportType, "single");
+    if (wire.reportType === "single") {
+      // The fixture deliberately has one declared request but an empty request
+      // log. The export boundary derives the public summary from the retained
+      // evidence instead of preserving the stale count.
+      assert.equal(wire.summary.totalRequests, 0);
+    }
   }
 });
 
@@ -1225,17 +1233,31 @@ test("the v1 projector strips single and comparison screenshots", () => {
   }
 });
 
-test("legitimate v1 reports project without loss (screenshot aside)", () => {
+test("legitimate v1 reports project to valid, evidence-derived public reports", () => {
   const single = readScanTransportPayload(makeScanReportV1());
   assert.equal(single.kind, "report");
   if (single.kind === "report") {
-    assert.deepEqual(publicWireForExportOrPersistence(single.loaded), makeScanReportV1());
+    const projected = publicWireForExportOrPersistence(single.loaded) as ScanReport;
+    assert.equal(readStoredScanReport(projected).ok, true);
+    assert.equal(projected.reportType, "single");
+    if (projected.reportType === "single") {
+      assert.equal(projected.summary.totalRequests, projected.requests.length);
+      assert.equal(projected.screenshot, null);
+    }
   }
 
   const comparison = readScanTransportPayload(makeScanReportV1Comparison());
   assert.equal(comparison.kind, "report");
   if (comparison.kind === "report") {
-    assert.deepEqual(publicWireForExportOrPersistence(comparison.loaded), makeScanReportV1Comparison());
+    const projected = publicWireForExportOrPersistence(comparison.loaded) as ScanReport;
+    assert.equal(readStoredScanReport(projected).ok, true);
+    assert.equal(projected.reportType, "comparison");
+    if (projected.reportType === "comparison") {
+      assert.equal(projected.baseline.summary.totalRequests, projected.baseline.requests.length);
+      assert.equal(projected.variant.summary.totalRequests, projected.variant.requests.length);
+      assert.equal(projected.baseline.screenshot, null);
+      assert.equal(projected.variant.screenshot, null);
+    }
   }
 });
 
@@ -1329,15 +1351,28 @@ function makeMaximalScanReportV1(): AnyRecord {
   return report;
 }
 
-test("maximal v1 single and comparison fixtures pass the guard and project losslessly", () => {
+test("maximal v1 single and comparison fixtures retain every public evidence family after sanitization", () => {
   const maximal = makeMaximalScanReportV1();
   const single = readScanTransportPayload(maximal);
   assert.equal(single.kind, "report");
   if (single.kind === "report") {
     const projected = publicWireForExportOrPersistence(single.loaded) as AnyRecord;
-    const expected = structuredClone(maximal);
-    expected.screenshot = null;
-    assert.deepEqual(projected, expected);
+    assert.equal(readStoredScanReport(projected).ok, true);
+    assert.equal(projected.screenshot, null);
+    assert.equal(projected.conditions.adblock.engine, maximal.conditions.adblock.engine);
+    assert.equal(projected.fingerprintDetections.length, maximal.fingerprintDetections.length);
+    assert.equal(projected.cnameCloaks.length, maximal.cnameCloaks.length);
+    assert.equal(projected.pixelEvents.length, maximal.pixelEvents.length);
+    assert.equal(projected.privacyPolicy.claims.length, maximal.privacyPolicy.claims.length);
+    assert.equal(projected.consentInteraction.selector, "[redacted]");
+    assert.equal(projected.summary.totalRequests, projected.requests.length);
+    assert.equal(projected.share, undefined); // the fixture's foreign pair is not a valid capability
+
+    const reread = readScanTransportPayload(projected);
+    assert.equal(reread.kind, "report");
+    if (reread.kind === "report") {
+      assert.deepEqual(publicWireForExportOrPersistence(reread.loaded), projected);
+    }
   }
 
   const comparison = makeScanReportV1Comparison();
@@ -1358,10 +1393,20 @@ test("maximal v1 single and comparison fixtures pass the guard and project lossl
   assert.equal(comparisonResult.kind, "report");
   if (comparisonResult.kind === "report") {
     const projected = publicWireForExportOrPersistence(comparisonResult.loaded) as AnyRecord;
-    const expected = structuredClone(comparison);
-    expected.baseline.screenshot = null;
-    expected.variant.screenshot = null;
-    assert.deepEqual(projected, expected);
+    assert.equal(readStoredScanReport(projected).ok, true);
+    assert.equal(projected.baseline.screenshot, null);
+    assert.equal(projected.variant.screenshot, null);
+    assert.equal(projected.baseline.fingerprintDetections.length, comparison.baseline.fingerprintDetections.length);
+    assert.equal(projected.baseline.cnameCloaks.length, comparison.baseline.cnameCloaks.length);
+    assert.equal(projected.baseline.pixelEvents.length, comparison.baseline.pixelEvents.length);
+    assert.equal(projected.baseline.privacyPolicy.claims.length, comparison.baseline.privacyPolicy.claims.length);
+    assert.equal(projected.baseline.summary.totalRequests, projected.baseline.requests.length);
+
+    const reread = readScanTransportPayload(projected);
+    assert.equal(reread.kind, "report");
+    if (reread.kind === "report") {
+      assert.deepEqual(publicWireForExportOrPersistence(reread.loaded), projected);
+    }
   }
 });
 

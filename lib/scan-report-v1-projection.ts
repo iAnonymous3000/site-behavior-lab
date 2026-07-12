@@ -28,6 +28,7 @@ import type {
   TrackerMatch,
   CnameCloak
 } from "./types";
+import { redactScanReportV1 } from "./redact-scan-report-v1";
 
 function copyTracker(tracker: TrackerMatch | null): TrackerMatch | null {
   if (tracker === null) return null;
@@ -458,5 +459,11 @@ function copyComparison(report: ComparisonScanResult): ComparisonScanResult {
  * are dropped by construction and screenshots never survive.
  */
 export function toPublicScanReportV1(report: ScanReport): ScanReport {
-  return report.reportType === "comparison" ? copyComparison(report) : copyResult(report);
+  // Projection and minimization are deliberately separate defenses: first
+  // copy only frozen-v1 fields (so tolerant imports cannot smuggle unknown
+  // properties), then apply the same idempotent public sanitizer used by
+  // producers and managed storage. The sanitizer also rederives comparison
+  // diffs from the sanitized arms, so no stale raw key can survive under diff.
+  const projected = report.reportType === "comparison" ? copyComparison(report) : copyResult(report);
+  return redactScanReportV1(projected).report;
 }

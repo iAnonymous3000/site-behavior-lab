@@ -69,7 +69,7 @@ async function main() {
   const failures = [];
 
   for (const [index, site] of sites.entries()) {
-    console.log(`\n[${index + 1}/${sites.length}] ${site.label}, ${site.url}`);
+    console.log(`\n[${index + 1}/${sites.length}] ${site.domain}`);
     try {
       await runOneScan(site, { compareGpc, compareShields, compareConsent, device });
       succeeded += 1;
@@ -83,6 +83,11 @@ async function main() {
       await delay(delayMs);
     }
   }
+
+  console.log("\nVerifying report redaction and provenance...");
+  await run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "reports:remediate", "--", "--check"], {
+    SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY: "1"
+  });
 
   console.log("\nRebuilding static report manifest...");
   await run(process.execPath, [manifestScript], {});
@@ -122,7 +127,7 @@ async function readConfig() {
   try {
     raw = await readFile(configPath, "utf8");
   } catch (error) {
-    throw new Error(`Could not read ${configPath}: ${error instanceof Error ? error.message : error}`);
+    throw new Error(`Could not read the configured featured-sites catalog: ${error instanceof Error ? error.message : error}`);
   }
 
   const parsed = JSON.parse(raw);

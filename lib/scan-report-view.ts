@@ -9,9 +9,9 @@
  * the transport reader, which pulls in the full validator set and is therefore
  * only ever loaded lazily in the browser (lib/client-report-reader.ts).
  *
- * JSON download rule: serialize LoadedReport.wire (the original public wire
- * report), never a view. For an ephemeral result the downloadable/persistable
- * form is LoadedReport.public (the projection), never the ephemeral shell.
+ * JSON download rule: serialize publicWireForExportOrPersistence(), never a
+ * view or the original imported object. V1 is deep-projected and sanitized at
+ * that boundary; ephemeral v2 uses its public projection.
  */
 import { isRecord } from "./guards";
 import type { ScanReport } from "./types";
@@ -41,9 +41,9 @@ export * from "./scan-report-views";
 // ---------------------------------------------------------------------------
 
 /**
- * A readable report with its original wire form retained. `wire` is what JSON
- * download serializes; for ephemeral results, `public` is the only persistable
- * form (the ephemeral shell never validates as public).
+ * A readable report with its original wire form retained for display and
+ * diagnostics. Serialization always goes through the boundary below; for
+ * ephemeral results, `public` is the only persistable form.
  */
 export type LoadedReport =
   | { source: "v1"; wire: ScanReport; view: ReportView }
