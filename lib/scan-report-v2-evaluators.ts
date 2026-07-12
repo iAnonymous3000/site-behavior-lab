@@ -124,13 +124,19 @@ export function evaluateQuality(facts: QualityFacts, context: QualityContext): Q
 // Metric dependency registry "1" (RFC 3.3)
 // ---------------------------------------------------------------------------
 
-/** Evidence families each metric family reads; censoring there censors the metric. */
-const METRIC_EVIDENCE: Record<MetricFamily, EvidenceFamily[]> = {
+/**
+ * Evidence families each metric family reads; censoring any source censors
+ * the metric. Detector findings are one public comparison family spanning
+ * request-derived CNAME/pixel findings, fingerprint-observer findings, and
+ * detector-produced summaries, so its gate must conservatively cover all
+ * three inputs rather than only the final detector output.
+ */
+export const METRIC_EVIDENCE_SOURCES: Readonly<Record<MetricFamily, readonly EvidenceFamily[]>> = {
   "raw-counts": ["requests", "cookies", "storage"],
   "tracker-classification": ["requests"],
   "shields-simulation": ["requests"],
   "consent-verification": ["consent-verification"],
-  "detector-findings": ["detector-output"]
+  "detector-findings": ["requests", "fingerprinting", "detector-output"]
 };
 
 /**
@@ -309,7 +315,7 @@ export function evaluateComparability(
     METRIC_FAMILIES.map((family) => {
       const reasons: ComparabilityReason[] = [...pairReasons];
       reasons.push(...metricDependencyReasons(family, baseline, variant));
-      for (const evidenceFamily of METRIC_EVIDENCE[family]) {
+      for (const evidenceFamily of METRIC_EVIDENCE_SOURCES[family]) {
         if (baseline.quality.byFamily[evidenceFamily].outcome !== "complete") reasons.push("family-censored:baseline");
         if (variant.quality.byFamily[evidenceFamily].outcome !== "complete") reasons.push("family-censored:variant");
       }
