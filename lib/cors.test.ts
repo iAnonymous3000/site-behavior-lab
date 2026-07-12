@@ -39,7 +39,7 @@ test("scanCorsHeaders omits Access-Control-Allow-Origin for denied origins", () 
 test("scanCorsHeaders permits the scan auth/turnstile headers and preflight methods", () => {
   const headers = scanCorsHeaders("https://acme.github.io", "*");
   assert.equal(headers["Access-Control-Allow-Origin"], "*");
-  assert.equal(headers["Access-Control-Allow-Methods"], "GET, POST, OPTIONS");
+  assert.equal(headers["Access-Control-Allow-Methods"], "GET, POST, DELETE, OPTIONS");
   // The static UI sends the access token as `Authorization: Bearer` and JSON, both
   // of which trigger a preflight; the Turnstile and legacy token headers must pass too.
   assert.match(headers["Access-Control-Allow-Headers"], /\bauthorization\b/);

@@ -45,7 +45,7 @@ export function scanCorsHeaders(
 ): Record<string, string> {
   const allowOrigin = resolveAllowedOrigin(requestOrigin, configuredOrigin);
   const headers: Record<string, string> = {
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": CORS_ALLOWED_REQUEST_HEADERS.join(", "),
     "Access-Control-Max-Age": "86400",
     Vary: "Origin"

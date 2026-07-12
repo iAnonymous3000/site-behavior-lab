@@ -107,6 +107,11 @@ type ScanFormState = {
   accessKey: string;
 };
 
+type ActiveScanJob = {
+  statusPath: string;
+  accessKey: string;
+};
+
 const initialForm: ScanFormState = {
   url: "",
   device: "desktop",
@@ -194,6 +199,10 @@ export function SiteBehaviorApp({
   // saved report (a quick fetch). `initialLoading` only ever comes from the saved
   // report permalink, so loading without scanning means "opening a saved report".
   const [scanning, setScanning] = useState(false);
+  const [activeScanJob, setActiveScanJob] = useState<ActiveScanJob | null>(null);
+  const [cancellingScan, setCancellingScan] = useState(false);
+  const [cancelScanError, setCancelScanError] = useState<string | null>(null);
+  const scanPollControllerRef = useRef<AbortController | null>(null);
   const [staticReports, setStaticReports] = useState<StaticReportManifestEntry[] | null>(STATIC_EXPORT ? null : []);
   const [staticReportsError, setStaticReportsError] = useState<string | null>(null);
   const [scannerHealth, setScannerHealth] = useState<ScannerHealth | null>(null);
@@ -226,6 +235,8 @@ export function SiteBehaviorApp({
   useEffect(() => {
     setError(initialError);
   }, [initialError]);
+
+  useEffect(() => () => scanPollControllerRef.current?.abort(), []);
 
   useEffect(() => {
     setLoading(initialLoading);
@@ -359,6 +370,7 @@ export function SiteBehaviorApp({
     setScanning(true);
     setError(null);
     setLoaded(null);
+    setCancelScanError(null);
 
     try {
       const headers: Record<string, string> = { "Content-Type": "application/json" };
@@ -384,7 +396,11 @@ export function SiteBehaviorApp({
       const payload = (await response.json()) as ScanApiResponse;
       if (!payload.ok) throw new Error(payload.error);
       if (isScanJobSubmissionResponse(payload)) {
-        setLoaded(await pollScanJob(payload.statusPath, scannerRequiresAccessKey ? accessKey : "", payload.reportId));
+        const jobAccessKey = scannerRequiresAccessKey ? accessKey : "";
+        const pollController = new AbortController();
+        scanPollControllerRef.current = pollController;
+        setActiveScanJob({ statusPath: payload.statusPath, accessKey: jobAccessKey });
+        setLoaded(await pollScanJob(payload.statusPath, jobAccessKey, payload.reportId, pollController.signal));
         return;
       }
       // A synchronous scan result is untrusted wire data like every other
@@ -393,8 +409,12 @@ export function SiteBehaviorApp({
       if (!read.ok) throw new Error(read.message);
       setLoaded(read.loaded);
     } catch (scanError) {
+      if (isAbortError(scanError)) return;
       setError(scanError instanceof Error ? friendlyError(scanError.message) : "Scan failed.");
     } finally {
+      scanPollControllerRef.current = null;
+      setActiveScanJob(null);
+      setCancellingScan(false);
       setLoading(false);
       setScanning(false);
       // Turnstile tokens are single-use, so force a fresh challenge for the next scan.
@@ -402,6 +422,39 @@ export function SiteBehaviorApp({
         setTurnstileToken("");
         setTurnstileResetNonce((nonce) => nonce + 1);
       }
+    }
+  }
+
+  async function cancelActiveScan() {
+    if (!activeScanJob || cancellingScan) return;
+    setCancellingScan(true);
+    setCancelScanError(null);
+
+    try {
+      const headers: Record<string, string> = {};
+      if (activeScanJob.accessKey) {
+        headers.Authorization = `Bearer ${activeScanJob.accessKey}`;
+      }
+      const response = await fetch(scannerApiUrl(activeScanJob.statusPath), {
+        method: "DELETE",
+        cache: "no-store",
+        headers
+      });
+      const payload = (await response.json()) as ScanJobApiResponse;
+      if (!payload.ok) throw new Error(payload.error);
+      if (payload.status !== "cancelled") throw new Error("The scan could not be cancelled.");
+
+      scanPollControllerRef.current?.abort();
+      setActiveScanJob(null);
+      setLoading(false);
+      setScanning(false);
+      setError(payload.error || "Scan cancelled.");
+    } catch (cancelError) {
+      setCancelScanError(
+        cancelError instanceof Error ? friendlyError(cancelError.message) : "The scan could not be cancelled."
+      );
+    } finally {
+      setCancellingScan(false);
     }
   }
 
@@ -819,6 +872,9 @@ export function SiteBehaviorApp({
                         ? "consent"
                         : "single"
               }
+              onCancel={activeScanJob ? () => void cancelActiveScan() : undefined}
+              cancelling={cancellingScan}
+              cancellationError={cancelScanError}
             />
           )}
           {loaded && reportView && primaryRun && displayedRun && (
@@ -1180,7 +1236,12 @@ function friendlyError(message: string): string {
   return message;
 }
 
-async function pollScanJob(statusPath: string, accessKey = "", reportId?: string): Promise<LoadedReport> {
+async function pollScanJob(
+  statusPath: string,
+  accessKey = "",
+  reportId?: string,
+  signal?: AbortSignal
+): Promise<LoadedReport> {
   // The saved report lives under its own ID (distinct from the job ID) so share
   // links can't derive the screenshot-bearing status URL. Older scanners saved
   // under the job ID itself and their submissions carry no reportId, so fall
@@ -1194,7 +1255,7 @@ async function pollScanJob(statusPath: string, accessKey = "", reportId?: string
       headers.Authorization = `Bearer ${accessKey}`;
     }
 
-    const response = await fetch(scannerApiUrl(statusPath), { cache: "no-store", headers });
+    const response = await fetch(scannerApiUrl(statusPath), { cache: "no-store", headers, signal });
     const payload = (await response.json()) as ScanJobApiResponse;
     if (!payload.ok) {
       if (response.status === 404 && savedReportId) {
@@ -1217,7 +1278,7 @@ async function pollScanJob(statusPath: string, accessKey = "", reportId?: string
       throw new Error(payload.error || "Scan job did not complete.");
     }
 
-    await sleep(SCAN_JOB_POLL_INTERVAL_MS);
+    await sleep(SCAN_JOB_POLL_INTERVAL_MS, signal);
   }
 
   if (savedReportId) {
@@ -1255,10 +1316,27 @@ function isScanJobSubmissionResponse(value: ScanApiResponse): value is ScanJobSu
   return value.ok === true && "jobId" in value && value.status === "queued" && typeof value.statusPath === "string";
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, ms);
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(signal.reason);
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      signal?.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
+    const onAbort = () => {
+      window.clearTimeout(timer);
+      signal?.removeEventListener("abort", onAbort);
+      reject(signal?.reason ?? new DOMException("The scan was cancelled.", "AbortError"));
+    };
+    signal?.addEventListener("abort", onAbort, { once: true });
   });
+}
+
+function isAbortError(error: unknown): boolean {
+  return error instanceof Error && error.name === "AbortError";
 }
 
 
@@ -1475,7 +1553,17 @@ const SCAN_CHECKS: { icon: typeof Eye; label: string; question: string }[] = [
   { icon: Keyboard, label: "Keystroke capture", question: "Is what you type into a form sent to a third party?" }
 ];
 
-function LoadingState({ mode }: { mode: "single" | "gpc" | "shields" | "consent" | "opening" }) {
+function LoadingState({
+  mode,
+  onCancel,
+  cancelling = false,
+  cancellationError = null
+}: {
+  mode: "single" | "gpc" | "shields" | "consent" | "opening";
+  onCancel?: () => void;
+  cancelling?: boolean;
+  cancellationError?: string | null;
+}) {
   const [elapsed, setElapsed] = useState(0);
   const isComparison = mode === "gpc" || mode === "shields" || mode === "consent";
   const isScanning = mode !== "opening";
@@ -1521,6 +1609,13 @@ function LoadingState({ mode }: { mode: "single" | "gpc" | "shields" | "consent"
       <p className="loading-elapsed">
         {elapsed}s elapsed{isComparison ? " · two visits, up to ~90s" : " · up to ~45s"}
       </p>
+      {onCancel && (
+        <button className="secondary-button" type="button" onClick={onCancel} disabled={cancelling}>
+          {cancelling ? <Loader2 className="spin" size={16} aria-hidden="true" /> : null}
+          {cancelling ? "Cancelling…" : "Cancel scan"}
+        </button>
+      )}
+      {cancellationError && <p role="alert">{cancellationError} The scan is still running.</p>}
       <ul className="scan-checks">
         {SCAN_CHECKS.map((check) => {
           const Icon = check.icon;

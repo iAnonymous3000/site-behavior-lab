@@ -9,6 +9,7 @@ import { readScanReport } from "./report-store";
 import {
   advanceScanJobClockForTests,
   asyncScanModeEnabled,
+  cancelScanJob,
   enqueuePreparedScanJob,
   getScanJobStatus,
   resetScanJobStateForTests,
@@ -134,6 +135,120 @@ test("enqueuePreparedScanJob reports sanitized job failures", async () => {
 
 test("getScanJobStatus ignores malformed job ids", () => {
   assert.equal(getScanJobStatus("../not-a-job"), null);
+});
+
+test("queued cancellation removes the job from admission and is idempotent", async () => {
+  const occupy: ScanRunner = (_payload, options) =>
+    new Promise((_resolve, reject) => {
+      options?.signal?.addEventListener("abort", () => reject(options.signal?.reason), { once: true });
+    });
+  enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "worker-a" }), { scan: occupy });
+  enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "worker-b" }), { scan: occupy });
+
+  let queuedScanStarted = false;
+  const queued = enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "queued" }), {
+    scan: async (payload) => {
+      queuedScanStarted = true;
+      return makeScanResult(payload);
+    }
+  });
+  assert.equal(scanJobStateForTests().queuedJobs, 1);
+
+  const first = cancelScanJob(queued.jobId);
+  const second = cancelScanJob(queued.jobId);
+  await waitForScanJobForTests(queued.jobId);
+
+  assert.deepEqual(second, first);
+  assert.equal(first?.status, "cancelled");
+  assert.equal(first?.error, "This scan job was cancelled.");
+  assert.equal("reportId" in (first ?? {}), false);
+  assert.equal("report" in (first ?? {}), false);
+  assert.equal(queuedScanStarted, false);
+  assert.equal(scanJobStateForTests().queuedJobs, 0);
+  assert.equal(getScanJobStatus(queued.jobId)?.status, "cancelled");
+});
+
+test("running cancellation aborts the scanner and never invokes publication", async () => {
+  const started = deferred<AbortSignal>();
+  let saveCalls = 0;
+  const scan: ScanRunner = (_payload, options) =>
+    new Promise((_resolve, reject) => {
+      assert.ok(options?.signal);
+      started.resolve(options.signal);
+      options.signal.addEventListener("abort", () => reject(options.signal?.reason), { once: true });
+    });
+  const submission = enqueuePreparedScanJob(makePreparedScanRequest(), {
+    scan,
+    saveReport: async (report) => {
+      saveCalls += 1;
+      return report;
+    }
+  });
+
+  const signal = await started.promise;
+  assert.equal(getScanJobStatus(submission.jobId)?.status, "running");
+  const cancelled = cancelScanJob(submission.jobId);
+  assert.equal(signal.aborted, true);
+  assert.equal(cancelled?.status, "cancelled");
+
+  await waitForScanJobForTests(submission.jobId);
+  assert.equal(saveCalls, 0);
+  assert.equal(getScanJobStatus(submission.jobId)?.status, "cancelled");
+  assert.equal(getScanJobStatus(submission.jobId)?.report, undefined);
+});
+
+test("a scanner that resolves after cancellation cannot win the terminal-state race or save", async () => {
+  const started = deferred<void>();
+  const finish = deferred<ScanResult>();
+  let saveCalls = 0;
+  const scan: ScanRunner = async () => {
+    started.resolve();
+    return finish.promise;
+  };
+  const submission = enqueuePreparedScanJob(makePreparedScanRequest(), {
+    scan,
+    saveReport: async (report) => {
+      saveCalls += 1;
+      return report;
+    }
+  });
+
+  await started.promise;
+  cancelScanJob(submission.jobId);
+  finish.resolve(makeScanResult({
+    url: "https://1.1.1.1/",
+    device: "desktop",
+    gpcEnabled: true,
+    consentMode: "observe"
+  }));
+  await waitForScanJobForTests(submission.jobId);
+
+  assert.equal(saveCalls, 0);
+  assert.equal(getScanJobStatus(submission.jobId)?.status, "cancelled");
+  assert.equal(getScanJobStatus(submission.jobId)?.error, "This scan job was cancelled.");
+});
+
+test("cancellation is rejected after the synchronous publication boundary", async () => {
+  const saving = deferred<void>();
+  const finishSaving = deferred<void>();
+  const scan: ScanRunner = async (payload) => makeScanResult(payload);
+  const submission = enqueuePreparedScanJob(makePreparedScanRequest(), {
+    scan,
+    saveReport: async (report) => {
+      saving.resolve();
+      await finishSaving.promise;
+      return report;
+    }
+  });
+
+  await saving.promise;
+  assert.throws(
+    () => cancelScanJob(submission.jobId),
+    (error) => error instanceof PublicScanError && error.status === 409 && /already being saved/i.test(error.message)
+  );
+  finishSaving.resolve();
+  await waitForScanJobForTests(submission.jobId);
+  assert.equal(getScanJobStatus(submission.jobId)?.status, "succeeded");
 });
 
 test("stale queued scan jobs return expired status", () => {
@@ -299,4 +414,12 @@ function makeScanResult(payload: ScanRequestPayload): ScanResult {
     screenshot: null,
     warnings: []
   };
+}
+
+function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
+  let resolve: (value: T) => void = () => undefined;
+  const promise = new Promise<T>((next) => {
+    resolve = next;
+  });
+  return { promise, resolve };
 }

@@ -16,6 +16,7 @@ const JOB_ID_PATTERN = /^[0-9]{8}-[0-9a-f]{32}$/;
 const JOB_MAX_AGE_MS = 60 * 60 * 1000;
 const JOB_EXPIRED_RETENTION_MS = 15 * 60 * 1000;
 const MAX_RETAINED_JOBS = 500;
+const JOB_CANCELLED_MESSAGE = "This scan job was cancelled.";
 
 type Deferred = {
   promise: Promise<void>;
@@ -38,6 +39,8 @@ type InternalScanJobRecord = {
   error?: string;
   scan?: ScanRunner;
   saveReport?: ReportSaver;
+  abortController: AbortController;
+  publicationStarted: boolean;
   done: Deferred;
 };
 
@@ -91,6 +94,8 @@ export function enqueuePreparedScanJob(
     progress: createProgress("queued", prepared, 0),
     scan: dependencies.scan,
     saveReport: dependencies.saveReport,
+    abortController: new AbortController(),
+    publicationStarted: false,
     done: createDeferred()
   };
 
@@ -137,6 +142,42 @@ export function getScanJobStatus(id: string): ScanJobStatusResponse | null {
   return response;
 }
 
+/**
+ * Cancel by submitter-held job capability. The response deliberately excludes
+ * both reportId and report data: DELETE is a control operation, not a second
+ * path to either public share identity or screenshot-bearing evidence.
+ */
+export function cancelScanJob(id: string): ScanJobStatusResponse | null {
+  pruneScanJobs();
+  if (!JOB_ID_PATTERN.test(id)) return null;
+
+  const record = jobs.get(id);
+  if (!record) return null;
+
+  if (record.status === "cancelled") {
+    return cancellationResponse(record);
+  }
+  if (record.status !== "queued" && record.status !== "running") {
+    throw new PublicScanError("This scan job has already finished and cannot be cancelled.", 409);
+  }
+  // Once the saver is invoked, claiming cancellation would be dishonest: an
+  // object-store write may already be externally visible and cannot be rolled
+  // back atomically. The synchronous beforeSave hook closes this boundary.
+  if (record.publicationStarted) {
+    throw new PublicScanError("This scan report is already being saved and can no longer be cancelled.", 409);
+  }
+
+  const wasQueued = record.status === "queued";
+  markCancelled(record);
+  removeQueuedJobId(record.id);
+  record.abortController.abort(new DOMException(JOB_CANCELLED_MESSAGE, "AbortError"));
+  if (wasQueued) {
+    // No worker owns a queued record, so cancellation itself completes it.
+    record.done.resolve();
+  }
+  return cancellationResponse(record);
+}
+
 export async function waitForScanJobForTests(id: string): Promise<void> {
   const record = jobs.get(id);
   if (!record) throw new Error(`Unknown scan job ${id}`);
@@ -144,6 +185,11 @@ export async function waitForScanJobForTests(id: string): Promise<void> {
 }
 
 export function resetScanJobStateForTests(): void {
+  for (const record of jobs.values()) {
+    if (!record.abortController.signal.aborted) {
+      record.abortController.abort(new DOMException(JOB_CANCELLED_MESSAGE, "AbortError"));
+    }
+  }
   jobs.clear();
   queuedJobIds.splice(0, queuedJobIds.length);
   activeJobWorkers = 0;
@@ -185,26 +231,37 @@ function kickScanJobWorkers(): void {
 }
 
 async function runScanJob(record: InternalScanJobRecord): Promise<void> {
-  markRunning(record);
+  if (!markRunning(record)) return;
 
   try {
     const saveReport: ReportSaver = record.saveReport ?? ((report) => saveScanReport(report, { shareId: record.reportId }));
-    const report = await executePreparedScan(record.prepared, record.scan, saveReport, QUEUE_TIMEOUT_MS, false);
+    const report = await executePreparedScan(record.prepared, record.scan, saveReport, QUEUE_TIMEOUT_MS, false, {
+      signal: record.abortController.signal,
+      beforeSave: () => markPublicationStarted(record)
+    });
+    if (record.status === "cancelled") return;
     markSucceeded(record, report);
   } catch (error) {
+    if (record.status === "cancelled" || record.abortController.signal.aborted) {
+      if (record.status !== "cancelled") markCancelled(record);
+      return;
+    }
     markFailed(record, toPublicError(error).message);
   }
 }
 
-function markRunning(record: InternalScanJobRecord): void {
+function markRunning(record: InternalScanJobRecord): boolean {
+  if (record.status !== "queued") return false;
   const now = new Date().toISOString();
   record.status = "running";
   record.startedAt = now;
   record.updatedAt = now;
   record.progress = createProgress("waiting", record.prepared, 0);
+  return true;
 }
 
 function markSucceeded(record: InternalScanJobRecord, report: ScanReport): void {
+  if (record.status !== "running") return;
   const now = new Date().toISOString();
   const totalRuns = totalRunsForPreparedRequest(record.prepared);
   record.status = "succeeded";
@@ -219,11 +276,42 @@ function markSucceeded(record: InternalScanJobRecord, report: ScanReport): void 
 }
 
 function markFailed(record: InternalScanJobRecord, error: string): void {
+  if (record.status !== "running") return;
   const now = new Date().toISOString();
   record.status = "failed";
   record.error = error;
   record.finishedAt = now;
   record.updatedAt = now;
+}
+
+function markCancelled(record: InternalScanJobRecord): void {
+  if (record.status === "cancelled") return;
+  const now = new Date().toISOString();
+  record.status = "cancelled";
+  record.error = JOB_CANCELLED_MESSAGE;
+  record.finishedAt = now;
+  record.updatedAt = now;
+}
+
+function markPublicationStarted(record: InternalScanJobRecord): void {
+  if (record.status !== "running" || record.abortController.signal.aborted) {
+    throw record.abortController.signal.reason instanceof Error
+      ? record.abortController.signal.reason
+      : new DOMException(JOB_CANCELLED_MESSAGE, "AbortError");
+  }
+  record.publicationStarted = true;
+  record.progress = createProgress("saving", record.prepared, totalRunsForPreparedRequest(record.prepared));
+  record.updatedAt = new Date().toISOString();
+}
+
+function cancellationResponse(record: InternalScanJobRecord): ScanJobStatusResponse {
+  return {
+    ok: true,
+    jobId: record.id,
+    status: "cancelled",
+    progress: record.progress,
+    error: record.error ?? JOB_CANCELLED_MESSAGE
+  };
 }
 
 function markExpired(record: InternalScanJobRecord): void {

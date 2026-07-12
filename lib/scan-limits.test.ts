@@ -144,6 +144,28 @@ test("acquireScanSlot rejects and removes timed-out waiters", async () => {
   releases.forEach((release) => release());
 });
 
+test("acquireScanSlot cooperatively removes an aborted waiter", async () => {
+  const releases: Array<() => void> = [];
+  for (let index = 0; index < MAX_CONCURRENT_SCANS; index += 1) {
+    releases.push(await acquireScanSlot());
+  }
+
+  const controller = new AbortController();
+  const queued = acquireScanSlot(1_000, controller.signal);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(scanLimitStateForTests().queuedScans, 1);
+
+  controller.abort();
+  await assert.rejects(
+    () => queued,
+    (error) => error instanceof Error && error.name === "AbortError"
+  );
+  assert.equal(scanLimitStateForTests().queuedScans, 0);
+
+  releases.forEach((release) => release());
+  assert.equal(scanLimitStateForTests().activeScans, 0);
+});
+
 test("acquireScanSlot rejects bursts beyond the bounded queue depth", async () => {
   const releases: Array<() => void> = [];
   for (let index = 0; index < MAX_CONCURRENT_SCANS; index += 1) {

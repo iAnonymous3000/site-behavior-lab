@@ -150,6 +150,8 @@ export const SCAN_CHROMIUM_LAUNCH_ARGS = ["--force-webrtc-ip-handling-policy=dis
 export type ScanSiteOptions = {
   publicUrlAlreadyVerified?: boolean;
   shieldsBlockingEnabled?: boolean;
+  /** Cooperatively stops the browser visit and closes its isolated context. */
+  signal?: AbortSignal;
   resolvePublicHost?: ResolvePublicHost;
   verifyPublicUrl?: (url: URL) => Promise<void>;
   /** Override CNAME-chain resolution (defaults to node:dns); injected in tests. */
@@ -157,6 +159,7 @@ export type ScanSiteOptions = {
 };
 
 export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOptions = {}): Promise<ScanResult> {
+  throwIfScanAborted(options.signal);
   const started = Date.now();
   const targetUrl = normalizeUrl(payload.url);
   const verifyPublicUrl = options.verifyPublicUrl ?? assertPublicHttpUrl;
@@ -174,8 +177,10 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
   ]);
 
   const browser = await getSharedBrowser();
+  throwIfScanAborted(options.signal);
   const chromiumVersion = browser.version();
   const adblockEngine = await getAdblockEngine();
+  throwIfScanAborted(options.signal);
   if (!adblockEngine) {
     warnings.add("Brave Shields classification was unavailable for this scan; tracker labels use the curated catalog only.");
   }
@@ -187,9 +192,18 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
   }
   let context: BrowserContext | null = null;
   const scanProxy = await startPublicScanProxy({ resolveHost: options.resolvePublicHost });
+  const closeOnAbort = () => {
+    // Abort handlers cannot await, but closing both resources immediately
+    // rejects in-flight Playwright work and tears down pending proxy connects.
+    void context?.close().catch(() => undefined);
+    void scanProxy.close().catch(() => undefined);
+  };
+  options.signal?.addEventListener("abort", closeOnAbort, { once: true });
 
   try {
+    throwIfScanAborted(options.signal);
     context = await browser.newContext(createContextOptions(payload, scanProxy.server));
+    throwIfScanAborted(options.signal);
     if (payload.gpcEnabled) {
       await context.addInitScript(() => {
         Object.defineProperty(navigator, "globalPrivacyControl", {
@@ -267,6 +281,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         timeout: scanTimeout(started, NAVIGATION_TIMEOUT_MS)
       })
       .catch((error: unknown) => {
+        throwIfScanAborted(options.signal);
         // Only an actual guard block ("non-public-address") may be described as
         // one: the proxy also records DNS failures, refused upstream connects,
         // and policy refusals, none of which prove a private-network target.
@@ -293,6 +308,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       });
 
     await withScanTimeout(page.waitForLoadState("networkidle", { timeout: scanTimeout(started, NETWORK_IDLE_TIMEOUT_MS) }), started).catch((error) => {
+      throwIfScanAborted(options.signal);
       if (isScanBudgetError(error)) throw error;
       warnings.add("The page did not reach network idle before the scan window ended.");
     });
@@ -318,6 +334,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         : await withScanTimeout(applyConsentChoice(page, payload.consentMode, started), started).catch(
             (): ConsentInteractionSummary => ({ mode: payload.consentMode as ConsentChoice, clicked: false })
           );
+    throwIfScanAborted(options.signal);
     if (consentInteraction) {
       warnings.add(consentInteractionWarning(consentInteraction));
     }
@@ -338,6 +355,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         .catch(() => null),
       started
     );
+    throwIfScanAborted(options.signal);
     // Warn only for actual private/local-address guard blocks. The proxy's
     // other recorded outcomes (DNS failures, refused upstream connects, policy
     // refusals) are ordinary load failures already visible in the request log
@@ -428,6 +446,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           verifyPublicUrl,
           warnings
         }).catch(() => null);
+    throwIfScanAborted(options.signal);
 
     const scannerEgress = scannerEgressDescription();
     const adblockMeta = adblockEngine ? adblockListMeta() : null;
@@ -456,6 +475,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         : undefined
     });
 
+    throwIfScanAborted(options.signal);
     return buildScanResult({
       pageTitle,
       status: responseStatus,
@@ -480,9 +500,15 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         : undefined
     });
   } finally {
+    options.signal?.removeEventListener("abort", closeOnAbort);
     await context?.close().catch(() => undefined);
     await scanProxy.close().catch(() => undefined);
   }
+}
+
+function throwIfScanAborted(signal?: AbortSignal): void {
+  if (!signal?.aborted) return;
+  throw signal.reason instanceof Error ? signal.reason : new DOMException("The scan was cancelled.", "AbortError");
 }
 
 export async function decideRoutedRequest({

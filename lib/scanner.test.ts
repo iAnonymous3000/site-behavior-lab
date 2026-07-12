@@ -27,6 +27,25 @@ test("scan browser launch args contain WebRTC egress containment", () => {
   );
 });
 
+test("scanSite rejects a pre-aborted visit before launching browser work", async () => {
+  const controller = new AbortController();
+  controller.abort();
+
+  await assert.rejects(
+    () =>
+      scanSite(
+        {
+          url: "https://example.com/",
+          device: "desktop",
+          gpcEnabled: true,
+          consentMode: "observe"
+        },
+        { signal: controller.signal }
+      ),
+    (error) => error instanceof Error && error.name === "AbortError"
+  );
+});
+
 type TestFrame = {
   parentFrame(): TestFrame | null;
   url(): string;

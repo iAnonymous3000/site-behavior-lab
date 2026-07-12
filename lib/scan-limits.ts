@@ -23,8 +23,10 @@ const TRUST_PROXY_HEADERS_ENV = "SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS";
 
 type Waiter = {
   resolve: (release: () => void) => void;
-  reject: (error: PublicScanError) => void;
+  reject: (error: unknown) => void;
   timer: ReturnType<typeof setTimeout>;
+  signal?: AbortSignal;
+  onAbort?: () => void;
 };
 
 const scanTimestampsByClient = new Map<string, number[]>();
@@ -98,7 +100,8 @@ function clientKeyFromHeaders(headers: Pick<Headers, "get">): string {
   return forwardedFor?.[0] || "local";
 }
 
-export async function acquireScanSlot(queueTimeoutMs = QUEUE_TIMEOUT_MS): Promise<() => void> {
+export async function acquireScanSlot(queueTimeoutMs = QUEUE_TIMEOUT_MS, signal?: AbortSignal): Promise<() => void> {
+  throwIfAborted(signal);
   if (activeScans < MAX_CONCURRENT_SCANS) {
     activeScans += 1;
     return makeRelease();
@@ -118,11 +121,26 @@ export async function acquireScanSlot(queueTimeoutMs = QUEUE_TIMEOUT_MS): Promis
       timer: setTimeout(() => {
         const index = queue.indexOf(waiter);
         if (index >= 0) queue.splice(index, 1);
+        signal?.removeEventListener("abort", waiter.onAbort!);
         reject(new PublicScanError("Scanner is busy. Try again shortly.", 503));
-      }, queueTimeoutMs)
+      }, queueTimeoutMs),
+      signal
+    };
+
+    waiter.onAbort = () => {
+      const index = queue.indexOf(waiter);
+      if (index < 0) return;
+      queue.splice(index, 1);
+      clearTimeout(waiter.timer);
+      signal?.removeEventListener("abort", waiter.onAbort!);
+      reject(abortReason(signal));
     };
 
     queue.push(waiter);
+    signal?.addEventListener("abort", waiter.onAbort, { once: true });
+    // Abort cannot normally interleave synchronous setup, but this also covers
+    // non-standard AbortSignal implementations cleanly.
+    if (signal?.aborted) waiter.onAbort();
   });
 }
 
@@ -130,6 +148,7 @@ function releaseScanSlot(): void {
   const next = queue.shift();
   if (next) {
     clearTimeout(next.timer);
+    next.signal?.removeEventListener("abort", next.onAbort!);
     next.resolve(makeRelease());
     return;
   }
@@ -223,10 +242,21 @@ function trustProxyHeaders(): boolean {
 export function resetScanLimitStateForTests(): void {
   scanTimestampsByClient.clear();
   reportReadTimestampsByClient.clear();
-  queue.splice(0, queue.length);
+  for (const waiter of queue.splice(0, queue.length)) {
+    clearTimeout(waiter.timer);
+    waiter.signal?.removeEventListener("abort", waiter.onAbort!);
+  }
   activeScans = 0;
   lastRateLimitSweepMs = 0;
   lastReportReadLimitSweepMs = 0;
+}
+
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) throw abortReason(signal);
+}
+
+function abortReason(signal?: AbortSignal): Error {
+  return signal?.reason instanceof Error ? signal.reason : new DOMException("The scan was cancelled.", "AbortError");
 }
 
 export function scanLimitStateForTests(): {
