@@ -16,18 +16,20 @@ impl AdblockEngine {
     #[wasm_bindgen(constructor)]
     pub fn new(rules: &str) -> AdblockEngine {
         let mut filter_set = FilterSet::new(false);
-        let lines: Vec<String> = rules.lines().map(|line| line.to_string()).collect();
-        filter_set.add_filters(&lines, ParseOptions::default());
+        filter_set.add_filter_list(rules.to_string(), ParseOptions::default());
         AdblockEngine {
-            inner: Engine::from_filter_set(filter_set, true),
+            inner: Engine::new_with_filter_set(filter_set),
         }
     }
 
     /// Returns true if a request to `url` of `request_type`, initiated by
     /// `source_url`, would be blocked by the loaded lists.
     pub fn check(&self, url: &str, source_url: &str, request_type: &str) -> bool {
-        match Request::new(url, source_url, request_type) {
-            Ok(request) => self.inner.check_network_request(&request).matched,
+        // The public wrapper historically had no method argument. Keep its
+        // GET semantics stable across the adblock 0.13 API migration; a future
+        // methodology revision can plumb the real request method explicitly.
+        match Request::new(url, source_url, request_type, "GET") {
+            Ok(request) => self.inner.check_network_request(&request).should_block(),
             Err(_) => false,
         }
     }

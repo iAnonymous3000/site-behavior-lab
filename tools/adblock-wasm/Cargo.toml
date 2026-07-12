@@ -10,7 +10,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-adblock = { version = "0.12", default-features = false, features = ["embedded-domain-resolver"] }
+adblock = { version = "0.13", default-features = false, features = ["embedded-domain-resolver"] }
 wasm-bindgen = "0.2"
 
 [profile.release]
